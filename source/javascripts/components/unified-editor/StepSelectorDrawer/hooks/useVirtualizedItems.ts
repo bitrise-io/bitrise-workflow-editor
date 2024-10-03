@@ -28,7 +28,7 @@ const useVirtualizedItems = ({
     const virtualItems: VirtualizedListItem[] = [];
     if (highlightedStepGroups && Object.keys(highlightedStepGroups).length > 0) {
       Object.entries(highlightedStepGroups).forEach(([category, stepIds]) => {
-        const groupSteps = steps.filter((step) => stepIds.has(step?.resolvedInfo?.id || ''));
+        const groupSteps = steps.filter((step) => stepIds.has(step?.id || ''));
         virtualItems.push(
           ...createVirtualItemsGroup({
             columns,

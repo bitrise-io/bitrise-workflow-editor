@@ -85,7 +85,7 @@ const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
 
       if (!isLoading) {
         result.forEach(({ data: step }) => {
-          const source = step?.resolvedInfo?.title || step?.resolvedInfo?.id || step?.cvs || '';
+          const source = step?.title || step?.id || step?.cvs || '';
           step?.defaultValues?.outputs?.forEach((ymlEnvVar) => {
             const env = EnvVarService.parseYmlEnvVar(ymlEnvVar, source);
             envVarMap.set(env.key, env);

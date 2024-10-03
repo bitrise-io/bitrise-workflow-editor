@@ -6,17 +6,19 @@ import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   RunWorkflowDialog,
+  StepBundleDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
+  WithGroupDrawer,
   WorkflowConfigDrawer,
   WorkflowConfigPanel,
   WorkflowEmptyState,
 } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
+import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 
 type Props = {
   yml: BitriseYml;
@@ -40,18 +42,22 @@ const WorkflowsPageContent = () => {
 
   const {
     enabledSteps,
-    isStepConfigDrawerOpen,
     isRunWorkflowDialogOpen,
+    isStepConfigDrawerOpen,
     isStepSelectorDrawerOpen,
+    isWithBlockDrawerOpen,
+    isStepBundleDrawerOpen,
     isChainWorkflowDrawerOpen,
     isCreateWorkflowDialogOpen,
     isDeleteWorkflowDialogOpen,
     isWorkflowConfigDrawerOpen,
   } = {
     enabledSteps: new Set(getUniqueStepIds()),
-    isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
     isRunWorkflowDialogOpen: isDialogOpen === 'run-workflow',
+    isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
     isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
+    isWithBlockDrawerOpen: isDialogOpen === 'with-group-drawer',
+    isStepBundleDrawerOpen: isDialogOpen === 'step-bundle-drawer',
     isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
     isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
@@ -109,6 +115,20 @@ const WorkflowsPageContent = () => {
         stepIndex={stepIndex}
         isOpen={isStepConfigDrawerOpen}
         onClose={closeDialog}
+      />
+
+      <WithGroupDrawer
+        isOpen={isWithBlockDrawerOpen}
+        onClose={closeDialog}
+        workflowId={workflowId}
+        stepIndex={stepIndex}
+      />
+
+      <StepBundleDrawer
+        isOpen={isStepBundleDrawerOpen}
+        onClose={closeDialog}
+        workflowId={workflowId}
+        stepIndex={stepIndex}
       />
 
       <StepSelectorDrawer

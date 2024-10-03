@@ -7,8 +7,10 @@ import WorkflowCard from './WorkflowCard/WorkflowCard';
 import WorkflowConfigDrawer from './WorkflowConfig/WorkflowConfigDrawer';
 import WorkflowConfigPanel from './WorkflowConfig/WorkflowConfigPanel';
 import ChainWorkflowDrawer from './ChainWorkflowDrawer/ChainWorkflowDrawer';
-import StepBundlePanel from './StepBundlePanel/StepBundlePanel';
-import WithBlockPanel from './WithBlockPanel/WithBlockPanel';
+import StepBundlePanel from './StepBundle/StepBundlePanel';
+import WithGroupPanel from './WithGroup/WithGroupPanel';
+import WithGroupDrawer from './WithGroup/WithGroupDrawer';
+import StepBundleDrawer from './StepBundle/StepBundleDrawer';
 
 export {
   CreateWorkflowDialog,
@@ -20,6 +22,8 @@ export {
   WorkflowConfigPanel,
   WorkflowEmptyState,
   ChainWorkflowDrawer,
-  WithBlockPanel,
+  WithGroupPanel,
+  WithGroupDrawer,
   StepBundlePanel,
+  StepBundleDrawer,
 };

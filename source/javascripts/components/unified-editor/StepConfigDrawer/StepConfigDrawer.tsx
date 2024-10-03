@@ -66,7 +66,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
     ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if }, inputs }) => {
       updateStep(workflowId, stepIndex, { title: name, is_always_run, is_skippable, run_if }, defaultValues || {});
 
-      const newInputs = Object.entries(inputs).map(([key, value]) => ({
+      const newInputs = Object.entries(inputs || {}).map(([key, value]) => ({
         [`${key}`]: value,
       }));
       updateStepInputs(workflowId, stepIndex, newInputs, defaultValues?.inputs || []);
@@ -129,7 +129,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
                 size="48"
-                src={resolvedInfo?.icon || defaultIcon}
+                src={data?.icon || defaultIcon}
                 name={formTitleValue}
                 variant="step"
                 borderWidth="1px"

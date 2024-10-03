@@ -10,7 +10,6 @@ import {
   Modifier,
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import noop from 'lodash/noop';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 
@@ -62,9 +61,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
       modifiers={[restrictToVerticalAxis, restrictToContainer]}
     >
       {children}
-      <DragOverlay>
-        {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
-      </DragOverlay>
+      <DragOverlay>{activeItem && <ChainedWorkflowCard {...activeItem} isDragging />}</DragOverlay>
     </DndContext>
   );
 };

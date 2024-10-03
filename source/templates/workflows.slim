@@ -81,7 +81,7 @@
               div[ng-if="workflowsCtrl.selectedStep.isStepBundle()"]
                 r-step-bundle-panel[bundle-name="workflowsCtrl.selectedStep.displayName()"]
               div[ng-if="workflowsCtrl.selectedStep.isWithBlock()"]
-                r-with-block-panel[group-name="workflowsCtrl.selectedStep.displayName()" image-name="workflowsCtrl.selectedStep.withBlockData.image" services="workflowsCtrl.selectedStep.withBlockData.services"]
+                r-with-group-panel[group-name="workflowsCtrl.selectedStep.displayName()" image-name="workflowsCtrl.selectedStep.withBlockData.image" services="workflowsCtrl.selectedStep.withBlockData.services"]
           section.workflow[ng-if='!workflowsCtrl.selectedStep && (workflowsCtrl.editedWorkflow && workflowsCtrl.yml)']
             r-workflow-config-panel[
               yml="workflowsCtrl.yml"

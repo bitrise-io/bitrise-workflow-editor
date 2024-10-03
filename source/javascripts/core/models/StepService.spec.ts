@@ -1,3 +1,4 @@
+import { StepApiResult } from '@/core/api/StepApi';
 import StepService from './StepService';
 import { Step } from './Step';
 
@@ -416,26 +417,26 @@ describe('StepService', () => {
   describe('resolveIcon', () => {
     it('should return step icon.svg if available', () => {
       const step = { asset_urls: { 'icon.svg': 'step-icon.svg' } };
-      expect(StepService.resolveIcon(step)).toBe('step-icon.svg');
+      expect(StepService.resolveIcon('script', step)).toBe('step-icon.svg');
     });
 
     it('should return step icon.png if icon.svg is not available', () => {
       const step = { asset_urls: { 'icon.png': 'step-icon.png' } };
-      expect(StepService.resolveIcon(step)).toBe('step-icon.png');
+      expect(StepService.resolveIcon('script', step)).toBe('step-icon.png');
     });
 
     it('should return info icon.svg if step icon is not available', () => {
       const info = { asset_urls: { 'icon.svg': 'info-icon.svg' } };
-      expect(StepService.resolveIcon(undefined, info)).toBe('info-icon.svg');
+      expect(StepService.resolveIcon('script', undefined, info)).toBe('info-icon.svg');
     });
 
     it('should return info icon.png if step and info icon.svg are not available', () => {
       const info = { asset_urls: { 'icon.png': 'info-icon.png' } };
-      expect(StepService.resolveIcon(undefined, info)).toBe('info-icon.png');
+      expect(StepService.resolveIcon('script', undefined, info)).toBe('info-icon.png');
     });
 
     it('should return default icon if no icons are available', () => {
-      expect(StepService.resolveIcon()).toBe('default-icon');
+      expect(StepService.resolveIcon('script')).toBe('default-icon');
     });
   });
 
@@ -444,14 +445,11 @@ describe('StepService', () => {
       const step = {
         cvs: 'script@1',
         resolvedInfo: {
-          cvs: 'script@1',
-          id: 'script',
           version: '1',
-          icon: '',
           normalizedVersion: '1.x.x',
           versions: ['1.0.0', '1.1.0', '2.0.0', '2.2.2'],
         },
-      };
+      } as Step;
       expect(StepService.getSelectableVersions(step)).toStrictEqual([
         { value: '', label: 'Always latest' },
         { value: '2.2.x', label: '2.2.x - Patch updates only' },
@@ -467,14 +465,11 @@ describe('StepService', () => {
       const step = {
         cvs: 'script@1',
         resolvedInfo: {
-          cvs: 'script@1',
-          id: 'script',
           version: '1.1.0',
-          icon: '',
           normalizedVersion: '1.1.0',
           versions: ['1.0.0', '1.1.0', '2.0.0', '2.2.2'],
         },
-      };
+      } as Step;
       expect(StepService.getSelectableVersions(step)).toStrictEqual([
         { value: '', label: 'Always latest' },
         { value: '1.1.0', label: '1.1.0 - Version in bitrise.yml' },
@@ -491,14 +486,11 @@ describe('StepService', () => {
       const step = {
         cvs: 'script',
         resolvedInfo: {
-          cvs: 'script',
-          id: 'script',
           version: '',
-          icon: '',
           normalizedVersion: '',
-          versions: [],
+          versions: [] as string[],
         },
-      };
+      } as Step;
       expect(StepService.getSelectableVersions(step)).toEqual([{ value: '', label: 'Always latest' }]);
     });
   });
@@ -523,7 +515,7 @@ describe('StepService', () => {
 
   describe('getInputNames', () => {
     it('should return an empty array if step has no inputs', () => {
-      const step = { defaultValues: {} } as Step;
+      const step = { defaultValues: {} } as StepApiResult;
       const result = StepService.getInputNames(step);
       expect(result).toEqual([]);
     });
@@ -533,7 +525,7 @@ describe('StepService', () => {
         defaultValues: {
           inputs: [{ input1: 'value1', opts: {} }, { input2: 'value2' }, { opts: {} }, { input3: 'value3' }],
         },
-      } as Step;
+      } as StepApiResult;
       const result = StepService.getInputNames(step);
       expect(result).toEqual(['input1', 'input2', 'input3']);
     });
@@ -545,12 +537,12 @@ describe('StepService', () => {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.0.0' },
         defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
-      } as Step;
+      } as unknown as StepApiResult;
       const newStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '2.0.0' },
         defaultValues: { inputs: [{ input2: 'value2' }, { input3: 'value3' }] },
-      } as Step;
+      } as unknown as StepApiResult;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: ['input1'],
         newInputs: ['input3'],
@@ -563,14 +555,14 @@ describe('StepService', () => {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.0.0' },
         defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
-      } as Step;
+      } as unknown as StepApiResult;
       const newStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.2.0' },
         defaultValues: {
           inputs: [{ input1: 'value1' }, { input2: 'value2' }, { input3: 'value3' }],
         },
-      } as Step;
+      } as unknown as StepApiResult;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: ['input3'],
@@ -579,12 +571,12 @@ describe('StepService', () => {
     });
 
     it('returns no changes if oldStep or newStep is missing', () => {
-      expect(StepService.calculateChange(undefined, {} as Step)).toEqual({
+      expect(StepService.calculateChange(undefined, {} as StepApiResult)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
       });
-      expect(StepService.calculateChange({} as Step, undefined)).toEqual({
+      expect(StepService.calculateChange({} as StepApiResult, undefined)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
@@ -592,8 +584,8 @@ describe('StepService', () => {
     });
 
     it('returns no changes if step IDs are different', () => {
-      const oldStep = { cvs: 'script@1' } as Step;
-      const newStep = { cvs: 'other-script@1' } as Step;
+      const oldStep = { cvs: 'script@1' } as StepApiResult;
+      const newStep = { cvs: 'other-script@1' } as StepApiResult;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
@@ -605,11 +597,11 @@ describe('StepService', () => {
       const oldStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.0.0' },
-      } as Step;
+      } as StepApiResult;
       const newStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.0.0' },
-      } as Step;
+      } as StepApiResult;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
@@ -622,12 +614,12 @@ describe('StepService', () => {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.0.0' },
         defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
-      } as Step;
+      } as unknown as StepApiResult;
       const newStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.2.0' },
         defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
-      } as Step;
+      } as unknown as StepApiResult;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
@@ -639,11 +631,11 @@ describe('StepService', () => {
       const oldStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: 'master' },
-      } as Step;
+      } as StepApiResult;
       const newStep = {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: 'master' },
-      } as Step;
+      } as StepApiResult;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
