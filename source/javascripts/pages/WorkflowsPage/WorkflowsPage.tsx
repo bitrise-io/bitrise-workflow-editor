@@ -92,8 +92,6 @@ const WorkflowsPageContent = () => {
     );
   }
 
-  console.log(isStepConfigDrawerMounted);
-
   return (
     <>
       <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">

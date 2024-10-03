@@ -53,6 +53,7 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
   }, [result, workflowId, stepIndex]);
 
   if (result.isLoading) {
+    // TODO: Loading state
     return null;
   }
 
