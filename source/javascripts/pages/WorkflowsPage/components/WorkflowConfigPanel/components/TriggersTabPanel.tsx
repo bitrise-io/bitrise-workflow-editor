@@ -84,7 +84,7 @@ const TriggerItem = (props: TriggerItemProps) => {
       gap="16"
       justifyContent="space-between"
     >
-      <TriggerConditions conditions={conditions} isDraftPr={triggerType === 'pull_request' && trigger.draft_enabled} />
+      <TriggerConditions conditions={conditions} isDraftPr={trigger.draft_enabled} triggerType={triggerType} />
       <OverflowMenu>
         <OverflowMenuItem leftIconName="Pencil" onClick={onTriggerEdit}>
           Edit trigger

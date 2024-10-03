@@ -1,10 +1,11 @@
 import { Box, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
-import { Condition, ConditionType, LegacyConditionType } from '../TriggersPage/TriggersPage.types';
+import { Condition, ConditionType, LegacyConditionType, TriggerType } from '../TriggersPage/TriggersPage.types';
 
 type TriggerConditionsProps = {
   conditions: Condition[];
   isDraftPr?: boolean;
+  triggerType?: TriggerType;
 };
 
 const iconMap: Record<LegacyConditionType | ConditionType, TypeIconName> = {
@@ -40,7 +41,7 @@ const toolTip: Record<LegacyConditionType | ConditionType, string> = {
 };
 
 const TriggerConditions = (props: TriggerConditionsProps) => {
-  const { conditions, isDraftPr } = props;
+  const { conditions, isDraftPr, triggerType } = props;
   return (
     <Box display="flex" alignItems="center" flexWrap="wrap" rowGap="8" columnGap="4">
       {(!conditions || conditions.length === 0) && <Tag size="sm">No conditions.</Tag>}
@@ -58,7 +59,7 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
           )}
         </Fragment>
       ))}
-      {isDraftPr === false && (
+      {triggerType === 'pull_request' && isDraftPr === false && (
         <Text textStyle="body/md/regular" color="text/secondary">
           • Draft PRs excluded
         </Text>

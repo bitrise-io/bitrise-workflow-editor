@@ -116,7 +116,11 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                     </Td>
                     <Td>{TYPE_MAP[trigger.type]}</Td>
                     <Td>
-                      <TriggerConditions conditions={getConditionList(trigger)} isDraftPr={trigger.draft_enabled} />
+                      <TriggerConditions
+                        conditions={getConditionList(trigger)}
+                        isDraftPr={trigger.draft_enabled}
+                        triggerType={trigger.type}
+                      />
                     </Td>
                     <Td display="flex" justifyContent="flex-end" alignItems="center">
                       {trigger.pipelineableType === 'workflow' && (
