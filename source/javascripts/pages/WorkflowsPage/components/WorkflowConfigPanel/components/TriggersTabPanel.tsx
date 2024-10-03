@@ -164,10 +164,10 @@ const TriggersTabPanel = () => {
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
         {isNotificationVisible && (
           <Notification status="info" onClose={closeNotification} marginBlockEnd="24">
-            <Text textStyle="heading/h4">Workflow based triggers</Text>
+            <Text textStyle="heading/h4">Target based triggers</Text>
             <Text>
               Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
-              Workflows or Pipelines.{' '}
+              targets.{' '}
               <Link href="https://devcenter.bitrise.io/" isUnderlined>
                 Learn more
               </Link>
