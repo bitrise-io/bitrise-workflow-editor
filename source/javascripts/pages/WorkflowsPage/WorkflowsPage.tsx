@@ -27,8 +27,16 @@ type Props = {
 
 const WorkflowsPageContent = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
-  const { workflowId, stepIndex, isDialogOpen, closeDialog, openCreateWorkflowDialog, openStepConfigDrawer } =
-    useWorkflowsPageStore();
+  const {
+    workflowId,
+    stepIndex,
+    isDialogOpen,
+    dialogMounted,
+    closeDialog,
+    openStepConfigDrawer,
+    unmountStepConfigDrawer,
+    openCreateWorkflowDialog,
+  } = useWorkflowsPageStore();
 
   const { addStep, createWorkflow, deleteWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
@@ -44,6 +52,7 @@ const WorkflowsPageContent = () => {
     enabledSteps,
     isRunWorkflowDialogOpen,
     isStepConfigDrawerOpen,
+    isStepConfigDrawerMounted,
     isStepSelectorDrawerOpen,
     isWithBlockDrawerOpen,
     isStepBundleDrawerOpen,
@@ -55,6 +64,7 @@ const WorkflowsPageContent = () => {
     enabledSteps: new Set(getUniqueStepIds()),
     isRunWorkflowDialogOpen: isDialogOpen === 'run-workflow',
     isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
+    isStepConfigDrawerMounted: dialogMounted['step-config-drawer'],
     isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
     isWithBlockDrawerOpen: isDialogOpen === 'with-group-drawer',
     isStepBundleDrawerOpen: isDialogOpen === 'step-bundle-drawer',
@@ -81,6 +91,8 @@ const WorkflowsPageContent = () => {
       </Box>
     );
   }
+
+  console.log(isStepConfigDrawerMounted);
 
   return (
     <>
@@ -110,12 +122,15 @@ const WorkflowsPageContent = () => {
         onDeleteWorkflow={deleteWorkflow}
       />
 
-      <StepConfigDrawer
-        workflowId={workflowId}
-        stepIndex={stepIndex}
-        isOpen={isStepConfigDrawerOpen}
-        onClose={closeDialog}
-      />
+      {isStepConfigDrawerMounted && (
+        <StepConfigDrawer
+          workflowId={workflowId}
+          stepIndex={stepIndex}
+          isOpen={isStepConfigDrawerOpen}
+          onClose={closeDialog}
+          onCloseComplete={unmountStepConfigDrawer}
+        />
+      )}
 
       <WithGroupDrawer
         isOpen={isWithBlockDrawerOpen}
