@@ -6,6 +6,7 @@ type TriggerConditionsProps = {
   conditions: Condition[];
   isDraftPr?: boolean;
   triggerType?: TriggerType;
+  triggerDisabled?: boolean;
 };
 
 const iconMap: Record<LegacyConditionType | ConditionType, TypeIconName> = {
@@ -41,14 +42,19 @@ const toolTip: Record<LegacyConditionType | ConditionType, string> = {
 };
 
 const TriggerConditions = (props: TriggerConditionsProps) => {
-  const { conditions, isDraftPr, triggerType } = props;
+  const { conditions, isDraftPr, triggerDisabled, triggerType } = props;
   return (
     <Box display="flex" alignItems="center" flexWrap="wrap" rowGap="8" columnGap="4">
       {(!conditions || conditions.length === 0) && <Tag size="sm">No conditions.</Tag>}
       {conditions.map(({ type, value }, index) => (
         <Fragment key={type + value}>
-          <Tooltip label={toolTip[type]}>
-            <Tag iconName={iconMap[type]} iconColor="neutral.60" size="sm">
+          <Tooltip label={triggerDisabled ? 'Disabled' : toolTip[type]}>
+            <Tag
+              iconName={iconMap[type]}
+              iconColor={triggerDisabled ? 'neutral.80' : 'neutral.60'}
+              size="sm"
+              isDisabled={triggerDisabled}
+            >
               {value}
             </Tag>
           </Tooltip>

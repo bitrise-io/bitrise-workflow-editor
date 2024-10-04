@@ -3,13 +3,13 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   ExpandableCard,
   Link,
   Notification,
   OverflowMenu,
   OverflowMenuItem,
   Text,
+  Toggle,
 } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import isEqual from 'lodash/isEqual';
@@ -66,6 +66,7 @@ const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
 };
 
 type TriggerItemProps = {
+  onTriggerToggle: () => void;
   onTriggerEdit: () => void;
   onDeleteClick: () => void;
   trigger: TargetBasedTriggerItem;
@@ -73,8 +74,9 @@ type TriggerItemProps = {
 };
 
 const TriggerItem = (props: TriggerItemProps) => {
-  const { onDeleteClick, onTriggerEdit, trigger, triggerType } = props;
+  const { onDeleteClick, onTriggerToggle, onTriggerEdit, trigger, triggerType } = props;
   const conditions = getConditionList(trigger);
+  const triggerDisabled = trigger.enabled === false;
   return (
     <Box
       padding="24"
@@ -84,10 +86,18 @@ const TriggerItem = (props: TriggerItemProps) => {
       gap="16"
       justifyContent="space-between"
     >
-      <TriggerConditions conditions={conditions} isDraftPr={trigger.draft_enabled} triggerType={triggerType} />
+      <TriggerConditions
+        conditions={conditions}
+        isDraftPr={trigger.draft_enabled}
+        triggerType={triggerType}
+        triggerDisabled={triggerDisabled}
+      />
       <OverflowMenu>
         <OverflowMenuItem leftIconName="Pencil" onClick={onTriggerEdit}>
           Edit trigger
+        </OverflowMenuItem>
+        <OverflowMenuItem leftIconName={triggerDisabled ? 'Play' : 'BlockCircle'} onClick={onTriggerToggle}>
+          {triggerDisabled ? 'Enable trigger' : 'Disable trigger'}
         </OverflowMenuItem>
         <OverflowMenuItem isDanger leftIconName="Trash" onClick={onDeleteClick}>
           Delete trigger
@@ -124,6 +134,16 @@ const TriggersTabPanel = () => {
 
   const onTriggerDelete = (trigger: TargetBasedTriggerItem, type: TriggerType) => {
     triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
+    updateWorkflowTriggers(workflow?.id || '', triggers);
+  };
+
+  const onTriggerToggle = (type: TriggerType, index: number) => {
+    const isCurrentlyDisabled = triggers[type][index].enabled === false;
+    if (!isCurrentlyDisabled) {
+      triggers[type][index].enabled = false;
+    } else {
+      delete triggers[type][index].enabled;
+    }
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
@@ -175,15 +195,15 @@ const TriggersTabPanel = () => {
           </Notification>
         )}
         <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
-          <Checkbox
-            helperText="When unchecked and saved, none of the triggers below will execute a build."
-            isChecked={triggers.enabled !== false}
+          <Toggle
+            variant="fixed"
+            label="Enable triggers"
+            helperText="When disabled and saved, none of the triggers below will execute a build."
+            defaultChecked
             onChange={() => {
               updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
             }}
-          >
-            Active
-          </Checkbox>
+          />
         </Card>
         <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
           {(triggers.push as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
@@ -195,6 +215,9 @@ const TriggersTabPanel = () => {
               onTriggerEdit={() => {
                 setEditedItem({ trigger, index });
                 setTriggerType('push');
+              }}
+              onTriggerToggle={() => {
+                onTriggerToggle('push', index);
               }}
             />
           ))}
@@ -226,6 +249,9 @@ const TriggersTabPanel = () => {
                   setTriggerType('pull_request');
                 }}
                 trigger={trigger}
+                onTriggerToggle={() => {
+                  onTriggerToggle('pull_request', index);
+                }}
               />
             ),
           )}
@@ -251,6 +277,9 @@ const TriggersTabPanel = () => {
               onTriggerEdit={() => {
                 setEditedItem({ trigger, index });
                 setTriggerType('tag');
+              }}
+              onTriggerToggle={() => {
+                onTriggerToggle('tag', index);
               }}
             />
           ))}
