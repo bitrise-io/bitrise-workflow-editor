@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
-import { useUpdateSecret } from '@/hooks/useSecrets';
+import { useUpsertSecret } from '@/hooks/useSecrets';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
@@ -31,7 +31,7 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
   const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
 
-  const { mutate: createSecret } = useUpdateSecret({
+  const { mutate: createSecret } = useUpsertSecret({
     appSlug: WindowUtils.appSlug() ?? '',
     options: {
       onSuccess: ({ key }) => {
@@ -55,7 +55,11 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
     const newValue = `${value.slice(0, start)}$${key}${value.slice(end)}`;
 
     setCursorPosition({ start, end: end + `$${key}`.length });
-    setValue(name, newValue, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+    setValue(name, newValue, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
   };
 
   const createEnvVar = (envVar: EnvVar) => {

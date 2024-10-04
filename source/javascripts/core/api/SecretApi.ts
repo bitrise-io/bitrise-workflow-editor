@@ -185,7 +185,7 @@ async function getSecretValue({
   return Promise.reject(new Error('Getting secret environment value is only available in website mode'));
 }
 
-async function updateSecret({
+async function upsertSecret({
   appSlug,
   secret,
   signal,
@@ -242,7 +242,7 @@ export type { SecretsMonolithResponse, SecretsApiResponse, SecretsLocalResponse 
 export default {
   getSecrets,
   getSecretValue,
-  updateSecret,
+  upsertSecret,
   deleteSecret,
   getSecretPath,
   getSecretLocalPath,
