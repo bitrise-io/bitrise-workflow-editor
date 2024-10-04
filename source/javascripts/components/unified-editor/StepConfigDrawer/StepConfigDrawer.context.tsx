@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import omit from 'lodash/omit';
 import useStep from '@/hooks/useStep';
@@ -21,22 +21,10 @@ const initialState: State = {
 };
 const Context = createContext<State>(initialState);
 
-const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWithChildren<Props>) => {
-  const result = useStep(workflowId, stepIndex);
-  const form = useForm<FormValues>({ mode: 'all' });
-
-  const value = useMemo<State>(() => {
-    if (!result) return initialState;
-    return { workflowId, stepIndex, ...result } as State;
-  }, [result, workflowId, stepIndex]);
-
-  useEffect(() => {
-    if (result.isLoading) {
-      return;
-    }
-
-    const step = result.data as Step;
-    form.reset({
+const StepConfigDrawerFormProvider = ({ step, children }: PropsWithChildren<{ step?: Step }>) => {
+  const form = useForm<FormValues>({
+    mode: 'all',
+    defaultValues: {
       configuration: {
         is_always_run: step?.mergedValues?.is_always_run ?? false,
         is_skippable: step?.mergedValues?.is_skippable ?? false,
@@ -49,13 +37,29 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
       inputs: step?.mergedValues?.inputs?.reduce((acc, input) => {
         return { ...acc, ...omit(input, 'opts') };
       }, {}),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workflowId, stepIndex, result.isLoading]);
+    },
+  });
+
+  return <FormProvider {...form}>{children}</FormProvider>;
+};
+
+const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWithChildren<Props>) => {
+  const result = useStep(workflowId, stepIndex);
+  const step = result?.data as Step | undefined;
+
+  const value = useMemo<State>(() => {
+    if (!result) return initialState;
+    return { workflowId, stepIndex, ...result } as State;
+  }, [result, workflowId, stepIndex]);
+
+  if (result.isLoading) {
+    // TODO: Loading state
+    return null;
+  }
 
   return (
     <Context.Provider value={value}>
-      <FormProvider {...form}>{children}</FormProvider>
+      <StepConfigDrawerFormProvider step={step}>{children}</StepConfigDrawerFormProvider>
     </Context.Provider>
   );
 };
