@@ -66,7 +66,7 @@ const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
 };
 
 type TriggerItemProps = {
-  onTriggerToggle: () => void;
+  onTriggerToggle: (triggerDisabled: boolean) => void;
   onTriggerEdit: () => void;
   onDeleteClick: () => void;
   trigger: TargetBasedTriggerItem;
@@ -96,7 +96,12 @@ const TriggerItem = (props: TriggerItemProps) => {
         <OverflowMenuItem leftIconName="Pencil" onClick={onTriggerEdit}>
           Edit trigger
         </OverflowMenuItem>
-        <OverflowMenuItem leftIconName={triggerDisabled ? 'Play' : 'BlockCircle'} onClick={onTriggerToggle}>
+        <OverflowMenuItem
+          leftIconName={triggerDisabled ? 'Play' : 'BlockCircle'}
+          onClick={() => {
+            onTriggerToggle(triggerDisabled);
+          }}
+        >
           {triggerDisabled ? 'Enable trigger' : 'Disable trigger'}
         </OverflowMenuItem>
         <OverflowMenuItem isDanger leftIconName="Trash" onClick={onDeleteClick}>
@@ -137,9 +142,8 @@ const TriggersTabPanel = () => {
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  const onTriggerToggle = (type: TriggerType, index: number) => {
-    const isCurrentlyDisabled = triggers[type][index].enabled === false;
-    if (!isCurrentlyDisabled) {
+  const onTriggerToggle = (type: TriggerType, index: number, triggerDisabled: boolean) => {
+    if (!triggerDisabled) {
       triggers[type][index].enabled = false;
     } else {
       delete triggers[type][index].enabled;
@@ -205,7 +209,11 @@ const TriggersTabPanel = () => {
             }}
           />
         </Card>
-        <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
+        <ExpandableCard
+          padding="0"
+          buttonPadding="16px 24px"
+          buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}
+        >
           {(triggers.push as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
             <TriggerItem
               key={JSON.stringify(trigger)}
@@ -216,8 +224,8 @@ const TriggersTabPanel = () => {
                 setEditedItem({ trigger, index });
                 setTriggerType('push');
               }}
-              onTriggerToggle={() => {
-                onTriggerToggle('push', index);
+              onTriggerToggle={(triggerDisabled) => {
+                onTriggerToggle('push', index, triggerDisabled);
               }}
             />
           ))}
@@ -235,6 +243,7 @@ const TriggersTabPanel = () => {
         </ExpandableCard>
         <ExpandableCard
           padding="0"
+          buttonPadding="16px 24px"
           buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>}
           marginY="12"
         >
@@ -249,8 +258,8 @@ const TriggersTabPanel = () => {
                   setTriggerType('pull_request');
                 }}
                 trigger={trigger}
-                onTriggerToggle={() => {
-                  onTriggerToggle('pull_request', index);
+                onTriggerToggle={(triggerDisabled) => {
+                  onTriggerToggle('pull_request', index, triggerDisabled);
                 }}
               />
             ),
@@ -267,7 +276,11 @@ const TriggersTabPanel = () => {
             Add pull request trigger
           </Button>
         </ExpandableCard>
-        <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
+        <ExpandableCard
+          padding="0"
+          buttonPadding="16px 24px"
+          buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}
+        >
           {(triggers.tag as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
             <TriggerItem
               key={JSON.stringify(trigger)}
@@ -278,8 +291,8 @@ const TriggersTabPanel = () => {
                 setEditedItem({ trigger, index });
                 setTriggerType('tag');
               }}
-              onTriggerToggle={() => {
-                onTriggerToggle('tag', index);
+              onTriggerToggle={(triggerDisabled) => {
+                onTriggerToggle('tag', index, triggerDisabled);
               }}
             />
           ))}
