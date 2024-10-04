@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -27,16 +26,21 @@ import StepBadge from '@/components/StepBadge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import VersionUtils from '@/core/utils/VersionUtils';
-import { FormValues, StepConfigTab } from './StepConfigDrawer.types';
+import { FormValues } from './StepConfigDrawer.types';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 
-const StepConfigDrawerContent = (props: UseDisclosureProps) => {
+type Props = UseDisclosureProps & {
+  workflowId: string;
+  stepIndex: number;
+  onCloseComplete?: () => void;
+};
+
+const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
   const toast = useToast();
   const { isOpen, onClose } = useDisclosure(props);
-  const [selectedTab, setSelectedTab] = useState<string | undefined>(StepConfigTab.CONFIGURATION);
 
   const form = useFormContext<FormValues>();
   const { workflowId, stepIndex, data } = useStepDrawerContext();
@@ -91,20 +95,9 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
     });
   };
 
-  const handleCloseComplete = () => {
-    setSelectedTab(StepConfigTab.CONFIGURATION);
-    form.reset();
-  };
-
   return (
-    <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
-      <Drawer
-        isFullHeight
-        isOpen={isOpen}
-        onClose={handleClose}
-        autoFocus={false}
-        onCloseComplete={handleCloseComplete}
-      >
+    <Tabs>
+      <Drawer isFullHeight isOpen={isOpen} autoFocus={false} onClose={handleClose} onCloseComplete={onCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -192,15 +185,10 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   );
 };
 
-type Props = UseDisclosureProps & {
-  workflowId: string;
-  stepIndex: number;
-};
-
-const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
+const StepConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   return (
     <StepConfigDrawerProvider workflowId={workflowId} stepIndex={stepIndex}>
-      <StepConfigDrawerContent {...disclosureProps} />
+      <StepConfigDrawerContent {...props} />
     </StepConfigDrawerProvider>
   );
 };
