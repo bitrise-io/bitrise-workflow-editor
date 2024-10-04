@@ -48,7 +48,7 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
       {(!conditions || conditions.length === 0) && <Tag size="sm">No conditions.</Tag>}
       {conditions.map(({ type, value }, index) => (
         <Fragment key={type + value}>
-          <Tooltip label={toolTip[type]}>
+          <Tooltip label={triggerDisabled ? 'Disabled' : toolTip[type]}>
             <Tag
               iconName={iconMap[type]}
               iconColor={triggerDisabled ? 'neutral.80' : 'neutral.60'}
