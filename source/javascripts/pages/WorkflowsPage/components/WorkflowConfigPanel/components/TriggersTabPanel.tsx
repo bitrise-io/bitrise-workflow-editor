@@ -79,7 +79,7 @@ const TriggerItem = (props: TriggerItemProps) => {
   const triggerDisabled = trigger.enabled === false;
   return (
     <Box
-      padding="24"
+      padding="16px 20px 16px 24px"
       borderBlockEnd="1px solid"
       borderBlockEndColor="border/minimal"
       display="flex"

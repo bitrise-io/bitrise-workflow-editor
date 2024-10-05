@@ -20,7 +20,7 @@ const ConditionCard = (props: ConditionCardProps) => {
   const labelText = isRegex ? 'Enter a regex pattern' : labelsMap[type];
 
   return (
-    <Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
+    <Card key={conditionNumber} variant="outline" marginBottom="16" padding="16px 16px 24px 16px">
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
         <Text textStyle="heading/h5">Condition {conditionNumber + 1}</Text>
         {children}

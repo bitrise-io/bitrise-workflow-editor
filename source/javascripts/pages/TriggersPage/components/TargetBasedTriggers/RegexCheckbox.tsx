@@ -5,7 +5,7 @@ const RegexCheckbox = forwardRef<CheckboxProps, 'input'>((props, ref) => {
   const tooltipLabel =
     "Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method.";
   return (
-    <Checkbox marginBottom="8" ref={ref} {...rest}>
+    <Checkbox marginBottom="16" ref={ref} {...rest}>
       Use regex pattern
       <Toggletip
         label={tooltipLabel}

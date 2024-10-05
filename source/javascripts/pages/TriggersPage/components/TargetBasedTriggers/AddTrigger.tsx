@@ -174,7 +174,7 @@ const AddTrigger = (props: AddTriggerProps) => {
               {editedItem ? 'Apply changes' : 'Add trigger'}
             </Button>
           </Tooltip>
-          <Button variant="tertiary" onClick={handleCancel}>
+          <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
         </ButtonGroup>
