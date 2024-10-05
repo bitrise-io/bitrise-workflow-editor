@@ -37,13 +37,8 @@ angular
   .component(
     'rTriggersPage',
     register(TriggersPage, [
-      'onTriggerMapChange',
-      'pipelines',
-      'triggerMap',
-      'setDiscard',
-      'workflows',
-      'isWebsiteMode',
-      'integrationsUrl',
+      "onChange",
+      "yml",
     ]),
   )
   .component(

@@ -6,6 +6,7 @@ import mapKeys from 'lodash/mapKeys';
 import isEqual from 'lodash/isEqual';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
+import { TargetBasedTriggers } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
@@ -443,6 +444,14 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
   return copy;
 }
 
+function updateTriggerMap(newTriggerMap: TriggerMapYml, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.trigger_map = newTriggerMap;
+
+  return copy;
+}
+
 function getUniqueStepIds(yml: BitriseYml) {
   const ids = new Set<string>();
 
@@ -467,6 +476,43 @@ function getUniqueStepIds(yml: BitriseYml) {
   });
 
   return Array.from(ids);
+}
+
+function updateWorkflowTriggers(
+  workflowId: string,
+  triggers: WorkflowYmlObject['triggers'],
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].triggers = triggers;
+
+  return copy;
+}
+
+function updateWorkflowTriggersEnabled(workflowId: string, isEnabled: boolean, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (isEnabled === true) {
+    delete (copy.workflows[workflowId].triggers as TargetBasedTriggers).enabled;
+  } else {
+    copy.workflows[workflowId].triggers = {
+      enabled: false,
+      ...(copy.workflows[workflowId].triggers || {}),
+    };
+  }
+
+  return copy;
 }
 
 // UTILITY FUNCTIONS
@@ -616,6 +662,9 @@ export default {
   setChainedWorkflows,
   deleteChainedWorkflow,
   updateStackAndMachine,
+  updateTriggerMap,
   appendWorkflowEnvVar,
   updateWorkflowEnvVars,
+  updateWorkflowTriggers,
+  updateWorkflowTriggersEnabled,
 };

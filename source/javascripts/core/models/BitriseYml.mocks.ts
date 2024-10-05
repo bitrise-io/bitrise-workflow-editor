@@ -173,4 +173,74 @@ const ChainableMockYml: BitriseYml = {
   },
 };
 
-export { MockYml, ChainableMockYml };
+const MockYmlWithTriggers: BitriseYml = {
+  ...MockYml,
+  trigger_map: [
+    {
+      workflow: 'wf1',
+      push_branch: 'master',
+    },
+    {
+      workflow: 'wf2',
+      push_branch: 'release',
+    },
+    {
+      workflow: 'wf3',
+      pull_request_target_branch: '*',
+    },
+  ],
+  workflows: {
+    a_release_IOS: {
+      triggers: {
+        push: [
+          {
+            branch: 'main',
+            enabled: false,
+          },
+        ],
+        tag: [
+          {
+            name: {
+              regex: '^\\d\\.\\d\\.\\d$',
+            },
+          },
+        ],
+        pull_request: [
+          {
+            comment: '[workflow: deploy]',
+          },
+          {
+            commit_message: {
+              regex: '.*\\[workflow: deploy\\].*',
+            },
+          },
+        ],
+      },
+    },
+    c_staging_IOS: {
+      triggers: {
+        pull_request: [
+          {
+            target_branch: 'main',
+            source_branch: 'approved',
+            enabled: false,
+          },
+        ],
+      },
+    },
+  },
+  pipelines: {
+    b_staging_IOS: {
+      triggers: {
+        push: [
+          {
+            branch: 'staging',
+            enabled: false,
+          },
+        ],
+      },
+    },
+  },
+};
+
+export { MockYml, ChainableMockYml, MockYmlWithTriggers };

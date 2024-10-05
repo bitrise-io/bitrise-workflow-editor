@@ -1,5 +1,6 @@
 const defaultValues = {
   'enable-wfe-pipeline-viewer': false,
+  'enable-target-based-triggers': false,
 };
 
 type FeatureFlags = typeof defaultValues;

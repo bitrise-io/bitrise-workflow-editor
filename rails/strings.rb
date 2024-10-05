@@ -615,13 +615,6 @@ def strings
           notification: "You can specify Env Vars which will only be available for the steps in your <workflow_id> Workflow."
         }
       },
-      triggers: {
-        update_deprecated_popup: {
-          title: "Triggers are changing for the better",
-          details_1: "We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs. You don't have to worry, though, everything you've set so far will work the same!",
-          details_2: "For more information, please check the <a href='<url>' target='_blank'>blogpost</a>!"
-        }
-      },
       stack: {
         load_stacks_progress: {
           in_progress: "Loading, wait a sec..."

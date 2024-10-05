@@ -1,10 +1,5 @@
-.tab-triggers.menu-content-padding[ng-controller="TriggersController as triggersCtrl"]
+.tab-triggers[ng-controller="TriggersController as triggersCtrl"]
 	r-triggers-page[
-		on-trigger-map-change="triggersCtrl.onTriggerMapChange"
-		pipelines="triggersCtrl.pipelines"
-		trigger-map="triggersCtrl.triggerMap"
-		set-discard="triggersCtrl.setDiscard"
-		workflows="triggersCtrl.workflows"
-		is-website-mode="triggersCtrl.isWebsiteMode"
-		integrations-url="triggersCtrl.integrationsUrl"
+		on-change="triggersCtrl.onChangeYml"
+		yml="triggersCtrl.yml"
 	]
