@@ -66,6 +66,7 @@ const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
 };
 
 type TriggerItemProps = {
+  globalDisabled: boolean;
   onTriggerToggle: (triggerDisabled: boolean) => void;
   onTriggerEdit: () => void;
   onDeleteClick: () => void;
@@ -74,7 +75,7 @@ type TriggerItemProps = {
 };
 
 const TriggerItem = (props: TriggerItemProps) => {
-  const { onDeleteClick, onTriggerToggle, onTriggerEdit, trigger, triggerType } = props;
+  const { globalDisabled, onDeleteClick, onTriggerToggle, onTriggerEdit, trigger, triggerType } = props;
   const conditions = getConditionList(trigger);
   const triggerDisabled = trigger.enabled === false;
   return (
@@ -90,7 +91,7 @@ const TriggerItem = (props: TriggerItemProps) => {
         conditions={conditions}
         isDraftPr={trigger.draft_enabled}
         triggerType={triggerType}
-        triggerDisabled={triggerDisabled}
+        triggerDisabled={globalDisabled || triggerDisabled}
       />
       <OverflowMenu>
         <OverflowMenuItem leftIconName="Pencil" onClick={onTriggerEdit}>
@@ -227,6 +228,7 @@ const TriggersTabPanel = () => {
               onTriggerToggle={(triggerDisabled) => {
                 onTriggerToggle('push', index, triggerDisabled);
               }}
+              globalDisabled={triggers.enabled === false}
             />
           ))}
           <Button
@@ -261,6 +263,7 @@ const TriggersTabPanel = () => {
                 onTriggerToggle={(triggerDisabled) => {
                   onTriggerToggle('pull_request', index, triggerDisabled);
                 }}
+                globalDisabled={triggers.enabled === false}
               />
             ),
           )}
@@ -294,6 +297,7 @@ const TriggersTabPanel = () => {
               onTriggerToggle={(triggerDisabled) => {
                 onTriggerToggle('tag', index, triggerDisabled);
               }}
+              globalDisabled={triggers.enabled === false}
             />
           ))}
           <Button
