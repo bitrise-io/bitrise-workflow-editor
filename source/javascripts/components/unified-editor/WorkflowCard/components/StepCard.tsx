@@ -8,6 +8,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
 type StepCardProps = {
@@ -29,6 +30,7 @@ const StepCard = ({
   showSecondary = true,
   actions = {},
 }: StepCardProps) => {
+  const defaultStepLibrary = useDefaultStepLibrary();
   const result = useStep(workflowId, stepIndex);
   const { onStepSelect, onUpgradeStep, onCloneStep, onDeleteStep } = actions;
 
@@ -43,14 +45,14 @@ const StepCard = ({
   });
 
   const stepVariant = useMemo(() => {
-    if (StepService.isWithGroup(result?.data?.cvs || '')) {
+    if (StepService.isWithGroup(result?.data?.cvs || '', defaultStepLibrary)) {
       return 'with-group';
     }
-    if (StepService.isStepBundle(result?.data?.cvs || '')) {
+    if (StepService.isStepBundle(result?.data?.cvs || '', defaultStepLibrary)) {
       return 'step-bundle';
     }
     return 'step';
-  }, [result?.data?.cvs]);
+  }, [result?.data?.cvs, defaultStepLibrary]);
 
   if (!result) {
     return null;
