@@ -1,287 +1,858 @@
-format_version: "11"
+---
+format_version: '8'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-project_type: ios
-services:
-  postgres:
-    image: postgres:13
-containers:
-  ruby:
-    image: ruby:3.2
-app:
-  envs:
-  - ACCESS_KEY: "120"
-  - GITHUB_TOKEN: GITHUB_TOKEN
-    opts:
-      is_expand: false
-  - SLACK_WEBHOOK: https://tempuri.org
+project_type: other
 trigger_map:
-- workflow: wf1
-  push_branch: master
-- workflow: wf2
-  push_branch: release
-- workflow: wf3
-  pull_request_target_branch: '*'
+- push_branch: master
+  type: push
+  pipeline: release-pipeline
+- pull_request_source_branch: "*"
+  type: pull_request
+  pipeline: ci-pipeline
 pipelines:
-  pl1:
+  ci-pipeline:
     stages:
-    - st1: {}
-  pl2:
+    - ci-checks: {}
+    - e2e-stage: {}
+  release-pipeline:
     stages:
-    - st1: {}
-    - st2: {}
-  pl3:
+    - bump-version-stage: {}
+    - release-stage: {}
+  experiment-pipeline:
     stages:
-    - st3: {}
-    - st2: {}
-    - st1: {}
+    - release-experiment-stage: {}
 stages:
-  st1:
+  ci-checks:
+    title: Run CI checks such as linting, unit tests, e2e tests, deploy storybook
     workflows:
-    - wf1: {}
-  st2:
+    - run-ci-checks: {}
+    - run-deploy-storybook: {}
+  e2e-stage:
+    title: Run end-to-end tests
     workflows:
-    - wf2: {}
-    - wf3: {}
-  st3:
+    - run-client-e2e-tests:
+        run_if: 'false'
+  bump-version-stage:
+    title: Bump the versions
     workflows:
-    - wf1: {}
-    - wf2: {}
-    - wf3: {}
-    - wf4: {}
-    - wf5: {}
-    - wf6: {}
+    - run-bump-version-numbers: {}
+  release-stage:
+    title: Release new website and CLI plugin version
+    workflows:
+    - release-plugin: {}
+    - release-website: {}
+  release-experiment-stage:
+    title: Release a new website experimental version to GCS
+    workflows:
+    - release-website-experiment: {}
 workflows:
-  wf1:
-    summary: My first workflow
-    description: There will be more to come
+  _api-server-unit-tests:
+    title: go lint & go vet & errcheck & go test
+    steps:
+    - script:
+        title: go vet & golint & errcheck
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go vet ./...
+            golint ./...
+            errcheck -asserts=true -blank=true ./...
+    - script:
+        title: go test
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go test ./...
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  _build-api-server:
+    title: Build the Go API server binaries
+    description: Creates Linux and Darwin binaries with embedded assets
+    steps:
+    - script@1:
+        title: compile_api.sh
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            if [[ ! -f $BIN_PATH_LINUX ]]; then
+              ./_scripts/compile_api.sh
+            fi
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  _build-client:
+    title: Build the client
     envs:
-    - TEST: test
+    - NODE_ENV: prod
+    steps:
+    - script:
+        title: npm run build
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            npm run build
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  _bump-version-numbers:
+    steps:
+    - script@1:
+        title: Bump editor version
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            # update patch version
+            NEW_VERSION=$(npm version --no-git-tag-version patch)
+            next_version=${NEW_VERSION:1} ./_scripts/set_version.sh version/version.go bitrise-plugin.yml
+            FILES=(package.json package-lock.json version/version.go bitrise-plugin.yml)
+
+            # push changes
+            git add "${FILES[@]}"
+            git commit -m "[skip ci] - $NEW_VERSION"
+            git push origin HEAD:master
+  _client-e2e-tests:
+    steps:
+    - script@1:
+        deps:
+          apt_get:
+          - name: libasound2
+          - name: libgbm-dev
+          - name: libgconf-2-4
+          - name: libgtk-3-0
+          - name: libgtk2.0-0
+          - name: libnss3
+          - name: libxss1
+          - name: libxtst6
+          - name: xauth
+          - name: xvfb
+        inputs:
+        - content: echo "Installing Cypress dependencies"
+        title: Install Cypress deps
+    - script@1:
+        title: npm run e2e
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            npm run e2e
+  _client-unit-tests:
+    title: npm run lint & npm run test & npm run test:jest
+    steps:
+    - script:
+        title: npm run lint
+        inputs:
+        - content: npm run lint
+    - script:
+        title: npm run test
+        inputs:
+        - content: npm run test
+    - script:
+        title: npm run test:jest
+        inputs:
+        - content: npm run test:jest
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  _clone:
+    title: Clone the repository
+    steps:
+    - set-git-credentials@1:
+        inputs:
+        - git_email_address: ci@bitrise.io
+        - git_user_name: "$GITHUB_USERNAME"
+    - change-workdir@1:
+        inputs:
+        - path: "$GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor"
+    - activate-ssh-key@4: {}
+    - git-clone@8:
+        inputs:
+        - update_submodules: 'no'
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: elite
+  _deploy-storybook:
+    steps:
+    - script@1:
+        title: npm run build-storybook
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            npm run build-storybook
+    - script@1:
+        is_skippable: true
+        title: run deploy-storybook
+        run_if: (or .IsPR (enveq "BITRISE_GIT_BRANCH" "master"))
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            node ./.storybook/deploy-storybook.js
+  _export-test-results:
+    steps:
+    - script@1:
+        title: Export test results
+        is_skippable: true
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            # Creating a sub-directory for the test run within the BITRISE_TEST_RESULT_DIR:
+
+            echo "the current directory"
+            pwd
+
+            test_run_dir="$BITRISE_TEST_RESULT_DIR/result_dir_1"
+            mkdir "$test_run_dir"
+
+
+            DIR=spec/integration/cypress/results/
+            if [ -d "$DIR" ];
+            then
+                cp -r spec/integration/cypress/results/test-report.xml "$test_run_dir/test-report.xml"
+            fi
+
+            DIR=spec/integration/cypress/screenshots/
+            if [ -d "$DIR" ];
+            then
+                find spec/integration/cypress/screenshots -mindepth 2 -type f -exec mv -i '{}' "$test_run_dir" ';'
+            fi
+
+            DIR=spec/integration/cypress/videos/
+            if [ -d "$DIR" ];
+            then
+                find spec/integration/cypress/videos -mindepth 2 -type f -exec mv -i '{}' "$test_run_dir" ';'
+            fi
+
+            touch "$test_run_dir/test-info.json"
+            echo "{ \"test-name\":\"Cypress tests\" }" > "$test_run_dir/test-info.json"
+        is_always_run: true
+    - deploy-to-bitrise-io@2: {}
+  _install-api-server-deps:
+    title: Install the API server dependencies
+    steps:
+    - script:
+        title: go install
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/bin/bash
+            set -exo pipefail
+
+            go install golang.org/x/lint/golint@latest
+            go install github.com/kisielk/errcheck@latest
+            go install github.com/GeertJohan/go.rice/rice@latest
+            asdf reshim golang
+    before_run:
+    - _install-go
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  _install-client-deps:
+    title: Install the client dependencies
+    before_run:
+    - _install-node
+    - _restore-npm-cache
+    after_run:
+    - _save-npm-cache
+    steps:
+    - script@1:
+        title: bundle install
+        deps:
+          apt_get:
+          - name: ruby
+          - name: ruby-dev
+          - name: build-essential
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            gem install -f bundler:2.5.6
+            bundle install
+    - script@1:
+        title: npm ci
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            npm config set fetch-timeout 600000
+            npm config set fetch-retries 5
+            npm config set fetch-retry-mintimeout 20000
+            npm config set fetch-retry-maxtimeout 120000
+
+            npm ci
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: elite
+  _install-go:
+    title: Install the API server dependencies
+    steps:
+    - script@1:
+        title: asdf install golang
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            asdf install golang
+            asdf reshim golang
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  _install-node:
+    title: Install the client dependencies
+    steps:
+    - script@1:
+        title: asdf install nodejs
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            asdf install nodejs
+            asdf reshim nodejs
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: elite
+  _restore-npm-cache:
+    steps:
+    - restore-cache@2:
+        inputs:
+        - key: '{{ .OS }}-{{ .Arch }}-npm-cache-{{ checksum "package-lock.json" "yarn.lock"
+            }}'
+        title: Restore NPM cache (.npm)
+  _save-npm-cache:
+    steps:
+    - save-cache@1:
+        inputs:
+        - paths: "/root/.npm"
+        - key: '{{ .OS }}-{{ .Arch }}-npm-cache-{{ checksum "package-lock.json" "yarn.lock"
+            }}'
+        title: Save NPM cache (.npm)
+  _update_versions:
+    steps:
+    - nvm@1:
+        inputs:
+        - node_version: '20'
+    - script@1:
+        inputs:
+        - script_file_path:
+        - runner_bin: node
+        - content: |-
+            const [newValue, fallbackValue] = process.env.NPM_PACKAGE_VERSION.split(':');
+
+            if (!newValue.match(/^\d+\.\d+\.\d+$/)) throw new Error(`Invalid WFE Current version: ${newValue}`);
+
+            if (fallbackValue && !fallbackValue.match(/^\d+\.\d+\.\d+$/)) throw new Error(`Invalid WFE Fallback version: ${newValue}`);
+
+            const API_TOKEN = process.env.LD_VERSION_UPDATE_API_TOKEN;
+            const PROJECT_KEY = process.env.LD_PROJECT_KEY;
+            const FLAG_KEY = process.env.LD_FLAG_KEY;
+            const API_URL = `https://app.launchdarkly.com/api/v2/flags/${PROJECT_KEY}/${FLAG_KEY}`;
+
+            (async () => {
+
+              const response = await fetch(API_URL, {
+                headers: {
+                  'Authorization': API_TOKEN,
+                  'Content-Type': 'application/json',
+                }
+              });
+
+              const data = await response.json();
+
+              console.log(response.status, data.variations);
+
+              const currentVariation = data.variations.find(variation => variation.name === 'Current');
+              const fallbackVariation = data.variations.find(variation => variation.name === 'Fallback');
+
+              const patchInstructions = [
+                {
+                  kind: "updateVariation",
+                  variationId: fallbackVariation._id,
+                  value: "temp",
+                },
+                {
+                  kind: "updateVariation",
+                  variationId: currentVariation._id,
+                  value: newValue,
+                },
+                {
+                  kind: "updateVariation",
+                  variationId: fallbackVariation._id,
+                  value: fallbackValue || currentVariation.value,
+                }
+              ];
+
+              console.log(patchInstructions);
+
+              const patchResponse = await fetch(API_URL, {
+                method: 'PATCH',
+                headers: {
+                  'Authorization': API_TOKEN,
+                  'Content-Type': 'application/json; domain-model=launchdarkly.semanticpatch',
+                },
+                body: JSON.stringify({
+                  instructions: patchInstructions
+                }),
+              });
+
+              const updatedData = await patchResponse.json();
+
+              console.log(patchResponse.status, updatedData.variations);
+
+              if (!patchResponse.ok) throw new Error(patchResponse.statusText);
+
+            })();
+        title: WFE Version Update
+    envs:
+    - LD_PROJECT_KEY: website
       opts:
         is_expand: false
+    - LD_FLAG_KEY: workflow-editor-version
+      opts:
+        is_expand: false
+    summary: Update Worflow Editor Versions in Launch Darkly
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  ci:
+    before_run:
+    - _clone
+    - _install-client-deps
+    - _build-client
+    - _install-api-server-deps
+    - _build-api-server
+    after_run:
+    - _api-server-unit-tests
+    - _client-unit-tests
+    - _deploy-storybook
+  manual-update-version:
+    envs:
+    - LD_PROJECT_KEY: website
+      opts:
+        is_expand: false
+    - LD_FLAG_KEY: api-testing
+      opts:
+        is_expand: false
+    summary: Update Worflow Editor Versions in Launch Darkly
+    after_run:
+    - _update_versions
     steps:
-    - github-status@2.4.0:
+    - set-env-var@0:
         inputs:
-        - api_base_url: https://github.com
-        - set_specific_status: pending
-        - auth_token: $GITHUB_TOKEN
-    - script@1.1.5:
+        - value: "$BITRISE_GIT_BRANCH"
+        - destination_keys: NPM_PACKAGE_VERSION
+        title: Set Git Branch as $NPM_PACKAGE_VERSION
+  release-new-version:
+    before_run:
+    - ci
+    - _bump-version-numbers
+    steps:
+    - script@1:
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            if [[ -z "${BITRISE_GIT_COMMIT}" ]]; then
+              echo "Error: Missing BITRISE_GIT_COMMIT variable!"
+              echo "       In the 'Advanced' settings of the 'Start/schedule build' dialog, you should set the 'Commit hash' field."
+              exit 1
+            fi
+        title: Check BITRISE_GIT_COMMIT variable
+    - script@1:
+        title: Trigger website deploy and plugin release workflows
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            curl --fail https://app.bitrise.io/app/1686da85b5935fd6/build/start.json --data '{"hook_info":{"type":"bitrise","build_trigger_token":"'"${BUILD_TRIGGER_TOKEN}"'"},"build_params":{"branch":"master","commit_hash":"'"${BITRISE_GIT_COMMIT}"'","workflow_id":"release-website"},"triggered_by":"deploy-new-version workflow"}'
+            curl --fail https://app.bitrise.io/app/1686da85b5935fd6/build/start.json --data '{"hook_info":{"type":"bitrise","build_trigger_token":"'"${BUILD_TRIGGER_TOKEN}"'"},"build_params":{"branch":"master","commit_hash":"'"${BITRISE_GIT_COMMIT}"'","workflow_id":"release-plugin"},"triggered_by":"deploy-new-version workflow"}'
+  release-plugin:
+    before_run:
+    - _clone
+    - _install-client-deps
+    - _install-api-server-deps
+    envs:
+    - opts:
+        is_expand: false
+      NODE_ENV: prod
+    - opts:
+        is_expand: false
+      DISCUSS_USERNAME: ninja
+    - opts:
+        is_expand: false
+      BIN_PATH_DARWIN: _bin/workflow-editor-Darwin-x86_64
+    - opts:
+        is_expand: false
+      BIN_PATH_LINUX: _bin/workflow-editor-Linux-x86_64
+    - opts:
+        is_expand: false
+      BIN_PATH_DARWIN_ARM64: _bin/workflow-editor-Darwin-arm64
+    steps:
+    - get-npm-package-version@1:
+        title: Get editor version
+    - script@1:
+        title: Apply ASDF env
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            source ~/.asdf/asdf.sh
+            envman add --key PATH --value $PATH
+    - script:
+        title: Build plugin
+        inputs:
+        - script_file_path:
+        - content: npm run build:plugin
+    - deploy-to-bitrise-io:
+        title: Deploy to Bitrise.io - Plugin
+        is_always_run: false
+    - generate-changelog@0:
+        inputs:
+        - new_version: "$NPM_PACKAGE_VERSION"
+    - github-release@0.11:
+        inputs:
+        - api_token: "$GITHUB_API_TOKEN"
+        - username: "$GITHUB_USERNAME"
+        - repository_url: https://github.com/bitrise-io/bitrise-workflow-editor.git
+        - draft: 'no'
+        - name: v$NPM_PACKAGE_VERSION
+        - body: |-
+            $BITRISE_CHANGELOG
+
+            ### Install or upgrade
+
+            To install this version, run the following commands (in a bash shell):
+
+            ```
+            bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version $NPM_PACKAGE_VERSION
+            ```
+
+            To update the already installed plugin to the latest version:
+
+            ```
+            bitrise plugin update workflow-editor
+            ```
+
+            That's all, you're ready to go!
+
+            To run the workflow editor plugin call:
+
+            ```
+            bitrise :workflow-editor
+            ```
+        - tag: "$NPM_PACKAGE_VERSION"
+        - files_to_upload: |-
+            $BIN_PATH_DARWIN
+            $BIN_PATH_LINUX
+            $BIN_PATH_DARWIN_ARM64
+    - script@1:
+        is_skippable: true
+        title: Create Discuss topic
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            # generate release content...
+            go install github.com/cbroglie/mustache/cmd/mustache@latest
+            asdf reshim
+
+            DATA="---
+            VERSION: $NPM_PACKAGE_VERSION
+            CHANGELOG: |
+              ${BITRISE_CHANGELOG//$'\n'/$'\n  '}
+            "
+
+            DISCUSS_RELEASE_CONTENT=$(echo "$DATA" | mustache release/discuss_release.mustache)
+            DISCUSS_CHANGELOG_CATEGORY_ID=6
+
+            curl -X POST "https://discuss.bitrise.io/posts" \
+                   -H "Content-Type: multipart/form-data;" \
+                   -F "api_key=$DISCUSS_API_KEY" \
+                   -F "api_username=$DISCUSS_USERNAME" \
+                   -F "category=$DISCUSS_CHANGELOG_CATEGORY_ID" \
+                   -F "title=Workflow Editor v$NPM_PACKAGE_VERSION released" \
+                   -F "raw=$DISCUSS_RELEASE_CONTENT"
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  release-website:
+    before_run:
+    - _clone
+    - _install-client-deps
+    envs:
+    - opts:
+        is_expand: false
+      NODE_ENV: prod
+    - opts:
+        is_expand: false
+      PUBLIC_URL_ROOT: https://workflow-editor-cdn.bitrise.io/workflow_editor
+    - opts:
+        is_expand: false
+      FRONTEND_ASSET_BUCKET: workflow-editor-cdn.bitrise.io
+    steps:
+    - script@1:
+        title: Apply ASDF env
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            source ~/.asdf/asdf.sh
+            envman add --key PATH --value $PATH
+    - get-npm-package-version@1:
+        title: Get editor version
+    - script:
+        title: Build website
         inputs:
         - content: |-
             #!/usr/bin/env bash
             # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+            set -exo pipefail
 
-            # write your script here
-            git config --global user.name "Bitrise"
-          opts:
-            meta:
-              bitrise.io:
-                stack: osx-xcode-11.3.x
-    - activate-ssh-key: {}
-    - certificate-and-profile-installer@1.10.2: {}
-    - authenticate-host-with-netrc@0.9.4:
+            npm run build:website
+        - script_file_path:
+        - command: run build:website
+    - script@1:
         inputs:
-        - username: $username
-        - password: $PAT
-        - host: github.com
-    - script@1.1:
-        title: Install Swiftlint 0.35
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
-
-            # Installing Swiftlint 0.35.0
-            brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
-    - git-clone@4.0.17:
-        inputs:
-        - clone_depth: "0"
-    - cache-pull@2.1.3: {}
-    - cache-pull@2: {}
-    - authenticate-with-github-oauth@0: {}
-    - cache-pull@2.1: {}
-    - fastlane@2.6:
-        title: Carthage Bootstrap
-        asset_urls:
-          icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
-        inputs:
-        - lane: download_carthage_from_artifactory
-    - deploy-to-itunesconnect-application-loader: {}
-    - fastlane-match@0.2:
-        title: Fastlane Match Development
-        inputs:
-        - git_branch: master
-    - carthage@3.2.1:
-        inputs:
-        - carthage_options: --platform ios --cache-builds
-        - github_access_token: $GITHUB_TOKEN
-    - xcode-build-for-test:
-        inputs:
-        - scheme: $SCHEME_UI_TESTS
-        - project_path: $WORKSPACE_UI_TESTS
-    - virtual-device-testing-for-ios@0.9:
-        inputs:
-        - test_devices: iphonexsmax,12.1,en,portrait
-    - deploy-to-bitrise-io@1.7.1: {}
-    - cache-push@2:
-        inputs:
-        - ignore_check_on_paths: '!./Pods'
-        - cache_paths: ./Carthage -> ./Carthage/Cachefile
-    - slack@3:
-        inputs:
-        - channel: '#test'
-        - channel_on_error: '#test-error'
-        - text_on_error: Oh No!
-        - emoji_on_error: ':white_frowning_face:'
-        - pretext_on_error: '*Failed Bro*'
-        - emoji: ':smile:'
-        - author_name: Bitrise
-        - fields: |
-            App|${BITRISE_APP_TITLE}
-            Branch|${BITRISE_GIT_BRANCH}
-            Workflow|${BITRISE_TRIGGERED_WORKFLOW_ID}
-        - webhook_url: $SLACK_WEBHOOK
+        - script_file_path:
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
+            KEY_FILE_PATH=$(mktemp -d)/keyfile.json
+            echo "${GCS_SERVICE_ACCOUNT_CREDENTIALS_B64}" | base64 --decode > ${KEY_FILE_PATH}
+            gcloud auth activate-service-account --key-file=${KEY_FILE_PATH}
+            gcloud storage cp -R ./build gs://$FRONTEND_ASSET_BUCKET/workflow_editor/$NPM_PACKAGE_VERSION
+            rm $KEY_FILE_PATH
+        title: Deploy to GCS
+    after_run:
+    - _update_versions
     meta:
       bitrise.io:
-        stack: osx-xcode-11.3.x
-  wf2:
-    summary: Second workflow
-    description: Second, but definitely not the last
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  release-website-experiment:
     before_run:
-    - wf1
-    after_run:
-    - wf3
-    - wf7
-    - wf7
+    - _clone
+    - _install-client-deps
+    - _install-go
     envs:
     - opts:
         is_expand: false
-      project: test
+      NODE_ENV: prod
+    - opts:
+        is_expand: false
+      PUBLIC_URL_ROOT: https://workflow-editor-cdn.bitrise.io/workflow_editor
+    - opts:
+        is_expand: false
+      FRONTEND_ASSET_BUCKET: workflow-editor-cdn.bitrise.io
     steps:
-    - git::https://github.com/bitrise-steplib/steps-script:
-        title: A script step referenced by git URL
-        summary: All non-overwritten attributes should be the step's default value
-          from step.yml in the step's repository.
+    - script:
+        title: Apply ASDF env
         inputs:
-        - content: |
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            source ~/.asdf/asdf.sh
+            envman add --key PATH --value $PATH
+    - script:
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
+
+            npm version --no-git-tag-version "2.0.${BITRISE_BUILD_NUMBER}-beta"
+            next_version="2.0.${BITRISE_BUILD_NUMBER}-beta" ./_scripts/set_version.sh version/version.go bitrise-plugin.yml
+        title: Set experimental version 2.0.{build_number}-beta
+    - script:
+        title: Build website
+        inputs:
+        - script_file_path:
+        - content: |-
             #!/usr/bin/env bash
             # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+            set -exo pipefail
 
-            # This step is referenced by git URL
-    - git::https://github.com/bitrise-steplib/steps-script@master: {}
-    - git::https://github.com/bitrise-steplib/steps-script@master:
-        title: ""
-    - path::./spec/integration/fixture/test_local_step: {}
-    - path::./spec/integration/fixture/test_local_step:
-        title: A local step with overwritten title & input
-        inputs:
-        - company_name: Bitrise 2
-    - path::./spec/integration/fixture/test_local_step:
-        title: ""
+            npm run build:website
     - script:
-        title: A script step with overwritten title & input opts
+        title: Deploy to GCS
         inputs:
-        - content: |
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
 
-            # The 'content' key was needed to be specified, that's how the input is identified. Even if we don't want to change its value, only the opts, like in this situation.
-          opts:
-            is_expand: true
-            title: Modified script input
-    - activate-ssh-key:
-        title: An Activate SSH key step with aliased output
-        outputs:
-        - SSH_AUTH_SOCK: ALIASED_SSH_AUTH_SOCK
-          opts:
-            title: SSH Auth Socket info - aliased to `ALIASED_SSH_AUTH_SOCK`
-    - script:
-        title: A script step with metadata in it
-        meta:
-          bitrise.io:
-            description: Step config part for the Bitrise website.
-            environment: website
-          ship.bitrise.io:
-            summary: Step config part for the Ship add-on.
-  wf3:
-    summary: Third workflow
-    description: The wf3 test workflow
+            KEY_FILE_PATH=$(mktemp -d)/keyfile.json
+            echo "${GCS_SERVICE_ACCOUNT_CREDENTIALS_B64}" | base64 --decode > ${KEY_FILE_PATH}
+            gcloud auth activate-service-account --key-file=${KEY_FILE_PATH}
+            gcloud storage cp -R ./build gs://$FRONTEND_ASSET_BUCKET/workflow_editor/2.0.$BITRISE_BUILD_NUMBER-beta
+            rm $KEY_FILE_PATH
+  run-api-server-unit-tests:
     before_run:
-    - wf4
+    - _clone
+    - _install-api-server-deps
     after_run:
-    - wf5
-    - wf5
-    - wf6
-    envs:
-    - opts:
-        is_expand: false
-      project: vrbo
+    - _api-server-unit-tests
+  run-bump-version-numbers:
+    before_run:
+    - _clone
+    - _install-node
+    - _install-go
+    - _bump-version-numbers
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  run-ci-checks:
+    before_run:
+    - _clone
+    - _install-client-deps
+    - _install-api-server-deps
+    - _build-client
+    - _build-api-server
+    - _api-server-unit-tests
+    - _client-unit-tests
     steps:
-    - activate-ssh-key: {}
-    - git-clone@4.0.17: {}
-    - script@1: {}
-  wf4:
+    - deploy-to-bitrise-io@2: {}
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  run-client-e2e-tests:
+    before_run:
+    - _clone
+    - _install-client-deps
+    after_run:
+    - _client-e2e-tests
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  run-client-unit-tests:
+    before_run:
+    - _clone
+    - _install-client-deps
+    - _build-client
+    - _client-unit-tests
+  run-deploy-storybook:
+    before_run:
+    - _clone
+    - _install-client-deps
+    after_run:
+    - _deploy-storybook
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: ''
+  temp:
+    before_run:
+    - _build-client
+    after_run:
+    - _client-unit-tests
     envs:
-    - opts:
+    - FOO: bar
+      opts:
         is_expand: false
-      project: testproject
     steps:
-    - script@1: {}
-    - path::./spec/integration/fixture/untitled_step: {}
-    - path::./spec/integration/fixture/test_local_step:
-        summary: A local step with overwritten summary
-        description: This local step has its description overwritten
-        is_always_run: true
-    - path::./spec/integration/fixture/test_local_step: {}
-    - azure-devops-status@1: {}
-  wf5:
-    envs:
-    - opts:
-        is_expand: false
-      project: testproject
+    - script@1:
+        title: Hello World
+  update-algolia:
     steps:
     - script@1:
         inputs:
-        - content: '#!/usr/bin/env bash'
-    - xamarin-user-management: {}
-  wf6:
-    summary: this is a short summary
-    description: I don't know what to write here
-    envs:
-    - WF_NAME: wf6
-      opts:
-        is_expand: false
-    - TEST: 123
-      opts:
-        is_expand: false
-  wf7:
-    summary: Seventh workflow
-    description: Last, but not least important workflow
-    steps:
-    - script@1:
+        - content: |-
+            #!/bin/bash
+            set -exo pipefail
+
+            # mock envvars, spec.json
+            curl http://bitrise-steplib-collection.s3.amazonaws.com/spec.json -o /tmp/spec.json
+            export SPEC_JSON_PATH=/tmp/spec.json
+            # export DRY_RUN=true
+
+            # actual step content
+            git clone https://github.com/bitrise-io/steplib-search.git
+
+            export BITRISE_SOURCE_DIR="$BITRISE_SOURCE_DIR/steplib-search"
+            cd steplib-search
+
+            bitrise run update-algolia
+        asset_urls:
+          icon.svg: https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg
+    - slack:
         inputs:
-        - content: '#!/usr/bin/env bash'
-    - xamarin-user-management: {}
-    - bundle::install_deps: {}
-    - with:
-        container: ruby
-        services:
-        - postgres
-step_bundles:
-  install_deps:
-    envs:
-    - CACHE_KEY: npm-cache-{{ checksum }}
-      opts: {}
-    - NPM_COMMAND: install
-      opts: {}
+        - channel: "#bitrise-steplib"
+        - text: New version!
+        - emoji: ":bell:"
+        - webhook_url: "$SLACK_WEBHOOK_URL"
+meta:
+  bitrise.io:
+    machine_type_id: elite
+    stack: linux-docker-android-22.04
+app:
+  envs:
+  - opts:
+      is_expand: false
+    STORYBOOK_GCP_DEPLOY_BUCKET: bitrise-storybook-dev
+  - opts:
+      is_expand: false
+    CYPRESS_CACHE_FOLDER: node_modules/.cache/cypress
+  - opts:
+      is_expand: false
+    BIN_PATH_DARWIN: _bin/workflow-editor-Darwin-x86_64
+  - opts:
+      is_expand: false
+    BIN_PATH_DARWIN_ARM64: _bin/workflow-editor-Darwin-arm64
+  - opts:
+      is_expand: false
+    BIN_PATH_LINUX: _bin/workflow-editor-Linux-x86_64
+  - opts:
+      is_expand: false
+    NODE_ENV: prod
+  - opts:
+      is_expand: false
+    BITRISE_NO_OUTPUT_TIMEOUT: '300'
+  - opts:
+      is_expand: false
+    NODE_BUILD_CURL_OPTS: "--retry 5"

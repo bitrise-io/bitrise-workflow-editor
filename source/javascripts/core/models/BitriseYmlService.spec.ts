@@ -535,7 +535,11 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ clone: {} }, { script: { inputs: [{ contents: 'echo "Hello, World!"' }] } }, { test: {} }],
+            steps: [
+              { clone: {} },
+              { script: { inputs: [{ other: 'value' }, { contents: 'echo "Hello, World!"' }] } },
+              { test: {} },
+            ],
           },
         },
       };
@@ -544,7 +548,11 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ clone: {} }, { script: { inputs: [{ contents: 'echo "Hello, Bitrise!"' }] } }, { test: {} }],
+            steps: [
+              { clone: {} },
+              { script: { inputs: [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }] } },
+              { test: {} },
+            ],
           },
         },
       };
@@ -552,8 +560,8 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputs(
         'wf1',
         1,
-        [{ contents: 'echo "Hello, Bitrise!"' }],
-        [{ contents: '' }],
+        [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }],
+        [{ contents: '' }, { other: '' }],
         sourceYml,
       );
 
@@ -746,8 +754,8 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputs(
         'wf1',
         1,
-        [{ script: 'echo "Hello, World!"' }, { is_debug: true }],
-        [{ script: 'echo "Hello, World!"' }, { is_debug: false }],
+        [{ contents: 'echo "Hello, World!"' }, { is_debug: true }],
+        [{ contents: 'echo "Hello, World!"' }, { is_debug: false }],
         sourceYml,
       );
 
@@ -773,7 +781,13 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputs('wf1', 1, [], [{ is_debug: false }], sourceYml);
+      const actualYml = BitriseYmlService.updateStepInputs(
+        'wf1',
+        1,
+        [{ is_debug: false }],
+        [{ is_debug: false }],
+        sourceYml,
+      );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -1722,6 +1736,13 @@ describe('BitriseYmlService', () => {
       );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should keep originally empty envs field', () => {
+      const sourceAndExpectedYml: BitriseYml = { format_version: '', workflows: { wf1: { envs: [] } } };
+      const actualYml = BitriseYmlService.updateWorkflowEnvVars('wf1', [], sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
 });
