@@ -1,5 +1,5 @@
-import { react2angular } from '@bitrise/react2angular';
-import { Checkbox, Icon } from '@bitrise/bitkit';
+import {react2angular} from '@bitrise/react2angular';
+import {Checkbox, Icon} from '@bitrise/bitkit';
 
 import Header from './components/Header';
 import InfoTooltip from './components/InfoTooltip';
@@ -13,8 +13,8 @@ import WorkflowRecipesInfoBanner from './components/WorkflowRecipesInfoBanner';
 import YmlEditor from './components/YmlEditor/YmlEditor';
 import YmlEditorHeader from './components/YmlEditorHeader/YmlEditorHeader';
 import DiffEditorDialog from './components/DiffEditor/DiffEditorDialog';
-import { StepBundlePanel, StepSelectorDrawer, WithGroupPanel, WorkflowEmptyState } from './components/unified-editor';
-import { RootComponent, withRootProvider } from './utils/withRootProvider';
+import {StepBundlePanel, StepSelectorDrawer, WithGroupPanel, WorkflowEmptyState} from './components/unified-editor';
+import {RootComponent, withRootProvider} from './utils/withRootProvider';
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
@@ -25,7 +25,7 @@ import {
   WorkflowConfigPanel,
   WorkflowToolbar,
 } from './pages/WorkflowsPage';
-import { PipelinesPage, SecretsPage, TriggersPage, WorkflowsPage } from './pages';
+import {PipelinesPage, SecretsPage, TriggersPage, WorkflowsPage} from './pages';
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -188,7 +188,7 @@ angular
     ]),
   )
   .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['appSlug', 'yml', 'defaultValues', 'onChange']))
-  .component('rStepSelectorDrawer', register(StepSelectorDrawer, ['isOpen', 'onClose', 'enabledSteps', 'onSelectStep']))
+  .component('rStepSelectorDrawer', register(StepSelectorDrawer, ['yml', 'isOpen', 'onClose', 'enabledSteps', 'onSelectStep']))
   .component(
     'rChainWorkflowDrawer',
     register(ChainWorkflowDrawer, ['workflowId', 'yml', 'isOpen', 'onClose', 'onChainWorkflow']),
