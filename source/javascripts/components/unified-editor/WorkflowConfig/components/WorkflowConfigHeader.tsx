@@ -2,9 +2,9 @@ import { Box, IconButton, Tab, TabList, Text } from '@bitrise/bitkit';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import { WorkflowConfigTab } from '../WorkflowConfig.types';
-import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 
 type Props = {
   variant: 'panel' | 'drawer';

@@ -18,14 +18,14 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { TriggerType } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.types';
-import TriggerConditions from '../../../../TriggersPage/components/TargetBasedTriggers/TriggerConditions';
+import { TriggerType } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
+import TriggerConditions from '@/pages/TriggersPage/components/TargetBasedTriggers/TriggerConditions';
 import {
   getConditionList,
   TargetBasedTriggerItem,
   TargetBasedTriggers,
-} from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
-import AddTrigger from '../../../../TriggersPage/components/TargetBasedTriggers/AddTrigger';
+} from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
+import AddTrigger from '@/pages/TriggersPage/components/TargetBasedTriggers/AddTrigger';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
