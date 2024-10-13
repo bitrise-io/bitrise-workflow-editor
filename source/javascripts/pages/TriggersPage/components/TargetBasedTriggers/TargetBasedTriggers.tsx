@@ -66,8 +66,6 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
     return 0;
   });
 
-  console.log(pipelineableTriggers);
-
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
