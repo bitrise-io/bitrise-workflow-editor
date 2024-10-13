@@ -156,8 +156,7 @@
         return $q(function (resolve, reject) {
           var errors = [];
 
-          if (_.any &&
-            _.any(variables, function (aVariable) {
+          if (_.any(variables, function (aVariable) {
               return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
             })
           ) {
@@ -168,8 +167,7 @@
             }
           }
 
-          if (_.any &&
-            _.any(variables, function (aVariable) {
+          if (_.any(variables, function (aVariable) {
               return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
             })
           ) {
