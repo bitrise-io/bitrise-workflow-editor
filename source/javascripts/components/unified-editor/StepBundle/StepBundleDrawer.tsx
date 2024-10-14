@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { StepBundleContent, StepBundleHeader } from './StepBundlePanel';
 
 type Props = UseDisclosureProps & {
@@ -19,7 +20,8 @@ type Props = UseDisclosureProps & {
 const StepBundleDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
   const { data } = useStep(workflowId, stepIndex);
-  const isStepBundle = StepService.isStepBundle(data?.cvs || '', data?.userValues);
+  const defaultStepLibrary = useDefaultStepLibrary();
+  const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
 
   if (!isStepBundle || !data) {
     return null;

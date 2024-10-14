@@ -15,7 +15,7 @@ import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
 import { PipelinesYml } from './Pipeline';
-import { StepInputVariable, StepYmlObject } from './Step';
+import { BITRISE_STEPLIB_URL, StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -91,6 +91,7 @@ function updateStep(
 
 function changeStepVersion(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEPLIB_URL;
 
   // If the workflow or step is missing in the YML just return the YML
   if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
@@ -100,7 +101,7 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
   copy.workflows[workflowId].steps[stepIndex] = mapKeys(
     copy.workflows[workflowId].steps[stepIndex],
     (_, cvs: string) => {
-      return StepService.createStepCVS(cvs, version);
+      return StepService.replaceCVSVersion(cvs, defaultStepLibrary, version);
     },
   );
 
@@ -469,19 +470,23 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
 
 function getUniqueStepIds(yml: BitriseYml) {
   const ids = new Set<string>();
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEPLIB_URL;
 
   mapValues(yml.workflows, (workflow) => {
     workflow.steps?.forEach((stepLikeObject) => {
       mapValues(stepLikeObject, (stepLike, cvsLike) => {
-        if (StepService.isStep(cvsLike, stepLike)) {
-          const { id } = StepService.parseStepCVS(cvsLike, yml.default_step_lib_source);
+        if (StepService.isStep(cvsLike, defaultStepLibrary, stepLike)) {
+          const { id } = StepService.parseStepCVS(cvsLike, defaultStepLibrary);
           ids.add(id);
         }
 
-        if (StepService.isStepBundle(cvsLike, stepLike) || StepService.isWithGroup(cvsLike, stepLike)) {
+        if (
+          StepService.isStepBundle(cvsLike, defaultStepLibrary, stepLike) ||
+          StepService.isWithGroup(cvsLike, defaultStepLibrary, stepLike)
+        ) {
           stepLike.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
-              const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source);
+              const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
               ids.add(id);
             });
           });

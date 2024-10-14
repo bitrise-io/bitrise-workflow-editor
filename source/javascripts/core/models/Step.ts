@@ -1,9 +1,19 @@
 import { WorkflowYmlObject } from './Workflow';
 
+const BITRISE_STEPLIB_URL = 'https://github.com/bitrise-io/bitrise-steplib.git';
+
 enum Maintainer {
   Bitrise = 'bitrise',
   Verified = 'verified',
   Community = 'community',
+}
+
+enum LibraryType {
+  STEPLIB = 'bitrise-steplib',
+  GIT = 'git',
+  LOCAL = 'path',
+  BUNDLE = 'bundle',
+  WITH = 'with',
 }
 
 type Steps = Required<WorkflowYmlObject>['steps'];
@@ -100,6 +110,7 @@ type StepInputVariable = StepVariable;
 type StepOutputVariable = StepVariable;
 
 export {
+  BITRISE_STEPLIB_URL,
   Steps,
   StepLikeYmlObject,
   StepYmlObject,
@@ -115,4 +126,5 @@ export {
   StepOutputVariable,
   VariableOpts,
   Maintainer,
+  LibraryType,
 };

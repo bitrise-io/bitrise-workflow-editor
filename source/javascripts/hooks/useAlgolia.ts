@@ -1,18 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import StepApi from '@/core/api/StepApi';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 function useAlgoliaSteps() {
+  const defaultStepLibrary = useDefaultStepLibrary();
   return useQuery({
-    queryKey: ['algolia-steps'],
-    queryFn: () => StepApi.getAlgoliaSteps(),
+    queryKey: ['algolia-steps', { defaultStepLibrary }] as const,
+    queryFn: () => StepApi.getAlgoliaSteps(defaultStepLibrary),
     staleTime: Infinity,
   });
 }
 
 function useAlgoliaStep({ cvs, enabled = true }: { cvs: string; enabled?: boolean }) {
+  const defaultStepLibrary = useDefaultStepLibrary();
   return useQuery({
-    queryKey: ['algolia-steps', { cvs }],
-    queryFn: () => StepApi.getAlgoliaStepByCvs(cvs),
+    queryKey: ['algolia-steps', { cvs, defaultStepLibrary }] as const,
+    queryFn: () => StepApi.getAlgoliaStepByCvs(cvs, defaultStepLibrary),
     enabled: Boolean(cvs && enabled),
     staleTime: Infinity,
   });
