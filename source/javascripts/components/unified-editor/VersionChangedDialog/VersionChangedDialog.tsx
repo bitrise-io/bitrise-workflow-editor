@@ -3,7 +3,6 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '
 import { useQuery } from '@tanstack/react-query';
 import StepApi from '@/core/api/StepApi';
 import StepService from '@/core/models/StepService';
-import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 type Props = {
   cvs: string;
@@ -12,31 +11,29 @@ type Props = {
 };
 
 const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const defaultStepLibrary = useDefaultStepLibrary();
-
-  const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  const [isOpen, setIsOpen] = useState(true);
+  const { id } = StepService.parseStepCVS(cvs);
 
   useEffect(() => {
     setIsOpen(true);
   }, [id, oldVersion, newVersion]);
 
-  const oldCvs = StepService.replaceCVSVersion(cvs, defaultStepLibrary, oldVersion);
+  const oldCvs = StepService.createStepCVS(cvs, oldVersion);
   const { data: oldStep, isFetching: isOldStepLoading } = useQuery({
-    queryKey: ['steps', { oldCvs }, defaultStepLibrary],
-    queryFn: () => StepApi.getStepByCvs(oldCvs, defaultStepLibrary),
-    enabled: Boolean(id && oldCvs),
+    queryKey: ['steps', { oldCvs }],
+    queryFn: () => StepApi.getStepByCvs(oldCvs),
+    enabled: Boolean(oldCvs),
   });
 
-  const newCvs = StepService.replaceCVSVersion(cvs, defaultStepLibrary, newVersion);
+  const newCvs = StepService.createStepCVS(cvs, newVersion);
   const { data: newStep, isFetching: isNewStepLoading } = useQuery({
-    queryKey: ['steps', { newCvs }, defaultStepLibrary],
-    queryFn: () => StepApi.getStepByCvs(newCvs, defaultStepLibrary),
-    enabled: Boolean(id && newCvs),
+    queryKey: ['steps', { newCvs }],
+    queryFn: () => StepApi.getStepByCvs(newCvs),
+    enabled: Boolean(newCvs),
   });
 
   const isFetching = isOldStepLoading || isNewStepLoading;
-  const { removedInputs, newInputs, change } = StepService.calculateChange(oldStep, newStep, defaultStepLibrary);
+  const { removedInputs, newInputs, change } = StepService.calculateChange(oldStep, newStep);
   const sourceUrl = newStep?.defaultValues?.source_code_url;
 
   if (isFetching || change === 'none') {

@@ -9,7 +9,6 @@ import EnvVarsApi from '@/core/api/EnvVarsApi';
 import WindowUtils from '@/core/utils/WindowUtils';
 import StepApi from '@/core/api/StepApi';
 import WorkflowService from '@/core/models/WorkflowService';
-import useDefaultStepLibrary from './useDefaultStepLibrary';
 
 const useDefaultEnvVars = (enabled: boolean) => {
   const appSlug = WindowUtils.appSlug() ?? '';
@@ -56,7 +55,6 @@ const useWorkflowLevelEnvVars = (workflowId: string) => {
 };
 
 const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
-  const defaultStepLibrary = useDefaultStepLibrary();
   const cvss = useBitriseYmlStore(
     useShallow((s) => {
       const cvsSet = new Set<string>();
@@ -65,10 +63,7 @@ const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
         s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
           const [cvs, step] = Object.entries(ymlStepObject)[0];
           // TODO: Handle step bundles and with groups...
-          if (
-            !StepService.isStepBundle(cvs, defaultStepLibrary, step) &&
-            !StepService.isWithGroup(cvs, defaultStepLibrary, step)
-          ) {
+          if (!StepService.isStepBundle(cvs, step) && !StepService.isWithGroup(cvs, step)) {
             cvsSet.add(cvs);
           }
         });
@@ -81,8 +76,8 @@ const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
   return useQueries({
     queries: cvss.map((cvs) => ({
       enabled,
-      queryKey: ['steps', { cvs, defaultStepLibrary }],
-      queryFn: () => StepApi.getStepByCvs(cvs, defaultStepLibrary),
+      queryKey: ['steps', { cvs }],
+      queryFn: () => StepApi.getStepByCvs(cvs),
     })),
     combine: (result) => {
       const envVarMap = new Map<string, EnvVar>();
