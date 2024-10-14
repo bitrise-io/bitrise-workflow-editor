@@ -10,6 +10,10 @@ const DEFAULT_HEADERS = {
 type ExtraOpts = { excludeCSRF?: boolean; timeout?: number };
 type ClientOpts = RequestInit & ExtraOpts;
 
+const DEFAULT_OPTIONS: ClientOpts = {
+  headers: DEFAULT_HEADERS,
+};
+
 class NetworkError extends Error {
   constructor(message: string) {
     super(message);
@@ -20,7 +24,7 @@ class NetworkError extends Error {
 async function client<T>(url: string, options?: ClientOpts) {
   // Include CSRF token in headers if not excluded
   const csrfHeader = !options?.excludeCSRF ? { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') } : undefined;
-  const headers = merge({}, DEFAULT_HEADERS, options?.headers, csrfHeader);
+  const headers = merge({}, DEFAULT_OPTIONS.headers, options?.headers, csrfHeader);
 
   const externalSignal = options?.signal;
   const controller = new AbortController();
@@ -36,7 +40,7 @@ async function client<T>(url: string, options?: ClientOpts) {
   }
 
   try {
-    const opts = merge({}, options, {
+    const opts = merge({}, DEFAULT_OPTIONS, options, {
       headers,
       signal: controller.signal,
     });
@@ -96,42 +100,10 @@ function del<T>(url: string, options?: ClientOpts) {
   return client<T>(url, { ...options, method: 'DELETE' });
 }
 
-async function text(url: string, options?: ClientOpts) {
-  const externalSignal = options?.signal;
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort('TimeoutError');
-  }, options?.timeout ?? DEFAULT_TIMEOUT);
-
-  if (externalSignal) {
-    externalSignal.addEventListener('abort', () => {
-      controller.abort();
-      clearTimeout(timeoutId);
-    });
-  }
-
-  try {
-    const opts = merge({}, options, {
-      signal: controller.signal,
-    });
-    const response = await fetch(url, opts);
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new NetworkError(`HTTP ${response.status} ${response.statusText}`);
-    }
-    return await response.text();
-  } catch (error) {
-    clearTimeout(timeoutId);
-    handleError(error);
-  }
-}
-
 export default {
   get,
   post,
   put,
   patch,
   del,
-  text,
 };
