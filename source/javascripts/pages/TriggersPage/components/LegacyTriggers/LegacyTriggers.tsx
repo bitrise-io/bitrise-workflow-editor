@@ -1,6 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react';
-import isObject from 'lodash/isObject';
+import { useState } from 'react';
 import {
   Button,
   EmptyState,
@@ -15,139 +13,82 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import {
-  closestCenter,
   DndContext,
-  DragEndEvent,
+  closestCenter,
   DragOverlay,
+  useSensors,
+  DragEndEvent,
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors,
 } from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { useShallow } from 'zustand/react/shallow';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { TriggerType, TriggerItem } from '../TriggersPage/TriggersPage.types';
+import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPageFunctions';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
-import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
 
-type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
-
-const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
-  const triggerMap: FinalTriggerItem[] = Object.values(triggers)
-    .flat()
-    .map((trigger) => {
-      const finalItem: FinalTriggerItem = {};
-      trigger.conditions.forEach(({ isRegex, type, value }) => {
-        finalItem[type] = isRegex ? { regex: value } : value;
-      });
-      if (!trigger.isActive) {
-        finalItem.enabled = false;
-      }
-      if (trigger.source === 'pull_request' && !trigger.isDraftPr) {
-        finalItem.draft_pull_request_enabled = false;
-      }
-      finalItem.type = trigger.source;
-      const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
-      finalItem[pipelinableType] = pipelinableName;
-      return finalItem;
-    });
-
-  return triggerMap;
+type LegacyTriggersProps = {
+  yml: BitriseYml;
 };
 
-const getSourceType = (triggerKeys: string[], type?: SourceType): SourceType => {
-  if (type) {
-    return type;
-  }
-  if (triggerKeys.includes('push_branch')) {
-    return 'push';
-  }
-  if (triggerKeys.includes('tag')) {
-    return 'tag';
-  }
-  return 'pull_request';
-};
+const LegacyTriggers = (props: LegacyTriggersProps) => {
+  const { yml } = props;
 
-const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<SourceType, TriggerItem[]> => {
-  const triggers: Record<SourceType, TriggerItem[]> = {
-    pull_request: [],
-    push: [],
-    tag: [],
-  };
-  triggerMap.forEach((trigger) => {
-    const triggerKeys = Object.keys(trigger);
-    const source = getSourceType(triggerKeys, trigger.type as SourceType);
-    const finalItem: TriggerItem = {
-      conditions: [],
-      pipelineable: trigger.workflow as string,
-      id: crypto.randomUUID(),
-      source,
-      isActive: trigger.enabled !== false,
-    };
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const pipelines = yml.pipelines ? Object.keys(yml.pipelines) : [];
+  const workflows = yml.workflows ? Object.keys(yml.workflows).filter((workflowID) => !workflowID.startsWith('_')) : [];
+  const triggerMap = yml.trigger_map;
 
-    if (source === 'pull_request') {
-      if (trigger.draft_pull_request_enabled !== false) {
-        finalItem.isDraftPr = true;
-      } else {
-        finalItem.isDraftPr = false;
-      }
-    }
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [triggers, setTriggers] = useState<Record<TriggerType, TriggerItem[]>>(
+    convertTriggerMapToItems(triggerMap || []),
+  );
+  const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
-    if (trigger.workflow) {
-      finalItem.pipelineable = `workflow#${trigger.workflow}`;
-    }
-    if (trigger.pipeline) {
-      finalItem.pipelineable = `pipeline#${trigger.pipeline}`;
-    }
+  const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
 
-    triggerKeys.forEach((key) => {
-      if (!['workflow', 'enabled', 'draft_pull_request_enabled', 'type', 'pipeline'].includes(key)) {
-        const isRegex = isObject(trigger[key]);
-        finalItem.conditions.push({
-          isRegex,
-          type: key as ConditionType,
-          value: isRegex ? (trigger[key] as { regex: string }).regex : (trigger[key] as string),
-        });
-      }
-    });
-    triggers[source].push(finalItem);
-  });
-  return triggers;
-};
-
-const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
-const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
-
-type TriggersPageProps = {
-  integrationsUrl?: string;
-  isWebsiteMode: boolean;
-  onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
-  pipelines: string[];
-  setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
-  triggerMap?: FinalTriggerItem[];
-  workflows: string[];
-};
-
-const TriggersPage = (props: TriggersPageProps) => {
-  const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
-
-  const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useUserMetaData({
-    key: TRIGGERS_CONFIGURED_METADATA_KEY,
-    enabled: isWebsiteMode,
-  });
   const { isVisible: isOrderNotificationOpen, close: closeOrderNotification } = useUserMetaData({
     key: ORDER_NOTIFICATION_METADATA_KEY,
     enabled: isWebsiteMode,
   });
+
+  const { updateTriggerMap } = useBitriseYmlStore(
+    useShallow((s) => ({
+      updateTriggerMap: s.updateTriggerMap,
+    })),
+  );
+
+  const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
+    const newTriggers = { ...triggers };
+    if (action === 'add') {
+      newTriggers[trigger.source].push(trigger);
+    }
+    if (action === 'remove') {
+      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
+    }
+    if (action === 'edit') {
+      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
+      newTriggers[trigger.source][index] = trigger;
+    }
+    setTriggers(newTriggers);
+    updateTriggerMap(convertItemsToTriggerMap(newTriggers));
+  };
 
   const {
     isOpen: isPushTriggerDialogOpen,
@@ -163,14 +104,6 @@ const TriggersPage = (props: TriggersPageProps) => {
     onClose: closeTagTriggerDialog,
   } = useDisclosure();
 
-  const [triggers, setTriggers] = useState<Record<SourceType, TriggerItem[]>>(
-    convertTriggerMapToItems(triggerMap || []),
-  );
-
-  const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
-
-  const [activeId, setActiveId] = useState<string | null>(null);
-
   const onCloseDialog = () => {
     closePushTriggerDialog();
     closePrTriggerDialog();
@@ -178,20 +111,35 @@ const TriggersPage = (props: TriggersPageProps) => {
     setEditedItem(undefined);
   };
 
-  const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
-    const newTriggers = { ...triggers };
-    if (action === 'add') {
-      newTriggers[trigger.source].push(trigger);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+
+    setActiveId(active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent, type: TriggerType) => {
+    const { active, over } = event;
+    const items = triggers[type];
+
+    if (active.id !== over?.id) {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over?.id);
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      const newTriggers = {
+        ...triggers,
+        [type]: newItems,
+      };
+      setActiveId(null);
+      setTriggers(newTriggers);
+      updateTriggerMap(convertItemsToTriggerMap(newTriggers));
     }
-    if (action === 'remove') {
-      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
-    }
-    if (action === 'edit') {
-      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
-      newTriggers[trigger.source][index] = trigger;
-    }
-    setTriggers(newTriggers);
-    onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
   };
 
   const onPushTriggerEdit = (trigger: TriggerItem) => {
@@ -209,68 +157,26 @@ const TriggersPage = (props: TriggersPageProps) => {
     openTagTriggerDialog();
   };
 
-  useEffect(() => {
-    setDiscard((originalTriggerMap) => {
-      setTriggers(convertTriggerMapToItems(originalTriggerMap || []));
-    });
-  }, [setDiscard]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-
-    setActiveId(active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent, type: SourceType) => {
-    const { active, over } = event;
-    const items = triggers[type];
-
-    if (active.id !== over?.id) {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over?.id);
-      const newItems = arrayMove(items, oldIndex, newIndex);
-      const newTriggers = {
-        ...triggers,
-        [type]: newItems,
-      };
-      setActiveId(null);
-      setTriggers(newTriggers);
-      onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
-    }
-  };
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   return (
     <>
-      <Text as="h2" textStyle="heading/h2" marginBottom="4">
-        Triggers
-      </Text>
-      <Text color="text/secondary">
-        Triggers help you start builds automatically.{' '}
-        <Link
-          colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-          isExternal
-        >
-          Learn more
-        </Link>
-      </Text>
-      {isWebhookNotificationOpen && (
-        <Notification
-          status="info"
-          onClose={closeWebhookNotification}
-          action={{ href: integrationsUrl, label: 'Set up webhooks' }}
-          marginTop="32"
-        >
-          <Text fontWeight="bold">Configure webhooks</Text>
-          <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
-        </Notification>
+      {isTargetBasedTriggersEnabled && (
+        <>
+          <Text as="h3" textStyle="heading/h3" marginBottom="4">
+            Legacy triggers
+          </Text>
+          <Text color="text/secondary">
+            A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
+            <Link
+              colorScheme="purple"
+              href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+              isExternal
+            >
+              Learn more
+            </Link>
+          </Text>
+        </>
       )}
       <Tabs marginTop="24" marginBottom="24">
         <TabList>
@@ -505,4 +411,4 @@ const TriggersPage = (props: TriggersPageProps) => {
   );
 };
 
-export default TriggersPage;
+export default LegacyTriggers;

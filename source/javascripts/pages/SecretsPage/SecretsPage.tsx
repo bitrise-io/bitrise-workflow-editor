@@ -17,7 +17,7 @@ type SecretsPageProps = {
 
 const SecretsPage = (props: SecretsPageProps) => {
   const {
-    secrets,
+    secrets = [],
     onSecretsChange,
     appSlug,
     secretSettingsUrl,

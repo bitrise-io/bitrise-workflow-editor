@@ -51,7 +51,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           id: "workflows",
           title: "<%= data[:strings][:main][:menus][:workflows] %>",
           path: "<%= data[:routes][:endpoints][:workflows] %>",
-          possibleURLParameterKeys: ["workflow_id"],
+          possibleURLParameterKeys: ["workflow_id", "tab"],
           cssClass: "workflows"
         },
         {
@@ -207,7 +207,6 @@ import {segmentTrack} from "@/utils/segmentTracking";
                 break;
               }
             case "env-vars":
-            case "triggers":
               var loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(Stack.getAll());
@@ -225,37 +224,28 @@ import {segmentTrack} from "@/utils/segmentTracking";
 
               loadPromise.then(
                 function () {
-                  $q(function (deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
-                    if (appService.appConfigHasDeprecatedTriggerMap()) {
-                      appService.updateDeprecatedTriggerMap();
-
-                      Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", [
-                        "<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>",
-                        "<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
-                      ])
-                        .then(function () {
-                          return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                            ? $q.when()
-                            : viewModel.save({source: "deprecated_trigger_map_update"});
-                        })
-                        .then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
-                    } else {
-                      deprecatedTriggerCheckResolve();
-                    }
-                  }).then(
-                    function () {
-                      resolve();
-                    },
-                    function (error) {
-                      reject(error);
-                    }
-                  );
+                  resolve();
                 },
                 function (error) {
                   reject(error);
                 }
               );
+              break;
+            case "triggers":
+              var loadPromises = [appService.getAppConfig()];
+              if (requestService.isWebsiteMode()) {
+                loadPromises.push(appService.getPipelineConfig());
+              }
+              var loadPromise = $q.all(loadPromises);
 
+              loadPromise.then(
+                function () {
+                  resolve();
+                },
+                function (error) {
+                  reject(error);
+                }
+              );
               break;
             case "licenses":
               var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
@@ -318,7 +308,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
         );
       }
 
-      viewModel.menuSelected = function (menu) {
+      viewModel.menuSelected = function (menu, params) {
         if (menu === viewModel.currentMenu) {
           return;
         }
@@ -414,7 +404,12 @@ import {segmentTrack} from "@/utils/segmentTracking";
 
             viewModel.currentMenu = menu;
             if ($location.path() != "/" + menu.path) {
-              $location.path("/" + menu.path).replace();
+              if (params) {
+                $location.path("/" + menu.path).search(params).replace();
+              }
+              else {
+                $location.path("/" + menu.path).replace();
+              }
             }
 
             if (!isInitialSelection) {
@@ -936,7 +931,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
         const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
 
         if (menu) {
-          viewModel.menuSelected(menu);
+          viewModel.menuSelected(menu, e.detail.params);
         }
       });
 

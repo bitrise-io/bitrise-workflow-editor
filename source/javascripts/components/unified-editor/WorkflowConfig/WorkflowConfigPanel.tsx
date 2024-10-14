@@ -6,6 +6,8 @@ import omit from 'lodash/omit';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
+import TriggersTabPanel from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/components/TriggersTabPanel';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -66,6 +68,8 @@ const WorkflowConfigPanelContent = () => {
     updateWorkflowEnvVars,
   ]);
 
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
+
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
       <WorkflowConfigHeader variant="panel" />
@@ -76,6 +80,11 @@ const WorkflowConfigPanelContent = () => {
         <TabPanel id={WorkflowConfigTab.PROPERTIES} p="24" overflowY="auto" h="100%">
           <PropertiesTab />
         </TabPanel>
+        {isTargetBasedTriggersEnabled && (
+          <TabPanel id={WorkflowConfigTab.TRIGGERS} overflowY="auto" h="100%">
+            <TriggersTabPanel />
+          </TabPanel>
+        )}
       </TabPanels>
     </Tabs>
   );
