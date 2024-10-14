@@ -404,7 +404,12 @@ import {segmentTrack} from "@/utils/segmentTracking";
 
             viewModel.currentMenu = menu;
             if ($location.path() != "/" + menu.path) {
-              $location.path("/" + menu.path).search(params).replace();
+              if (params) {
+                $location.path("/" + menu.path).search(params).replace();
+              }
+              else {
+                $location.path("/" + menu.path).replace();
+              }
             }
 
             if (!isInitialSelection) {
