@@ -1,13 +1,12 @@
 import { StepApiResult } from '@/core/api/StepApi';
 import StepService from './StepService';
-import { BITRISE_STEPLIB_URL, Step } from './Step';
+import { Step } from './Step';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
 
 const STEPLIB_STEP = 'https://github.com/bitrise-io/bitrise-steplib.git::script@1.2.3';
 const CUSTOM_STEP = 'https://github.com/foo/bar.git::bazz@next';
 const GIT_STEP = 'git::https://github.com/bitrise-steplib/steps-script@master';
-const GIT_SSH_STEP = 'git::git@github.com:bitrise-steplib/steps-script@master';
 const LOCAL_STEP = 'path::/path/to/my/local-step';
 const STEP_BUNDLE = 'bundle::my-bundle';
 const WITH_GROUP = 'with';
@@ -16,24 +15,16 @@ describe('StepService', () => {
   describe('parseStepCVS', () => {
     describe('Simple step', () => {
       it('with version', () => {
-        expect(StepService.parseStepCVS('script@1.2.3', BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
+        expect(StepService.parseStepCVS('script@1.2.3')).toEqual({
+          library: 'https://github.com/bitrise-io/bitrise-steplib.git',
           id: 'script',
           version: '1.2.3',
         });
       });
 
       it('without version', () => {
-        expect(StepService.parseStepCVS('script', BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
-          id: 'script',
-          version: '',
-        });
-      });
-
-      it('with a custom default library', () => {
-        expect(StepService.parseStepCVS('script', 'https://github.com/foo/bar.git')).toEqual({
-          library: 'https://github.com/foo/bar.git',
+        expect(StepService.parseStepCVS('script')).toEqual({
+          library: 'https://github.com/bitrise-io/bitrise-steplib.git',
           id: 'script',
           version: '',
         });
@@ -42,16 +33,16 @@ describe('StepService', () => {
 
     describe('Default steplib step', () => {
       it('with version', () => {
-        expect(StepService.parseStepCVS(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
+        expect(StepService.parseStepCVS(STEPLIB_STEP)).toEqual({
+          library: 'https://github.com/bitrise-io/bitrise-steplib.git',
           id: 'script',
           version: '1.2.3',
         });
       });
 
       it('without version', () => {
-        expect(StepService.parseStepCVS(STEPLIB_STEP.split('@')[0], BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
+        expect(StepService.parseStepCVS(STEPLIB_STEP.split('@')[0])).toEqual({
+          library: 'https://github.com/bitrise-io/bitrise-steplib.git',
           id: 'script',
           version: '',
         });
@@ -60,7 +51,7 @@ describe('StepService', () => {
 
     describe('Custom steplib step', () => {
       it('with version', () => {
-        expect(StepService.parseStepCVS(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toEqual({
+        expect(StepService.parseStepCVS(CUSTOM_STEP)).toEqual({
           library: 'https://github.com/foo/bar.git',
           id: 'bazz',
           version: 'next',
@@ -68,7 +59,7 @@ describe('StepService', () => {
       });
 
       it('without version', () => {
-        expect(StepService.parseStepCVS(CUSTOM_STEP.split('@')[0], BITRISE_STEPLIB_URL)).toEqual({
+        expect(StepService.parseStepCVS(CUSTOM_STEP.split('@')[0])).toEqual({
           library: 'https://github.com/foo/bar.git',
           id: 'bazz',
           version: '',
@@ -78,7 +69,7 @@ describe('StepService', () => {
 
     describe('Git step (git::)', () => {
       it('with version', () => {
-        expect(StepService.parseStepCVS(GIT_STEP, BITRISE_STEPLIB_URL)).toEqual({
+        expect(StepService.parseStepCVS(GIT_STEP)).toEqual({
           library: 'git',
           id: 'https://github.com/bitrise-steplib/steps-script',
           version: 'master',
@@ -86,25 +77,17 @@ describe('StepService', () => {
       });
 
       it('without version', () => {
-        expect(StepService.parseStepCVS(GIT_STEP.split('@')[0], BITRISE_STEPLIB_URL)).toEqual({
+        expect(StepService.parseStepCVS(GIT_STEP.split('@')[0])).toEqual({
           library: 'git',
           id: 'https://github.com/bitrise-steplib/steps-script',
           version: '',
-        });
-      });
-
-      it('with ssh URL', () => {
-        expect(StepService.parseStepCVS(GIT_SSH_STEP, BITRISE_STEPLIB_URL)).toEqual({
-          library: 'git',
-          id: 'git@github.com:bitrise-steplib/steps-script',
-          version: 'master',
         });
       });
     });
 
     describe('Local step (path::)', () => {
       it('without version', () => {
-        expect(StepService.parseStepCVS(LOCAL_STEP, BITRISE_STEPLIB_URL)).toEqual({
+        expect(StepService.parseStepCVS(LOCAL_STEP)).toEqual({
           library: 'path',
           id: '/path/to/my/local-step',
           version: '',
@@ -114,7 +97,7 @@ describe('StepService', () => {
 
     describe('Step bundle (bundle::)', () => {
       it('without version', () => {
-        expect(StepService.parseStepCVS(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toEqual({
+        expect(StepService.parseStepCVS(STEP_BUNDLE)).toEqual({
           library: 'bundle',
           id: 'my-bundle',
           version: '',
@@ -124,8 +107,8 @@ describe('StepService', () => {
 
     describe('With group (with)', () => {
       it('without version', () => {
-        expect(StepService.parseStepCVS(WITH_GROUP, BITRISE_STEPLIB_URL)).toEqual({
-          library: 'with',
+        expect(StepService.parseStepCVS(WITH_GROUP)).toEqual({
+          library: 'bundle',
           id: 'with',
           version: '',
         });
@@ -133,88 +116,78 @@ describe('StepService', () => {
     });
   });
 
-  describe('replaceCVSVersion', () => {
+  describe('createStepCVS', () => {
     it("should append version, if version wasn't present", () => {
-      expect(StepService.replaceCVSVersion('script', BITRISE_STEPLIB_URL, '2.0.0')).toBe('script@2.0.0');
+      expect(StepService.createStepCVS('script', '2.0.0')).toBe('script@2.0.0');
     });
 
     it('should override existing version', () => {
-      expect(StepService.replaceCVSVersion('script@1.2.3', BITRISE_STEPLIB_URL, '2.0.0')).toBe('script@2.0.0');
+      expect(StepService.createStepCVS('script@1.2.3', '2.0.0')).toBe('script@2.0.0');
     });
 
     it('should remove version if empty string is provided', () => {
-      expect(StepService.replaceCVSVersion('script@1.2.3', BITRISE_STEPLIB_URL, '')).toBe('script');
+      expect(StepService.createStepCVS('script@1.2.3', '')).toBe('script');
     });
 
     it('should work with default steplib step', () => {
-      expect(StepService.replaceCVSVersion(STEPLIB_STEP, BITRISE_STEPLIB_URL, '2.0.0')).toBe(
+      expect(StepService.createStepCVS(STEPLIB_STEP, '2.0.0')).toBe(
         'https://github.com/bitrise-io/bitrise-steplib.git::script@2.0.0',
       );
     });
 
     it('should work with custom steplib step', () => {
-      expect(StepService.replaceCVSVersion(CUSTOM_STEP, BITRISE_STEPLIB_URL, '2.0.0')).toBe(
-        'https://github.com/foo/bar.git::bazz@2.0.0',
-      );
+      expect(StepService.createStepCVS(CUSTOM_STEP, '2.0.0')).toBe('https://github.com/foo/bar.git::bazz@2.0.0');
     });
 
-    it('should work with git step (git::https)', () => {
-      expect(StepService.replaceCVSVersion(GIT_STEP, BITRISE_STEPLIB_URL, '2.0.0')).toBe(
+    it('should work with git step (git::)', () => {
+      expect(StepService.createStepCVS(GIT_STEP, '2.0.0')).toBe(
         'git::https://github.com/bitrise-steplib/steps-script@2.0.0',
       );
     });
 
-    it('should work with git step (git::git@)', () => {
-      expect(StepService.replaceCVSVersion(GIT_SSH_STEP, BITRISE_STEPLIB_URL, '2.0.0')).toBe(
-        'git::git@github.com:bitrise-steplib/steps-script@2.0.0',
-      );
-    });
-
     it('should not update local step (path::)', () => {
-      expect(StepService.replaceCVSVersion(LOCAL_STEP, BITRISE_STEPLIB_URL, '2.0.0')).toBe(
-        'path::/path/to/my/local-step',
-      );
+      expect(StepService.createStepCVS(LOCAL_STEP, '2.0.0')).toBe('path::/path/to/my/local-step');
     });
 
     it('should not update step (bundle::)', () => {
-      expect(StepService.replaceCVSVersion(STEP_BUNDLE, BITRISE_STEPLIB_URL, '2.0.0')).toBe('bundle::my-bundle');
+      expect(StepService.createStepCVS(STEP_BUNDLE, '2.0.0')).toBe('bundle::my-bundle');
     });
 
     it('should not update with group (with)', () => {
-      expect(StepService.replaceCVSVersion(WITH_GROUP, BITRISE_STEPLIB_URL, '2.0.0')).toBe('with');
+      expect(StepService.createStepCVS(WITH_GROUP, '2.0.0')).toBe('with');
     });
   });
 
   describe('isStep', () => {
     describe('returns true', () => {
       it('should return true for step id', () => {
-        expect(StepService.isStep('script', BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStep('script')).toBe(true);
       });
 
       it('should return true for a default steplib step', () => {
-        expect(StepService.isStep(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStep(STEPLIB_STEP)).toBe(true);
       });
 
       it('should return true for a custom steplib step', () => {
-        expect(StepService.isStep(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStep(CUSTOM_STEP)).toBe(true);
       });
 
       it('should return true for a git step (git::)', () => {
-        expect(StepService.isStep(GIT_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStep(GIT_STEP)).toBe(true);
       });
 
       it('should return true for local step (path::)', () => {
-        expect(StepService.isStep(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStep(LOCAL_STEP)).toBe(true);
       });
     });
 
     describe('returns false', () => {
       it('should return false for step bundle', () => {
-        expect(StepService.isStep(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStep(STEP_BUNDLE)).toBe(false);
       });
 
       it('should return false for with group', () => {
-        expect(StepService.isStep(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStep(WITH_GROUP)).toBe(false);
       });
     });
   });
@@ -222,332 +195,221 @@ describe('StepService', () => {
   describe('isStepLibStep', () => {
     describe('returns true', () => {
       it('should return true for step id only', () => {
-        expect(StepService.isStepLibStep('script', BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStepLibStep('script')).toBe(true);
       });
 
       it('should return true for default steplib step', () => {
-        expect(StepService.isStepLibStep(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+        expect(StepService.isStepLibStep(STEPLIB_STEP)).toBe(true);
       });
 
       it('should return true for custom steplib step', () => {
-        expect(StepService.isStepLibStep(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepLibStep(CUSTOM_STEP)).toBe(true);
       });
     });
 
     describe('returns false', () => {
       it('should return false for git step (git::)', () => {
-        expect(StepService.isStepLibStep(GIT_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepLibStep(GIT_STEP)).toBe(false);
       });
 
       it('should return false for local step (path::)', () => {
-        expect(StepService.isStepLibStep(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepLibStep(LOCAL_STEP)).toBe(false);
       });
 
       it('should return false for step bundle (bundle::)', () => {
-        expect(StepService.isStepLibStep(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepLibStep(STEP_BUNDLE)).toBe(false);
       });
 
       it('should return false for with group (with)', () => {
-        expect(StepService.isStepLibStep(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepLibStep(WITH_GROUP)).toBe(false);
       });
     });
   });
 
   describe('isGitStep', () => {
     it('should return true for git step (git::)', () => {
-      expect(StepService.isGitStep(GIT_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+      expect(StepService.isGitStep(GIT_STEP)).toBe(true);
     });
 
     describe('returns false', () => {
       it('should return false for step id only', () => {
-        expect(StepService.isGitStep('script', BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isGitStep('script')).toBe(false);
       });
 
       it('should return false for default steplib step', () => {
-        expect(StepService.isGitStep(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isGitStep(STEPLIB_STEP)).toBe(false);
       });
 
       it('should return false for custom steplib step', () => {
-        expect(StepService.isGitStep(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isGitStep(CUSTOM_STEP)).toBe(false);
       });
 
       it('should return false for local step (path::)', () => {
-        expect(StepService.isGitStep(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isGitStep(LOCAL_STEP)).toBe(false);
       });
 
       it('should return false for step bundle (bundle::)', () => {
-        expect(StepService.isGitStep(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isGitStep(STEP_BUNDLE)).toBe(false);
       });
 
       it('should return false for with group (with)', () => {
-        expect(StepService.isGitStep(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isGitStep(WITH_GROUP)).toBe(false);
       });
     });
   });
 
   describe('isLocalStep', () => {
     it('should return true for local step (path::)', () => {
-      expect(StepService.isLocalStep(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe(true);
+      expect(StepService.isLocalStep(LOCAL_STEP)).toBe(true);
     });
 
     describe('returns false', () => {
       it('should return false for step id only', () => {
-        expect(StepService.isLocalStep('script', BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isLocalStep('script')).toBe(false);
       });
 
       it('should return false for default steplib step', () => {
-        expect(StepService.isLocalStep(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isLocalStep(STEPLIB_STEP)).toBe(false);
       });
 
       it('should return false for custom steplib step', () => {
-        expect(StepService.isLocalStep(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isLocalStep(CUSTOM_STEP)).toBe(false);
       });
 
       it('should return false for git step (git::)', () => {
-        expect(StepService.isLocalStep(GIT_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isLocalStep(GIT_STEP)).toBe(false);
       });
 
       it('should return false for step bundle (bundle::)', () => {
-        expect(StepService.isLocalStep(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isLocalStep(STEP_BUNDLE)).toBe(false);
       });
 
       it('should return false for with group (with)', () => {
-        expect(StepService.isLocalStep(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isLocalStep(WITH_GROUP)).toBe(false);
       });
     });
   });
 
   describe('isStepBundle', () => {
     it('should return true for step bundle', () => {
-      expect(StepService.isStepBundle(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe(true);
+      expect(StepService.isStepBundle(STEP_BUNDLE)).toBe(true);
     });
 
     describe('returns false', () => {
       it('should return false for step id only', () => {
-        expect(StepService.isStepBundle('script', BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepBundle('script')).toBe(false);
       });
 
       it('should return false for default steplib step', () => {
-        expect(StepService.isStepBundle(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepBundle(STEPLIB_STEP)).toBe(false);
       });
 
       it('should return false for custom steplib step', () => {
-        expect(StepService.isStepBundle(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepBundle(CUSTOM_STEP)).toBe(false);
       });
 
       it('should return false for git step (git::)', () => {
-        expect(StepService.isStepBundle(GIT_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepBundle(GIT_STEP)).toBe(false);
       });
 
       it('should return false for local step (path::)', () => {
-        expect(StepService.isStepBundle(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepBundle(LOCAL_STEP)).toBe(false);
       });
 
       it('should return false for with group (with)', () => {
-        expect(StepService.isStepBundle(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isStepBundle(WITH_GROUP)).toBe(false);
       });
     });
   });
 
   describe('isWithGroup', () => {
     it('should return true for with group (with)', () => {
-      expect(StepService.isWithGroup(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe(true);
+      expect(StepService.isWithGroup(WITH_GROUP)).toBe(true);
     });
 
     describe('returns false', () => {
       it('should return false for step id only', () => {
-        expect(StepService.isWithGroup('script', BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isWithGroup('script')).toBe(false);
       });
 
       it('should return false for default steplib step', () => {
-        expect(StepService.isWithGroup(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isWithGroup(STEPLIB_STEP)).toBe(false);
       });
 
       it('should return false for custom steplib step', () => {
-        expect(StepService.isWithGroup(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isWithGroup(CUSTOM_STEP)).toBe(false);
       });
 
       it('should return false for git step (git::)', () => {
-        expect(StepService.isWithGroup(GIT_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isWithGroup(GIT_STEP)).toBe(false);
       });
 
       it('should return false for local step (path::)', () => {
-        expect(StepService.isWithGroup(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isWithGroup(LOCAL_STEP)).toBe(false);
       });
 
       it('should return false for step bundle (bundle::)', () => {
-        expect(StepService.isWithGroup(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe(false);
+        expect(StepService.isWithGroup(STEP_BUNDLE)).toBe(false);
       });
-    });
-  });
-
-  describe('getRawGitUrl', () => {
-    describe('GitHub', () => {
-      it('should return the raw URL for a HTTP GitHub repository', () => {
-        const cvs = 'git::http://github.com/bitrise-io/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
-        );
-      });
-
-      it('should return the raw URL for a HTTPS GitHub repository', () => {
-        const cvs = 'git::https://github.com/bitrise-io/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
-        );
-      });
-
-      it('should return the raw URL for a git@ GitHub repository', () => {
-        const cvs = 'git::git@github.com:bitrise-io/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
-        );
-      });
-
-      it('should fallback to master branch if no branch is provided', () => {
-        const cvs = 'git::https://github.com/bitrise-io/steps-fastlane.git';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
-        );
-      });
-    });
-
-    describe('GitLab', () => {
-      it('should return the raw URL for a HTTP GitLab repository', () => {
-        const cvs = 'git::http://gitlab.com/steplib/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master',
-        );
-      });
-
-      it('should return the raw URL for a HTTPS GitLab repository', () => {
-        const cvs = 'git::https://gitlab.com/steplib/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master',
-        );
-      });
-
-      it('should return the raw URL for a git@ GitLab repository', () => {
-        const cvs = 'git::git@gitlab.com:steplib/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master',
-        );
-      });
-
-      it('should fallback to master branch if no branch is provided', () => {
-        const cvs = 'git::https://gitlab.com/steplib/steps-fastlane.git';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master',
-        );
-      });
-    });
-
-    describe('Bitbucket', () => {
-      it('should return the raw URL for a HTTP Bitbucket repository', () => {
-        const cvs = 'git::http://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml',
-        );
-      });
-
-      it('should return the raw URL for a HTTPS Bitbucket repository', () => {
-        const cvs = 'git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml',
-        );
-      });
-
-      it('should return the raw URL for a git@ Bitbucket repository', () => {
-        const cvs = 'git::git@bitbucket.org:zoltan-szabo-bitrise/steps-fastlane.git@master';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml',
-        );
-      });
-
-      it('should fallback to master branch if no branch is provided', () => {
-        const cvs = 'git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git';
-        expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml',
-        );
-      });
-    });
-
-    it('should return the raw URL for a generic Git repository', () => {
-      const cvs = 'git::https://example.com/steps-fastlane.git@master';
-      expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe('https://example.com/steps-fastlane/step.yml');
-    });
-
-    it('should handle URLs without .git suffix', () => {
-      const cvs = 'git::https://github.com/bitrise-io/steps-fastlane@master';
-      expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-        'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
-      );
-    });
-
-    it('should handle URLs with different versions', () => {
-      const cvs = 'git::https://github.com/bitrise-io/steps-fastlane.git@v1.2.3';
-      expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-        'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/v1.2.3/step.yml',
-      );
     });
   });
 
   describe('resolveTitle', () => {
     it('should return step bundle title for step bundle (bundle::)', () => {
-      expect(StepService.resolveTitle(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toBe('Step bundle: my-bundle');
+      expect(StepService.resolveTitle(STEP_BUNDLE)).toBe('Step bundle: my-bundle');
     });
 
     it('should return "With group" for with group (with)', () => {
-      expect(StepService.resolveTitle(WITH_GROUP, BITRISE_STEPLIB_URL)).toBe('With group');
+      expect(StepService.resolveTitle(WITH_GROUP)).toBe('With group');
     });
 
     describe('simple step', () => {
       it('should return the step title', () => {
-        expect(StepService.resolveTitle('script', BITRISE_STEPLIB_URL, { title: 'My script' })).toBe('My script');
+        expect(StepService.resolveTitle('script', { title: 'My script' })).toBe('My script');
       });
 
       it('should return the step id, if title is not defined', () => {
-        expect(StepService.resolveTitle('script', BITRISE_STEPLIB_URL)).toBe('script');
+        expect(StepService.resolveTitle('script')).toBe('script');
       });
     });
 
     describe('default steplib step', () => {
       it('should return the step title', () => {
-        expect(StepService.resolveTitle(STEPLIB_STEP, BITRISE_STEPLIB_URL, { title: 'My script' })).toBe('My script');
+        expect(StepService.resolveTitle(STEPLIB_STEP, { title: 'My script' })).toBe('My script');
       });
 
       it('should return the step id, if title is not defined', () => {
-        expect(StepService.resolveTitle(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toBe('script');
+        expect(StepService.resolveTitle(STEPLIB_STEP)).toBe('script');
       });
     });
 
     describe('custom steplib step', () => {
       it('should return the step title', () => {
-        expect(StepService.resolveTitle(CUSTOM_STEP, BITRISE_STEPLIB_URL, { title: 'My script' })).toBe('My script');
+        expect(StepService.resolveTitle(CUSTOM_STEP, { title: 'My script' })).toBe('My script');
       });
 
       it('should return the step id, if title is not defined', () => {
-        expect(StepService.resolveTitle(CUSTOM_STEP, BITRISE_STEPLIB_URL)).toBe('bazz');
+        expect(StepService.resolveTitle(CUSTOM_STEP)).toBe('bazz');
       });
     });
 
     describe('git step (git::)', () => {
       it('should return the step title', () => {
-        expect(StepService.resolveTitle(GIT_STEP, BITRISE_STEPLIB_URL, { title: 'My script' })).toBe('My script');
+        expect(StepService.resolveTitle(GIT_STEP, { title: 'My script' })).toBe('My script');
       });
 
       it('should return the step id, if title is not defined', () => {
-        expect(StepService.resolveTitle(GIT_STEP, BITRISE_STEPLIB_URL)).toBe('steps-script');
+        expect(StepService.resolveTitle(GIT_STEP)).toBe('steps-script');
       });
     });
 
     describe('local step (path::)', () => {
       it('should return the step title', () => {
-        expect(StepService.resolveTitle(LOCAL_STEP, BITRISE_STEPLIB_URL, { title: 'My script' })).toBe('My script');
+        expect(StepService.resolveTitle(LOCAL_STEP, { title: 'My script' })).toBe('My script');
       });
 
       it('should return the step id, if title is not defined', () => {
-        expect(StepService.resolveTitle(LOCAL_STEP, BITRISE_STEPLIB_URL)).toBe('local-step');
+        expect(StepService.resolveTitle(LOCAL_STEP)).toBe('local-step');
       });
     });
   });
@@ -555,26 +417,26 @@ describe('StepService', () => {
   describe('resolveIcon', () => {
     it('should return step icon.svg if available', () => {
       const step = { asset_urls: { 'icon.svg': 'step-icon.svg' } };
-      expect(StepService.resolveIcon('script', BITRISE_STEPLIB_URL, step)).toBe('step-icon.svg');
+      expect(StepService.resolveIcon('script', step)).toBe('step-icon.svg');
     });
 
     it('should return step icon.png if icon.svg is not available', () => {
       const step = { asset_urls: { 'icon.png': 'step-icon.png' } };
-      expect(StepService.resolveIcon('script', BITRISE_STEPLIB_URL, step)).toBe('step-icon.png');
+      expect(StepService.resolveIcon('script', step)).toBe('step-icon.png');
     });
 
     it('should return info icon.svg if step icon is not available', () => {
       const info = { asset_urls: { 'icon.svg': 'info-icon.svg' } };
-      expect(StepService.resolveIcon('script', BITRISE_STEPLIB_URL, undefined, info)).toBe('info-icon.svg');
+      expect(StepService.resolveIcon('script', undefined, info)).toBe('info-icon.svg');
     });
 
     it('should return info icon.png if step and info icon.svg are not available', () => {
       const info = { asset_urls: { 'icon.png': 'info-icon.png' } };
-      expect(StepService.resolveIcon('script', BITRISE_STEPLIB_URL, undefined, info)).toBe('info-icon.png');
+      expect(StepService.resolveIcon('script', undefined, info)).toBe('info-icon.png');
     });
 
     it('should return default icon if no icons are available', () => {
-      expect(StepService.resolveIcon('script', BITRISE_STEPLIB_URL)).toBe('default-icon');
+      expect(StepService.resolveIcon('script')).toBe('default-icon');
     });
   });
 
@@ -681,7 +543,7 @@ describe('StepService', () => {
         resolvedInfo: { resolvedVersion: '2.0.0' },
         defaultValues: { inputs: [{ input2: 'value2' }, { input3: 'value3' }] },
       } as unknown as StepApiResult;
-      expect(StepService.calculateChange(oldStep, newStep, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: ['input1'],
         newInputs: ['input3'],
         change: 'major',
@@ -701,7 +563,7 @@ describe('StepService', () => {
           inputs: [{ input1: 'value1' }, { input2: 'value2' }, { input3: 'value3' }],
         },
       } as unknown as StepApiResult;
-      expect(StepService.calculateChange(oldStep, newStep, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: ['input3'],
         change: 'inputs',
@@ -709,12 +571,12 @@ describe('StepService', () => {
     });
 
     it('returns no changes if oldStep or newStep is missing', () => {
-      expect(StepService.calculateChange(undefined, {} as StepApiResult, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(undefined, {} as StepApiResult)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
       });
-      expect(StepService.calculateChange({} as StepApiResult, undefined, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange({} as StepApiResult, undefined)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
@@ -724,7 +586,7 @@ describe('StepService', () => {
     it('returns no changes if step IDs are different', () => {
       const oldStep = { cvs: 'script@1' } as StepApiResult;
       const newStep = { cvs: 'other-script@1' } as StepApiResult;
-      expect(StepService.calculateChange(oldStep, newStep, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'step-id',
@@ -740,7 +602,7 @@ describe('StepService', () => {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: '1.0.0' },
       } as StepApiResult;
-      expect(StepService.calculateChange(oldStep, newStep, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
@@ -758,7 +620,7 @@ describe('StepService', () => {
         resolvedInfo: { resolvedVersion: '1.2.0' },
         defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
       } as unknown as StepApiResult;
-      expect(StepService.calculateChange(oldStep, newStep, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
@@ -774,7 +636,7 @@ describe('StepService', () => {
         cvs: 'script@1',
         resolvedInfo: { resolvedVersion: 'master' },
       } as StepApiResult;
-      expect(StepService.calculateChange(oldStep, newStep, BITRISE_STEPLIB_URL)).toEqual({
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
         newInputs: [],
         change: 'none',
