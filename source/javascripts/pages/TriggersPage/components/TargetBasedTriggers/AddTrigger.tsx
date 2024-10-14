@@ -104,7 +104,7 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
-    if ((!(type === 'target_branch' || type === 'source_branch') && !value) || !type) {
+    if ((!(type === 'name' || type === 'target_branch' || type === 'source_branch') && !value) || !type) {
       hasEmptyCondition = true;
     }
   });

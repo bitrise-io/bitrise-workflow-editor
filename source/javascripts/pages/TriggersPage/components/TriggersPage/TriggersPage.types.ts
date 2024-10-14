@@ -1,4 +1,6 @@
-export type TagConditionType = 'tag';
+export type LegacyTagConditionType = 'tag';
+
+export type TagConditionType = 'name';
 
 export type LegacyPushConditionType = 'push_branch' | 'commit_message' | 'changed_files';
 
@@ -20,7 +22,7 @@ export type PrConditionType =
   | 'commit_message'
   | 'changed_files';
 
-export type LegacyConditionType = LegacyPushConditionType | LegacyPrConditionType | TagConditionType;
+export type LegacyConditionType = LegacyPushConditionType | LegacyPrConditionType | LegacyTagConditionType;
 
 export type ConditionType = PushConditionType | PrConditionType | TagConditionType;
 

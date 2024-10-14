@@ -42,7 +42,7 @@ const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
     changed_files: 'File change',
   },
   tag: {
-    tag: 'Tag',
+    name: 'Tag',
   },
 };
 
@@ -204,7 +204,7 @@ const TriggersTabPanel = () => {
             variant="fixed"
             label="Enable triggers"
             helperText="When disabled and saved, none of the triggers below will execute a build."
-            defaultChecked
+            isChecked={triggers.enabled !== false}
             onChange={() => {
               updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
             }}

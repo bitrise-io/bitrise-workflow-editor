@@ -23,6 +23,7 @@ const iconMap: Record<LegacyConditionType | ConditionType, TypeIconName> = {
   comment: 'Chat',
   pull_request_comment: 'Chat',
   tag: 'Tag',
+  name: 'Tag',
 };
 
 const toolTip: Record<LegacyConditionType | ConditionType, string> = {
@@ -39,6 +40,7 @@ const toolTip: Record<LegacyConditionType | ConditionType, string> = {
   comment: 'PR comment',
   pull_request_comment: 'PR comment',
   tag: 'Tag',
+  name: 'Tag',
 };
 
 const TriggerConditions = (props: TriggerConditionsProps) => {

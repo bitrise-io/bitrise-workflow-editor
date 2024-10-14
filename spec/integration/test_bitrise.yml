@@ -158,6 +158,10 @@ workflows:
   wf2:
     summary: Second workflow
     description: Second, but definitely not the last
+    triggers:
+      tag:
+      - name:
+          regex: '*'
     before_run:
     - wf1
     after_run:
