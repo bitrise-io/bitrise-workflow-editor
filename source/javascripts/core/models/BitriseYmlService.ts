@@ -1,9 +1,12 @@
 import omit from 'lodash/omit';
 import omitBy from 'lodash/omitBy';
-import isEmpty from 'lodash/isEmpty';
-import mapValues from 'lodash/mapValues';
+import isNull from 'lodash/isNull';
 import mapKeys from 'lodash/mapKeys';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isNumber from 'lodash/isNumber';
+import isBoolean from 'lodash/isBoolean';
+import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import { TargetBasedTriggers } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
@@ -108,7 +111,7 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
 function updateStepInputs(
   workflowId: string,
   stepIndex: number,
-  inputs: StepInputVariable[],
+  newInputs: StepInputVariable[],
   defaultInputs: StepInputVariable[],
   yml: BitriseYml,
 ) {
@@ -119,35 +122,51 @@ function updateStepInputs(
     return copy;
   }
 
-  const [cvs, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [
+  const [, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [
     string,
     StepYmlObject,
   ];
 
-  stepYmlObject.inputs = defaultInputs.reduce((acc, defaultInput) => {
-    const defaultKeyValue = omit(defaultInput, 'opts');
-    if (!defaultKeyValue) return acc;
-
-    const [inputName] = Object.entries(defaultKeyValue)[0];
-
-    const newInput = inputs.find((i) => Object.keys(i).includes(inputName));
-    if (!newInput) return acc;
-
-    const opts = stepYmlObject.inputs?.find((i) => Object.keys(i).includes(inputName))?.opts;
-
-    const inputObject = StepService.toYmlInput(inputName, newInput[inputName], defaultInput[inputName], opts);
-    if (inputObject) {
-      acc.push(inputObject as StepInputVariable);
+  defaultInputs.forEach((input) => {
+    if (!stepYmlObject.inputs) {
+      stepYmlObject.inputs = [];
     }
 
-    return acc;
-  }, [] as StepInputVariable[]);
+    const [key, defaultValue] = Object.entries(omit(input, 'opts'))[0];
+    const newValue = newInputs.find((i) => Object.keys(i).includes(key))?.[key];
+    const inputIndexInYml = stepYmlObject.inputs.findIndex((i) => Object.keys(i).includes(key));
+    const isInputExistsInTheYml = inputIndexInYml > -1;
+
+    if (isInputExistsInTheYml) {
+      const valueInYml = stepYmlObject.inputs[inputIndexInYml][key];
+
+      if (valueInYml === null && !String(newValue)) {
+        return;
+      }
+
+      const inputObject = StepService.toYmlInput(
+        key,
+        newValue,
+        defaultValue,
+        stepYmlObject.inputs[inputIndexInYml].opts,
+      );
+
+      if (inputObject) {
+        stepYmlObject.inputs[inputIndexInYml] = inputObject;
+      } else {
+        stepYmlObject.inputs.splice(inputIndexInYml, 1);
+      }
+    } else {
+      const inputObject = StepService.toYmlInput(key, newValue, defaultValue);
+      if (inputObject) {
+        stepYmlObject.inputs.push(inputObject);
+      }
+    }
+  });
 
   if (isEmpty(stepYmlObject.inputs)) {
     delete stepYmlObject.inputs;
   }
-
-  copy.workflows[workflowId].steps[stepIndex] = { [cvs]: stepYmlObject };
 
   return copy;
 }
@@ -163,7 +182,7 @@ function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bit
   copy.workflows[workflowId].steps.splice(stepIndex, 1);
 
   // If the steps are empty, remove it
-  if (isEmpty(copy.workflows[workflowId].steps)) {
+  if (shouldRemoveField(copy.workflows[workflowId].steps, yml.workflows?.[workflowId]?.steps)) {
     delete copy.workflows[workflowId].steps;
   }
 
@@ -210,7 +229,7 @@ function updateWorkflow(workflowId: string, workflow: WorkflowYmlObject, yml: Bi
     if (copy.workflows?.[workflowId]) {
       if (value) {
         copy.workflows[workflowId][key] = value as never;
-      } else {
+      } else if (shouldRemoveField(value, yml.workflows?.[workflowId]?.[key])) {
         delete copy.workflows[workflowId][key];
       }
     }
@@ -234,7 +253,7 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   copy.workflows = deleteWorkflowFromChains(workflowId, copy.workflows);
 
   // Remove the whole `workflows` section in the YML if empty
-  if (isEmpty(copy.workflows)) {
+  if (shouldRemoveField(copy.workflows, yml.workflows)) {
     delete copy.workflows;
   }
 
@@ -242,7 +261,7 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   copy.stages = omitEmpty(deleteWorkflowFromStages(workflowId, copy.stages));
 
   // Remove the whole `stages` section in the YML if empty
-  if (isEmpty(copy.stages)) {
+  if (shouldRemoveField(copy.stages, yml.stages)) {
     delete copy.stages;
   }
 
@@ -250,7 +269,7 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   copy.pipelines = omitEmpty(deleteWorkflowFromPipelines(workflowId, copy.pipelines, copy.stages));
 
   // Remove the whole `pipelines` section in the YML if empty
-  if (isEmpty(copy.pipelines)) {
+  if (shouldRemoveField(copy.pipelines, yml.pipelines)) {
     delete copy.pipelines;
   }
 
@@ -258,7 +277,7 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   copy.trigger_map = deleteWorkflowFromTriggerMap(workflowId, copy.trigger_map);
 
   // Remove the whole `trigger_map` section in the YML if empty
-  if (isEmpty(copy.trigger_map)) {
+  if (shouldRemoveField(copy.trigger_map, yml.trigger_map)) {
     delete copy.trigger_map;
   }
 
@@ -296,7 +315,7 @@ function deleteChainedWorkflow(
   copy.workflows[parentWorkflowId][placement].splice(chainedWorkflowIndex, 1);
 
   // If the chained placement is empty, remove it
-  if (isEmpty(copy.workflows[parentWorkflowId][placement])) {
+  if (shouldRemoveField(copy.workflows[parentWorkflowId][placement], yml.workflows?.[parentWorkflowId]?.[placement])) {
     delete copy.workflows[parentWorkflowId][placement];
   }
 
@@ -325,7 +344,7 @@ function setChainedWorkflows(
   copy.workflows[workflowId][placement] = chainedWorkflowIds;
 
   // If the chained placement is empty, remove it
-  if (isEmpty(copy.workflows[workflowId][placement])) {
+  if (shouldRemoveField(copy.workflows[workflowId][placement], yml.workflows?.[workflowId]?.[placement])) {
     delete copy.workflows[workflowId][placement];
   }
 
@@ -366,31 +385,36 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
     return copy;
   }
 
-  // If both stack and machineTypeID are missing, remove the bitrise.io meta overrides
-  if (!stack && !machineTypeId) {
-    copy.workflows[workflowId].meta = omit(copy.workflows[workflowId].meta, 'bitrise.io');
-
-    // If the meta is empty, remove it
-    if (isEmpty(copy.workflows[workflowId].meta)) {
-      delete copy.workflows[workflowId].meta;
-    }
-
-    return copy;
+  if (copy.workflows[workflowId].meta?.['bitrise.io']) {
+    const copyBitriseIoMeta = copy.workflows[workflowId].meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
+    copyBitriseIoMeta.stack = stack;
+    copyBitriseIoMeta.machine_type_id = machineTypeId;
+    copy.workflows[workflowId].meta['bitrise.io'] = copyBitriseIoMeta;
+  } else {
+    copy.workflows[workflowId].meta = {
+      ...copy.workflows[workflowId].meta,
+      'bitrise.io': { stack, machine_type_id: machineTypeId },
+    };
   }
 
-  const newBitriseIO: Meta['bitrise.io'] = {};
-  if (stack) {
-    newBitriseIO.stack = stack;
+  const newMeta = copy.workflows[workflowId].meta as Meta | undefined;
+  const ymlMeta = yml.workflows?.[workflowId]?.meta as Meta | undefined;
+
+  if (shouldRemoveField(newMeta?.['bitrise.io']?.stack, ymlMeta?.['bitrise.io']?.stack)) {
+    delete newMeta?.['bitrise.io']?.stack;
   }
 
-  if (machineTypeId) {
-    newBitriseIO.machine_type_id = machineTypeId;
+  if (shouldRemoveField(newMeta?.['bitrise.io']?.machine_type_id, ymlMeta?.['bitrise.io']?.machine_type_id)) {
+    delete newMeta?.['bitrise.io']?.machine_type_id;
   }
 
-  copy.workflows[workflowId].meta = {
-    ...(copy.workflows[workflowId].meta ?? {}),
-    'bitrise.io': newBitriseIO,
-  };
+  if (shouldRemoveField(newMeta?.['bitrise.io'], ymlMeta?.['bitrise.io'])) {
+    delete newMeta?.['bitrise.io'];
+  }
+
+  if (shouldRemoveField(copy.workflows[workflowId].meta, yml.workflows?.[workflowId]?.meta)) {
+    delete copy.workflows[workflowId].meta;
+  }
 
   return copy;
 }
@@ -437,7 +461,7 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
     return oldEnvVar;
   });
 
-  if (isEmpty(copy.workflows[workflowId].envs)) {
+  if (shouldRemoveField(copy.workflows[workflowId].envs, yml.workflows?.[workflowId]?.envs)) {
     delete copy.workflows[workflowId].envs;
   }
 
@@ -529,6 +553,13 @@ function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
   return omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k));
 }
 
+function shouldRemoveField<T>(modified: T, original: T) {
+  const modifiedIsEmpty = !isBoolean(modified) && !isNumber(modified) && !isNull(modified) && isEmpty(modified);
+  const originalIsEmpty = !isBoolean(original) && !isNumber(original) && !isNull(original) && isEmpty(original);
+
+  return modifiedIsEmpty && (!originalIsEmpty || original === undefined);
+}
+
 // PRIVATE FUNCTIONS
 
 function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workflows: Workflows): Workflows {
@@ -538,8 +569,13 @@ function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workf
     workflowCopy.after_run = workflowCopy.after_run?.map((id) => (id === workflowId ? newWorkflowId : id));
     workflowCopy.before_run = workflowCopy.before_run?.map((id) => (id === workflowId ? newWorkflowId : id));
 
-    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
-    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
+    if (shouldRemoveField(workflowCopy.after_run, workflow.after_run)) {
+      delete workflowCopy.after_run;
+    }
+
+    if (shouldRemoveField(workflowCopy.before_run, workflow.before_run)) {
+      delete workflowCopy.before_run;
+    }
 
     return workflowCopy;
   });
@@ -552,8 +588,13 @@ function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {})
     workflowCopy.after_run = workflowCopy.after_run?.filter((id) => id !== workflowId);
     workflowCopy.before_run = workflowCopy.before_run?.filter((id) => id !== workflowId);
 
-    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
-    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
+    if (shouldRemoveField(workflowCopy.after_run, workflow.after_run)) {
+      delete workflowCopy.after_run;
+    }
+
+    if (shouldRemoveField(workflowCopy.before_run, workflow.before_run)) {
+      delete workflowCopy.before_run;
+    }
 
     return workflowCopy;
   });
@@ -571,7 +612,9 @@ function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stage
       );
     });
 
-    if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
+    if (shouldRemoveField(stageCopy.workflows, stage.workflows)) {
+      delete stageCopy.workflows;
+    }
 
     return stageCopy;
   });
@@ -584,7 +627,9 @@ function deleteWorkflowFromStages(workflowId: string, stages: StagesYml = {}): S
     stageCopy.workflows = stageCopy.workflows?.map((workflowsObj) => omit(workflowsObj, workflowId));
     stageCopy.workflows = stageCopy.workflows?.filter(isNotEmpty);
 
-    if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
+    if (shouldRemoveField(stageCopy.workflows, stage.workflows)) {
+      delete stageCopy.workflows;
+    }
 
     return stageCopy;
   });
@@ -598,7 +643,9 @@ function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pi
       return renameWorkflowInStages(workflowId, newWorkflowId, stagesObj);
     });
 
-    if (isEmpty(pipelineCopy.stages)) delete pipelineCopy.stages;
+    if (shouldRemoveField(pipelineCopy.stages, pipeline.stages)) {
+      delete pipelineCopy.stages;
+    }
 
     return pipelineCopy;
   });
@@ -618,7 +665,9 @@ function deleteWorkflowFromPipelines(
     pipelineCopy.stages = pipelineCopy.stages?.map((stagesObj) => omitEmptyIfKeyNotExistsIn(stagesObj, stageIds));
     pipelineCopy.stages = pipelineCopy.stages?.filter(isNotEmpty);
 
-    if (isEmpty(pipelineCopy.stages)) delete pipelineCopy.stages;
+    if (shouldRemoveField(pipelineCopy.stages, pipeline.stages)) {
+      delete pipelineCopy.stages;
+    }
 
     return pipelineCopy;
   });
