@@ -2,6 +2,7 @@ import { Box, IconButton, Tab, TabList, Text } from '@bitrise/bitkit';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import { WorkflowConfigTab } from '../WorkflowConfig.types';
 
@@ -13,8 +14,10 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
   const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
   const dependants = useDependantWorkflows(id);
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const shouldShowDeleteButton = variant === 'panel';
+  const shouldShowTriggersTab = variant === 'panel' && isTargetBasedTriggersEnabled;
 
   return (
     <>
@@ -39,12 +42,11 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
           />
         )}
       </Box>
-      <Box position="relative" mt="8">
-        <TabList paddingX="8">
-          <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
-          <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
-        </TabList>
-      </Box>
+      <TabList paddingX="8" position="relative" mt="8">
+        <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
+        <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
+        {shouldShowTriggersTab && <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>}
+      </TabList>
     </>
   );
 };

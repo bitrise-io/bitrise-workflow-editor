@@ -15,14 +15,20 @@ app:
       is_expand: false
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
-- workflow: wf1
+- type: push
+  workflow: wf1
   push_branch: master
-- workflow: wf2
+- type: push
+  workflow: wf2
   push_branch: release
-- workflow: wf3
+- type: pull_request
+  workflow: wf3
   pull_request_target_branch: '*'
 pipelines:
   pl1:
+    triggers:
+      push:
+      - branch: main
     stages:
     - st1: {}
   pl2:
@@ -152,6 +158,10 @@ workflows:
   wf2:
     summary: Second workflow
     description: Second, but definitely not the last
+    triggers:
+      tag:
+      - name:
+          regex: '*'
     before_run:
     - wf1
     after_run:
@@ -258,6 +268,10 @@ workflows:
   wf6:
     summary: this is a short summary
     description: I don't know what to write here
+    triggers:
+      push:
+      - enabled: false
+        branch: main
     envs:
     - WF_NAME: wf6
       opts:
@@ -268,6 +282,18 @@ workflows:
   wf7:
     summary: Seventh workflow
     description: Last, but not least important workflow
+    triggers:
+      push:
+      - enabled: false
+        branch: main
+      pull_request:
+      - target_branch: main
+        comment: '[workflow: deploy]'
+      - commit_message:
+          regex: '.*\[workflow: deploy\].*'
+      tag:
+      - name:
+          regex: ^\d\.\d\.\d$
     steps:
     - script@1:
         inputs:

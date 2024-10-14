@@ -5,6 +5,7 @@ import BitriseYmlService from '@/core/models/BitriseYmlService';
 import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
 import { EnvVar } from '../models/EnvVar';
 import EnvVarService from '../models/EnvVarService';
+import { TriggerMapYml } from '../models/TriggerMap';
 
 type BitriseYmlStoreState = {
   yml: BitriseYml;
@@ -49,6 +50,9 @@ type BitriseYmlStoreState = {
   ) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, stepIndex: number) => void;
+  updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
+  updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
+  updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -183,6 +187,27 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.deleteStep(workflowId, stepIndex, state.yml),
+        };
+      });
+    },
+    updateTriggerMap(triggerMap) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateTriggerMap(triggerMap, state.yml),
+        };
+      });
+    },
+    updateWorkflowTriggers(workflowId, triggers) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflowTriggers(workflowId, triggers, state.yml),
+        };
+      });
+    },
+    updateWorkflowTriggersEnabled(workflowId, isEnabled) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflowTriggersEnabled(workflowId, isEnabled, state.yml),
         };
       });
     },
