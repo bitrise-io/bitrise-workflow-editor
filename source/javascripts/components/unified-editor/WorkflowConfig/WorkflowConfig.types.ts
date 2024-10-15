@@ -3,11 +3,3 @@ export enum WorkflowConfigTab {
   PROPERTIES = 'properties',
   TRIGGERS = 'triggers',
 }
-
-export type FormValues = {
-  properties: {
-    name: string;
-    summary: string;
-    description: string;
-  };
-};
