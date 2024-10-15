@@ -190,6 +190,17 @@ const EnvVarsCard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflow?.id]);
 
+  // TODO: Do it better!
+  useEffect(() => {
+    const listener = (event: CustomEvent<EnvVar>) => {
+      setEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...event.detail }]);
+    };
+
+    window.addEventListener('workflow::envs::created' as never, listener);
+
+    return () => window.removeEventListener('workflow::envs::created' as never, listener);
+  }, []);
+
   return (
     <ExpandableCard buttonContent={<ButtonContent />}>
       <Box m="-16" width="auto">
