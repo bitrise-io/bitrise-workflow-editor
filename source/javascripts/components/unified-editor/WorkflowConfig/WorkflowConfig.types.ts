@@ -1,5 +1,3 @@
-import { EnvVar } from '@/core/models/EnvVar';
-
 export enum WorkflowConfigTab {
   CONFIGURATION = 'configuration',
   PROPERTIES = 'properties',
@@ -11,8 +9,5 @@ export type FormValues = {
     name: string;
     summary: string;
     description: string;
-  };
-  configuration: {
-    envs: EnvVar[];
   };
 };

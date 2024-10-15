@@ -30,16 +30,14 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
 
   const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
 
-  const { renameWorkflow, updateWorkflow, updateWorkflowEnvVars } = useBitriseYmlStore(
+  const { renameWorkflow, updateWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
       renameWorkflow: s.renameWorkflow,
       updateWorkflow: s.updateWorkflow,
-      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
     })),
   );
 
-  const saveAndClose = form.handleSubmit(({ properties: { name, ...properties }, configuration: { envs } }) => {
-    updateWorkflowEnvVars(defaultWorkflowId, envs);
+  const saveAndClose = form.handleSubmit(({ properties: { name, ...properties } }) => {
     updateWorkflow(defaultWorkflowId, properties);
     renameWorkflow(defaultWorkflowId, name);
     onClose();

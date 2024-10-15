@@ -1,113 +1,121 @@
-import { CSSProperties, useEffect } from 'react';
-import { useFieldArray, useFormContext } from 'react-hook-form';
-import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent, pointerWithin } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useEffect, useState } from 'react';
+import { Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import EnvVarService from '@/core/models/EnvVarService';
+import { useShallow } from 'zustand/react/shallow';
+import omit from 'lodash/omit';
+import { useDebounceCallback } from 'usehooks-ts';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import { EnvVar } from '@/core/models/EnvVar';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import EnvVarService from '@/core/models/EnvVarService';
+import { EnvVar, EnvVarYml } from '@/core/models/EnvVar';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-import { FormValues } from '../WorkflowConfig.types';
+
+type SortableEnvVar = EnvVar & {
+  uniqueId: string;
+};
+
+function mapYmlEnvVarsToSortableEnvVars(envs?: EnvVarYml[], workflowId?: string): SortableEnvVar[] {
+  return (envs ?? []).map((env) => {
+    return { uniqueId: crypto.randomUUID(), ...EnvVarService.parseYmlEnvVar(env, workflowId) };
+  });
+}
 
 const ButtonContent = () => {
-  const { formState } = useFormContext<FormValues>();
-
-  const numberOfErrors =
-    formState.errors.configuration?.envs?.reduce?.((total, env) => {
-      return total + Number(Boolean(env?.isExpand)) + Number(Boolean(env?.key)) + Number(Boolean(env?.value));
-    }, 0) ?? 0;
-
   return (
     <Box display="flex" gap="8">
       <Text textStyle="body/lg/semibold">Env Vars</Text>
-      {!!numberOfErrors && (
-        <Badge variant="bold" colorScheme="negative">
-          {numberOfErrors}
-        </Badge>
-      )}
     </Box>
   );
 };
 
-const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
-  const { register, formState, watch, setValue } = useFormContext<FormValues>();
-  const { attributes, listeners, active, transform, transition, setNodeRef, setActivatorNodeRef } = useSortable({ id });
+type EnvVarCardProps = {
+  env: SortableEnvVar;
+  isDragging?: boolean;
+  onRemove?: (uniqueId: string) => void;
+  onChange?: (env: SortableEnvVar) => void;
+};
 
-  const handleRemove = () => {
-    onRemove(index);
-  };
+const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) => {
+  const sortable = useSortable({ id: env.uniqueId, data: env });
+  const debouncedOnChange = useDebounceCallback((newEnvVar: SortableEnvVar) => onChange?.(newEnvVar), 150);
 
-  const isActive = active?.id === id;
-
-  const style: CSSProperties = {
-    transition,
-    transform: CSS.Translate.toString(transform),
-  };
+  if (sortable.isDragging) {
+    return (
+      <Box
+        p="16"
+        pb="56"
+        ref={sortable.setNodeRef}
+        backgroundColor="background/secondary"
+        style={{
+          transition: sortable.transition,
+          transform: CSS.Transform.toString(sortable.transform),
+        }}
+      >
+        <AutoGrowableInput visibility="hidden" value={env.value} formControlProps={{ flex: 1 }} />
+      </Box>
+    );
+  }
 
   return (
     <Box
-      ref={setNodeRef}
-      style={style}
+      ref={sortable.setNodeRef}
       display="flex"
+      className="group"
       position="relative"
       borderBottom="1px solid"
       borderColor="border/minimal"
       background="background/primary"
-      zIndex={isActive ? 9999 : 'auto'}
-      boxShadow={isActive ? 'medium' : undefined}
+      {...(isDragging ? { boxShadow: 'small' } : {})}
+      style={{
+        transition: sortable.transition,
+        transform: CSS.Transform.toString(sortable.transform),
+      }}
     >
-      <DragHandle ref={setActivatorNodeRef} {...attributes} {...listeners} />
+      <DragHandle withGroupHover ref={sortable.setActivatorNodeRef} {...sortable.listeners} {...sortable.attributes} />
       <Box p="16" pl="8" display="flex" flexDir="column" gap="16" flex="1">
         <Box display="flex" alignItems="top" gap="8">
           <Input
             flex="1"
             size="md"
             aria-label="Key"
+            defaultValue={env.key}
             leftIconName="Dollars"
             placeholder="Enter key"
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-            errorText={formState.errors.configuration?.envs?.[index]?.key?.message}
-            {...register(`configuration.envs.${index}.key`, {
-              validate: (v) => EnvVarService.validateKey(v),
-            })}
+            onChange={(e) => debouncedOnChange?.({ ...env, key: e.target.value })}
           />
           <Text color="text/tertiary" pt="8">
             =
           </Text>
           <AutoGrowableInput
             aria-label="Value"
+            defaultValue={env.value}
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
-            errorText={formState.errors.configuration?.envs?.[index]?.value?.message}
-            {...register(`configuration.envs.${index}.value`, {
-              validate: EnvVarService.validateValue,
-            })}
+            onChange={(e) => debouncedOnChange?.({ ...env, value: e.target.value })}
           />
           <ControlButton
+            isDanger
             ml="8"
             size="md"
             aria-label="Remove"
-            onClick={handleRemove}
             iconName="MinusRemove"
             tooltipProps={{ 'aria-label': 'Remove' }}
-            isDanger
+            onClick={() => onRemove?.(env.uniqueId)}
           />
         </Box>
         <Checkbox
-          isChecked={Boolean(watch(`configuration.envs.${index}.isExpand`))}
+          isChecked={env.isExpand !== false}
           onChange={(e) => {
-            const currentChecked = e.target.checked;
-            const defaultChecked = formState.defaultValues?.configuration?.envs?.[index]?.isExpand;
-            const updatedChecked = defaultChecked === undefined ? currentChecked || defaultChecked : currentChecked;
-
-            setValue(`configuration.envs.${index}.isExpand`, updatedChecked, {
-              shouldDirty: defaultChecked !== updatedChecked,
-              shouldTouch: true,
-              shouldValidate: true,
-            });
+            if (e.target.checked) {
+              onChange?.(omit(env, 'isExpand'));
+            } else {
+              onChange?.({ ...env, isExpand: false });
+            }
           }}
         >
           Replace variables in inputs
@@ -119,56 +127,90 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
 const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
-  const { control, formState } = useFormContext<FormValues>();
-  const { fields, append, remove, move, replace } = useFieldArray({
-    control,
-    name: 'configuration.envs',
-  });
 
-  const handleAddNew = () => {
-    append({ source: workflow?.id || '', key: '', value: '', isExpand: false });
+  const { appendWorkflowEnvVar, updateWorkflowEnvVars } = useBitriseYmlStore(
+    useShallow((s) => ({
+      appendWorkflowEnvVar: s.appendWorkflowEnvVar,
+      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
+    })),
+  );
+
+  const [activeItem, setActiveItem] = useState<SortableEnvVar>();
+  const [envs, setEnvs] = useState(mapYmlEnvVarsToSortableEnvVars(workflow?.userValues.envs, workflow?.id));
+
+  const onDragStart = (event: DragStartEvent) => {
+    setActiveItem(event.active.data.current as SortableEnvVar);
   };
 
-  const handleDragEnd = (e: DragEndEvent) => {
-    move(
-      fields.findIndex((f) => f.id === e.active.id),
-      fields.findIndex((f) => f.id === e.over?.id),
-    );
+  const onDragEnd = (event: DragEndEvent) => {
+    const overId = event.over?.id.toString();
+    const activeId = event.active.id.toString();
+
+    if (activeId && overId) {
+      setEnvs((oldEnvs) => {
+        const currentOverIndex = oldEnvs.findIndex(({ uniqueId }) => uniqueId === overId);
+        const currentActiveIndex = oldEnvs.findIndex(({ uniqueId }) => uniqueId === activeId);
+        const newEnvVars = arrayMove(oldEnvs, currentActiveIndex, currentOverIndex);
+        updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+        return newEnvVars;
+      });
+    }
+
+    setActiveItem(undefined);
+  };
+
+  const onDragCancel = () => {
+    setActiveItem(undefined);
+  };
+
+  const onAddNewEnvVarClick = () => {
+    const newEnvVar: EnvVar = { key: '', value: '', source: workflow?.id || '' };
+    setEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...newEnvVar }]);
+    appendWorkflowEnvVar(workflow?.id || '', newEnvVar);
+  };
+
+  const onRemoveEnvVar = (uniqueId: string) => {
+    setEnvs((oldEnvVars) => {
+      const newEnvVars = oldEnvVars.filter((env) => env.uniqueId !== uniqueId);
+      updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+      return newEnvVars;
+    });
+  };
+
+  const onChangeEnvVar = (env: SortableEnvVar) => {
+    setEnvs((oldEnvVars) => {
+      const newEnvVars = oldEnvVars.map((oldEnvVar) => (oldEnvVar.uniqueId === env.uniqueId ? env : oldEnvVar));
+      updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+      return newEnvVars;
+    });
   };
 
   useEffect(() => {
-    replace((formState.defaultValues?.configuration?.envs ?? []) as EnvVar[]);
-  }, [formState.defaultValues?.configuration?.envs, replace]);
-
-  // TODO: Make it better!
-  useEffect(() => {
-    const listener = (event: CustomEvent<EnvVar>) => {
-      append(event.detail);
-    };
-
-    window.addEventListener('workflow::envs::created' as never, listener);
-
-    return () => window.removeEventListener('workflow::envs::created' as never, listener);
-  }, [append]);
+    setEnvs(mapYmlEnvVarsToSortableEnvVars(workflow?.userValues.envs, workflow?.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workflow?.id]);
 
   return (
     <ExpandableCard buttonContent={<ButtonContent />}>
       <Box m="-16" width="auto">
         <Box>
           <DndContext
-            onDragEnd={handleDragEnd}
+            onDragEnd={onDragEnd}
+            onDragStart={onDragStart}
+            onDragCancel={onDragCancel}
             collisionDetection={pointerWithin} // NOTE: This is the only one that works when EnvVar has dozens of lines... :/
             modifiers={[restrictToVerticalAxis, restrictToParentElement]}
           >
-            <SortableContext items={fields.map(({ id }) => id)} strategy={verticalListSortingStrategy}>
-              {fields.map((field, index) => (
-                <EnvVarCard key={field.id} id={field.id} index={index} onRemove={remove} />
+            <SortableContext items={envs.map(({ uniqueId }) => uniqueId)} strategy={verticalListSortingStrategy}>
+              {envs.map((env) => (
+                <EnvVarCard key={env.uniqueId} env={env} onRemove={onRemoveEnvVar} onChange={onChangeEnvVar} />
               ))}
             </SortableContext>
+            <DragOverlay>{activeItem && <EnvVarCard env={activeItem} isDragging />}</DragOverlay>
           </DndContext>
         </Box>
         <Box px="32" py="24">
-          <Button onClick={handleAddNew} leftIconName="PlusAdd" size="md" variant="secondary">
+          <Button size="md" variant="secondary" leftIconName="PlusAdd" onClick={onAddNewEnvVarClick}>
             Add new
           </Button>
         </Box>

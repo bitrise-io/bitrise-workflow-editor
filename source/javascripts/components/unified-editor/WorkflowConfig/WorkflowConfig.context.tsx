@@ -2,7 +2,6 @@ import { createContext, PropsWithChildren, useContext, useLayoutEffect } from 'r
 import { FormProvider, useForm } from 'react-hook-form';
 import useWorkflow from '@/hooks/useWorkflow';
 import { Workflow } from '@/core/models/Workflow';
-import EnvVarService from '@/core/models/EnvVarService';
 import { FormValues } from './WorkflowConfig.types';
 
 type State = Workflow | undefined;
@@ -19,9 +18,6 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
         name: workflow?.id,
         summary: workflow?.userValues?.summary ?? '',
         description: workflow?.userValues?.description ?? '',
-      },
-      configuration: {
-        envs: workflow?.userValues.envs?.map((env) => EnvVarService.parseYmlEnvVar(env, workflow.id)) ?? [],
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

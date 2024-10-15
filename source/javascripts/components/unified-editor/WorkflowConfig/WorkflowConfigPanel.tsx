@@ -6,7 +6,6 @@ import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { EnvVar } from '@/core/models/EnvVar';
 import TriggersTabPanel from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/components/TriggersTabPanel';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
@@ -24,10 +23,9 @@ const WorkflowConfigPanelContent = () => {
   const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
   const shouldUpdateYml = defaultWorkflowId && (formState.isDirty || !isEmpty(formState.touchedFields));
 
-  const { updateWorkflow, updateWorkflowEnvVars } = useBitriseYmlStore(
+  const { updateWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
       updateWorkflow: s.updateWorkflow,
-      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
     })),
   );
 
@@ -40,12 +38,7 @@ const WorkflowConfigPanelContent = () => {
 
   const updateInMemoryYmlState = useCallback(async () => {
     if (shouldUpdateYml && (await trigger())) {
-      const { configuration, properties } = formValues;
-
-      if (configuration) {
-        const { envs = [] } = configuration;
-        updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
-      }
+      const { properties } = formValues;
 
       if (properties) {
         updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
@@ -55,7 +48,7 @@ const WorkflowConfigPanelContent = () => {
         renameWorkflow(properties.name);
       }
     }
-  }, [trigger, formValues, renameWorkflow, updateWorkflow, shouldUpdateYml, defaultWorkflowId, updateWorkflowEnvVars]);
+  }, [trigger, formValues, renameWorkflow, updateWorkflow, shouldUpdateYml, defaultWorkflowId]);
 
   useEffect(() => {
     updateInMemoryYmlState();
