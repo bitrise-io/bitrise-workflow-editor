@@ -52,7 +52,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: 
           maxWidth={['100%', '50%']}
         >
           <DrawerCloseButton size="md">
-            <Icon name="CloseSmall" />
+            <Icon name="Cross" />
           </DrawerCloseButton>
           <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
             <Box display="flex" gap="12">

@@ -249,7 +249,7 @@ const SecretCard = (props: SecretCardProps) => {
                   <IconButton
                     size="md"
                     iconSize="24"
-                    iconName="MinusRemove"
+                    iconName="MinusCircle"
                     aria-label="Delete secret"
                     variant="tertiary"
                     isDanger

@@ -91,7 +91,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             size="md"
             aria-label="Remove"
             onClick={handleRemove}
-            iconName="MinusRemove"
+            iconName="MinusCircle"
             tooltipProps={{ 'aria-label': 'Remove' }}
             isDanger
           />
@@ -168,7 +168,7 @@ const EnvVarsCard = () => {
           </DndContext>
         </Box>
         <Box px="32" py="24">
-          <Button onClick={handleAddNew} leftIconName="PlusAdd" size="md" variant="secondary">
+          <Button onClick={handleAddNew} leftIconName="PlusCircle" size="md" variant="secondary">
             Add new
           </Button>
         </Box>

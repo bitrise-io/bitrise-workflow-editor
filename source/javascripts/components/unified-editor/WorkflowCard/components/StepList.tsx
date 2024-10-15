@@ -79,7 +79,7 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
         <Button
           variant="secondary"
           size="md"
-          leftIconName="PlusAdd"
+          leftIconName="PlusCircle"
           alignSelf="stretch"
           onClick={() => onAddStepClick?.(workflowId, 0)}
         >

@@ -110,7 +110,7 @@ const WorkflowSelector = () => {
           fontWeight="400"
           borderRadius="0"
           variant="secondary"
-          leftIconName="PlusAdd"
+          leftIconName="PlusCircle"
           justifyContent="flex-start"
           onClick={onCreateWorkflow}
         >
