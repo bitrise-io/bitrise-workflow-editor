@@ -13,8 +13,6 @@ export type FormValues = {
     description: string;
   };
   configuration: {
-    stackId: string;
-    machineTypeId: string;
     envs: EnvVar[];
   };
 };

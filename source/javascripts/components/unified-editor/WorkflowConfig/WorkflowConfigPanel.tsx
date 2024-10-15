@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import omit from 'lodash/omit';
+import isEmpty from 'lodash/isEmpty';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
@@ -20,11 +21,12 @@ const WorkflowConfigPanelContent = () => {
   const [, setSearchParams] = useSearchParams();
   const { trigger, formState } = useFormContext<FormValues>();
   const defaultWorkflowId = formState.defaultValues?.properties?.name ?? '';
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
+  const shouldUpdateYml = defaultWorkflowId && (formState.isDirty || !isEmpty(formState.touchedFields));
 
-  const { updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars } = useBitriseYmlStore(
+  const { updateWorkflow, updateWorkflowEnvVars } = useBitriseYmlStore(
     useShallow((s) => ({
       updateWorkflow: s.updateWorkflow,
-      updateStackAndMachine: s.updateStackAndMachine,
       updateWorkflowEnvVars: s.updateWorkflowEnvVars,
     })),
   );
@@ -36,39 +38,28 @@ const WorkflowConfigPanelContent = () => {
     }));
   });
 
-  useEffect(() => {
-    if (defaultWorkflowId) {
-      trigger().then((isValid) => {
-        if (isValid) {
-          const { configuration, properties } = formValues;
+  const updateInMemoryYmlState = useCallback(async () => {
+    if (shouldUpdateYml && (await trigger())) {
+      const { configuration, properties } = formValues;
 
-          if (configuration) {
-            const { stackId = '', machineTypeId = '', envs = [] } = configuration;
-            updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
-            updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
-          }
+      if (configuration) {
+        const { envs = [] } = configuration;
+        updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
+      }
 
-          if (properties) {
-            updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
-          }
+      if (properties) {
+        updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
+      }
 
-          if (properties?.name) {
-            renameWorkflow(properties.name);
-          }
-        }
-      });
+      if (properties?.name) {
+        renameWorkflow(properties.name);
+      }
     }
-  }, [
-    trigger,
-    formValues,
-    defaultWorkflowId,
-    renameWorkflow,
-    updateWorkflow,
-    updateStackAndMachine,
-    updateWorkflowEnvVars,
-  ]);
+  }, [trigger, formValues, renameWorkflow, updateWorkflow, shouldUpdateYml, defaultWorkflowId, updateWorkflowEnvVars]);
 
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
+  useEffect(() => {
+    updateInMemoryYmlState();
+  }, [updateInMemoryYmlState]);
 
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">

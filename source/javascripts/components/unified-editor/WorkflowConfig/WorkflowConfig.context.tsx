@@ -21,8 +21,6 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
         description: workflow?.userValues?.description ?? '',
       },
       configuration: {
-        stackId: workflow?.userValues.meta?.['bitrise.io']?.stack || '',
-        machineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id || '',
         envs: workflow?.userValues.envs?.map((env) => EnvVarService.parseYmlEnvVar(env, workflow.id)) ?? [],
       },
     });
