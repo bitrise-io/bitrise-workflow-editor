@@ -132,7 +132,7 @@ const StepConfigPanel = ({
                 onClick={onRemove}
                 size="sm"
                 variant="secondary"
-                iconName="MinusRemove"
+                iconName="MinusCircle"
                 aria-label="Remove this step"
                 isDanger
               />

@@ -43,7 +43,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
             display: 'flex',
           }}
         >
-          <Icon name="PlusOpen" size="16" />
+          <Icon name="Plus" size="16" />
         </Box>
       </Tooltip>
     </Box>
