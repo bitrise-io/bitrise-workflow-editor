@@ -4,16 +4,12 @@ import EnvVarsCard from '../components/EnvVarsCard';
 import StackAndMachineCard from '../components/StackAndMachineCard';
 
 const ConfigurationTab = () => {
-  if (RuntimeUtils.isWebsiteMode()) {
-    return (
-      <Box display="flex" flexDir="column" gap="24">
-        <StackAndMachineCard />
-        <EnvVarsCard />
-      </Box>
-    );
-  }
-
-  return <EnvVarsCard />;
+  return (
+    <Box display="flex" flexDir="column" gap="24">
+      {RuntimeUtils.isWebsiteMode() && <StackAndMachineCard />}
+      <EnvVarsCard />
+    </Box>
+  );
 };
 
 export default ConfigurationTab;

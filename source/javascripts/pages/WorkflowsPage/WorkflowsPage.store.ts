@@ -14,7 +14,8 @@ type State = {
     | 'with-group-drawer'
     | 'step-bundle-drawer';
   dialogMounted: {
-    'step-config-drawer': boolean;
+    'step-config-drawer'?: boolean;
+    'workflow-config-drawer'?: boolean;
   };
 };
 
@@ -25,6 +26,7 @@ type Action = {
   openRunWorkflowDialog: (workflowId: string) => void;
   openChainWorkflowDialog: (workflowId: string) => void;
   openWorkflowConfigDrawer: (workflowId: string) => void;
+  unmountWorkflowConfigDrawer: () => void;
   openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
   unmountStepConfigDrawer: () => void;
   openStepSelectorDrawer: (workflowId: string, stepIndex: number) => void;
@@ -38,6 +40,7 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
   isDialogOpen: undefined,
   dialogMounted: {
     'step-config-drawer': false,
+    'workflow-config-drawer': false,
   },
   closeDialog: () => {
     return set(() => ({
@@ -59,7 +62,16 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
     return set(() => ({ workflowId, isDialogOpen: 'chain-workflow' }));
   },
   openWorkflowConfigDrawer: (workflowId) => {
-    return set(() => ({ workflowId, isDialogOpen: 'workflow-config-drawer' }));
+    return set(() => ({
+      workflowId,
+      isDialogOpen: 'workflow-config-drawer',
+      dialogMounted: { 'workflow-config-drawer': true },
+    }));
+  },
+  unmountWorkflowConfigDrawer: () => {
+    return set(() => ({
+      dialogMounted: { 'workflow-config-drawer': false },
+    }));
   },
   openStepConfigDrawer: (workflowId, stepIndex) => {
     return set(() => ({

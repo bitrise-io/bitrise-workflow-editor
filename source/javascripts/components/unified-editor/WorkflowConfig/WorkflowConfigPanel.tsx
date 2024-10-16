@@ -1,73 +1,13 @@
-import { useEffect } from 'react';
 import { TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { useFormContext, useWatch } from 'react-hook-form';
-import { useShallow } from 'zustand/react/shallow';
-import omit from 'lodash/omit';
-import useSearchParams from '@/hooks/useSearchParams';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { EnvVar } from '@/core/models/EnvVar';
 import TriggersTabPanel from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/components/TriggersTabPanel';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigProvider from './WorkflowConfig.context';
-import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
-import useRenameWorkflow from './hooks/useRenameWorkflow';
+import { WorkflowConfigTab } from './WorkflowConfig.types';
 
 const WorkflowConfigPanelContent = () => {
-  const formValues = useWatch<FormValues>();
-  const [, setSearchParams] = useSearchParams();
-  const { trigger, formState } = useFormContext<FormValues>();
-  const defaultWorkflowId = formState.defaultValues?.properties?.name ?? '';
-
-  const { updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars } = useBitriseYmlStore(
-    useShallow((s) => ({
-      updateWorkflow: s.updateWorkflow,
-      updateStackAndMachine: s.updateStackAndMachine,
-      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
-    })),
-  );
-
-  const renameWorkflow = useRenameWorkflow((newWorkflowId) => {
-    setSearchParams((searchParams) => ({
-      ...searchParams,
-      workflow_id: newWorkflowId,
-    }));
-  });
-
-  useEffect(() => {
-    if (defaultWorkflowId) {
-      trigger().then((isValid) => {
-        if (isValid) {
-          const { configuration, properties } = formValues;
-
-          if (configuration) {
-            const { stackId = '', machineTypeId = '', envs = [] } = configuration;
-            updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
-            updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
-          }
-
-          if (properties) {
-            updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
-          }
-
-          if (properties?.name) {
-            renameWorkflow(properties.name);
-          }
-        }
-      });
-    }
-  }, [
-    trigger,
-    formValues,
-    defaultWorkflowId,
-    renameWorkflow,
-    updateWorkflow,
-    updateStackAndMachine,
-    updateWorkflowEnvVars,
-  ]);
-
   const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   return (
@@ -78,7 +18,7 @@ const WorkflowConfigPanelContent = () => {
           <ConfigurationTab />
         </TabPanel>
         <TabPanel id={WorkflowConfigTab.PROPERTIES} p="24" overflowY="auto" h="100%">
-          <PropertiesTab />
+          <PropertiesTab variant="panel" />
         </TabPanel>
         {isTargetBasedTriggersEnabled && (
           <TabPanel id={WorkflowConfigTab.TRIGGERS} overflowY="auto" h="100%">
