@@ -107,12 +107,10 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
-      if (!newCondition.isRegex && !newCondition.value) {
-        newCondition.value = '*';
+      if (!newCondition.value) {
+        newCondition.value = newCondition.isRegex ? '.*' : '*';
       }
-      if (newCondition.isRegex && !newCondition.value) {
-        newCondition.value = '.*';
-      }
+
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);

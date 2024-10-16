@@ -58,11 +58,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
       if (!newCondition.value) {
-        newCondition.value = '*';
+        newCondition.value = isRegex ? '.*' : '*';
       }
-      if (isRegex) {
-        newCondition.value = '.*';
-      }
+
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
