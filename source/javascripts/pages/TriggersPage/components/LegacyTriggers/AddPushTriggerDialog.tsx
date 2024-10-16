@@ -99,11 +99,8 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
-      if (!newCondition.isRegex && !newCondition.value) {
-        newCondition.value = '*';
-      }
-      if (newCondition.isRegex && !newCondition.value) {
-        newCondition.value = '.*';
+      if (!newCondition.value) {
+        newCondition.value = newCondition.isRegex ? '.*' : '*';
       }
       return newCondition;
     });
