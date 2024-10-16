@@ -156,6 +156,7 @@ async function getStepByCvs(cvs: string, defaultStepLibrary: string): Promise<St
       return getLocalStepByCvs(cvs, defaultStepLibrary);
     case LibraryType.GIT:
       return getDirectGitStepByCvs(cvs, defaultStepLibrary);
+    case LibraryType.CUSTOM:
     default:
       return getCustomStepByCvs(cvs, defaultStepLibrary);
   }

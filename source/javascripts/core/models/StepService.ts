@@ -27,7 +27,7 @@ function parseStepCVS(
   cvs: string,
   ymlDefaultStepLib: string,
 ): {
-  library: string;
+  library: LibraryType;
   url: string;
   id: string;
   version: string;
@@ -39,7 +39,12 @@ function parseStepCVS(
 
   // Example: bundle::name
   if (/^bundle::/g.test(cvs)) {
-    return { library: LibraryType.BUNDLE, url: '', id: cvs.replace('bundle::', ''), version: '' };
+    return {
+      library: LibraryType.BUNDLE,
+      url: '',
+      id: cvs.replace('bundle::', ''),
+      version: '',
+    };
   }
 
   // Example: path::path/to/step
@@ -66,7 +71,12 @@ function parseStepCVS(
   if (cvs.startsWith(BITRISE_STEPLIB_URL)) {
     const [, stepReference] = cvs.split('::');
     const [id, version = ''] = stepReference.split('@');
-    return { library: LibraryType.BITRISE, url: BITRISE_STEPLIB_URL, id, version };
+    return {
+      library: LibraryType.BITRISE,
+      url: BITRISE_STEPLIB_URL,
+      id,
+      version,
+    };
   }
 
   // Example: https://custom.step/foo/bar-steplib.git::baz@next
@@ -80,7 +90,12 @@ function parseStepCVS(
   if (cvs.startsWith(BITRISE_STEPLIB_SSH_URL)) {
     const [, stepReference] = cvs.split('::');
     const [id, version = ''] = stepReference.split('@');
-    return { library: LibraryType.BITRISE, url: BITRISE_STEPLIB_SSH_URL, id, version };
+    return {
+      library: LibraryType.BITRISE,
+      url: BITRISE_STEPLIB_SSH_URL,
+      id,
+      version,
+    };
   }
 
   // Example: git@custom.step:foo/bar-steplib.git::baz@next
@@ -172,8 +187,8 @@ function getHttpsGitUrl(cvs: string, defaultStepLibrary: string): string {
     case 'bundle':
       break;
     case 'git':
-    case 'bitrise-steplib':
-    case 'custom-steplib':
+    case 'bitrise':
+    case 'custom':
     default:
       result = url;
       break;
