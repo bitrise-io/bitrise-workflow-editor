@@ -245,7 +245,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                   variant="tertiary"
                   aria-label="Clear"
                   onClick={handleClear}
-                  iconName="CloseSmall"
+                  iconName="Cross"
                 />
               )}
 

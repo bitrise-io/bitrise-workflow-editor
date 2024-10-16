@@ -123,7 +123,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             return (
               <ConditionCard conditionNumber={index} key={item.id} optionsMap={optionsMap} labelsMap={labelsMap}>
                 {index > 0 && (
-                  <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
+                  <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
                     Remove
                   </Button>
                 )}
@@ -132,7 +132,7 @@ const AddTrigger = (props: AddTriggerProps) => {
           })}
           <Button
             variant="secondary"
-            leftIconName="PlusAdd"
+            leftIconName="PlusCircle"
             width="100%"
             onClick={onAppend}
             isDisabled={fields.length >= Object.keys(optionsMap).length}

@@ -82,7 +82,7 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
               size="sm"
               variant="tertiary"
               aria-label="Clear"
-              iconName="CloseSmall"
+              iconName="Cross"
               tooltipProps={{ 'aria-label': 'Clear' }}
             />
           )}

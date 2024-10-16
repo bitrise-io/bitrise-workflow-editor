@@ -176,7 +176,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                 return (
                   <ConditionCard conditionNumber={index} key={item.id} optionsMap={OPTIONS_MAP} labelsMap={LABELS_MAP}>
                     {index > 0 && (
-                      <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
+                      <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
                         Remove
                       </Button>
                     )}
@@ -186,7 +186,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 
               <Button
                 variant="secondary"
-                leftIconName="PlusAdd"
+                leftIconName="PlusCircle"
                 width="100%"
                 marginBottom="24"
                 onClick={onAppend}

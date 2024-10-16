@@ -206,7 +206,7 @@ const SecretsPage = (props: SecretsPageProps) => {
           />
         ))}
       </Box>
-      <Button variant="secondary" leftIconName="PlusAdd" size="md" marginBottom="24" onClick={onAddClick}>
+      <Button variant="secondary" leftIconName="PlusCircle" size="md" marginBottom="24" onClick={onAddClick}>
         Add new
       </Button>
 

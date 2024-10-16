@@ -186,7 +186,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
+            <Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusCircle">
               Add push trigger
             </Button>
             {triggers.push.length === 0 && (
@@ -249,7 +249,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
             )}
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusAdd">
+            <Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusCircle">
               Add pull request trigger
             </Button>
             {triggers.pull_request.length === 0 && (
@@ -316,7 +316,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
             )}
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
+            <Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusCircle">
               Add tag trigger
             </Button>
             {triggers.tag.length === 0 && (
