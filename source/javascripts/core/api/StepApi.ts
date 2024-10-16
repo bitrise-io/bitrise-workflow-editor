@@ -150,7 +150,7 @@ async function getStepByCvs(cvs: string, defaultStepLibrary: string): Promise<St
     case LibraryType.BUNDLE:
     case LibraryType.WITH:
       return undefined;
-    case LibraryType.STEPLIB:
+    case LibraryType.BITRISE:
       return getAlgoliaStepByCvs(cvs, defaultStepLibrary);
     case LibraryType.LOCAL:
       return getLocalStepByCvs(cvs, defaultStepLibrary);

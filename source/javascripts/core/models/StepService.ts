@@ -5,6 +5,7 @@ import keys from 'lodash/keys';
 import compact from 'lodash/compact';
 import semver from 'semver';
 import {
+  BITRISE_STEPLIB_SSH_URL,
   BITRISE_STEPLIB_URL,
   LibraryType,
   Step,
@@ -27,52 +28,78 @@ function parseStepCVS(
   ymlDefaultStepLib: string,
 ): {
   library: string;
+  url: string;
   id: string;
   version: string;
 } {
-  const [source, version = ''] = cvs.startsWith('git::git@')
-    ? [`git@${cvs.split('@')[1]}`, cvs.split('@').pop()]
-    : cvs.split('@');
-  const id = source.split('::').pop() || source;
-
   // Example: with
   if (/^(with)$/g.test(cvs)) {
-    return { library: LibraryType.WITH, id, version: '' };
+    return { library: LibraryType.WITH, url: '', id: 'with', version: '' };
   }
 
   // Example: bundle::name
   if (/^bundle::/g.test(cvs)) {
-    return { library: LibraryType.BUNDLE, id, version: '' };
+    return { library: LibraryType.BUNDLE, url: '', id: cvs.replace('bundle::', ''), version: '' };
   }
 
   // Example: path::path/to/step
   if (/^path::/g.test(cvs)) {
-    return { library: LibraryType.LOCAL, id, version: '' };
+    const [url] = cvs.replace('path::', '').split('@');
+    return { library: LibraryType.LOCAL, url, id: url, version: '' };
   }
 
-  // Example: git::https://github.com/bitrise-io/steps-script.git@next:
+  // Example: git::https://github.com/bitrise-io/steps-script.git@next
+  // Example: git::git@github.com:bitrise-io/steps-script.git@next
   if (/^git::/g.test(cvs)) {
-    return { library: LibraryType.GIT, id, version };
+    const parts = cvs.replace('git::', '').split('@');
+    const url = parts[0] === 'git' ? `git@${parts[1]}` : parts[0];
+    const version = (parts[0] === 'git' ? parts[2] : parts[1]) || 'main';
+    return {
+      library: LibraryType.GIT,
+      url,
+      id: url,
+      version,
+    };
   }
 
   // Example: https://github.com/bitrise-io/bitrise-steplib.git::script@1
-  // Example: https://github.com/foo/bar-steplib.git::step@1
-  if (/^https?:\/\/.+::(.+)/g.test(cvs)) {
-    const [library, stepId] = source.split('::');
-
-    if (library === BITRISE_STEPLIB_URL) {
-      return { library: LibraryType.STEPLIB, id: stepId, version };
-    }
-
-    return { library, id: stepId, version };
+  if (cvs.startsWith(BITRISE_STEPLIB_URL)) {
+    const [, stepReference] = cvs.split('::');
+    const [id, version = ''] = stepReference.split('@');
+    return { library: LibraryType.BITRISE, url: BITRISE_STEPLIB_URL, id, version };
   }
 
-  if (ymlDefaultStepLib === BITRISE_STEPLIB_URL) {
-    return { library: LibraryType.STEPLIB, id, version };
+  // Example: https://custom.step/foo/bar-steplib.git::baz@next
+  if (/^https?:\/\/.+::(.+)/g.test(cvs)) {
+    const [url, stepReference] = cvs.split('::');
+    const [id, version = ''] = stepReference.split('@');
+    return { library: LibraryType.CUSTOM, url, id, version };
+  }
+
+  // Example: git@github.com:bitrise-io/bitrise-steplib.git::script@1
+  if (cvs.startsWith(BITRISE_STEPLIB_SSH_URL)) {
+    const [, stepReference] = cvs.split('::');
+    const [id, version = ''] = stepReference.split('@');
+    return { library: LibraryType.BITRISE, url: BITRISE_STEPLIB_SSH_URL, id, version };
+  }
+
+  // Example: git@custom.step:foo/bar-steplib.git::baz@next
+  if (/^git@.+::(.+)/g.test(cvs)) {
+    const [url, stepReference] = cvs.split('::');
+    const [id, version = ''] = stepReference.split('@');
+    return { library: LibraryType.CUSTOM, url, id, version };
+  }
+
+  const [url, stepReference] = cvs.includes('::') ? cvs.split('::') : [ymlDefaultStepLib, cvs];
+  const source = url || ymlDefaultStepLib;
+  const [id, version = ''] = stepReference.split('@');
+
+  if (source === BITRISE_STEPLIB_URL || source === BITRISE_STEPLIB_SSH_URL) {
+    return { library: LibraryType.BITRISE, url: source, id, version };
   }
 
   // Example: script@1
-  return { library: ymlDefaultStepLib, id, version };
+  return { library: LibraryType.CUSTOM, url: source, id, version };
 }
 
 function replaceCVSVersion(cvs: string, defaultStepLibrary: string, version: string | undefined) {
@@ -95,7 +122,7 @@ function isStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][s
 
 function isStepLibStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library === 'bitrise-steplib';
+  return library === LibraryType.BITRISE;
 }
 
 function isCustomStepLibStep(
@@ -136,37 +163,32 @@ function isWithGroup(
 }
 
 function getHttpsGitUrl(cvs: string, defaultStepLibrary: string): string {
-  const { library, id } = parseStepCVS(cvs, defaultStepLibrary);
+  const { library, url } = parseStepCVS(cvs, defaultStepLibrary);
 
-  let url = '';
+  let result = '';
   switch (library) {
     case 'path':
-      break;
     case 'with':
-      break;
     case 'bundle':
       break;
     case 'git':
-      url = id;
-      break;
     case 'bitrise-steplib':
-      url = BITRISE_STEPLIB_URL;
-      break;
+    case 'custom-steplib':
     default:
-      url = library;
+      result = url;
       break;
   }
 
-  const sshMatch = url.match(/^git@([^:]+):(.+)$/);
+  const sshMatch = result.match(/^git@([^:]+):(.+)$/);
 
   if (sshMatch) {
     const [, host, path] = sshMatch;
-    url = `https://${host}/${path}`;
+    result = `https://${host}/${path}`;
   }
 
-  url = url.replace('http://', 'https://');
+  result = result.replace('http://', 'https://');
 
-  return url;
+  return result;
 }
 
 function getRawGitUrl(cvs: string, defaultStepLibrary: string, fallbackBranch: string = 'master'): string {

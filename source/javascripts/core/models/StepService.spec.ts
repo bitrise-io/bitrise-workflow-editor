@@ -1,11 +1,14 @@
 import { StepApiResult } from '@/core/api/StepApi';
 import StepService from './StepService';
-import { BITRISE_STEPLIB_URL, Step } from './Step';
+import { BITRISE_STEPLIB_SSH_URL, BITRISE_STEPLIB_URL, Step } from './Step';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
 
 const STEPLIB_STEP = 'https://github.com/bitrise-io/bitrise-steplib.git::script@1.2.3';
+const STEPLIB_SSH_STEP = 'git@github.com:bitrise-io/bitrise-steplib.git::script@1.2.3';
+const CUSTOM_STEPLIB_URL = 'https://custom.step/foo/bar.git';
 const CUSTOMLIB_STEP = 'https://custom.step/foo/bar.git::bazz@next';
+const CUSTOMLIB_SSH_STEP = 'git@custom.step:foo/bar.git::bazz@next';
 const GITHUB_HTTPS_STEP = 'git::https://github.com/bitrise-steplib/steps-script.git@master';
 const GITHUB_SSH_STEP = 'git::git@github.com:bitrise-steplib/steps-script.git@master';
 const GITLAB_HTTPS_STEP = 'git::https://gitlab.com/steplib/steps-script.git@master';
@@ -19,63 +22,181 @@ const WITH_GROUP = 'with';
 describe('StepService', () => {
   describe('parseStepCVS', () => {
     describe('Simple step', () => {
-      it('with version', () => {
-        expect(StepService.parseStepCVS('script@1.2.3', BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
-          id: 'script',
-          version: '1.2.3',
+      describe('with Bitrise default library', () => {
+        it('with id@version', () => {
+          expect(StepService.parseStepCVS('script@1.2.3', BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '1.2.3',
+          });
+        });
+
+        it('with id only', () => {
+          expect(StepService.parseStepCVS('script', BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
+        });
+
+        it('with id@', () => {
+          expect(StepService.parseStepCVS('script@', BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
+        });
+
+        it('with ::id', () => {
+          expect(StepService.parseStepCVS('::script', BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
+        });
+
+        it('with ::id@', () => {
+          expect(StepService.parseStepCVS('::script@', BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
         });
       });
 
-      it('without version', () => {
-        expect(StepService.parseStepCVS('script', BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
-          id: 'script',
-          version: '',
+      describe('with a custom default library', () => {
+        it('with id@version', () => {
+          expect(StepService.parseStepCVS('script@1.2.3', CUSTOM_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'script',
+            version: '1.2.3',
+          });
         });
-      });
 
-      it('with a custom default library', () => {
-        expect(StepService.parseStepCVS('script', 'https://github.com/foo/bar.git')).toEqual({
-          library: 'https://github.com/foo/bar.git',
-          id: 'script',
-          version: '',
+        it('with id only', () => {
+          expect(StepService.parseStepCVS('script', CUSTOM_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
+        });
+
+        it('with id@', () => {
+          expect(StepService.parseStepCVS('script@', CUSTOM_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
+        });
+
+        it('with ::id', () => {
+          expect(StepService.parseStepCVS('::script', CUSTOM_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
+        });
+
+        it('with ::id@', () => {
+          expect(StepService.parseStepCVS('::script@', CUSTOM_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
         });
       });
     });
 
-    describe('Default steplib step', () => {
-      it('with version', () => {
-        expect(StepService.parseStepCVS(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
-          id: 'script',
-          version: '1.2.3',
+    describe('explicit Bitrise library step', () => {
+      describe('HTTPS URL', () => {
+        it('with version', () => {
+          expect(StepService.parseStepCVS(STEPLIB_STEP, BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '1.2.3',
+          });
+        });
+
+        it('without version', () => {
+          expect(StepService.parseStepCVS(STEPLIB_STEP.replace('@1.2.3', ''), BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_URL,
+            id: 'script',
+            version: '',
+          });
         });
       });
 
-      it('without version', () => {
-        expect(StepService.parseStepCVS(STEPLIB_STEP.split('@')[0], BITRISE_STEPLIB_URL)).toEqual({
-          library: 'bitrise-steplib',
-          id: 'script',
-          version: '',
+      describe('SSH URL', () => {
+        it('with version', () => {
+          expect(StepService.parseStepCVS(STEPLIB_SSH_STEP, BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_SSH_URL,
+            id: 'script',
+            version: '1.2.3',
+          });
+        });
+
+        it('without version', () => {
+          expect(StepService.parseStepCVS(STEPLIB_SSH_STEP.replace('@1.2.3', ''), BITRISE_STEPLIB_URL)).toEqual({
+            library: 'bitrise',
+            url: BITRISE_STEPLIB_SSH_URL,
+            id: 'script',
+            version: '',
+          });
         });
       });
     });
 
-    describe('Custom steplib step', () => {
-      it('with version', () => {
-        expect(StepService.parseStepCVS(CUSTOMLIB_STEP, BITRISE_STEPLIB_URL)).toEqual({
-          library: 'https://custom.step/foo/bar.git',
-          id: 'bazz',
-          version: 'next',
+    describe('explicit custom library step', () => {
+      describe('HTTPS URL', () => {
+        it('with version', () => {
+          expect(StepService.parseStepCVS(CUSTOMLIB_STEP, BITRISE_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'bazz',
+            version: 'next',
+          });
+        });
+
+        it('without version', () => {
+          expect(StepService.parseStepCVS(CUSTOMLIB_STEP.replace('@next', ''), BITRISE_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: CUSTOM_STEPLIB_URL,
+            id: 'bazz',
+            version: '',
+          });
         });
       });
 
-      it('without version', () => {
-        expect(StepService.parseStepCVS(CUSTOMLIB_STEP.split('@')[0], BITRISE_STEPLIB_URL)).toEqual({
-          library: 'https://custom.step/foo/bar.git',
-          id: 'bazz',
-          version: '',
+      describe('SSH URL', () => {
+        it('with version', () => {
+          expect(StepService.parseStepCVS(CUSTOMLIB_SSH_STEP, BITRISE_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: 'git@custom.step:foo/bar.git',
+            id: 'bazz',
+            version: 'next',
+          });
+        });
+
+        it('without version', () => {
+          expect(StepService.parseStepCVS(CUSTOMLIB_SSH_STEP.replace('@next', ''), BITRISE_STEPLIB_URL)).toEqual({
+            library: 'custom',
+            url: 'git@custom.step:foo/bar.git',
+            id: 'bazz',
+            version: '',
+          });
         });
       });
     });
@@ -84,6 +205,7 @@ describe('StepService', () => {
       it('with version', () => {
         expect(StepService.parseStepCVS(GITHUB_HTTPS_STEP, BITRISE_STEPLIB_URL)).toEqual({
           library: 'git',
+          url: 'https://github.com/bitrise-steplib/steps-script.git',
           id: 'https://github.com/bitrise-steplib/steps-script.git',
           version: 'master',
         });
@@ -92,14 +214,16 @@ describe('StepService', () => {
       it('without version', () => {
         expect(StepService.parseStepCVS(GITHUB_HTTPS_STEP.split('@')[0], BITRISE_STEPLIB_URL)).toEqual({
           library: 'git',
+          url: 'https://github.com/bitrise-steplib/steps-script.git',
           id: 'https://github.com/bitrise-steplib/steps-script.git',
-          version: '',
+          version: 'main',
         });
       });
 
       it('with ssh URL', () => {
         expect(StepService.parseStepCVS(GITHUB_SSH_STEP, BITRISE_STEPLIB_URL)).toEqual({
           library: 'git',
+          url: 'git@github.com:bitrise-steplib/steps-script.git',
           id: 'git@github.com:bitrise-steplib/steps-script.git',
           version: 'master',
         });
@@ -110,6 +234,7 @@ describe('StepService', () => {
       it('without version', () => {
         expect(StepService.parseStepCVS(LOCAL_STEP, BITRISE_STEPLIB_URL)).toEqual({
           library: 'path',
+          url: '/path/to/my/local-step',
           id: '/path/to/my/local-step',
           version: '',
         });
@@ -121,6 +246,7 @@ describe('StepService', () => {
         expect(StepService.parseStepCVS(STEP_BUNDLE, BITRISE_STEPLIB_URL)).toEqual({
           library: 'bundle',
           id: 'my-bundle',
+          url: '',
           version: '',
         });
       });
@@ -131,6 +257,7 @@ describe('StepService', () => {
         expect(StepService.parseStepCVS(WITH_GROUP, BITRISE_STEPLIB_URL)).toEqual({
           library: 'with',
           id: 'with',
+          url: '',
           version: '',
         });
       });
@@ -415,8 +542,20 @@ describe('StepService', () => {
     });
 
     describe('Custom steplib step', () => {
-      it('should return the HTTPS URL for a custom steplib step', () => {
+      it('should return the HTTPS URL for an HTTP custom steplib step', () => {
+        expect(StepService.getHttpsGitUrl(CUSTOMLIB_STEP.replace('https://', 'http://'), BITRISE_STEPLIB_URL)).toBe(
+          'https://custom.step/foo/bar.git',
+        );
+      });
+
+      it('should return the HTTPS URL for a HTTPS custom steplib step', () => {
         expect(StepService.getHttpsGitUrl(CUSTOMLIB_STEP, BITRISE_STEPLIB_URL)).toBe('https://custom.step/foo/bar.git');
+      });
+
+      it('should return the HTTPS URL for a git@ custom steplib step', () => {
+        expect(StepService.getHttpsGitUrl(CUSTOMLIB_SSH_STEP, BITRISE_STEPLIB_URL)).toBe(
+          'https://custom.step/foo/bar.git',
+        );
       });
     });
 
@@ -506,10 +645,10 @@ describe('StepService', () => {
         );
       });
 
-      it('should fallback to master branch if no branch is provided', () => {
+      it('should fallback to main branch if no branch is provided', () => {
         const cvs = 'git::https://github.com/bitrise-io/steps-fastlane.git';
         expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
+          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/main/step.yml',
         );
       });
     });
@@ -536,10 +675,10 @@ describe('StepService', () => {
         );
       });
 
-      it('should fallback to master branch if no branch is provided', () => {
+      it('should fallback to main branch if no branch is provided', () => {
         const cvs = 'git::https://gitlab.com/steplib/steps-fastlane.git';
         expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master',
+          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=main',
         );
       });
     });
@@ -566,10 +705,10 @@ describe('StepService', () => {
         );
       });
 
-      it('should fallback to master branch if no branch is provided', () => {
+      it('should fallback to main branch if no branch is provided', () => {
         const cvs = 'git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git';
         expect(StepService.getRawGitUrl(cvs, BITRISE_STEPLIB_URL)).toBe(
-          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml',
+          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/main/step.yml',
         );
       });
     });
