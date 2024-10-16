@@ -202,24 +202,24 @@ async function getCustomStepByCvs(cvs: string, defaultStepLibrary: string): Prom
     return undefined;
   }
 
-  const { library, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  const { url, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
 
-  if (!library) {
-    throw new Error('Library is not specified');
+  if (!url) {
+    throw new Error('URL is not specified');
   }
 
-  let result = CustomStepCache.get(library);
+  let result = CustomStepCache.get(url);
 
   if (!result) {
     result = await Client.post<StepLibrarySpecResponse>(LOCAL_STEP_LIBRARY_PATH, {
-      body: JSON.stringify({ libraries: [library] }),
+      body: JSON.stringify({ libraries: [url] }),
       cache: 'force-cache',
     });
-    CustomStepCache.set(library, result);
+    CustomStepCache.set(url, result);
   }
 
-  const requestedVersion = version || result.library_map[library]?.steps[id]?.latest_version_number;
-  const stepYml = result.library_map[library]?.steps[id]?.versions[requestedVersion];
+  const requestedVersion = version || result.library_map[url]?.steps[id]?.latest_version_number;
+  const stepYml = result.library_map[url]?.steps[id]?.versions[requestedVersion];
 
   return toStep(cvs, defaultStepLibrary, { id, version, step: stepYml });
 }
@@ -265,9 +265,9 @@ async function getLocalStepByCvs(cvs: string, defaultStepLibrary: string): Promi
     throw new Error('Local steps are not supported in website mode');
   }
 
-  const { id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  const { url, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
 
-  if (!id) {
+  if (!url) {
     throw new Error('Path not specified');
   }
 
@@ -275,7 +275,7 @@ async function getLocalStepByCvs(cvs: string, defaultStepLibrary: string): Promi
     step: StepYmlObject;
     info?: StepInfo;
   }>(LOCAL_STEP_API, {
-    body: JSON.stringify({ id, version, library: 'path' }),
+    body: JSON.stringify({ id: url, version, library: 'path' }),
   });
 
   return toStep(cvs, defaultStepLibrary, result);

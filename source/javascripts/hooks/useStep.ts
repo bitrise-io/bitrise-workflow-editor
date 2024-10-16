@@ -28,7 +28,7 @@ function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
         return { data: undefined };
       }
 
-      const { library, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+      const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
       const title = StepService.resolveTitle(cvs, defaultStepLibrary, step);
       const icon = StepService.resolveIcon(cvs, defaultStepLibrary, step);
 
@@ -41,7 +41,7 @@ function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
 
       return {
         data: {
-          cvs: `${library}::${id}@${version}`,
+          cvs,
           id,
           title: step.title || '', // step.title is optional, but might got a default value from the API
           icon: step.asset_urls?.['icon.svg'] || step.asset_urls?.['icon.png'] || '', // step.asset_urls is optional, but might got a default value from the API
