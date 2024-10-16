@@ -22,9 +22,13 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
 
+  const handleCloseComplete = () => {
+    setSelectedTab(WorkflowConfigTab.CONFIGURATION);
+  };
+
   return (
     <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false}>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false} onCloseComplete={handleCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"

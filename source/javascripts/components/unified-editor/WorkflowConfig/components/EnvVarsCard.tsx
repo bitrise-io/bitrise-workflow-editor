@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -41,7 +41,35 @@ type EnvVarCardProps = {
 
 const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) => {
   const sortable = useSortable({ id: env.uniqueId, data: env });
-  const debouncedOnChange = useDebounceCallback((newEnvVar: SortableEnvVar) => onChange?.(newEnvVar), 150);
+
+  const [errors, setErrors] = useState<{ key: string | boolean; value: string | boolean }>({
+    key: EnvVarService.validateKey(env.key),
+    value: EnvVarService.validateValue(env.value),
+  });
+
+  const handleKeyChange = (key: string) => {
+    setErrors((oldErrors) => {
+      const newErrors = { ...oldErrors, key: EnvVarService.validateKey(key) };
+
+      if (Object.values(newErrors).every((error) => error === true)) {
+        onChange?.({ ...env, key });
+      }
+
+      return newErrors;
+    });
+  };
+
+  const handleValueChange = (value: string) => {
+    setErrors((oldErrors) => {
+      const newErrors = { ...oldErrors, value: EnvVarService.validateValue(value) };
+
+      if (Object.values(newErrors).every((error) => error === true)) {
+        onChange?.({ ...env, value });
+      }
+
+      return newErrors;
+    });
+  };
 
   if (sortable.isDragging) {
     return (
@@ -85,8 +113,9 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
             defaultValue={env.key}
             leftIconName="Dollars"
             placeholder="Enter key"
+            onChange={(e) => handleKeyChange(e.target.value)}
+            errorText={errors.key !== true ? errors.key : undefined}
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-            onChange={(e) => debouncedOnChange?.({ ...env, key: e.target.value })}
           />
           <Text color="text/tertiary" pt="8">
             =
@@ -96,7 +125,8 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
             defaultValue={env.value}
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
-            onChange={(e) => debouncedOnChange?.({ ...env, value: e.target.value })}
+            onChange={(e) => handleValueChange(e.target.value)}
+            errorText={errors.value !== true ? errors.value : undefined}
           />
           <ControlButton
             isDanger
@@ -128,12 +158,13 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
 const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
 
-  const { appendWorkflowEnvVar, updateWorkflowEnvVars } = useBitriseYmlStore(
+  const { updateWorkflowEnvVars } = useBitriseYmlStore(
     useShallow((s) => ({
-      appendWorkflowEnvVar: s.appendWorkflowEnvVar,
       updateWorkflowEnvVars: s.updateWorkflowEnvVars,
     })),
   );
+
+  const debouncedUpdateWorkflows = useDebounceCallback(updateWorkflowEnvVars, 150);
 
   const [activeItem, setActiveItem] = useState<SortableEnvVar>();
   const [envs, setEnvs] = useState(mapYmlEnvVarsToSortableEnvVars(workflow?.userValues.envs, workflow?.id));
@@ -164,26 +195,31 @@ const EnvVarsCard = () => {
   };
 
   const onAddNewEnvVarClick = () => {
-    const newEnvVar: EnvVar = { key: '', value: '', source: workflow?.id || '' };
+    const newEnvVar: EnvVar = { key: '', value: '', source: workflow?.id || '', isExpand: false };
     setEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...newEnvVar }]);
-    appendWorkflowEnvVar(workflow?.id || '', newEnvVar);
   };
 
-  const onRemoveEnvVar = (uniqueId: string) => {
-    setEnvs((oldEnvVars) => {
-      const newEnvVars = oldEnvVars.filter((env) => env.uniqueId !== uniqueId);
-      updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
-      return newEnvVars;
-    });
-  };
+  const onRemoveEnvVar = useCallback(
+    (uniqueId: string) => {
+      setEnvs((oldEnvVars) => {
+        const newEnvVars = oldEnvVars.filter((env) => env.uniqueId !== uniqueId);
+        updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+        return newEnvVars;
+      });
+    },
+    [updateWorkflowEnvVars, workflow?.id],
+  );
 
-  const onChangeEnvVar = (env: SortableEnvVar) => {
-    setEnvs((oldEnvVars) => {
-      const newEnvVars = oldEnvVars.map((oldEnvVar) => (oldEnvVar.uniqueId === env.uniqueId ? env : oldEnvVar));
-      updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
-      return newEnvVars;
-    });
-  };
+  const onChangeEnvVar = useCallback(
+    (env: SortableEnvVar) => {
+      setEnvs((oldEnvVars) => {
+        const newEnvVars = oldEnvVars.map((oldEnvVar) => (oldEnvVar.uniqueId === env.uniqueId ? env : oldEnvVar));
+        debouncedUpdateWorkflows(workflow?.id || '', newEnvVars);
+        return newEnvVars;
+      });
+    },
+    [debouncedUpdateWorkflows, workflow?.id],
+  );
 
   useEffect(() => {
     setEnvs(mapYmlEnvVarsToSortableEnvVars(workflow?.userValues.envs, workflow?.id));
