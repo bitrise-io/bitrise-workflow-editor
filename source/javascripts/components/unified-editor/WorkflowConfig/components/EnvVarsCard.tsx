@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
+import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -18,6 +18,15 @@ type SortableEnvVar = EnvVar & {
   uniqueId: string;
 };
 
+function countValidationErrors(envs: SortableEnvVar[]) {
+  return envs.reduce((acc, env) => {
+    const keyError = EnvVarService.validateKey(env.key);
+    const valueError = EnvVarService.validateValue(env.value);
+
+    return acc + (keyError !== true ? 1 : 0) + (valueError !== true ? 1 : 0);
+  }, 0);
+}
+
 function hasValidationErrors(envs: SortableEnvVar[]) {
   return envs.some(
     (env) => EnvVarService.validateKey(env.key) !== true || EnvVarService.validateValue(env.value) !== true,
@@ -30,10 +39,15 @@ function mapYmlEnvVarsToSortableEnvVars(envs?: EnvVarYml[], workflowId?: string)
   });
 }
 
-const ButtonContent = () => {
+const ButtonContent = ({ numberOfErrors }: { numberOfErrors: number }) => {
   return (
     <Box display="flex" gap="8">
       <Text textStyle="body/lg/semibold">Env Vars</Text>
+      {!!numberOfErrors && (
+        <Badge variant="bold" colorScheme="negative">
+          {numberOfErrors}
+        </Badge>
+      )}
     </Box>
   );
 };
@@ -230,7 +244,7 @@ const EnvVarsCard = () => {
   }, []);
 
   return (
-    <ExpandableCard buttonContent={<ButtonContent />}>
+    <ExpandableCard buttonContent={<ButtonContent numberOfErrors={countValidationErrors(envs)} />}>
       <Box m="-16" width="auto">
         <Box>
           <DndContext
