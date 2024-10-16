@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import {
   Drawer,
   DrawerBody,
@@ -16,19 +14,17 @@ import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import { WorkflowConfigTab } from './WorkflowConfig.types';
 
-type Props = UseDisclosureProps & { workflowId: string };
+type Props = UseDisclosureProps & {
+  workflowId: string;
+  onCloseComplete?: VoidFunction;
+};
 
-const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
+const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
   const { isOpen, onClose } = useDisclosure(props);
-  const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
-
-  const handleCloseComplete = () => {
-    setSelectedTab(WorkflowConfigTab.CONFIGURATION);
-  };
 
   return (
-    <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false} onCloseComplete={handleCloseComplete}>
+    <Tabs>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false} onCloseComplete={onCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
