@@ -133,7 +133,7 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
             ml="8"
             size="md"
             aria-label="Remove"
-            iconName="MinusRemove"
+            iconName="MinusCircle"
             tooltipProps={{ 'aria-label': 'Remove' }}
             onClick={() => onRemove?.(env.uniqueId)}
           />
@@ -246,7 +246,7 @@ const EnvVarsCard = () => {
           </DndContext>
         </Box>
         <Box px="32" py="24">
-          <Button size="md" variant="secondary" leftIconName="PlusAdd" onClick={onAddNewEnvVarClick}>
+          <Button size="md" variant="secondary" leftIconName="PlusCircle" onClick={onAddNewEnvVarClick}>
             Add new
           </Button>
         </Box>

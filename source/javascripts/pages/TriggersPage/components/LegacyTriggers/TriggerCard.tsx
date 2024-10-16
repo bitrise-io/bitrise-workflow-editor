@@ -70,7 +70,7 @@ const TriggerCard = (props: TriggerCardProps) => {
         </Checkbox>
         <IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
         <IconButton
-          iconName="MinusRemove"
+          iconName="MinusCircle"
           aria-label="Remove trigger"
           variant="tertiary"
           isDanger

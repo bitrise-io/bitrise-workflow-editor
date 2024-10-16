@@ -35,7 +35,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
             </Box>
             <Icon
               id="workflow-editor-step-sidebar-close-workflow-recipes-banner"
-              name="CloseSmall"
+              name="Cross"
               size="24"
               textColor="blue.40"
               cursor="pointer"

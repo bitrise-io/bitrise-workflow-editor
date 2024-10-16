@@ -46,7 +46,7 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) 
         maxWidth={['100%', '50%']}
       >
         <DrawerCloseButton size="md">
-          <Icon name="CloseSmall" />
+          <Icon name="Cross" />
         </DrawerCloseButton>
 
         <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">

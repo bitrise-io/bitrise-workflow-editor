@@ -115,7 +115,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
           maxWidth={['100%', '50%']}
         >
           <DrawerCloseButton size="md">
-            <Icon name="CloseSmall" />
+            <Icon name="Cross" />
           </DrawerCloseButton>
 
           <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">

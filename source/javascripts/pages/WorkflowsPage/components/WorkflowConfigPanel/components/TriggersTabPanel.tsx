@@ -235,7 +235,7 @@ const TriggersTabPanel = () => {
             margin="24"
             size="md"
             variant="secondary"
-            leftIconName="PlusAdd"
+            leftIconName="PlusCircle"
             onClick={() => {
               setTriggerType('push');
             }}
@@ -271,7 +271,7 @@ const TriggersTabPanel = () => {
             margin="24"
             size="md"
             variant="secondary"
-            leftIconName="PlusAdd"
+            leftIconName="PlusCircle"
             onClick={() => {
               setTriggerType('pull_request');
             }}
@@ -304,7 +304,7 @@ const TriggersTabPanel = () => {
             margin="24"
             size="md"
             variant="secondary"
-            leftIconName="PlusAdd"
+            leftIconName="PlusCircle"
             onClick={() => {
               setTriggerType('tag');
             }}

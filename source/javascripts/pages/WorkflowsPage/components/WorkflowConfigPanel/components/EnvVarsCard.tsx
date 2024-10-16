@@ -101,7 +101,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
               setValueAs: String,
             })}
           />
-          <ControlButton onClick={handleRemove} iconName="MinusRemove" aria-label="Remove" size="md" ml="8" isDanger />
+          <ControlButton onClick={handleRemove} iconName="MinusCircle" aria-label="Remove" size="md" ml="8" isDanger />
         </Box>
         <Checkbox inputRef={isExpandRef} {...isExpandProps}>
           Replace variables in inputs
@@ -150,7 +150,7 @@ const EnvVarsCard = () => {
           </DndContext>
         </Box>
         <Box px="32" py="24">
-          <Button onClick={handleAddNew} leftIconName="PlusAdd" size="md" variant="secondary">
+          <Button onClick={handleAddNew} leftIconName="PlusCircle" size="md" variant="secondary">
             Add new
           </Button>
         </Box>

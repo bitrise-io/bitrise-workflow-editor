@@ -193,7 +193,7 @@ const StepCard = ({
                 isDanger
                 size="xs"
                 display="none"
-                iconName="MinusRemove"
+                iconName="MinusCircle"
                 aria-label="Remove this step"
                 tooltipProps={{ 'aria-label': 'Remove this step' }}
                 _groupHover={{ display: 'block' }}

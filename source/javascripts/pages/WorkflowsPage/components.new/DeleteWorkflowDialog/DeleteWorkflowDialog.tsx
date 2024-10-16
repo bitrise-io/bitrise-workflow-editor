@@ -26,10 +26,10 @@ const DeleteWorkflowDialog = ({ onDeleteWorkflow, ...disclosureProps }: Props) =
           Are you sure you want to delete <strong>{selectedWorkflowId}</strong>?
         </Text>
         <List variant="unstyled" spacing="6">
-          <ListItem iconSize="24" iconName="CloseSmall" iconColor="icon/negative">
+          <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
             All settings, Steps and EnvVars specific to this Workflow will be deleted.
           </ListItem>
-          <ListItem iconSize="24" iconName="CloseSmall" iconColor="icon/negative">
+          <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
             Dependent automated tasks, builds and deployments will stop functioning.
           </ListItem>
           <ListItem iconSize="24" iconName="Check" iconColor="icon/positive">

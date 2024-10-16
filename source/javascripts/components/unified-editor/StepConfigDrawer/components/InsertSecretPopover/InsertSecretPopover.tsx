@@ -88,7 +88,7 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
             {isMode(Mode.SELECT) && (
               <>
                 <Text textStyle="heading/h4">Insert secret</Text>
-                <Button variant="tertiary" size="sm" leftIconName="PlusOpen" onClick={() => switchTo(Mode.CREATE)}>
+                <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
                   Create
                 </Button>
               </>
