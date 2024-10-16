@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
@@ -17,6 +17,12 @@ import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 type SortableEnvVar = EnvVar & {
   uniqueId: string;
 };
+
+function hasValidationErrors(envs: SortableEnvVar[]) {
+  return envs.some(
+    (env) => EnvVarService.validateKey(env.key) !== true || EnvVarService.validateValue(env.value) !== true,
+  );
+}
 
 function mapYmlEnvVarsToSortableEnvVars(envs?: EnvVarYml[], workflowId?: string): SortableEnvVar[] {
   return (envs ?? []).map((env) => {
@@ -42,51 +48,20 @@ type EnvVarCardProps = {
 const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) => {
   const sortable = useSortable({ id: env.uniqueId, data: env });
 
-  const [errors, setErrors] = useState<{ key: string | boolean; value: string | boolean }>({
+  const [errors, setErrors] = useState({
     key: EnvVarService.validateKey(env.key),
     value: EnvVarService.validateValue(env.value),
   });
 
   const handleKeyChange = (key: string) => {
-    setErrors((oldErrors) => {
-      const newErrors = { ...oldErrors, key: EnvVarService.validateKey(key) };
-
-      if (Object.values(newErrors).every((error) => error === true)) {
-        onChange?.({ ...env, key });
-      }
-
-      return newErrors;
-    });
+    onChange?.({ ...env, key });
+    setErrors((oldErrors) => ({ ...oldErrors, key: EnvVarService.validateKey(key) }));
   };
 
   const handleValueChange = (value: string) => {
-    setErrors((oldErrors) => {
-      const newErrors = { ...oldErrors, value: EnvVarService.validateValue(value) };
-
-      if (Object.values(newErrors).every((error) => error === true)) {
-        onChange?.({ ...env, value });
-      }
-
-      return newErrors;
-    });
+    onChange?.({ ...env, value });
+    setErrors((oldErrors) => ({ ...oldErrors, value: EnvVarService.validateValue(value) }));
   };
-
-  if (sortable.isDragging) {
-    return (
-      <Box
-        p="16"
-        pb="56"
-        ref={sortable.setNodeRef}
-        backgroundColor="background/secondary"
-        style={{
-          transition: sortable.transition,
-          transform: CSS.Transform.toString(sortable.transform),
-        }}
-      >
-        <AutoGrowableInput visibility="hidden" value={env.value} formControlProps={{ flex: 1 }} />
-      </Box>
-    );
-  }
 
   return (
     <Box
@@ -96,21 +71,37 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
       position="relative"
       borderBottom="1px solid"
       borderColor="border/minimal"
-      background="background/primary"
       {...(isDragging ? { boxShadow: 'small' } : {})}
+      {...(sortable.isDragging
+        ? { backgroundColor: 'background/secondary' }
+        : { backgroundColor: 'background/primary' })}
       style={{
         transition: sortable.transition,
         transform: CSS.Transform.toString(sortable.transform),
       }}
     >
-      <DragHandle withGroupHover ref={sortable.setActivatorNodeRef} {...sortable.listeners} {...sortable.attributes} />
-      <Box p="16" pl="8" display="flex" flexDir="column" gap="16" flex="1">
+      <DragHandle
+        withGroupHover
+        ref={sortable.setActivatorNodeRef}
+        visibility={sortable.isDragging ? 'hidden' : 'visible'}
+        {...sortable.listeners}
+        {...sortable.attributes}
+      />
+      <Box
+        p="16"
+        pl="8"
+        gap="16"
+        flex="1"
+        display="flex"
+        flexDir="column"
+        visibility={sortable.isDragging ? 'hidden' : 'visible'}
+      >
         <Box display="flex" alignItems="top" gap="8">
           <Input
             flex="1"
             size="md"
+            value={env.key}
             aria-label="Key"
-            defaultValue={env.key}
             leftIconName="Dollars"
             placeholder="Enter key"
             onChange={(e) => handleKeyChange(e.target.value)}
@@ -121,8 +112,8 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
             =
           </Text>
           <AutoGrowableInput
+            value={env.value}
             aria-label="Value"
-            defaultValue={env.value}
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
             onChange={(e) => handleValueChange(e.target.value)}
@@ -175,7 +166,11 @@ const EnvVarsCard = () => {
         const currentOverIndex = oldEnvs.findIndex(({ uniqueId }) => uniqueId === overId);
         const currentActiveIndex = oldEnvs.findIndex(({ uniqueId }) => uniqueId === activeId);
         const newEnvVars = arrayMove(oldEnvs, currentActiveIndex, currentOverIndex);
-        updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+
+        if (!hasValidationErrors(newEnvVars)) {
+          updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+        }
+
         return newEnvVars;
       });
     }
@@ -197,7 +192,11 @@ const EnvVarsCard = () => {
   const onRemoveEnvVar = (uniqueId: string) => {
     setEnvs((oldEnvVars) => {
       const newEnvVars = oldEnvVars.filter((env) => env.uniqueId !== uniqueId);
-      updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+
+      if (!hasValidationErrors(newEnvVars)) {
+        updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
+      }
+
       return newEnvVars;
     });
   };
@@ -205,7 +204,11 @@ const EnvVarsCard = () => {
   const onChangeEnvVar = (env: SortableEnvVar) => {
     setEnvs((oldEnvVars) => {
       const newEnvVars = oldEnvVars.map((oldEnvVar) => (oldEnvVar.uniqueId === env.uniqueId ? env : oldEnvVar));
-      debouncedUpdateWorkflows(workflow?.id || '', newEnvVars);
+
+      if (!hasValidationErrors(newEnvVars)) {
+        debouncedUpdateWorkflows(workflow?.id || '', newEnvVars);
+      }
+
       return newEnvVars;
     });
   };
@@ -234,7 +237,6 @@ const EnvVarsCard = () => {
             onDragEnd={onDragEnd}
             onDragStart={onDragStart}
             onDragCancel={onDragCancel}
-            collisionDetection={pointerWithin} // NOTE: This is the only one that works when EnvVar has dozens of lines... :/
             modifiers={[restrictToVerticalAxis, restrictToParentElement]}
           >
             <SortableContext items={envs.map(({ uniqueId }) => uniqueId)} strategy={verticalListSortingStrategy}>
