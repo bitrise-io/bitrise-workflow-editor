@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
 import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
+import { useShallow } from 'zustand/react/shallow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
-import { FormValues } from '../WorkflowConfig.types';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useStacksAndMachines from '../hooks/useStacksAndMachines';
+import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type ButtonContentProps = {
   stackName?: string;
@@ -29,47 +29,35 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
 };
 
 const StackAndMachineCard = () => {
+  const workflow = useWorkflowConfigContext();
   const { data, isLoading } = useStacksAndMachines();
-  const { register, formState, watch, setValue } = useFormContext<FormValues>();
-  const [selectedStackId, selectedMachineTypeId] = watch(['configuration.stackId', 'configuration.machineTypeId']);
+  const updateStackAndMachine = useBitriseYmlStore(useShallow((s) => s.updateStackAndMachine));
 
-  const selectStackAndMachineProps = useMemo(() => {
-    return {
-      ...data,
-      selectedStackId,
-      selectedMachineTypeId,
-      initialStackId: formState.defaultValues?.configuration?.stackId ?? '',
-      initialMachineTypeId: formState.defaultValues?.configuration?.machineTypeId ?? '',
-    };
-  }, [
-    data,
-    selectedStackId,
-    selectedMachineTypeId,
-    formState.defaultValues?.configuration?.stackId,
-    formState.defaultValues?.configuration?.machineTypeId,
-  ]);
+  const {
+    selectedStack,
+    selectedMachineType,
+    availableStackOptions,
+    availableMachineTypeOptions,
+    isInvalidInitialStack,
+    isInvalidInitialMachineType,
+    isMachineTypeSelectionDisabled,
+  } = StackAndMachineService.selectStackAndMachine({
+    ...data,
+    initialStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
+    selectedStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
+    initialMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
+    selectedMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
+  });
 
-  const result = useMemo(() => {
-    const { selectedMachineType, ...rest } = StackAndMachineService.selectStackAndMachine(selectStackAndMachineProps);
-
-    setValue('configuration.machineTypeId', selectedMachineType.id, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-
-    return { selectedMachineType, ...rest };
-  }, [selectStackAndMachineProps, setValue]);
-
-  const isDefault = !result.selectedStack.id && !result.selectedMachineType.id;
+  const isDefault = !selectedStack.id && !selectedMachineType.id;
 
   return (
     <ExpandableCard
       buttonContent={
         <ButtonContent
           isDefault={isDefault}
-          stackName={result.selectedStack.name}
-          machineTypeName={result.selectedMachineType.name}
+          stackName={selectedStack.name}
+          machineTypeName={selectedMachineType.name}
         />
       }
     >
@@ -78,10 +66,11 @@ const StackAndMachineCard = () => {
           isRequired
           label="Stack"
           isLoading={isLoading}
-          errorText={result.isInvalidInitialStack ? 'Invalid stack' : undefined}
-          {...register('configuration.stackId')}
+          value={selectedStack.id}
+          errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
+          onChange={(e) => updateStackAndMachine(workflow?.id || '', e.target.value, selectedMachineType.id)}
         >
-          {result.availableStackOptions.map(({ value, label }) => (
+          {availableStackOptions.map(({ value, label }) => (
             <option key={value} value={value}>
               {label}
             </option>
@@ -91,11 +80,12 @@ const StackAndMachineCard = () => {
           isRequired
           label="Machine type"
           isLoading={isLoading}
-          isDisabled={result.isMachineTypeSelectionDisabled}
-          errorText={result.isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
-          {...register('configuration.machineTypeId')}
+          value={selectedMachineType.id}
+          isDisabled={isMachineTypeSelectionDisabled}
+          errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
+          onChange={(e) => updateStackAndMachine(workflow?.id || '', selectedStack.id, e.target.value)}
         >
-          {result.availableMachineTypeOptions.map(({ value, label }) => (
+          {availableMachineTypeOptions.map(({ value, label }) => (
             <option key={value} value={value}>
               {label}
             </option>

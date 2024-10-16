@@ -36,6 +36,7 @@ const WorkflowsPageContent = () => {
     openStepConfigDrawer,
     unmountStepConfigDrawer,
     openCreateWorkflowDialog,
+    unmountWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
   const { addStep, createWorkflow, deleteWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
@@ -60,6 +61,7 @@ const WorkflowsPageContent = () => {
     isCreateWorkflowDialogOpen,
     isDeleteWorkflowDialogOpen,
     isWorkflowConfigDrawerOpen,
+    isWorkflowConfigDrawerMounted,
   } = {
     enabledSteps: new Set(getUniqueStepIds()),
     isRunWorkflowDialogOpen: isDialogOpen === 'run-workflow',
@@ -72,6 +74,7 @@ const WorkflowsPageContent = () => {
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
     isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
     isWorkflowConfigDrawerOpen: isDialogOpen === 'workflow-config-drawer',
+    isWorkflowConfigDrawerMounted: dialogMounted['workflow-config-drawer'],
   };
 
   const handleAddStep = (cvs: string) => {
@@ -151,7 +154,14 @@ const WorkflowsPageContent = () => {
         onSelectStep={({ cvs }) => handleAddStep(cvs)}
       />
 
-      <WorkflowConfigDrawer workflowId={workflowId} isOpen={isWorkflowConfigDrawerOpen} onClose={closeDialog} />
+      {isWorkflowConfigDrawerMounted && (
+        <WorkflowConfigDrawer
+          workflowId={workflowId}
+          isOpen={isWorkflowConfigDrawerOpen}
+          onClose={closeDialog}
+          onCloseComplete={unmountWorkflowConfigDrawer}
+        />
+      )}
     </>
   );
 };

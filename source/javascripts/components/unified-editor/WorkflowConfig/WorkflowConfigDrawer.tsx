@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import {
   Drawer,
   DrawerBody,
@@ -9,76 +7,24 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import { Icon, TabPanel, TabPanels, Tabs, useDisclosure, useToast } from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
-import { useShallow } from 'zustand/react/shallow';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { Icon, TabPanel, TabPanels, Tabs, useDisclosure } from '@bitrise/bitkit';
 import WorkflowConfigProvider from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
-import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
+import { WorkflowConfigTab } from './WorkflowConfig.types';
 
-type Props = UseDisclosureProps & { workflowId: string };
+type Props = UseDisclosureProps & {
+  workflowId: string;
+  onCloseComplete?: VoidFunction;
+};
 
-const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
-  const toast = useToast();
+const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
   const { isOpen, onClose } = useDisclosure(props);
-  const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
-
-  const form = useFormContext<FormValues>();
-
-  const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
-
-  const { renameWorkflow, updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars } = useBitriseYmlStore(
-    useShallow((s) => ({
-      renameWorkflow: s.renameWorkflow,
-      updateWorkflow: s.updateWorkflow,
-      updateStackAndMachine: s.updateStackAndMachine,
-      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
-    })),
-  );
-
-  const saveAndClose = form.handleSubmit(
-    ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId, envs } }) => {
-      updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
-      updateWorkflowEnvVars(defaultWorkflowId, envs);
-      updateWorkflow(defaultWorkflowId, properties);
-      renameWorkflow(defaultWorkflowId, name);
-      onClose();
-    },
-  );
-
-  const handleClose = () => {
-    form.trigger().then((isValid) => {
-      if (!isValid) {
-        toast({
-          status: 'error',
-          title: 'Invalid Workflow configuration',
-          description: 'Please check the configuration and try again.',
-          isClosable: true,
-        });
-        return;
-      }
-
-      saveAndClose();
-    });
-  };
-
-  const handleCloseComplete = () => {
-    setSelectedTab(WorkflowConfigTab.CONFIGURATION);
-    form.reset();
-  };
 
   return (
-    <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
-      <Drawer
-        isFullHeight
-        isOpen={isOpen}
-        onClose={handleClose}
-        autoFocus={false}
-        onCloseComplete={handleCloseComplete}
-      >
+    <Tabs>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false} onCloseComplete={onCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -109,7 +55,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
                 <ConfigurationTab />
               </TabPanel>
               <TabPanel id={WorkflowConfigTab.PROPERTIES}>
-                <PropertiesTab />
+                <PropertiesTab variant="drawer" />
               </TabPanel>
             </TabPanels>
           </DrawerBody>
