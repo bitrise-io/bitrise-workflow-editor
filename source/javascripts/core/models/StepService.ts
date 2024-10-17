@@ -5,8 +5,8 @@ import keys from 'lodash/keys';
 import compact from 'lodash/compact';
 import semver from 'semver';
 import {
-  BITRISE_STEPLIB_SSH_URL,
-  BITRISE_STEPLIB_URL,
+  BITRISE_STEP_LIBRARY_SSH_URL,
+  BITRISE_STEP_LIBRARY_URL,
   LibraryType,
   Step,
   StepBundleYmlObject,
@@ -68,12 +68,12 @@ function parseStepCVS(
   }
 
   // Example: https://github.com/bitrise-io/bitrise-steplib.git::script@1
-  if (cvs.startsWith(BITRISE_STEPLIB_URL)) {
+  if (cvs.startsWith(BITRISE_STEP_LIBRARY_URL)) {
     const [, stepReference] = cvs.split('::');
     const [id, version = ''] = stepReference.split('@');
     return {
       library: LibraryType.BITRISE,
-      url: BITRISE_STEPLIB_URL,
+      url: BITRISE_STEP_LIBRARY_URL,
       id,
       version,
     };
@@ -87,12 +87,12 @@ function parseStepCVS(
   }
 
   // Example: git@github.com:bitrise-io/bitrise-steplib.git::script@1
-  if (cvs.startsWith(BITRISE_STEPLIB_SSH_URL)) {
+  if (cvs.startsWith(BITRISE_STEP_LIBRARY_SSH_URL)) {
     const [, stepReference] = cvs.split('::');
     const [id, version = ''] = stepReference.split('@');
     return {
       library: LibraryType.BITRISE,
-      url: BITRISE_STEPLIB_SSH_URL,
+      url: BITRISE_STEP_LIBRARY_SSH_URL,
       id,
       version,
     };
@@ -109,7 +109,7 @@ function parseStepCVS(
   const source = url || ymlDefaultStepLib;
   const [id, version = ''] = stepReference.split('@');
 
-  if (source === BITRISE_STEPLIB_URL || source === BITRISE_STEPLIB_SSH_URL) {
+  if (source === BITRISE_STEP_LIBRARY_URL || source === BITRISE_STEP_LIBRARY_SSH_URL) {
     return { library: LibraryType.BITRISE, url: source, id, version };
   }
 

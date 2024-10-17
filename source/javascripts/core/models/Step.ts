@@ -1,7 +1,7 @@
 import { WorkflowYmlObject } from './Workflow';
 
-const BITRISE_STEPLIB_URL = 'https://github.com/bitrise-io/bitrise-steplib.git';
-const BITRISE_STEPLIB_SSH_URL = 'git@github.com:bitrise-io/bitrise-steplib.git';
+const BITRISE_STEP_LIBRARY_URL = 'https://github.com/bitrise-io/bitrise-steplib.git';
+const BITRISE_STEP_LIBRARY_SSH_URL = 'git@github.com:bitrise-io/bitrise-steplib.git';
 
 enum Maintainer {
   Bitrise = 'bitrise',
@@ -112,8 +112,8 @@ type StepInputVariable = StepVariable;
 type StepOutputVariable = StepVariable;
 
 export {
-  BITRISE_STEPLIB_URL,
-  BITRISE_STEPLIB_SSH_URL,
+  BITRISE_STEP_LIBRARY_URL,
+  BITRISE_STEP_LIBRARY_SSH_URL,
   Steps,
   StepLikeYmlObject,
   StepYmlObject,

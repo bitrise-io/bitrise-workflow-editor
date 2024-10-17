@@ -3,6 +3,8 @@ import uniqBy from 'lodash/uniqBy';
 import sortBy from 'lodash/sortBy';
 import { parse } from 'yaml';
 import {
+  BITRISE_STEP_LIBRARY_SSH_URL,
+  BITRISE_STEP_LIBRARY_URL,
   LibraryType,
   Maintainer,
   Step,
@@ -163,9 +165,13 @@ async function getStepByCvs(cvs: string, defaultStepLibrary: string): Promise<St
 }
 
 async function getAlgoliaStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
-  const { id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  const { library, url, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
   const { stepsClient } = getAlgoliaClients();
   const results: AlgoliaStepResponse[] = [];
+
+  if (library !== LibraryType.BITRISE || ![BITRISE_STEP_LIBRARY_URL, BITRISE_STEP_LIBRARY_SSH_URL].includes(url)) {
+    throw new Error('Step library is not Bitrise step library');
+  }
 
   if (!id) {
     throw new Error('Step ID not specified');
@@ -198,11 +204,11 @@ async function getAlgoliaStepByCvs(cvs: string, defaultStepLibrary: string): Pro
 const CustomStepCache = new Map<string, StepLibrarySpecResponse>();
 
 async function getCustomStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
-  if (!/https?:\/\//.test(cvs)) {
-    return undefined;
-  }
+  const { library, url, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
 
-  const { url, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  if (library !== LibraryType.CUSTOM) {
+    throw new Error('Step library is not a custom library');
+  }
 
   if (!url) {
     throw new Error('URL is not specified');
@@ -225,8 +231,10 @@ async function getCustomStepByCvs(cvs: string, defaultStepLibrary: string): Prom
 }
 
 async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
-  if (!StepService.isGitStep(cvs, defaultStepLibrary)) {
-    return undefined;
+  const { library } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+
+  if (library !== LibraryType.GIT) {
+    throw new Error('Library is not a git library');
   }
 
   const id = StepService.getHttpsGitUrl(cvs, defaultStepLibrary);
@@ -257,15 +265,15 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
 }
 
 async function getLocalStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
-  if (!StepService.isLocalStep(cvs, defaultStepLibrary)) {
-    return undefined;
-  }
-
   if (RuntimeUtils.isWebsiteMode()) {
     throw new Error('Local steps are not supported in website mode');
   }
 
-  const { url, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  const { library, url, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+
+  if (library !== LibraryType.LOCAL) {
+    throw new Error('Library is not a local library');
+  }
 
   if (!url) {
     throw new Error('Path not specified');

@@ -16,7 +16,7 @@ import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
 import { PipelinesYml } from './Pipeline';
-import { BITRISE_STEPLIB_URL, StepInputVariable, StepYmlObject } from './Step';
+import { BITRISE_STEP_LIBRARY_URL, StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -92,7 +92,7 @@ function updateStep(
 
 function changeStepVersion(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
-  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEPLIB_URL;
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
   // If the workflow or step is missing in the YML just return the YML
   if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
@@ -479,7 +479,7 @@ function updateTriggerMap(newTriggerMap: TriggerMapYml, yml: BitriseYml): Bitris
 
 function getUniqueStepIds(yml: BitriseYml) {
   const ids = new Set<string>();
-  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEPLIB_URL;
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
   mapValues(yml.workflows, (workflow) => {
     workflow.steps?.forEach((stepLikeObject) => {
