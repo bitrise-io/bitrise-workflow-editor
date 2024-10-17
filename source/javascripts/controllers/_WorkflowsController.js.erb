@@ -701,7 +701,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
         }
 
         const oldInputNames = extractInputNames(step);
-        const oldVersion = step.version;
+        const oldVersion = step.version ?? stepSourceService.latestVersion(step);
 
         stepSourceService.changeStepToVersion(step, version);
 
