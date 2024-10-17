@@ -56,13 +56,14 @@ function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
 }
 
 type ApiStepResult = {
-  data?: StepApiResult;
   isLoading: boolean;
+  data?: StepApiResult;
+  error?: Error | null;
 };
 
 function useStepFromApi(cvs = ''): ApiStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { data, isLoading } = useQuery({
+  const { data, error, isLoading } = useQuery({
     queryKey: ['steps', { cvs, defaultStepLibrary }],
     queryFn: () => StepApi.getStepByCvs(cvs, defaultStepLibrary),
     enabled: Boolean(
@@ -73,11 +74,15 @@ function useStepFromApi(cvs = ''): ApiStepResult {
 
   return useMemo(() => {
     if (!cvs) {
-      return { data: undefined, isLoading: false };
+      return {
+        data: undefined,
+        isLoading: false,
+        error: new Error('CVS is empty'),
+      };
     }
 
     if (!data) {
-      return { data: undefined, isLoading };
+      return { data: undefined, isLoading, error };
     }
 
     return {
@@ -92,20 +97,24 @@ function useStepFromApi(cvs = ''): ApiStepResult {
         },
         resolvedInfo: data?.resolvedInfo ?? {},
       },
+      error,
       isLoading,
     };
-  }, [cvs, data, isLoading]);
+  }, [cvs, data, error, isLoading]);
 }
 
 type UseStepResult = {
-  data?: Step | WithGroup | StepBundle;
   isLoading?: boolean;
+  data?: Step | WithGroup | StepBundle;
+  error?: Error | null;
 };
 
 const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { data: ymlData } = useStepFromYml(workflowId, stepIndex);
-  const { data: apiData, isLoading } = useStepFromApi(ymlData?.cvs ?? '');
+  const { data: apiData, error, isLoading } = useStepFromApi(ymlData?.cvs ?? '');
+
+  console.log('useStep', ymlData?.cvs, error);
 
   return useMemo(() => {
     const { cvs, id, title, icon, userValues } = ymlData ?? {};
@@ -140,6 +149,7 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
     });
 
     return {
+      isLoading,
       data: {
         cvs,
         id,
@@ -150,9 +160,9 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
         mergedValues: merge({}, defaultValues, userValues, { inputs }),
         resolvedInfo,
       } as Step,
-      isLoading,
+      error,
     };
-  }, [ymlData, apiData, defaultStepLibrary, isLoading]);
+  }, [ymlData, apiData, error, defaultStepLibrary, isLoading]);
 };
 
 export default useStep;

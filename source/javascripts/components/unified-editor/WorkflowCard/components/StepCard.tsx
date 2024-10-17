@@ -58,7 +58,7 @@ const StepCard = ({
     return null;
   }
 
-  const { data, isLoading } = result;
+  const { data, error, isLoading } = result;
   const { cvs, title, icon } = data ?? {};
   const resolvedInfo = (data as Step)?.resolvedInfo;
   const isUpgradable =
@@ -114,6 +114,7 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      {...(error ? { borderColor: 'border/error' } : {})}
       style={{
         transition: sortable.transition,
         transform: CSS.Transform.toString(sortable.transform),
