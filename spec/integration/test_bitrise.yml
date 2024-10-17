@@ -307,7 +307,7 @@ workflows:
   steplib-steps:
     steps:
       - https://github.com/bitrise-io/bitrise-steplib.git::script@0.9.0:
-          title: Full explicit ID (library::id@version)
+          title: Full explicit CVS (library::id@version)
           inputs:
             - content: |-
                 #!/usr/bin/env bash
