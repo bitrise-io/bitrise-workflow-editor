@@ -128,6 +128,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                 borderWidth="1px"
                 borderStyle="solid"
                 borderColor="border/minimal"
+                backgroundColor="background/primary"
               />
 
               <Box flex="1" minW={0}>

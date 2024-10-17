@@ -10,6 +10,7 @@ import {
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
 import { WithGroup } from '@/core/models/Step';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { WithBlockContent, WithBlockHeader } from './WithGroupPanel';
 
 type Props = UseDisclosureProps & {
@@ -20,7 +21,8 @@ type Props = UseDisclosureProps & {
 const WithGroupDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
   const { data } = useStep(workflowId, stepIndex);
-  const isWithGroup = StepService.isWithGroup(data?.cvs || '', data?.userValues);
+  const defaultStepLibrary = useDefaultStepLibrary();
+  const isWithGroup = StepService.isWithGroup(data?.cvs || '', defaultStepLibrary, data?.userValues);
 
   if (!isWithGroup || !data) {
     return null;

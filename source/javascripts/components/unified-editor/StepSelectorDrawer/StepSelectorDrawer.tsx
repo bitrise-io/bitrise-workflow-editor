@@ -11,16 +11,19 @@ import {
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
 type Props = UseDisclosureProps & {
+  yml?: BitriseYml;
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: Props) => {
+const StepSelectorDrawerContent = ({ enabledSteps, onSelectStep, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -94,6 +97,20 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: 
         </DrawerContent>
       </Drawer>
     </FormProvider>
+  );
+};
+
+const StepSelectorDrawer = ({ yml, enabledSteps, onSelectStep, ...disclosureProps }: Props) => {
+  return (
+    <>
+      {yml ? (
+        <BitriseYmlProvider yml={yml}>
+          <StepSelectorDrawerContent enabledSteps={enabledSteps} onSelectStep={onSelectStep} {...disclosureProps} />
+        </BitriseYmlProvider>
+      ) : (
+        <StepSelectorDrawerContent enabledSteps={enabledSteps} onSelectStep={onSelectStep} {...disclosureProps} />
+      )}
+    </>
   );
 };
 

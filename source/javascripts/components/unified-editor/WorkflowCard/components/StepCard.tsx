@@ -8,6 +8,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
 type StepCardProps = {
@@ -29,6 +30,7 @@ const StepCard = ({
   showSecondary = true,
   actions = {},
 }: StepCardProps) => {
+  const defaultStepLibrary = useDefaultStepLibrary();
   const result = useStep(workflowId, stepIndex);
   const { onStepSelect, onUpgradeStep, onCloneStep, onDeleteStep } = actions;
 
@@ -43,20 +45,20 @@ const StepCard = ({
   });
 
   const stepVariant = useMemo(() => {
-    if (StepService.isWithGroup(result?.data?.cvs || '')) {
+    if (StepService.isWithGroup(result?.data?.cvs || '', defaultStepLibrary)) {
       return 'with-group';
     }
-    if (StepService.isStepBundle(result?.data?.cvs || '')) {
+    if (StepService.isStepBundle(result?.data?.cvs || '', defaultStepLibrary)) {
       return 'step-bundle';
     }
     return 'step';
-  }, [result?.data?.cvs]);
+  }, [result?.data?.cvs, defaultStepLibrary]);
 
   if (!result) {
     return null;
   }
 
-  const { data, isLoading } = result;
+  const { data, error, isLoading } = result;
   const { cvs, title, icon } = data ?? {};
   const resolvedInfo = (data as Step)?.resolvedInfo;
   const isUpgradable =
@@ -112,6 +114,7 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      {...(error ? { borderColor: 'border/error' } : {})}
       style={{
         transition: sortable.transition,
         transform: CSS.Transform.toString(sortable.transform),
@@ -144,6 +147,7 @@ const StepCard = ({
           outline="1px solid"
           name={title || cvs || ''}
           outlineColor="border/minimal"
+          backgroundColor="background/primary"
         />
 
         <Box minW={0} textAlign="left" flex="1">

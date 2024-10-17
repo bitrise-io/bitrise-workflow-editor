@@ -15,10 +15,12 @@ import { useFormContext } from 'react-hook-form';
 import StepService from '@/core/models/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import VersionChangedDialog from '@/components/unified-editor/VersionChangedDialog/VersionChangedDialog';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import { FormValues } from '../StepConfigDrawer.types';
 
 const PropertiesTab = () => {
+  const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const form = useFormContext<FormValues>();
   const { data, workflowId, stepIndex, isLoading } = useStepDrawerContext();
@@ -63,7 +65,7 @@ const PropertiesTab = () => {
       <Select
         backgroundSize="none"
         label="Version updates"
-        isDisabled={!StepService.isStepLibStep(cvs || '')}
+        isDisabled={!StepService.isStepLibStep(cvs || '', defaultStepLibrary)}
         {...form.register('properties.version')}
         isRequired
       >

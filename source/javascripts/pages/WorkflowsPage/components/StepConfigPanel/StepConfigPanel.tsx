@@ -88,6 +88,7 @@ const StepConfigPanel = ({
               borderWidth="1px"
               borderStyle="solid"
               borderColor="border/minimal"
+              backgroundColor="background/primary"
               src={step.iconURL()}
             />
 
