@@ -311,56 +311,52 @@ workflows:
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                echo "Hello World!"
+                echo "Hello full explicit Bitrise step!"
       - ::script@0.9.0:
           title: Implicit library, explicit version (::id@version)
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                echo "Hello World!"
+                echo "Hello implicit default library step (::id@version)!"
       - script@0.9.0:
           title: Implicit library, explicit version (id@version)
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                echo "Hello World!"
+                echo "Hello implicit default library step (id@version)!"
       - ::script@:
           title: Implicit library, implicit version (::id@)
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                echo "Hello World!"
+                echo "Hello implicit default library step (::id@)!"
       - script@:
           title: Implicit library, implicit version (id@)
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                echo "Hello World!"
+                echo "Hello implicit default library step (id@)!"
       - script:
           title: Full implicit CVS (id)
-          inputs:
-            - content: |-
-                #!/usr/bin/env bash
-                echo "Hello World!"
   custom-steplib-steps:
     steps:
-      - https://github.com/zoltanszabo-bitrise/custom-steplib.git::xcode-test:
-          title: Custom GitHub (user) steplib
-      - https://github.com/zoltan-szabo-bitrise/custom-steplib.git::xcode-test:
+      - https://github.com/my-bitrise-steps/custom-steplib.git::script:
           title: Custom GitHub (org) steplib
-      - https://gitlab.com/zoltanszabo-bitrise/custom-steplib.git::xcode-test:
-          title: Custom GitLab (user) steplib
-      - https://gitlab.com/steplib/custom-steplib.git::xcode-test:
+      - https://github.com/zoltanszabo-bitrise/custom-steplib.git::script:
+          title: Custom GitHub (user) steplib
+      - https://gitlab.com/steplib/custom-steplib.git::script:
           title: Custom GitLab (group) steplib
-      - https://bitbucket.org/zoltan-szabo-bitrise/custom-steplib.git::xcode-test:
+      - https://gitlab.com/zoltanszabo-bitrise/custom-steplib.git::script:
+          title: Custom GitLab (user) steplib
+      - https://bitbucket.org/zoltan-szabo-bitrise/custom-steplib.git::script:
           title: Custom BitBucket steplib
   git-steps:
     steps:
-      - git::https://github.com/bitrise-io/steps-fastlane.git@master:
+      - git::https://github.com/my-bitrise-steps/steps-fastlane.git@master:
           title: GitHub (org) (https) step
           inputs:
             - lane: github1
-      - git::git@github.com:bitrise-io/steps-fastlane.git@master:
+      - git::git@github.com:my-bitrise-steps/steps-fastlane.git@master:
           title: GitHub (org) (ssh) step
           inputs:
             - lane: github2
