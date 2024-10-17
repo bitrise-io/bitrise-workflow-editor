@@ -146,6 +146,7 @@ const StepCard = ({
           outline="1px solid"
           name={title || cvs || ''}
           outlineColor="border/minimal"
+          backgroundColor="background/primary"
         />
 
         <Box minW={0} textAlign="left" flex="1">
