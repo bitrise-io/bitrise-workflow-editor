@@ -337,7 +337,7 @@ workflows:
                 #!/usr/bin/env bash
                 echo "Hello World!"
       - script:
-          title: Full implicit ID (id)
+          title: Full implicit CVS (id)
           inputs:
             - content: |-
                 #!/usr/bin/env bash
