@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Avatar, Box, ButtonGroup, Card, ControlButton, Icon, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -65,6 +64,7 @@ const StepCard = ({
   const defaultStepLibrary = useDefaultStepLibrary();
   const result = useStep(workflowId, stepIndex);
   const { onStepSelect, onUpgradeStep, onCloneStep, onDeleteStep } = actions;
+  const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
 
   const sortable = useSortable({
     id: uniqueId,
@@ -75,16 +75,6 @@ const StepCard = ({
       workflowId,
     } satisfies SortableStepItem,
   });
-
-  const stepVariant = useMemo(() => {
-    if (StepService.isWithGroup(result?.data?.cvs || '', defaultStepLibrary)) {
-      return 'with-group';
-    }
-    if (StepService.isStepBundle(result?.data?.cvs || '', defaultStepLibrary)) {
-      return 'step-bundle';
-    }
-    return 'step';
-  }, [result?.data?.cvs, defaultStepLibrary]);
 
   if (!result) {
     return null;
@@ -135,7 +125,7 @@ const StepCard = ({
   }
 
   const isButton = Boolean(onStepSelect);
-  const handleClick = isButton ? () => onStepSelect?.(workflowId, stepIndex, stepVariant) : undefined;
+  const handleClick = isButton ? () => onStepSelect?.(workflowId, stepIndex, library) : undefined;
 
   return (
     <Card

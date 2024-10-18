@@ -5,6 +5,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WorkflowService from '@/core/models/WorkflowService';
 import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { LibraryType } from '@/core/models/Step';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
@@ -35,12 +36,12 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     openWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
-  const openStepLikeDrawer: StepActions['onStepSelect'] = (wfId, stepIndex, variant) => {
-    switch (variant) {
-      case 'with-group':
+  const openStepLikeDrawer: StepActions['onStepSelect'] = (wfId, stepIndex, libraryType) => {
+    switch (libraryType) {
+      case LibraryType.WITH:
         openWithGroupConfigDrawer(wfId, stepIndex);
         break;
-      case 'step-bundle':
+      case LibraryType.BUNDLE:
         openStepBundleDrawer(wfId, stepIndex);
         break;
       default:
