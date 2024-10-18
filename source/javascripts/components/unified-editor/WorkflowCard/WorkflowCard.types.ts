@@ -1,5 +1,6 @@
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
+import { LibraryType } from '@/core/models/Step';
 
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
@@ -9,10 +10,9 @@ export type WorkflowActions = {
   onDeleteChainedWorkflowClick?: BitriseYmlStoreState['deleteChainedWorkflow'];
 };
 
-export type StepVariant = 'with-group' | 'step-bundle' | 'step';
 export type StepActions = {
   onAddStepClick?: (workflowId: string, stepIndex: number) => void;
-  onStepSelect?: (workflowId: string, stepIndex: number, variant: StepVariant) => void;
+  onStepSelect?: (workflowId: string, stepIndex: number, libraryType: LibraryType) => void;
   onStepMove?: BitriseYmlStoreState['moveStep'];
   onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
   onCloneStep?: BitriseYmlStoreState['cloneStep'];

@@ -1,5 +1,16 @@
-import { useMemo } from 'react';
-import { Avatar, Box, ButtonGroup, Card, ControlButton, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
+import { ReactNode } from 'react';
+import {
+  Avatar,
+  Box,
+  ButtonGroup,
+  Card,
+  ControlButton,
+  Icon,
+  Skeleton,
+  SkeletonBox,
+  Text,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
@@ -8,7 +19,46 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+
+type StepSecondaryTextProps = {
+  errorText?: string;
+  isUpgradable?: boolean;
+  resolvedVersion?: string;
+};
+
+const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSecondaryTextProps) => {
+  let icon: ReactNode = null;
+
+  if (errorText) {
+    icon = (
+      <Tooltip label={errorText} aria-label={errorText} shouldWrapChildren wrapperProps={{ display: 'flex' }}>
+        <Icon ml="4" name="ErrorCircleFilled" size="16" color="icon/negative" />
+      </Tooltip>
+    );
+  }
+
+  if (isUpgradable && !icon) {
+    icon = (
+      <Tooltip
+        label="New version is available"
+        aria-label="New version is available"
+        shouldWrapChildren
+        wrapperProps={{ display: 'flex' }}
+      >
+        <Icon ml="4" name="WarningYellow" size="16" />
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Text hasEllipsis display="flex" textStyle="body/sm/regular" color="text/secondary">
+      {resolvedVersion || 'Always latest'}
+      {icon}
+    </Text>
+  );
+};
 
 type StepCardProps = {
   uniqueId: string;
@@ -29,8 +79,10 @@ const StepCard = ({
   showSecondary = true,
   actions = {},
 }: StepCardProps) => {
+  const defaultStepLibrary = useDefaultStepLibrary();
   const result = useStep(workflowId, stepIndex);
   const { onStepSelect, onUpgradeStep, onCloneStep, onDeleteStep } = actions;
+  const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
 
   const sortable = useSortable({
     id: uniqueId,
@@ -42,21 +94,11 @@ const StepCard = ({
     } satisfies SortableStepItem,
   });
 
-  const stepVariant = useMemo(() => {
-    if (StepService.isWithGroup(result?.data?.cvs || '')) {
-      return 'with-group';
-    }
-    if (StepService.isStepBundle(result?.data?.cvs || '')) {
-      return 'step-bundle';
-    }
-    return 'step';
-  }, [result?.data?.cvs]);
-
   if (!result) {
     return null;
   }
 
-  const { data, isLoading } = result;
+  const { data, error, isLoading } = result;
   const { cvs, title, icon } = data ?? {};
   const resolvedInfo = (data as Step)?.resolvedInfo;
   const isUpgradable =
@@ -101,7 +143,7 @@ const StepCard = ({
   }
 
   const isButton = Boolean(onStepSelect);
-  const handleClick = isButton ? () => onStepSelect?.(workflowId, stepIndex, stepVariant) : undefined;
+  const handleClick = isButton ? () => onStepSelect?.(workflowId, stepIndex, library) : undefined;
 
   return (
     <Card
@@ -144,6 +186,7 @@ const StepCard = ({
           outline="1px solid"
           name={title || cvs || ''}
           outlineColor="border/minimal"
+          backgroundColor="background/primary"
         />
 
         <Box minW={0} textAlign="left" flex="1">
@@ -151,9 +194,11 @@ const StepCard = ({
             {title || cvs || ''}
           </Text>
           {showSecondary && (
-            <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-              {resolvedInfo?.resolvedVersion || 'Always latest'}
-            </Text>
+            <StepSecondaryText
+              errorText={error ? 'Failed to load step data' : undefined}
+              isUpgradable={isUpgradable}
+              resolvedVersion={resolvedInfo?.resolvedVersion}
+            />
           )}
         </Box>
 

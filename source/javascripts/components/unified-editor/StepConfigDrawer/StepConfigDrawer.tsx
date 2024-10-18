@@ -84,15 +84,13 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
       if (!isValid) {
         toast({
           status: 'error',
-          title: 'Invalid Step configuration',
-          description: 'Please check the configuration and try again.',
+          title: 'Required field(s) are missing.',
+          description: "Please check the step's configuration.",
           isClosable: true,
         });
-        return;
       }
-
-      saveAndClose();
     });
+    saveAndClose();
   };
 
   return (
@@ -128,6 +126,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                 borderWidth="1px"
                 borderStyle="solid"
                 borderColor="border/minimal"
+                backgroundColor="background/primary"
               />
 
               <Box flex="1" minW={0}>
@@ -143,12 +142,12 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                 </Box>
 
                 <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
-                  <Text>{currentResolvedVersion || 'Always latest'}</Text>
+                  <Text display="flex">{currentResolvedVersion || 'Always latest'}</Text>
                   {isUpgradable && (
                     <>
-                      <Icon size="16" marginInlineStart="8" name="StepUpgrade" />
+                      <Icon size="16" marginInline="4" name="WarningYellow" />
                       <Text textStyle="body/sm/regular" cursor="pointer" onClick={handleUpdateStep}>
-                        Newer version available
+                        Latest version:
                         {resolvedInfo?.latestVersion ? `: ${resolvedInfo?.latestVersion}` : ''}
                       </Text>
                     </>
