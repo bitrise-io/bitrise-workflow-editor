@@ -229,7 +229,7 @@ async function getCustomStepByCvs(cvs: string, defaultStepLibrary: string): Prom
 }
 
 async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
-  const { library } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+  const { library, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
 
   if (library !== LibraryType.GIT) {
     throw new Error('Library is not a git library');
@@ -245,7 +245,7 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
 
   if (RuntimeUtils.isLocalMode()) {
     const result = await Client.post<{ step: StepYmlObject }>(LOCAL_STEP_API, {
-      body: JSON.stringify({ id, library: 'git' }),
+      body: JSON.stringify({ id, library: 'git', version }),
     });
     stepYml = result.step;
   } else {
