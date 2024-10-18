@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text, useDisclosure } from '@bitrise/bitkit';
 import { useQuery } from '@tanstack/react-query';
 import StepApi from '@/core/api/StepApi';
 import StepService from '@/core/models/StepService';
@@ -9,35 +9,44 @@ type Props = {
   cvs: string;
   oldVersion: string;
   newVersion: string;
+  onClose?: () => void;
 };
 
-const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
+const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) => {
   const defaultStepLibrary = useDefaultStepLibrary();
+  const { isOpen, onOpen, onClose } = useDisclosure(props);
 
   const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
 
-  useEffect(() => {
-    setIsOpen(true);
-  }, [id, oldVersion, newVersion]);
-
   const oldCvs = StepService.updateVersion(cvs, defaultStepLibrary, oldVersion);
-  const { data: oldStep, isFetching: isOldStepLoading } = useQuery({
-    queryKey: ['steps', { oldCvs }, defaultStepLibrary],
+  const { data: oldStep, isLoading: isOldStepLoading } = useQuery({
+    queryKey: ['steps', { cvs: oldCvs, defaultStepLibrary }],
     queryFn: () => StepApi.getStepByCvs(oldCvs, defaultStepLibrary),
     enabled: Boolean(isOpen && id && oldCvs),
+    staleTime: Infinity,
   });
 
   const newCvs = StepService.updateVersion(cvs, defaultStepLibrary, newVersion);
-  const { data: newStep, isFetching: isNewStepLoading } = useQuery({
-    queryKey: ['steps', { newCvs }, defaultStepLibrary],
+  const { data: newStep, isLoading: isNewStepLoading } = useQuery({
+    queryKey: ['steps', { cvs: newCvs, defaultStepLibrary }],
     queryFn: () => StepApi.getStepByCvs(newCvs, defaultStepLibrary),
     enabled: Boolean(isOpen && id && newCvs),
+    staleTime: Infinity,
   });
 
   const isFetching = isOldStepLoading || isNewStepLoading;
   const { removedInputs, newInputs, change } = StepService.calculateChange(oldStep, newStep, defaultStepLibrary);
   const sourceUrl = newStep?.defaultValues?.source_code_url;
+
+  useEffect(() => {
+    if (!isFetching) {
+      if (change === 'none') {
+        onClose();
+      } else {
+        onOpen();
+      }
+    }
+  }, [change, isFetching, onClose, onOpen]);
 
   if (isFetching || change === 'none') {
     return null;
@@ -49,7 +58,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
       : ['Version change', change === 'inputs' ? 'The new version contains some input changes.' : ''];
 
   return (
-    <Dialog title={title} isOpen={isOpen} onClose={() => setIsOpen(false)}>
+    <Dialog title={title} isOpen={isOpen} onClose={onClose}>
       <DialogBody display="flex" flexDir="column" gap="16">
         <Text>
           {context}
@@ -89,7 +98,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={() => setIsOpen(false)} data-e2e-tag="close-version-change-dialog">
+        <Button variant="secondary" onClick={onClose}>
           Close
         </Button>
       </DialogFooter>

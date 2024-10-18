@@ -75,13 +75,13 @@ function updateStep(
     return copy;
   }
 
-  const [cvs, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0];
+  const [cvs, stepYmlObject] = Object.entries(copy.workflows[workflowId].steps[stepIndex])[0];
 
   mapValues(newValues, (value: string, key: never) => {
-    stepYmlObject[key] = value as never;
-
-    if (!value || value === defaultValues[key]) {
+    if (value === defaultValues[key]) {
       delete stepYmlObject[key];
+    } else {
+      stepYmlObject[key] = value as never;
     }
   });
 

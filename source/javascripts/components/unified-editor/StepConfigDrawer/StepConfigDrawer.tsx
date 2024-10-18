@@ -46,38 +46,25 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
   const { workflowId, stepIndex, data } = useStepDrawerContext();
   const { mergedValues, defaultValues, resolvedInfo } = data ?? {};
   const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
+  const isUpgradable = VersionUtils.hasVersionUpgrade(resolvedInfo?.normalizedVersion, resolvedInfo?.versions);
 
-  const [formTitleValue, formVersionValue] = form.watch(['properties.name', 'properties.version']);
-  const isUpgradable = VersionUtils.hasVersionUpgrade(formVersionValue, resolvedInfo?.versions);
-  const currentResolvedVersion = VersionUtils.resolveVersion(formVersionValue, resolvedInfo?.versions);
-
-  const { changeStepVersion, updateStep, updateStepInputs } = useBitriseYmlStore((s) => ({
+  const { changeStepVersion, updateStepInputs } = useBitriseYmlStore((s) => ({
     changeStepVersion: s.changeStepVersion,
-    updateStep: s.updateStep,
     updateStepInputs: s.updateStepInputs,
   }));
 
   const handleUpdateStep = () => {
     const updatedVersion = VersionUtils.normalizeVersion(semver.major(resolvedInfo?.latestVersion ?? '').toString());
-    form.setValue('properties.version', updatedVersion, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
+    changeStepVersion(workflowId, stepIndex, updatedVersion);
   };
 
-  const saveAndClose = form.handleSubmit(
-    ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if }, inputs }) => {
-      updateStep(workflowId, stepIndex, { title: name, is_always_run, is_skippable, run_if }, defaultValues || {});
-
-      const newInputs = Object.entries(inputs || {}).map(([key, value]) => ({
-        [`${key}`]: value,
-      }));
-      updateStepInputs(workflowId, stepIndex, newInputs, defaultValues?.inputs || []);
-      changeStepVersion(workflowId, stepIndex, version);
-      onClose();
-    },
-  );
+  const saveAndClose = form.handleSubmit(({ inputs }) => {
+    const newInputs = Object.entries(inputs || {}).map(([key, value]) => ({
+      [`${key}`]: value,
+    }));
+    updateStepInputs(workflowId, stepIndex, newInputs, defaultValues?.inputs || []);
+    onClose();
+  });
 
   const handleClose = () => {
     form.trigger().then((isValid) => {
@@ -121,7 +108,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
               <Avatar
                 size="48"
                 src={data?.icon || defaultIcon}
-                name={formTitleValue}
+                name={data?.mergedValues?.title || ''}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
@@ -132,7 +119,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
               <Box flex="1" minW={0}>
                 <Box display="flex" gap="4" alignItems="center">
                   <Text as="h3" textStyle="heading/h3" hasEllipsis>
-                    {formTitleValue}
+                    {data?.mergedValues?.title || 'Loading...'}
                   </Text>
                   <StepBadge
                     isOfficial={resolvedInfo?.isOfficial}
@@ -142,7 +129,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                 </Box>
 
                 <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
-                  <Text display="flex">{currentResolvedVersion || 'Always latest'}</Text>
+                  <Text display="flex">{resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
                   {isUpgradable && (
                     <>
                       <Icon size="16" marginInline="4" name="WarningYellow" />
