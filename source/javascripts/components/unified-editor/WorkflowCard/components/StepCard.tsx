@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Avatar, Box, ButtonGroup, Card, ControlButton, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
+import { Avatar, Box, ButtonGroup, Card, ControlButton, Icon, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
@@ -10,6 +10,38 @@ import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+
+type StepSecondaryTextProps = {
+  isError?: boolean;
+  isUpgradable?: boolean;
+  resolvedVersion?: string;
+};
+
+const StepSecondaryText = ({ isError, isUpgradable, resolvedVersion }: StepSecondaryTextProps) => {
+  if (isError) {
+    return (
+      <Text display="flex" hasEllipsis textStyle="body/sm/semibold" color="text/negative">
+        Failed to load step data
+        <Icon ml="4" name="ErrorCircleFilled" size="16" />
+      </Text>
+    );
+  }
+
+  if (isUpgradable) {
+    return (
+      <Text display="flex" hasEllipsis textStyle="body/sm/semibold" color="text/negative">
+        {resolvedVersion || 'Always latest'}
+        <Icon ml="4" name="WarningYellow" size="16" />
+      </Text>
+    );
+  }
+
+  return (
+    <Text hasEllipsis textStyle="body/sm/regular" color="text/secondary">
+      {resolvedVersion || 'Always latest'}
+    </Text>
+  );
+};
 
 type StepCardProps = {
   uniqueId: string;
@@ -114,7 +146,6 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      {...(error ? { borderColor: 'border/error' } : {})}
       style={{
         transition: sortable.transition,
         transform: CSS.Transform.toString(sortable.transform),
@@ -155,9 +186,11 @@ const StepCard = ({
             {title || cvs || ''}
           </Text>
           {showSecondary && (
-            <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-              {resolvedInfo?.resolvedVersion || 'Always latest'}
-            </Text>
+            <StepSecondaryText
+              isError={!!error}
+              isUpgradable={isUpgradable}
+              resolvedVersion={resolvedInfo?.resolvedVersion}
+            />
           )}
         </Box>
 
