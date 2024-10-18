@@ -65,7 +65,7 @@ const PropertiesTab = () => {
       <Select
         backgroundSize="none"
         label="Version updates"
-        isDisabled={!StepService.isStepLibStep(cvs || '', defaultStepLibrary)}
+        isDisabled={!StepService.canUpdateVersion(cvs || '', defaultStepLibrary)}
         {...form.register('properties.version')}
         isRequired
       >

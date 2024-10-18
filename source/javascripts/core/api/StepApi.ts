@@ -184,9 +184,7 @@ async function getAlgoliaStepByCvs(cvs: string, defaultStepLibrary: string): Pro
   const availableVersions = results.map((step) => step.version).filter(Boolean) as string[];
   const resolvedVersion = VersionUtils.resolveVersion(version, availableVersions) || '';
 
-  const inputs = await getAlgoliaStepInputsByCvs(
-    StepService.replaceCVSVersion(id, defaultStepLibrary, resolvedVersion),
-  );
+  const inputs = await getAlgoliaStepInputsByCvs(StepService.updateVersion(id, defaultStepLibrary, resolvedVersion));
   const steps = results
     .map((step) => {
       const result = toStep(cvs, defaultStepLibrary, step, availableVersions);

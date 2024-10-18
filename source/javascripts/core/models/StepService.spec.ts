@@ -264,55 +264,55 @@ describe('StepService', () => {
     });
   });
 
-  describe('replaceCVSVersion', () => {
+  describe('updateVersion', () => {
     it("should append version, if version wasn't present", () => {
-      expect(StepService.replaceCVSVersion('script', BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('script@2.0.0');
+      expect(StepService.updateVersion('script', BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('script@2.0.0');
     });
 
     it('should override existing version', () => {
-      expect(StepService.replaceCVSVersion('script@1.2.3', BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('script@2.0.0');
+      expect(StepService.updateVersion('script@1.2.3', BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('script@2.0.0');
     });
 
     it('should remove version if empty string is provided', () => {
-      expect(StepService.replaceCVSVersion('script@1.2.3', BITRISE_STEP_LIBRARY_URL, '')).toBe('script');
+      expect(StepService.updateVersion('script@1.2.3', BITRISE_STEP_LIBRARY_URL, '')).toBe('script');
     });
 
     it('should work with default steplib step', () => {
-      expect(StepService.replaceCVSVersion(STEPLIB_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
+      expect(StepService.updateVersion(STEPLIB_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
         'https://github.com/bitrise-io/bitrise-steplib.git::script@2.0.0',
       );
     });
 
     it('should work with custom steplib step', () => {
-      expect(StepService.replaceCVSVersion(CUSTOMLIB_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
+      expect(StepService.updateVersion(CUSTOMLIB_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
         'https://custom.step/foo/bar.git::bazz@2.0.0',
       );
     });
 
     it('should work with git step (git::https)', () => {
-      expect(StepService.replaceCVSVersion(GITHUB_HTTPS_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
+      expect(StepService.updateVersion(GITHUB_HTTPS_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
         'git::https://github.com/bitrise-steplib/steps-script.git@2.0.0',
       );
     });
 
     it('should work with git step (git::git@)', () => {
-      expect(StepService.replaceCVSVersion(GITHUB_SSH_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
+      expect(StepService.updateVersion(GITHUB_SSH_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
         'git::git@github.com:bitrise-steplib/steps-script.git@2.0.0',
       );
     });
 
     it('should not update local step (path::)', () => {
-      expect(StepService.replaceCVSVersion(LOCAL_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
+      expect(StepService.updateVersion(LOCAL_STEP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe(
         'path::/path/to/my/local-step',
       );
     });
 
     it('should not update step (bundle::)', () => {
-      expect(StepService.replaceCVSVersion(STEP_BUNDLE, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('bundle::my-bundle');
+      expect(StepService.updateVersion(STEP_BUNDLE, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('bundle::my-bundle');
     });
 
     it('should not update with group (with)', () => {
-      expect(StepService.replaceCVSVersion(WITH_GROUP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('with');
+      expect(StepService.updateVersion(WITH_GROUP, BITRISE_STEP_LIBRARY_URL, '2.0.0')).toBe('with');
     });
   });
 
@@ -350,36 +350,36 @@ describe('StepService', () => {
     });
   });
 
-  describe('isStepLibStep', () => {
+  describe('isBitriseLibraryStep', () => {
     describe('returns true', () => {
       it('should return true for step id only', () => {
-        expect(StepService.isStepLibStep('script', BITRISE_STEP_LIBRARY_URL)).toBe(true);
+        expect(StepService.isBitriseLibraryStep('script', BITRISE_STEP_LIBRARY_URL)).toBe(true);
       });
 
       it('should return true for default steplib step', () => {
-        expect(StepService.isStepLibStep(STEPLIB_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(true);
+        expect(StepService.isBitriseLibraryStep(STEPLIB_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(true);
       });
 
       it('should return true for custom steplib step', () => {
-        expect(StepService.isStepLibStep(CUSTOMLIB_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
+        expect(StepService.isBitriseLibraryStep(CUSTOMLIB_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
       });
     });
 
     describe('returns false', () => {
       it('should return false for git step (git::)', () => {
-        expect(StepService.isStepLibStep(GITHUB_HTTPS_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
+        expect(StepService.isBitriseLibraryStep(GITHUB_HTTPS_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
       });
 
       it('should return false for local step (path::)', () => {
-        expect(StepService.isStepLibStep(LOCAL_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
+        expect(StepService.isBitriseLibraryStep(LOCAL_STEP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
       });
 
       it('should return false for step bundle (bundle::)', () => {
-        expect(StepService.isStepLibStep(STEP_BUNDLE, BITRISE_STEP_LIBRARY_URL)).toBe(false);
+        expect(StepService.isBitriseLibraryStep(STEP_BUNDLE, BITRISE_STEP_LIBRARY_URL)).toBe(false);
       });
 
       it('should return false for with group (with)', () => {
-        expect(StepService.isStepLibStep(WITH_GROUP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
+        expect(StepService.isBitriseLibraryStep(WITH_GROUP, BITRISE_STEP_LIBRARY_URL)).toBe(false);
       });
     });
   });

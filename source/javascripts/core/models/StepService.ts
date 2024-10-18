@@ -117,12 +117,13 @@ function parseStepCVS(
   return { library: LibraryType.CUSTOM, url: source, id, version };
 }
 
-function replaceCVSVersion(cvs: string, defaultStepLibrary: string, version: string | undefined) {
-  if (
-    isLocalStep(cvs, defaultStepLibrary) ||
-    isStepBundle(cvs, defaultStepLibrary) ||
-    isWithGroup(cvs, defaultStepLibrary)
-  ) {
+function canUpdateVersion(cvs: string, defaultStepLibrary: string): boolean {
+  const { library } = parseStepCVS(cvs, defaultStepLibrary);
+  return library === LibraryType.BITRISE || library === LibraryType.CUSTOM || library === LibraryType.GIT;
+}
+
+function updateVersion(cvs: string, defaultStepLibrary: string, version: string | undefined) {
+  if (!canUpdateVersion(cvs, defaultStepLibrary)) {
     return cvs;
   }
 
@@ -132,31 +133,36 @@ function replaceCVSVersion(cvs: string, defaultStepLibrary: string, version: str
 }
 
 function isStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
-  return !isWithGroup(cvs, defaultStepLibrary, _step) && !isStepBundle(cvs, defaultStepLibrary, _step);
-}
-
-function isStepLibStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library === LibraryType.BITRISE;
+  return library !== LibraryType.BUNDLE && library === LibraryType.WITH;
 }
 
-function isCustomStepLibStep(
+function isBitriseLibraryStep(
   cvs: string,
   defaultStepLibrary: string,
   _step?: Steps[number][string],
 ): _step is StepYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library.startsWith('https://') || library.startsWith('http://') || library.startsWith('git@');
+  return library === LibraryType.BITRISE;
+}
+
+function isCustomLibraryStep(
+  cvs: string,
+  defaultStepLibrary: string,
+  _step?: Steps[number][string],
+): _step is StepYmlObject {
+  const { library } = parseStepCVS(cvs, defaultStepLibrary);
+  return library === LibraryType.CUSTOM;
 }
 
 function isGitStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library === 'git';
+  return library === LibraryType.GIT;
 }
 
 function isLocalStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library === 'path';
+  return library === LibraryType.LOCAL;
 }
 
 function isStepBundle(
@@ -165,7 +171,7 @@ function isStepBundle(
   _step?: Steps[number][string],
 ): _step is StepBundleYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library === 'bundle';
+  return library === LibraryType.BUNDLE;
 }
 
 function isWithGroup(
@@ -174,7 +180,7 @@ function isWithGroup(
   _step?: Steps[number][string],
 ): _step is WithGroupYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library === 'with';
+  return library === LibraryType.WITH;
 }
 
 function getHttpsGitUrl(cvs: string, defaultStepLibrary: string): string {
@@ -182,15 +188,15 @@ function getHttpsGitUrl(cvs: string, defaultStepLibrary: string): string {
 
   let result = '';
   switch (library) {
-    case 'path':
-    case 'with':
-    case 'bundle':
-      break;
-    case 'git':
     case 'bitrise':
     case 'custom':
-    default:
+    case 'git':
       result = url;
+      break;
+    case 'path':
+    case 'bundle':
+    case 'with':
+    default:
       break;
   }
 
@@ -386,10 +392,11 @@ function toYmlInput(
 
 export default {
   parseStepCVS,
-  replaceCVSVersion,
+  canUpdateVersion,
+  updateVersion,
   isStep,
-  isStepLibStep,
-  isCustomStepLibStep,
+  isBitriseLibraryStep,
+  isCustomLibraryStep,
   isGitStep,
   isLocalStep,
   isStepBundle,

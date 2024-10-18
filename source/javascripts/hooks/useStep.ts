@@ -114,8 +114,6 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
   const { data: ymlData } = useStepFromYml(workflowId, stepIndex);
   const { data: apiData, error, isLoading } = useStepFromApi(ymlData?.cvs ?? '');
 
-  console.log('useStep', ymlData?.cvs, error);
-
   return useMemo(() => {
     const { cvs, id, title, icon, userValues } = ymlData ?? {};
     const { title: defaultTitle, icon: defaultIcon, defaultValues, resolvedInfo } = apiData ?? {};
