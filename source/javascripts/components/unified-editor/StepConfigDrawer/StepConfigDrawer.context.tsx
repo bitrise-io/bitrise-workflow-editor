@@ -27,15 +27,6 @@ const StepConfigDrawerFormProvider = ({ step, children }: PropsWithChildren<{ st
   const form = useForm<FormValues>({
     mode: 'all',
     defaultValues: {
-      configuration: {
-        is_always_run: step?.mergedValues?.is_always_run ?? false,
-        is_skippable: step?.mergedValues?.is_skippable ?? false,
-        run_if: step?.mergedValues?.run_if ?? '',
-      },
-      properties: {
-        name: step?.title ?? '',
-        version: step?.resolvedInfo?.normalizedVersion ?? '',
-      },
       inputs: step?.mergedValues?.inputs?.reduce((acc, input) => {
         return { ...acc, ...omit(input, 'opts') };
       }, {}),
@@ -53,11 +44,6 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
     if (!result) return initialState;
     return { workflowId, stepIndex, ...result } as State;
   }, [result, workflowId, stepIndex]);
-
-  if (result.isLoading) {
-    // TODO: Loading state
-    return null;
-  }
 
   return (
     <Context.Provider value={value}>

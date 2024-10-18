@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Collapse,
@@ -11,21 +11,44 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
+import { useShallow } from 'zustand/react/shallow';
+import { useDebounceCallback } from 'usehooks-ts';
 import StepService from '@/core/models/StepService';
-import VersionUtils from '@/core/utils/VersionUtils';
-import VersionChangedDialog from '@/components/unified-editor/VersionChangedDialog/VersionChangedDialog';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import { FormValues } from '../StepConfigDrawer.types';
+import VersionChangedDialog from '../../VersionChangedDialog/VersionChangedDialog';
 
 type StepVersionProps = {
   variant: 'input' | 'select';
   canChangeVersion?: boolean;
   selectableVersions?: ReturnType<typeof StepService.getSelectableVersions>;
 };
-const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
-  const form = useFormContext<FormValues>();
+const StepVersion = ({
+  variant,
+  canChangeVersion,
+  selectableVersions: initialSelectableVersions,
+}: StepVersionProps) => {
+  const { data, workflowId, stepIndex, error, isLoading } = useStepDrawerContext();
+  const changeStepVersionInYml = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.changeStepVersion)), 150);
+
+  const [selectableVersions] = useState(initialSelectableVersions ?? []);
+  const [oldVersion, setOldVersion] = useState(data?.resolvedInfo?.normalizedVersion || '');
+  const [selectedVersion, setSelectedVersion] = useState(data?.resolvedInfo?.normalizedVersion || '');
+
+  const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
+    setSelectedVersion(e.target.value);
+    changeStepVersionInYml(workflowId, stepIndex, e.target.value);
+  };
+
+  const cvs = data?.cvs || '';
+  const shouldMountVersionChangedDialog = !isLoading && !error;
+
+  useEffect(() => {
+    if (data?.resolvedInfo?.normalizedVersion && data.resolvedInfo.normalizedVersion !== oldVersion) {
+      setSelectedVersion(data.resolvedInfo.normalizedVersion);
+    }
+  }, [data?.resolvedInfo?.normalizedVersion, selectedVersion, oldVersion]);
 
   if (!canChangeVersion) {
     return <Input label="Version" placeholder="Always latest" isDisabled />;
@@ -33,46 +56,74 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 
   if (variant === 'select') {
     return (
-      <Select backgroundSize="none" label="Version" {...form.register('properties.version')} isRequired>
-        {selectableVersions?.map(({ value, label }) => {
-          return (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          );
-        })}
-      </Select>
+      <>
+        <Select isRequired label="Version" value={selectedVersion} backgroundSize="none" onChange={onStepVersionChange}>
+          {selectableVersions.map(({ value, label }) => {
+            return (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            );
+          })}
+        </Select>
+        {shouldMountVersionChangedDialog && (
+          <VersionChangedDialog
+            cvs={cvs}
+            oldVersion={oldVersion}
+            newVersion={selectedVersion}
+            onClose={() => setOldVersion(selectedVersion)}
+          />
+        )}
+      </>
     );
   }
 
   return (
-    <Input
-      type="text"
-      label="Version"
-      placeholder="Always latest"
-      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-      {...form.register('properties.version')}
-    />
+    <>
+      <Input
+        type="text"
+        label="Version"
+        value={selectedVersion}
+        placeholder="Always latest"
+        onChange={onStepVersionChange}
+        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+      />
+      {shouldMountVersionChangedDialog && (
+        <VersionChangedDialog
+          cvs={cvs}
+          oldVersion={oldVersion}
+          newVersion={selectedVersion}
+          onClose={() => setOldVersion(selectedVersion)}
+        />
+      )}
+    </>
   );
 };
 
 const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
-  const form = useFormContext<FormValues>();
-  const { data, error, workflowId, stepIndex, isLoading } = useStepDrawerContext();
-  const { cvs = '', mergedValues, resolvedInfo } = data ?? {};
-  const { source_code_url: sourceUrl, summary, description } = mergedValues ?? {};
-  const oldVersion = useMemo(() => {
-    if (isLoading) return '';
-    return resolvedInfo?.resolvedVersion ?? '';
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workflowId, stepIndex, isLoading, resolvedInfo?.resolvedVersion]);
-  const newVersion = VersionUtils.resolveVersion(form.watch('properties.version'), resolvedInfo?.versions);
+  const { workflowId, stepIndex, data, isLoading } = useStepDrawerContext();
+  const updateStep = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.updateStep)), 150);
+  const [name, setName] = useState(data?.mergedValues?.title);
+
+  const cvs = data?.cvs || '';
+  const summary = data?.mergedValues?.summary;
+  const description = data?.mergedValues?.description;
+  const sourceUrl = data?.mergedValues?.source_code_url;
+
+  const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setName(e.target.value);
+    updateStep(workflowId, stepIndex, { title: e.target.value }, data?.defaultValues ?? {});
+  };
+
+  useEffect(() => {
+    setName(data?.mergedValues?.title);
+  }, [data?.mergedValues?.title]);
 
   return (
     <Box display="flex" flexDirection="column" gap="24">
-      {sourceUrl && (
+      {(isLoading || sourceUrl) && ( // NOTE: Yes, isLoading because when step version is changed, the source code link will be removed what causes a layout shift
         <Link
           gap="4"
           display="flex"
@@ -92,9 +143,10 @@ const PropertiesTab = () => {
       <Input
         type="text"
         label="Name"
+        value={name}
         placeholder="Step name"
+        onChange={handleNameChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-        {...form.register('properties.name')}
       />
       <Divider />
       <StepVersion
@@ -126,7 +178,6 @@ const PropertiesTab = () => {
           </>
         )}
       </Box>
-      {!error && <VersionChangedDialog cvs={cvs} oldVersion={oldVersion} newVersion={newVersion} />}
     </Box>
   );
 };
