@@ -65,10 +65,7 @@ const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
         s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
           const [cvs, step] = Object.entries(ymlStepObject)[0];
           // TODO: Handle step bundles and with groups...
-          if (
-            !StepService.isStepBundle(cvs, defaultStepLibrary, step) &&
-            !StepService.isWithGroup(cvs, defaultStepLibrary, step)
-          ) {
+          if (StepService.isStep(cvs, defaultStepLibrary, step)) {
             cvsSet.add(cvs);
           }
         });

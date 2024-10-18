@@ -134,7 +134,7 @@ function updateVersion(cvs: string, defaultStepLibrary: string, version: string 
 
 function isStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
-  return library !== LibraryType.BUNDLE && library === LibraryType.WITH;
+  return library !== LibraryType.BUNDLE && library !== LibraryType.WITH;
 }
 
 function isBitriseLibraryStep(
