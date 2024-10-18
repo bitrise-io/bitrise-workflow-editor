@@ -1,4 +1,16 @@
-import { Avatar, Box, ButtonGroup, Card, ControlButton, Icon, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
+import { ReactNode } from 'react';
+import {
+  Avatar,
+  Box,
+  ButtonGroup,
+  Card,
+  ControlButton,
+  Icon,
+  Skeleton,
+  SkeletonBox,
+  Text,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
@@ -11,33 +23,39 @@ import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
 type StepSecondaryTextProps = {
-  isError?: boolean;
+  errorText?: string;
   isUpgradable?: boolean;
   resolvedVersion?: string;
 };
 
-const StepSecondaryText = ({ isError, isUpgradable, resolvedVersion }: StepSecondaryTextProps) => {
-  if (isError) {
-    return (
-      <Text display="flex" hasEllipsis textStyle="body/sm/semibold" color="text/negative">
-        Failed to load step data
-        <Icon ml="4" name="ErrorCircleFilled" size="16" />
-      </Text>
+const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSecondaryTextProps) => {
+  let icon: ReactNode = null;
+
+  if (errorText) {
+    icon = (
+      <Tooltip label={errorText} aria-label={errorText} shouldWrapChildren wrapperProps={{ display: 'flex' }}>
+        <Icon ml="4" name="ErrorCircleFilled" size="16" color="icon/negative" />
+      </Tooltip>
     );
   }
 
-  if (isUpgradable) {
-    return (
-      <Text display="flex" hasEllipsis textStyle="body/sm/semibold" color="text/negative">
-        {resolvedVersion || 'Always latest'}
+  if (isUpgradable && !icon) {
+    icon = (
+      <Tooltip
+        label="New version is available"
+        aria-label="New version is available"
+        shouldWrapChildren
+        wrapperProps={{ display: 'flex' }}
+      >
         <Icon ml="4" name="WarningYellow" size="16" />
-      </Text>
+      </Tooltip>
     );
   }
 
   return (
-    <Text hasEllipsis textStyle="body/sm/regular" color="text/secondary">
+    <Text hasEllipsis display="flex" textStyle="body/sm/regular" color="text/secondary">
       {resolvedVersion || 'Always latest'}
+      {icon}
     </Text>
   );
 };
@@ -177,7 +195,7 @@ const StepCard = ({
           </Text>
           {showSecondary && (
             <StepSecondaryText
-              isError={!!error}
+              errorText={error ? 'Failed to load step data' : undefined}
               isUpgradable={isUpgradable}
               resolvedVersion={resolvedInfo?.resolvedVersion}
             />
