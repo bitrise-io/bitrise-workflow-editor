@@ -23,7 +23,7 @@ const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const form = useFormContext<FormValues>();
-  const { data, workflowId, stepIndex, isLoading } = useStepDrawerContext();
+  const { data, error, workflowId, stepIndex, isLoading } = useStepDrawerContext();
   const { cvs = '', mergedValues, resolvedInfo } = data ?? {};
   const { source_code_url: sourceUrl, summary, description } = mergedValues ?? {};
   const oldVersion = useMemo(() => {
@@ -101,7 +101,7 @@ const PropertiesTab = () => {
           </>
         )}
       </Box>
-      <VersionChangedDialog cvs={cvs} oldVersion={oldVersion} newVersion={newVersion} />
+      {!error && <VersionChangedDialog cvs={cvs} oldVersion={oldVersion} newVersion={newVersion} />}
     </Box>
   );
 };

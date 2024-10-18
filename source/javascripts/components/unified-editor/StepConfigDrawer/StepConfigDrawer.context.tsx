@@ -11,9 +11,11 @@ type State = {
   stepIndex: number;
   isLoading: boolean;
   data?: Step;
+  error?: Error;
 };
 
 const initialState: State = {
+  error: undefined,
   data: undefined,
   isLoading: false,
   workflowId: '',

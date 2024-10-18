@@ -70,6 +70,7 @@ function useStepFromApi(cvs = ''): ApiStepResult {
       cvs && !StepService.isStepBundle(cvs, defaultStepLibrary) && !StepService.isWithGroup(cvs, defaultStepLibrary),
     ),
     staleTime: Infinity,
+    retry: false,
   });
 
   return useMemo(() => {
@@ -104,7 +105,7 @@ function useStepFromApi(cvs = ''): ApiStepResult {
 }
 
 type UseStepResult = {
-  isLoading?: boolean;
+  isLoading: boolean;
   data?: Step | WithGroup | StepBundle;
   error?: Error | null;
 };

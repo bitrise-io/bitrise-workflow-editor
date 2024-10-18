@@ -25,14 +25,14 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
   const { data: oldStep, isFetching: isOldStepLoading } = useQuery({
     queryKey: ['steps', { oldCvs }, defaultStepLibrary],
     queryFn: () => StepApi.getStepByCvs(oldCvs, defaultStepLibrary),
-    enabled: Boolean(id && oldCvs),
+    enabled: Boolean(isOpen && id && oldCvs),
   });
 
   const newCvs = StepService.updateVersion(cvs, defaultStepLibrary, newVersion);
   const { data: newStep, isFetching: isNewStepLoading } = useQuery({
     queryKey: ['steps', { newCvs }, defaultStepLibrary],
     queryFn: () => StepApi.getStepByCvs(newCvs, defaultStepLibrary),
-    enabled: Boolean(id && newCvs),
+    enabled: Boolean(isOpen && id && newCvs),
   });
 
   const isFetching = isOldStepLoading || isNewStepLoading;
