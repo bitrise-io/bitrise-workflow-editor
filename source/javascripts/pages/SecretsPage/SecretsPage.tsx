@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
 import { Secret } from '@/core/models/Secret';
-import { useDeleteSecret } from '@/hooks/useSecrets';
+import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
@@ -9,14 +9,16 @@ type SecretsPageProps = {
   sharedSecretsAvailable: boolean;
   onSecretsChange: (secrets: Secret[]) => void;
   // Cleanup
-  secrets: Secret[];
   secretSettingsUrl: string; // TODO - move to react
   planSelectorPageUrl: string; // TODO - move to react
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
-  const { secrets = [], onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
+  const { onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
+  const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
+  const { data: secrets = [] } = useSecrets({ appSlug });
 
   const {
     mutate: deleteSecret,
@@ -33,20 +35,30 @@ const SecretsPage = (props: SecretsPageProps) => {
     },
   });
 
-  const workspaceSecretList = secrets
-    .filter((secret) => secret.isShared)
-    .map((secret) => ({ ...secret, isEditing: false, isSaved: true }));
+  useEffect(() => {
+    setWorkspaceSecretList(
+      secrets
+        .filter((secret) => secret.isShared)
+        .map((secret) => ({
+          ...secret,
+          isEditing: false,
+          isSaved: true,
+        })),
+    );
 
-  const [appSecretList, setAppSecretList] = useState<Secret[]>(
-    secrets.filter((s) => !s.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
-  );
+    setAppSecretList(
+      secrets.filter((secret) => !secret.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
+    );
+
+    onSecretsChange(secrets);
+  }, [onSecretsChange, secrets]);
 
   const handleEdit = (id?: string | undefined) => () => {
-    setAppSecretList(
-      appSecretList.map((secret) => {
+    setAppSecretList((appSecrets) => {
+      return appSecrets?.map((secret) => {
         return { ...secret, isEditing: secret.key === id };
-      }),
-    );
+      });
+    });
   };
 
   const handleCancel = () => {

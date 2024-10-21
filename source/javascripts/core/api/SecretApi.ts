@@ -40,22 +40,6 @@ type SecretsLocalResponse = {
 };
 
 // TRANSFORMATIONS
-function fromApiResponse(response: ApiSecretItem): Secret {
-  return {
-    key: Object.keys(response).find((key) => key !== 'opts') ?? '',
-    value: response.value ? String(response.value) : undefined,
-    isExpand: Boolean(response.opts?.is_expand),
-    isExpose: Boolean(response.opts?.meta?.['bitrise.io']?.is_expose),
-    isProtected: Boolean(response.opts?.meta?.['bitrise.io']?.is_protected),
-    isKeyChangeable: true,
-    scope: response.opts?.scope,
-    isShared: response.opts?.scope === 'workspace',
-    source: 'Bitrise.io',
-    isEditing: false,
-    isSaved: true,
-  };
-}
-
 function fromMonolithResponse(response: MonolithSecretItem): Secret {
   return {
     key: response.name,
@@ -83,7 +67,21 @@ function toMonolithUpdateRequest(secret: Secret): SecretMonolithUpdateRequest {
 }
 
 function fromLocalResponse(response: LocalSecretItem): Secret {
-  return fromApiResponse(response);
+  const keyValue = Object.entries(response).find(([key]) => key !== 'opts') ?? ['', ''];
+
+  return {
+    key: keyValue[0],
+    value: keyValue[1] as string,
+    source: 'Bitrise.io',
+    scope: response.opts?.scope || 'app',
+    isExpand: Boolean(response.opts?.is_expand),
+    isExpose: Boolean(response.opts?.meta?.['bitrise.io']?.is_expose),
+    isProtected: Boolean(response.opts?.meta?.['bitrise.io']?.is_protected),
+    isSaved: true,
+    isShared: false,
+    isEditing: false,
+    isKeyChangeable: true,
+  };
 }
 
 function toLocalUpdateRequest(secret: Secret): LocalSecretItem {
@@ -193,15 +191,24 @@ async function upsertSecret({
   return secret;
 }
 
-function deleteSecret({
+async function deleteSecret({
   signal,
   ...params
 }: {
   appSlug: string;
   secretKey: string;
   signal?: AbortSignal;
-}): Promise<never> {
-  return Client.del(getSecretItemPath(params), { signal });
+}): Promise<unknown> {
+  if (RuntimeUtils.isWebsiteMode()) {
+    return Client.del(getSecretItemPath(params), { signal });
+  }
+
+  // CLI mode
+  const secrets = await getSecrets({ appSlug: params.appSlug, signal });
+  const newSecrets = secrets.filter((secret) => secret.key !== params.secretKey);
+  await Client.post(getSecretLocalPath(), {
+    body: JSON.stringify({ envs: newSecrets.map(toLocalUpdateRequest) }),
+  });
 }
 
 export type { SecretsMonolithResponse, SecretsApiResponse, SecretsLocalResponse };
