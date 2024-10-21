@@ -46,7 +46,6 @@ const SecretCard = (props: SecretCardProps) => {
   const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
     appSlug,
     secretKey: secret.key,
-    useApi: false,
     options: { enabled: !secret.isProtected && isShown },
   });
 

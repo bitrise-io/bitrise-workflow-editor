@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from 'msw';
-import SecretApi, { SecretsApiResponse, SecretsLocalResponse, SecretsMonolithResponse } from './SecretApi';
+import SecretApi, { SecretsLocalResponse, SecretsMonolithResponse } from './SecretApi';
 
 export const getSecrets = () => {
   return http.get(SecretApi.getSecretPath(':appSlug'), async () => {
@@ -23,43 +23,6 @@ export const getSecrets = () => {
         exposed_for_pull_requests: false,
       },
     ] satisfies SecretsMonolithResponse);
-  });
-};
-
-export const getSecretsFromApi = () => {
-  return http.get(SecretApi.getSecretFromApiPath(':appSlug'), async () => {
-    await delay();
-
-    return HttpResponse.json({
-      envs: [
-        {
-          SECRET_FROM_API: '',
-          opts: {
-            scope: 'app',
-            is_expand: false,
-            meta: {
-              'bitrise.io': {
-                is_expose: false,
-                is_protected: false,
-              },
-            },
-          },
-        },
-        {
-          TOP_SECRET_FROM_API: '',
-          opts: {
-            scope: 'workspace',
-            is_expand: false,
-            meta: {
-              'bitrise.io': {
-                is_expose: false,
-                is_protected: false,
-              },
-            },
-          },
-        },
-      ],
-    } satisfies SecretsApiResponse);
   });
 };
 
