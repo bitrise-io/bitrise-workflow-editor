@@ -216,7 +216,7 @@ describe('StepService', () => {
           library: 'git',
           url: 'https://github.com/bitrise-steplib/steps-script.git',
           id: 'https://github.com/bitrise-steplib/steps-script.git',
-          version: 'main',
+          version: '',
         });
       });
 
@@ -647,10 +647,10 @@ describe('StepService', () => {
         );
       });
 
-      it('should fallback to main branch if no branch is provided', () => {
+      it('should fallback to master branch if no branch is provided', () => {
         const cvs = 'git::https://github.com/bitrise-io/steps-fastlane.git';
         expect(StepService.getRawGitUrl(cvs, BITRISE_STEP_LIBRARY_URL)).toBe(
-          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/main/step.yml',
+          'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
         );
       });
     });
@@ -677,10 +677,10 @@ describe('StepService', () => {
         );
       });
 
-      it('should fallback to main branch if no branch is provided', () => {
+      it('should fallback to master branch if no branch is provided', () => {
         const cvs = 'git::https://gitlab.com/steplib/steps-fastlane.git';
         expect(StepService.getRawGitUrl(cvs, BITRISE_STEP_LIBRARY_URL)).toBe(
-          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=main',
+          'https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master',
         );
       });
     });
@@ -707,10 +707,10 @@ describe('StepService', () => {
         );
       });
 
-      it('should fallback to main branch if no branch is provided', () => {
+      it('should fallback to master branch if no branch is provided', () => {
         const cvs = 'git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git';
         expect(StepService.getRawGitUrl(cvs, BITRISE_STEP_LIBRARY_URL)).toBe(
-          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/main/step.yml',
+          'https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml',
         );
       });
     });

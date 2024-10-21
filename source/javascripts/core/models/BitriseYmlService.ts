@@ -78,7 +78,7 @@ function updateStep(
   const [cvs, stepYmlObject] = Object.entries(copy.workflows[workflowId].steps[stepIndex])[0];
 
   mapValues(newValues, (value: string, key: never) => {
-    if (value === defaultValues[key]) {
+    if (value === defaultValues[key] || shouldRemoveField(value, stepYmlObject[key])) {
       delete stepYmlObject[key];
     } else {
       stepYmlObject[key] = value as never;
