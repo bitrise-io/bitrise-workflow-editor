@@ -49,9 +49,9 @@ function useDeleteSecret({
   options,
 }: {
   appSlug: string;
-  options?: Omit<UseMutationOptions<never, DefaultError, string>, 'mutationFn'>;
+  options?: Omit<UseMutationOptions<unknown, DefaultError, string>, 'mutationFn'>;
 }) {
-  return useMutation<never, DefaultError, string>({
+  return useMutation<unknown, DefaultError, string>({
     mutationFn: (secretKey) => SecretApi.deleteSecret({ appSlug, secretKey }),
     ...options,
   });
