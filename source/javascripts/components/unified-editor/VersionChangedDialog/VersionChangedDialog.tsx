@@ -64,7 +64,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
           {context}
           {sourceUrl && (
             <>
-              {'Please check the '}
+              {' Please check the '}
               <Link href={sourceUrl} isExternal colorScheme="purple">
                 release notes
               </Link>

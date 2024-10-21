@@ -8,25 +8,12 @@ import {
   UseDisclosureProps,
 } from '@chakra-ui/react';
 import semver from 'semver';
-import {
-  Avatar,
-  Box,
-  Icon,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-  useDisclosure,
-  useToast,
-} from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
+import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
+import { useShallow } from 'zustand/react/shallow';
 import StepBadge from '@/components/StepBadge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import VersionUtils from '@/core/utils/VersionUtils';
-import { FormValues } from './StepConfigDrawer.types';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
@@ -39,50 +26,22 @@ type Props = UseDisclosureProps & {
 };
 
 const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
-  const toast = useToast();
   const { isOpen, onClose } = useDisclosure(props);
-
-  const form = useFormContext<FormValues>();
   const { workflowId, stepIndex, data } = useStepDrawerContext();
-  const { mergedValues, defaultValues, resolvedInfo } = data ?? {};
-  const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
-  const isUpgradable = VersionUtils.hasVersionUpgrade(resolvedInfo?.normalizedVersion, resolvedInfo?.versions);
+  const changeStepVersion = useBitriseYmlStore(useShallow((s) => s.changeStepVersion));
 
-  const { changeStepVersion, updateStepInputs } = useBitriseYmlStore((s) => ({
-    changeStepVersion: s.changeStepVersion,
-    updateStepInputs: s.updateStepInputs,
-  }));
+  const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
+  const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
+  const stepHasOutputVariables = Boolean(data?.mergedValues?.outputs?.length ?? 0);
 
-  const handleUpdateStep = () => {
-    const updatedVersion = VersionUtils.normalizeVersion(semver.major(resolvedInfo?.latestVersion ?? '').toString());
-    changeStepVersion(workflowId, stepIndex, updatedVersion);
-  };
-
-  const saveAndClose = form.handleSubmit(({ inputs }) => {
-    const newInputs = Object.entries(inputs || {}).map(([key, value]) => ({
-      [`${key}`]: value,
-    }));
-    updateStepInputs(workflowId, stepIndex, newInputs, defaultValues?.inputs || []);
-    onClose();
-  });
-
-  const handleClose = () => {
-    form.trigger().then((isValid) => {
-      if (!isValid) {
-        toast({
-          status: 'error',
-          title: 'Required field(s) are missing.',
-          description: "Please check the step's configuration.",
-          isClosable: true,
-        });
-      }
-    });
-    saveAndClose();
-  };
+  const isUpgradable = VersionUtils.hasVersionUpgrade(
+    data?.resolvedInfo?.normalizedVersion,
+    data?.resolvedInfo?.versions,
+  );
 
   return (
     <Tabs>
-      <Drawer isFullHeight isOpen={isOpen} autoFocus={false} onClose={handleClose} onCloseComplete={onCloseComplete}>
+      <Drawer isFullHeight isOpen={isOpen} autoFocus={false} onClose={onClose} onCloseComplete={onCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -122,20 +81,23 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                     {data?.mergedValues?.title || 'Loading...'}
                   </Text>
                   <StepBadge
-                    isOfficial={resolvedInfo?.isOfficial}
-                    isVerified={resolvedInfo?.isVerified}
-                    isCommunity={resolvedInfo?.isCommunity}
+                    isOfficial={data?.resolvedInfo?.isOfficial}
+                    isVerified={data?.resolvedInfo?.isVerified}
+                    isCommunity={data?.resolvedInfo?.isCommunity}
                   />
                 </Box>
 
                 <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
-                  <Text display="flex">{resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
+                  <Text display="flex">{data?.resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
                   {isUpgradable && (
                     <>
                       <Icon size="16" marginInline="4" name="WarningYellow" />
-                      <Text textStyle="body/sm/regular" cursor="pointer" onClick={handleUpdateStep}>
-                        Latest version:
-                        {resolvedInfo?.latestVersion ? `: ${resolvedInfo?.latestVersion}` : ''}
+                      <Text
+                        cursor="pointer"
+                        textStyle="body/sm/regular"
+                        onClick={() => changeStepVersion(workflowId, stepIndex, latestMajorVersion)}
+                      >
+                        Latest version: {latestVersion}
                       </Text>
                     </>
                   )}

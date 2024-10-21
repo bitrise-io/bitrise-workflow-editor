@@ -58,7 +58,7 @@ function parseStepCVS(
   if (/^git::/g.test(cvs)) {
     const parts = cvs.replace('git::', '').split('@');
     const url = parts[0] === 'git' ? `git@${parts[1]}` : parts[0];
-    const version = (parts[0] === 'git' ? parts[2] : parts[1]) || 'main';
+    const version = (parts[0] === 'git' ? parts[2] : parts[1]) || '';
     return {
       library: LibraryType.GIT,
       url,

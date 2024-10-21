@@ -17,38 +17,25 @@ import StepService from '@/core/models/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import VersionChangedDialog from '../../VersionChangedDialog/VersionChangedDialog';
 
 type StepVersionProps = {
   variant: 'input' | 'select';
   canChangeVersion?: boolean;
   selectableVersions?: ReturnType<typeof StepService.getSelectableVersions>;
 };
-const StepVersion = ({
-  variant,
-  canChangeVersion,
-  selectableVersions: initialSelectableVersions,
-}: StepVersionProps) => {
-  const { data, workflowId, stepIndex, error, isLoading } = useStepDrawerContext();
-  const changeStepVersionInYml = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.changeStepVersion)), 150);
-
-  const [selectableVersions] = useState(initialSelectableVersions ?? []);
-  const [oldVersion, setOldVersion] = useState(data?.resolvedInfo?.normalizedVersion || '');
-  const [selectedVersion, setSelectedVersion] = useState(data?.resolvedInfo?.normalizedVersion || '');
+const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
+  const { data, workflowId, stepIndex } = useStepDrawerContext();
+  const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
+  const changeStepVersionInYml = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.changeStepVersion)), 250);
 
   const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
-    setSelectedVersion(e.target.value);
+    setValue(e.target.value);
     changeStepVersionInYml(workflowId, stepIndex, e.target.value);
   };
 
-  const cvs = data?.cvs || '';
-  const shouldMountVersionChangedDialog = !isLoading && !error;
-
   useEffect(() => {
-    if (data?.resolvedInfo?.normalizedVersion && data.resolvedInfo.normalizedVersion !== oldVersion) {
-      setSelectedVersion(data.resolvedInfo.normalizedVersion);
-    }
-  }, [data?.resolvedInfo?.normalizedVersion, selectedVersion, oldVersion]);
+    setValue(data?.resolvedInfo?.normalizedVersion);
+  }, [data?.resolvedInfo?.normalizedVersion]);
 
   if (!canChangeVersion) {
     return <Input label="Version" placeholder="Always latest" isDisabled />;
@@ -56,47 +43,27 @@ const StepVersion = ({
 
   if (variant === 'select') {
     return (
-      <>
-        <Select isRequired label="Version" value={selectedVersion} backgroundSize="none" onChange={onStepVersionChange}>
-          {selectableVersions.map(({ value, label }) => {
-            return (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            );
-          })}
-        </Select>
-        {shouldMountVersionChangedDialog && (
-          <VersionChangedDialog
-            cvs={cvs}
-            oldVersion={oldVersion}
-            newVersion={selectedVersion}
-            onClose={() => setOldVersion(selectedVersion)}
-          />
-        )}
-      </>
+      <Select value={value} label="Version" backgroundSize="none" onChange={onStepVersionChange} isRequired>
+        {selectableVersions?.map((s) => {
+          return (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          );
+        })}
+      </Select>
     );
   }
 
   return (
-    <>
-      <Input
-        type="text"
-        label="Version"
-        value={selectedVersion}
-        placeholder="Always latest"
-        onChange={onStepVersionChange}
-        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-      />
-      {shouldMountVersionChangedDialog && (
-        <VersionChangedDialog
-          cvs={cvs}
-          oldVersion={oldVersion}
-          newVersion={selectedVersion}
-          onClose={() => setOldVersion(selectedVersion)}
-        />
-      )}
-    </>
+    <Input
+      type="text"
+      value={value}
+      label="Version"
+      placeholder="Always latest"
+      onChange={onStepVersionChange}
+      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+    />
   );
 };
 
@@ -104,7 +71,7 @@ const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const { workflowId, stepIndex, data, isLoading } = useStepDrawerContext();
-  const updateStep = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.updateStep)), 150);
+  const updateStep = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.updateStep)), 250);
   const [name, setName] = useState(data?.mergedValues?.title);
 
   const cvs = data?.cvs || '';
@@ -113,8 +80,8 @@ const PropertiesTab = () => {
   const sourceUrl = data?.mergedValues?.source_code_url;
 
   const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setName(e.target.value);
-    updateStep(workflowId, stepIndex, { title: e.target.value }, data?.defaultValues ?? {});
+    setName(e.currentTarget.value);
+    updateStep(workflowId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
   };
 
   useEffect(() => {

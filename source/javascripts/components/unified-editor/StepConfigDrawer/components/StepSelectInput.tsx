@@ -1,30 +1,29 @@
+import { useState } from 'react';
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import { useFormContext } from 'react-hook-form';
 import { EnvVar } from '@/core/models/EnvVar';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 import StepHelperText from './StepHelperText';
 
-type Props = DropdownProps<string | null> & {
+type Props = Omit<DropdownProps<string | null>, 'onChange'> & {
   options: string[];
   helper?: { summary?: string; details?: string };
   isDisabled?: boolean;
   isSensitive?: boolean;
+  onChange?: (value: string) => void;
 };
 
 const StepSelectInput = forwardRef(
-  ({ label, options, isSensitive, isDisabled, helper, helperText, ...props }: Props, ref) => {
+  ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
     const { workflowId } = useStepDrawerContext();
-    const { watch, setValue } = useFormContext();
+    const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
     const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
 
-    const name = props.name ?? '';
-    const value = String(watch(name));
-
     const insertVariable = (key: string) => {
-      setValue(name, `$${key}`, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+      setValue(`$${key}`);
+      onChange?.(`$${key}`);
     };
 
     const createEnvVar = (envVar: EnvVar) => {
@@ -45,6 +44,10 @@ const StepSelectInput = forwardRef(
           label={label}
           readOnly={isSensitive || isDisabled}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
+          onChange={(e) => {
+            setValue(e.target.value ?? '');
+            onChange?.(e.target.value ?? '');
+          }}
         >
           {options.map((option) => {
             return (
