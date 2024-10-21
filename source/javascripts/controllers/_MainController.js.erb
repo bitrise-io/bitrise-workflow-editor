@@ -30,7 +30,8 @@ import { segmentTrack } from "@/utils/segmentTracking";
       appServiceUtil,
       logger,
       MachineType,
-      launchDarklyService
+      launchDarklyService,
+      Variable
     ) {
       var viewModel = this;
 
@@ -263,9 +264,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             case "code-signing":
               resolve();
             case "secrets":
-              // TODO remove
-              appService.getSecrets().then(resolve, reject);
-
+              resolve();
               break;
             case "stack":
               appService.getAppConfigYML();
@@ -610,7 +609,8 @@ import { segmentTrack } from "@/utils/segmentTracking";
                     })
                     .then(resolve, reject);
                 case "secrets":
-                  return appService.saveSecrets().then(resolve, reject);
+                  resolve();
+                  break;
                 case "stack":
                   viewModel.dataToSave = appService.appConfig;
                   var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
@@ -925,6 +925,68 @@ import { segmentTrack } from "@/utils/segmentTracking";
           app_slug: appService.appDetails?.slug || ""
         });
       };
+
+      viewModel.saveSecretsFromReact = function (secretsFromReact) {
+        if (!appService.secrets) {
+          appService.secrets = [];
+        }
+
+        // delete the ones that got removed.
+        appService.secrets = appService.secrets.filter((secret) => {
+          // leave workspace secrets intact
+          if (secret.scope() === 'workspace') return true;
+
+          // remove the ones that are not in the react list
+          return secretsFromReact.filter(s => !s.isShared).find((s) => s.key === secret.key())
+        });
+
+        // edit existing ones
+        appService.secrets.forEach(secret => {
+          if (secret.scope() === 'workspace') return;
+
+          const s = secretsFromReact.find((s) => s.key === secret.key() && !s.isShared);
+
+          if (s) {
+            secret.value(s.value);
+            secret.isProtected(s.isProtected);
+            secret.isExpose(s.isExpose);
+            secret.isExpand(s.isExpand);
+            secret.isKeyChangeable = s.isKeyChangeable;
+          }
+
+          return secret;
+        });
+
+        // add new ones
+        secretsFromReact.forEach(secret => {
+          if (secret.isShared) return;
+
+          const existingSecret = appService.secrets
+            .filter(s => s.scope() !== 'workspace')
+            .filter(s => {
+              return s.key() === secret.key;
+            });
+
+          if (!existingSecret.length) {
+            let newVariable = new Variable(
+              {
+                "": ""
+              },
+              Variable.defaultVariableConfig()
+            )
+
+            newVariable.key(secret.key);
+            newVariable.value(secret.value);
+            newVariable.isProtected(secret.isProtected);
+            newVariable.isExpose(secret.isExpose);
+            newVariable.isExpand(secret.isExpand);
+
+            appService.secrets.push(newVariable);
+          }
+        });
+
+        appService.savedSecrets = appService.secrets;
+      }
 
       window.parent.addEventListener('navigation.replace', (e) => {
         const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);

@@ -1,6 +1,6 @@
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { Secret } from '@/core/models/Secret';
-import Client from './client';
+import Client from './client'; // Types
 
 // Types
 type ApiSecretItem = { [key: string]: unknown } & {
@@ -9,8 +9,8 @@ type ApiSecretItem = { [key: string]: unknown } & {
     scope?: string;
     meta?: {
       'bitrise.io'?: {
-        is_expose: boolean;
-        is_protected: boolean;
+        is_expose?: boolean;
+        is_protected?: boolean;
       };
     };
   };
@@ -44,13 +44,13 @@ function fromMonolithResponse(response: MonolithSecretItem): Secret {
   return {
     key: response.name,
     value: response.value,
+    source: 'Bitrise.io',
+    scope: response.scope,
     isExpand: response.expand_in_step_inputs,
     isExpose: response.exposed_for_pull_requests,
-    isProtected: response.is_protected,
-    isKeyChangeable: true,
-    scope: response.scope,
     isShared: response.scope === 'workspace',
-    source: 'Bitrise.io',
+    isProtected: response.is_protected,
+    isKeyChangeable: false,
     isEditing: false,
     isSaved: true,
   };
@@ -60,7 +60,7 @@ function toMonolithUpdateRequest(secret: Secret): SecretMonolithUpdateRequest {
   return {
     name: secret.key,
     value: secret.value,
-    is_protected: secret.isProtected,
+    is_protected: Boolean(secret.isProtected),
     expand_in_step_inputs: secret.isExpand,
     exposed_for_pull_requests: secret.isExpose,
   };
@@ -76,11 +76,11 @@ function fromLocalResponse(response: LocalSecretItem): Secret {
     scope: response.opts?.scope || 'app',
     isExpand: Boolean(response.opts?.is_expand),
     isExpose: Boolean(response.opts?.meta?.['bitrise.io']?.is_expose),
+    isShared: response.opts?.scope === 'workspace',
     isProtected: Boolean(response.opts?.meta?.['bitrise.io']?.is_protected),
-    isSaved: true,
-    isShared: false,
+    isKeyChangeable: false,
     isEditing: false,
-    isKeyChangeable: true,
+    isSaved: true,
   };
 }
 
