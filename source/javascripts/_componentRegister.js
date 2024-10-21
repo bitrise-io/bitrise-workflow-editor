@@ -44,14 +44,11 @@ angular
   .component(
     'rSecretsPage',
     register(SecretsPage, [
-      'secrets',
-      'secretsWriteNew',
-      'onSecretsChange',
-      'getSecretValue',
-      'appSlug',
-      'secretSettingsUrl',
-      'sharedSecretsAvailable',
-      'planSelectorPageUrl',
+      "appSlug",
+      "onSecretsChange",
+      "sharedSecretsAvailable",
+      "secretSettingsUrl",
+      "planSelectorPageUrl",
     ]),
   )
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'onChange']))

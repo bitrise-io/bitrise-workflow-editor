@@ -5,25 +5,17 @@ import { useDeleteSecret } from '@/hooks/useSecrets';
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
-  secrets: Secret[];
-  onSecretsChange: (secrets: Secret[]) => void;
   appSlug: string;
-  secretSettingsUrl: string;
-  planSelectorPageUrl: string;
   sharedSecretsAvailable: boolean;
-  secretsWriteNew: boolean;
+  onSecretsChange: (secrets: Secret[]) => void;
+  // Cleanup
+  secrets: Secret[];
+  secretSettingsUrl: string; // TODO - move to react
+  planSelectorPageUrl: string; // TODO - move to react
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
-  const {
-    secrets = [],
-    onSecretsChange,
-    appSlug,
-    secretSettingsUrl,
-    sharedSecretsAvailable,
-    planSelectorPageUrl,
-    secretsWriteNew,
-  } = props;
+  const { secrets = [], onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const {
@@ -68,10 +60,8 @@ const SecretsPage = (props: SecretsPageProps) => {
   };
 
   const handleDelete = (id: string | null) => {
-    if (id && secretsWriteNew) {
+    if (id) {
       deleteSecret(id);
-    } else {
-      afterDelete(id);
     }
   };
 
@@ -141,7 +131,6 @@ const SecretsPage = (props: SecretsPageProps) => {
         {workspaceSecretList.length > 0 &&
           workspaceSecretList.map((secret) => (
             <SecretCard
-              writeSecrets={secretsWriteNew}
               appSlug={appSlug}
               key={secret.key}
               secret={secret}
@@ -189,7 +178,6 @@ const SecretsPage = (props: SecretsPageProps) => {
       <Box marginTop="16" marginBottom="24">
         {appSecretList.map((secret) => (
           <SecretCard
-            writeSecrets={secretsWriteNew}
             appSlug={appSlug}
             key={secret.key}
             secret={secret}

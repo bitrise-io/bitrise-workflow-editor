@@ -34,30 +34,22 @@ interface SecretCardProps extends CardProps {
   onSave: (secret: Secret) => void;
   isKeyUsed: (key: string) => boolean;
   secretSettingsUrl?: string;
-  writeSecrets: boolean;
 }
 
 const SecretCard = (props: SecretCardProps) => {
-  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl, writeSecrets } = props;
+  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl } = props;
 
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
 
   const queryClient = useQueryClient();
-  // NOTE why do we need to ask the API and Monolith for the same value?
-  const {
-    isLoading: isSecretValueLoadingOld,
-    data: fetchedSecretValueOld,
-    refetch: fetchSecretValue,
-  } = useSecretValue({ appSlug, secretKey: secret.key, useApi: true });
-  const { data: fetchedSecretNewValue, isFetching: isSecretValueLoadingNew } = useSecretValue({
+  const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
     appSlug,
     secretKey: secret.key,
     useApi: false,
-    options: { enabled: isShown && writeSecrets },
+    options: { enabled: !secret.isProtected && isShown },
   });
-  const fetchedSecretValue = fetchedSecretValueOld || fetchedSecretNewValue;
-  const isSecretValueLoading = isSecretValueLoadingOld || isSecretValueLoadingNew;
+
   const {
     mutate: saveSecret,
     isError: saveError,
@@ -76,14 +68,6 @@ const SecretCard = (props: SecretCardProps) => {
     },
   });
 
-  const handleSave = (value: Secret) => {
-    if (writeSecrets) {
-      saveSecret(value);
-    } else {
-      onSave(value);
-    }
-  };
-
   const {
     register,
     watch,
@@ -97,18 +81,6 @@ const SecretCard = (props: SecretCardProps) => {
     },
   });
 
-  const showSecretValue = () => {
-    setIsShown(true);
-
-    if (secret.isSaved && !secret.isProtected && !writeSecrets) {
-      fetchSecretValue();
-    }
-  };
-
-  const hideSecretValue = () => {
-    setIsShown(false);
-  };
-
   const onFormSubmit = (formData: Secret) => {
     if (secret.isShared) return;
 
@@ -121,12 +93,11 @@ const SecretCard = (props: SecretCardProps) => {
 
   const saveForm = (formData: Secret) => {
     setIsShown(false);
-    handleSave(formData);
+    saveSecret(formData);
   };
 
   const onCancelClick = () => {
     setIsShown(false);
-
     onCancel();
   };
 
@@ -135,11 +106,11 @@ const SecretCard = (props: SecretCardProps) => {
   const showHideButton = (
     <IconButton
       size="md"
-      iconName={isShown ? 'HidePassword' : 'ShowPassword'}
-      onClick={() => (isShown ? hideSecretValue() : showSecretValue())}
-      aria-label={isShown ? 'Hide' : 'Show'}
-      borderLeftRadius={0}
       variant="secondary"
+      borderLeftRadius={0}
+      aria-label={isShown ? 'Hide' : 'Show'}
+      iconName={isShown ? 'HidePassword' : 'ShowPassword'}
+      onClick={() => (isShown ? setIsShown(false) : setIsShown(true))}
     />
   );
 
@@ -190,7 +161,7 @@ const SecretCard = (props: SecretCardProps) => {
         type={isShown ? 'text' : 'password'}
         rightAddon={valueInputAddon}
         rightAddonPlacement="inside"
-        value={watch('value')}
+        value={watch('value') || ''}
       />
     );
   };
@@ -239,8 +210,7 @@ const SecretCard = (props: SecretCardProps) => {
                     aria-label="Edit secret"
                     variant="tertiary"
                     onClick={() => {
-                      showSecretValue();
-
+                      setIsShown(true);
                       onEdit?.(secret.key);
                     }}
                     marginLeft="8"
