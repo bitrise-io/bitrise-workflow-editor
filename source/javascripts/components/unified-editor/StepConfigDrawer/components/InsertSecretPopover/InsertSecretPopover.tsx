@@ -37,7 +37,6 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading, data: secrets = [] } = useSecrets({
     appSlug,
-    useApi: true,
     options: { enabled: shouldLoadVars },
   });
 

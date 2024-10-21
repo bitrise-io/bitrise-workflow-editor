@@ -2,11 +2,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { Secret } from '@/core/models/Secret';
 import Client from './client';
 
-// DTOs
-type SecretApiValueResponse = {
-  value?: string;
-};
-
+// Types
 type ApiSecretItem = { [key: string]: unknown } & {
   opts?: {
     is_expand?: boolean;
@@ -106,19 +102,10 @@ function toLocalUpdateRequest(secret: Secret): LocalSecretItem {
 }
 
 // API CALLS
-const SECRETS_FROM_API_PATH = '/api/app/:appSlug/secrets-without-values';
-const SECRET_ITEM_FROM_API_PATH = '/api/app/:appSlug/secrets/:secretKey';
-const SECRETS_PATH = '/apps/:appSlug/secrets';
-const SECRET_ITEM_PATH = '/apps/:appSlug/secrets/:secretKey';
 const SECRETS_LOCAL_PATH = '/api/secrets';
 
-function getSecretFromApiPath(appSlug: string): string {
-  return SECRETS_FROM_API_PATH.replace(':appSlug', appSlug);
-}
-
-function getSecretValueFromApiPath(appSlug: string): string {
-  return SECRET_ITEM_FROM_API_PATH.replace(':appSlug', appSlug);
-}
+const SECRETS_PATH = '/apps/:appSlug/secrets';
+const SECRET_ITEM_PATH = '/apps/:appSlug/secrets/:secretKey';
 
 function getSecretPath(appSlug: string): string {
   return SECRETS_PATH.replace(':appSlug', appSlug);
@@ -132,20 +119,8 @@ function getSecretLocalPath() {
   return SECRETS_LOCAL_PATH;
 }
 
-async function getSecrets({
-  signal,
-  ...params
-}: {
-  appSlug: string;
-  useApi?: boolean;
-  signal?: AbortSignal;
-}): Promise<Secret[]> {
+async function getSecrets({ signal, ...params }: { appSlug: string; signal?: AbortSignal }): Promise<Secret[]> {
   if (RuntimeUtils.isWebsiteMode()) {
-    if (params.useApi) {
-      const response = await Client.get<SecretsApiResponse>(getSecretFromApiPath(params.appSlug), { signal });
-      return response.envs.map(fromApiResponse);
-    }
-
     const response = await Client.get<SecretsMonolithResponse>(getSecretPath(params.appSlug), { signal });
     return response.map(fromMonolithResponse);
   }
@@ -164,17 +139,9 @@ async function getSecretValue({
 }: {
   appSlug: string;
   secretKey: string;
-  useApi?: boolean;
   signal?: AbortSignal;
 }): Promise<string | undefined> {
   if (RuntimeUtils.isWebsiteMode()) {
-    if (params.useApi) {
-      const response = await Client.get<SecretApiValueResponse>(getSecretValueFromApiPath(params.appSlug), {
-        signal,
-      });
-      return response.value;
-    }
-
     const response = await Client.get<SecretsMonolithResponse[number]>(getSecretItemPath(params), {
       signal,
     });
@@ -182,7 +149,7 @@ async function getSecretValue({
   }
 
   // CLI mode
-  return Promise.reject(new Error('Getting secret environment value is only available in website mode'));
+  return '';
 }
 
 async function upsertSecret({
@@ -246,5 +213,4 @@ export default {
   deleteSecret,
   getSecretPath,
   getSecretLocalPath,
-  getSecretFromApiPath,
 };

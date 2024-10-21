@@ -2,26 +2,24 @@ import { DefaultError, useMutation, UseMutationOptions, useQuery, UseQueryOption
 import { Secret } from '@/core/models/Secret';
 import SecretApi from '@/core/api/SecretApi';
 
-function getSecretsQueryKey(appSlug: string, useApi: boolean) {
-  return ['app', appSlug, 'secrets', { useApi }];
+function getSecretsQueryKey(appSlug: string) {
+  return ['app', appSlug, 'secrets'];
 }
 
-function getSecretValueQueryKey(appSlug: string, secretKey: string, useApi: boolean) {
-  return ['app', appSlug, 'secret', secretKey, { useApi }];
+function getSecretValueQueryKey(appSlug: string, secretKey: string) {
+  return ['app', appSlug, 'secret', secretKey];
 }
 
 function useSecrets({
   appSlug,
-  useApi = false,
   options,
 }: {
   appSlug: string;
-  useApi?: boolean;
   options?: Omit<UseQueryOptions<Secret[]>, 'queryKey' | 'queryFn'>;
 }) {
   return useQuery<Secret[]>({
-    queryKey: getSecretsQueryKey(appSlug, useApi),
-    queryFn: ({ signal }) => SecretApi.getSecrets({ appSlug, useApi, signal }),
+    queryKey: getSecretsQueryKey(appSlug),
+    queryFn: ({ signal }) => SecretApi.getSecrets({ appSlug, signal }),
     staleTime: 0,
     gcTime: 0,
     ...options,
@@ -32,16 +30,14 @@ function useSecretValue({
   appSlug,
   secretKey,
   options,
-  useApi = false,
 }: {
   appSlug: string;
   secretKey: string;
-  useApi?: boolean;
   options?: Omit<UseQueryOptions<string | undefined>, 'queryKey' | 'queryFn'>;
 }) {
   return useQuery<string | undefined>({
-    queryKey: getSecretValueQueryKey(appSlug, secretKey, useApi),
-    queryFn: ({ signal }) => SecretApi.getSecretValue({ appSlug, secretKey, useApi, signal }),
+    queryKey: getSecretValueQueryKey(appSlug, secretKey),
+    queryFn: ({ signal }) => SecretApi.getSecretValue({ appSlug, secretKey, signal }),
     staleTime: 0,
     gcTime: 0,
     ...options,
