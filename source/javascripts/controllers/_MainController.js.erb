@@ -122,8 +122,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
       viewModel.shouldAllowYMLMenuWithoutDiscard = false;
       viewModel.lastWorkflowEditedDate;
 
-      viewModel.isFirstBuildExperienceEnabled = false;
-
       viewModel.isDiffEditorEnabled = false;
       viewModel.isDiffDialogOpen = false;
       viewModel.originalYaml = "";
@@ -612,7 +610,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
                     })
                     .then(resolve, reject);
                 case "secrets":
-                  return appService.saveSecrets(viewModel.appSecretsWriteNew).then(resolve, reject);
+                  return appService.saveSecrets().then(resolve, reject);
                 case "stack":
                   viewModel.dataToSave = appService.appConfig;
                   var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
@@ -825,8 +823,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
         $q(function (resolve, reject) {
           launchDarklyService.initialize().then(() => {
-            viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
-            viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
             viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
             viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
 

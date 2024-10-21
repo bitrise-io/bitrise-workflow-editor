@@ -14,7 +14,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("WorkflowsController", function ($scope, $rootScope, $q, $location, appServiceUtil, stringService, requestService, scrollService, appService, stepSourceService, workflowSelectionStore, workflowSelectionService, launchDarklyService, Progress, Popup, Workflow, Step, Variable, $window, $timeout, Stack, MachineType,) {
+    .controller("WorkflowsController", function ($scope, $rootScope, $q, $location, appServiceUtil, stringService, requestService, scrollService, appService, stepSourceService, workflowSelectionStore, workflowSelectionService, launchDarklyService, Progress, Popup, Workflow, Step, Variable, $window, $timeout, Stack, MachineType) {
       var viewModel = this;
 
       viewModel.loadWorkflowsProgress = new Progress();
@@ -927,7 +927,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
         variable.isExpand(secret.isExpand);
 
         appService.secrets.push(variable);
-        appService.saveSecrets($scope.mainCtrl.appSecretsWriteNew);
+        appService.saveSecrets();
       };
 
       viewModel.closeReactVersionChangeDialog = () => {
