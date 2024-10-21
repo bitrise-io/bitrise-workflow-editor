@@ -1,4 +1,11 @@
-import { DefaultError, useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query';
+import {
+  DefaultError,
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 import { Secret } from '@/core/models/Secret';
 import SecretApi from '@/core/api/SecretApi';
 
@@ -51,9 +58,15 @@ function useDeleteSecret({
   appSlug: string;
   options?: Omit<UseMutationOptions<unknown, DefaultError, string>, 'mutationFn'>;
 }) {
+  const queryClient = useQueryClient();
+
   return useMutation<unknown, DefaultError, string>({
     mutationFn: (secretKey) => SecretApi.deleteSecret({ appSlug, secretKey }),
     ...options,
+    onSuccess: (data, variable, context) => {
+      queryClient.refetchQueries({ queryKey: [getSecretsQueryKey(appSlug)] });
+      options?.onSuccess?.(data, variable, context);
+    },
   });
 }
 
@@ -64,9 +77,14 @@ function useUpsertSecret({
   appSlug: string;
   options?: Omit<UseMutationOptions<Secret, DefaultError, Secret>, 'mutationFn'>;
 }) {
+  const queryClient = useQueryClient();
   return useMutation<Secret, DefaultError, Secret>({
     mutationFn: (secret) => SecretApi.upsertSecret({ appSlug, secret }),
     ...options,
+    onSuccess: (data, variable, context) => {
+      queryClient.refetchQueries({ queryKey: [getSecretsQueryKey(appSlug)] });
+      options?.onSuccess?.(data, variable, context);
+    },
   });
 }
 

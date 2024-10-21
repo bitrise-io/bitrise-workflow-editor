@@ -6,8 +6,8 @@ import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
   appSlug: string;
-  sharedSecretsAvailable: boolean;
   onSecretsChange: (secrets: Secret[]) => void;
+  sharedSecretsAvailable: boolean;
   // Cleanup
   secretSettingsUrl: string; // TODO - move to react
   planSelectorPageUrl: string; // TODO - move to react
@@ -54,11 +54,12 @@ const SecretsPage = (props: SecretsPageProps) => {
   }, [onSecretsChange, secrets]);
 
   const handleEdit = (id?: string | undefined) => () => {
-    setAppSecretList((appSecrets) => {
-      return appSecrets?.map((secret) => {
-        return { ...secret, isEditing: secret.key === id };
-      });
-    });
+    setAppSecretList((items) =>
+      items?.map((secret) => ({
+        ...secret,
+        isEditing: secret.key === id,
+      })),
+    );
   };
 
   const handleCancel = () => {
