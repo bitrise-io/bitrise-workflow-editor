@@ -3,7 +3,3 @@ export enum StepConfigTab {
   PROPERTIES = 'properties',
   OUTPUTS = 'outputs',
 }
-
-export type FormValues = {
-  inputs: Record<string, unknown>;
-};
