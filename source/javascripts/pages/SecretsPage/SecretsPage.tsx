@@ -1,58 +1,64 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
-import { useMutation } from '@tanstack/react-query';
-import { Secret, SecretWithState } from '@/models';
-import { monolith } from '@/hooks/api/client';
+import { Secret } from '@/core/models/Secret';
+import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
-  secrets: Secret[];
-  onSecretsChange: (secrets: Secret[]) => void;
   appSlug: string;
-  secretSettingsUrl: string;
-  planSelectorPageUrl: string;
+  onSecretsChange: (secrets: Secret[]) => void;
   sharedSecretsAvailable: boolean;
-  secretsWriteNew: boolean;
+  // Cleanup
+  secretSettingsUrl: string; // TODO - move to react
+  planSelectorPageUrl: string; // TODO - move to react
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
-  const {
-    secrets = [],
-    onSecretsChange,
-    appSlug,
-    secretSettingsUrl,
-    sharedSecretsAvailable,
-    planSelectorPageUrl,
-    secretsWriteNew,
-  } = props;
+  const { onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
+  const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
+  const { data: secrets = [] } = useSecrets({ appSlug });
 
   const {
     mutate: deleteSecret,
     isError: deleteError,
     isPending: deleteLoading,
     reset: resetDelete,
-  } = useMutation({
-    mutationFn: (key: string) => monolith.delete(`/apps/${appSlug}/secrets/${key}`),
-    onSuccess(_resp, key) {
-      resetDelete();
-      afterDelete(key);
+  } = useDeleteSecret({
+    appSlug,
+    options: {
+      onSuccess: (_, key) => {
+        resetDelete();
+        afterDelete(key);
+      },
     },
   });
 
-  const workspaceSecretList = secrets
-    .filter((secret) => secret.isShared)
-    .map((secret) => ({ ...secret, isEditing: false, isSaved: true }));
+  useEffect(() => {
+    setWorkspaceSecretList(
+      secrets
+        .filter((secret) => secret.isShared)
+        .map((secret) => ({
+          ...secret,
+          isEditing: false,
+          isSaved: true,
+        })),
+    );
 
-  const [appSecretList, setAppSecretList] = useState<SecretWithState[]>(
-    secrets.filter((s) => !s.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
-  );
+    setAppSecretList(
+      secrets.filter((secret) => !secret.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
+    );
+
+    onSecretsChange(secrets);
+  }, [onSecretsChange, secrets]);
 
   const handleEdit = (id?: string | undefined) => () => {
-    setAppSecretList(
-      appSecretList.map((secret) => {
-        return { ...secret, isEditing: secret.key === id };
-      }),
+    setAppSecretList((items) =>
+      items?.map((secret) => ({
+        ...secret,
+        isEditing: secret.key === id,
+      })),
     );
   };
 
@@ -67,10 +73,8 @@ const SecretsPage = (props: SecretsPageProps) => {
   };
 
   const handleDelete = (id: string | null) => {
-    if (id && secretsWriteNew) {
+    if (id) {
       deleteSecret(id);
-    } else {
-      afterDelete(id);
     }
   };
 
@@ -82,7 +86,7 @@ const SecretsPage = (props: SecretsPageProps) => {
     setDeleteId(null);
   };
 
-  const handleSave = (changedSecret: SecretWithState) => {
+  const handleSave = (changedSecret: Secret) => {
     const newAppSecretList = appSecretList.map((secret) => {
       return !secret.isSaved || secret.key === changedSecret.key
         ? { ...changedSecret, isEditing: false, isSaved: true }
@@ -104,7 +108,6 @@ const SecretsPage = (props: SecretsPageProps) => {
         isExpose: false,
         isKeyChangeable: false,
         isShared: false,
-
         isEditing: true,
         isSaved: false,
       },
@@ -141,7 +144,6 @@ const SecretsPage = (props: SecretsPageProps) => {
         {workspaceSecretList.length > 0 &&
           workspaceSecretList.map((secret) => (
             <SecretCard
-              writeSecrets={secretsWriteNew}
               appSlug={appSlug}
               key={secret.key}
               secret={secret}
@@ -189,7 +191,6 @@ const SecretsPage = (props: SecretsPageProps) => {
       <Box marginTop="16" marginBottom="24">
         {appSecretList.map((secret) => (
           <SecretCard
-            writeSecrets={secretsWriteNew}
             appSlug={appSlug}
             key={secret.key}
             secret={secret}

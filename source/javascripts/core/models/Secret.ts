@@ -2,11 +2,12 @@ type Secret = {
   key: string;
   value?: string;
   scope?: string;
-  isProtected: boolean;
-  isExpand: boolean;
-  isExpose: boolean;
   source?: string;
+  isExpose: boolean;
+  isExpand: boolean;
   isShared?: boolean;
+  isProtected?: boolean;
+  // UI only fields
   isKeyChangeable?: boolean;
   isEditing?: boolean;
   isSaved?: boolean;

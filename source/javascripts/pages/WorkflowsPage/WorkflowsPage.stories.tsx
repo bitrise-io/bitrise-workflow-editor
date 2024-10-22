@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getSecretsFromApi, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import { getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import {
   getCertificates,
@@ -26,7 +26,6 @@ const meta: Meta<typeof WorkflowsPage> = {
         StepApiMocks.getLocalStep({ status: 'success' }),
         getCertificates(),
         getProvProfiles(),
-        getSecretsFromApi(),
         getStacksAndMachines(),
         getFileStorageDocuments(),
         getDefaultOutputs(':appSlug'),
