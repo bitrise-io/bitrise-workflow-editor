@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { useQuery } from '@tanstack/react-query';
 import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -14,45 +13,43 @@ type YmlStepResult = {
 
 function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
-  return useBitriseYmlStore(
-    useShallow(({ yml }) => {
-      const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+  return useBitriseYmlStore(({ yml }) => {
+    const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
 
-      if (!stepObjectFromYml) {
-        return { data: undefined };
-      }
+    if (!stepObjectFromYml) {
+      return { data: undefined };
+    }
 
-      const [cvs, step] = Object.entries(stepObjectFromYml)[0];
+    const [cvs, step] = Object.entries(stepObjectFromYml)[0];
 
-      if (!step) {
-        return { data: undefined };
-      }
+    if (!step) {
+      return { data: undefined };
+    }
 
-      const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
-      const title = StepService.resolveTitle(cvs, defaultStepLibrary, step);
-      const icon = StepService.resolveIcon(cvs, defaultStepLibrary, step);
+    const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+    const title = StepService.resolveTitle(cvs, defaultStepLibrary, step);
+    const icon = StepService.resolveIcon(cvs, defaultStepLibrary, step);
 
-      if (StepService.isWithGroup(cvs, defaultStepLibrary, step)) {
-        return { data: { cvs, id, title, icon, userValues: step } };
-      }
-      if (StepService.isStepBundle(cvs, defaultStepLibrary, step)) {
-        return { data: { cvs, id, title, icon, userValues: step } };
-      }
+    if (StepService.isWithGroup(cvs, defaultStepLibrary, step)) {
+      return { data: { cvs, id, title, icon, userValues: step } };
+    }
+    if (StepService.isStepBundle(cvs, defaultStepLibrary, step)) {
+      return { data: { cvs, id, title, icon, userValues: step } };
+    }
 
-      return {
-        data: {
-          cvs,
-          id,
-          title: step.title || '', // step.title is optional, but might got a default value from the API
-          icon: step.asset_urls?.['icon.svg'] || step.asset_urls?.['icon.png'] || '', // step.asset_urls is optional, but might got a default value from the API
-          defaultValues: {},
-          userValues: step,
-          mergedValues: step,
-          resolvedInfo: {},
-        },
-      };
-    }),
-  );
+    return {
+      data: {
+        cvs,
+        id,
+        title: step.title || '', // step.title is optional, but might got a default value from the API
+        icon: step.asset_urls?.['icon.svg'] || step.asset_urls?.['icon.png'] || '', // step.asset_urls is optional, but might got a default value from the API
+        defaultValues: {},
+        userValues: step,
+        mergedValues: step,
+        resolvedInfo: {},
+      },
+    };
+  });
 }
 
 type ApiStepResult = {

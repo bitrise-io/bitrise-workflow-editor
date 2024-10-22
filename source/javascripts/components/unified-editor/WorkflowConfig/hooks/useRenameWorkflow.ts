@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import uniq from 'lodash/uniq';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -12,14 +11,12 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
   const newWorkflowIdRef = useRef(selectedWorkflowId);
   const removableWorkflowIdsRef = useRef<string[]>([]);
 
-  const workflows = useBitriseYmlStore(useShallow((s) => s.yml.workflows ?? {}));
-  const { createWorkflow, renameWorkflow, deleteWorkflows } = useBitriseYmlStore(
-    useShallow((s) => ({
-      createWorkflow: s.createWorkflow,
-      renameWorkflow: s.renameWorkflow,
-      deleteWorkflows: s.deleteWorkflows,
-    })),
-  );
+  const { workflows, createWorkflow, renameWorkflow, deleteWorkflows } = useBitriseYmlStore((s) => ({
+    workflows: s.yml.workflows ?? {},
+    createWorkflow: s.createWorkflow,
+    renameWorkflow: s.renameWorkflow,
+    deleteWorkflows: s.deleteWorkflows,
+  }));
 
   useEffect(() => {
     newWorkflowIdRef.current = selectedWorkflowId;

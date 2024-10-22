@@ -4,7 +4,6 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import { useShallow } from 'zustand/react/shallow';
 import omit from 'lodash/omit';
 import { useDebounceCallback } from 'usehooks-ts';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
@@ -164,7 +163,7 @@ const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
   const [activeItem, setActiveItem] = useState<SortableEnvVar>();
   const [envs, setEnvs] = useState(mapYmlEnvVarsToSortableEnvVars(workflow?.userValues.envs, workflow?.id));
-  const updateWorkflowEnvVars = useBitriseYmlStore(useShallow((s) => s.updateWorkflowEnvVars));
+  const updateWorkflowEnvVars = useBitriseYmlStore((s) => s.updateWorkflowEnvVars);
   const debouncedUpdateWorkflows = useDebounceCallback(updateWorkflowEnvVars, 150);
 
   const onDragStart = (event: DragStartEvent) => {

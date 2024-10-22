@@ -1,5 +1,4 @@
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import { useFormContext } from 'react-hook-form';
 import { EnvVar } from '@/core/models/EnvVar';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -18,7 +17,7 @@ const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, ...props }: Props, ref) => {
     const { workflowId } = useStepDrawerContext();
     const { watch, setValue } = useFormContext();
-    const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
+    const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
 
     const name = props.name ?? '';
     const value = String(watch(name));

@@ -3,7 +3,6 @@ import { Box, BoxProps, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
@@ -20,11 +19,9 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
 }
 
 const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
-  const steps = useBitriseYmlStore(
-    useShallow(({ yml }) => {
-      return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
-    }),
-  );
+  const steps = useBitriseYmlStore(({ yml }) => {
+    return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
+  });
   const { onAddStepClick, onStepMove, ...actions } = stepActions ?? {};
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {

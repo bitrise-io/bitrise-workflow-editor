@@ -11,7 +11,6 @@ import {
   Text,
   Toggle,
 } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import isEqual from 'lodash/isEqual';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -127,12 +126,10 @@ const TriggersTabPanel = () => {
 
   const workflow = useWorkflowConfigContext();
 
-  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore(
-    useShallow((s) => ({
-      updateWorkflowTriggers: s.updateWorkflowTriggers,
-      updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
-    })),
-  );
+  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore((s) => ({
+    updateWorkflowTriggers: s.updateWorkflowTriggers,
+    updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
+  }));
 
   const triggers: TargetBasedTriggers = deepCloneSimpleObject(
     (workflow?.userValues.triggers as TargetBasedTriggers) || {},

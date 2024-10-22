@@ -3,7 +3,6 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, BoxProps, Icon } from '@bitrise/bitkit';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
-import { useShallow } from 'zustand/react/shallow';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -59,12 +58,10 @@ const ChainedWorkflowList = ({
 
   const { droppableContainers, active, measureDroppableContainers } = useDndContext();
 
-  const validChainedWorkflowIds = useBitriseYmlStore(
-    useShallow(({ yml }) => {
-      const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
-      return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
-    }),
-  );
+  const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
+    const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+    return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
+  });
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {
     return validChainedWorkflowIds.map(getSortableItem(placement, parentWorkflowId));
