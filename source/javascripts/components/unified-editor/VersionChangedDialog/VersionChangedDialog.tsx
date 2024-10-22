@@ -22,7 +22,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
   const { data: oldStep, isLoading: isOldStepLoading } = useQuery({
     queryKey: ['steps', { cvs: oldCvs, defaultStepLibrary }],
     queryFn: () => StepApi.getStepByCvs(oldCvs, defaultStepLibrary),
-    enabled: Boolean(isOpen && id && oldCvs),
+    enabled: Boolean(id && oldCvs),
     staleTime: Infinity,
   });
 
@@ -30,7 +30,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
   const { data: newStep, isLoading: isNewStepLoading } = useQuery({
     queryKey: ['steps', { cvs: newCvs, defaultStepLibrary }],
     queryFn: () => StepApi.getStepByCvs(newCvs, defaultStepLibrary),
-    enabled: Boolean(isOpen && id && newCvs),
+    enabled: Boolean(id && newCvs),
     staleTime: Infinity,
   });
 
@@ -39,13 +39,8 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
   const sourceUrl = newStep?.defaultValues?.source_code_url;
 
   useEffect(() => {
-    if (!isLoading) {
-      if (change === 'none') {
-        onClose();
-      } else {
-        onOpen();
-      }
-    }
+    if (!isLoading && change !== 'none') onOpen();
+    if (!isLoading && change === 'none') onClose();
   }, [change, isLoading, onClose, onOpen]);
 
   if (isLoading || change === 'none') {

@@ -17,30 +17,25 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
     return { workflowId, stepIndex, ...result } as State;
   }, [result, workflowId, stepIndex]);
 
-  const [newVersion, setNewVersion] = useState<string>();
-  const [oldVersion, setOldVersion] = useState<string>();
+  const [newVersion, setNewVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
+  const [oldVersion, setOldVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
+  const shouldMoundVersionChangedDialog =
+    !value.isLoading && !result.error && newVersion && oldVersion && newVersion !== oldVersion;
 
   useEffect(() => {
-    if (!value.isLoading && !newVersion && !oldVersion) {
-      setNewVersion(value?.data?.resolvedInfo?.normalizedVersion);
-      setOldVersion(value?.data?.resolvedInfo?.normalizedVersion);
+    if (newVersion !== value?.data?.resolvedInfo?.resolvedVersion) {
+      setNewVersion(value?.data?.resolvedInfo?.resolvedVersion);
     }
-  }, [newVersion, oldVersion, value?.data?.resolvedInfo?.normalizedVersion, value.isLoading]);
-
-  useEffect(() => {
-    if (newVersion !== value?.data?.resolvedInfo?.normalizedVersion) {
-      setNewVersion(value?.data?.resolvedInfo?.normalizedVersion);
-    }
-  }, [newVersion, value?.data?.resolvedInfo?.normalizedVersion]);
+  }, [newVersion, value?.data?.resolvedInfo?.resolvedVersion]);
 
   return (
     <Context.Provider value={value}>
       {children}
-      {newVersion && oldVersion && result.data?.cvs && !result.error && (
+      {shouldMoundVersionChangedDialog && (
         <VersionChangedDialog
-          cvs={result.data.cvs}
-          oldVersion={oldVersion}
-          newVersion={newVersion}
+          cvs={result?.data?.cvs || ''}
+          oldVersion={oldVersion || ''}
+          newVersion={newVersion || ''}
           onClose={() => setOldVersion(newVersion)}
         />
       )}

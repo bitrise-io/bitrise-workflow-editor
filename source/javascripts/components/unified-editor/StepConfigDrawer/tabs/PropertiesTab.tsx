@@ -26,14 +26,17 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   const { data, workflowId, stepIndex } = useStepDrawerContext();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
 
-  const changeStepVersionInYml = useDebounceCallback(
-    useBitriseYmlStore((s) => s.changeStepVersion),
-    250,
-  );
+  const changeStepVersionInYml = useBitriseYmlStore((s) => s.changeStepVersion);
+  const debouncedChangeStepVersionInYml = useDebounceCallback(changeStepVersionInYml, 250);
 
   const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
-    changeStepVersionInYml(workflowId, stepIndex, e.target.value);
+
+    if (variant === 'select') {
+      changeStepVersionInYml(workflowId, stepIndex, e.target.value);
+    } else {
+      debouncedChangeStepVersionInYml(workflowId, stepIndex, e.target.value);
+    }
   };
 
   useEffect(() => {
