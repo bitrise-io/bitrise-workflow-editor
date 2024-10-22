@@ -1,5 +1,4 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import { useDebounceCallback } from 'usehooks-ts';
 import { StepInputVariable } from '@/core/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -19,8 +18,16 @@ function groupStepInputs(inputs?: StepInputVariable[]) {
 
 const ConfigurationTab = () => {
   const { data, workflowId, stepIndex } = useStepDrawerContext();
-  const updateStep = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.updateStep)), 250);
-  const updateStepInputs = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.updateStepInputs)), 250);
+
+  const updateStep = useDebounceCallback(
+    useBitriseYmlStore((s) => s.updateStep),
+    250,
+  );
+
+  const updateStepInputs = useDebounceCallback(
+    useBitriseYmlStore((s) => s.updateStepInputs),
+    250,
+  );
 
   const mergedValues = data?.mergedValues ?? {};
   const defaultValues = data?.defaultValues ?? {};

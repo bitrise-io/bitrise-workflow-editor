@@ -11,7 +11,6 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import { useDebounceCallback } from 'usehooks-ts';
 import StepService from '@/core/models/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -26,7 +25,11 @@ type StepVersionProps = {
 const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
   const { data, workflowId, stepIndex } = useStepDrawerContext();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
-  const changeStepVersionInYml = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.changeStepVersion)), 250);
+
+  const changeStepVersionInYml = useDebounceCallback(
+    useBitriseYmlStore((s) => s.changeStepVersion),
+    250,
+  );
 
   const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
@@ -71,8 +74,12 @@ const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const { workflowId, stepIndex, data, isLoading } = useStepDrawerContext();
-  const updateStep = useDebounceCallback(useBitriseYmlStore(useShallow((s) => s.updateStep)), 250);
   const [name, setName] = useState(data?.mergedValues?.title);
+
+  const updateStep = useDebounceCallback(
+    useBitriseYmlStore((s) => s.updateStep),
+    250,
+  );
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;

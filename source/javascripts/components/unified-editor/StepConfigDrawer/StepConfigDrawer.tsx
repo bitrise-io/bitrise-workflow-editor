@@ -9,7 +9,6 @@ import {
 } from '@chakra-ui/react';
 import semver from 'semver';
 import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import StepBadge from '@/components/StepBadge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -28,7 +27,7 @@ type Props = UseDisclosureProps & {
 const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
   const { isOpen, onClose } = useDisclosure(props);
   const { workflowId, stepIndex, data } = useStepDrawerContext();
-  const changeStepVersion = useBitriseYmlStore(useShallow((s) => s.changeStepVersion));
+  const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
