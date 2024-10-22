@@ -1,6 +1,5 @@
 import { FocusEventHandler, useState } from 'react';
 import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
@@ -33,8 +32,8 @@ const StepInput = forwardRef(
   ({ isClearable, isSensitive, isDisabled, helperText, helper, onChange, ...props }: Props, ref) => {
     const { workflowId } = useStepDrawerContext();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
+    const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
     const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
-    const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
 
     const { mutate: createSecret } = useUpdateSecret({
       appSlug: WindowUtils.appSlug() ?? '',

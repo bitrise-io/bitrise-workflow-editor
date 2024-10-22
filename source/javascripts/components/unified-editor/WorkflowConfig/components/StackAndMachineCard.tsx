@@ -1,5 +1,4 @@
 import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useStacksAndMachines from '../hooks/useStacksAndMachines';
@@ -31,7 +30,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
 const StackAndMachineCard = () => {
   const workflow = useWorkflowConfigContext();
   const { data, isLoading } = useStacksAndMachines();
-  const updateStackAndMachine = useBitriseYmlStore(useShallow((s) => s.updateStackAndMachine));
+  const updateStackAndMachine = useBitriseYmlStore((s) => s.updateStackAndMachine);
 
   const {
     selectedStack,

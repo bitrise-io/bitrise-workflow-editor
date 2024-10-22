@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import { EnvVar } from '@/core/models/EnvVar';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
@@ -19,7 +18,7 @@ const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
     const { workflowId } = useStepDrawerContext();
     const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
-    const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
+    const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
 
     const insertVariable = (key: string) => {
       setValue(`$${key}`);

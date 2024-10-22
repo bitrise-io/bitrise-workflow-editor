@@ -1,5 +1,4 @@
 import { Box } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import {
@@ -39,15 +38,13 @@ const WorkflowsPageContent = () => {
     unmountWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
-  const { addStep, createWorkflow, deleteWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
-    useShallow((s) => ({
-      addStep: s.addStep,
-      createWorkflow: s.createWorkflow,
-      deleteWorkflow: s.deleteWorkflow,
-      getUniqueStepIds: s.getUniqueStepIds,
-      addChainedWorkflow: s.addChainedWorkflow,
-    })),
-  );
+  const { addStep, createWorkflow, deleteWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
+    addStep: s.addStep,
+    createWorkflow: s.createWorkflow,
+    deleteWorkflow: s.deleteWorkflow,
+    getUniqueStepIds: s.getUniqueStepIds,
+    addChainedWorkflow: s.addChainedWorkflow,
+  }));
 
   const {
     enabledSteps,
