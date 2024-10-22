@@ -34,21 +34,21 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
     staleTime: Infinity,
   });
 
-  const isFetching = isOldStepLoading || isNewStepLoading;
+  const isLoading = isOldStepLoading || isNewStepLoading;
   const { removedInputs, newInputs, change } = StepService.calculateChange(oldStep, newStep, defaultStepLibrary);
   const sourceUrl = newStep?.defaultValues?.source_code_url;
 
   useEffect(() => {
-    if (!isFetching) {
+    if (!isLoading) {
       if (change === 'none') {
         onClose();
       } else {
         onOpen();
       }
     }
-  }, [change, isFetching, onClose, onOpen]);
+  }, [change, isLoading, onClose, onOpen]);
 
-  if (isFetching || change === 'none') {
+  if (isLoading || change === 'none') {
     return null;
   }
 
