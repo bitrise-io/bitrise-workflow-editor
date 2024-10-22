@@ -30,7 +30,6 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useShallow } from 'zustand/react/shallow';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -68,11 +67,9 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     enabled: isWebsiteMode,
   });
 
-  const { updateTriggerMap } = useBitriseYmlStore(
-    useShallow((s) => ({
-      updateTriggerMap: s.updateTriggerMap,
-    })),
-  );
+  const { updateTriggerMap } = useBitriseYmlStore((s) => ({
+    updateTriggerMap: s.updateTriggerMap,
+  }));
 
   const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
     const newTriggers = { ...triggers };

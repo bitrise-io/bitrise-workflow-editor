@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import StepService from '@/core/models/StepService';
@@ -13,7 +12,7 @@ import useDefaultStepLibrary from './useDefaultStepLibrary';
 
 const useDefaultEnvVars = (enabled: boolean) => {
   const appSlug = WindowUtils.appSlug() ?? '';
-  const projectType = useBitriseYmlStore(useShallow((s) => s.yml.project_type));
+  const projectType = useBitriseYmlStore((s) => s.yml.project_type);
 
   return useQuery({
     enabled,
@@ -24,56 +23,50 @@ const useDefaultEnvVars = (enabled: boolean) => {
 };
 
 const useAppLevelEnvVars = () => {
-  return useBitriseYmlStore(
-    useShallow((s) => {
-      const envVarMap = new Map<string, EnvVar>();
+  return useBitriseYmlStore((s) => {
+    const envVarMap = new Map<string, EnvVar>();
 
-      s.yml.app?.envs?.forEach((envVarYml) => {
-        const env = EnvVarService.parseYmlEnvVar(envVarYml, 'app');
-        envVarMap.set(env.key, env);
-      });
+    s.yml.app?.envs?.forEach((envVarYml) => {
+      const env = EnvVarService.parseYmlEnvVar(envVarYml, 'app');
+      envVarMap.set(env.key, env);
+    });
 
-      return Array.from(envVarMap.values());
-    }),
-  );
+    return Array.from(envVarMap.values());
+  });
 };
 
 const useWorkflowLevelEnvVars = (workflowId: string) => {
-  return useBitriseYmlStore(
-    useShallow((s) => {
-      const envVarMap = new Map<string, EnvVar>();
+  return useBitriseYmlStore((s) => {
+    const envVarMap = new Map<string, EnvVar>();
 
-      WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
-        s.yml.workflows?.[id]?.envs?.forEach((envVarYml) => {
-          const env = EnvVarService.parseYmlEnvVar(envVarYml, id);
-          envVarMap.set(env.key, env);
-        });
+    WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
+      s.yml.workflows?.[id]?.envs?.forEach((envVarYml) => {
+        const env = EnvVarService.parseYmlEnvVar(envVarYml, id);
+        envVarMap.set(env.key, env);
       });
+    });
 
-      return Array.from(envVarMap.values());
-    }),
-  );
+    return Array.from(envVarMap.values());
+  });
 };
 
 const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
   const defaultStepLibrary = useDefaultStepLibrary();
-  const cvss = useBitriseYmlStore(
-    useShallow((s) => {
-      const cvsSet = new Set<string>();
+  const cvss = useBitriseYmlStore((s) => {
+    const cvsSet = new Set<string>();
 
-      WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
-        s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
-          const [cvs, step] = Object.entries(ymlStepObject)[0];
-          // TODO: Handle step bundles and with groups...
-          if (StepService.isStep(cvs, defaultStepLibrary, step)) {
-            cvsSet.add(cvs);
-          }
-        });
+    WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
+      s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
+        const [cvs, step] = Object.entries(ymlStepObject)[0];
+        // TODO: Handle step bundles and with groups...
+        if (StepService.isStep(cvs, defaultStepLibrary, step)) {
+          cvsSet.add(cvs);
+        }
       });
+    });
 
-      return Array.from(cvsSet).filter(Boolean);
-    }),
-  );
+    return Array.from(cvsSet).filter(Boolean);
+  });
 
   return useQueries({
     queries: cvss.map((cvs) => ({
