@@ -1,6 +1,5 @@
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Input, Textarea } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
@@ -70,7 +69,7 @@ const NameInput = ({ variant }: Props) => {
 
 const PropertiesTab = ({ variant }: Props) => {
   const workflow = useWorkflowConfigContext();
-  const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
+  const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
 
   const [{ summary, description }, setValues] = useState({
