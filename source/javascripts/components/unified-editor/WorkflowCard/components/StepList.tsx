@@ -132,7 +132,7 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
           })}
         </Box>
       </SortableContext>
-      <DragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</DragOverlay>
+      <DragOverlay>{activeItem && <StepCard {...activeItem} actions={actions} isDragging isSortable />}</DragOverlay>
     </DndContext>
   );
 };

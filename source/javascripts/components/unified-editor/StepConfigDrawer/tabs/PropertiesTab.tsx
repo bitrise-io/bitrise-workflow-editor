@@ -64,8 +64,8 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   return (
     <Input
       type="text"
-      value={value}
       label="Version"
+      defaultValue={value}
       placeholder="Always latest"
       onChange={onStepVersionChange}
       inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
@@ -94,10 +94,6 @@ const PropertiesTab = () => {
     updateStep(workflowId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
   };
 
-  useEffect(() => {
-    setName(data?.mergedValues?.title);
-  }, [data?.mergedValues?.title]);
-
   return (
     <Box display="flex" flexDirection="column" gap="24">
       {(isLoading || sourceUrl) && ( // NOTE: Yes, isLoading because when step version is changed, the source code link will be removed what causes a layout shift
@@ -120,7 +116,7 @@ const PropertiesTab = () => {
       <Input
         type="text"
         label="Name"
-        value={name}
+        defaultValue={name}
         placeholder="Step name"
         onChange={handleNameChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
