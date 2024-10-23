@@ -19,7 +19,7 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
 
   const [newVersion, setNewVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
   const [oldVersion, setOldVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
-  const shouldMoundVersionChangedDialog =
+  const shouldMountVersionChangedDialog =
     !value.isLoading && !result.error && newVersion && oldVersion && newVersion !== oldVersion;
 
   useEffect(() => {
