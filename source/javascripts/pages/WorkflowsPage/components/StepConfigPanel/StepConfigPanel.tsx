@@ -1,14 +1,12 @@
 import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
-
-import { useMutation } from '@tanstack/react-query';
 import StepBadge from '@/components/StepBadge';
-import { monolith } from '@/hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepVersionWithRemark } from '@/models';
 import { EnvVar } from '@/core/models/EnvVar';
 import { Secret } from '@/core/models/Secret';
 import { StepOutputVariable } from '@/core/models/Step';
 import WindowUtils from '@/core/utils/WindowUtils';
+import { useUpsertSecret } from '@/hooks/useSecrets';
 import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties';
@@ -29,7 +27,6 @@ type Props = {
   onLoadSecrets: () => Promise<Secret[]>;
   onCreateEnvVar: (envVar: EnvVar) => void;
   onLoadEnvVars: () => Promise<EnvVar[]>;
-  secretsWriteNew: boolean;
 };
 
 const StepConfigPanel = ({
@@ -46,35 +43,17 @@ const StepConfigPanel = ({
   onLoadSecrets,
   onCreateEnvVar,
   onLoadEnvVars,
-  secretsWriteNew,
 }: Props): JSX.Element => {
   const appSlug = WindowUtils.appSlug() ?? '';
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
-  const { mutate } = useMutation({
-    mutationFn: (secret: Secret) =>
-      monolith.post(`/apps/${appSlug}/secrets`, {
-        name: secret.key,
-        value: secret.value,
-        expandInStepInputs: secret.isExpand,
-        exposedForPullRequests: secret.isExpose,
-        isProtected: secret.source,
-      }),
-    onSuccess(_resp, secret) {
-      onCreateSecretAngular(secret);
-    },
+  const { mutate: createSecret } = useUpsertSecret({
+    appSlug,
+    options: { onSuccess: onCreateSecretAngular },
   });
-
-  const onCreateSecret = (secret: Secret) => {
-    if (secretsWriteNew) {
-      mutate(secret);
-    } else {
-      onCreateSecretAngular(secret);
-    }
-  };
 
   return (
     <EnvVarProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
-      <SecretsProvider onCreate={onCreateSecret} onLoad={onLoadSecrets}>
+      <SecretsProvider onCreate={createSecret} onLoad={onLoadSecrets}>
         <Box display="flex" flexDirection="column" gap="8">
           <Box as="header" display="flex" px="24" pt="24" gap="16" alignItems="center">
             <Avatar

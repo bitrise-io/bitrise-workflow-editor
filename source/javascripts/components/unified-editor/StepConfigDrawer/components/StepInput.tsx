@@ -35,7 +35,7 @@ const StepInput = forwardRef(
     const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
     const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
 
-  const { mutate: createSecret } = useUpsertSecret({
+    const { mutate: createSecret } = useUpsertSecret({
       appSlug: WindowUtils.appSlug() ?? '',
       options: {
         onSuccess: ({ key }) => {
