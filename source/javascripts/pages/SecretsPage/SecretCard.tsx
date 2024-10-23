@@ -57,7 +57,7 @@ const SecretCard = (props: SecretCardProps) => {
   } = useUpsertSecret({
     appSlug,
     options: {
-      onSuccess(_, newSecret) {
+      onSuccess(newSecret) {
         resetSave();
         onSave(newSecret);
         queryClient.invalidateQueries({
