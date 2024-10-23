@@ -188,7 +188,7 @@ async function upsertSecret({
     signal,
   });
 
-  return secret;
+  return { ...secret, value: secret.isProtected ? '' : secret.value };
 }
 
 async function deleteSecret({
