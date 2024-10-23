@@ -8,25 +8,11 @@ import {
   UseDisclosureProps,
 } from '@chakra-ui/react';
 import semver from 'semver';
-import {
-  Avatar,
-  Box,
-  Icon,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-  useDisclosure,
-  useToast,
-} from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
+import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
 import StepBadge from '@/components/StepBadge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import VersionUtils from '@/core/utils/VersionUtils';
-import { FormValues } from './StepConfigDrawer.types';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
@@ -39,63 +25,22 @@ type Props = UseDisclosureProps & {
 };
 
 const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
-  const toast = useToast();
   const { isOpen, onClose } = useDisclosure(props);
-
-  const form = useFormContext<FormValues>();
   const { workflowId, stepIndex, data } = useStepDrawerContext();
-  const { mergedValues, defaultValues, resolvedInfo } = data ?? {};
-  const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
+  const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
 
-  const [formTitleValue, formVersionValue] = form.watch(['properties.name', 'properties.version']);
-  const isUpgradable = VersionUtils.hasVersionUpgrade(formVersionValue, resolvedInfo?.versions);
-  const currentResolvedVersion = VersionUtils.resolveVersion(formVersionValue, resolvedInfo?.versions);
+  const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
+  const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
+  const stepHasOutputVariables = Boolean(data?.mergedValues?.outputs?.length ?? 0);
 
-  const { changeStepVersion, updateStep, updateStepInputs } = useBitriseYmlStore((s) => ({
-    changeStepVersion: s.changeStepVersion,
-    updateStep: s.updateStep,
-    updateStepInputs: s.updateStepInputs,
-  }));
-
-  const handleUpdateStep = () => {
-    const updatedVersion = VersionUtils.normalizeVersion(semver.major(resolvedInfo?.latestVersion ?? '').toString());
-    form.setValue('properties.version', updatedVersion, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  };
-
-  const saveAndClose = form.handleSubmit(
-    ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if }, inputs }) => {
-      updateStep(workflowId, stepIndex, { title: name, is_always_run, is_skippable, run_if }, defaultValues || {});
-
-      const newInputs = Object.entries(inputs || {}).map(([key, value]) => ({
-        [`${key}`]: value,
-      }));
-      updateStepInputs(workflowId, stepIndex, newInputs, defaultValues?.inputs || []);
-      changeStepVersion(workflowId, stepIndex, version);
-      onClose();
-    },
+  const isUpgradable = VersionUtils.hasVersionUpgrade(
+    data?.resolvedInfo?.normalizedVersion,
+    data?.resolvedInfo?.versions,
   );
-
-  const handleClose = () => {
-    form.trigger().then((isValid) => {
-      if (!isValid) {
-        toast({
-          status: 'error',
-          title: 'Required field(s) are missing.',
-          description: "Please check the step's configuration.",
-          isClosable: true,
-        });
-      }
-    });
-    saveAndClose();
-  };
 
   return (
     <Tabs>
-      <Drawer isFullHeight isOpen={isOpen} autoFocus={false} onClose={handleClose} onCloseComplete={onCloseComplete}>
+      <Drawer isFullHeight isOpen={isOpen} autoFocus={false} onClose={onClose} onCloseComplete={onCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -121,7 +66,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
               <Avatar
                 size="48"
                 src={data?.icon || defaultIcon}
-                name={formTitleValue}
+                name={data?.mergedValues?.title || ''}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
@@ -132,23 +77,26 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
               <Box flex="1" minW={0}>
                 <Box display="flex" gap="4" alignItems="center">
                   <Text as="h3" textStyle="heading/h3" hasEllipsis>
-                    {formTitleValue}
+                    {data?.mergedValues?.title || 'Loading...'}
                   </Text>
                   <StepBadge
-                    isOfficial={resolvedInfo?.isOfficial}
-                    isVerified={resolvedInfo?.isVerified}
-                    isCommunity={resolvedInfo?.isCommunity}
+                    isOfficial={data?.resolvedInfo?.isOfficial}
+                    isVerified={data?.resolvedInfo?.isVerified}
+                    isCommunity={data?.resolvedInfo?.isCommunity}
                   />
                 </Box>
 
                 <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
-                  <Text display="flex">{currentResolvedVersion || 'Always latest'}</Text>
+                  <Text display="flex">{data?.resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
                   {isUpgradable && (
                     <>
                       <Icon size="16" marginInline="4" name="WarningYellow" />
-                      <Text textStyle="body/sm/regular" cursor="pointer" onClick={handleUpdateStep}>
-                        Latest version:
-                        {resolvedInfo?.latestVersion ? `: ${resolvedInfo?.latestVersion}` : ''}
+                      <Text
+                        cursor="pointer"
+                        textStyle="body/sm/regular"
+                        onClick={() => changeStepVersion(workflowId, stepIndex, latestMajorVersion)}
+                      >
+                        Latest version: {latestVersion}
                       </Text>
                     </>
                   )}

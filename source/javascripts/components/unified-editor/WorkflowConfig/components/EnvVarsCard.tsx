@@ -164,7 +164,7 @@ const EnvVarsCard = () => {
   const [activeItem, setActiveItem] = useState<SortableEnvVar>();
   const [envs, setEnvs] = useState(mapYmlEnvVarsToSortableEnvVars(workflow?.userValues.envs, workflow?.id));
   const updateWorkflowEnvVars = useBitriseYmlStore((s) => s.updateWorkflowEnvVars);
-  const debouncedUpdateWorkflows = useDebounceCallback(updateWorkflowEnvVars, 150);
+  const debouncedUpdateWorkflows = useDebounceCallback(updateWorkflowEnvVars, 250);
 
   const onDragStart = (event: DragStartEvent) => {
     setActiveItem(event.active.data.current as SortableEnvVar);

@@ -1,67 +1,44 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import omit from 'lodash/omit';
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import useStep from '@/hooks/useStep';
 import { Step } from '@/core/models/Step';
-import { FormValues } from './StepConfigDrawer.types';
+import VersionChangedDialog from '../VersionChangedDialog/VersionChangedDialog';
 
 type Props = { workflowId: string; stepIndex: number };
-type State = {
-  workflowId: string;
-  stepIndex: number;
-  isLoading: boolean;
-  data?: Step;
-  error?: Error;
-};
+type State = { workflowId: string; stepIndex: number; isLoading: boolean; data?: Step; error?: Error };
 
-const initialState: State = {
-  error: undefined,
-  data: undefined,
-  isLoading: false,
-  workflowId: '',
-  stepIndex: 0,
-};
-const Context = createContext<State>(initialState);
-
-const StepConfigDrawerFormProvider = ({ step, children }: PropsWithChildren<{ step?: Step }>) => {
-  const form = useForm<FormValues>({
-    mode: 'all',
-    defaultValues: {
-      configuration: {
-        is_always_run: step?.mergedValues?.is_always_run ?? false,
-        is_skippable: step?.mergedValues?.is_skippable ?? false,
-        run_if: step?.mergedValues?.run_if ?? '',
-      },
-      properties: {
-        name: step?.title ?? '',
-        version: step?.resolvedInfo?.normalizedVersion ?? '',
-      },
-      inputs: step?.mergedValues?.inputs?.reduce((acc, input) => {
-        return { ...acc, ...omit(input, 'opts') };
-      }, {}),
-    },
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-};
+const initialState: State = { error: undefined, data: undefined, isLoading: true, workflowId: '', stepIndex: -1 };
+const Context = createContext(initialState);
 
 const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWithChildren<Props>) => {
   const result = useStep(workflowId, stepIndex);
-  const step = result?.data as Step | undefined;
 
   const value = useMemo<State>(() => {
     if (!result) return initialState;
     return { workflowId, stepIndex, ...result } as State;
   }, [result, workflowId, stepIndex]);
 
-  if (result.isLoading) {
-    // TODO: Loading state
-    return null;
-  }
+  const [newVersion, setNewVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
+  const [oldVersion, setOldVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
+  const shouldMountVersionChangedDialog =
+    !value.isLoading && !result.error && newVersion && oldVersion && newVersion !== oldVersion;
+
+  useEffect(() => {
+    if (newVersion !== value?.data?.resolvedInfo?.resolvedVersion) {
+      setNewVersion(value?.data?.resolvedInfo?.resolvedVersion);
+    }
+  }, [newVersion, value?.data?.resolvedInfo?.resolvedVersion]);
 
   return (
     <Context.Provider value={value}>
-      <StepConfigDrawerFormProvider step={step}>{children}</StepConfigDrawerFormProvider>
+      {children}
+      {shouldMountVersionChangedDialog && (
+        <VersionChangedDialog
+          cvs={result?.data?.cvs || ''}
+          oldVersion={oldVersion || ''}
+          newVersion={newVersion || ''}
+          onClose={() => setOldVersion(newVersion)}
+        />
+      )}
     </Context.Provider>
   );
 };
