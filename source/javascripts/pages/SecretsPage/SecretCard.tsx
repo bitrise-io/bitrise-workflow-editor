@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Badge,
   Box,
@@ -67,6 +67,18 @@ const SecretCard = (props: SecretCardProps) => {
     },
   });
 
+  const secretValue = useMemo(() => {
+    if (!secret.isEditing && !isShown) {
+      return '••••••••';
+    }
+
+    if (secret.isProtected) {
+      return '';
+    }
+
+    return fetchedSecretValue || secret.value;
+  }, [fetchedSecretValue, isShown, secret.isEditing, secret.isProtected, secret.value]);
+
   const {
     register,
     watch,
@@ -76,7 +88,7 @@ const SecretCard = (props: SecretCardProps) => {
   } = useForm<Secret>({
     values: {
       ...secret,
-      value: secret.isEditing || isShown ? fetchedSecretValue || secret.value : '••••••••',
+      value: secretValue,
     },
   });
 
