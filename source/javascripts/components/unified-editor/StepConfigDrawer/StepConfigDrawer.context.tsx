@@ -31,7 +31,7 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
   return (
     <Context.Provider value={value}>
       {children}
-      {shouldMoundVersionChangedDialog && (
+      {shouldMountVersionChangedDialog && (
         <VersionChangedDialog
           cvs={result?.data?.cvs || ''}
           oldVersion={oldVersion || ''}
