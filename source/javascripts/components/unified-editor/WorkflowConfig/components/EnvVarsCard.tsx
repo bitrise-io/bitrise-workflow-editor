@@ -17,24 +17,37 @@ type SortableEnvVar = EnvVar & {
   uniqueId: string;
 };
 
-function countValidationErrors(envs: SortableEnvVar[]) {
-  return envs.reduce((acc, env) => {
-    const keyError = EnvVarService.validateKey(env.key);
-    const valueError = EnvVarService.validateValue(env.value);
+function getEnvKeysWithout(envs: SortableEnvVar[], uniqueId: string): string[] {
+  return envs.filter((e) => e.uniqueId !== uniqueId).map((e) => e.key);
+}
 
-    return acc + (keyError !== true ? 1 : 0) + (valueError !== true ? 1 : 0);
+function countValidationErrors(envs: SortableEnvVar[]) {
+  const seenKeys = new Set();
+
+  return envs.reduce((acc, env) => {
+    const isDuplicate = seenKeys.has(env.key);
+    const keyError = EnvVarService.validateKey(env.key, getEnvKeysWithout(envs, env.uniqueId));
+    const valueError = EnvVarService.validateValue(env.value);
+    seenKeys.add(env.key);
+
+    return acc + (keyError !== true && !isDuplicate ? 1 : 0) + (valueError !== true ? 1 : 0);
   }, 0);
 }
 
 function hasValidationErrors(envs: SortableEnvVar[]) {
   return envs.some(
-    (env) => EnvVarService.validateKey(env.key) !== true || EnvVarService.validateValue(env.value) !== true,
+    (env) =>
+      EnvVarService.validateKey(env.key, getEnvKeysWithout(envs, env.uniqueId)) !== true ||
+      EnvVarService.validateValue(env.value) !== true,
   );
 }
 
 function mapYmlEnvVarsToSortableEnvVars(envs?: EnvVarYml[], workflowId?: string): SortableEnvVar[] {
   return (envs ?? []).map((env) => {
-    return { uniqueId: crypto.randomUUID(), ...EnvVarService.parseYmlEnvVar(env, workflowId) };
+    return {
+      uniqueId: crypto.randomUUID(),
+      ...EnvVarService.parseYmlEnvVar(env, workflowId),
+    };
   });
 }
 
@@ -53,27 +66,34 @@ const ButtonContent = ({ numberOfErrors }: { numberOfErrors: number }) => {
 
 type EnvVarCardProps = {
   env: SortableEnvVar;
+  keys: string[];
   isDragging?: boolean;
   onRemove?: (uniqueId: string) => void;
   onChange?: (env: SortableEnvVar) => void;
 };
 
-const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) => {
+const EnvVarCard = ({ env, keys, isDragging, onRemove, onChange }: EnvVarCardProps) => {
   const sortable = useSortable({ id: env.uniqueId, data: env });
 
   const [errors, setErrors] = useState({
-    key: EnvVarService.validateKey(env.key),
+    key: EnvVarService.validateKey(env.key, keys),
     value: EnvVarService.validateValue(env.value),
   });
 
   const handleKeyChange = (key: string) => {
     onChange?.({ ...env, key });
-    setErrors((oldErrors) => ({ ...oldErrors, key: EnvVarService.validateKey(key) }));
+    setErrors((oldErrors) => ({
+      ...oldErrors,
+      key: EnvVarService.validateKey(key, keys),
+    }));
   };
 
   const handleValueChange = (value: string) => {
     onChange?.({ ...env, value });
-    setErrors((oldErrors) => ({ ...oldErrors, value: EnvVarService.validateValue(value) }));
+    setErrors((oldErrors) => ({
+      ...oldErrors,
+      value: EnvVarService.validateValue(value),
+    }));
   };
 
   return (
@@ -198,7 +218,13 @@ const EnvVarsCard = () => {
   const onAddNewEnvVarClick = () => {
     setEnvs((oldEnvVars) => [
       ...oldEnvVars,
-      { uniqueId: crypto.randomUUID(), key: '', value: '', source: workflow?.id || '', isExpand: false },
+      {
+        uniqueId: crypto.randomUUID(),
+        key: '',
+        value: '',
+        source: workflow?.id || '',
+        isExpand: false,
+      },
     ]);
   };
 
@@ -254,10 +280,16 @@ const EnvVarsCard = () => {
           >
             <SortableContext items={envs.map(({ uniqueId }) => uniqueId)} strategy={verticalListSortingStrategy}>
               {envs.map((env) => (
-                <EnvVarCard key={env.uniqueId} env={env} onRemove={onRemoveEnvVar} onChange={onChangeEnvVar} />
+                <EnvVarCard
+                  key={env.uniqueId}
+                  env={env}
+                  keys={getEnvKeysWithout(envs, env.uniqueId)}
+                  onRemove={onRemoveEnvVar}
+                  onChange={onChangeEnvVar}
+                />
               ))}
             </SortableContext>
-            <DragOverlay>{activeItem && <EnvVarCard env={activeItem} isDragging />}</DragOverlay>
+            <DragOverlay>{activeItem && <EnvVarCard env={activeItem} keys={[]} isDragging />}</DragOverlay>
           </DndContext>
         </Box>
         <Box px="32" py="24">
