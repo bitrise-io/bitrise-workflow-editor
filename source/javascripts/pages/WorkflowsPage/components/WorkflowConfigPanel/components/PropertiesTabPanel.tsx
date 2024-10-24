@@ -1,7 +1,7 @@
 import { Input, TabPanel, Textarea } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import WorkflowService from '@/core/models/WorkflowService';
-import { FormValues, WorkflowConfigTab } from '../WorkflowConfigPanel.types';
+import { FormValues } from '../WorkflowConfigPanel.types';
 
 const PropertiesTabPanel = () => {
   const {
@@ -10,7 +10,7 @@ const PropertiesTabPanel = () => {
   } = useFormContext<FormValues>();
 
   return (
-    <TabPanel id={WorkflowConfigTab.PROPERTIES} display="flex" flexDir="column" gap="24" p="24">
+    <TabPanel display="flex" flexDir="column" gap="24" p="24">
       <Input
         isRequired
         label="Name"

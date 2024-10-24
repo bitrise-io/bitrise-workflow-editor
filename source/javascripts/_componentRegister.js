@@ -157,7 +157,6 @@ angular
     'rStepConfig',
     register(StepConfigPanel, [
       'step',
-      'tabId',
       'environmentVariables',
       'secrets',
       'resolvedVersion',
@@ -168,7 +167,6 @@ angular
       'onChange',
       'onClone',
       'onRemove',
-      'onChangeTabId',
       'onCreateSecret',
       'onLoadSecrets',
       'onCreateEnvVar',

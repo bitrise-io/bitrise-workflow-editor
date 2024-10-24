@@ -12,7 +12,6 @@ import WorkflowConfigProvider from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
-import { WorkflowConfigTab } from './WorkflowConfig.types';
 
 type Props = UseDisclosureProps & {
   workflowId: string;
@@ -51,10 +50,10 @@ const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 
 
           <DrawerBody p="24" flex="1" overflowY="auto">
             <TabPanels>
-              <TabPanel id={WorkflowConfigTab.CONFIGURATION}>
+              <TabPanel>
                 <ConfigurationTab />
               </TabPanel>
-              <TabPanel id={WorkflowConfigTab.PROPERTIES}>
+              <TabPanel>
                 <PropertiesTab variant="drawer" />
               </TabPanel>
             </TabPanels>

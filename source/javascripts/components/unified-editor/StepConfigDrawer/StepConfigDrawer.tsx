@@ -105,22 +105,22 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
             </Box>
             <Box position="relative" mt="8">
               <TabList paddingX="8">
-                <Tab id="configuration">Configuration</Tab>
-                <Tab id="properties">Properties</Tab>
-                {stepHasOutputVariables && <Tab id="output-variables">Output variables</Tab>}
+                <Tab>Configuration</Tab>
+                <Tab>Properties</Tab>
+                {stepHasOutputVariables && <Tab>Output variables</Tab>}
               </TabList>
             </Box>
           </DrawerHeader>
           <DrawerBody p="16" flex="1" overflowY="auto">
             <TabPanels>
-              <TabPanel id="configuration">
+              <TabPanel>
                 <ConfigurationTab />
               </TabPanel>
-              <TabPanel id="properties">
+              <TabPanel>
                 <PropertiesTab />
               </TabPanel>
               {stepHasOutputVariables && (
-                <TabPanel id="output-variables">
+                <TabPanel>
                   <OutputVariablesTab />
                 </TabPanel>
               )}

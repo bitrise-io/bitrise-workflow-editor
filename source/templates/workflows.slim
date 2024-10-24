@@ -59,7 +59,6 @@
             .ins-sec[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertSecretCtrl"]
               div[ng-if="!workflowsCtrl.selectedStep.isStepBundle() && !workflowsCtrl.selectedStep.isWithBlock()"]
                 r-step-config[
-                  tab-id="workflowsCtrl.tabId"
                   step="workflowsCtrl.selectedStep"
                   secrets="insertSecretCtrl.insertableVariablesForReact"
                   environment-variables="insertVariableCtrl.insertableVariablesForReact"
@@ -68,7 +67,6 @@
                   versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
                   input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
                   output-variables="workflowsCtrl.outputVariables"
-                  on-change-tab-id="workflowsCtrl.setTabId"
                   on-clone="workflowsCtrl.cloneSelectedStep"
                   on-remove="workflowsCtrl.deleteSelectedStep"
                   on-change="workflowsCtrl.handleSelectedStepChanges"

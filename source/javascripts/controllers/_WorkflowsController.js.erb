@@ -935,16 +935,6 @@ import WindowUtils from "@/core/utils/WindowUtils";
         safeDigest($scope);
       };
 
-      // Keep configuration panel Tabs state on version change.
-      viewModel.tabId = undefined;
-      viewModel.setTabId = (tabId) => {
-        viewModel.tabId = tabId;
-        safeDigest($scope);
-      };
-      $scope.$watch(() => viewModel.selectedStep, () => {
-        viewModel.setTabId(undefined);
-      });
-
       // New workflow config panel related stuffs...
       viewModel.editedWorkflowConfigForReact = {};
       viewModel.editedWorkflowConfigForReactChanged = (data) => {
