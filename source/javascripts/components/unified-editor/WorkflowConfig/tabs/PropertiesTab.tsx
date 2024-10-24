@@ -35,6 +35,7 @@ const NameInput = ({ variant }: Props) => {
   const [, setSelectedWorkflow] = useSelectedWorkflow();
   const { openWorkflowConfigDrawer } = useWorkflowsPageStore();
 
+  // TODO maybe useEditable hook from Chakra UI
   const [editable, updateEditable] = useReducer<Reducer<State, Partial<State>>>(
     (state, partial) => ({ ...state, ...partial }),
     {
@@ -123,13 +124,14 @@ const NameInput = ({ variant }: Props) => {
       value={editable.value}
       onChange={handleChange}
       onKeyDown={handleKeyPress}
-      inputRef={(ref: HTMLInputElement) => ref?.setAttribute('data-1p-ignore', '')}
+      onBlur={handleCommit}
+      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
       errorText={editable.validationResult === true ? undefined : editable.validationResult}
       rightAddonPlacement="inside"
       rightAddon={
         <Box p="4">
           {editable.isEditing ? (
-            <ButtonGroup justifyContent="center">
+            <ButtonGroup justifyContent="center" spacing="0">
               <IconButton
                 size="md"
                 variant="tertiary"
