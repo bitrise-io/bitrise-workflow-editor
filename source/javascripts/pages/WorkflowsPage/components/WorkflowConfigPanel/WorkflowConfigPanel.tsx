@@ -6,7 +6,7 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import WindowUtils from '@/core/utils/WindowUtils';
 import Header from './components/Header';
-import { FormValues, WorkflowConfigTab } from './WorkflowConfigPanel.types';
+import { FormValues } from './WorkflowConfigPanel.types';
 import PropertiesTabPanel from './components/PropertiesTabPanel';
 import ConfigurationTabPanel from './components/ConfigurationTabPanel';
 
@@ -50,8 +50,8 @@ const WorkflowConfigPanel = ({ appSlug = WindowUtils.appSlug() || undefined, yml
         </BitriseYmlProvider>
         <Tabs>
           <TabList px="8">
-            <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
-            <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
+            <Tab>Configuration</Tab>
+            <Tab>Properties</Tab>
           </TabList>
           <TabPanels>
             <ConfigurationTabPanel />
