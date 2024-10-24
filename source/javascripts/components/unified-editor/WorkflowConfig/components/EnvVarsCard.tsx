@@ -22,24 +22,10 @@ function getEnvKeysWithout(envs: SortableEnvVar[], uniqueId: string): string[] {
 }
 
 function countValidationErrors(envs: SortableEnvVar[]) {
-  const seenKeys = new Set();
-
   return envs.reduce((acc, env) => {
-    const isDuplicate = seenKeys.has(env.key);
-    const keyError = EnvVarService.validateKey(env.key, getEnvKeysWithout(envs, env.uniqueId));
-    const valueError = EnvVarService.validateValue(env.value);
-    seenKeys.add(env.key);
-
-    return acc + (keyError !== true && !isDuplicate ? 1 : 0) + (valueError !== true ? 1 : 0);
+    const keyError = EnvVarService.validateKey(env.key);
+    return acc + (keyError !== true ? 1 : 0);
   }, 0);
-}
-
-function hasValidationErrors(envs: SortableEnvVar[]) {
-  return envs.some(
-    (env) =>
-      EnvVarService.validateKey(env.key, getEnvKeysWithout(envs, env.uniqueId)) !== true ||
-      EnvVarService.validateValue(env.value) !== true,
-  );
 }
 
 function mapYmlEnvVarsToSortableEnvVars(envs?: EnvVarYml[], workflowId?: string): SortableEnvVar[] {
@@ -72,28 +58,23 @@ type EnvVarCardProps = {
   onChange?: (env: SortableEnvVar) => void;
 };
 
-const EnvVarCard = ({ env, keys, isDragging, onRemove, onChange }: EnvVarCardProps) => {
+const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) => {
   const sortable = useSortable({ id: env.uniqueId, data: env });
 
   const [errors, setErrors] = useState({
-    key: EnvVarService.validateKey(env.key, keys),
-    value: EnvVarService.validateValue(env.value),
+    key: EnvVarService.validateKey(env.key),
   });
 
   const handleKeyChange = (key: string) => {
     onChange?.({ ...env, key });
     setErrors((oldErrors) => ({
       ...oldErrors,
-      key: EnvVarService.validateKey(key, keys),
+      key: EnvVarService.validateKey(key),
     }));
   };
 
   const handleValueChange = (value: string) => {
     onChange?.({ ...env, value });
-    setErrors((oldErrors) => ({
-      ...oldErrors,
-      value: EnvVarService.validateValue(value),
-    }));
   };
 
   return (
@@ -150,7 +131,6 @@ const EnvVarCard = ({ env, keys, isDragging, onRemove, onChange }: EnvVarCardPro
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
             onChange={(e) => handleValueChange(e.target.value)}
-            errorText={errors.value !== true ? errors.value : undefined}
           />
           <ControlButton
             isDanger
@@ -199,10 +179,7 @@ const EnvVarsCard = () => {
         const currentOverIndex = oldEnvs.findIndex(({ uniqueId }) => uniqueId === overId);
         const currentActiveIndex = oldEnvs.findIndex(({ uniqueId }) => uniqueId === activeId);
         const newEnvVars = arrayMove(oldEnvs, currentActiveIndex, currentOverIndex);
-
-        if (!hasValidationErrors(newEnvVars)) {
-          updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
-        }
+        updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
 
         return newEnvVars;
       });
@@ -231,10 +208,7 @@ const EnvVarsCard = () => {
   const onRemoveEnvVar = (uniqueId: string) => {
     setEnvs((oldEnvVars) => {
       const newEnvVars = oldEnvVars.filter((env) => env.uniqueId !== uniqueId);
-
-      if (!hasValidationErrors(newEnvVars)) {
-        updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
-      }
+      updateWorkflowEnvVars(workflow?.id || '', newEnvVars);
 
       return newEnvVars;
     });
@@ -243,11 +217,7 @@ const EnvVarsCard = () => {
   const onChangeEnvVar = (env: SortableEnvVar) => {
     setEnvs((oldEnvVars) => {
       const newEnvVars = oldEnvVars.map((oldEnvVar) => (oldEnvVar.uniqueId === env.uniqueId ? env : oldEnvVar));
-
-      if (!hasValidationErrors(newEnvVars)) {
-        debouncedUpdateWorkflows(workflow?.id || '', newEnvVars);
-      }
-
+      debouncedUpdateWorkflows(workflow?.id || '', newEnvVars);
       return newEnvVars;
     });
   };
