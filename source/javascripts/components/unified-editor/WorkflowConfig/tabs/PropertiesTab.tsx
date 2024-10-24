@@ -1,16 +1,32 @@
-import { ChangeEventHandler, useEffect, useState } from 'react';
-import { Box, Input, Textarea } from '@bitrise/bitkit';
+import {
+  ChangeEvent,
+  ChangeEventHandler,
+  KeyboardEvent,
+  Reducer,
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
+import { Box, ButtonGroup, IconButton, Input, Textarea } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
-import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store'; // NOTE: this should be in a different folder
 import { useWorkflows } from '@/hooks/useWorkflows';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-import useRenameWorkflow from '../hooks/useRenameWorkflow';
 
 type Props = {
   variant: 'panel' | 'drawer';
+};
+
+type State = {
+  isEditing: boolean;
+  value: string;
+  committedValue: string;
+  validationResult: boolean | string;
 };
 
 const NameInput = ({ variant }: Props) => {
@@ -19,10 +35,36 @@ const NameInput = ({ variant }: Props) => {
   const [, setSelectedWorkflow] = useSelectedWorkflow();
   const { openWorkflowConfigDrawer } = useWorkflowsPageStore();
 
-  const [value, setValue] = useState(workflow?.id || '');
-  const [error, setError] = useState(WorkflowService.validateName(workflow?.id || '', workflowNames));
+  // TODO maybe useEditable hook from Chakra UI
+  const [editable, updateEditable] = useReducer<Reducer<State, Partial<State>>>(
+    (state, partial) => ({ ...state, ...partial }),
+    {
+      isEditing: false,
+      value: workflow?.id || '',
+      committedValue: workflow?.id || '',
+      validationResult: WorkflowService.validateName(workflow?.id || '', workflowNames),
+    },
+  );
 
-  const renameWorkflow = useRenameWorkflow((newWorkflowId) => {
+  const handleEdit = useCallback(() => {
+    updateEditable({ isEditing: true });
+  }, []);
+
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const value = WorkflowService.sanitizeName(e.target.value);
+      const validationResult = WorkflowService.validateName(value, workflowNames);
+      updateEditable({ value, validationResult });
+    },
+    [workflowNames],
+  );
+
+  const handleCancel = useCallback(() => {
+    const value = editable.committedValue;
+    updateEditable({ value, isEditing: false, validationResult: true });
+  }, [editable.committedValue]);
+
+  const performRename = useRenameWorkflow((newWorkflowId: string) => {
     if (variant === 'panel') {
       setSelectedWorkflow(newWorkflowId);
     }
@@ -32,37 +74,79 @@ const NameInput = ({ variant }: Props) => {
     }
   });
 
-  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValue(() => {
-      const sanitized = WorkflowService.sanitizeName(e.target.value);
-      const validationError = WorkflowService.validateName(sanitized, workflowNames);
+  const handleCommit = useCallback(() => {
+    if (editable.validationResult !== true) {
+      return;
+    }
 
-      if (validationError === true) {
-        renameWorkflow(sanitized);
-      } else {
-        setError(validationError);
+    const committedValue = editable.value;
+    performRename(committedValue);
+    updateEditable({ committedValue, isEditing: false });
+  }, [editable.value, performRename, editable.validationResult]);
+
+  const handleKeyPress = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (editable.isEditing) {
+        e.stopPropagation();
       }
 
-      return sanitized;
-    });
-  };
+      if (e.key === 'Enter') {
+        if (editable.isEditing) {
+          handleCommit();
+        } else {
+          handleEdit();
+        }
+      }
+
+      if (e.key === 'Escape') {
+        handleCancel();
+      }
+    },
+    [editable.isEditing, handleCancel, handleCommit, handleEdit],
+  );
 
   useEffect(() => {
     if (workflow?.id) {
-      setValue(workflow.id);
-      setError(WorkflowService.validateName(workflow.id, workflowNames));
+      updateEditable({
+        value: workflow.id,
+        committedValue: workflow.id,
+        validationResult: WorkflowService.validateName(workflow.id, workflowNames),
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflow?.id]);
 
   return (
     <Input
-      isRequired
       label="Name"
-      value={value}
-      onChange={onChange}
-      errorText={error === true ? undefined : error}
+      isRequired
+      isReadOnly={!editable.isEditing}
+      value={editable.value}
+      onChange={handleChange}
+      onKeyDown={handleKeyPress}
+      onBlur={handleCommit}
       inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+      errorText={editable.validationResult === true ? undefined : editable.validationResult}
+      rightAddonPlacement="inside"
+      rightAddon={
+        <Box p="4">
+          {editable.isEditing ? (
+            <ButtonGroup justifyContent="center" spacing="0">
+              <IconButton
+                size="md"
+                variant="tertiary"
+                aria-label="Change"
+                iconName="Check"
+                isDisabled={editable.validationResult !== true}
+                onClick={handleCommit}
+              />
+              <IconButton size="md" variant="tertiary" aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
+            </ButtonGroup>
+          ) : (
+            <IconButton size="md" variant="tertiary" aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
+          )}
+        </Box>
+      }
     />
   );
 };
@@ -82,9 +166,11 @@ const PropertiesTab = ({ variant }: Props) => {
     debouncedUpdateWorkflow(workflow?.id || '', { summary: e.target.value });
   };
 
-  const onDescrptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+  const onDescriptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, description: e.target.value }));
-    debouncedUpdateWorkflow(workflow?.id || '', { description: e.target.value });
+    debouncedUpdateWorkflow(workflow?.id || '', {
+      description: e.target.value,
+    });
   };
 
   useEffect(() => {
@@ -98,7 +184,7 @@ const PropertiesTab = ({ variant }: Props) => {
     <Box gap="24" display="flex" flexDir="column">
       <NameInput variant={variant} />
       <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
-      <Textarea label="Description" value={description} onChange={onDescrptionChange} />
+      <Textarea label="Description" value={description} onChange={onDescriptionChange} />
     </Box>
   );
 };
