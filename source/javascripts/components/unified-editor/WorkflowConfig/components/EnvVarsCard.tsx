@@ -239,8 +239,12 @@ const EnvVarsCard = () => {
   }, []);
 
   return (
-    <ExpandableCard buttonContent={<ButtonContent numberOfErrors={countValidationErrors(envs)} />}>
-      <Box m="-16" width="auto">
+    <ExpandableCard
+      padding="24px"
+      buttonPadding="16px 24px"
+      buttonContent={<ButtonContent numberOfErrors={countValidationErrors(envs)} />}
+    >
+      <Box m="-24px" width="auto">
         <Box>
           <DndContext
             onDragEnd={onDragEnd}
@@ -262,7 +266,7 @@ const EnvVarsCard = () => {
             <DragOverlay>{activeItem && <EnvVarCard env={activeItem} keys={[]} isDragging />}</DragOverlay>
           </DndContext>
         </Box>
-        <Box px="32" py="24">
+        <Box p="24">
           <Button size="md" variant="secondary" leftIconName="PlusCircle" onClick={onAddNewEnvVarClick}>
             Add new
           </Button>

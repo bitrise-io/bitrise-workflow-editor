@@ -11,7 +11,7 @@ type ButtonContentProps = {
 };
 const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentProps) => {
   return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" mr="16" minW={0}>
+    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minW={0}>
       <Box display="flex" flexDir="column" alignItems="flex-start" minW={0}>
         <Text textStyle="body/lg/semibold">Stack & Machine</Text>
         <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
@@ -19,7 +19,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
         </Text>
       </Box>
       {isDefault && (
-        <Badge variant="subtle" colorScheme="info">
+        <Badge variant="subtle" colorScheme="info" mr="16">
           Default
         </Badge>
       )}
@@ -52,6 +52,8 @@ const StackAndMachineCard = () => {
 
   return (
     <ExpandableCard
+      padding="24px"
+      buttonPadding="16px 24px"
       buttonContent={
         <ButtonContent
           isDefault={isDefault}
