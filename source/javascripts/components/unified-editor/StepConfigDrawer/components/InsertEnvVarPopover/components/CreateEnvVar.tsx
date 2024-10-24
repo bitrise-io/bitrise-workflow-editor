@@ -11,7 +11,7 @@ type Props = {
   onCancel: VoidFunction;
 };
 
-const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
+const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
   const {
     register,
     formState: { errors },
@@ -43,11 +43,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.key?.message}
             {...register('key', {
-              validate: (v) =>
-                EnvVarService.validateKey(
-                  v,
-                  items.map((item) => item.key),
-                ),
+              validate: EnvVarService.validateKey,
             })}
           />
           <Text pt="12">=</Text>
@@ -56,9 +52,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter value"
             formControlProps={{ flex: '1' }}
             errorText={errors.value?.message}
-            {...register('value', {
-              validate: (v) => EnvVarService.validateValue(v),
-            })}
+            {...register('value')}
           />
         </Box>
         <Checkbox isRequired={false} {...register('isExpand')} marginTop="16">

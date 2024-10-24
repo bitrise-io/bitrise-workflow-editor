@@ -35,11 +35,8 @@ const ButtonContent = () => {
 const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
   const {
     register,
-    watch,
     formState: { errors },
   } = useFormContext<FormValues>();
-
-  const envVars = watch('configuration.envs').filter((_, idx) => idx !== index);
 
   const { attributes, listeners, active, transform, transition, setNodeRef, setActivatorNodeRef } = useSortable({ id });
 
@@ -81,11 +78,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.configuration?.envs?.[index]?.key?.message}
             {...register(`configuration.envs.${index}.key`, {
-              validate: (v) =>
-                EnvVarService.validateKey(
-                  v,
-                  envVars.map((env) => env.key),
-                ),
+              validate: EnvVarService.validateKey,
             })}
           />
           <Text color="text/tertiary" pt="8">
@@ -97,7 +90,6 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             formControlProps={{ flex: 1 }}
             errorText={errors.configuration?.envs?.[index]?.value?.message}
             {...register(`configuration.envs.${index}.value`, {
-              validate: (v) => EnvVarService.validateValue(v),
               setValueAs: String,
             })}
           />
