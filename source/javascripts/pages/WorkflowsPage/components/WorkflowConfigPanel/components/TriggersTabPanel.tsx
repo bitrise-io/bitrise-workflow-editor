@@ -25,6 +25,7 @@ import {
   TargetBasedTriggers,
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '@/pages/TriggersPage/components/TargetBasedTriggers/AddTrigger';
+import { segmentTrack } from '../../../../../utils/segmentTracking';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
@@ -146,6 +147,10 @@ const TriggersTabPanel = () => {
     } else {
       delete triggers[type][index].enabled;
     }
+    segmentTrack('Workflow Editor Enable Trigger Toggled', {
+      is_selected_trigger_enabled: !triggerDisabled,
+      trigger_origin: 'workflow_triggers',
+    });
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
@@ -164,6 +169,13 @@ const TriggersTabPanel = () => {
     }
     setTriggerType(undefined);
     setEditedItem(undefined);
+  };
+
+  const onToggleChange = () => {
+    segmentTrack('Workflow Editor Enable Target Based Triggers Toggled', {
+      is_target_based_triggers_enabled: triggers.enabled !== false,
+    });
+    updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
   };
 
   return (
@@ -203,7 +215,7 @@ const TriggersTabPanel = () => {
             helperText="When disabled and saved, none of the triggers below will execute a build."
             isChecked={triggers.enabled !== false}
             onChange={() => {
-              updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
+              onToggleChange();
             }}
           />
         </Card>
