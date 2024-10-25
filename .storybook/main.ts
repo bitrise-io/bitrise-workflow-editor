@@ -1,5 +1,8 @@
-import type { StorybookConfig } from "@storybook/react-webpack5";
 import path from "path";
+import YAML from "yaml";
+import { readFileSync } from "fs";
+import { DefinePlugin, webpack } from "webpack";
+import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const config: StorybookConfig = {
   stories: ["../source/**/*.stories.tsx"],
@@ -59,6 +62,15 @@ const config: StorybookConfig = {
         "@": path.resolve(__dirname, "../source/javascripts"),
       },
     };
+
+    const testBitriseYmlFile = path.resolve(__dirname, "..", "spec", "integration", "test_bitrise.yml")
+    config.plugins?.push(
+      new DefinePlugin({
+        TEST_BITRISE_YML: DefinePlugin.runtimeValue(() => JSON.stringify(YAML.parse(readFileSync(testBitriseYmlFile, "utf8"))), {
+          fileDependencies: [testBitriseYmlFile],
+        }),
+      })
+    )
 
     return config;
   },

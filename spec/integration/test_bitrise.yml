@@ -40,6 +40,12 @@ pipelines:
       - st3: { }
       - st2: { }
       - st1: { }
+  graph-pipeline: 
+    workflows:
+      - wf1: { }
+      - wf2: { depends_on: [wf1] }
+      - wf3: { depends_on: [wf1] }
+      - wf4: { depends_on: [wf2, wf3] }
 stages:
   st1:
     workflows:

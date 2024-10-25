@@ -44,6 +44,13 @@ module.exports = {
     '@typescript-eslint/ban-types': ['warn', { types: { '{}': false }, extendDefaults: true }],
     'react/no-unescaped-entities': ['error', { forbid: ['>', '"', '}'] }],
     'testing-library/await-async-queries': 'off',
+    'no-restricted-globals': [
+      'error',
+      {
+        name: 'TEST_BITRISE_YML',
+        message: 'Do not use TEST_BITRISE_YML outside of storybook, spec or mock files.',
+      },
+    ],
   },
   overrides: [
     {
@@ -63,6 +70,12 @@ module.exports = {
       files: ['*.spec.{ts,tsx}'],
       rules: {
         'testing-library/await-async-queries': 'error',
+      },
+    },
+    {
+      files: ['*.spec.{ts,tsx}', '*.stories.tsx', '*.mocks.ts', '*.mswMocks.ts'],
+      rules: {
+        'no-restricted-globals': 'off',
       },
     },
     {
