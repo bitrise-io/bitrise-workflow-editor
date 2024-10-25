@@ -5,7 +5,7 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
-import PipelinesEmptyState from './components/PipelinesEmptyState';
+import StagePipelineEmptyState from './components/StagePipelineEmptyState';
 
 type Props = {
   yml: BitriseYml;
@@ -22,7 +22,7 @@ const PipelinesPage = ({ yml }: Props) => {
     <BitriseYmlProvider yml={yml}>
       <Box display="flex" flexDir="column" h="100%">
         <PipelinesHeader />
-        {hasPipelines ? <PipelinesCanvas /> : <PipelinesEmptyState />}
+        {hasPipelines ? <PipelinesCanvas /> : <StagePipelineEmptyState />}
       </Box>
     </BitriseYmlProvider>
   );

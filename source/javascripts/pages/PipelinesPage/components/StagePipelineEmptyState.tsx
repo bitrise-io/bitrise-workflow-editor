@@ -1,7 +1,7 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
 import useNavigation from '@/hooks/useNavigation';
 
-const PipelinesEmptyState = () => {
+const StagePipelineEmptyState = () => {
   const { replace } = useNavigation();
 
   return (
@@ -18,4 +18,4 @@ const PipelinesEmptyState = () => {
   );
 };
 
-export default PipelinesEmptyState;
+export default StagePipelineEmptyState;
