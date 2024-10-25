@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import {
   getCertificates,
@@ -67,11 +67,25 @@ export const CliMode: Story = {
   ...cliStory,
 };
 
-export const WebsiteMode: Story = {};
+export const WebsiteMode: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        StepApiMocks.getLocalStep({ status: 'success' }),
+        getSecrets(),
+        getDefaultOutputs(),
+        getStacksAndMachines(),
+      ],
+    },
+  },
+};
 
 export const UniqueStepLimit: Story = {
   beforeEach: () => {
-    window.parent.pageProps = { ...window.parent.pageProps, limits: { uniqueStepLimit: 17 } };
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      limits: { uniqueStepLimit: 17 },
+    };
   },
 };
 

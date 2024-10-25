@@ -347,11 +347,6 @@
         const appLevelSecrets = appService.secrets.filter((s) => s.scope() !== 'workspace');
 
         return validateVariables(appLevelSecrets, true, true)
-          //          .then(function () {
-          //            if (!skipRequest) {
-          //              return requestService.postSecrets(appLevelSecrets);
-          //            }
-          //          })
           .then(function () {
             _.each(appService.secrets, appServiceUtil.handleSecretAfterSave);
             appService.savedSecrets = angular.copy(appService.secrets);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
 import { Secret } from '@/core/models/Secret';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
@@ -20,6 +20,15 @@ const SecretsPage = (props: SecretsPageProps) => {
   const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
   const { data: secrets = [] } = useSecrets({ appSlug });
 
+  useEffect(() => {
+    setWorkspaceSecretList(secrets.filter((secret) => secret.isShared));
+    setAppSecretList(secrets.filter((secret) => !secret.isShared));
+  }, [secrets, onSecretsChange]);
+
+  useEffect(() => {
+    onSecretsChange([...workspaceSecretList, ...appSecretList]);
+  }, [workspaceSecretList, appSecretList, onSecretsChange]);
+
   const {
     mutate: deleteSecret,
     isError: deleteError,
@@ -30,76 +39,52 @@ const SecretsPage = (props: SecretsPageProps) => {
     options: {
       onSuccess: (_, key) => {
         resetDelete();
-        afterDelete(key);
+        setDeleteId(null);
+        setAppSecretList((items) => items.filter((secret) => secret.key !== key));
       },
     },
   });
 
-  useEffect(() => {
-    setWorkspaceSecretList(
-      secrets
-        .filter((secret) => secret.isShared)
-        .map((secret) => ({
+  const handleEdit = useCallback(
+    (id?: string | undefined) => () => {
+      setAppSecretList((items) =>
+        items?.map((secret) => ({
           ...secret,
-          isEditing: false,
-          isSaved: true,
+          isEditing: secret.key === id,
         })),
-    );
+      );
+    },
+    [],
+  );
 
-    setAppSecretList(
-      secrets.filter((secret) => !secret.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
-    );
-
-    onSecretsChange(secrets);
-  }, [onSecretsChange, secrets]);
-
-  const handleEdit = (id?: string | undefined) => () => {
+  const handleCancel = useCallback(() => {
     setAppSecretList((items) =>
-      items?.map((secret) => ({
-        ...secret,
-        isEditing: secret.key === id,
-      })),
+      items.filter((secret) => secret.isSaved).map((secret) => ({ ...secret, isEditing: false })),
     );
-  };
+  }, []);
 
-  const handleCancel = () => {
-    const newSecretList = appSecretList
-      .filter((secret) => secret.isSaved)
-      .map((secret) => {
-        return { ...secret, isEditing: false };
-      });
+  const handleDelete = useCallback(
+    (id: string | null) => {
+      if (id) {
+        deleteSecret(id);
+      }
+    },
+    [deleteSecret],
+  );
 
-    setAppSecretList(newSecretList);
-  };
+  const handleSave = useCallback((changedSecret: Secret) => {
+    setAppSecretList((items) =>
+      items.map((secret) =>
+        !secret.isSaved || secret.key === changedSecret.key
+          ? { ...changedSecret, isEditing: false, isSaved: true }
+          : secret,
+      ),
+    );
+  }, []);
 
-  const handleDelete = (id: string | null) => {
-    if (id) {
-      deleteSecret(id);
-    }
-  };
-
-  const afterDelete = (id: string | null) => {
-    const newAppSecretList = appSecretList.filter((secret) => secret.key !== id);
-
-    setAppSecretList(newAppSecretList);
-    onSecretsChange([...workspaceSecretList, ...newAppSecretList]);
-    setDeleteId(null);
-  };
-
-  const handleSave = (changedSecret: Secret) => {
-    const newAppSecretList = appSecretList.map((secret) => {
-      return !secret.isSaved || secret.key === changedSecret.key
-        ? { ...changedSecret, isEditing: false, isSaved: true }
-        : secret;
-    });
-
-    setAppSecretList(newAppSecretList);
-    onSecretsChange([...workspaceSecretList, ...newAppSecretList]);
-  };
-
-  const onAddClick = () => {
-    setAppSecretList([
-      ...appSecretList,
+  const onAddClick = useCallback(() => {
+    setAppSecretList((items) => [
+      ...items,
       {
         key: '',
         value: '',
@@ -112,7 +97,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         isSaved: false,
       },
     ]);
-  };
+  }, []);
 
   const sharedSecretsBlock = () => {
     if (!sharedSecretsAvailable) {

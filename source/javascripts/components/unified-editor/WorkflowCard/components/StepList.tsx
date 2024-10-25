@@ -122,16 +122,11 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
 
             return (
               <Fragment key={item.stepIndex}>
-                <AddStepButton
-                  my={-8}
-                  zIndex={10}
-                  onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))}
-                />
+                <AddStepButton my={-8} onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))} />
                 <StepCard {...item} isSortable actions={actions} />
                 {isLast && (
                   <AddStepButton
                     my={-8}
-                    zIndex={10}
                     onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex + 1))}
                   />
                 )}

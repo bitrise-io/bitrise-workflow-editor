@@ -1,4 +1,4 @@
-import { safeDigest } from "@/services/react-compat";
+import {safeDigest} from "@/services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 import VersionUtils from "@/core/utils/VersionUtils";
 import {
@@ -207,7 +207,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
       }
 
       viewModel.createReactWorkflow = (workflowId, baseWorkflowId) => {
-        const baseWorkflow = viewModel.workflows?.find(({ id }) => id === baseWorkflowId);
+        const baseWorkflow = viewModel.workflows?.find(({id}) => id === baseWorkflowId);
         const createdWorkflow = new Workflow(workflowId, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
 
         viewModel.workflows = [...viewModel.workflows, createdWorkflow];
@@ -904,7 +904,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
       };
 
       viewModel.saveEnvVarFromReact = function (envVar) {
-        const variable = new Variable({ [envVar.key]: envVar.value }, Variable.defaultVariableConfig());
+        const variable = new Variable({[envVar.key]: envVar.value}, Variable.defaultVariableConfig());
 
         variable.isExpand(envVar.isExpand);
 
@@ -921,13 +921,12 @@ import WindowUtils from "@/core/utils/WindowUtils";
       };
 
       viewModel.saveSecretFromReact = function (secret) {
-        const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
+        const variable = new Variable({[secret.key]: secret.value}, Variable.defaultVariableConfig());
 
         variable.isExpose(secret.isExpose);
         variable.isExpand(secret.isExpand);
 
         appService.secrets.push(variable);
-        appService.saveSecrets();
       };
 
       viewModel.closeReactVersionChangeDialog = () => {
@@ -950,8 +949,8 @@ import WindowUtils from "@/core/utils/WindowUtils";
           viewModel.editedWorkflow.machineType(undefined, newMachineType);
         }
 
-        viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
-          return { [key]: EnvVarService.toYmlValue(value), opts: { is_expand } };
+        viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
+          return {[key]: EnvVarService.toYmlValue(value), opts: {is_expand}};
         }));
 
         if (viewModel.editedWorkflow.id !== data.workflowId) {
@@ -976,11 +975,11 @@ import WindowUtils from "@/core/utils/WindowUtils";
             configuration: {
               stackId: stack?.id || '',
               machineTypeId: machineType?.id || '',
-              envs: viewModel.editedWorkflow.envs()?.map(({ opts, ...env }) => {
+              envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
 
-                return { key, value, isExpand };
+                return {key, value, isExpand};
               })
             },
             properties: {

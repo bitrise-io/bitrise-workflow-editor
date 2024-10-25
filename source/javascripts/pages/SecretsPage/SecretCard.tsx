@@ -21,7 +21,6 @@ import {
 } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
-import { useQueryClient } from '@tanstack/react-query';
 import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
 import { Secret } from '@/core/models/Secret';
 
@@ -42,7 +41,6 @@ const SecretCard = (props: SecretCardProps) => {
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
 
-  const queryClient = useQueryClient();
   const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
     appSlug,
     secretKey: secret.key,
@@ -60,9 +58,6 @@ const SecretCard = (props: SecretCardProps) => {
       onSuccess(newSecret) {
         resetSave();
         onSave(newSecret);
-        queryClient.invalidateQueries({
-          queryKey: ['app', appSlug, 'secret', secret.key],
-        });
       },
     },
   });
