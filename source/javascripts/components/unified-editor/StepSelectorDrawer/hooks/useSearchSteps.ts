@@ -6,6 +6,7 @@ import { useAlgoliaSteps } from '@/hooks/useAlgolia';
 import { Step } from '@/core/models/Step';
 import { StepApiResult } from '@/core/api/StepApi';
 import { SearchFormValues } from '../StepSelectorDrawer.types';
+import { compareByPriority } from '../StepSelectorDrawer.utils';
 
 const useSearchSteps = ({ search, categories }: SearchFormValues) => {
   const { data: steps = [], isLoading, isError, refetch } = useAlgoliaSteps();
@@ -61,7 +62,10 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
         const results = index.search<StepApiResult>({
           $and: expressions,
         });
-        items = results.map((result) => result.item);
+        items = results
+          .map((result) => result.item)
+          .filter((item) => !item?.resolvedInfo.isDeprecated)
+          .sort(compareByPriority);
       }
 
       return items;
