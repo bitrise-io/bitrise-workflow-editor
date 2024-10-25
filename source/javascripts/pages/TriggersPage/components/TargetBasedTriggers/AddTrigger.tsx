@@ -96,18 +96,21 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   const handleSegmentTrack = () => {
-    if (!editedItem) {
-      const triggerConditions: Record<string, any> = {};
-      conditions.forEach((condition) => {
-        triggerConditions[condition.type || ''] = condition.value;
-      });
-      segmentTrack('Workflow Editor Add Trigger Button Clicked', {
+    const triggerConditions: Record<string, any> = {};
+    conditions.forEach((condition) => {
+      triggerConditions[condition.type || ''] = condition.value;
+    });
+    segmentTrack(
+      editedItem
+        ? 'Workflow Editor Apply Trigger Changes Button Clicked'
+        : 'Workflow Editor Add Trigger Button Clicked',
+      {
         ...trackingData,
         build_trigger_type: triggerType,
         trigger_conditions: triggerConditions,
         trigger_origin: 'workflow_triggers',
-      });
-    }
+      },
+    );
   };
 
   let isSameTriggerExist = false;

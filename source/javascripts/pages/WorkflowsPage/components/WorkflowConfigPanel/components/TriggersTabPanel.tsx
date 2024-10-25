@@ -171,7 +171,8 @@ const TriggersTabPanel = () => {
       ...trackingData,
       is_selected_trigger_enabled: !triggerDisabled,
       trigger_origin: 'workflow_triggers',
-      trigger_condition: trigger,
+      trigger_conditions: trigger,
+      build_trigger_type: triggerType,
     });
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
