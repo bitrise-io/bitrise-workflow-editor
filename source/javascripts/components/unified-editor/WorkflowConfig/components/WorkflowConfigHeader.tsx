@@ -4,7 +4,6 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-import { WorkflowConfigTab } from '../WorkflowConfig.types';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -43,9 +42,9 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
         )}
       </Box>
       <TabList paddingX="8" position="relative" mt="8">
-        <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
-        <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
-        {shouldShowTriggersTab && <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>}
+        <Tab>Configuration</Tab>
+        <Tab>Properties</Tab>
+        {shouldShowTriggersTab && <Tab>Triggers</Tab>}
       </TabList>
     </>
   );

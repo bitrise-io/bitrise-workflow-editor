@@ -177,9 +177,9 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
       )}
       <Tabs marginTop="24" marginBottom="24">
         <TabList>
-          <Tab id="push">Push</Tab>
-          <Tab id="pullRequest">Pull request</Tab>
-          <Tab id="tag">Tag</Tab>
+          <Tab>Push</Tab>
+          <Tab>Pull request</Tab>
+          <Tab>Tag</Tab>
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
