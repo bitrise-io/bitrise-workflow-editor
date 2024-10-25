@@ -17,7 +17,6 @@ import SecretsProvider from './components/InsertSecretPopover/SecretsProvider';
 
 type Props = {
   step: Step;
-  tabId?: string;
   inputCategories: InputCategory[];
   outputVariables: Array<StepOutputVariable>;
   hasVersionUpdate?: boolean;
@@ -26,7 +25,6 @@ type Props = {
   onClone: VoidFunction;
   onChange: OnStepChange;
   onRemove: VoidFunction;
-  onChangeTabId: (tabId?: string) => void;
   onCreateSecret: (secret: Secret) => void;
   onLoadSecrets: () => Promise<Secret[]>;
   onCreateEnvVar: (envVar: EnvVar) => void;
@@ -36,7 +34,6 @@ type Props = {
 
 const StepConfigPanel = ({
   step,
-  tabId,
   inputCategories,
   outputVariables,
   hasVersionUpdate,
@@ -45,7 +42,6 @@ const StepConfigPanel = ({
   onClone,
   onChange,
   onRemove,
-  onChangeTabId,
   onCreateSecret: onCreateSecretAngular,
   onLoadSecrets,
   onCreateEnvVar,
@@ -140,17 +136,17 @@ const StepConfigPanel = ({
             </ButtonGroup>
           </Box>
 
-          <Tabs tabId={tabId} onChange={(_, newTabId) => onChangeTabId(newTabId)}>
+          <Tabs>
             <TabList paddingX="8">
-              <Tab id="configuration">Configuration</Tab>
-              <Tab id="properties">Properties</Tab>
+              <Tab>Configuration</Tab>
+              <Tab>Properties</Tab>
               {showOutputVariables && <Tab id="output-variables">Output variables</Tab>}
             </TabList>
             <TabPanels>
-              <TabPanel id="configuration">
+              <TabPanel>
                 <StepConfiguration step={step} inputCategories={inputCategories} onChange={onChange} />
               </TabPanel>
-              <TabPanel id="properties">
+              <TabPanel>
                 <StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onChange} />
               </TabPanel>
               {showOutputVariables && (
