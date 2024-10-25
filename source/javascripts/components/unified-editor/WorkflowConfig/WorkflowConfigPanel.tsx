@@ -17,7 +17,6 @@ const WorkflowConfigPanelContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({
-    defaultId: (searchParams.get as WorkflowConfigTab) || WorkflowConfigTab.CONFIGURATION,
     tabIds: TAB_IDS,
   });
 
