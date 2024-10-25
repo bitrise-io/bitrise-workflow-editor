@@ -16,7 +16,7 @@ type AddTriggerProps = {
   labelsMap: Record<string, string>;
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
-  trackingData: Record<string, number>;
+  trackingData: Record<string, number | string | boolean>;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
@@ -97,8 +97,15 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   const handleSegmentTrack = () => {
     if (!editedItem) {
+      const triggerConditions: Record<string, any> = {};
+      conditions.forEach((condition) => {
+        triggerConditions[condition.type || ''] = condition.value;
+      });
       segmentTrack('Workflow Editor Add Trigger Button Clicked', {
         ...trackingData,
+        build_trigger_type: triggerType,
+        trigger_conditions: triggerConditions,
+        trigger_origin: 'workflow_triggers',
       });
     }
   };
