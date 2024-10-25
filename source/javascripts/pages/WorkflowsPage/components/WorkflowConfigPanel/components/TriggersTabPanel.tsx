@@ -21,6 +21,7 @@ import { TriggerType } from '@/pages/TriggersPage/components/TriggersPage/Trigge
 import TriggerConditions from '@/pages/TriggersPage/components/TargetBasedTriggers/TriggerConditions';
 import {
   getConditionList,
+  getPipelineableTriggers,
   TargetBasedTriggerItem,
   TargetBasedTriggers,
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
@@ -127,10 +128,26 @@ const TriggersTabPanel = () => {
 
   const workflow = useWorkflowConfigContext();
 
-  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore((s) => ({
+  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled, yml } = useBitriseYmlStore((s) => ({
     updateWorkflowTriggers: s.updateWorkflowTriggers,
     updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
+    yml: s.yml,
   }));
+
+  console.log('yml', yml);
+
+  const triggersInProject = getPipelineableTriggers(yml);
+  console.log('triggersInProject', triggersInProject);
+
+  const trackingData = {
+    number_of_existing_target_based_triggers_on_target: triggersInProject.filter(
+      ({ pipelineableId }) => pipelineableId === workflow?.id,
+    ).length,
+    number_of_existing_target_based_triggers_in_project: triggersInProject.length,
+    number_of_existing_trigger_map_triggers_in_project: yml.trigger_map?.length || 0,
+  };
+
+  console.log('trackingData', trackingData);
 
   const triggers: TargetBasedTriggers = deepCloneSimpleObject(
     (workflow?.userValues.triggers as TargetBasedTriggers) || {},
@@ -193,6 +210,7 @@ const TriggersTabPanel = () => {
           labelsMap={LABELS_MAP[triggerType]}
           editedItem={editedItem?.trigger}
           currentTriggers={triggers[triggerType] || []}
+          trackingData={trackingData}
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>

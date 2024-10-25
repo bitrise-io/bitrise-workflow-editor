@@ -4,6 +4,7 @@ import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import isEqual from 'lodash/isEqual';
 import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
 import { getConditionList, TargetBasedTriggerItem } from '../TriggersPage/TriggersPage.utils';
+import { segmentTrack } from '../../../../utils/segmentTracking';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
@@ -15,10 +16,21 @@ type AddTriggerProps = {
   labelsMap: Record<string, string>;
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
+  trackingData: Record<string, number>;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
+  const {
+    currentTriggers,
+    editedItem,
+    labelsMap,
+    onCancel,
+    onSubmit,
+    optionsMap,
+    triggerType,
+    workflowId,
+    trackingData,
+  } = props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -81,6 +93,14 @@ const AddTrigger = (props: AddTriggerProps) => {
     }
 
     onSubmit(newTrigger);
+  };
+
+  const handleSegmentTrack = () => {
+    if (!editedItem) {
+      segmentTrack('Workflow Editor Add Trigger Button Clicked', {
+        ...trackingData,
+      });
+    }
   };
 
   let isSameTriggerExist = false;
@@ -167,7 +187,7 @@ const AddTrigger = (props: AddTriggerProps) => {
                 : 'Please fill all conditions.'
             }
           >
-            <Button type="submit" isDisabled={isSameTriggerExist || hasEmptyCondition}>
+            <Button type="submit" onClick={handleSegmentTrack} isDisabled={isSameTriggerExist || hasEmptyCondition}>
               {editedItem ? 'Apply changes' : 'Add trigger'}
             </Button>
           </Tooltip>
