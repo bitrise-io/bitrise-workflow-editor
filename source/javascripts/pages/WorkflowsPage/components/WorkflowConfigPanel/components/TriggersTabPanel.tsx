@@ -26,7 +26,7 @@ import {
   TargetBasedTriggers,
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '@/pages/TriggersPage/components/TargetBasedTriggers/AddTrigger';
-import { segmentTrack } from '../../../../../utils/segmentTracking';
+import { segmentTrack } from '@/utils/segmentTracking';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
