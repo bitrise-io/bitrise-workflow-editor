@@ -8,7 +8,7 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { Box, ButtonGroup, ControlButton, Input, Textarea } from '@bitrise/bitkit';
+import { Box, ButtonGroup, ControlButton, Input, Link, Text, Textarea } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
@@ -20,6 +20,10 @@ import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
+  // eslint-disable-next-line react/no-unused-prop-types
+  appSlug?: string | undefined;
+  // eslint-disable-next-line react/no-unused-prop-types
+  isWebsiteMode?: boolean | undefined;
 };
 
 type State = {
@@ -150,14 +154,15 @@ const NameInput = ({ variant }: Props) => {
   );
 };
 
-const PropertiesTab = ({ variant }: Props) => {
+const PropertiesTab = ({ appSlug, variant, isWebsiteMode }: Props) => {
   const workflow = useWorkflowConfigContext();
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
 
-  const [{ summary, description }, setValues] = useState({
+  const [{ summary, description, statusReportName }, setValues] = useState({
     summary: workflow?.userValues.summary || '',
     description: workflow?.userValues.description || '',
+    statusReportName: workflow?.userValues.status_report_name || '',
   });
 
   const onSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
@@ -172,19 +177,49 @@ const PropertiesTab = ({ variant }: Props) => {
     });
   };
 
+  const onGitStatusNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setValues((prev) => ({ ...prev, status_report_name: e.target.value }));
+    debouncedUpdateWorkflow(workflow?.id || '', {
+      status_report_name: e.target.value || undefined,
+    });
+  };
+
   useEffect(() => {
     setValues({
       summary: workflow?.userValues.summary || '',
       description: workflow?.userValues.description || '',
+      statusReportName: workflow?.userValues.status_report_name || '',
     });
-  }, [workflow?.userValues.description, workflow?.userValues.summary]);
+  }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
 
   return (
-    <Box gap="24" display="flex" flexDir="column">
-      <NameInput variant={variant} />
-      <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
-      <Textarea label="Description" value={description} onChange={onDescriptionChange} />
-    </Box>
+    <>
+      <Box gap="24" display="flex" flexDir="column">
+        <NameInput variant={variant} />
+        <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
+        <Textarea label="Description" value={description} onChange={onDescriptionChange} />
+      </Box>
+      <Box gap="8" display="flex" flexDir="column">
+        <Input
+          label="Git status name"
+          helperText={isWebsiteMode ? `Preview: ci/bitrise/${appSlug}/<event_type>` : ''}
+          placeholder="ci/bitrise/<app_slug>/<event_type>"
+          value={statusReportName}
+          onChange={onGitStatusNameChange}
+          marginBlockStart="24"
+        />
+        <Text color="input/text/helper" textStyle="body/sm/regular">
+          You can overwrite the default Git status name inherited from the project settings. To change the default
+          naming pattern for all Workflows and Pipelines,{' '}
+          <Link isExternal colorScheme="purple" href="https://devcenter.bitrise.io">
+            go to the project settings.
+          </Link>
+        </Text>
+        <Link isExternal colorScheme="purple" href="https://devcenter.bitrise.io">
+          Show variables
+        </Link>
+      </Box>
+    </>
   );
 };
 
