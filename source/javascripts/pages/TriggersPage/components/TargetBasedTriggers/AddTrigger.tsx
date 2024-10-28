@@ -98,7 +98,7 @@ const AddTrigger = (props: AddTriggerProps) => {
   const handleSegmentTrack = () => {
     const triggerConditions: Record<string, any> = {};
     conditions.forEach((condition) => {
-      triggerConditions[condition.type || ''] = condition.value;
+      triggerConditions[condition.type || ''] = condition.isRegex ? { regex: condition.value } : condition.value;
     });
     segmentTrack(
       editedItem
