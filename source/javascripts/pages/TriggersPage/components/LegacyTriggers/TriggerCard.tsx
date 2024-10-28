@@ -2,9 +2,9 @@ import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from 
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { segmentTrack } from '@/utils/segmentTracking';
 import { TriggerItem } from '../TriggersPage/TriggersPage.types';
 import TriggerConditions from '../TargetBasedTriggers/TriggerConditions';
-import { segmentTrack } from '../../../../utils/segmentTracking';
 
 interface TriggerCardProps extends CardProps {
   isOverlay?: boolean;
