@@ -256,15 +256,20 @@ const BitriseYmlSchema = {
           type: 'array',
         },
         workflows: {
-          properties: {
-            depends_on: {
-              type: 'array',
-              items: {
-                type: 'string',
+          patternProperties: {
+            '.*': {
+              properties: {
+                depends_on: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
               },
+              additionalProperties: false,
+              type: 'object',
             },
           },
-          additionalProperties: false,
           type: 'object',
         },
         triggers: {
