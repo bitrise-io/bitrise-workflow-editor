@@ -1,24 +1,12 @@
 import { EnvVar, EnvVarYml } from './EnvVar';
 
-function validateKey(key?: string, keys?: string[]) {
+function validateKey(key?: string) {
   if (!key || !String(key).trim()) {
     return 'Key is required.';
   }
 
   if (!/^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i.test(key)) {
     return 'Key should contain letters, numbers, underscores, should not begin with a number.';
-  }
-
-  if (keys?.includes(key)) {
-    return 'Key should be unique.';
-  }
-
-  return true;
-}
-
-function validateValue(value?: string) {
-  if (!value || !String(value).trim()) {
-    return 'Value is required.';
   }
 
   return true;
@@ -59,7 +47,6 @@ function parseEnvVar(envVar: EnvVar): EnvVarYml {
 
 export default {
   validateKey,
-  validateValue,
   parseYmlEnvVar,
   parseEnvVar,
   toYmlValue,

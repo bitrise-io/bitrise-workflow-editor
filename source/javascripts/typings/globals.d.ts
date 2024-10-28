@@ -1,8 +1,11 @@
 import { LogsPublicApi } from '@datadog/browser-logs/cjs/boot/logsPublicApi';
+import { BitriseYml } from '@/core/models/BitriseYml';
 
 export {};
 
 declare global {
+  const TEST_BITRISE_YML: BitriseYml;
+
   interface Window {
     // strings.js.erb
     strings: { [s: string]: any };

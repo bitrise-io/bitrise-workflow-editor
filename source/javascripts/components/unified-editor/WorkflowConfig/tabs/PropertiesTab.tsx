@@ -8,7 +8,7 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { Box, ButtonGroup, IconButton, Input, Textarea } from '@bitrise/bitkit';
+import { Box, ButtonGroup, ControlButton, Input, Textarea } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
@@ -132,18 +132,17 @@ const NameInput = ({ variant }: Props) => {
         <Box p="4">
           {editable.isEditing ? (
             <ButtonGroup justifyContent="center" spacing="0">
-              <IconButton
+              <ControlButton
                 size="md"
-                variant="tertiary"
                 aria-label="Change"
                 iconName="Check"
                 isDisabled={editable.validationResult !== true}
                 onClick={handleCommit}
               />
-              <IconButton size="md" variant="tertiary" aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
+              <ControlButton size="md" aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
             </ButtonGroup>
           ) : (
-            <IconButton size="md" variant="tertiary" aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
+            <ControlButton size="md" aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
           )}
         </Box>
       }

@@ -10,7 +10,7 @@ type Props = {
   onCancel: VoidFunction;
 };
 
-const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
+const CreateSecret = ({ onCreate, onCancel }: Props) => {
   const {
     register,
     formState: { errors },
@@ -41,13 +41,7 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter key"
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.key?.message}
-            {...register('key', {
-              validate: (v) =>
-                SecretService.validateKey(
-                  v,
-                  items.map((i) => i.key),
-                ),
-            })}
+            {...register('key', { validate: SecretService.validateKey })}
           />
           <Text pt="14">=</Text>
           <Input
@@ -56,9 +50,7 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             aria-label="Value"
             placeholder="Enter value"
             errorText={errors.value?.message}
-            {...register('value', {
-              validate: SecretService.validateValue,
-            })}
+            {...register('value')}
           />
         </Box>
         <Box display="flex" gap="24" marginTop="16">
