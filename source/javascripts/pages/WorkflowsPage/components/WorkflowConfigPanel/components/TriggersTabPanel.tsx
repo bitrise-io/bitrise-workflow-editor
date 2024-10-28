@@ -162,17 +162,19 @@ const TriggersTabPanel = () => {
     triggerDisabled: boolean,
     trigger: TargetBasedTriggerItem,
   ) => {
+    console.log(type, index, triggerDisabled, trigger);
     if (!triggerDisabled) {
       triggers[type][index].enabled = false;
     } else {
       delete triggers[type][index].enabled;
     }
+
     segmentTrack('Workflow Editor Enable Trigger Toggled', {
       ...trackingData,
       is_selected_trigger_enabled: !triggerDisabled,
       trigger_origin: 'workflow_triggers',
       trigger_conditions: trigger,
-      build_trigger_type: triggerType,
+      build_trigger_type: type,
     });
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
