@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import { AppConfig } from '@/models/AppConfig';
+import { segmentTrack } from '@/utils/segmentTracking';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
-import { segmentTrack } from '../../utils/segmentTracking';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
 

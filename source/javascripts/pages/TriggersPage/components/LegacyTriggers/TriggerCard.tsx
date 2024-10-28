@@ -2,6 +2,7 @@ import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from 
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { segmentTrack } from '@/utils/segmentTracking';
 import { TriggerItem } from '../TriggersPage/TriggersPage.types';
 import TriggerConditions from '../TargetBasedTriggers/TriggerConditions';
 
@@ -38,6 +39,16 @@ const TriggerCard = (props: TriggerCardProps) => {
     }
   };
 
+  const handleActiveChange = () => {
+    if (onActiveChange) {
+      onActiveChange({ ...triggerItem, isActive: !isActive });
+      segmentTrack('Workflow Editor Enable Trigger Toggled', {
+        is_selected_trigger_enabled: isActive === true,
+        trigger_origin: 'trigger_map',
+      });
+    }
+  };
+
   return (
     <DraggableCard
       activatorRef={setActivatorNodeRef}
@@ -61,11 +72,7 @@ const TriggerCard = (props: TriggerCardProps) => {
         </Box>
       </Box>
       <Box display="flex" alignItems="center">
-        <Checkbox
-          marginRight="16"
-          isChecked={isActive}
-          onChange={() => onActiveChange && onActiveChange({ ...triggerItem, isActive: !isActive })}
-        >
+        <Checkbox marginRight="16" isChecked={isActive} onChange={() => handleActiveChange()}>
           Active
         </Checkbox>
         <IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
