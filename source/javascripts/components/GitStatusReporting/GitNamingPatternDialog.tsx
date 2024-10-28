@@ -16,7 +16,7 @@ import {
   Text,
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import Favicon from '../../../../../../../../assets/images/favicon.svg';
+// import Favicon from '../../../../../../../../assets/images/favicon.svg';
 import {
   getGitStatusReportData,
   GitStatusType,
@@ -81,10 +81,10 @@ const GitNamingPatternDialog = (props: GitNamingPatternDialogProps) => {
     previews.push(previewString);
   }
 
-  const { mutate, isPending } = useMonolithApiMutation<unknown, unknown, unknown>(
-    `/app/${app.slug}/settings/status_report_config`,
-    'PUT',
-  );
+  // const { mutate, isPending } = useMonolithApiMutation<unknown, unknown, unknown>(
+  //   `/app/${app.slug}/settings/status_report_config`,
+  //   'PUT',
+  // );
 
   const onSubmit = (formData: FormDataType) => {
     let projectLevelStatusTitle: ProjectLevelStatusTitle;
@@ -108,12 +108,12 @@ const GitNamingPatternDialog = (props: GitNamingPatternDialogProps) => {
 
     console.log('payload:', payload);
 
-    mutate(payload, {
-      onSuccess: () => {
-        onStatusUpdate(projectLevelStatusTitle, projectLevelStatusTemplate);
-        onClose();
-      },
-    });
+    // mutate(payload, {
+    //   onSuccess: () => {
+    //     onStatusUpdate(projectLevelStatusTitle, projectLevelStatusTemplate);
+    //     onClose();
+    //   },
+    // });
   };
 
   const validateCharacters = (value: string) => {
@@ -134,7 +134,7 @@ const GitNamingPatternDialog = (props: GitNamingPatternDialogProps) => {
         title="Change default Git naming pattern"
         as="form"
         onSubmit={handleSubmit(onSubmit)}
-        isClosable={!isPending}
+        // isClosable={!isPending}
       >
         <DialogBody>
           <Text textStyle="body/md/semibold" marginBlockEnd="12">
@@ -221,7 +221,7 @@ const GitNamingPatternDialog = (props: GitNamingPatternDialogProps) => {
                   gap="8"
                 >
                   <Dot backgroundColor="sys/success/bold" size={8} flexShrink="0" />
-                  <Avatar name="Bitrise" variant="workspace" size="24" src={Favicon} />
+                  <Avatar name="Bitrise" variant="workspace" size="24" /* src={Favicon} */ />
                   {status === 'custom' && !previewString ? (
                     <Text textStyle="body/md/regular" color="text/tertiary">
                       Enter a valid string to see its preview
@@ -248,7 +248,7 @@ const GitNamingPatternDialog = (props: GitNamingPatternDialogProps) => {
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={isPending} isDisabled={!(formState.isValid && formState.isDirty)}>
+          <Button type="submit" /* isLoading={isPending} */ isDisabled={!(formState.isValid && formState.isDirty)}>
             Accept changes
           </Button>
         </DialogFooter>
