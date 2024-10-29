@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import isEqual from 'lodash/isEqual';
+import { segmentTrack } from '@/utils/segmentTracking';
 import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
 import { getConditionList, TargetBasedTriggerItem } from '../TriggersPage/TriggersPage.utils';
 import ConditionCard from './ConditionCard';
@@ -15,10 +16,21 @@ type AddTriggerProps = {
   labelsMap: Record<string, string>;
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
+  trackingData: Record<string, number | string | boolean>;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
+  const {
+    currentTriggers,
+    editedItem,
+    labelsMap,
+    onCancel,
+    onSubmit,
+    optionsMap,
+    triggerType,
+    workflowId,
+    trackingData,
+  } = props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -81,6 +93,30 @@ const AddTrigger = (props: AddTriggerProps) => {
     }
 
     onSubmit(newTrigger);
+  };
+
+  const handleSegmentTrack = () => {
+    const triggerConditions: Record<string, any> = {};
+    conditions.forEach((condition) => {
+      let value: any = {};
+      if (condition.isRegex) {
+        value = { regex: condition.value };
+      } else {
+        value = { wildcard: condition.value };
+      }
+      triggerConditions[condition.type || ''] = value;
+    });
+    segmentTrack(
+      editedItem
+        ? 'Workflow Editor Apply Trigger Changes Button Clicked'
+        : 'Workflow Editor Add Trigger Button Clicked',
+      {
+        ...trackingData,
+        build_trigger_type: triggerType,
+        trigger_conditions: triggerConditions,
+        trigger_origin: 'workflow_triggers',
+      },
+    );
   };
 
   let isSameTriggerExist = false;
@@ -167,7 +203,7 @@ const AddTrigger = (props: AddTriggerProps) => {
                 : 'Please fill all conditions.'
             }
           >
-            <Button type="submit" isDisabled={isSameTriggerExist || hasEmptyCondition}>
+            <Button type="submit" onClick={handleSegmentTrack} isDisabled={isSameTriggerExist || hasEmptyCondition}>
               {editedItem ? 'Apply changes' : 'Add trigger'}
             </Button>
           </Tooltip>

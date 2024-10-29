@@ -126,7 +126,6 @@ const NameInput = ({ variant }: Props) => {
       value={editable.value}
       onChange={handleChange}
       onKeyDown={handleKeyPress}
-      onBlur={handleCommit}
       inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
       errorText={editable.validationResult === true ? undefined : editable.validationResult}
       rightAddonPlacement="inside"

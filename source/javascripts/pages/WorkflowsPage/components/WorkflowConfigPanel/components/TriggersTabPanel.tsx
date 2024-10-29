@@ -21,10 +21,12 @@ import { TriggerType } from '@/pages/TriggersPage/components/TriggersPage/Trigge
 import TriggerConditions from '@/pages/TriggersPage/components/TargetBasedTriggers/TriggerConditions';
 import {
   getConditionList,
+  getPipelineableTriggers,
   TargetBasedTriggerItem,
   TargetBasedTriggers,
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '@/pages/TriggersPage/components/TargetBasedTriggers/AddTrigger';
+import { segmentTrack } from '@/utils/segmentTracking';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
@@ -126,26 +128,64 @@ const TriggersTabPanel = () => {
 
   const workflow = useWorkflowConfigContext();
 
-  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore((s) => ({
+  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled, yml } = useBitriseYmlStore((s) => ({
     updateWorkflowTriggers: s.updateWorkflowTriggers,
     updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
+    yml: s.yml,
   }));
 
   const triggers: TargetBasedTriggers = deepCloneSimpleObject(
     (workflow?.userValues.triggers as TargetBasedTriggers) || {},
   );
 
+  const triggersInProject = getPipelineableTriggers(yml);
+
+  const trackingData = {
+    number_of_existing_target_based_triggers_on_target: triggersInProject.filter(
+      ({ pipelineableId }) => pipelineableId === workflow?.id,
+    ).length,
+    number_of_existing_target_based_triggers_in_project: triggersInProject.length,
+    number_of_existing_trigger_map_triggers_in_project: yml.trigger_map?.length || 0,
+    tab_name: 'workflows',
+    workflow_name: workflow?.id || '',
+    is_target_based_triggers_enabled_on_target: triggers.enabled !== false,
+  };
+
   const onTriggerDelete = (trigger: TargetBasedTriggerItem, type: TriggerType) => {
     triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  const onTriggerToggle = (type: TriggerType, index: number, triggerDisabled: boolean) => {
+  const onTriggerToggle = (
+    type: TriggerType,
+    index: number,
+    triggerDisabled: boolean,
+    trigger: TargetBasedTriggerItem,
+  ) => {
     if (!triggerDisabled) {
       triggers[type][index].enabled = false;
     } else {
       delete triggers[type][index].enabled;
     }
+
+    const triggerConditions: Record<string, any> = {};
+    (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
+      if (key !== 'enabled' && key !== 'draft_enabled') {
+        if (typeof trigger[key] === 'string') {
+          triggerConditions[key] = { wildcard: trigger[key] };
+        } else {
+          triggerConditions[key] = trigger[key];
+        }
+      }
+    });
+
+    segmentTrack('Workflow Editor Enable Trigger Toggled', {
+      ...trackingData,
+      is_selected_trigger_enabled: !triggerDisabled,
+      trigger_origin: 'workflow_triggers',
+      trigger_conditions: triggerConditions,
+      build_trigger_type: type,
+    });
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
@@ -166,6 +206,17 @@ const TriggersTabPanel = () => {
     setEditedItem(undefined);
   };
 
+  const onToggleChange = () => {
+    segmentTrack('Workflow Editor Enable Target Based Triggers Toggled', {
+      ...trackingData,
+      is_target_based_triggers_enabled_on_target: triggers.enabled !== false,
+      number_of_enabled_existing_target_based_triggers_in_project: triggersInProject.filter(
+        ({ enabled }) => enabled !== false,
+      ).length,
+    });
+    updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
+  };
+
   return (
     <>
       {triggerType !== undefined && (
@@ -181,6 +232,7 @@ const TriggersTabPanel = () => {
           labelsMap={LABELS_MAP[triggerType]}
           editedItem={editedItem?.trigger}
           currentTriggers={triggers[triggerType] || []}
+          trackingData={trackingData}
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
@@ -203,7 +255,7 @@ const TriggersTabPanel = () => {
             helperText="When disabled and saved, none of the triggers below will execute a build."
             isChecked={triggers.enabled !== false}
             onChange={() => {
-              updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
+              onToggleChange();
             }}
           />
         </Card>
@@ -223,7 +275,7 @@ const TriggersTabPanel = () => {
                 setTriggerType('push');
               }}
               onTriggerToggle={(triggerDisabled) => {
-                onTriggerToggle('push', index, triggerDisabled);
+                onTriggerToggle('push', index, triggerDisabled, trigger);
               }}
               globalDisabled={triggers.enabled === false}
             />
@@ -258,7 +310,7 @@ const TriggersTabPanel = () => {
                 }}
                 trigger={trigger}
                 onTriggerToggle={(triggerDisabled) => {
-                  onTriggerToggle('pull_request', index, triggerDisabled);
+                  onTriggerToggle('pull_request', index, triggerDisabled, trigger);
                 }}
                 globalDisabled={triggers.enabled === false}
               />
@@ -292,7 +344,7 @@ const TriggersTabPanel = () => {
                 setTriggerType('tag');
               }}
               onTriggerToggle={(triggerDisabled) => {
-                onTriggerToggle('tag', index, triggerDisabled);
+                onTriggerToggle('tag', index, triggerDisabled, trigger);
               }}
               globalDisabled={triggers.enabled === false}
             />
