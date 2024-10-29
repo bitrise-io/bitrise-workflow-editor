@@ -1,12 +1,12 @@
 import { ReactElement, useEffect } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { AppConfig } from '@/models/AppConfig';
+import { segmentTrack } from '@/utils/segmentTracking';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
 import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
 import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
-import { AppConfig } from '../../models/AppConfig';
-import { segmentTrack } from '../../utils/segmentTracking';
 
 type UpdateConfigurationDialogProps = {
   onClose: () => void;

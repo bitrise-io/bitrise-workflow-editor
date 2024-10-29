@@ -58,7 +58,7 @@ const baseProperties: SegmentEventProperties = {
   event_type: 'interaction',
   event_workspace_association: 'workspace_specific',
   initiator: 'user',
-  is_known_user: true,
+  is_known_user: RuntimeUtils.isWebsiteMode(),
   page_url: window.location.href,
   platform: 'website',
   source_service_name: 'workflow-editor',
