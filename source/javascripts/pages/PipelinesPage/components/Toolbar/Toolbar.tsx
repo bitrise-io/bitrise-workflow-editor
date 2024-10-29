@@ -41,12 +41,11 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
           <Button size="md" variant="secondary" leftIconName="Workflow" onClick={onWorkflowsClick}>
             Workflows
           </Button>
+          <Button size="md" variant="secondary" leftIconName="Play" onClick={onRunClick}>
+            Run
+          </Button>
         </>
       )}
-
-      <Button size="md" variant="secondary" leftIconName="Play" onClick={onRunClick}>
-        Run
-      </Button>
     </Box>
   );
 };

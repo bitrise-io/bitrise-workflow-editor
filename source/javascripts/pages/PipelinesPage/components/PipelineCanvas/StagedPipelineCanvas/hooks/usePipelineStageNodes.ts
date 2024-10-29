@@ -1,6 +1,6 @@
 import { Node, Position } from 'reactflow';
 import { Stage } from '@/core/models/Stage';
-import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
+import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../StagedPipelineCanvas.const';
 import usePipelineStages from './usePipelineStages';
 
 const commonNodeProps: Partial<Node> = {

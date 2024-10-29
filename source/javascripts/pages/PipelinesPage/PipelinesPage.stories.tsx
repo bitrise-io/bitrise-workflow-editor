@@ -19,6 +19,11 @@ export default {
       );
     },
   ],
+  beforeEach: () => {
+    process.env.MODE = 'cli';
+    window.parent.pageProps = undefined;
+    window.parent.globalProps = undefined;
+  },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;

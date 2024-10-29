@@ -1,6 +1,6 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelineWorkflow } from '@/core/models/Workflow';
-import usePipelineSelector from './usePipelineSelector';
+import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 
 const usePipelineWorkflows = (): PipelineWorkflow[] => {
   const { selectedPipeline } = usePipelineSelector();
