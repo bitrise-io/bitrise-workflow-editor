@@ -3,6 +3,7 @@ import dagre from '@dagrejs/dagre';
 import { Edge, Node } from 'reactflow';
 import {
   CANVAS_PADDING,
+  TOOLBAR_CONTAINER_HEIGHT,
   WORKFLOW_NODE_GAP_X,
   WORKFLOW_NODE_GAP_Y,
   WORKFLOW_NODE_HEIGHT,
@@ -19,10 +20,10 @@ const useGraphPipeline = () => {
     const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
     graph.setGraph({
-      align: 'UL',
+      align: 'DL',
       rankdir: 'LR',
       marginx: CANVAS_PADDING - 160,
-      marginy: CANVAS_PADDING,
+      marginy: CANVAS_PADDING + TOOLBAR_CONTAINER_HEIGHT,
       ranksep: WORKFLOW_NODE_GAP_X,
       nodesep: WORKFLOW_NODE_GAP_Y,
       edgesep: WORKFLOW_NODE_HEIGHT + WORKFLOW_NODE_GAP_Y,

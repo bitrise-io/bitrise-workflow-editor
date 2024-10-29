@@ -46,6 +46,7 @@ pipelines:
       wf2: { depends_on: [wf1] }
       wf3: { depends_on: [wf1] }
       wf4: { depends_on: [wf2, wf3] }
+      wf5: { depends_on: [wf4] }
 stages:
   st1:
     workflows:
