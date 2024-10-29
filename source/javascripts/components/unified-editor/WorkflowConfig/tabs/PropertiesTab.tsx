@@ -8,8 +8,9 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { Box, ButtonGroup, ControlButton, Input, Link, Text, Textarea } from '@bitrise/bitkit';
+import { Box, ButtonGroup, ControlButton, Input, List, Text, Textarea } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
+import { ListItem } from '@chakra-ui/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -152,8 +153,6 @@ const NameInput = ({ variant }: Props) => {
 };
 
 const PropertiesTab = ({ variant }: Props) => {
-  const pageProps = WindowUtils.pageProps();
-  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
   const workflow = useWorkflowConfigContext();
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
@@ -163,6 +162,25 @@ const PropertiesTab = ({ variant }: Props) => {
     description: workflow?.userValues.description || '',
     statusReportName: workflow?.userValues.status_report_name || '',
   });
+
+  const pageProps = WindowUtils.pageProps();
+  const statusReport = pageProps?.settings?.statusReport;
+  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
+  const projectSlug = pageProps?.settings?.statusReport?.variables['<project_slug>'];
+  const variables = pageProps?.settings?.statusReport?.variables;
+
+  let preview = '';
+  if (statusReport) {
+    if (statusReportName && variables) {
+      preview = statusReportName
+        .replace(/<project_slug>/g, variables['<project_slug>'])
+        .replace(/<project_title>/g, variables['<project_title>'])
+        .replace(/<event_type>/g, variables['<event_type>'])
+        .replace(/<workflow_ID>/g, variables['<workflow_ID>']);
+    } else {
+      preview = `Preview: ci/bitrise/${projectSlug}/pr`;
+    }
+  }
 
   const onSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, summary: e.target.value }));
@@ -201,22 +219,23 @@ const PropertiesTab = ({ variant }: Props) => {
       <Box gap="8" display="flex" flexDir="column">
         <Input
           label="Git status name"
-          helperText={pageProps?.settings?.statusReport ? 'Preview: ci/bitrise/<app_slug>/<event_type>' : ''}
+          helperText={preview}
           placeholder={projectBasedTemplate}
           value={statusReportName}
           onChange={onGitStatusNameChange}
           marginBlockStart="24"
         />
         <Text color="input/text/helper" textStyle="body/sm/regular">
-          You can overwrite the default Git status name inherited from the project settings. To change the default
-          naming pattern for all Workflows and Pipelines,{' '}
-          <Link isExternal colorScheme="purple" href="https://devcenter.bitrise.io">
-            go to the project settings.
-          </Link>
+          {`Allowed characters: A-Za-z,.():\\-_0-9<>`}
+          <br />
+          You can use the following variables in your string:
         </Text>
-        <Link isExternal colorScheme="purple" href="https://devcenter.bitrise.io">
-          Show variables
-        </Link>
+        <List variant="unordered" color="input/text/helper" textStyle="body/sm/regular">
+          <ListItem>{`<event_type>`}</ListItem>
+          <ListItem>{`<app_slug>`}</ListItem>
+          <ListItem>{`<app_title>`}</ListItem>
+          <ListItem>{`<workflow_ID>`}</ListItem>
+        </List>
       </Box>
     </>
   );

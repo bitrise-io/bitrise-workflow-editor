@@ -66,6 +66,8 @@ declare global {
           variables: {
             '<project_slug>': string;
             '<project_title>': string;
+            '<event_type>': string;
+            '<workflow_ID>': string;
           };
         };
       };
