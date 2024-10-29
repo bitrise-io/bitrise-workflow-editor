@@ -29,7 +29,7 @@ function updateNodeHeight(id: string, height?: number) {
     const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
     graph.setGraph({
-      align: 'DL',
+      align: 'UL',
       rankdir: 'LR',
       marginx: CANVAS_PADDING - 160,
       marginy: CANVAS_PADDING + TOOLBAR_CONTAINER_HEIGHT,
