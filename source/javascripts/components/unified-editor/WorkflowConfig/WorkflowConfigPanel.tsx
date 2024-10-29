@@ -11,12 +11,7 @@ import { WorkflowConfigTab } from './WorkflowConfig.types';
 
 const TAB_IDS = [WorkflowConfigTab.CONFIGURATION, WorkflowConfigTab.PROPERTIES, WorkflowConfigTab.TRIGGERS];
 
-type WorkflowConfigPanelProps = {
-  appSlug?: string | undefined;
-  isWebsiteMode?: boolean | undefined;
-};
-
-const WorkflowConfigPanelContent = ({ appSlug, isWebsiteMode }: WorkflowConfigPanelProps) => {
+const WorkflowConfigPanelContent = () => {
   const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,7 +48,7 @@ const WorkflowConfigPanelContent = ({ appSlug, isWebsiteMode }: WorkflowConfigPa
           <ConfigurationTab />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
-          <PropertiesTab variant="panel" appSlug={appSlug} isWebsiteMode={isWebsiteMode} />
+          <PropertiesTab variant="panel" />
         </TabPanel>
         {isTargetBasedTriggersEnabled && (
           <TabPanel overflowY="auto" h="100%">
@@ -67,14 +62,12 @@ const WorkflowConfigPanelContent = ({ appSlug, isWebsiteMode }: WorkflowConfigPa
 
 type Props = {
   workflowId: string;
-  isWebsiteMode?: boolean | undefined;
-  appSlug?: string | undefined;
 };
 
-const WorkflowConfigPanel = ({ appSlug, workflowId, isWebsiteMode }: Props) => {
+const WorkflowConfigPanel = ({ workflowId }: Props) => {
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
-      <WorkflowConfigPanelContent isWebsiteMode={isWebsiteMode} appSlug={appSlug} />
+      <WorkflowConfigPanelContent />
     </WorkflowConfigProvider>
   );
 };

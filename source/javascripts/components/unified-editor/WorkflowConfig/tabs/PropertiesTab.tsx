@@ -17,13 +17,10 @@ import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import WindowUtils from '../../../../core/utils/WindowUtils';
 
 type Props = {
   variant: 'panel' | 'drawer';
-  // eslint-disable-next-line react/no-unused-prop-types
-  appSlug?: string | undefined;
-  // eslint-disable-next-line react/no-unused-prop-types
-  isWebsiteMode?: boolean | undefined;
 };
 
 type State = {
@@ -154,7 +151,9 @@ const NameInput = ({ variant }: Props) => {
   );
 };
 
-const PropertiesTab = ({ appSlug, variant, isWebsiteMode }: Props) => {
+const PropertiesTab = ({ variant }: Props) => {
+  const pageProps = WindowUtils.pageProps();
+  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
   const workflow = useWorkflowConfigContext();
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
@@ -178,9 +177,9 @@ const PropertiesTab = ({ appSlug, variant, isWebsiteMode }: Props) => {
   };
 
   const onGitStatusNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValues((prev) => ({ ...prev, status_report_name: e.target.value }));
+    setValues((prev) => ({ ...prev, statusReportName: e.target.value }));
     debouncedUpdateWorkflow(workflow?.id || '', {
-      status_report_name: e.target.value || undefined,
+      status_report_name: e.target.value,
     });
   };
 
@@ -202,8 +201,8 @@ const PropertiesTab = ({ appSlug, variant, isWebsiteMode }: Props) => {
       <Box gap="8" display="flex" flexDir="column">
         <Input
           label="Git status name"
-          helperText={isWebsiteMode ? `Preview: ci/bitrise/${appSlug}/<event_type>` : ''}
-          placeholder="ci/bitrise/<app_slug>/<event_type>"
+          helperText={pageProps?.settings?.statusReport ? 'Preview: ci/bitrise/<app_slug>/<event_type>' : ''}
+          placeholder={projectBasedTemplate}
           value={statusReportName}
           onChange={onGitStatusNameChange}
           marginBlockStart="24"
