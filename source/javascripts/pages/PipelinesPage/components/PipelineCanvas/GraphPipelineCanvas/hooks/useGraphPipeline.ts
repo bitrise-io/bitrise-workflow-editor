@@ -50,6 +50,8 @@ const useGraphPipeline = () => {
         connectable: false,
         position: { x, y },
         zIndex: workflows.length - i,
+        width: WORKFLOW_NODE_WIDTH,
+        height: WORKFLOW_NODE_HEIGHT,
       });
 
       workflow.dependsOn.forEach((source) => {
