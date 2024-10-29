@@ -1,6 +1,6 @@
 import { Box, Icon } from '@bitrise/bitkit';
 import { NodeProps, Position } from 'reactflow';
-import { ICON_STAGE_WIDTH } from '../PipelinesPage.const';
+import { ICON_STAGE_WIDTH } from '../StagedPipelineCanvas.const';
 import InvisibleHandle from './InvisibleHandle';
 
 type Props = NodeProps;

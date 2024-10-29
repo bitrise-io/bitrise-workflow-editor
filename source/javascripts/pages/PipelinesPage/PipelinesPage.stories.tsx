@@ -1,12 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
-import { MockYml } from '@/core/models/BitriseYml.mocks';
 import PipelinesPage from './PipelinesPage';
 
 export default {
   component: PipelinesPage,
   args: {
-    yml: MockYml,
+    yml: TEST_BITRISE_YML,
   },
   parameters: {
     layout: 'fullscreen',
@@ -20,6 +19,11 @@ export default {
       );
     },
   ],
+  beforeEach: () => {
+    process.env.MODE = 'cli';
+    window.parent.pageProps = undefined;
+    window.parent.globalProps = undefined;
+  },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;

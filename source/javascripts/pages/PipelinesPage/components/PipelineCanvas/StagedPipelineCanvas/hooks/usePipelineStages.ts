@@ -1,7 +1,7 @@
 import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelinesStages, Stage } from '@/core/models/Stage';
-import usePipelineSelector from './usePipelineSelector';
+import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 
 const usePipelineStages = (): Stage[] => {
   const { selectedPipeline } = usePipelineSelector();
