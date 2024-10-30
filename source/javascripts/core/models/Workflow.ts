@@ -7,5 +7,6 @@ type WorkflowYmlObject = Workflows[string] & {
 };
 type Workflow = { id: string; userValues: WorkflowYmlObject };
 type ChainedWorkflowPlacement = 'before_run' | 'after_run';
+type PipelineWorkflow = { id: string; dependsOn: string[] };
 
-export { Workflow, WorkflowYmlObject, Workflows, ChainedWorkflowPlacement };
+export { Workflow, WorkflowYmlObject, Workflows, ChainedWorkflowPlacement, PipelineWorkflow };

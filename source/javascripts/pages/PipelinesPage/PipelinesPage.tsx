@@ -3,9 +3,8 @@ import { Box } from '@bitrise/bitkit';
 import withQueryClientProvider from '@/utils/withQueryClientProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import PipelinesHeader from './components/PipelinesHeader';
-import PipelinesCanvas from './components/PipelinesCanvas';
-import StagePipelineEmptyState from './components/StagePipelineEmptyState';
+import StagePipelineEmptyState from './components/PipelineCanvas/StagedPipelineCanvas/components/StagePipelineEmptyState';
+import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
 
 type Props = {
   yml: BitriseYml;
@@ -21,8 +20,7 @@ const PipelinesPage = ({ yml }: Props) => {
   return (
     <BitriseYmlProvider yml={yml}>
       <Box display="flex" flexDir="column" h="100%">
-        <PipelinesHeader />
-        {hasPipelines ? <PipelinesCanvas /> : <StagePipelineEmptyState />}
+        {hasPipelines ? <PipelineCanvas /> : <StagePipelineEmptyState />}
       </Box>
     </BitriseYmlProvider>
   );

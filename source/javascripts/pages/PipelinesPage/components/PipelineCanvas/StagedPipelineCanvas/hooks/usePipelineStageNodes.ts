@@ -1,6 +1,12 @@
 import { Node, Position } from 'reactflow';
 import { Stage } from '@/core/models/Stage';
-import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
+import {
+  CANVAS_PADDING,
+  ICON_STAGE_WIDTH,
+  STAGE_GAP,
+  STAGE_WIDTH,
+  TOOLBAR_CONTAINER_HEIGHT,
+} from '../StagedPipelineCanvas.const';
 import usePipelineStages from './usePipelineStages';
 
 const commonNodeProps: Partial<Node> = {
@@ -10,11 +16,13 @@ const commonNodeProps: Partial<Node> = {
   targetPosition: Position.Right,
 };
 
+const BASE_Y = CANVAS_PADDING + TOOLBAR_CONTAINER_HEIGHT;
+
 const runNode = (id: string, x: number): Node => ({
   id: `run-${id}`,
   type: 'run',
   data: undefined,
-  position: { x, y: CANVAS_PADDING + 14 },
+  position: { x, y: BASE_Y + 14 },
   ...commonNodeProps,
 });
 
@@ -22,7 +30,7 @@ const addNode = (id: string, x: number): Node => ({
   id: `add-${id}`,
   type: 'add',
   data: undefined,
-  position: { x, y: CANVAS_PADDING + 14 },
+  position: { x, y: BASE_Y + 14 },
   ...commonNodeProps,
 });
 
@@ -30,7 +38,7 @@ const endNode = (id: string, x: number): Node => ({
   id: `end-${id}`,
   type: 'end',
   data: undefined,
-  position: { x, y: CANVAS_PADDING + 14 },
+  position: { x, y: BASE_Y + 14 },
   ...commonNodeProps,
 });
 
@@ -38,7 +46,7 @@ const stageNode = (id: string, x: number, stage: Stage) => ({
   id,
   type: 'stage',
   data: stage,
-  position: { x, y: CANVAS_PADDING },
+  position: { x, y: BASE_Y },
   ...commonNodeProps,
 });
 
