@@ -8,9 +8,8 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { Box, ButtonGroup, ControlButton, Input, List, Text, Textarea } from '@bitrise/bitkit';
+import { Box, ButtonGroup, CodeSnippet, ControlButton, Input, Text, Textarea } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
-import { ListItem } from '@chakra-ui/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -29,6 +28,13 @@ type State = {
   value: string;
   committedValue: string;
   validationResult: boolean | string;
+};
+
+const TOOLTIP_MAP: Record<string, string> = {
+  '<event_type>': 'PR / Push / Tag',
+  '<project_slug>': 'The unique identifier of your project.',
+  '<project_title>': 'Optional title of your project.',
+  '<target_id>': 'Triggered Workflow or Pipeline ID',
 };
 
 const NameInput = ({ variant }: Props) => {
@@ -175,7 +181,7 @@ const PropertiesTab = ({ variant }: Props) => {
         .replace(/<project_slug>/g, variables['<project_slug>'])
         .replace(/<project_title>/g, variables['<project_title>'])
         .replace(/<event_type>/g, variables['<event_type>'])
-        .replace(/<workflow_ID>/g, variables['<workflow_ID>']);
+        .replace(/<target_id>/g, variables['<target_id>']);
     } else {
       preview = `Preview: ci/bitrise/${projectSlug}/pr`;
     }
@@ -229,12 +235,12 @@ const PropertiesTab = ({ variant }: Props) => {
           <br />
           You can use the following variables in your string:
         </Text>
-        <List variant="unordered" color="input/text/helper" textStyle="body/sm/regular">
-          <ListItem>{`<event_type>`}</ListItem>
-          <ListItem>{`<app_slug>`}</ListItem>
-          <ListItem>{`<app_title>`}</ListItem>
-          <ListItem>{`<workflow_ID>`}</ListItem>
-        </List>
+        {variables &&
+          Object.keys(variables).map((variable) => (
+            <CodeSnippet variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
+              {variable}
+            </CodeSnippet>
+          ))}
       </Box>
     </>
   );
