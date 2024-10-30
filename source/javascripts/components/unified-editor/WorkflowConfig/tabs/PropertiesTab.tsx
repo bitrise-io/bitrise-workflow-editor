@@ -18,6 +18,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import GitStatusNameInput from '../components/GitStatusNameInput';
+import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -151,6 +152,7 @@ const NameInput = ({ variant }: Props) => {
 };
 
 const PropertiesTab = ({ variant }: Props) => {
+  const isGitStatusNameEnabled = useFeatureFlag('enable-custom-commit-status-name');
   const workflow = useWorkflowConfigContext();
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
@@ -195,11 +197,13 @@ const PropertiesTab = ({ variant }: Props) => {
       <NameInput variant={variant} />
       <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
       <Textarea label="Description" value={description} onChange={onDescriptionChange} />
-      <GitStatusNameInput
-        workflowId={workflow?.id}
-        onChange={onGitStatusNameChange}
-        statusReportName={statusReportName}
-      />
+      {isGitStatusNameEnabled && (
+        <GitStatusNameInput
+          workflowId={workflow?.id}
+          onChange={onGitStatusNameChange}
+          statusReportName={statusReportName}
+        />
+      )}
     </Box>
   );
 };
