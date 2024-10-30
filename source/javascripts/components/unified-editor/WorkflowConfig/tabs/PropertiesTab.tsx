@@ -8,7 +8,7 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { Box, ButtonGroup, CodeSnippet, ControlButton, Input, Text, Textarea } from '@bitrise/bitkit';
+import { Box, ButtonGroup, ControlButton, Input, Textarea } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
@@ -17,7 +17,7 @@ import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-import WindowUtils from '../../../../core/utils/WindowUtils';
+import GitStatusNameInput from '../components/GitStatusNameInput';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -28,13 +28,6 @@ type State = {
   value: string;
   committedValue: string;
   validationResult: boolean | string;
-};
-
-const TOOLTIP_MAP: Record<string, string> = {
-  '<event_type>': 'PR / Push / Tag',
-  '<project_slug>': 'The unique identifier of your project.',
-  '<project_title>': 'Optional title of your project.',
-  '<target_id>': 'Triggered Workflow or Pipeline ID',
 };
 
 const NameInput = ({ variant }: Props) => {
@@ -167,43 +160,6 @@ const PropertiesTab = ({ variant }: Props) => {
     description: workflow?.userValues.description || '',
     statusReportName: workflow?.userValues.status_report_name || '',
   });
-  const [error, setError] = useState<string>('');
-
-  const pageProps = WindowUtils.pageProps();
-  const statusReport = pageProps?.settings?.statusReport;
-  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
-  const projectSlug = pageProps?.settings?.statusReport?.variables['<project_slug>'];
-  const variables = pageProps?.settings?.statusReport?.variables;
-
-  const v = {
-    '<project_slug>': variables?.['<project_slug>'] || '',
-    '<project_title>': variables?.['<project_title>'] || '',
-    '<event_type>': variables?.['<event_type>'] || 'pr',
-    '<target_id>': variables?.['<target_id>'] || workflow?.id || '',
-  };
-
-  let preview = '';
-  if (statusReport) {
-    if (statusReportName && v !== null) {
-      preview = `Preview: ${statusReportName
-        .replace(/<project_slug>/g, v['<project_slug>'])
-        .replace(/<project_title>/g, v['<project_title>'])
-        .replace(/<event_type>/g, v['<event_type>'])
-        .replace(/<target_id>/g, v['<target_id>'])}`;
-    } else {
-      preview = `Preview: ci/bitrise/${projectSlug}/pr`;
-    }
-  }
-
-  const validateCharacters = (value: string) => {
-    const allowedPattern = /^[ A-Za-z,.():/[\]-_|0-9<>]*$/;
-    const invalidChars = Array.from(value).filter((char: string) => !allowedPattern.test(char));
-
-    if (invalidChars.length > 0) {
-      return `"${invalidChars[0]}" is not allowed. Allowed characters: A-Za-z,.():/-_0-9 []|<>`;
-    }
-    return true;
-  };
 
   const onSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, summary: e.target.value }));
@@ -217,16 +173,13 @@ const PropertiesTab = ({ variant }: Props) => {
     });
   };
 
-  const onGitStatusNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const newValue = e.target.value;
-    const validationResult = validateCharacters(newValue);
-
+  const onGitStatusNameChange = (newValue: string, isValid: boolean) => {
     setValues((prev) => ({ ...prev, statusReportName: newValue }));
-    debouncedUpdateWorkflow(workflow?.id || '', {
-      status_report_name: newValue,
-    });
-
-    setError(validationResult === true ? '' : validationResult);
+    if (isValid) {
+      debouncedUpdateWorkflow(workflow?.id || '', {
+        status_report_name: newValue,
+      });
+    }
   };
 
   useEffect(() => {
@@ -238,37 +191,16 @@ const PropertiesTab = ({ variant }: Props) => {
   }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
 
   return (
-    <>
-      <Box gap="24" display="flex" flexDir="column">
-        <NameInput variant={variant} />
-        <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
-        <Textarea label="Description" value={description} onChange={onDescriptionChange} />
-      </Box>
-      <Box gap="8" display="flex" flexDir="column">
-        <Input
-          label="Git status name"
-          helperText={error || `Allowed characters: A-Za-z,.():/-_0-9 []|<>`}
-          errorText={error}
-          placeholder={projectBasedTemplate}
-          value={statusReportName}
-          onChange={onGitStatusNameChange}
-          withCounter
-          maxLength={100}
-          marginBlockStart="24"
-        />
-        <Text color="input/text/helper" textStyle="body/sm/regular">
-          {preview}
-        </Text>
-        <Text color="input/text/helper" textStyle="body/sm/regular" marginBlockEnd="8">
-          You can use the following variables in your string:
-        </Text>
-      </Box>
-      {Object.keys(TOOLTIP_MAP).map((variable) => (
-        <CodeSnippet variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
-          {variable}
-        </CodeSnippet>
-      ))}
-    </>
+    <Box gap="24" display="flex" flexDir="column">
+      <NameInput variant={variant} />
+      <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
+      <Textarea label="Description" value={description} onChange={onDescriptionChange} />
+      <GitStatusNameInput
+        workflowId={workflow?.id}
+        onChange={onGitStatusNameChange}
+        statusReportName={statusReportName}
+      />
+    </Box>
   );
 };
 

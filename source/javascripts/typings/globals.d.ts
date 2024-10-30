@@ -62,7 +62,7 @@ declare global {
         statusReport?: {
           defaultProjectBasedStatusNameTemplate: string;
           defaultTargetBasedStatusNameTemplate: string;
-          projectLevelCustomStatusNameTemplate: string;
+          projectLevelCustomStatusNameTemplate: string | null;
           variables: Record<string, string | null>;
         };
       };
