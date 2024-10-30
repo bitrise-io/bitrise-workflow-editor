@@ -58,6 +58,14 @@ declare global {
         defaultBranch?: string;
         buildTriggerToken?: string;
       };
+      settings?: {
+        statusReport?: {
+          defaultProjectBasedStatusNameTemplate: string;
+          defaultTargetBasedStatusNameTemplate: string;
+          projectLevelCustomStatusNameTemplate: string | null;
+          variables: Record<string, string | null>;
+        };
+      };
     };
   }
 

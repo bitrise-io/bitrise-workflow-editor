@@ -538,6 +538,9 @@ const BitriseYmlSchema = {
         description: {
           type: 'string',
         },
+        status_report_name: {
+          type: 'string',
+        },
         before_run: {
           items: {
             type: 'string',
