@@ -175,19 +175,21 @@ const PropertiesTab = ({ variant }: Props) => {
   const projectSlug = pageProps?.settings?.statusReport?.variables['<project_slug>'];
   const variables = pageProps?.settings?.statusReport?.variables;
 
-  const obj = {
+  const v = {
+    '<project_slug>': variables?.['<project_slug>'] || '',
+    '<project_title>': variables?.['<project_title>'] || '',
     '<event_type>': variables?.['<event_type>'] || 'pr',
     '<target_id>': variables?.['<target_id>'] || workflow?.id || '',
   };
 
   let preview = '';
   if (statusReport) {
-    if (statusReportName && variables && variables !== null) {
+    if (statusReportName && v !== null) {
       preview = `Preview: ${statusReportName
-        .replace(/<project_slug>/g, variables['<project_slug>'])
-        .replace(/<project_title>/g, variables['<project_title>'])
-        .replace(/<event_type>/g, obj['<event_type>'])
-        .replace(/<target_id>/g, obj['<target_id>'])}`;
+        .replace(/<project_slug>/g, v['<project_slug>'])
+        .replace(/<project_title>/g, v['<project_title>'])
+        .replace(/<event_type>/g, v['<event_type>'])
+        .replace(/<target_id>/g, v['<target_id>'])}`;
     } else {
       preview = `Preview: ci/bitrise/${projectSlug}/pr`;
     }

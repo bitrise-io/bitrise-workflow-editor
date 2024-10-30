@@ -63,12 +63,7 @@ declare global {
           defaultProjectBasedStatusNameTemplate: string;
           defaultTargetBasedStatusNameTemplate: string;
           projectLevelCustomStatusNameTemplate: string;
-          variables: {
-            '<project_slug>': string;
-            '<project_title>': string;
-            '<event_type>': string;
-            '<target_id>': string;
-          };
+          variables: Record<string, string | null>;
         };
       };
     };
