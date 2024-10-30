@@ -185,7 +185,7 @@ angular
       'releaseNotesUrl',
     ]),
   )
-  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['appSlug', 'yml', 'defaultValues', 'onChange', 'isWebsiteMode']))
+  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['appSlug', 'yml', 'defaultValues', 'onChange']))
   .component('rStepSelectorDrawer', register(StepSelectorDrawer, ['yml', 'isOpen', 'onClose', 'enabledSteps', 'onSelectStep']))
   .component(
     'rChainWorkflowDrawer',
