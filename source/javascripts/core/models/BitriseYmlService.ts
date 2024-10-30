@@ -385,9 +385,7 @@ function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: st
 
   copy.pipelines = {
     ...copy.pipelines,
-    ...{
-      [pipelineId]: basePipelineId ? (copy.pipelines?.[basePipelineId] ?? emptyGraphPipeline) : emptyGraphPipeline,
-    },
+    [pipelineId]: basePipelineId ? (copy.pipelines?.[basePipelineId] ?? emptyGraphPipeline) : emptyGraphPipeline,
   };
 
   return copy;
