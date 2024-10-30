@@ -224,24 +224,24 @@ const PropertiesTab = ({ variant }: Props) => {
       <Box gap="8" display="flex" flexDir="column">
         <Input
           label="Git status name"
-          helperText={preview}
+          helperText={`Allowed characters: A-Za-z,.():\\-_0-9<>`}
           placeholder={projectBasedTemplate}
           value={statusReportName}
           onChange={onGitStatusNameChange}
           marginBlockStart="24"
         />
         <Text color="input/text/helper" textStyle="body/sm/regular">
-          {`Allowed characters: A-Za-z,.():\\-_0-9<>`}
-          <br />
+          {preview}
+        </Text>
+        <Text color="input/text/helper" textStyle="body/sm/regular" marginBlockEnd="8">
           You can use the following variables in your string:
         </Text>
-        {variables &&
-          Object.keys(variables).map((variable) => (
-            <CodeSnippet variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
-              {variable}
-            </CodeSnippet>
-          ))}
       </Box>
+      {Object.keys(TOOLTIP_MAP).map((variable) => (
+        <CodeSnippet variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
+          {variable}
+        </CodeSnippet>
+      ))}
     </>
   );
 };
