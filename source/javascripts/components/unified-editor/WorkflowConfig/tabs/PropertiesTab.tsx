@@ -17,6 +17,8 @@ import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import GitStatusNameInput from '../components/GitStatusNameInput';
+import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -150,13 +152,15 @@ const NameInput = ({ variant }: Props) => {
 };
 
 const PropertiesTab = ({ variant }: Props) => {
+  const isGitStatusNameEnabled = useFeatureFlag('enable-custom-commit-status-name');
   const workflow = useWorkflowConfigContext();
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
 
-  const [{ summary, description }, setValues] = useState({
+  const [{ summary, description, statusReportName }, setValues] = useState({
     summary: workflow?.userValues.summary || '',
     description: workflow?.userValues.description || '',
+    statusReportName: workflow?.userValues.status_report_name || '',
   });
 
   const onSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
@@ -171,18 +175,35 @@ const PropertiesTab = ({ variant }: Props) => {
     });
   };
 
+  const onGitStatusNameChange = (newValue: string, isValid: boolean) => {
+    setValues((prev) => ({ ...prev, statusReportName: newValue }));
+    if (isValid) {
+      debouncedUpdateWorkflow(workflow?.id || '', {
+        status_report_name: newValue,
+      });
+    }
+  };
+
   useEffect(() => {
     setValues({
       summary: workflow?.userValues.summary || '',
       description: workflow?.userValues.description || '',
+      statusReportName: workflow?.userValues.status_report_name || '',
     });
-  }, [workflow?.userValues.description, workflow?.userValues.summary]);
+  }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
 
   return (
     <Box gap="24" display="flex" flexDir="column">
       <NameInput variant={variant} />
       <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
       <Textarea label="Description" value={description} onChange={onDescriptionChange} />
+      {isGitStatusNameEnabled && (
+        <GitStatusNameInput
+          workflowId={workflow?.id}
+          onChange={onGitStatusNameChange}
+          statusReportName={statusReportName}
+        />
+      )}
     </Box>
   );
 };

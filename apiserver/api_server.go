@@ -69,7 +69,7 @@ func LaunchServer() error {
 		}
 	}
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe("localhost:"+port, nil); err != nil {
 		return fmt.Errorf("Can't start HTTP listener: %v", err)
 	}
 	return nil
