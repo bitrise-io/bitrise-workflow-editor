@@ -29,7 +29,6 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
       <Dropdown
         flex="1"
         size="md"
-        minW={420}
         disabled={!hasOptions}
         value={selectedPipeline}
         onChange={(e) => onSelectPipeline(e.target.value || '')}

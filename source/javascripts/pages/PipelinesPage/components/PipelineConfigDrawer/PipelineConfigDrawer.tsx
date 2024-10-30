@@ -1,4 +1,4 @@
-import { Button, Input, Text, Textarea } from '@bitrise/bitkit';
+import { Text, Textarea } from '@bitrise/bitkit';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -8,6 +8,8 @@ import FloatingDrawer, {
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import EditableInput from '@/components/EditableInput/EditableInput';
+import PipelineService from '@/core/models/PipelineService';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 import useRenamePipeline from '../../hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '../../PipelinesPage.store';
@@ -16,9 +18,10 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
 };
 
+// TODO: Uncomment the Delete Pipeline button when feature is implemented
 const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   const { setPipelineId } = usePipelinesPageStore();
-  const { onSelectPipeline } = usePipelineSelector();
+  const { onSelectPipeline, keys } = usePipelineSelector();
 
   const { summary, description, updatePipeline } = useBitriseYmlStore((s) => ({
     summary: s.yml.pipelines?.[pipelineId]?.summary || '',
@@ -30,9 +33,20 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
     onSelectPipeline(newPipelineId);
   });
 
-  const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPipelineId(e.target.value);
-    renamePipeline(e.target.value);
+  const onNameChange = (value: string) => {
+    setPipelineId(value);
+    renamePipeline(value);
+  };
+
+  const validateName = (value: string) => {
+    return PipelineService.validateName(
+      value,
+      keys.filter((key) => key !== pipelineId),
+    );
+  };
+
+  const sanitizeName = (value: string) => {
+    return PipelineService.sanitizeName(value);
   };
 
   return (
@@ -46,13 +60,14 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
           </Text>
         </FloatingDrawerHeader>
         <FloatingDrawerBody display="flex" flexDir="column" gap="24">
-          <Input
+          <EditableInput
             isRequired
             name="name"
             label="Name"
-            onChange={onNameChange}
+            sanitize={sanitizeName}
+            validate={validateName}
+            onCommit={onNameChange}
             defaultValue={pipelineId}
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           />
           <Textarea
             name="summary"
@@ -66,9 +81,9 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
             defaultValue={description}
             onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
           />
-          <Button leftIconName="Trash" variant="danger-secondary" alignSelf="flex-start">
+          {/* <Button leftIconName="Trash" variant="danger-secondary" alignSelf="flex-start">
             Delete Pipeline
-          </Button>
+          </Button> */}
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>

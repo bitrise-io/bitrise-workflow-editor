@@ -16,7 +16,7 @@ const PipelineCanvas = () => {
   return (
     <Box bg="background/secondary" flex="1">
       <CanvasComponent proOptions={{ hideAttribution: true }}>
-        <Box position="relative" zIndex="50" p="16" mx="auto" w={['auto', 900]}>
+        <Box position="relative" zIndex="50" p="16" mx="auto" maxW={800}>
           <Toolbar onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)} />
         </Box>
         <Controls />
