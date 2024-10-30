@@ -167,6 +167,7 @@ const PropertiesTab = ({ variant }: Props) => {
     description: workflow?.userValues.description || '',
     statusReportName: workflow?.userValues.status_report_name || '',
   });
+  const [error, setError] = useState<string>('');
 
   const pageProps = WindowUtils.pageProps();
   const statusReport = pageProps?.settings?.statusReport;
@@ -177,15 +178,25 @@ const PropertiesTab = ({ variant }: Props) => {
   let preview = '';
   if (statusReport) {
     if (statusReportName && variables) {
-      preview = statusReportName
+      preview = `Preview: ${statusReportName
         .replace(/<project_slug>/g, variables['<project_slug>'])
         .replace(/<project_title>/g, variables['<project_title>'])
         .replace(/<event_type>/g, variables['<event_type>'])
-        .replace(/<target_id>/g, variables['<target_id>']);
+        .replace(/<target_id>/g, variables['<target_id>'])}`;
     } else {
       preview = `Preview: ci/bitrise/${projectSlug}/pr`;
     }
   }
+
+  const validateCharacters = (value: string) => {
+    const allowedPattern = /^[ A-Za-z,.():/[\]-_|0-9<>]*$/;
+    const invalidChars = Array.from(value).filter((char: string) => !allowedPattern.test(char));
+
+    if (invalidChars.length > 0) {
+      return `"${invalidChars[0]}" is not allowed. Allowed characters: A-Za-z,.():/-_0-9 []|<>`;
+    }
+    return true;
+  };
 
   const onSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, summary: e.target.value }));
@@ -200,10 +211,15 @@ const PropertiesTab = ({ variant }: Props) => {
   };
 
   const onGitStatusNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValues((prev) => ({ ...prev, statusReportName: e.target.value }));
+    const newValue = e.target.value;
+    const validationResult = validateCharacters(newValue);
+
+    setValues((prev) => ({ ...prev, statusReportName: newValue }));
     debouncedUpdateWorkflow(workflow?.id || '', {
-      status_report_name: e.target.value,
+      status_report_name: newValue,
     });
+
+    setError(validationResult === true ? '' : validationResult);
   };
 
   useEffect(() => {
@@ -224,10 +240,13 @@ const PropertiesTab = ({ variant }: Props) => {
       <Box gap="8" display="flex" flexDir="column">
         <Input
           label="Git status name"
-          helperText={`Allowed characters: A-Za-z,.():\\-_0-9<>`}
+          helperText={error || `Allowed characters: A-Za-z,.():/-_0-9 []|<>`}
+          errorText={error}
           placeholder={projectBasedTemplate}
           value={statusReportName}
           onChange={onGitStatusNameChange}
+          withCounter
+          maxLength={100}
           marginBlockStart="24"
         />
         <Text color="input/text/helper" textStyle="body/sm/regular">
