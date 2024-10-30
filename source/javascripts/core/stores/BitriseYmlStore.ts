@@ -1,5 +1,6 @@
 import { createStore, StoreApi } from 'zustand';
 import { BitriseYml, Meta } from '@/core/models/BitriseYml';
+import { PipelineYmlObject } from '@/core/models/Pipeline';
 import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/models/BitriseYmlService';
 import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
@@ -25,6 +26,13 @@ type BitriseYmlStoreState = {
     parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
+
+  // Pipeline related actions
+  createPipeline: (pipelineId: string, basePipelineId?: string) => void;
+  renamePipeline: (pipelineId: string, newPipelineId: string) => void;
+  updatePipeline: (pipelineId: string, pipeline: PipelineYmlObject) => void;
+  deletePipeline: (pipelineId: string) => void;
+
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
   appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
   updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
@@ -110,6 +118,34 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement, state.yml),
+        };
+      });
+    },
+    createPipeline(pipelineId, basePipelineId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.createPipeline(pipelineId, state.yml, basePipelineId),
+        };
+      });
+    },
+    renamePipeline(pipelineId, newPipelineId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.renamePipeline(pipelineId, newPipelineId, state.yml),
+        };
+      });
+    },
+    updatePipeline(pipelineId, pipeline) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipeline(pipelineId, pipeline, state.yml),
+        };
+      });
+    },
+    deletePipeline(pipelineId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deletePipeline(pipelineId, state.yml),
         };
       });
     },
