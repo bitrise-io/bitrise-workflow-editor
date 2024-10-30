@@ -4,13 +4,14 @@ import useNavigation from '@/hooks/useNavigation';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
+  onCreatePipeline?: () => void;
   onRunClick?: () => void;
   onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
 };
 
 // TODO: Enable buttons when the feature is ready
-const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+const Toolbar = ({ onCreatePipeline, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const { replace } = useNavigation();
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
@@ -20,8 +21,10 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
   //   return Boolean(s.yml.pipelines?.[selectedPipeline]?.workflows);
   // });
 
+  // TODO: create button disappers now on search
   return (
     <Box
+      sx={{ '--dropdown-floating-max': '359px' }}
       {...props}
       p="8"
       gap="8"
@@ -45,6 +48,30 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
             {options[key]}
           </DropdownOption>
         ))}
+        <Box
+          w="100%"
+          mt="8"
+          py="12"
+          mb="-12"
+          bottom="-12"
+          position="sticky"
+          borderTop="1px solid"
+          borderColor="border/regular"
+          backgroundColor="background/primary"
+        >
+          <Button
+            w="100%"
+            border="none"
+            fontWeight="400"
+            borderRadius="0"
+            variant="secondary"
+            leftIconName="PlusCircle"
+            justifyContent="flex-start"
+            onClick={onCreatePipeline}
+          >
+            Create Pipeline
+          </Button>
+        </Box>
       </Dropdown>
 
       {/* {shouldShowGraphPipelineActions && (
