@@ -1364,6 +1364,161 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('createPipeline', () => {
+    it('should create a pipeline with empty workflows if base pipeline is missing', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: { p1: { workflows: {} } },
+      };
+
+      const actualYml = BitriseYmlService.createPipeline('p1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should create a pipeline based on an other pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { title: 'Pipeline Title', workflows: { wf1: {} } },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { title: 'Pipeline Title', workflows: { wf1: {} } },
+          pl2: { title: 'Pipeline Title', workflows: { wf1: {} } },
+        },
+      };
+
+      const actualYml = BitriseYmlService.createPipeline('pl2', sourceYml, 'pl1');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('renamePipeline', () => {
+    it('should rename an existing pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { workflows: { wf1: {} } },
+          pl2: { workflows: { wf2: {} } },
+        },
+        trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl2' }],
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { workflows: { wf1: {} } },
+          pl3: { workflows: { wf2: {} } },
+        },
+        trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl3' }],
+      };
+
+      const actualYml = BitriseYmlService.renamePipeline('pl2', 'pl3', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when the pipeline does not exists', () => {
+      it('should return the original yml', () => {
+        const sourceAndExpectedYml: BitriseYml = {
+          format_version: '',
+          pipelines: {
+            pl1: { workflows: { wf1: {} } },
+            pl2: { workflows: { wf2: {} } },
+          },
+          trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl2' }],
+        };
+
+        const actualYml = BitriseYmlService.renamePipeline('pl3', 'pl4', sourceAndExpectedYml);
+
+        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      });
+    });
+  });
+
+  describe('updatePipeline', () => {
+    it('should update the given pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { title: 'title', summary: 'summary' },
+          pl2: { title: 'title', summary: 'summary' },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { summary: 'summary', description: 'description' },
+          pl2: { title: 'title', summary: 'summary' },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipeline('pl1', { title: '', description: 'description' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when pipeline does not exists', () => {
+      it('should return the original yml', () => {
+        const sourceAndExpectedYml: BitriseYml = {
+          format_version: '',
+          pipelines: { pl1: { title: 'title', summary: 'summary' } },
+        };
+
+        const actualYml = BitriseYmlService.updatePipeline('pl2', { description: 'description' }, sourceAndExpectedYml);
+
+        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      });
+    });
+  });
+
+  describe('deletePipeline', () => {
+    it('should remove a pipeline in the whole yml completely', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+          pl2: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+          pl3: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+        },
+        trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl2' }, { pipeline: 'pl3' }],
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl2: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+          pl3: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+        },
+        trigger_map: [{ pipeline: 'pl2' }, { pipeline: 'pl3' }],
+      };
+
+      const actualYml = BitriseYmlService.deletePipeline('pl1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('updateStackAndMachine', () => {
     it('should add stack and machine definition to a given workflow', () => {
       const sourceYml: BitriseYml = {
