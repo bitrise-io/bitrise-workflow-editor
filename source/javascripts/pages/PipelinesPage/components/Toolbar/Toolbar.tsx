@@ -1,6 +1,5 @@
 import { Box, BoxProps, Button, Dropdown, DropdownOption } from '@bitrise/bitkit';
-// import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useNavigation from '@/hooks/useNavigation';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
@@ -11,14 +10,10 @@ type Props = BoxProps & {
 
 // TODO: Enable buttons when the feature is ready
 const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
-  const { replace } = useNavigation();
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
   const hasOptions = keys.length > 0;
-
-  // const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => {
-  //   return Boolean(s.yml.pipelines?.[selectedPipeline]?.workflows);
-  // });
+  const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => !!s.yml.pipelines?.[selectedPipeline]?.workflows);
 
   return (
     <Box
@@ -34,7 +29,7 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
       <Dropdown
         flex="1"
         size="md"
-        maxW={420}
+        minW={420}
         disabled={!hasOptions}
         value={selectedPipeline}
         onChange={(e) => onSelectPipeline(e.target.value || '')}
@@ -47,22 +42,20 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
         ))}
       </Dropdown>
 
-      {/* {shouldShowGraphPipelineActions && (
+      {shouldShowGraphPipelineActions && (
         <>
           <Button size="md" variant="secondary" leftIconName="Settings" onClick={onPropertiesClick}>
             Properties
           </Button>
-          <Button size="md" variant="secondary" leftIconName="Workflow" onClick={onWorkflowsClick}>
+          {/* <Button size="md" variant="secondary" leftIconName="Workflow" onClick={onWorkflowsClick}>
             Workflows
-          </Button>
-          <Button size="md" variant="secondary" leftIconName="Play" onClick={onRunClick}>
-            Run
-          </Button>
+          </Button> */}
         </>
-      )} */}
-      <Button rightIconName="ArrowNorthEast" variant="tertiary" size="md" onClick={() => replace('/yml')}>
-        View configuration YAML
-      </Button>
+      )}
+
+      {/* <Button size="md" variant="secondary" leftIconName="Play" onClick={onRunClick}>
+        Run
+      </Button> */}
     </Box>
   );
 };
