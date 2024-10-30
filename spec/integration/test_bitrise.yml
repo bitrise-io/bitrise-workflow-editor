@@ -1,399 +1,415 @@
----
-format_version: '13'
+format_version: "11"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-project_type: other
-stages:
-  build:
-    workflows:
-    - build_ios: {}
-    - build_android: {}
-    - static_analyses: {}
-  test:
-    workflows:
-    - test_ios: {}
-    - test_android: {}
-pipelines:
-  run_if_test:
-    workflows:
-      build_ios:
-        run_if:
-          expression: "{{ false }}"
-      test_ios:
-        depends_on:
-        - build_ios
-  graph_pipeline:
-    workflows:
-      build_ios: {}
-      test_ios:
-        depends_on:
-        - build_ios
-      build_android: {}
-      test_android:
-        depends_on:
-        - build_android
-      static_analyses:
-        abort_on_fail: true
-  graps-with-two-trains:
-    workflows:
-      A: {}
-      B:
-        depends_on:
-        - A
-      C:
-        depends_on:
-        - B
-      D: {}
-      E:
-        depends_on:
-        - D
-        abort_on_fail: true
-      F:
-        depends_on:
-        - E
-  mostly-skipped-graph:
-    workflows:
-      A:
-        run_if: "{{ false }}"
-      B:
-        run_if: "{{ false }}"
-        depends_on:
-        - A
-      C:
-        run_if: "{{ false }}"
-        depends_on:
-        - A
-      D:
-        depends_on:
-        - B
-        - C
-  with-stages:
-    stages:
-    - build: {}
-    - test: {}
-  dag-fan-out-fan-in:
-    workflows:
-      Pipeline-generator: {}
-      A:
-        run_if: "{{ false }}"
-        depends_on:
-        - Pipeline-generator
-      B:
-        depends_on:
-        - A
-        - Pipeline-generator
-      C:
-        depends_on:
-        - A
-      D:
-        depends_on:
-        - B
-        - C
-      E:
-        depends_on:
-        - D
-      F:
-        depends_on:
-        - D
-        - I
-      G:
-        depends_on:
-        - E
-        - F
-      H:
-        depends_on:
-        - A
-      I:
-        depends_on:
-        - H
-      J:
-        depends_on:
-        - I
-      K:
-        depends_on:
-        - J
-  dag-pipeline:
-    workflows:
-      primary_12: {}
-      primary_11:
-        depends_on:
-        - primary_12
-      primary_10:
-        depends_on:
-        - primary_12
-      primary_9:
-        depends_on:
-        - primary_12
-      primary_8:
-        depends_on:
-        - primary_12
-      primary_7:
-        depends_on:
-        - primary_11
-        - primary_10
-        - primary_9
-        - primary_8
-      primary: {}
-      primary_1: {}
-      primary_2:
-        depends_on:
-        - primary
-        - primary_1
-      primary_3:
-        depends_on:
-        - primary_2
-      primary_4:
-        depends_on:
-        - primary_2
-      primary_5:
-        depends_on:
-        - primary_3
-        - primary_1
-  dag-single-pipeline:
-    workflows:
-      primary: {}
-  dag-train-pipeline:
-    workflows:
-      primary: {}
-      primary_1:
-        depends_on:
-        - primary
-      primary_2:
-        depends_on:
-        - primary_1
-      primary_3:
-        depends_on:
-        - primary_2
-  dag-train-pipeline-with-always-run:
-    workflows:
-      primary: {}
-      primary_1:
-        depends_on:
-        - primary
-      failing_workflow:
-        depends_on:
-        - primary_1
-      primary_3:
-        depends_on:
-        - failing_workflow
-      primary_2:
-        depends_on:
-        - primary_3
-      primary_4:
-        depends_on:
-        - failing_workflow
-      primary_5:
-        depends_on:
-        - primary_4
-        should_always_run: workflow
-      static_analyses:
-        depends_on:
-        - primary_5
-workflows:
-  1111failing_workflow:
-    steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "sleep 30      \necho \"Done waiting!\"\n exit 1"
-    triggers:
-      enabled: false
-    summary: abc
-    envs:
-    - opts:
-        is_expand: false
-      B: B
-    - opts:
-        is_expand: false
-      A: ''
-    - EGYE: FOO
+project_type: ios
+services:
+  postgres:
+    image: postgres:13
+containers:
+  ruby:
+    image: ruby:3.2
+app:
+  envs:
+    - ACCESS_KEY: "120"
+    - GITHUB_TOKEN: GITHUB_TOKEN
       opts:
         is_expand: false
-  static_analyses:
-    steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "sleep 30      \necho \"Done waiting!\"\n exit 1"
-  build_ios:
-    steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "sleep 30      \necho \"Done waiting!\""
-  build_android:
-    steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "sleep 90      \necho \"Done waiting!\""
-  test_android:
-    steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "sleep 30      \necho \"Done waiting!\""
-  test_ios:
-    steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "sleep 90      \necho \"Done waiting!\""
-  _create_artifact:
-    steps:
-    - git-clone@6.2: {}
-    - script@1:
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -x
-
-            echo $BITRISE_TRIGGERED_WORKFLOW_ID-$BITRISE_TRIGGERED_WORKFLOW_TITLE > $BITRISE_DEPLOY_DIR/$BITRISE_TRIGGERED_WORKFLOW_ID.txt
-        - script_file_path: "$a"
-        run_if: 'true'
-    - deploy-to-bitrise-io@2:
-        inputs:
-        - is_compress: 'true'
+    - SLACK_WEBHOOK: https://tempuri.org
+trigger_map:
+  - type: push
+    workflow: wf1
+    push_branch: master
+  - type: push
+    workflow: wf2
+    push_branch: release
+  - type: pull_request
+    workflow: wf3
+    pull_request_target_branch: '*'
+pipelines:
+  pl1:
     triggers:
       push:
-      - branch: "*"
-  _util:
+        - branch: main
+    stages:
+      - st1: { }
+  pl2:
+    stages:
+      - st1: { }
+      - st2: { }
+  pl3:
+    stages:
+      - st3: { }
+      - st2: { }
+      - st1: { }
+  graph-pipeline: 
+    workflows:
+      wf1: { }
+      wf2: { depends_on: [wf1] }
+      wf3: { depends_on: [wf1] }
+      wf4: { depends_on: [wf2, wf3] }
+      wf5: { depends_on: [wf4] }
+stages:
+  st1:
+    workflows:
+      - wf1: { }
+  st2:
+    workflows:
+      - wf2: { }
+      - wf3: { }
+  st3:
+    workflows:
+      - wf1: { }
+      - wf2: { }
+      - wf3: { }
+      - wf4: { }
+      - wf5: { }
+      - wf6: { }
+workflows:
+  wf1:
+    summary: My first workflow
+    description: There will be more to come
+    envs:
+      - TEST: test
+        opts:
+          is_expand: false
     steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: "#!/bin/bash\nMAXWAIT=30\necho \"Waiting\"\nsleep $((RANDOM % MAXWAIT))
-            \     \necho \"Done waiting!\""
-        run_if: 'false'
-  A:
-    before_run:
-    - _create_artifact
-    - _util
+      - github-status@2.4.0:
+          inputs:
+            - api_base_url: https://github.com
+            - set_specific_status: pending
+            - auth_token: $GITHUB_TOKEN
+      - script@1.1.5:
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
+
+                # write your script here
+                git config --global user.name "Bitrise"
+              opts:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-11.3.x
+      - activate-ssh-key: { }
+      - certificate-and-profile-installer@1.10.2: { }
+      - authenticate-host-with-netrc@0.9.4:
+          inputs:
+            - username: $username
+            - password: $PAT
+            - host: github.com
+      - script@1.1:
+          title: Install Swiftlint 0.35
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
+
+                # Installing Swiftlint 0.35.0
+                brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
+      - git-clone@4.0.17:
+          inputs:
+            - clone_depth: "0"
+      - cache-pull@2.1.3: { }
+      - cache-pull@2: { }
+      - authenticate-with-github-oauth@0: { }
+      - cache-pull@2.1: { }
+      - fastlane@2.6:
+          title: Carthage Bootstrap
+          asset_urls:
+            icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
+          inputs:
+            - lane: download_carthage_from_artifactory
+      - deploy-to-itunesconnect-application-loader: { }
+      - fastlane-match@0.2:
+          title: Fastlane Match Development
+          inputs:
+            - git_branch: master
+      - carthage@3.2.1:
+          inputs:
+            - carthage_options: --platform ios --cache-builds
+            - github_access_token: $GITHUB_TOKEN
+      - xcode-build-for-test:
+          inputs:
+            - scheme: $SCHEME_UI_TESTS
+            - project_path: $WORKSPACE_UI_TESTS
+      - virtual-device-testing-for-ios@0.9:
+          inputs:
+            - test_devices: iphonexsmax,12.1,en,portrait
+      - deploy-to-bitrise-io@1.7.1: { }
+      - cache-push@2:
+          inputs:
+            - ignore_check_on_paths: '!./Pods'
+            - cache_paths: ./Carthage -> ./Carthage/Cachefile
+      - slack@3:
+          inputs:
+            - channel: '#test'
+            - channel_on_error: '#test-error'
+            - text_on_error: Oh No!
+            - emoji_on_error: ':white_frowning_face:'
+            - pretext_on_error: '*Failed Bro*'
+            - emoji: ':smile:'
+            - author_name: Bitrise
+            - fields: |
+                App|${BITRISE_APP_TITLE}
+                Branch|${BITRISE_GIT_BRANCH}
+                Workflow|${BITRISE_TRIGGERED_WORKFLOW_ID}
+            - webhook_url: $SLACK_WEBHOOK
     meta:
       bitrise.io:
-        stack: osx-xcode-15.4.x
-  B:
+        stack: osx-xcode-11.3.x
+  wf2:
+    summary: Second workflow
+    description: Second, but definitely not the last
+    triggers:
+      tag:
+        - name:
+            regex: '*'
     before_run:
-    - _create_artifact
-    - _util
-  C:
-    before_run:
-    - _create_artifact
-    - _util
+      - wf1
+    after_run:
+      - wf3
+      - wf7
+      - wf7
+    envs:
+      - opts:
+          is_expand: false
+        project: test
     steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: exit 1
-        run_if: 'false'
-  D:
+      - git::https://github.com/bitrise-steplib/steps-script:
+          title: A script step referenced by git URL
+          summary: All non-overwritten attributes should be the step's default value
+            from step.yml in the step's repository.
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
+
+                # This step is referenced by git URL
+      - git::https://github.com/bitrise-steplib/steps-script@master: { }
+      - git::https://github.com/bitrise-steplib/steps-script@master:
+          title: ""
+      - path::./spec/integration/fixture/test_local_step: { }
+      - path::./spec/integration/fixture/test_local_step:
+          title: A local step with overwritten title & input
+          inputs:
+            - company_name: Bitrise 2
+      - path::./spec/integration/fixture/test_local_step:
+          title: ""
+      - script:
+          title: A script step with overwritten title & input opts
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
+
+                # The 'content' key was needed to be specified, that's how the input is identified. Even if we don't want to change its value, only the opts, like in this situation.
+              opts:
+                is_expand: true
+                title: Modified script input
+      - activate-ssh-key:
+          title: An Activate SSH key step with aliased output
+          outputs:
+            - SSH_AUTH_SOCK: ALIASED_SSH_AUTH_SOCK
+              opts:
+                title: SSH Auth Socket info - aliased to `ALIASED_SSH_AUTH_SOCK`
+      - script:
+          title: A script step with metadata in it
+          meta:
+            bitrise.io:
+              description: Step config part for the Bitrise website.
+              environment: website
+            ship.bitrise.io:
+              summary: Step config part for the Ship add-on.
+  wf3:
+    summary: Third workflow
+    description: The wf3 test workflow
     before_run:
-    - _create_artifact
-    - _util
+      - wf4
+    after_run:
+      - wf5
+      - wf5
+      - wf6
+    envs:
+      - opts:
+          is_expand: false
+        project: vrbo
     steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: " exit 0"
-  E:
-    before_run:
-    - _create_artifact
-    - _util
-  F:
-    before_run:
-    - _create_artifact
-    - _util
-  G:
-    before_run:
-    - _create_artifact
-    - _util
-  H:
-    before_run:
-    - _create_artifact
-    - _util
-  I:
-    before_run:
-    - _create_artifact
-    - _util
+      - activate-ssh-key: { }
+      - git-clone@4.0.17: { }
+      - script@1: { }
+  wf4:
+    envs:
+      - opts:
+          is_expand: false
+        project: testproject
     steps:
-    - script@1:
-        inputs:
-        - script_file_path:
-        - content: 'exit 1 '
-        run_if: 'false'
-  J:
-    before_run:
-    - _create_artifact
-    - _util
-  K:
-    before_run:
-    - _create_artifact
-    - _util
-  Pipeline-generator:
-    before_run:
-    - _create_artifact
-    - _util
-  primary:
-    before_run:
-    - _create_artifact
-    - _util
-    meta:
-      bitrise.io:
-        stack: osx-xcode-edge
-  primary_1:
-    before_run:
-    - _create_artifact
-    - _util
-  primary_10:
-    before_run:
-    - _util
-  primary_11:
-    before_run:
-    - _util
-  primary_12:
-    before_run:
-    - _util
-  primary_2:
-    before_run:
-    - _util
-  primary_3:
-    before_run:
-    - _util
-  primary_4:
-    before_run:
-    - _util
-  primary_5:
-    before_run:
-    - _util
-  primary_6:
-    before_run:
-    - _util
-  primary_7:
-    before_run:
-    - _util
-  primary_8:
-    before_run:
-    - _util
-  primary_9:
-    before_run:
-    - _util
-  test_extended_permission:
+      - script@1: { }
+      - path::./spec/integration/fixture/untitled_step: { }
+      - path::./spec/integration/fixture/test_local_step:
+          summary: A local step with overwritten summary
+          description: This local step has its description overwritten
+          is_always_run: true
+      - path::./spec/integration/fixture/test_local_step: { }
+      - azure-devops-status@1: { }
+  wf5:
+    envs:
+      - opts:
+          is_expand: false
+        project: testproject
     steps:
-    - git-clone@8.2.2: {}
-    - git-tag@1.1.0: {}
-  testing-certificates:
+      - script@1:
+          inputs:
+            - content: '#!/usr/bin/env bash'
+      - xamarin-user-management: { }
+  wf6:
+    summary: this is a short summary
+    description: I don't know what to write here
+    triggers:
+      push:
+        - enabled: false
+          branch: main
+    envs:
+      - WF_NAME: wf6
+        opts:
+          is_expand: false
+      - TEST: 123
+        opts:
+          is_expand: false
+  wf7:
+    summary: Seventh workflow
+    description: Last, but not least important workflow
+    triggers:
+      push:
+        - enabled: false
+          branch: main
+      pull_request:
+        - target_branch: main
+          comment: '[workflow: deploy]'
+        - commit_message:
+            regex: '.*\[workflow: deploy\].*'
+      tag:
+        - name:
+            regex: ^\d\.\d\.\d$
     steps:
-    - certificate-and-profile-installer@1.11.4: {}
-meta:
-  bitrise.io:
-    stack: osx-xcode-edge
-    machine_type_id: g2-m1.4core
-trigger_map:
-- pull_request_label: "*"
-  type: pull_request
-  pipeline: with-stages
-- push_branch: "*"
-  type: push
-  pipeline: with-stages
-- pull_request_source_branch: "*"
-  type: pull_request
-  pipeline: dag-fan-out-fan-in
+      - script@1:
+          inputs:
+            - content: '#!/usr/bin/env bash'
+      - xamarin-user-management: { }
+      - bundle::install_deps: { }
+      - with:
+          container: ruby
+          services:
+            - postgres
+  steplib-steps:
+    steps:
+      - https://github.com/bitrise-io/bitrise-steplib.git::script@0.9.0:
+          title: Full explicit CVS (library::id@version)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello full explicit Bitrise step!"
+      - ::script@0.9.0:
+          title: Implicit library, explicit version (::id@version)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (::id@version)!"
+      - script@0.9.0:
+          title: Implicit library, explicit version (id@version)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (id@version)!"
+      - ::script@:
+          title: Implicit library, implicit version (::id@)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (::id@)!"
+      - script@:
+          title: Implicit library, implicit version (id@)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (id@)!"
+      - script:
+          title: Full implicit CVS (id)
+  custom-steplib-steps:
+    steps:
+      - https://github.com/my-bitrise-steps/custom-steplib.git::script:
+          title: Custom GitHub (org) steplib
+      - https://github.com/zoltanszabo-bitrise/custom-steplib.git::script:
+          title: Custom GitHub (user) steplib
+      - https://gitlab.com/steplib/custom-steplib.git::script:
+          title: Custom GitLab (group) steplib
+      - https://gitlab.com/zoltanszabo-bitrise/custom-steplib.git::script:
+          title: Custom GitLab (user) steplib
+      - https://bitbucket.org/zoltan-szabo-bitrise/custom-steplib.git::script:
+          title: Custom BitBucket steplib
+  git-steps:
+    steps:
+      - git::https://github.com/my-bitrise-steps/steps-fastlane.git@master:
+          title: GitHub (org) (https) step
+          inputs:
+            - lane: github1
+      - git::git@github.com:my-bitrise-steps/steps-fastlane.git@master:
+          title: GitHub (org) (ssh) step
+          inputs:
+            - lane: github2
+      - git::https://github.com/zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitHub (user) (https) step
+          inputs:
+            - lane: github3
+      - git::git@github.com:zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitHub (user) (ssh) step
+          inputs:
+            - lane: github4
+      - git::https://gitlab.com/steplib/steps-fastlane.git@master:
+          title: GitLab (org) (https) step
+          inputs:
+            - lane: gitlab1
+      - git::git@gitlab.com:steplib/steps-fastlane.git@master:
+          title: GitLab (org) (ssh) step
+          inputs:
+            - lane: gitlab2
+      - git::https://gitlab.com/zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitLab (user) (https) step
+          inputs:
+            - lane: gitlab3
+      - git::git@gitlab.com:zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitLab (user) (ssh) step
+          inputs:
+            - lane: gitlab4
+      - git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git@master:
+          title: Bitbucket (https) step
+          inputs:
+            - lane: bitbucket1
+      - git::git@bitbucket.org:zoltan-szabo-bitrise/steps-fastlane.git@master:
+          title: Bitbucket (ssh) step
+          inputs:
+            - lane: bitbucket2
+  local-steps:
+    steps:
+      - path::./spec/integration/fixture/test_local_step: { }
+      - path::./spec/integration/fixture/test_local_step:
+          title: A local step with overwritten title & input
+          inputs:
+            - company_name: Mando
+step_bundles:
+  install_deps:
+    envs:
+      - CACHE_KEY: npm-cache-{{ checksum }}
+        opts: { }
+      - NPM_COMMAND: install
+        opts: { }
