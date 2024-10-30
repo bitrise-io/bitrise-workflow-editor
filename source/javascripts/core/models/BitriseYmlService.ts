@@ -15,7 +15,7 @@ import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
-import { PipelinesYml } from './Pipeline';
+import { PipelinesYml, PipelineYmlObject } from './Pipeline';
 import { BITRISE_STEP_LIBRARY_URL, StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
@@ -378,6 +378,78 @@ function addChainedWorkflow(
   return copy;
 }
 
+function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  const emptyGraphPipeline = { workflows: {} };
+
+  copy.pipelines = {
+    ...copy.pipelines,
+    [pipelineId]: basePipelineId ? (copy.pipelines?.[basePipelineId] ?? emptyGraphPipeline) : emptyGraphPipeline,
+  };
+
+  return copy;
+}
+
+function renamePipeline(pipelineId: string, newPipelineId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.pipelines) {
+    copy.pipelines = Object.fromEntries(
+      Object.entries(copy.pipelines).map(([id, pipeline]) => {
+        return [id === pipelineId ? newPipelineId : id, pipeline];
+      }),
+    );
+  }
+
+  if (copy.trigger_map) copy.trigger_map = renamePipelineInTriggerMap(pipelineId, newPipelineId, copy.trigger_map);
+
+  return copy;
+}
+
+function updatePipeline(pipelineId: string, pipeline: PipelineYmlObject, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  mapValues(pipeline, (value: string, key: never) => {
+    if (copy.pipelines?.[pipelineId]) {
+      if (value) {
+        copy.pipelines[pipelineId][key] = value as never;
+      } else if (shouldRemoveField(value, yml.pipelines?.[pipelineId]?.[key])) {
+        delete copy.pipelines[pipelineId][key];
+      }
+    }
+  });
+
+  return copy;
+}
+
+function deletePipeline(pipelineId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the pipeline is missing in the YML just return the YML
+  if (!copy.pipelines?.[pipelineId]) {
+    return copy;
+  }
+
+  // Remove pipeline from `pipelines` section of the YML
+  delete copy.pipelines[pipelineId];
+
+  // Remove the whole `pipelines` section in the YML if empty
+  if (shouldRemoveField(copy.pipelines, yml.pipelines)) {
+    delete copy.pipelines;
+  }
+
+  // Remove triggers what referencing to the pipeline
+  copy.trigger_map = deletePipelineFromTriggerMap(pipelineId, copy.trigger_map);
+
+  // Remove the whole `trigger_map` section in the YML if empty
+  if (shouldRemoveField(copy.trigger_map, yml.trigger_map)) {
+    delete copy.trigger_map;
+  }
+
+  return copy;
+}
+
 function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -698,6 +770,26 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
   return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
 }
 
+function renamePipelineInTriggerMap(
+  pipelineId: string,
+  newPipelineId: string,
+  triggerMap: TriggerMapYml,
+): TriggerMapYml {
+  return triggerMap.map((trigger) => {
+    const triggerCopy = deepCloneSimpleObject(trigger);
+
+    if (triggerCopy.pipeline === pipelineId) {
+      triggerCopy.pipeline = newPipelineId;
+    }
+
+    return triggerCopy;
+  });
+}
+
+function deletePipelineFromTriggerMap(pipelineId: string, triggerMap: TriggerMapYml = []): TriggerMapYml {
+  return triggerMap.filter((trigger) => trigger.pipeline !== pipelineId);
+}
+
 export default {
   addStep,
   moveStep,
@@ -715,6 +807,10 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   deleteChainedWorkflow,
+  createPipeline,
+  renamePipeline,
+  updatePipeline,
+  deletePipeline,
   updateStackAndMachine,
   updateTriggerMap,
   appendWorkflowEnvVar,
