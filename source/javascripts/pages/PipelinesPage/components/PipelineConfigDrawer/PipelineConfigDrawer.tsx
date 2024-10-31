@@ -1,4 +1,4 @@
-import { Text, Textarea } from '@bitrise/bitkit';
+import { Button, Text, Textarea } from '@bitrise/bitkit';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -12,7 +12,7 @@ import EditableInput from '@/components/EditableInput/EditableInput';
 import PipelineService from '@/core/models/PipelineService';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 import useRenamePipeline from '../../hooks/useRenamePipeline';
-import { usePipelinesPageStore } from '../../PipelinesPage.store';
+import { usePipelinesPageStore, PipelineConfigDialogType } from '../../PipelinesPage.store';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
@@ -20,7 +20,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 
 // TODO: Uncomment the Delete Pipeline button when feature is implemented
 const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
-  const { setPipelineId } = usePipelinesPageStore();
+  const { openDialog, setPipelineId } = usePipelinesPageStore();
   const { onSelectPipeline, keys } = usePipelineSelector();
 
   const { summary, description, updatePipeline } = useBitriseYmlStore((s) => ({
@@ -81,9 +81,14 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
             defaultValue={description}
             onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
           />
-          {/* <Button leftIconName="Trash" variant="danger-secondary" alignSelf="flex-start">
+          <Button
+            onClick={openDialog(PipelineConfigDialogType.DELETE_PIPELINE)}
+            leftIconName="Trash"
+            variant="danger-secondary"
+            alignSelf="flex-start"
+          >
             Delete Pipeline
-          </Button> */}
+          </Button>
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>

@@ -3,11 +3,13 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
+import DeletePipelineDialog from '../DeletePipelineDialog/DeletePipelineDialog';
 
 const Drawers = ({ children }: PropsWithChildren) => {
   const { pipelineId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
-  const { createPipeline } = useBitriseYmlStore((s) => ({
+  const { createPipeline, deletePipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
+    deletePipeline: s.deletePipeline,
   }));
 
   return (
@@ -29,6 +31,14 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onCreatePipeline={createPipeline}
+        />
+      )}
+      {isDialogMounted(PipelineConfigDialogType.DELETE_PIPELINE) && (
+        <DeletePipelineDialog
+          isOpen={isDialogOpen(PipelineConfigDialogType.DELETE_PIPELINE)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onDeletePipeline={deletePipeline}
         />
       )}
     </>
