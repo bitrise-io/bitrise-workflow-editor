@@ -1,30 +1,22 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
-import { UseDisclosureProps } from '@chakra-ui/react';
 import PipelineService from '@/core/models/PipelineService';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
-type FormValues = {
-  pipelineId: string;
-  basePipelineId: string;
-};
-
-type Props = UseDisclosureProps & {
+type Props = Omit<DialogProps, 'title'> & {
   onCreatePipeline: (pipelineId: string, basePipelineId?: string) => void;
 };
 
-const CreatePipelineDialog = ({ onCreatePipeline, ...disclosureProps }: Props) => {
+const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...props }: Props) => {
   const { keys: pipelineIds, onSelectPipeline: setSelectedPipeline } = usePipelineSelector();
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const {
-    reset,
     register,
+    setValue,
     getValues,
     handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<FormValues>({
+    formState: { errors, isDirty, isValid },
+  } = useForm({
     defaultValues: {
       pipelineId: '',
       basePipelineId: '',
@@ -32,17 +24,11 @@ const CreatePipelineDialog = ({ onCreatePipeline, ...disclosureProps }: Props) =
   });
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const filteredValue = PipelineService.sanitizeName(event.target.value);
-    setValue('pipelineId', filteredValue, {
+    setValue('pipelineId', PipelineService.sanitizeName(event.target.value), {
       shouldValidate: true,
       shouldDirty: true,
       shouldTouch: true,
     });
-  };
-
-  const handleClose = () => {
-    onClose();
-    reset();
   };
 
   const handleCreate = handleSubmit(({ pipelineId, basePipelineId }) => {
@@ -55,11 +41,11 @@ const CreatePipelineDialog = ({ onCreatePipeline, ...disclosureProps }: Props) =
     if (pipelineId) {
       setSelectedPipeline(pipelineId);
     }
-    reset();
+    onCloseComplete?.();
   };
 
   return (
-    <Dialog title="Create Pipeline" isOpen={isOpen} onClose={handleClose} onCloseComplete={handleCloseComplete}>
+    <Dialog {...props} title="Create Pipeline" onClose={onClose} onCloseComplete={handleCloseComplete}>
       <DialogBody>
         <Box as="form" display="flex" flexDir="column" gap="24">
           <Input
@@ -74,23 +60,23 @@ const CreatePipelineDialog = ({ onCreatePipeline, ...disclosureProps }: Props) =
               validate: (v) => PipelineService.validateName(v, pipelineIds),
             })}
           />
-          <Select isRequired defaultValue="" label="Based on" {...register('basePipelineId')}>
+          <Select isRequired label="Based on" {...register('basePipelineId')}>
             <option key="" value="">
               An empty pipeline
             </option>
-            {pipelineIds.map((wfName) => (
-              <option key={wfName} value={wfName}>
-                {wfName}
+            {pipelineIds.map((pipelineId) => (
+              <option key={pipelineId} value={pipelineId}>
+                {pipelineId}
               </option>
             ))}
           </Select>
         </Box>
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit" onClick={handleCreate}>
+        <Button type="submit" onClick={handleCreate} isDisabled={!(isDirty && isValid)}>
           Create Pipeline
         </Button>
       </DialogFooter>

@@ -27,6 +27,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <CreatePipelineDialog
           isOpen={isDialogOpen(PipelineConfigDialogType.CREATE_PIPELINE)}
           onClose={closeDialog}
+          onCloseComplete={unmountDialog}
           onCreatePipeline={createPipeline}
         />
       )}

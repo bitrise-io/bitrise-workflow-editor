@@ -13,10 +13,10 @@ type State = {
 };
 
 type Action = {
-  openDialog: (type: PipelineConfigDialogType, pipelineId: string) => () => void;
+  openDialog: (type: PipelineConfigDialogType, pipelineId?: string) => () => void;
   closeDialog: () => void;
   unmountDialog: () => void;
-  setPipelineId: (pipelineId: string) => void;
+  setPipelineId: (pipelineId?: string) => void;
   isDialogOpen: (type: PipelineConfigDialogType) => boolean;
   isDialogMounted: (type: PipelineConfigDialogType) => boolean;
 };
@@ -25,12 +25,14 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   pipelineId: '',
   openedDialogType: PipelineConfigDialogType.NONE,
   mountedDialogType: PipelineConfigDialogType.NONE,
-  openDialog: (type: PipelineConfigDialogType, pipelineId: string) => () => {
-    return set(() => ({
-      pipelineId,
-      openedDialogType: type,
-      mountedDialogType: type,
-    }));
+  openDialog: (type, pipelineId = '') => {
+    return () => {
+      return set(() => ({
+        pipelineId,
+        openedDialogType: type,
+        mountedDialogType: type,
+      }));
+    };
   },
   closeDialog: () => {
     return set(() => ({
@@ -43,15 +45,15 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       mountedDialogType: PipelineConfigDialogType.NONE,
     }));
   },
-  setPipelineId: (pipelineId: string) => {
+  setPipelineId: (pipelineId = '') => {
     return set(() => ({
       pipelineId,
     }));
   },
-  isDialogOpen: (type: PipelineConfigDialogType) => {
+  isDialogOpen: (type) => {
     return get().openedDialogType === type;
   },
-  isDialogMounted: (type: PipelineConfigDialogType) => {
+  isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
 }));
