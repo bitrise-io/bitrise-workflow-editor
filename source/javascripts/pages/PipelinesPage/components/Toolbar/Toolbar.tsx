@@ -1,22 +1,46 @@
-import { Box, BoxProps, Button, Dropdown, DropdownOption } from '@bitrise/bitkit';
+import { useMemo, useState } from 'react';
+import { Box, BoxProps, Button, Dropdown, DropdownSearch, DropdownOption } from '@bitrise/bitkit';
+import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
+  onCreatePipelineClick?: () => void;
   onRunClick?: () => void;
   onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
 };
 
 // TODO: Enable buttons when the feature is ready
-const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => !!s.yml.pipelines?.[selectedPipeline]?.workflows);
 
+  const [search, setSearch] = useState('');
+
+  const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+  const [pipelineIds] = useMemo(() => {
+    const ids: string[] = [];
+
+    keys.forEach((id) => {
+      if (id?.toLowerCase().includes(debouncedSearch?.toLowerCase())) {
+        ids.push(id);
+      }
+    });
+
+    return [ids];
+  }, [debouncedSearch, keys]);
+
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    setDebouncedSearch(value);
+  };
+
   return (
     <Box
+      sx={{ '--dropdown-floating-max': '359px' }}
       {...props}
       p="8"
       gap="8"
@@ -33,12 +57,37 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
         value={selectedPipeline}
         onChange={(e) => onSelectPipeline(e.target.value || '')}
         placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
+        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
       >
-        {keys.map((key) => (
+        {pipelineIds.map((key) => (
           <DropdownOption value={key} key={key}>
             {options[key]}
           </DropdownOption>
         ))}
+        <Box
+          w="100%"
+          mt="8"
+          py="12"
+          mb="-12"
+          bottom="-12"
+          position="sticky"
+          borderTop="1px solid"
+          borderColor="border/regular"
+          backgroundColor="background/primary"
+        >
+          <Button
+            w="100%"
+            border="none"
+            fontWeight="400"
+            borderRadius="0"
+            variant="secondary"
+            leftIconName="PlusCircle"
+            justifyContent="flex-start"
+            onClick={onCreatePipelineClick}
+          >
+            Create Pipeline
+          </Button>
+        </Box>
       </Dropdown>
 
       {shouldShowGraphPipelineActions && (

@@ -7,6 +7,7 @@ type Story = StoryObj<typeof Toolbar>;
 const meta: Meta<typeof Toolbar> = {
   component: Toolbar,
   argTypes: {
+    onCreatePipelineClick: { type: 'function' },
     onRunClick: { type: 'function' },
     onWorkflowsClick: { type: 'function' },
     onPropertiesClick: { type: 'function' },
