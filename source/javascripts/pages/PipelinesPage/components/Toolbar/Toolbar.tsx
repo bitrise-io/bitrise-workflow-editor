@@ -1,4 +1,6 @@
-import { Box, BoxProps, Button, Dropdown, DropdownOption } from '@bitrise/bitkit';
+import { useMemo, useState } from 'react';
+import { Box, BoxProps, Button, Dropdown, DropdownSearch, DropdownOption } from '@bitrise/bitkit';
+import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
@@ -16,7 +18,26 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => !!s.yml.pipelines?.[selectedPipeline]?.workflows);
 
-  // TODO: create button disappers now on search
+  const [search, setSearch] = useState('');
+
+  const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+  const [pipelineIds] = useMemo(() => {
+    const ids: string[] = [];
+
+    keys.forEach((id) => {
+      if (id?.toLowerCase().includes(debouncedSearch?.toLowerCase())) {
+        ids.push(id);
+      }
+    });
+
+    return [ids];
+  }, [debouncedSearch, keys]);
+
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    setDebouncedSearch(value);
+  };
+
   return (
     <Box
       sx={{ '--dropdown-floating-max': '359px' }}
@@ -36,8 +57,9 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         value={selectedPipeline}
         onChange={(e) => onSelectPipeline(e.target.value || '')}
         placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
+        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
       >
-        {keys.map((key) => (
+        {pipelineIds.map((key) => (
           <DropdownOption value={key} key={key}>
             {options[key]}
           </DropdownOption>
