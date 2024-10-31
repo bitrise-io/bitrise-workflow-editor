@@ -450,6 +450,16 @@ function deletePipeline(pipelineId: string, yml: BitriseYml): BitriseYml {
   return copy;
 }
 
+function deletePipelines(pipelineIds: string[], yml: BitriseYml): BitriseYml {
+  let copy = deepCloneSimpleObject(yml);
+
+  pipelineIds.forEach((pipelineId) => {
+    copy = deletePipeline(pipelineId, copy);
+  });
+
+  return copy;
+}
+
 function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -811,6 +821,7 @@ export default {
   renamePipeline,
   updatePipeline,
   deletePipeline,
+  deletePipelines,
   updateStackAndMachine,
   updateTriggerMap,
   appendWorkflowEnvVar,
