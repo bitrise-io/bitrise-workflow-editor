@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import {
   CloseButtonProps,
   Drawer,
@@ -19,11 +18,11 @@ import { Icon } from '@bitrise/bitkit';
 
 type FloatingDrawerProps = DrawerProps;
 
-const FloatingDrawer = memo((props: FloatingDrawerProps) => {
+const FloatingDrawer = (props: FloatingDrawerProps) => {
   return <Drawer isFullHeight {...props} />;
-});
+};
 
-const FloatingDrawerOverlay = memo((props: ModalOverlayProps) => {
+const FloatingDrawerOverlay = (props: ModalOverlayProps) => {
   return (
     <DrawerOverlay
       top="0px"
@@ -31,17 +30,17 @@ const FloatingDrawerOverlay = memo((props: ModalOverlayProps) => {
       {...props}
     />
   );
-});
+};
 
-const FloatingDrawerCloseButton = memo(({ children, ...props }: CloseButtonProps) => {
+const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => {
   return (
     <DrawerCloseButton size="md" {...props}>
       {children ?? <Icon name="Cross" />}
     </DrawerCloseButton>
   );
-});
+};
 
-const FloatingDrawerContent = memo((props: DrawerContentProps) => {
+const FloatingDrawerContent = (props: DrawerContentProps) => {
   return (
     <DrawerContent
       top={0}
@@ -53,23 +52,23 @@ const FloatingDrawerContent = memo((props: DrawerContentProps) => {
       overflow="hidden"
       boxShadow="large"
       borderRadius={[0, 12]}
-      maxWidth={['100%', '50%']}
+      maxWidth={['100%', 'min(50%, 700px)']}
       {...props}
     />
   );
-});
+};
 
-const FloatingDrawerHeader = memo((props: ModalHeaderProps) => {
+const FloatingDrawerHeader = (props: ModalHeaderProps) => {
   return <DrawerHeader p="24" pb="16" color="inherit" textTransform="inherit" fontWeight="inherit" {...props} />;
-});
+};
 
-const FloatingDrawerBody = memo((props: ModalBodyProps) => {
+const FloatingDrawerBody = (props: ModalBodyProps) => {
   return <DrawerBody p="24" pt="16" flex="1" overflowY="auto" {...props} />;
-});
+};
 
-const FloatingDrawerFooter = memo((props: ModalFooterProps) => {
+const FloatingDrawerFooter = (props: ModalFooterProps) => {
   return <DrawerFooter {...props} />;
-});
+};
 
 export {
   FloatingDrawerProps,
