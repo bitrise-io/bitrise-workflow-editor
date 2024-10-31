@@ -69,7 +69,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, workflowActions = {},
             iconName="Link"
             aria-label="Chain Workflows"
             tooltipProps={{ 'aria-label': 'Chain Workflows' }}
-            _groupHover={{ display: 'block' }}
+            _groupHover={{ display: 'inline-flex' }}
             onClick={() => onAddChainedWorkflowClick(id)}
           />
         )}
