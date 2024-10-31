@@ -40,9 +40,9 @@ function updateNodeHeight(id: string, height?: number) {
 
     nodes.forEach((node) => {
       if (node.data.id === id) {
-        graph.setNode(node.data.id, { width: WORKFLOW_NODE_WIDTH, height });
+        graph.setNode(node.data.id, { width: WORKFLOW_NODE_WIDTH, height: height ?? WORKFLOW_NODE_HEIGHT });
       } else {
-        graph.setNode(node.data.id, { width: WORKFLOW_NODE_WIDTH, height: node.height || WORKFLOW_NODE_HEIGHT });
+        graph.setNode(node.data.id, { width: WORKFLOW_NODE_WIDTH, height: node.height ?? WORKFLOW_NODE_HEIGHT });
       }
       node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
     });

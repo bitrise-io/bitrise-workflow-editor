@@ -1,10 +1,22 @@
+import { safeDigest } from "@/services/react-compat";
+
 (function () {
   "use strict";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("PipelinesController", function (appService) {
+    .controller("PipelinesController", function ($rootScope, $scope, appService) {
       var viewModel = this;
       viewModel.yml = appService.appConfig;
+
+      viewModel.onChangeYml = (yml) => {
+        appService.appConfig = yml;
+        safeDigest($rootScope);
+      }
+
+      $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function () {
+        viewModel.yml = appService.appConfig;
+        safeDigest($rootScope);
+      }));
     });
 })();

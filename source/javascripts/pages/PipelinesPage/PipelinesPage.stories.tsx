@@ -7,6 +7,11 @@ export default {
   args: {
     yml: TEST_BITRISE_YML,
   },
+  argTypes: {
+    onChange: {
+      type: 'function',
+    },
+  },
   parameters: {
     layout: 'fullscreen',
   },
