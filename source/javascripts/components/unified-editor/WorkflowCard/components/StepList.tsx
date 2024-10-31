@@ -72,16 +72,24 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
 
   if (isEmpty) {
     return (
-      <EmptyState title="" description="There are no Steps" style={{ padding: 12 }}>
-        <Button
-          variant="secondary"
-          size="md"
-          leftIconName="PlusCircle"
-          alignSelf="stretch"
-          onClick={() => onAddStepClick?.(workflowId, 0)}
-        >
-          Add Step
-        </Button>
+      <EmptyState
+        paddingY="16"
+        paddingX="16"
+        iconName="Steps"
+        title="Empty Workflow"
+        description={onAddStepClick ? 'Add Steps from the library.' : undefined}
+      >
+        {onAddStepClick && (
+          <Button
+            size="md"
+            variant="secondary"
+            alignSelf="stretch"
+            leftIconName="PlusCircle"
+            onClick={() => onAddStepClick(workflowId, 0)}
+          >
+            Add Step
+          </Button>
+        )}
       </EmptyState>
     );
   }

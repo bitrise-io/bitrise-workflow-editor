@@ -2,15 +2,15 @@ const PIPELINE_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
 function validateName(pipelineName: string, pipelineNames?: string[]) {
   if (!String(pipelineName).trim()) {
-    return 'pipeline name is required';
+    return 'Pipeline name is required.';
   }
 
   if (!PIPELINE_NAME_REGEX.test(pipelineName)) {
-    return 'pipeline name must only contain letters, numbers, dashes, underscores or periods';
+    return 'Pipeline name must only contain letters, numbers, dashes, underscores or periods.';
   }
 
   if (pipelineNames?.includes(pipelineName)) {
-    return 'pipeline name should be unique.';
+    return 'Pipeline name should be unique.';
   }
 
   return true;
