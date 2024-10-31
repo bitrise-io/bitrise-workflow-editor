@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Box, BoxProps, Button, Dropdown, DropdownSearch, DropdownOption } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
@@ -38,6 +39,8 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     setDebouncedSearch(value);
   };
 
+  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+
   return (
     <Box
       sx={{ '--dropdown-floating-max': '359px' }}
@@ -64,30 +67,32 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             {options[key]}
           </DropdownOption>
         ))}
-        <Box
-          w="100%"
-          mt="8"
-          py="12"
-          mb="-12"
-          bottom="-12"
-          position="sticky"
-          borderTop="1px solid"
-          borderColor="border/regular"
-          backgroundColor="background/primary"
-        >
-          <Button
+        {isGraphPipelinesEnabled && (
+          <Box
             w="100%"
-            border="none"
-            fontWeight="400"
-            borderRadius="0"
-            variant="secondary"
-            leftIconName="PlusCircle"
-            justifyContent="flex-start"
-            onClick={onCreatePipelineClick}
+            mt="8"
+            py="12"
+            mb="-12"
+            bottom="-12"
+            position="sticky"
+            borderTop="1px solid"
+            borderColor="border/regular"
+            backgroundColor="background/primary"
           >
-            Create Pipeline
-          </Button>
-        </Box>
+            <Button
+              w="100%"
+              border="none"
+              fontWeight="400"
+              borderRadius="0"
+              variant="secondary"
+              leftIconName="PlusCircle"
+              justifyContent="flex-start"
+              onClick={onCreatePipelineClick}
+            >
+              Create Pipeline
+            </Button>
+          </Box>
+        )}
       </Dropdown>
 
       {shouldShowGraphPipelineActions && (

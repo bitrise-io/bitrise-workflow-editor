@@ -2,6 +2,7 @@ const defaultValues = {
   'enable-wfe-pipeline-viewer': false,
   'enable-target-based-triggers': false,
   'enable-custom-commit-status-name': false,
+  'enable-dag-pipelines': false,
 };
 
 type FeatureFlags = typeof defaultValues;
