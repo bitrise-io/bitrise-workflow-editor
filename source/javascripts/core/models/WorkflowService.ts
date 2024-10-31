@@ -1,4 +1,6 @@
 import { Workflows } from '@/core/models/Workflow';
+import { PipelinesYml } from './Pipeline';
+import { StagesYml } from './Stage';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -111,6 +113,34 @@ function getDependantWorkflows(workflows: Workflows, id: string): string[] {
   }, []);
 }
 
+function countInPipelines(id: string, pipelines?: PipelinesYml, stages?: StagesYml) {
+  const pipelineIdsWhereWorkflowIsUsed = new Set<string>();
+
+  Object.entries(pipelines ?? {}).forEach(([pipelineId, pipeline]) => {
+    if (Object.keys(pipeline.workflows ?? {}).includes(id)) {
+      pipelineIdsWhereWorkflowIsUsed.add(pipelineId);
+    }
+
+    pipeline.stages?.forEach((stageObj) => {
+      Object.entries(stageObj ?? {}).forEach(([stageId, stage]) => {
+        stage.workflows?.forEach((workflowObj) => {
+          if (Object.keys(workflowObj ?? {}).includes(id)) {
+            pipelineIdsWhereWorkflowIsUsed.add(pipelineId);
+          }
+        });
+
+        stages?.[stageId]?.workflows?.forEach((workflowObj) => {
+          if (Object.keys(workflowObj ?? {}).includes(id)) {
+            pipelineIdsWhereWorkflowIsUsed.add(pipelineId);
+          }
+        });
+      });
+    });
+  });
+
+  return pipelineIdsWhereWorkflowIsUsed.size;
+}
+
 export default {
   validateName,
   sanitizeName,
@@ -122,4 +152,5 @@ export default {
   getAllWorkflowChains,
   getChainableWorkflows,
   getDependantWorkflows,
+  countInPipelines,
 };

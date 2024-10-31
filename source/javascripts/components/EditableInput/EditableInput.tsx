@@ -15,14 +15,16 @@ type State = {
 };
 
 const EditableInput = ({ sanitize = (value) => value, validate = () => true, onCommit, ...props }: Props) => {
+  const { value, defaultValue, ...inputProps } = props;
+
   // TODO maybe useEditable hook from Chakra UI
   const [editable, updateEditable] = useReducer<Reducer<State, Partial<State>>>(
     (state, partial) => ({ ...state, ...partial }),
     {
       isEditing: false,
-      value: String(props.value ?? props.defaultValue ?? ''),
-      committedValue: String(props.value ?? props.defaultValue ?? ''),
-      validationResult: validate(String(props.value ?? props.defaultValue ?? '')),
+      value: String(value ?? defaultValue ?? ''),
+      committedValue: String(value ?? defaultValue ?? ''),
+      validationResult: validate(String(value ?? defaultValue ?? '')),
     },
   );
 
@@ -32,15 +34,14 @@ const EditableInput = ({ sanitize = (value) => value, validate = () => true, onC
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      const value = sanitize(e.target.value);
-      updateEditable({ value, validationResult: validate(value) });
+      const sanitizedValue = sanitize(e.target.value);
+      updateEditable({ value: sanitizedValue, validationResult: validate(sanitizedValue) });
     },
     [sanitize, validate],
   );
 
   const handleCancel = useCallback(() => {
-    const value = editable.committedValue;
-    updateEditable({ value, isEditing: false, validationResult: true });
+    updateEditable({ value: editable.committedValue, isEditing: false, validationResult: true });
   }, [editable.committedValue]);
 
   const handleCommit = useCallback(() => {
@@ -75,7 +76,7 @@ const EditableInput = ({ sanitize = (value) => value, validate = () => true, onC
 
   return (
     <Input
-      {...props}
+      {...inputProps}
       value={editable.value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
