@@ -6,7 +6,22 @@ import { TriggerItem, Condition, ConditionType, TriggerType } from './TriggersPa
 export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
   let isUsed = false;
   currentTriggers.forEach(({ conditions, id }) => {
-    isUsed = isEqual(conditions, newTrigger.conditions) && id !== newTrigger.id;
+    const newConditions = newTrigger.conditions.map((c) => {
+      if (c.value === '') {
+        return {
+          ...c,
+          value: '*',
+        };
+      }
+      return c;
+    });
+    conditions.forEach((c) => {
+      newConditions.forEach((newC) => {
+        if (isEqual(c, newC) && id !== newTrigger.id) {
+          isUsed = true;
+        }
+      });
+    });
   });
   return isUsed;
 };

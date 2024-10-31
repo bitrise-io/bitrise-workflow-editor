@@ -64,6 +64,9 @@ stages:
       - wf5: { }
       - wf6: { }
 workflows:
+  _wf1:
+    summary: My first workflow
+    description: There will be more to come
   wf1:
     summary: My first workflow
     description: There will be more to come

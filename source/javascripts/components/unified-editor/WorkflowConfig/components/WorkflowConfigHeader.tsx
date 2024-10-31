@@ -13,10 +13,10 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
   const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
   const dependants = useDependantWorkflows(id);
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const shouldShowDeleteButton = variant === 'panel';
-  const shouldShowTriggersTab = variant === 'panel' && isTargetBasedTriggersEnabled;
+  const shouldShowTriggersTab =
+    useFeatureFlag('enable-target-based-triggers') && !WorkflowService.isUtilityWorkflow(id) && variant === 'panel';
 
   return (
     <>
