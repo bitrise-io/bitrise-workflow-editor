@@ -177,7 +177,7 @@
     "null-loader": "^4.0.1",
     "onchange": "^7.1.0",
     "prettier": "^3.3.3",
-    "sass-loader": "^15.0.0",
+    "sass-loader": "^16.0.0",
     "shell-loader": "^1.2.1",
     "start-server-and-test": "^2.0.8",
     "storybook": "^8.4.1",
