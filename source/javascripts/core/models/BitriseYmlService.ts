@@ -460,6 +460,41 @@ function deletePipelines(pipelineIds: string[], yml: BitriseYml): BitriseYml {
   return copy;
 }
 
+function addWorkflowToPipeline(
+  pipelineId: string,
+  workflowId: string,
+  yml: BitriseYml,
+  parentWorkflowId?: string,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]) {
+    return copy;
+  }
+
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (parentWorkflowId) {
+    if (!copy.workflows?.[parentWorkflowId] || !copy.pipelines?.[pipelineId]?.workflows?.[parentWorkflowId]) {
+      return copy;
+    }
+  }
+
+  const workflowToAdd = parentWorkflowId ? { [workflowId]: { depends_on: [parentWorkflowId] } } : { [workflowId]: {} };
+
+  copy.pipelines[pipelineId].workflows = {
+    ...copy.pipelines[pipelineId].workflows,
+    ...workflowToAdd,
+  };
+  return copy;
+}
+
 function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -822,6 +857,7 @@ export default {
   updatePipeline,
   deletePipeline,
   deletePipelines,
+  addWorkflowToPipeline,
   updateStackAndMachine,
   updateTriggerMap,
   appendWorkflowEnvVar,
