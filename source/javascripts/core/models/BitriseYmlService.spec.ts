@@ -1519,6 +1519,167 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('addWorkflowToPipeline', () => {
+    it('should add a root workflow to the given pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl1', 'wf2', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should add a dependant workflow to the given pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: { depends_on: ['wf1'] } },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl1', 'wf2', sourceYml, 'wf1');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should not add a workflow to the given pipeline if the workflow is already there', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl1', 'wf2', sourceAndExpectedYml, 'wf1');
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original yml if the pipeline does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl2', 'wf2', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original yml if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl1', 'wf2', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original yml if the parent workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl1', 'wf2', sourceAndExpectedYml, 'wf3');
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original yml if the parent workflow is not part of the pipeline', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+          wf3: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.addWorkflowToPipeline('pl1', 'wf2', sourceAndExpectedYml, 'wf3');
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('updateStackAndMachine', () => {
     it('should add stack and machine definition to a given workflow', () => {
       const sourceYml: BitriseYml = {
