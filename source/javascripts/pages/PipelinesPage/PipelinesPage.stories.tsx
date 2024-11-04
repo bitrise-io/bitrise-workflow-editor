@@ -33,7 +33,27 @@ type Story = StoryObj<typeof PipelinesPage>;
 
 export const Default: Story = {};
 
+export const Empty: Story = {
+  args: {
+    yml: { format_version: '2' },
+  },
+};
+
 export const WithEnabledDagPipelinesFeature: Story = {
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: { user: {}, account: { 'enable-dag-pipelines': true } },
+      };
+    }
+  },
+};
+
+export const EmptyWithEnabledDagPipelinesFeature: Story = {
+  args: {
+    yml: { format_version: '2' },
+  },
   beforeEach: () => {
     if (window.parent.globalProps) {
       window.parent.globalProps = {
