@@ -6,6 +6,7 @@ type Props = {
 const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
   return (
     <EmptyState
+      flex="1"
       iconName="WorkflowFlow"
       title="Create your first Pipeline"
       description="Utilize enhanced automation for faster build times. Begin by creating your first Pipeline to automate your CI/CD process."
