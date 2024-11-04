@@ -1,3 +1,8 @@
+enum SecretScope {
+  WORKSPACE = 'workspace',
+  APP = 'app',
+}
+
 type Secret = {
   key: string;
   value?: string;
@@ -13,4 +18,4 @@ type Secret = {
   isSaved?: boolean;
 };
 
-export { Secret };
+export { Secret, SecretScope };

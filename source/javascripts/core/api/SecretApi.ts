@@ -1,6 +1,6 @@
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import { Secret } from '@/core/models/Secret';
-import Client from './client'; // Types
+import { Secret, SecretScope } from '@/core/models/Secret';
+import Client from './client';
 
 // Types
 type ApiSecretItem = { [key: string]: unknown } & {
@@ -48,7 +48,7 @@ function fromMonolithResponse(response: MonolithSecretItem): Secret {
     scope: response.scope,
     isExpand: response.expand_in_step_inputs,
     isExpose: response.exposed_for_pull_requests,
-    isShared: response.scope === 'workspace',
+    isShared: response.scope === SecretScope.WORKSPACE,
     isProtected: response.is_protected,
     isKeyChangeable: false,
     isEditing: false,
@@ -76,7 +76,7 @@ function fromLocalResponse(response: LocalSecretItem): Secret {
     scope: response.opts?.scope || 'app',
     isExpand: Boolean(response.opts?.is_expand),
     isExpose: Boolean(response.opts?.meta?.['bitrise.io']?.is_expose),
-    isShared: response.opts?.scope === 'workspace',
+    isShared: response.opts?.scope === SecretScope.WORKSPACE,
     isProtected: Boolean(response.opts?.meta?.['bitrise.io']?.is_protected),
     isKeyChangeable: false,
     isEditing: false,
