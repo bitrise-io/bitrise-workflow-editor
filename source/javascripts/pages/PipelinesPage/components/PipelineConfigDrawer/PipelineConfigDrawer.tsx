@@ -1,4 +1,4 @@
-import { Text, Textarea } from '@bitrise/bitkit';
+import { Button, Text, Textarea, useDisclosure } from '@bitrise/bitkit';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -13,6 +13,7 @@ import PipelineService from '@/core/models/PipelineService';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 import useRenamePipeline from '../../hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '../../PipelinesPage.store';
+import DeletePipelineDialog from './components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
@@ -22,6 +23,13 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   const { setPipelineId } = usePipelinesPageStore();
   const { onSelectPipeline, keys } = usePipelineSelector();
+  const deletePipeline = useBitriseYmlStore((s) => s.deletePipeline);
+
+  const {
+    isOpen: isOpenDeletionDialog,
+    onOpen: onOpenDeleteionDialog,
+    onClose: onCloseDeletionDialog,
+  } = useDisclosure();
 
   const { summary, description, updatePipeline } = useBitriseYmlStore((s) => ({
     summary: s.yml.pipelines?.[pipelineId]?.summary || '',
@@ -49,44 +57,69 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
     return PipelineService.sanitizeName(value);
   };
 
+  const onDeletePipeline = () => {
+    props.onClose();
+    onCloseDeletionDialog();
+    deletePipeline(pipelineId);
+    onSelectPipeline(keys.filter((key) => key !== pipelineId)[0]);
+  };
+
+  if (!pipelineId) {
+    return null;
+  }
+
   return (
-    <FloatingDrawer {...props}>
-      <FloatingDrawerOverlay />
-      <FloatingDrawerContent>
-        <FloatingDrawerCloseButton />
-        <FloatingDrawerHeader>
-          <Text as="h3" textStyle="heading/h3">
-            {pipelineId}
-          </Text>
-        </FloatingDrawerHeader>
-        <FloatingDrawerBody display="flex" flexDir="column" gap="24">
-          <EditableInput
-            isRequired
-            name="name"
-            label="Name"
-            sanitize={sanitizeName}
-            validate={validateName}
-            onCommit={onNameChange}
-            defaultValue={pipelineId}
-          />
-          <Textarea
-            name="summary"
-            label="Summary"
-            defaultValue={summary}
-            onChange={(e) => updatePipeline(pipelineId, { summary: e.target.value })}
-          />
-          <Textarea
-            name="description"
-            label="Description"
-            defaultValue={description}
-            onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
-          />
-          {/* <Button leftIconName="Trash" variant="danger-secondary" alignSelf="flex-start">
-            Delete Pipeline
-          </Button> */}
-        </FloatingDrawerBody>
-      </FloatingDrawerContent>
-    </FloatingDrawer>
+    <>
+      <FloatingDrawer {...props}>
+        <FloatingDrawerOverlay />
+        <FloatingDrawerContent>
+          <FloatingDrawerCloseButton />
+          <FloatingDrawerHeader>
+            <Text as="h3" textStyle="heading/h3">
+              {pipelineId}
+            </Text>
+          </FloatingDrawerHeader>
+          <FloatingDrawerBody display="flex" flexDir="column" gap="24">
+            <EditableInput
+              isRequired
+              name="name"
+              label="Name"
+              sanitize={sanitizeName}
+              validate={validateName}
+              onCommit={onNameChange}
+              defaultValue={pipelineId}
+            />
+            <Textarea
+              name="summary"
+              label="Summary"
+              value={summary}
+              onChange={(e) => updatePipeline(pipelineId, { summary: e.target.value })}
+            />
+            <Textarea
+              name="description"
+              label="Description"
+              value={description}
+              onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
+            />
+            <Button
+              leftIconName="Trash"
+              alignSelf="flex-start"
+              variant="danger-secondary"
+              onClick={onOpenDeleteionDialog}
+            >
+              Delete Pipeline
+            </Button>
+          </FloatingDrawerBody>
+        </FloatingDrawerContent>
+      </FloatingDrawer>
+
+      <DeletePipelineDialog
+        pipelineId={pipelineId}
+        isOpen={isOpenDeletionDialog}
+        onClose={onCloseDeletionDialog}
+        onDeletePipeline={onDeletePipeline}
+      />
+    </>
   );
 };
 
