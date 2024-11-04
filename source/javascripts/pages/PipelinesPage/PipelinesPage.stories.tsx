@@ -26,11 +26,20 @@ export default {
   ],
   beforeEach: () => {
     process.env.MODE = 'cli';
-    window.parent.pageProps = undefined;
-    window.parent.globalProps = undefined;
   },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;
 
 export const Default: Story = {};
+
+export const WithEnabledDagPipelinesFeature: Story = {
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: { user: {}, account: { 'enable-dag-pipelines': true } },
+      };
+    }
+  },
+};

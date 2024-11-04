@@ -47,6 +47,7 @@ const EmptyState = () => {
   if (isGraphPipelinesEnabled) {
     return <CreateFirstGraphPipelineEmptyState onCreate={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)} />;
   }
+
   return <StagePipelineEmptyState />;
 };
 

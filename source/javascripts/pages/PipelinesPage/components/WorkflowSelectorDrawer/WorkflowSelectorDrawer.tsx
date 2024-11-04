@@ -9,11 +9,12 @@ import FloatingDrawer, {
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowsList from './components/WorkflowsList';
 
-type Props = FloatingDrawerProps & {
+type Props = Omit<FloatingDrawerProps, 'children'> & {
+  pipelineId: string;
   onSelectWorkflow: (id: string) => void;
 };
 
-const WorkflowSelectorDrawer = ({ onSelectWorkflow, ...props }: Props) => {
+const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Props) => {
   return (
     <FloatingDrawer {...props}>
       <FloatingDrawerOverlay />
@@ -21,11 +22,11 @@ const WorkflowSelectorDrawer = ({ onSelectWorkflow, ...props }: Props) => {
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">
-            Workflows
+            Add Workflows
           </Text>
         </FloatingDrawerHeader>
         <FloatingDrawerBody display="flex" flexDir="column" gap="12">
-          <WorkflowsList onSelectWorkflow={onSelectWorkflow} />
+          <WorkflowsList pipelineId={pipelineId} onSelectWorkflow={onSelectWorkflow} />
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>
