@@ -72,7 +72,7 @@
     "@tanstack/react-virtual": "^3.10.8",
     "@types/segment-analytics": "^0.0.38",
     "abortcontroller-polyfill": "^1.7.5",
-    "algoliasearch": "^4.24.0",
+    "algoliasearch": "^5.0.0",
     "angular": "^1.8.3",
     "angular-animate": "^1.8.3",
     "angular-cookies": "^1.8.3",
