@@ -1,4 +1,4 @@
-import { Edge, Node } from 'reactflow';
+import { Edge, Node } from '@xyflow/react';
 
 const usePipelineStageEdges = (nodes: Node[]): Edge[] => {
   const edges: Edge[] = [];
@@ -14,7 +14,6 @@ const usePipelineStageEdges = (nodes: Node[]): Edge[] => {
       animated: false,
       deletable: false,
       focusable: false,
-      updatable: false,
       interactionWidth: 0,
       style: { strokeWidth: 2, stroke: 'var(--colors-border-regular)', cursor: 'grab' },
     });

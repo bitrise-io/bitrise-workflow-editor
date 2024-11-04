@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import { Controls, MiniMap } from 'reactflow';
+import { Controls, MiniMap } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 import Toolbar from '../Toolbar/Toolbar';

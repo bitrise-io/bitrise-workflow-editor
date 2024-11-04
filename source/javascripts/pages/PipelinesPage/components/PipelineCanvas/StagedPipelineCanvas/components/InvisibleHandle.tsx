@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { Handle, HandleProps, Position } from 'reactflow';
+import { Handle, HandleProps, Position } from '@xyflow/react';
 
 type Props = HandleProps & { style?: CSSProperties };
 

@@ -1,4 +1,4 @@
-import { Node, Position } from 'reactflow';
+import { Node, Position } from '@xyflow/react';
 import { Stage } from '@/core/models/Stage';
 import {
   CANVAS_PADDING,
@@ -21,7 +21,7 @@ const BASE_Y = CANVAS_PADDING + TOOLBAR_CONTAINER_HEIGHT;
 const runNode = (id: string, x: number): Node => ({
   id: `run-${id}`,
   type: 'run',
-  data: undefined,
+  data: {},
   position: { x, y: BASE_Y + 14 },
   ...commonNodeProps,
 });
@@ -29,7 +29,7 @@ const runNode = (id: string, x: number): Node => ({
 const addNode = (id: string, x: number): Node => ({
   id: `add-${id}`,
   type: 'add',
-  data: undefined,
+  data: {},
   position: { x, y: BASE_Y + 14 },
   ...commonNodeProps,
 });
@@ -37,7 +37,7 @@ const addNode = (id: string, x: number): Node => ({
 const endNode = (id: string, x: number): Node => ({
   id: `end-${id}`,
   type: 'end',
-  data: undefined,
+  data: {},
   position: { x, y: BASE_Y + 14 },
   ...commonNodeProps,
 });

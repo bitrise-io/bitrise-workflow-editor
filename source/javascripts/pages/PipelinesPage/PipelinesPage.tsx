@@ -1,5 +1,6 @@
-import 'reactflow/dist/style.css';
+import '@xyflow/react/dist/style.css';
 import { Box } from '@bitrise/bitkit';
+import { ReactFlowProvider } from '@xyflow/react';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
@@ -22,7 +23,9 @@ const PipelinesPage = ({ yml, onChange }: Props) => {
 
   return (
     <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <PipelinesPageContent />
+      <ReactFlowProvider>
+        <PipelinesPageContent />
+      </ReactFlowProvider>
     </BitriseYmlProvider>
   );
 };

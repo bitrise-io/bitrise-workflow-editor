@@ -1,13 +1,14 @@
-import { Edge, Node } from 'reactflow';
+import { Edge, Node } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 
-export default function transformWorkflowsToNodesAndEdges(workflows: PipelineWorkflow[]) {
+export default function transformWorkflowsToNodesAndEdges(workflows: PipelineWorkflow[], position = { x: 0, y: 0 }) {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
   workflows.forEach((workflow) => {
     nodes.push({
+      position,
       id: workflow.id,
       data: workflow,
       type: 'workflow',
@@ -16,7 +17,6 @@ export default function transformWorkflowsToNodesAndEdges(workflows: PipelineWor
       focusable: false,
       selectable: true,
       connectable: false,
-      position: { x: 0, y: 0 },
       width: WORKFLOW_NODE_WIDTH,
       height: WORKFLOW_NODE_HEIGHT,
     });
@@ -29,6 +29,7 @@ export default function transformWorkflowsToNodesAndEdges(workflows: PipelineWor
         type: 'graph-edge',
         deletable: false,
         focusable: false,
+        selectable: false,
         reconnectable: false,
       });
     });
