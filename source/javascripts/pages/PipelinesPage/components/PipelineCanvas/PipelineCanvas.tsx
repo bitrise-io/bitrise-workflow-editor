@@ -22,6 +22,7 @@ const PipelineCanvas = () => {
         position="absolute"
         transform="translateX(-50%)"
         width="clamp(0px, calc(100% - 32px), 768px)"
+        onWorkflowsClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
         onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
         onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)}
       />

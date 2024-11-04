@@ -42,6 +42,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(PipelineConfigDialogType.WORKFLOW_SELECTOR) && (
         <WorkflowSelectorDrawer
+          pipelineId={pipelineId}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_SELECTOR)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
