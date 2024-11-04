@@ -5,10 +5,8 @@ import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
 
 const Drawers = ({ children }: PropsWithChildren) => {
+  const { createPipeline } = useBitriseYmlStore((s) => ({ createPipeline: s.createPipeline }));
   const { pipelineId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
-  const { createPipeline } = useBitriseYmlStore((s) => ({
-    createPipeline: s.createPipeline,
-  }));
 
   return (
     <>
