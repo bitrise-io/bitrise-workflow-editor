@@ -141,7 +141,7 @@
     "@webpack-cli/serve": "^2.0.5",
     "angular-mocks": "1.8.3",
     "compression-webpack-plugin": "^11.1.0",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.0.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "cypress": "^13.15.1",
