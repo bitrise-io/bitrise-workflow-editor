@@ -6,5 +6,6 @@
   "asdf": {
     "enabled": false
   },
-  "schedule": ["before 4am on Monday"]
+  "schedule": ["before 4am on Monday"],
+  "rebaseWhen": "never"
 }
