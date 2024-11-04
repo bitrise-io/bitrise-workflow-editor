@@ -4,7 +4,7 @@ const NoWorkflowsEmptyState = () => {
   return (
     <EmptyState
       iconName="WorkflowFlow"
-      title="There are no Workflows"
+      title="There are no available Workflows"
       description="Create Workflows to start building a Pipeline."
     />
   );

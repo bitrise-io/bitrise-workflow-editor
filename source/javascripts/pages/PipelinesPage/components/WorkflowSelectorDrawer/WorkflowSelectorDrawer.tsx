@@ -22,7 +22,7 @@ const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Prop
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">
-            Workflows
+            Add Workflows
           </Text>
         </FloatingDrawerHeader>
         <FloatingDrawerBody display="flex" flexDir="column" gap="12">
