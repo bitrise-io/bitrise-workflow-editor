@@ -212,7 +212,7 @@ const StepCard = ({
                 colorScheme="orange"
                 aria-label="Update to latest step version"
                 tooltipProps={{ 'aria-label': 'Update to latest step version' }}
-                _groupHover={{ display: 'block' }}
+                _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onUpgradeStep?.(workflowId, stepIndex, latestMajor ?? '');
@@ -226,7 +226,7 @@ const StepCard = ({
                 iconName="Duplicate"
                 aria-label="Clone this step"
                 tooltipProps={{ 'aria-label': 'Clone this step' }}
-                _groupHover={{ display: 'block' }}
+                _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onCloneStep(workflowId, stepIndex);
@@ -241,7 +241,7 @@ const StepCard = ({
                 iconName="MinusCircle"
                 aria-label="Remove this step"
                 tooltipProps={{ 'aria-label': 'Remove this step' }}
-                _groupHover={{ display: 'block' }}
+                _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onDeleteStep(workflowId, stepIndex);

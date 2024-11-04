@@ -152,8 +152,12 @@ const NameInput = ({ variant }: Props) => {
 };
 
 const PropertiesTab = ({ variant }: Props) => {
-  const isGitStatusNameEnabled = useFeatureFlag('enable-custom-commit-status-name');
   const workflow = useWorkflowConfigContext();
+
+  const isGitStatusNameEnabled =
+    useFeatureFlag('enable-custom-commit-status-name') &&
+    !WorkflowService.isUtilityWorkflow(workflow?.id || '') &&
+    variant === 'panel';
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
 

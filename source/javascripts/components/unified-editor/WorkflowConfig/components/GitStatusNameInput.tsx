@@ -33,9 +33,9 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
   const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
 
   const variables: Record<string, string | null> = {
-    '<event_type>': 'pr',
-    '<target_id>': workflowId || '',
     ...pageProps?.settings?.statusReport?.variables,
+    '<target_id>': pageProps?.settings?.statusReport?.variables['<target_id>'] || workflowId || '',
+    '<event_type>': 'pr',
   };
 
   let preview = !statusReportName ? `Preview: ${projectBasedTemplate}` : `Preview: ${statusReportName}`;
