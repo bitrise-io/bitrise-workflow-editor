@@ -15,13 +15,13 @@ const PipelineCanvas = () => {
 
   return (
     <Box bg="background/secondary" flex="1">
+      <Box position="relative" zIndex="50" p="16" mx="auto" maxW={800}>
+        <Toolbar
+          onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
+          onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE, '')}
+        />
+      </Box>
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
-        <Box position="relative" zIndex="50" p="16" mx="auto" maxW={800}>
-          <Toolbar
-            onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
-            onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE, '')}
-          />
-        </Box>
         <Controls />
         <MiniMap />
       </CanvasComponent>

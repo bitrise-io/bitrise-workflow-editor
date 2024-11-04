@@ -9,7 +9,7 @@ import FloatingDrawer, {
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowsList from './components/WorkflowsList';
 
-type Props = FloatingDrawerProps & {
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   onSelectWorkflow: (id: string) => void;
 };
 
