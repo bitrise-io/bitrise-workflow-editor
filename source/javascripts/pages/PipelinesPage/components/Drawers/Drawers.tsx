@@ -13,6 +13,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
     addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
 
+  const handleAddWorkflowToPipeline = (id: string) => {
+    addWorkflowToPipeline(pipelineId, id);
+    closeDialog();
+  };
+
   return (
     <>
       {children}
@@ -40,7 +45,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_SELECTOR)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onSelectWorkflow={(workflowId) => addWorkflowToPipeline(pipelineId, workflowId)}
+          onSelectWorkflow={handleAddWorkflowToPipeline}
         />
       )}
     </>
