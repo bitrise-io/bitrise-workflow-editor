@@ -60,8 +60,8 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   const onDeletePipeline = () => {
     props.onClose();
     onCloseDeletionDialog();
-    onSelectPipeline(keys[0]);
     deletePipeline(pipelineId);
+    onSelectPipeline(keys.filter((key) => key !== pipelineId)[0]);
   };
 
   if (!pipelineId) {
