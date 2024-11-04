@@ -4,7 +4,6 @@ export enum PipelineConfigDialogType {
   NONE,
   PIPELINE_CONFIG,
   CREATE_PIPELINE,
-  DELETE_PIPELINE,
 }
 
 type State = {
