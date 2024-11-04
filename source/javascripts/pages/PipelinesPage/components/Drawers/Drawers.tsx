@@ -3,10 +3,15 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
+import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { createPipeline } = useBitriseYmlStore((s) => ({ createPipeline: s.createPipeline }));
   const { pipelineId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
+
+  const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
+    createPipeline: s.createPipeline,
+    addWorkflowToPipeline: s.addWorkflowToPipeline,
+  }));
 
   return (
     <>
@@ -27,6 +32,16 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onCreatePipeline={createPipeline}
+        />
+      )}
+
+      {isDialogMounted(PipelineConfigDialogType.WORKFLOW_SELECTOR) && (
+        <WorkflowSelectorDrawer
+          pipelineId={pipelineId}
+          isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_SELECTOR)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onSelectWorkflow={(workflowId) => addWorkflowToPipeline(pipelineId, workflowId)}
         />
       )}
     </>

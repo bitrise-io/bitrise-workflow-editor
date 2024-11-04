@@ -103,7 +103,7 @@ const DrawerStepCard = ({
           name="PlusCircle"
           color="icon/interactive"
           display="none"
-          _groupHover={{ display: 'block' }}
+          _groupHover={{ display: 'inline-block' }}
         />
       )}
     </Card>

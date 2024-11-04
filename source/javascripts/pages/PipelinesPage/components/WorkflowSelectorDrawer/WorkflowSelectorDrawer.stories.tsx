@@ -9,6 +9,7 @@ const meta: Meta<typeof WorkflowSelectorDrawer> = {
   component: WorkflowSelectorDrawer,
   args: {
     isOpen: true,
+    pipelineId: 'graph-pipeline',
   },
   argTypes: {
     onClose: { type: 'function' },

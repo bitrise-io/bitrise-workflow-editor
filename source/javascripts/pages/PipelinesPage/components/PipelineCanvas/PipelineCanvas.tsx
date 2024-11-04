@@ -14,14 +14,19 @@ const PipelineCanvas = () => {
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
 
   return (
-    <Box bg="background/secondary" flex="1">
+    <Box bg="background/secondary" flex="1" position="relative">
+      <Toolbar
+        top="16"
+        left="50%"
+        zIndex="10"
+        position="absolute"
+        transform="translateX(-50%)"
+        width="clamp(0px, calc(100% - 32px), 768px)"
+        onWorkflowsClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
+        onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
+        onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)}
+      />
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
-        <Box position="relative" zIndex="50" p="16" mx="auto" maxW={800}>
-          <Toolbar
-            onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
-            onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE, '')}
-          />
-        </Box>
         <Controls />
         <MiniMap />
       </CanvasComponent>

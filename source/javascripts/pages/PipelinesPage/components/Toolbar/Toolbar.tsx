@@ -95,14 +95,14 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         )}
       </Dropdown>
 
-      {shouldShowGraphPipelineActions && (
+      {shouldShowGraphPipelineActions && isGraphPipelinesEnabled && (
         <>
           <Button size="md" variant="secondary" leftIconName="Settings" onClick={onPropertiesClick}>
             Properties
           </Button>
-          {/* <Button size="md" variant="secondary" leftIconName="Workflow" onClick={onWorkflowsClick}>
+          <Button size="md" variant="secondary" leftIconName="Plus" onClick={onWorkflowsClick}>
             Workflows
-          </Button> */}
+          </Button>
         </>
       )}
 

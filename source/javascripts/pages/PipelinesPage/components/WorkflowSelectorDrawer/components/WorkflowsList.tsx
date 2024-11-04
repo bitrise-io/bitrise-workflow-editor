@@ -2,20 +2,27 @@ import { useState } from 'react';
 import { Input } from '@bitrise/bitkit';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import NoWorkflowsEmptyState from './NoWorkflowsEmptyState';
 import SearchResultEmptyState from './SearchResultEmptyState';
 import SelectableWorkflowCard from './SelectableWorkflowCard';
 
 type Props = {
+  pipelineId: string;
   onSelectWorkflow: (id: string) => void;
 };
 
-const WorkflowsList = ({ onSelectWorkflow }: Props) => {
+const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const workflows = useWorkflows();
   const [search, setSearch] = useState('');
+  const workflowIdsInPipeline = useBitriseYmlStore((s) => Object.keys(s.yml.pipelines?.[pipelineId]?.workflows || {}));
 
   const workflowIds = Object.keys(workflows).filter((id) => {
-    return !WorkflowService.isUtilityWorkflow(id) && id.toLowerCase().includes(search.toLowerCase());
+    return (
+      !workflowIdsInPipeline.includes(id) &&
+      !WorkflowService.isUtilityWorkflow(id) &&
+      id.toLowerCase().includes(search.toLowerCase())
+    );
   });
 
   const hasNoWorkflows = workflowIds.length === 0;
