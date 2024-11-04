@@ -11,8 +11,7 @@
       Step,
       Variable,
       Stack,
-      MachineType,
-      appServiceUtil
+      MachineType
     ) {
       var appService = {
         appDetails: undefined,
@@ -348,7 +347,13 @@
 
         return validateVariables(appLevelSecrets, true, true)
           .then(function () {
-            _.each(appService.secrets, appServiceUtil.handleSecretAfterSave);
+            _.each(appService.secrets, function (secret) {
+              secret.isKeyChangeable = false;
+              secret.shouldShowValue = false;
+              if (secret.isProtected()) {
+                secret.value(null);
+              }
+            });
             appService.savedSecrets = angular.copy(appService.secrets);
           });
       };

@@ -5,7 +5,6 @@ import RequestService from "./services/request-service";
 import loggerFactory from "./services/logger";
 import workflowSelectionserviceFactory from "./services/workflows-selection-service";
 import workflowSelectionStore from "./services/workflow-selection-store";
-import * as appService from "./services/app-service";
 
 angular
   .module("BitriseWorkflowEditor")
@@ -30,9 +29,6 @@ angular
   })
   .factory("RequestService", function (logger) {
     return new RequestService(logger);
-  })
-  .factory("appServiceUtil", function () {
-    return appService;
   })
   .factory("workflowSelectionStore", function () {
     return workflowSelectionStore;

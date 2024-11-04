@@ -1,11 +1,11 @@
 import _ from "underscore";
 import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
-import { safeDigest } from "@/services/react-compat";
+import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
+import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
-import { segmentTrack } from "@/utils/segmentTracking";
+import {segmentTrack} from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -27,7 +27,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
       Progress,
       Popup,
       Stack,
-      appServiceUtil,
       logger,
       MachineType,
       launchDarklyService,
@@ -365,7 +364,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save({ shouldReturnPromise: true, source: "unsaved_changes_save_button" }).then(
+              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
                 function () {
                   resolve();
                 },
@@ -380,7 +379,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           );
         }).then(
           function () {
-            logger.setTags({ menuID: menu.id });
+            logger.setTags({menuID: menu.id});
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -404,8 +403,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             if ($location.path() != "/" + menu.path) {
               if (params) {
                 $location.path("/" + menu.path).search(params).replace();
-              }
-              else {
+              } else {
                 $location.path("/" + menu.path).replace();
               }
             }
@@ -569,7 +567,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({ shouldReturnPromise, source = 'save_changes_button' }) {
+      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
@@ -659,7 +657,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
               }
             }
           )
-          ;
+        ;
 
         if (shouldReturnPromise) {
           return promise;
@@ -699,7 +697,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
+            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
           }
 
           return false;
@@ -937,21 +935,20 @@ import { segmentTrack } from "@/utils/segmentTracking";
           if (secret.scope() === 'workspace') return true;
 
           // remove the ones that are not in the react list
-          return secretsFromReact.filter(s => !s.isShared).find((s) => s.key === secret.key())
+          return secretsFromReact.find((s) => !s.isShared && s.key === secret.key())
         });
 
         // edit existing ones
         appService.secrets.forEach(secret => {
           if (secret.scope() === 'workspace') return;
 
-          const s = secretsFromReact.find((s) => s.key === secret.key() && !s.isShared);
+          const updatedSecret = secretsFromReact.find((s) => !s.isShared && s.key === secret.key());
 
-          if (s) {
-            secret.value(s.value);
-            secret.isProtected(s.isProtected);
-            secret.isExpose(s.isExpose);
-            secret.isExpand(s.isExpand);
-            secret.isKeyChangeable = s.isKeyChangeable;
+          if (updatedSecret) {
+            secret.value(updatedSecret.value);
+            secret.isProtected(updatedSecret.isProtected);
+            secret.isExpose(updatedSecret.isExpose);
+            secret.isExpand(updatedSecret.isExpand);
           }
 
           return secret;
@@ -961,18 +958,14 @@ import { segmentTrack } from "@/utils/segmentTracking";
         secretsFromReact.forEach(secret => {
           if (secret.isShared) return;
 
-          const existingSecret = appService.secrets
-            .filter(s => s.scope() !== 'workspace')
-            .filter(s => {
-              return s.key() === secret.key;
-            });
+          const existingSecret = appService.secrets.find(s => s.scope() !== 'workspace' && s.key() === secret.key);
 
-          if (!existingSecret.length) {
+          if (!existingSecret) {
             let newVariable = new Variable(
               {
                 "": ""
               },
-              Variable.defaultVariableConfig()
+              Variable.defaultVariableConfig(),
             )
 
             newVariable.key(secret.key);
@@ -985,7 +978,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           }
         });
 
-        appService.savedSecrets = appService.secrets;
+        appService.saveSecrets();
       }
 
       window.parent.addEventListener('navigation.replace', (e) => {
