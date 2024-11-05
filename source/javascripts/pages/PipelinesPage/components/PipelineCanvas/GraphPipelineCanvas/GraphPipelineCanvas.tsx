@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { ReactFlow, EdgeTypes, NodeTypes, ReactFlowProps, useEdgesState, useNodesState } from '@xyflow/react';
-import { Box } from '@bitrise/bitkit';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import WorkflowNode from './components/WorkflowNode';
@@ -35,26 +34,25 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
     [onNodesChange, setNodes],
   );
 
-  if (nodes.length === 0) {
-    return (
-      <Box pt="128">
+  return (
+    <>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={autoLayoutOnNodesChange}
+        {...props}
+      />
+      {nodes.length === 0 && (
         <GraphPipelineCanvasEmptyState
+          inset="0"
+          position="absolute"
           onAddWorkflow={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
         />
-      </Box>
-    );
-  }
-
-  return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      onEdgesChange={onEdgesChange}
-      onNodesChange={autoLayoutOnNodesChange}
-      {...props}
-    />
+      )}
+    </>
   );
 };
 
