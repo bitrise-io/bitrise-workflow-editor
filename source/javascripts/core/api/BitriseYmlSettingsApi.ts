@@ -1,5 +1,5 @@
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
-import Client from './client'; // DTOs
+import Client from './client';
 
 // DTOs
 type BitriseYmlSettingsResponse = {
@@ -48,6 +48,7 @@ async function getYmlSettings({
   const response = await Client.get<BitriseYmlSettingsResponse>(getYmlSettingsPath(appSlug), {
     signal,
   });
+
   return toYmlSettings(response);
 }
 
@@ -59,7 +60,7 @@ function updateYmlSettings({
   appSlug: string;
   model: Partial<BitriseYmlSettings>;
   signal?: AbortSignal;
-}): Promise<BitriseYmlSettingsResponse> {
+}): Promise<BitriseYmlSettingsResponse | undefined> {
   return Client.put<BitriseYmlSettingsResponse>(getYmlSettingsPath(appSlug), {
     body: JSON.stringify(toYmlSettingUpdateModel(model)),
     signal,

@@ -75,10 +75,10 @@ function useUpsertSecret({
   options,
 }: {
   appSlug: string;
-  options?: Omit<UseMutationOptions<Secret, DefaultError, Secret>, 'mutationFn'>;
+  options?: Omit<UseMutationOptions<Secret | undefined, DefaultError, Secret>, 'mutationFn'>;
 }) {
   const queryClient = useQueryClient();
-  return useMutation<Secret, DefaultError, Secret>({
+  return useMutation<Secret | undefined, DefaultError, Secret>({
     mutationFn: (secret) => SecretApi.upsertSecret({ appSlug, secret }),
     ...options,
     onSuccess: (data, variable, context) => {

@@ -57,7 +57,9 @@ const SecretCard = (props: SecretCardProps) => {
     options: {
       onSuccess(newSecret) {
         resetSave();
-        onSave(newSecret);
+        if (newSecret) {
+          onSave(newSecret);
+        }
       },
     },
   });

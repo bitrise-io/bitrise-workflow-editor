@@ -1,5 +1,6 @@
 import { parse, stringify } from 'yaml';
 import { BitriseYml } from '@/core/models/BitriseYml';
+import RuntimeUtils from '@/core/utils/RuntimeUtils'; // TRANSFORMATIONS
 import Client from './client';
 
 // TRANSFORMATIONS
@@ -35,6 +36,7 @@ function fromYml(yml: string): unknown {
 
 // API CALLS
 const BITRISE_YML_PATH = `/api/app/:appSlug/config`;
+const LOCAL_BITRISE_YAML_PATH = `/api/bitrise-yml.json`;
 const FORMAT_YML_PATH = `/api/cli/format`;
 
 function getBitriseYmlPath({ appSlug, readFromRepo = false }: { appSlug: string; readFromRepo?: boolean }): string {
@@ -49,10 +51,14 @@ async function getBitriseYml({
   readFromRepo?: boolean;
   signal?: AbortSignal;
 }): Promise<BitriseYml> {
-  const response = await Client.get<string>(getBitriseYmlPath(params), {
-    signal,
-  });
-  return toBitriseYml(response);
+  if (RuntimeUtils.isWebsiteMode()) {
+    const response = await Client.text(getBitriseYmlPath(params), {
+      signal,
+    });
+    return toBitriseYml(response);
+  }
+
+  return Client.text(LOCAL_BITRISE_YAML_PATH).then(toBitriseYml);
 }
 
 function updateBitriseYml({
@@ -70,13 +76,19 @@ function updateBitriseYml({
   });
 }
 
-function formatYml(model: unknown): Promise<string> {
-  return Client.post<string>(FORMAT_YML_PATH, {
-    body: toJSON(model),
-    headers: {
-      Accept: 'application/x-yaml, application/json',
-    },
-  });
+async function formatYml(model: unknown): Promise<string> {
+  if (RuntimeUtils.isWebsiteMode()) {
+    const response = await Client.post<string>(FORMAT_YML_PATH, {
+      body: toJSON(model),
+      headers: {
+        Accept: 'application/x-yaml, application/json',
+      },
+    });
+
+    return response || '';
+  }
+
+  return toJSON(model);
 }
 
 export default {

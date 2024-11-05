@@ -48,7 +48,13 @@ const StepConfigPanel = ({
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
   const { mutate: createSecret } = useUpsertSecret({
     appSlug,
-    options: { onSuccess: onCreateSecretAngular },
+    options: {
+      onSuccess: (data) => {
+        if (data) {
+          onCreateSecretAngular(data);
+        }
+      },
+    },
   });
 
   return (

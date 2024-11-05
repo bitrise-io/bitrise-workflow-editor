@@ -1,6 +1,6 @@
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { Secret, SecretScope } from '@/core/models/Secret';
-import Client from './client';
+import Client from './client'; // Types
 
 // Types
 type ApiSecretItem = { [key: string]: unknown } & {
@@ -147,7 +147,7 @@ async function getSecretValue({
   }
 
   // CLI mode
-  return '';
+  return undefined;
 }
 
 async function upsertSecret({
@@ -158,20 +158,27 @@ async function upsertSecret({
   appSlug: string;
   secret: Secret;
   signal?: AbortSignal;
-}): Promise<Secret> {
+}): Promise<Secret | undefined> {
   if (RuntimeUtils.isWebsiteMode()) {
     const opts: RequestInit = {
       body: JSON.stringify(toMonolithUpdateRequest(secret)),
       signal,
     };
 
+    let response;
     if (secret.isSaved) {
-      return Client.patch<MonolithSecretItem>(getSecretItemPath({ appSlug, secretKey: secret.key }), opts).then(
-        fromMonolithResponse,
+      response = await Client.patch<MonolithSecretItem>(
+        getSecretItemPath({
+          appSlug,
+          secretKey: secret.key,
+        }),
+        opts,
       );
+    } else {
+      response = await Client.post<MonolithSecretItem>(getSecretPath(appSlug), opts);
     }
 
-    return Client.post<MonolithSecretItem>(getSecretPath(appSlug), opts).then(fromMonolithResponse);
+    return response ? fromMonolithResponse(response) : undefined;
   }
 
   const secrets = await getSecrets({ appSlug, signal });

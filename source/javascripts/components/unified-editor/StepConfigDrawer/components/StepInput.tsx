@@ -38,8 +38,10 @@ const StepInput = forwardRef(
     const { mutate: createSecret } = useUpsertSecret({
       appSlug: WindowUtils.appSlug() ?? '',
       options: {
-        onSuccess: ({ key }) => {
-          insertVariable(key);
+        onSuccess: (data) => {
+          if (data) {
+            insertVariable(data.key);
+          }
         },
       },
     });
