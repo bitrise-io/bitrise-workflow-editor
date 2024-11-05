@@ -10,9 +10,9 @@ import {
   WORKFLOW_NODE_WIDTH,
 } from '../GraphPipelineCanvas.const';
 
-const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
 export default function autoLayoutingGraphNodes(nodes: Node[]) {
+  const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+
   graph.setGraph({
     align: 'UL',
     rankdir: 'LR',
