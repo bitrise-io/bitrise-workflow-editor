@@ -219,13 +219,15 @@ async function getCustomStepByCvs(cvs: string, defaultStepLibrary: string): Prom
       body: JSON.stringify({ libraries: [url] }),
       cache: 'force-cache',
     });
-    CustomStepCache.set(url, result);
+    if (result) {
+      CustomStepCache.set(url, result);
+    }
   }
 
-  const requestedVersion = version || result.library_map[url]?.steps[id]?.latest_version_number;
-  const stepYml = result.library_map[url]?.steps[id]?.versions[requestedVersion];
+  const requestedVersion = version || result?.library_map[url]?.steps[id]?.latest_version_number;
+  const stepYml = requestedVersion ? result?.library_map[url]?.steps[id]?.versions[requestedVersion] : undefined;
 
-  return toStep(cvs, defaultStepLibrary, { id, version, step: stepYml });
+  return toStep(cvs, defaultStepLibrary, { id, version, step: stepYml ?? {} });
 }
 
 async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
@@ -247,7 +249,7 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
     const result = await Client.post<{ step: StepYmlObject }>(LOCAL_STEP_API, {
       body: JSON.stringify({ id, library: 'git', version }),
     });
-    stepYml = result.step;
+    stepYml = result?.step ?? {};
   } else {
     const url = StepService.getRawGitUrl(cvs, defaultStepLibrary);
     if (url.startsWith('https://gitlab.com')) {
@@ -284,7 +286,7 @@ async function getLocalStepByCvs(cvs: string, defaultStepLibrary: string): Promi
     body: JSON.stringify({ id: url, version, library: 'path' }),
   });
 
-  return toStep(cvs, defaultStepLibrary, result);
+  return toStep(cvs, defaultStepLibrary, result ?? {});
 }
 
 async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable[]> {

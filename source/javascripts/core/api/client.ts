@@ -7,7 +7,10 @@ const DEFAULT_HEADERS = {
   'Content-Type': 'application/json',
 };
 
-type ExtraOpts = { excludeCSRF?: boolean; timeout?: number };
+type ExtraOpts = {
+  excludeCSRF?: boolean;
+  timeout?: number;
+};
 type ClientOpts = RequestInit & ExtraOpts;
 
 class NetworkError extends Error {
@@ -17,36 +20,34 @@ class NetworkError extends Error {
   }
 }
 
-async function client<T>(url: string, options?: ClientOpts) {
-  // Include CSRF token in headers if not excluded
-  const csrfHeader = !options?.excludeCSRF ? { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') } : undefined;
-  const headers = merge({}, DEFAULT_HEADERS, options?.headers, csrfHeader);
+async function client(url: string, options?: ClientOpts) {
+  const headers = merge(
+    {},
+    DEFAULT_HEADERS,
+    options?.headers,
+    !options?.excludeCSRF && { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') },
+  );
 
-  const externalSignal = options?.signal;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort('TimeoutError');
-  }, options?.timeout ?? DEFAULT_TIMEOUT);
-
-  if (externalSignal) {
-    externalSignal.addEventListener('abort', () => {
-      controller.abort();
-      clearTimeout(timeoutId);
-    });
-  }
+  const timeoutId = setTimeout(() => controller.abort('TimeoutError'), options?.timeout ?? DEFAULT_TIMEOUT);
+  options?.signal?.addEventListener('abort', () => {
+    controller.abort();
+    clearTimeout(timeoutId);
+  });
 
   try {
-    const opts = merge({}, options, {
+    const response = await fetch(url, {
+      ...options,
       headers,
       signal: controller.signal,
     });
-    const response = await fetch(url, opts);
     clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new NetworkError(`HTTP ${response.status} ${response.statusText}`);
     }
-    return (await response.json()) as T;
+
+    return response;
   } catch (error) {
     clearTimeout(timeoutId);
     handleError(error);
@@ -59,7 +60,7 @@ function handleError(error: unknown): never {
     throw error;
   } else if (error instanceof DOMException) {
     if (error.name === 'TimeoutError') {
-      console.error('Timout Error:', error);
+      console.error('Timeout Error:', error);
     } else {
       console.error('Abort Error:', error);
     }
@@ -76,55 +77,57 @@ function handleError(error: unknown): never {
   }
 }
 
-function get<T>(url: string, options?: ClientOpts) {
-  return client<T>(url, { ...options, method: 'GET' });
+async function get<T>(url: string, options?: ClientOpts) {
+  const response = await client(url, { ...options, method: 'GET' });
+  return (await response.json()) as T;
 }
 
-function post<T>(url: string, options?: ClientOpts) {
-  return client<T>(url, { ...options, method: 'POST' });
+async function post<T>(url: string, options?: ClientOpts) {
+  const response = await client(url, { ...options, method: 'POST' });
+
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return undefined;
+  }
+
+  return (await response.json()) as T;
 }
 
-function put<T>(url: string, options?: ClientOpts) {
-  return client<T>(url, { ...options, method: 'PUT' });
+async function put<T>(url: string, options?: ClientOpts) {
+  const response = await client(url, { ...options, method: 'PUT' });
+
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return;
+  }
+
+  return (await response.json()) as T;
 }
 
-function patch<T>(url: string, options?: ClientOpts) {
-  return client<T>(url, { ...options, method: 'PATCH' });
+async function patch<T>(url: string, options?: ClientOpts) {
+  const response = await client(url, { ...options, method: 'PATCH' });
+
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return;
+  }
+
+  return (await response.json()) as T;
 }
 
-function del<T>(url: string, options?: ClientOpts) {
-  return client<T>(url, { ...options, method: 'DELETE' });
+async function del<T>(url: string, options?: ClientOpts) {
+  const response = await client(url, { ...options, method: 'DELETE' });
+
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return;
+  }
+
+  return (await response.json()) as T;
 }
 
 async function text(url: string, options?: ClientOpts) {
-  const externalSignal = options?.signal;
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort('TimeoutError');
-  }, options?.timeout ?? DEFAULT_TIMEOUT);
-
-  if (externalSignal) {
-    externalSignal.addEventListener('abort', () => {
-      controller.abort();
-      clearTimeout(timeoutId);
-    });
-  }
-
-  try {
-    const opts = merge({}, options, {
-      signal: controller.signal,
-    });
-    const response = await fetch(url, opts);
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new NetworkError(`HTTP ${response.status} ${response.statusText}`);
-    }
-    return await response.text();
-  } catch (error) {
-    clearTimeout(timeoutId);
-    handleError(error);
-  }
+  const response = await client(url, {
+    ...options,
+    method: 'GET',
+  });
+  return response.text();
 }
 
 export default {

@@ -21,9 +21,9 @@ const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogPro
       { workflowId, branch },
       {
         onSuccess: (data) => {
-          if (data.build_url) {
-            onClose();
-            window.open(data.build_url, '_blank');
+          onClose();
+          if (data?.build_url) {
+            window.open(data?.build_url, '_blank');
           }
         },
         onError: (error) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Badge,
   Box,
@@ -21,80 +21,60 @@ import {
 } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { queryClient } from '../../utils/withQueryClientProvider';
-import { monolith } from '../../hooks/api/client';
-import useGetSecretValue from '../../hooks/api/useGetSecretValue';
-import { SecretWithState } from '../../models';
+import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
+import { Secret } from '@/core/models/Secret';
 
 interface SecretCardProps extends CardProps {
   appSlug: string;
-  secret: SecretWithState;
+  secret: Secret;
   onEdit: (id: string) => void;
   onCancel: () => void;
   onDelete: (id: string) => void;
-  onSave: (secret: SecretWithState) => void;
+  onSave: (secret: Secret) => void;
   isKeyUsed: (key: string) => boolean;
   secretSettingsUrl?: string;
-  writeSecrets: boolean;
 }
 
 const SecretCard = (props: SecretCardProps) => {
-  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl, writeSecrets } = props;
+  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl } = props;
 
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
 
-  const {
-    call: fetchSecretValue,
-    value: fetchedSecretValueOld,
-    isLoading: isSecretValueLoadingOld,
-  } = useGetSecretValue(appSlug, secret.key);
-  const { data: fetchedSecret, isFetching: isSecretValueLoadingNew } = useQuery<{ value: string }>({
-    queryKey: ['app', appSlug, 'secret', secret.key],
-    async queryFn() {
-      const resp = await monolith.get<{ value: string }>(`/apps/${appSlug}/secrets/${secret.key}`);
-      return resp.data;
-    },
-    enabled: isShown && writeSecrets,
-    placeholderData: (prev) => prev,
-    staleTime: Infinity,
+  const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
+    appSlug,
+    secretKey: secret.key,
+    options: { enabled: !secret.isProtected && isShown },
   });
-  const fetchedSecretValue = fetchedSecretValueOld || fetchedSecret?.value;
-  const isSecretValueLoading = isSecretValueLoadingOld || isSecretValueLoadingNew;
+
   const {
     mutate: saveSecret,
     isError: saveError,
     isPending: saveLoading,
     reset: resetSave,
-  } = useMutation<unknown, unknown, SecretWithState>({
-    mutationFn: (newSecret) => {
-      const body = {
-        name: newSecret.key,
-        value: newSecret.value,
-        expandInStepInputs: newSecret.isExpand,
-        exposedForPullRequests: newSecret.isExpose,
-        isProtected: newSecret.isProtected,
-      };
-      if (newSecret.isSaved) {
-        return monolith.patch(`/apps/${appSlug}/secrets/${newSecret.key}`, body);
-      }
-      return monolith.post(`/apps/${appSlug}/secrets`, body);
-    },
-    onSuccess(_data, newSecret) {
-      resetSave();
-      onSave(newSecret);
-      queryClient.invalidateQueries({ queryKey: ['app', appSlug, 'secret', secret.key] });
+  } = useUpsertSecret({
+    appSlug,
+    options: {
+      onSuccess(newSecret) {
+        resetSave();
+        if (newSecret) {
+          onSave(newSecret);
+        }
+      },
     },
   });
 
-  const handleSave = (value: SecretWithState) => {
-    if (writeSecrets) {
-      saveSecret(value);
-    } else {
-      onSave(value);
+  const secretValue = useMemo(() => {
+    if (!secret.isEditing && !isShown) {
+      return '••••••••';
     }
-  };
+
+    if (secret.isProtected) {
+      return '';
+    }
+
+    return fetchedSecretValue || secret.value;
+  }, [fetchedSecretValue, isShown, secret.isEditing, secret.isProtected, secret.value]);
 
   const {
     register,
@@ -102,23 +82,14 @@ const SecretCard = (props: SecretCardProps) => {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<SecretWithState>({
-    values: { ...secret, value: secret.isEditing || isShown ? fetchedSecretValue || secret.value : '••••••••' },
+  } = useForm<Secret>({
+    values: {
+      ...secret,
+      value: secretValue,
+    },
   });
 
-  const showSecretValue = () => {
-    setIsShown(true);
-
-    if (secret.isSaved && !secret.isProtected && !writeSecrets) {
-      fetchSecretValue();
-    }
-  };
-
-  const hideSecretValue = () => {
-    setIsShown(false);
-  };
-
-  const onFormSubmit = (formData: SecretWithState) => {
+  const onFormSubmit = (formData: Secret) => {
     if (secret.isShared) return;
 
     if (!secret.isProtected && formData.isProtected) {
@@ -128,14 +99,13 @@ const SecretCard = (props: SecretCardProps) => {
     }
   };
 
-  const saveForm = (formData: SecretWithState) => {
+  const saveForm = (formData: Secret) => {
     setIsShown(false);
-    handleSave(formData);
+    saveSecret(formData);
   };
 
   const onCancelClick = () => {
     setIsShown(false);
-
     onCancel();
   };
 
@@ -144,11 +114,11 @@ const SecretCard = (props: SecretCardProps) => {
   const showHideButton = (
     <IconButton
       size="md"
-      iconName={isShown ? 'HidePassword' : 'ShowPassword'}
-      onClick={() => (isShown ? hideSecretValue() : showSecretValue())}
-      aria-label={isShown ? 'Hide' : 'Show'}
-      borderLeftRadius={0}
       variant="secondary"
+      borderLeftRadius={0}
+      aria-label={isShown ? 'Hide' : 'Show'}
+      iconName={isShown ? 'HidePassword' : 'ShowPassword'}
+      onClick={() => (isShown ? setIsShown(false) : setIsShown(true))}
     />
   );
 
@@ -173,7 +143,15 @@ const SecretCard = (props: SecretCardProps) => {
     if (secret.isEditing) {
       return (
         <Textarea
-          sx={{ '& textarea': { minHeight: '40', height: '40', paddingTop: '8', paddingX: '11px', fontSize: '2' } }}
+          sx={{
+            '& textarea': {
+              minHeight: '40',
+              height: '40',
+              paddingTop: '8',
+              paddingX: '11px',
+              fontSize: '2',
+            },
+          }}
           {...register('value', { required: 'This field is required.' })}
         />
       );
@@ -191,7 +169,7 @@ const SecretCard = (props: SecretCardProps) => {
         type={isShown ? 'text' : 'password'}
         rightAddon={valueInputAddon}
         rightAddonPlacement="inside"
-        value={watch('value')}
+        value={watch('value') || ''}
       />
     );
   };
@@ -240,8 +218,7 @@ const SecretCard = (props: SecretCardProps) => {
                     aria-label="Edit secret"
                     variant="tertiary"
                     onClick={() => {
-                      showSecretValue();
-
+                      setIsShown(true);
                       onEdit?.(secret.key);
                     }}
                     marginLeft="8"

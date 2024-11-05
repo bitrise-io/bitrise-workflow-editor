@@ -1,27 +1,32 @@
-import { DefaultError, useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query';
+import {
+  DefaultError,
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 import { Secret } from '@/core/models/Secret';
 import SecretApi from '@/core/api/SecretApi';
 
-function getSecretsQueryKey(appSlug: string, useApi: boolean) {
-  return ['app', appSlug, 'secrets', { useApi }];
+function getSecretsQueryKey(appSlug: string) {
+  return ['app', appSlug, 'secrets'];
 }
 
-function getSecretValueQueryKey(appSlug: string, secretKey: string, useApi: boolean) {
-  return ['app', appSlug, 'secret', secretKey, { useApi }];
+function getSecretValueQueryKey(appSlug: string, secretKey: string) {
+  return ['app', appSlug, 'secret', secretKey];
 }
 
 function useSecrets({
   appSlug,
-  useApi = false,
   options,
 }: {
   appSlug: string;
-  useApi?: boolean;
   options?: Omit<UseQueryOptions<Secret[]>, 'queryKey' | 'queryFn'>;
 }) {
   return useQuery<Secret[]>({
-    queryKey: getSecretsQueryKey(appSlug, useApi),
-    queryFn: ({ signal }) => SecretApi.getSecrets({ appSlug, useApi, signal }),
+    queryKey: getSecretsQueryKey(appSlug),
+    queryFn: ({ signal }) => SecretApi.getSecrets({ appSlug, signal }),
     staleTime: 0,
     gcTime: 0,
     ...options,
@@ -32,16 +37,14 @@ function useSecretValue({
   appSlug,
   secretKey,
   options,
-  useApi = false,
 }: {
   appSlug: string;
   secretKey: string;
-  useApi?: boolean;
   options?: Omit<UseQueryOptions<string | undefined>, 'queryKey' | 'queryFn'>;
 }) {
   return useQuery<string | undefined>({
-    queryKey: getSecretValueQueryKey(appSlug, secretKey, useApi),
-    queryFn: ({ signal }) => SecretApi.getSecretValue({ appSlug, secretKey, useApi, signal }),
+    queryKey: getSecretValueQueryKey(appSlug, secretKey),
+    queryFn: ({ signal }) => SecretApi.getSecretValue({ appSlug, secretKey, signal }),
     staleTime: 0,
     gcTime: 0,
     ...options,
@@ -53,25 +56,36 @@ function useDeleteSecret({
   options,
 }: {
   appSlug: string;
-  options?: Omit<UseMutationOptions<never, DefaultError, string>, 'mutationFn'>;
+  options?: Omit<UseMutationOptions<unknown, DefaultError, string>, 'mutationFn'>;
 }) {
-  return useMutation<never, DefaultError, string>({
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, DefaultError, string>({
     mutationFn: (secretKey) => SecretApi.deleteSecret({ appSlug, secretKey }),
     ...options,
+    onSuccess: (data, variable, context) => {
+      queryClient.refetchQueries({ queryKey: [getSecretsQueryKey(appSlug)] });
+      options?.onSuccess?.(data, variable, context);
+    },
   });
 }
 
-function useUpdateSecret({
+function useUpsertSecret({
   appSlug,
   options,
 }: {
   appSlug: string;
-  options?: Omit<UseMutationOptions<Secret, DefaultError, Secret>, 'mutationFn'>;
+  options?: Omit<UseMutationOptions<Secret | undefined, DefaultError, Secret>, 'mutationFn'>;
 }) {
-  return useMutation<Secret, DefaultError, Secret>({
-    mutationFn: (secret) => SecretApi.updateSecret({ appSlug, secret }),
+  const queryClient = useQueryClient();
+  return useMutation<Secret | undefined, DefaultError, Secret>({
+    mutationFn: (secret) => SecretApi.upsertSecret({ appSlug, secret }),
     ...options,
+    onSuccess: (data, variable, context) => {
+      queryClient.refetchQueries({ queryKey: [getSecretsQueryKey(appSlug)] });
+      options?.onSuccess?.(data, variable, context);
+    },
   });
 }
 
-export { useSecrets, useSecretValue, useDeleteSecret, useUpdateSecret };
+export { useSecrets, useSecretValue, useDeleteSecret, useUpsertSecret };
