@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
 
 type Props = BoxProps;
@@ -50,4 +51,4 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
   );
 };
 
-export default AddStepButton;
+export default memo(AddStepButton);

@@ -1,4 +1,4 @@
-import { CSSProperties, useRef } from 'react';
+import { CSSProperties, memo, useRef } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { useResizeObserver } from 'usehooks-ts';
 import { Handle, Node, NodeProps, Position, useEdges, useReactFlow } from '@xyflow/react';
@@ -24,7 +24,7 @@ const WorkflowNode = ({ id, isConnectable, zIndex }: Props) => {
   const hasDependants = edges.some(({ source }) => source === id);
   const hasDependencies = edges.some(({ target }) => target === id);
 
-  useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }, { replace: true }) });
+  useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
   return (
     <>
@@ -49,4 +49,4 @@ const WorkflowNode = ({ id, isConnectable, zIndex }: Props) => {
   );
 };
 
-export default WorkflowNode;
+export default memo(WorkflowNode);

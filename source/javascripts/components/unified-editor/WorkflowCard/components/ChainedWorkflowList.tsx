@@ -1,12 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, BoxProps, Icon } from '@bitrise/bitkit';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import { EMPTY_ACTIONS, SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
 
@@ -46,8 +46,8 @@ const ChainedWorkflowList = ({
   placement,
   containerProps,
   parentWorkflowId,
-  workflowActions = {},
-  stepActions = {},
+  stepActions = EMPTY_ACTIONS,
+  workflowActions = EMPTY_ACTIONS,
 }: Props) => {
   const { onChainedWorkflowsUpdate } = workflowActions;
   const isAfterRun = placement === 'after_run';
@@ -207,4 +207,4 @@ const ChainedWorkflowList = ({
   );
 };
 
-export default ChainedWorkflowList;
+export default memo(ChainedWorkflowList);

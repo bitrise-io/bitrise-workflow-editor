@@ -32,3 +32,5 @@ export type SortableStepItem = {
   stepIndex: number;
   workflowId: string;
 };
+
+export const EMPTY_ACTIONS = {};

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -8,7 +8,7 @@ import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import { EMPTY_ACTIONS, SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
@@ -31,10 +31,10 @@ const ChainedWorkflowCard = ({
   uniqueId,
   placement,
   isDragging,
-  parentWorkflowId,
   containerProps,
-  workflowActions = {},
-  stepActions = {},
+  parentWorkflowId,
+  stepActions = EMPTY_ACTIONS,
+  workflowActions = EMPTY_ACTIONS,
 }: Props) => {
   const { onEditWorkflowClick, onChainedWorkflowsUpdate, onAddChainedWorkflowClick, onDeleteChainedWorkflowClick } =
     workflowActions;
@@ -199,4 +199,4 @@ const ChainedWorkflowCard = ({
   );
 };
 
-export default ChainedWorkflowCard;
+export default memo(ChainedWorkflowCard);

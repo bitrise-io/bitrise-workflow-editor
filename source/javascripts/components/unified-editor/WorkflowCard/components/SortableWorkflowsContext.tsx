@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { PropsWithChildren, RefObject, useCallback, useState } from 'react';
+import { memo, PropsWithChildren, RefObject, useCallback, useState } from 'react';
 import {
   closestCenter,
   CollisionDetection,
@@ -66,4 +66,4 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
   );
 };
 
-export default SortableWorkflowsContext;
+export default memo(SortableWorkflowsContext);
