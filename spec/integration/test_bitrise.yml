@@ -24,6 +24,29 @@ trigger_map:
   - type: pull_request
     workflow: wf3
     pull_request_target_branch: '*'
+pipelines:
+  pl1:
+    triggers:
+      push:
+        - branch: main
+    stages:
+      - st1: { }
+  pl2:
+    stages:
+      - st1: { }
+      - st2: { }
+  pl3:
+    stages:
+      - st3: { }
+      - st2: { }
+      - st1: { }
+  graph-pipeline: 
+    workflows:
+      wf1: { }
+      wf2: { depends_on: [wf1] }
+      wf3: { depends_on: [wf1] }
+      wf4: { depends_on: [wf2, wf3] }
+      wf5: { depends_on: [wf4] }
 stages:
   st1:
     workflows:
