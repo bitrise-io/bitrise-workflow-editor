@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useDisclosure } from '@bitrise/bitkit';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
+import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+import { MockYml } from '@/core/models/BitriseYml.mocks';
 import StepSelectorDrawer from './StepSelectorDrawer';
 
 export default {
@@ -15,6 +17,7 @@ export default {
   args: {
     defaultIsOpen: true,
   },
+  decorators: [(Story) => withBitriseYml(MockYml, Story)],
   parameters: {
     msw: {
       handlers: [StepApiMocks.getAlgoliaSteps({ status: 'success' })],
