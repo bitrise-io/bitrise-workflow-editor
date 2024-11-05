@@ -1,21 +1,32 @@
 import { Meta, StoryObj } from '@storybook/react';
-
-import EnvVarsPage from './SecretsPage';
+import noop from 'lodash/noop';
+import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import SecretsPage from './SecretsPage';
 
 export default {
-  component: EnvVarsPage,
+  component: SecretsPage,
   args: {
-    envVars: [
-      { key: 'key1', value: 'value1', id: '1' },
-      { key: 'key2', value: 'value2', id: '2' },
-      { key: 'key3', value: 'value3', id: '3' },
-    ],
-    secrets: [],
+    appSlug: 'app-slug',
+    onSecretsChange: noop,
+    sharedSecretsAvailable: false,
   },
-} as Meta<typeof EnvVarsPage>;
+  parameters: {
+    msw: {
+      handlers: [getSecrets(), getSecretsFromLocal()],
+    },
+  },
+} as Meta<typeof SecretsPage>;
 
-export const EnvVarsPageEmptyState: StoryObj<typeof EnvVarsPage> = {};
+export const SecretsPageEmptyState: StoryObj<typeof SecretsPage> = {
+  parameters: {
+    msw: { handlers: [getSecretsFromLocal([])] },
+  },
+};
 
-export const EnvVarsPageWithTriggerMap: StoryObj<typeof EnvVarsPage> = {
-  args: {},
+export const Secrets: StoryObj<typeof SecretsPage> = {};
+
+export const SecretsShared: StoryObj<typeof SecretsPage> = {
+  args: {
+    sharedSecretsAvailable: true,
+  },
 };

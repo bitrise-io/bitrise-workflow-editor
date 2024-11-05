@@ -1,11 +1,11 @@
 import _ from "underscore";
 import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
-import { safeDigest } from "@/services/react-compat";
+import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
+import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
-import { segmentTrack } from "@/utils/segmentTracking";
+import {segmentTrack} from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -27,10 +27,10 @@ import { segmentTrack } from "@/utils/segmentTracking";
       Progress,
       Popup,
       Stack,
-      appServiceUtil,
       logger,
       MachineType,
-      launchDarklyService
+      launchDarklyService,
+      Variable
     ) {
       var viewModel = this;
 
@@ -121,8 +121,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
       viewModel.shouldAllowYMLMenuWithoutDiscard = false;
       viewModel.lastWorkflowEditedDate;
-
-      viewModel.isFirstBuildExperienceEnabled = false;
 
       viewModel.isDiffEditorEnabled = false;
       viewModel.isDiffDialogOpen = false;
@@ -265,8 +263,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             case "code-signing":
               resolve();
             case "secrets":
-              appService.getSecrets().then(resolve, reject);
-
+              resolve();
               break;
             case "stack":
               appService.getAppConfigYML();
@@ -367,7 +364,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save({ shouldReturnPromise: true, source: "unsaved_changes_save_button" }).then(
+              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
                 function () {
                   resolve();
                 },
@@ -382,7 +379,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           );
         }).then(
           function () {
-            logger.setTags({ menuID: menu.id });
+            logger.setTags({menuID: menu.id});
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -406,8 +403,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             if ($location.path() != "/" + menu.path) {
               if (params) {
                 $location.path("/" + menu.path).search(params).replace();
-              }
-              else {
+              } else {
                 $location.path("/" + menu.path).replace();
               }
             }
@@ -571,7 +567,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({ shouldReturnPromise, source = 'save_changes_button' }) {
+      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
@@ -611,7 +607,8 @@ import { segmentTrack } from "@/utils/segmentTracking";
                     })
                     .then(resolve, reject);
                 case "secrets":
-                  return appService.saveSecrets(viewModel.appSecretsWriteNew).then(resolve, reject);
+                  resolve();
+                  break;
                 case "stack":
                   viewModel.dataToSave = appService.appConfig;
                   var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
@@ -660,7 +657,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
               }
             }
           )
-          ;
+        ;
 
         if (shouldReturnPromise) {
           return promise;
@@ -700,7 +697,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
+            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
           }
 
           return false;
@@ -824,9 +821,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
         $q(function (resolve, reject) {
           launchDarklyService.initialize().then(() => {
-            viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
-            viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
-            viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
             viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
             viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
 
@@ -929,6 +923,63 @@ import { segmentTrack } from "@/utils/segmentTracking";
           app_slug: appService.appDetails?.slug || ""
         });
       };
+
+      viewModel.saveSecretsFromReact = function (secretsFromReact) {
+        if (!appService.secrets) {
+          appService.secrets = [];
+        }
+
+        // delete the ones that got removed.
+        appService.secrets = appService.secrets.filter((secret) => {
+          // leave workspace secrets intact
+          if (secret.scope() === 'workspace') return true;
+
+          // remove the ones that are not in the react list
+          return secretsFromReact.find((s) => !s.isShared && s.key === secret.key())
+        });
+
+        // edit existing ones
+        appService.secrets.forEach(secret => {
+          if (secret.scope() === 'workspace') return;
+
+          const updatedSecret = secretsFromReact.find((s) => !s.isShared && s.key === secret.key());
+
+          if (updatedSecret) {
+            secret.value(updatedSecret.value);
+            secret.isProtected(updatedSecret.isProtected);
+            secret.isExpose(updatedSecret.isExpose);
+            secret.isExpand(updatedSecret.isExpand);
+          }
+
+          return secret;
+        });
+
+        // add new ones
+        secretsFromReact.forEach(secret => {
+          if (secret.isShared) return;
+
+          const existingSecret = appService.secrets.find(s => s.scope() !== 'workspace' && s.key() === secret.key);
+
+          if (!existingSecret) {
+            let newVariable = new Variable(
+              {
+                "": ""
+              },
+              Variable.defaultVariableConfig(),
+            )
+
+            newVariable.key(secret.key);
+            newVariable.value(secret.value);
+            newVariable.isProtected(secret.isProtected);
+            newVariable.isExpose(secret.isExpose);
+            newVariable.isExpand(secret.isExpand);
+
+            appService.secrets.push(newVariable);
+          }
+        });
+
+        appService.saveSecrets();
+      }
 
       window.parent.addEventListener('navigation.replace', (e) => {
         const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);

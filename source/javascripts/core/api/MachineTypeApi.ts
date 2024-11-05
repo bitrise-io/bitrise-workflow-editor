@@ -1,5 +1,5 @@
 import { MachineType } from '@/core/models/MachineType';
-import Client from './client'; // DTOs
+import Client from './client';
 
 // DTOs
 type MachineTypeConfigsResponse = {

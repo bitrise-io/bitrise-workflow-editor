@@ -3,7 +3,7 @@ import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
-import { useUpdateSecret } from '@/hooks/useSecrets';
+import { useUpsertSecret } from '@/hooks/useSecrets';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
@@ -35,11 +35,13 @@ const StepInput = forwardRef(
     const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
     const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
 
-    const { mutate: createSecret } = useUpdateSecret({
+    const { mutate: createSecret } = useUpsertSecret({
       appSlug: WindowUtils.appSlug() ?? '',
       options: {
-        onSuccess: ({ key }) => {
-          insertVariable(key);
+        onSuccess: (data) => {
+          if (data) {
+            insertVariable(data.key);
+          }
         },
       },
     });

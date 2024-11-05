@@ -39,7 +39,6 @@ const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
   const { isLoading: isLoadingEnvVars, envs } = useEnvVars(id, shouldLoadVars);
   const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
     appSlug,
-    useApi: true,
     options: { enabled: shouldLoadVars },
   });
 
