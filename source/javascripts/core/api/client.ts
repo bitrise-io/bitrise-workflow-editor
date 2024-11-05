@@ -113,7 +113,7 @@ async function patch<T>(url: string, options?: ClientOpts) {
 }
 
 async function del<T>(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'DEL' });
+  const response = await client(url, { ...options, method: 'DELETE' });
 
   if (response.status === 204 || response.headers.get('Content-Length') === '0') {
     return;
@@ -123,7 +123,10 @@ async function del<T>(url: string, options?: ClientOpts) {
 }
 
 async function text(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'GET' });
+  const response = await client(url, {
+    ...options,
+    method: 'GET',
+  });
   return response.text();
 }
 
