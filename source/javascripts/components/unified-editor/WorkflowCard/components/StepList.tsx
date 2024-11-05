@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { Box, BoxProps, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -140,4 +140,4 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
   );
 };
 
-export default StepList;
+export default memo(StepList);

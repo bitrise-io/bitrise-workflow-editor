@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { memo, ReactNode } from 'react';
 import {
   Avatar,
   Box,
@@ -20,7 +20,7 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import { EMPTY_ACTIONS, SortableStepItem, StepActions } from '../WorkflowCard.types';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -77,7 +77,7 @@ const StepCard = ({
   isSortable,
   isDragging,
   showSecondary = true,
-  actions = {},
+  actions = EMPTY_ACTIONS,
 }: StepCardProps) => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const result = useStep(workflowId, stepIndex);
@@ -255,4 +255,4 @@ const StepCard = ({
   );
 };
 
-export default StepCard;
+export default memo(StepCard);

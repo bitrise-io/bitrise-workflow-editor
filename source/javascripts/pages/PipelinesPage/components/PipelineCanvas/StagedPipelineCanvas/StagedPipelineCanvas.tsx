@@ -1,4 +1,4 @@
-import ReactFlow, { NodeTypes, ReactFlowProps } from 'reactflow';
+import { ReactFlow, NodeTypes, ReactFlowProps } from '@xyflow/react';
 import usePipelineStageNodes from './hooks/usePipelineStageNodes';
 import usePipelineStageEdges from './hooks/usePipelineStageEdges';
 import AddNode from './components/AddNode';

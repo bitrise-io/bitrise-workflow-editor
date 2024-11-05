@@ -1,4 +1,4 @@
-import { BaseEdge, EdgeProps, getSmoothStepPath } from 'reactflow';
+import { BaseEdge, EdgeProps, getSmoothStepPath } from '@xyflow/react';
 
 type Props = EdgeProps;
 
