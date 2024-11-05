@@ -1,4 +1,5 @@
 import { Box } from '@bitrise/bitkit';
+import semver from 'semver';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import {
@@ -15,6 +16,7 @@ import {
 } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import VersionUtils from '@/core/utils/VersionUtils';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
@@ -75,7 +77,9 @@ const WorkflowsPageContent = () => {
   };
 
   const handleAddStep = (cvs: string) => {
-    addStep(workflowId, cvs, stepIndex);
+    const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(cvs.split('@')[1]).toString());
+    const cvsWithLatestMajorVersion = cvs.replace(/@(\w+)/, `@${latestMajorVersion}`);
+    addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
     openStepConfigDrawer(workflowId, stepIndex);
   };
 
