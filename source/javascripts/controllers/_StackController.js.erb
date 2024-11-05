@@ -35,7 +35,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
         "gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
       };
 
-      var m1ToM2AnnouncementUrl = 'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
+      var machineUpgradeAnnouncementUrl = 'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
 
       viewModel.stackMachineMap = appService.availableStacks().reduce(function (result, stack) {
         var stackMachineTypes = _.filter(MachineType.all, function (machineType) {
@@ -189,20 +189,20 @@ import WindowUtils from "@/core/utils/WindowUtils";
         const currentDate = new Date();
         if (currentDate < startDate) {
           return {
-            message: "Upgrading to faster M2 Pro, applying the same credit multiplier. M1/M1 Max machines will be deprecated and your Workflows will automatically run on M2 Pro machines from the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
-            linkUrl: m1ToM2AnnouncementUrl,
+            message: "Upgrading to faster Pro Medium/Large/X Large, applying the same credit multiplier. Medium/Large/X Large machines will be deprecated and your Workflows will automatically run on Pro Medium/Large/X Large machines from the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
+            linkUrl: machineUpgradeAnnouncementUrl,
             linkLabel: 'Read announcement.',
           }
         } else if (currentDate >= startDate && currentDate <= endDate) {
           return {
-            message: "Your Workflows were automatically switched to faster M2 Pro, applying the same credit multiplier. To continue using the deprecated M1/M1 Max machines until the " + dateService.toLocaleMonthDayDateString(endDate) + ", opt to extend the transition period in the",
+            message: "Your Workflows were automatically switched to faster Pro Medium/Large/X Large, applying the same credit multiplier. To continue using the deprecated Medium/Large/X Large machines until the " + dateService.toLocaleMonthDayDateString(endDate) + ", opt to extend the transition period in the",
             linkUrl: '/workspaces/' + appService.appDetails.ownerData.slug + '/settings/apps',
             linkLabel: 'Workspace settings.',
           }
         } else if (currentDate > endDate) {
           return {
-            message: "Your Workflows are now running on faster M2 Pro, applying the same credit multiplier. If you’d like to keep using the deprecated M1/M1 Max machines, reach out to support.",
-            linkUrl: m1ToM2AnnouncementUrl,
+            message: "Your Workflows are now running on faster Pro Medium/Large/X Large, applying the same credit multiplier. If you’d like to keep using the deprecated Medium/Large/X Large machines, reach out to support.",
+            linkUrl: machineUpgradeAnnouncementUrl,
             linkLabel: 'Read announcement.',
           }
         }
