@@ -15,6 +15,8 @@ import {
 } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import StepService from '@/core/models/StepService';
+import { LibraryType } from '@/core/models/Step';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
@@ -74,8 +76,9 @@ const WorkflowsPageContent = () => {
     isWorkflowConfigDrawerMounted: dialogMounted['workflow-config-drawer'],
   };
 
-  const handleAddStep = (cvs: string) => {
-    addStep(workflowId, cvs, stepIndex);
+  const handleAddStep = (cvs: string, normalizedVersion: string) => {
+    const cvsWithLatestMajorVersion = StepService.updateVersion(cvs, LibraryType.BITRISE, normalizedVersion);
+    addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
     openStepConfigDrawer(workflowId, stepIndex);
   };
 
@@ -148,7 +151,7 @@ const WorkflowsPageContent = () => {
         enabledSteps={enabledSteps}
         isOpen={isStepSelectorDrawerOpen}
         onClose={closeDialog}
-        onSelectStep={({ cvs }) => handleAddStep(cvs)}
+        onSelectStep={({ cvs, resolvedInfo: { normalizedVersion = '' } }) => handleAddStep(cvs, normalizedVersion)}
       />
 
       {isWorkflowConfigDrawerMounted && (
