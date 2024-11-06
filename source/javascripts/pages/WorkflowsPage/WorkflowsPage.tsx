@@ -1,5 +1,4 @@
 import { Box } from '@bitrise/bitkit';
-import semver from 'semver';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import {
@@ -16,7 +15,8 @@ import {
 } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import VersionUtils from '@/core/utils/VersionUtils';
+import StepService from '@/core/models/StepService';
+import { LibraryType } from '@/core/models/Step';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
@@ -76,9 +76,8 @@ const WorkflowsPageContent = () => {
     isWorkflowConfigDrawerMounted: dialogMounted['workflow-config-drawer'],
   };
 
-  const handleAddStep = (cvs: string) => {
-    const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(cvs.split('@')[1]).toString());
-    const cvsWithLatestMajorVersion = cvs.replace(/@(\w+)/, `@${latestMajorVersion}`);
+  const handleAddStep = (cvs: string, normalizedVersion: string) => {
+    const cvsWithLatestMajorVersion = StepService.updateVersion(cvs, LibraryType.BITRISE, normalizedVersion);
     addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
     openStepConfigDrawer(workflowId, stepIndex);
   };
@@ -152,7 +151,7 @@ const WorkflowsPageContent = () => {
         enabledSteps={enabledSteps}
         isOpen={isStepSelectorDrawerOpen}
         onClose={closeDialog}
-        onSelectStep={({ cvs }) => handleAddStep(cvs)}
+        onSelectStep={({ cvs, resolvedInfo: { normalizedVersion = '' } }) => handleAddStep(cvs, normalizedVersion)}
       />
 
       {isWorkflowConfigDrawerMounted && (
