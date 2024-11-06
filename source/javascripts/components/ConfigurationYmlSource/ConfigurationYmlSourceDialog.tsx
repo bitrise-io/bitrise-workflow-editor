@@ -6,6 +6,7 @@ import {
   DialogBody,
   DialogFooter,
   Divider,
+  Input,
   Link,
   List,
   ListItem,
@@ -284,60 +285,88 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             </RadioGroup>
           </>
         )}
+        {usesRepositoryYml && (
+          <Input
+            label="Bitrise.yml location"
+            leftAddon={
+              <Text padding="8px 12px" textStyle="body/md/regular">
+                bitrise-website/
+              </Text>
+            }
+            rightAddon={
+              <Text padding="8px 12px" textStyle="body/md/regular">
+                /bitrise.yml
+              </Text>
+            }
+            inputWrapperStyle={{
+              background: 'background/disabled',
+              border: '1px solid #dfdae1',
+              borderRadius: '4',
+            }}
+            placeholder="example/configs"
+            helperText="Define the source of your configuration file."
+            isRequired
+            marginInlineStart="32"
+          />
+        )}
         {isSourceSelected && usesRepositoryYml && (
           <>
             <Divider marginY="24" />
             <Text marginBlockEnd="4" textStyle="heading/h3">
               Complete the following tasks
             </Text>
-            <Text marginBlockEnd="24">
+            <Text marginBlockEnd="24" textStyle="body/md/regular">
               Make sure to complete all the mandatory tasks before updating. A missing or invalid configuration file can
               lead to failed builds.
             </Text>
             <List variant="ordered">
               <ListItem>
-                Add configuration file
-                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="8">
-                  Add your current configuration YAML from Bitrise to your {gitRepoSlug} repository’s {defaultBranch}{' '}
-                  branch.{' '}
-                  <Link
-                    href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/managing-an-app-s-bitrise-yml-file.html#storing-the-bitrise-yml-file-in-your-repository"
-                    colorScheme="purple"
-                    isExternal
-                  >
-                    Learn more
-                  </Link>
+                Add configuration YAML to your repository
+                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="12">
+                  Add your current configuration YAML to{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    INPUTVALUE
+                  </Text>{' '}
+                  on the{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    {defaultBranch}
+                  </Text>{' '}
+                  branch of your{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    {gitRepoSlug}
+                  </Text>{' '}
+                  repository.{' '}
                 </Text>
-                <Box display="flex" flexDir="column" gap="8">
+                <Box display="flex" gap="8">
                   <Button
                     as="a"
                     href={`data:attachment/text,${encodeURIComponent(yml)}`}
                     target="_blank"
                     download="bitrise.yml"
-                    variant="tertiary"
+                    variant="secondary"
                     leftIconName="Download"
                     width="fit-content"
                     size="sm"
                     onClick={onDownloadClick}
                   >
-                    Download current version
+                    Download bitrise.yml
                   </Button>
                   <CopyToClipboard text={yml} onCopy={onCopyClick}>
                     <Button
-                      variant="tertiary"
+                      variant="secondary"
                       leftIconName="Duplicate"
                       width="fit-content"
                       size="sm"
-                      marginBlockEnd="16"
+                      marginBlockEnd="24"
                     >
-                      Copy configuration content
+                      Copy YML contents
                     </Button>
                   </CopyToClipboard>
                 </Box>
               </ListItem>
               <ListItem>
                 Provide repository access
-                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
+                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="24">
                   Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
                   <Link
                     href="https://devcenter.bitrise.io/en/connectivity/connecting-to-services/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html#github-app-integration"
@@ -362,10 +391,14 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                     Follow this guide
                   </Link>{' '}
                   to split up your configuration into smaller, more manageable files. This feature is only available for
-                  Workspaces on{' '}
-                  <Text as="span" textStyle="body/md/semibold">
-                    Enterprise plan.
-                  </Text>
+                  Workspaces on Enterprise plan.{' '}
+                  <Link
+                    href="https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html"
+                    colorScheme="purple"
+                    isExternal
+                  >
+                    Learn more
+                  </Link>{' '}
                 </Text>
               </ListItem>
             </List>
