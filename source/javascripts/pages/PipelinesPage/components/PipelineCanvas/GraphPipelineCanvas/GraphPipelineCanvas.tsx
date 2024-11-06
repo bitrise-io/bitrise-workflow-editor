@@ -3,7 +3,7 @@ import { ReactFlow, EdgeTypes, NodeTypes, ReactFlowProps, useEdgesState, useNode
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import WorkflowNode from './components/WorkflowNode/WorkflowNode';
-import GraphEdge from './components/GraphEdge';
+import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmptyState';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import transformWorkflowsToNodesAndEdges from './utils/transformWorkflowsToNodesAndEdges';
@@ -43,6 +43,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
         onNodesChange={autoLayoutOnNodesChange}
+        connectionLineComponent={ConnectionGraphEdge}
         {...props}
       />
       {nodes.length === 0 && (

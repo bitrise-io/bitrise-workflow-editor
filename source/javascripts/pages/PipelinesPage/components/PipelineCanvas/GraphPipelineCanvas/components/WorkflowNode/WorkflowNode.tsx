@@ -9,17 +9,24 @@ import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<Node<PipelineWorkflow>>;
 
-const WorkflowNode = ({ id, zIndex, height }: Props) => {
+const WorkflowNode = ({ id, zIndex }: Props) => {
   const { updateNode } = useReactFlow();
   const ref = useRef<HTMLDivElement>(null);
 
   useResizeObserver({ ref, onResize: (size) => updateNode(id, { height: size.height }) });
 
   return (
-    <Box ref={ref} zIndex={zIndex} width={WORKFLOW_NODE_WIDTH}>
-      <LeftHandle height={height} />
+    <Box
+      ref={ref}
+      display="flex"
+      zIndex={zIndex}
+      alignItems="stretch"
+      minW={WORKFLOW_NODE_WIDTH}
+      maxW={WORKFLOW_NODE_WIDTH}
+    >
+      <LeftHandle />
       <WorkflowCard id={id} isCollapsable />
-      <RightHandle height={height} />
+      <RightHandle />
     </Box>
   );
 };
