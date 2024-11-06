@@ -16,7 +16,7 @@ import {
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import StepService from '@/core/models/StepService';
-import { LibraryType } from '@/core/models/Step';
+import { BITRISE_STEP_LIBRARY_URL } from '@/core/models/Step';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
@@ -76,8 +76,9 @@ const WorkflowsPageContent = () => {
     isWorkflowConfigDrawerMounted: dialogMounted['workflow-config-drawer'],
   };
 
-  const handleAddStep = (cvs: string, normalizedVersion: string) => {
-    const cvsWithLatestMajorVersion = StepService.updateVersion(cvs, LibraryType.BITRISE, normalizedVersion);
+  const handleAddStep = (cvs: string) => {
+    const { id, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
     openStepConfigDrawer(workflowId, stepIndex);
   };
@@ -151,7 +152,7 @@ const WorkflowsPageContent = () => {
         enabledSteps={enabledSteps}
         isOpen={isStepSelectorDrawerOpen}
         onClose={closeDialog}
-        onSelectStep={({ cvs, resolvedInfo: { normalizedVersion = '' } }) => handleAddStep(cvs, normalizedVersion)}
+        onSelectStep={({ cvs }) => handleAddStep(cvs)}
       />
 
       {isWorkflowConfigDrawerMounted && (
