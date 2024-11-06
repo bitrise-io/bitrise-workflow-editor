@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { ReactFlow, EdgeTypes, NodeTypes, ReactFlowProps, useEdgesState, useNodesState } from '@xyflow/react';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
-import WorkflowNode from './components/WorkflowNode';
+import WorkflowNode from './components/WorkflowNode/WorkflowNode';
 import GraphEdge from './components/GraphEdge';
 import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmptyState';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
