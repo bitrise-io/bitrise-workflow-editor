@@ -18,7 +18,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
   }));
 
   const handleAddWorkflowToPipeline = (wfId: string) => {
-    const { nodes } = transformWorkflowsToNodesAndEdges(pipelineId, [{ id: workflowId, dependsOn: [] }], {
+    const { nodes } = transformWorkflowsToNodesAndEdges(pipelineId, [{ id: wfId, dependsOn: [] }], {
       x: -9999,
       y: 0,
     });
