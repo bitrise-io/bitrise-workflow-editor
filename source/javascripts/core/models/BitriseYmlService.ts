@@ -495,6 +495,27 @@ function addWorkflowToPipeline(
   return copy;
 }
 
+function updatePipelineWorkflowConditionAbortPipelineOnFailure(
+  pipelineId: string,
+  workflowId: string,
+  abortPipelineOnFailureEnabled: boolean,
+  yml: BitriseYml,
+) {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (abortPipelineOnFailureEnabled) {
+    copy.pipelines[pipelineId].workflows[workflowId].abort_on_fail = true;
+  } else {
+    delete copy.pipelines[pipelineId].workflows[workflowId].abort_on_fail;
+  }
+
+  return copy;
+}
+
 function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -858,6 +879,7 @@ export default {
   deletePipeline,
   deletePipelines,
   addWorkflowToPipeline,
+  updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updateStackAndMachine,
   updateTriggerMap,
   appendWorkflowEnvVar,

@@ -1680,6 +1680,101 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('updatePipelineWorkflowConditionAbortPipelineOnFailure', () => {
+    it('should add abort on fail attribute if set to true', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: {} },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: { abort_on_fail: true }, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: {} },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
+        'pl1',
+        'wf1',
+        true,
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove abort on fail attribute if set to false', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: { abort_on_fail: true }, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: { abort_on_fail: true } },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: { abort_on_fail: true } },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
+        'pl1',
+        'wf1',
+        false,
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original yml if the workflow is not found in pipeline', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+          pl2: {
+            workflows: { wf2: {} },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
+        'pl1',
+        'wf2',
+        true,
+        sourceAndExpectedYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('updateStackAndMachine', () => {
     it('should add stack and machine definition to a given workflow', () => {
       const sourceYml: BitriseYml = {

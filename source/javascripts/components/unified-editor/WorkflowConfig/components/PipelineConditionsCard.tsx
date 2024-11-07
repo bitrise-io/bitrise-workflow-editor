@@ -1,4 +1,5 @@
-import { Box, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Box, Card, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
 
 type ButtonContentProps = {
@@ -21,6 +22,15 @@ const ButtonContent = ({ pipelineId }: ButtonContentProps) => {
 const PipelineConditionsCard = () => {
   const { pipelineId, workflowId } = usePipelinesPageStore();
 
+  const { updateWorkflowAbortPipelineOnFailure, yml } = useBitriseYmlStore((s) => ({
+    updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
+    yml: s.yml,
+  }));
+
+  const onAbortOnFailureToggleChange = () => {
+    updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
+  };
+
   return (
     <ExpandableCard
       padding="24px"
@@ -28,6 +38,18 @@ const PipelineConditionsCard = () => {
       buttonContent={<ButtonContent pipelineId={pipelineId + workflowId} />}
     >
       <Box display="flex" flexDir="column" gap="24" />
+
+      <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
+        <Toggle
+          variant="fixed"
+          label="Enable triggers"
+          helperText="When disabled and saved, none of the triggers below will execute a build."
+          isChecked={triggers.enabled !== false}
+          onChange={() => {
+            onToggleChange();
+          }}
+        />
+      </Card>
     </ExpandableCard>
   );
 };

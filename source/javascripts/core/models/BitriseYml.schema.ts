@@ -265,6 +265,9 @@ const BitriseYmlSchema = {
                     type: 'string',
                   },
                 },
+                abort_on_fail: {
+                  type: 'boolean',
+                },
               },
               additionalProperties: false,
               type: 'object',
