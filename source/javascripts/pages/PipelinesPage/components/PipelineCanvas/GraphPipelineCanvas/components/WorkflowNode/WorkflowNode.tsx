@@ -15,14 +15,12 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
   const { updateNode } = useReactFlow();
   const ref = useRef<HTMLDivElement>(null);
 
-  useResizeObserver({ ref, onResize: (size) => updateNode(id, { height: size.height }) });
+  useResizeObserver({
+    ref,
+    onResize: (size) => updateNode(id, { height: size.height }),
+  });
 
   const { openDialog } = usePipelinesPageStore();
-  const openWorkflowConfigDrawer = () => {
-    console.log('openWorkflowConfigDrawer', pipelineId, id);
-    openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id);
-    // openDialog(PipelineConfigDialogType.CREATE_PIPELINE);
-  };
 
   return (
     <Box
@@ -38,7 +36,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
         id={id}
         isCollapsable
         workflowActions={{
-          onEditWorkflowClick: openWorkflowConfigDrawer,
+          onEditWorkflowClick: openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id),
         }}
       />
       <RightHandle />
