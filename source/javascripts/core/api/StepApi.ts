@@ -256,7 +256,13 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
       const result = await Client.get<{ content: string }>(url);
       stepYml = parse(atob(result.content)) as StepYmlObject;
     } else {
-      const result = await Client.text(url);
+      const result = await Client.text(url, {
+        excludeCSRF: true,
+        headers: {
+          Accept: 'text/plain',
+          'Content-Type': 'text/plain',
+        },
+      });
       stepYml = parse(result) as StepYmlObject;
     }
   }
