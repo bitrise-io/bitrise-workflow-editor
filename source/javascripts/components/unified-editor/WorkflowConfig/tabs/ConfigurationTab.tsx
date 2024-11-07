@@ -6,13 +6,17 @@ import StackAndMachineCard from '../components/StackAndMachineCard';
 import PipelineConditionsCard from '../components/PipelineConditionsCard';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
-const ConfigurationTab = () => {
+type ConfigurationTabProps = {
+  showPipelineConditions?: boolean;
+};
+
+const ConfigurationTab = ({ showPipelineConditions }: ConfigurationTabProps) => {
   const workflow = useWorkflowConfigContext();
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflow?.id || '');
 
   return (
     <Box display="flex" flexDir="column" gap="24">
-      <PipelineConditionsCard />
+      {showPipelineConditions && <PipelineConditionsCard />}
       {RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow && <StackAndMachineCard />}
       <EnvVarsCard />
     </Box>

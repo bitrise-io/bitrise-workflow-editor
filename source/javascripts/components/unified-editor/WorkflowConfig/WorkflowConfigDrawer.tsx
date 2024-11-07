@@ -16,6 +16,7 @@ import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 type Props = UseDisclosureProps & {
   workflowId: string;
   onCloseComplete?: VoidFunction;
+  showPipelineConditions?: boolean;
 };
 
 const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
@@ -51,7 +52,7 @@ const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 
           <DrawerBody p="24" flex="1" overflowY="auto">
             <TabPanels>
               <TabPanel>
-                <ConfigurationTab />
+                <ConfigurationTab showPipelineConditions={props.showPipelineConditions} />
               </TabPanel>
               <TabPanel>
                 <PropertiesTab variant="drawer" />

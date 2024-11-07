@@ -1,4 +1,4 @@
-import { Box, Card, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { Box, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
 
@@ -22,13 +22,16 @@ const ButtonContent = ({ pipelineId }: ButtonContentProps) => {
 const PipelineConditionsCard = () => {
   const { pipelineId, workflowId } = usePipelinesPageStore();
 
-  const { updateWorkflowAbortPipelineOnFailure, yml } = useBitriseYmlStore((s) => ({
-    updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
+  const { updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled, yml } = useBitriseYmlStore((s) => ({
+    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled:
+      s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
     yml: s.yml,
   }));
 
+  const abortOnFailureEnabled = yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false;
+
   const onAbortOnFailureToggleChange = () => {
-    updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
+    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, !abortOnFailureEnabled);
   };
 
   return (
@@ -39,17 +42,15 @@ const PipelineConditionsCard = () => {
     >
       <Box display="flex" flexDir="column" gap="24" />
 
-      <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
-        <Toggle
-          variant="fixed"
-          label="Enable triggers"
-          helperText="When disabled and saved, none of the triggers below will execute a build."
-          isChecked={triggers.enabled !== false}
-          onChange={() => {
-            onToggleChange();
-          }}
-        />
-      </Card>
+      <Toggle
+        variant="fixed"
+        label="Abort Pipeline on failure"
+        helperText="Running Workflows will shut down, future ones won’t start if this one fails."
+        isChecked={abortOnFailureEnabled}
+        onChange={() => {
+          onAbortOnFailureToggleChange();
+        }}
+      />
     </ExpandableCard>
   );
 };
