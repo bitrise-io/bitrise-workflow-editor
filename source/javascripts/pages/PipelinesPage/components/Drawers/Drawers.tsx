@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { WorkflowConfigDrawer } from '@/components/unified-editor';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -9,16 +10,19 @@ import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCa
 
 const Drawers = ({ children }: PropsWithChildren) => {
   const { addNodes } = useReactFlow();
-  const { pipelineId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
+  const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
     addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
 
-  const handleAddWorkflowToPipeline = (workflowId: string) => {
-    const { nodes } = transformWorkflowsToNodesAndEdges([{ id: workflowId, dependsOn: [] }], { x: -9999, y: 0 });
-    addWorkflowToPipeline(pipelineId, workflowId);
+  const handleAddWorkflowToPipeline = (wfId: string) => {
+    const { nodes } = transformWorkflowsToNodesAndEdges(pipelineId, [{ id: wfId, dependsOn: [] }], {
+      x: -9999,
+      y: 0,
+    });
+    addWorkflowToPipeline(pipelineId, wfId);
     addNodes(nodes);
   };
 
@@ -51,6 +55,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onSelectWorkflow={handleAddWorkflowToPipeline}
+        />
+      )}
+
+      {isDialogMounted(PipelineConfigDialogType.WORKFLOW_CONFIG) && (
+        <WorkflowConfigDrawer
+          workflowId={workflowId}
+          isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
         />
       )}
     </>

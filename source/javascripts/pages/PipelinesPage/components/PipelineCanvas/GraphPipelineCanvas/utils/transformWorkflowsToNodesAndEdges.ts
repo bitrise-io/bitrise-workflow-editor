@@ -2,7 +2,11 @@ import { Edge, Node } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 
-export default function transformWorkflowsToNodesAndEdges(workflows: PipelineWorkflow[], position = { x: 0, y: 0 }) {
+export default function transformWorkflowsToNodesAndEdges(
+  pipelineId: string,
+  workflows: PipelineWorkflow[],
+  position = { x: 0, y: 0 },
+) {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
@@ -10,7 +14,7 @@ export default function transformWorkflowsToNodesAndEdges(workflows: PipelineWor
     nodes.push({
       position,
       id: workflow.id,
-      data: workflow,
+      data: { ...workflow, pipelineId },
       type: 'workflow',
       deletable: false,
       draggable: false,
