@@ -14,6 +14,7 @@ type Props = {
   isCollapsable?: boolean;
   containerProps?: CardProps;
   workflowActions?: WorkflowActions;
+  hideEditWorkflowButton?: boolean;
   stepActions?: StepActions;
 };
 
@@ -23,8 +24,9 @@ const WorkflowCard = ({
   containerProps,
   stepActions = EMPTY_ACTIONS,
   workflowActions = EMPTY_ACTIONS,
+  hideEditWorkflowButton,
 }: Props) => {
-  const { onCreateWorkflow, onAddChainedWorkflowClick } = workflowActions;
+  const { onCreateWorkflow, onAddChainedWorkflowClick, onEditWorkflowClick } = workflowActions;
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
@@ -77,6 +79,17 @@ const WorkflowCard = ({
             tooltipProps={{ 'aria-label': 'Chain Workflows' }}
             _groupHover={{ display: 'inline-flex' }}
             onClick={() => onAddChainedWorkflowClick(id)}
+          />
+        )}
+        {onEditWorkflowClick && !hideEditWorkflowButton && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="Settings"
+            aria-label="Edit Workflow"
+            tooltipProps={{ 'aria-label': 'Edit Workflow' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={() => onEditWorkflowClick(id)}
           />
         )}
       </Box>
