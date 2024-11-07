@@ -211,9 +211,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     });
   };
 
-  console.log('ymlRootPath:', ymlRootPath);
-  console.log('initialYmlRootPath:', initialYmlRootPath);
-
   return (
     <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
       <DialogBody>
@@ -314,7 +311,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               border: '1px solid #dfdae1',
               borderRadius: '4',
             }}
-            placeholder={initialYmlRootPath === '' ? 'example/configs' : ''}
+            placeholder="example/configs"
             helperText="Define the source of your configuration file."
             isRequired
             marginInlineStart="32"
@@ -435,7 +432,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           Cancel
         </Button>
         <Tooltip label={toolTip} isDisabled={isSourceSelected}>
-          <Button onClick={onValidateAndSave} isDisabled={!isSourceSelected} isLoading={isDialogDisabled}>
+          <Button
+            onClick={onValidateAndSave}
+            isDisabled={!isSourceSelected && ymlRootPath === initialYmlRootPath}
+            isLoading={isDialogDisabled}
+          >
             Validate and save
           </Button>
         </Tooltip>

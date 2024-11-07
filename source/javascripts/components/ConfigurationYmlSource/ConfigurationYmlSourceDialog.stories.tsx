@@ -18,7 +18,7 @@ export default {
     gitRepoSlug: 'VoyagerGitRepo',
     lastModified: '2024-05-12T09:23:48.190Z',
     onConfigSourceChangeSaved: () => {},
-    initialYmlRootPath: '',
+    initialYmlRootPath: 'spongebob/squarepants',
   },
   parameters: {
     msw: [getConfig(), putPipelineConfig(), postConfig()],
