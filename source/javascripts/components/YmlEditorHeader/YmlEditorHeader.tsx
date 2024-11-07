@@ -25,6 +25,7 @@ export type YmlEditorHeaderProps = {
   modularYamlSupported?: boolean;
   lines: number;
   lastModified: string | null;
+  ymlRootPath: string;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   const {
@@ -41,6 +42,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     modularYamlSupported,
     lines,
     lastModified,
+    ymlRootPath,
   } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
@@ -141,6 +143,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         defaultBranch={defaultBranch}
         gitRepoSlug={gitRepoSlug}
         lastModified={lastModified}
+        ymlRootPath={ymlRootPath}
       />
     </>
   );

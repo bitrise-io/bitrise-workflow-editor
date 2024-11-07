@@ -117,6 +117,7 @@ angular
       "split",
       "modularYamlSupported",
       "lastModified",
+      "ymlRootPath"
     ]),
   )
   .component(

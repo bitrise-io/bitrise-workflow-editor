@@ -22,6 +22,7 @@ import { safeDigest } from "../services/react-compat";
       viewModel.lastModified = null;
       viewModel.isWebsiteMode = requestService.isWebsiteMode();
       viewModel.isEditorLoading = true;
+      viewModel.ymlRootPath = "";
 
       viewModel.downloadAppConfigYMLPath = function () {
         return requestService.isWebsiteMode() && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -38,6 +39,7 @@ import { safeDigest } from "../services/react-compat";
               viewModel.split = appService.pipelineConfig.split;
               viewModel.modularYamlSupported = appService.pipelineConfig.modularYamlSupported;
               viewModel.lastModified = appService.pipelineConfig.lastModified;
+              viewModel.ymlRootPath = appService.pipelineConfig.ymlRootPath;
             });
 
           const fetchOrgPlanData = appService.appDetails && appService.appDetails.ownerData

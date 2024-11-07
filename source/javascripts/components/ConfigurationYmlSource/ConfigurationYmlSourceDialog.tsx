@@ -69,6 +69,7 @@ type ConfigurationYmlSourceDialogProps = {
   defaultBranch: string;
   gitRepoSlug: string;
   lastModified: string | null;
+  ymlRootPath: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -82,6 +83,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     appSlug,
     onUsesRepositoryYmlChangeSaved,
     lastModified,
+    ymlRootPath,
   } = props;
 
   const {
@@ -100,6 +102,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
+  const [ymlLocation, setYmlLocation] = useState(ymlRootPath || '');
 
   const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig, updatePipelineConfigReset } =
     useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml);
@@ -208,6 +211,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     });
   };
 
+  console.log('ymlLocation:', ymlLocation);
+
   return (
     <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
       <DialogBody>
@@ -288,6 +293,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         {usesRepositoryYml && (
           <Input
             label="Bitrise.yml location"
+            value={ymlLocation}
+            onChange={(e) => setYmlLocation(e.target.value)}
             leftAddon={
               <Text padding="8px 12px" textStyle="body/md/regular">
                 bitrise-website/
@@ -325,7 +332,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="12">
                   Add your current configuration YAML to{' '}
                   <Text as="span" textStyle="body/md/semibold">
-                    INPUTVALUE
+                    {ymlLocation}
                   </Text>{' '}
                   on the{' '}
                   <Text as="span" textStyle="body/md/semibold">
