@@ -56,11 +56,9 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     }));
   },
   isDialogOpen: (type) => {
-    console.log('isDialogOpen', get().openedDialogType, type);
     return get().openedDialogType === type;
   },
   isDialogMounted: (type) => {
-    console.log('isDialogOpen', get().openedDialogType, type);
     return get().mountedDialogType === type;
   },
 }));

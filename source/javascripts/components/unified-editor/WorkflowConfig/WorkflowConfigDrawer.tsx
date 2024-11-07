@@ -21,9 +21,6 @@ type Props = UseDisclosureProps & {
 const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
   const { isOpen, onClose } = useDisclosure(props);
 
-  console.log('WorkflowConfigDrawerContent');
-  console.log(isOpen);
-
   return (
     <Tabs>
       <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false} onCloseComplete={onCloseComplete}>
