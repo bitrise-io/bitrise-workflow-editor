@@ -35,11 +35,7 @@ const PipelineConditionsCard = () => {
   };
 
   return (
-    <ExpandableCard
-      padding="24px"
-      buttonPadding="16px 24px"
-      buttonContent={<ButtonContent pipelineId={pipelineId + workflowId} />}
-    >
+    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent pipelineId={pipelineId} />}>
       <Box display="flex" flexDir="column" gap="24" />
 
       <Toggle

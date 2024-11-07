@@ -7,9 +7,6 @@ import PipelineConditionsCard from './PipelineConditionsCard';
 
 export default {
   component: PipelineConditionsCard,
-  args: {
-    isOpen: true,
-  },
   decorators: [
     (Story) => {
       const { setPipelineId, setWorkflowId } = usePipelinesPageStore();
