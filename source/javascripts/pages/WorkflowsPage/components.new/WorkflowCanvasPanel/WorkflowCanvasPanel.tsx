@@ -78,6 +78,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
             onAddChainedWorkflowClick: openChainWorkflowDialog,
             onDeleteChainedWorkflowClick: deleteChainedWorkflow,
           }}
+          hideEditWorkflowButton
           stepActions={{
             onStepMove: moveStep,
             onStepSelect: openStepLikeDrawer,

@@ -5,16 +5,18 @@ export enum PipelineConfigDialogType {
   PIPELINE_CONFIG,
   CREATE_PIPELINE,
   WORKFLOW_SELECTOR,
+  WORKFLOW_CONFIG,
 }
 
 type State = {
   pipelineId: string;
+  workflowId: string;
   openedDialogType: PipelineConfigDialogType;
   mountedDialogType: PipelineConfigDialogType;
 };
 
 type Action = {
-  openDialog: (type: PipelineConfigDialogType, pipelineId?: string) => () => void;
+  openDialog: (type: PipelineConfigDialogType, pipelineId?: string, workflowId?: string) => () => void;
   closeDialog: () => void;
   unmountDialog: () => void;
   setPipelineId: (pipelineId?: string) => void;
@@ -24,12 +26,14 @@ type Action = {
 
 export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   pipelineId: '',
+  workflowId: '',
   openedDialogType: PipelineConfigDialogType.NONE,
   mountedDialogType: PipelineConfigDialogType.NONE,
-  openDialog: (type, pipelineId = '') => {
+  openDialog: (type, pipelineId = '', workflowId = '') => {
     return () => {
       return set(() => ({
         pipelineId,
+        workflowId,
         openedDialogType: type,
         mountedDialogType: type,
       }));

@@ -21,7 +21,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
   const { openDialog } = usePipelinesPageStore();
   const { selectedPipeline } = usePipelineSelector();
-  const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(workflows);
+  const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initialNodes));
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
