@@ -65,11 +65,11 @@ type ConfigurationYmlSourceDialogProps = {
   initialUsesRepositoryYml: boolean;
   appConfig: AppConfig | string;
   appSlug: string;
-  onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
+  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
   gitRepoSlug: string;
   lastModified: string | null;
-  ymlRootPath: string;
+  initialYmlRootPath: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -81,9 +81,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     initialUsesRepositoryYml,
     appConfig,
     appSlug,
-    onUsesRepositoryYmlChangeSaved,
+    onConfigSourceChangeSaved,
     lastModified,
-    ymlRootPath,
+    initialYmlRootPath,
   } = props;
 
   const {
@@ -102,10 +102,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
-  const [ymlLocation, setYmlLocation] = useState(ymlRootPath || '');
+  const [ymlRootPath, setYmlRootPath] = useState(initialYmlRootPath || '');
 
   const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig, updatePipelineConfigReset } =
-    useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml);
+    useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml, ymlRootPath);
 
   const yml = useFormattedYml(appConfig);
 
@@ -170,7 +170,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       status: 'success',
       isClosable: true,
     });
-    onUsesRepositoryYmlChangeSaved(usesRepositoryYml);
+    onConfigSourceChangeSaved(usesRepositoryYml, ymlRootPath);
     segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
       yml_source: usesRepositoryYml ? 'git' : 'bitrise',
     });
@@ -211,7 +211,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     });
   };
 
-  console.log('ymlLocation:', ymlLocation);
+  console.log('ymlRootPath:', ymlRootPath);
+  console.log('initialYmlRootPath:', initialYmlRootPath);
 
   return (
     <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
@@ -293,12 +294,15 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         {usesRepositoryYml && (
           <Input
             label="Bitrise.yml location"
-            value={ymlLocation}
-            onChange={(e) => setYmlLocation(e.target.value)}
+            value={ymlRootPath}
+            onChange={(e) => setYmlRootPath(e.target.value)}
             leftAddon={
-              <Text padding="8px 12px" textStyle="body/md/regular">
-                bitrise-website/
-              </Text>
+              <Box maxWidth="124" padding="8px 12px" display="flex">
+                <Text textStyle="body/md/regular" hasEllipsis>
+                  {gitRepoSlug}
+                </Text>
+                <Text textStyle="body/md/regular">/</Text>
+              </Box>
             }
             rightAddon={
               <Text padding="8px 12px" textStyle="body/md/regular">
@@ -310,7 +314,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               border: '1px solid #dfdae1',
               borderRadius: '4',
             }}
-            placeholder="example/configs"
+            placeholder={initialYmlRootPath === '' ? 'example/configs' : ''}
             helperText="Define the source of your configuration file."
             isRequired
             marginInlineStart="32"
@@ -332,7 +336,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="12">
                   Add your current configuration YAML to{' '}
                   <Text as="span" textStyle="body/md/semibold">
-                    {ymlLocation}
+                    {initialYmlRootPath}
                   </Text>{' '}
                   on the{' '}
                   <Text as="span" textStyle="body/md/semibold">

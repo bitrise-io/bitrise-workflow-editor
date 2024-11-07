@@ -18,14 +18,14 @@ export type YmlEditorHeaderProps = {
   initialUsesRepositoryYml?: boolean;
   repositoryYmlAvailable: boolean;
   isWebsiteMode: boolean;
-  onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
+  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
   gitRepoSlug: string;
   split: boolean;
   modularYamlSupported?: boolean;
   lines: number;
   lastModified: string | null;
-  ymlRootPath: string;
+  initialYmlRootPath: string;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   const {
@@ -33,7 +33,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     appConfig,
     defaultBranch,
     gitRepoSlug,
-    onUsesRepositoryYmlChangeSaved,
+    onConfigSourceChangeSaved,
     repositoryYmlAvailable,
     isWebsiteMode,
     url,
@@ -42,7 +42,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     modularYamlSupported,
     lines,
     lastModified,
-    ymlRootPath,
+    initialYmlRootPath,
   } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
@@ -136,14 +136,14 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         initialUsesRepositoryYml={usesRepositoryYml}
         appConfig={appConfig}
         appSlug={appSlug}
-        onUsesRepositoryYmlChangeSaved={(newValue: boolean) => {
-          onUsesRepositoryYmlChangeSaved(newValue);
+        onConfigSourceChangeSaved={(newValue: boolean, ymlRootPath: string) => {
+          onConfigSourceChangeSaved(newValue, ymlRootPath);
           setUsesRepositoryYml(newValue);
         }}
         defaultBranch={defaultBranch}
         gitRepoSlug={gitRepoSlug}
         lastModified={lastModified}
-        ymlRootPath={ymlRootPath}
+        initialYmlRootPath={initialYmlRootPath}
       />
     </>
   );

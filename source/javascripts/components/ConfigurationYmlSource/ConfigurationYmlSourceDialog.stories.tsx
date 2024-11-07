@@ -18,6 +18,7 @@ export default {
     gitRepoSlug: 'VoyagerGitRepo',
     lastModified: '2024-05-12T09:23:48.190Z',
     onUsesRepositoryYmlChangeSaved: () => {},
+    initialYmlRootPath: '',
   },
   parameters: {
     msw: [getConfig(), putPipelineConfig(), postConfig()],

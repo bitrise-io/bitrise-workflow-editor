@@ -87,7 +87,7 @@ import { safeDigest } from "../services/react-compat";
         );
       }
 
-      viewModel.onUsesRepositoryYmlChangeSaved = function (usesRepositoryYml) {
+      viewModel.onConfigSourceChangeSaved = function (usesRepositoryYml, ymlRootPath) {
         viewModel.isEditorLoading = true;
         appService.getAppConfigYML(true).then(() => {
           viewModel.yml = appService.appConfigYML;
@@ -96,9 +96,11 @@ import { safeDigest } from "../services/react-compat";
 
         appService.appConfig = undefined;
         appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
+        appService.pipelineConfig.ymlRootPath = ymlRootPath;
 
         $timeout(function () {
           viewModel.usesRepositoryYml = usesRepositoryYml;
+          viewModel.ymlRootPath = ymlRootPath;
         }, 0);
       };
     });
