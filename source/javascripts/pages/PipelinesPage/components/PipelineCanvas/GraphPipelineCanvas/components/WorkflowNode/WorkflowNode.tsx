@@ -35,9 +35,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
       <WorkflowCard
         id={id}
         isCollapsable
-        workflowActions={{
-          onEditWorkflowClick: openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id),
-        }}
+        onEditWorkflow={openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id)}
       />
       <RightHandle />
     </Box>
