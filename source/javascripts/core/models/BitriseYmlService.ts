@@ -740,6 +740,20 @@ function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {})
   });
 }
 
+function deleteWorkflowFromDependsOn(workflowId: string, workflows: PipelineWorkflows = {}): PipelineWorkflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.depends_on = workflowCopy.depends_on?.filter((id) => id !== workflowId);
+
+    if (shouldRemoveField(workflowCopy.depends_on, workflow.depends_on)) {
+      delete workflowCopy.depends_on;
+    }
+
+    return workflowCopy;
+  });
+}
+
 function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: StagesYml): StagesYml {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
@@ -819,6 +833,15 @@ function deleteWorkflowFromPipelines(
 
     if (shouldRemoveField(pipelineCopy.stages, pipeline.stages)) {
       delete pipelineCopy.stages;
+    }
+
+    // Remove workflow from `workflows` section of the pipeline
+    delete pipelineCopy.workflows?.[workflowId];
+
+    pipelineCopy.workflows = deleteWorkflowFromDependsOn(workflowId, pipelineCopy.workflows);
+
+    if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
+      delete pipelineCopy.workflows;
     }
 
     return pipelineCopy;

@@ -975,6 +975,12 @@ describe('BitriseYmlService', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
+          graph: {
+            workflows: {
+              wf1: {},
+              wf2: { depends_on: ['wf1'] },
+            },
+          },
           pl1: {
             stages: [{ st1: {} }],
           },
@@ -1004,6 +1010,11 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
+          graph: {
+            workflows: {
+              wf2: {},
+            },
+          },
           pl2: {
             stages: [{ st2: {} }],
           },
