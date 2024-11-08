@@ -26,8 +26,6 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initialNodes));
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
-  console.log('GraphPipelineCanvas', { nodes, edges });
-
   const autoLayoutOnNodesChange: typeof onNodesChange = useCallback(
     (changes) => {
       onNodesChange(changes);
