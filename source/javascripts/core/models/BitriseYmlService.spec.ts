@@ -196,6 +196,12 @@ describe('BitriseYmlService', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
+          graph: {
+            workflows: {
+              wf1: { depends_on: ['wf2'] },
+              wf2: {},
+            },
+          },
           pl1: { stages: [{ st1: {} }] },
           pl2: { stages: [{ st2: { workflows: [{ wf2: {} }] } }] },
         },
@@ -213,6 +219,12 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
+          graph: {
+            workflows: {
+              wf1: { depends_on: ['wf3'] },
+              wf3: {},
+            },
+          },
           pl1: { stages: [{ st1: {} }] },
           pl2: { stages: [{ st2: { workflows: [{ wf3: {} }] } }] },
         },
@@ -537,7 +549,11 @@ describe('BitriseYmlService', () => {
           wf1: {
             steps: [
               { clone: {} },
-              { script: { inputs: [{ other: 'value' }, { contents: 'echo "Hello, World!"' }] } },
+              {
+                script: {
+                  inputs: [{ other: 'value' }, { contents: 'echo "Hello, World!"' }],
+                },
+              },
               { test: {} },
             ],
           },
@@ -550,7 +566,11 @@ describe('BitriseYmlService', () => {
           wf1: {
             steps: [
               { clone: {} },
-              { script: { inputs: [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }] } },
+              {
+                script: {
+                  inputs: [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }],
+                },
+              },
               { test: {} },
             ],
           },
@@ -955,6 +975,12 @@ describe('BitriseYmlService', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
+          graph: {
+            workflows: {
+              wf1: {},
+              wf2: { depends_on: ['wf1'] },
+            },
+          },
           pl1: {
             stages: [{ st1: {} }],
           },
@@ -984,6 +1010,11 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
+          graph: {
+            workflows: {
+              wf2: {},
+            },
+          },
           pl2: {
             stages: [{ st2: {} }],
           },
@@ -2335,7 +2366,10 @@ describe('BitriseYmlService', () => {
     });
 
     it('should keep originally empty envs field', () => {
-      const sourceAndExpectedYml: BitriseYml = { format_version: '', workflows: { wf1: { envs: [] } } };
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { envs: [] } },
+      };
       const actualYml = BitriseYmlService.updateWorkflowEnvVars('wf1', [], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);

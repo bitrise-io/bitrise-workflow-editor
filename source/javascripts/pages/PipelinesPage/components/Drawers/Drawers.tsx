@@ -7,9 +7,11 @@ import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
+import usePipelineWorkflows from '../PipelineCanvas/GraphPipelineCanvas/hooks/usePipelineWorkflows';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { addNodes } = useReactFlow();
+  const { addNodes, setNodes, setEdges } = useReactFlow();
+  const workflows = usePipelineWorkflows();
   const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
@@ -24,6 +26,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     });
     addWorkflowToPipeline(pipelineId, wfId);
     addNodes(nodes);
+  };
+
+  const handleRenameWorkflow = () => {
+    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows, {
+      x: -9999,
+      y: 0,
+    });
+    setNodes(nodes);
+    setEdges(edges);
   };
 
   return (
@@ -62,6 +73,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <WorkflowConfigDrawer
           workflowId={workflowId}
           showPipelineConditions
+          onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}

@@ -15,7 +15,7 @@ import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
-import { PipelinesYml, PipelineYmlObject } from './Pipeline';
+import { PipelinesYml, PipelineWorkflows, PipelineYmlObject } from './Pipeline';
 import { BITRISE_STEP_LIBRARY_URL, StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
@@ -767,6 +767,24 @@ function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workf
   });
 }
 
+function renameWorkflowInDependsOn(
+  workflowId: string,
+  newWorkflowId: string,
+  workflows: PipelineWorkflows,
+): PipelineWorkflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.depends_on = workflowCopy.depends_on?.map((id: string) => (id === workflowId ? newWorkflowId : id));
+
+    if (shouldRemoveField(workflowCopy.depends_on, workflow.depends_on)) {
+      delete workflowCopy.depends_on;
+    }
+
+    return workflowCopy;
+  });
+}
+
 function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
   return mapValues(workflows, (workflow) => {
     const workflowCopy = deepCloneSimpleObject(workflow);
@@ -780,6 +798,20 @@ function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {})
 
     if (shouldRemoveField(workflowCopy.before_run, workflow.before_run)) {
       delete workflowCopy.before_run;
+    }
+
+    return workflowCopy;
+  });
+}
+
+function deleteWorkflowFromDependsOn(workflowId: string, workflows: PipelineWorkflows = {}): PipelineWorkflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.depends_on = workflowCopy.depends_on?.filter((id) => id !== workflowId);
+
+    if (shouldRemoveField(workflowCopy.depends_on, workflow.depends_on)) {
+      delete workflowCopy.depends_on;
     }
 
     return workflowCopy;
@@ -833,6 +865,18 @@ function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pi
       delete pipelineCopy.stages;
     }
 
+    pipelineCopy.workflows = Object.fromEntries(
+      Object.entries(pipelineCopy.workflows ?? {}).map(([id, workflow]) => {
+        return [id === workflowId ? newWorkflowId : id, workflow];
+      }),
+    );
+
+    pipelineCopy.workflows = renameWorkflowInDependsOn(workflowId, newWorkflowId, pipelineCopy.workflows);
+
+    if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
+      delete pipelineCopy.workflows;
+    }
+
     return pipelineCopy;
   });
 }
@@ -853,6 +897,15 @@ function deleteWorkflowFromPipelines(
 
     if (shouldRemoveField(pipelineCopy.stages, pipeline.stages)) {
       delete pipelineCopy.stages;
+    }
+
+    // Remove workflow from `workflows` section of the pipeline
+    delete pipelineCopy.workflows?.[workflowId];
+
+    pipelineCopy.workflows = deleteWorkflowFromDependsOn(workflowId, pipelineCopy.workflows);
+
+    if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
+      delete pipelineCopy.workflows;
     }
 
     return pipelineCopy;

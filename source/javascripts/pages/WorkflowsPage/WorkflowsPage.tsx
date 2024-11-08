@@ -37,6 +37,7 @@ const WorkflowsPageContent = () => {
     openStepConfigDrawer,
     unmountStepConfigDrawer,
     openCreateWorkflowDialog,
+    openWorkflowConfigDrawer,
     unmountWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
@@ -158,6 +159,7 @@ const WorkflowsPageContent = () => {
       {isWorkflowConfigDrawerMounted && (
         <WorkflowConfigDrawer
           workflowId={workflowId}
+          onRename={openWorkflowConfigDrawer}
           isOpen={isWorkflowConfigDrawerOpen}
           onClose={closeDialog}
           onCloseComplete={unmountWorkflowConfigDrawer}
