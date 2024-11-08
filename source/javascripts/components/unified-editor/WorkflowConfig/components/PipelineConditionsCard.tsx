@@ -102,7 +102,7 @@ const PipelineConditionsCard = () => {
         label="Additional running conditions"
         placeholder="Enter any valid Go template"
         value={runIfExpression}
-        helperText='You can use e.g. "getenv": createGetEnvForEnvVars(envs), "enveq": createEnvEqForEnvVars(envs)'
+        helperText="Enter any valid Go template. The workflow will only be executed if this template evaluates to true. You can use our `getenv` and `enveq` functions for interacting with env vars."
         onChange={onRunIfExpressionChange}
       />
     </ExpandableCard>
