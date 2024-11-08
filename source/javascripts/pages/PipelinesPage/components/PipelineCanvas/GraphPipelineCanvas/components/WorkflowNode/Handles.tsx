@@ -79,15 +79,17 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
   const id = useNodeId();
   const { openDialog } = usePipelinesPageStore();
   const { selectedPipeline } = usePipelineSelector();
-  const { addNodes, deleteElements, addEdges } = useReactFlow();
+  const { addNodes, deleteElements, addEdges, updateNodeData } = useReactFlow();
 
   const onPointerEnter = () => {
     addNodes(placeholderNode(id));
     addEdges(placeholderEdge(id));
+    updateNodeData(id || '', (data) => ({ ...data, fixed: true }));
   };
 
   const onPointerLeave = () => {
     deleteElements({ nodes: [{ id: PLACEHOLDER_NODE_TYPE }], edges: [{ id: `${id}->${PLACEHOLDER_NODE_TYPE}` }] });
+    updateNodeData(id || '', (data) => ({ ...data, fixed: false }));
   };
 
   return (

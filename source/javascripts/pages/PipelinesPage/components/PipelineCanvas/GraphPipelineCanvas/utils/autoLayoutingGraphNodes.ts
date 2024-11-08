@@ -33,6 +33,10 @@ export default function autoLayoutingGraphNodes(nodes: Node[]) {
   return nodes.map((n) => {
     const { x, y, width, height } = graph.node(n.id);
 
+    if (n.data.fixed) {
+      return n;
+    }
+
     return {
       ...n,
       position: {
