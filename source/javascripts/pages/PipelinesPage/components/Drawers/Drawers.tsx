@@ -6,10 +6,11 @@ import { PipelineConfigDialogType, usePipelinesPageStore } from '../../Pipelines
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
-import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
+import createNodeFromPipelineWorkflow from '../PipelineCanvas/GraphPipelineCanvas/utils/createNodeFromPipelineWorkflow';
+import createGraphEdge from '../PipelineCanvas/GraphPipelineCanvas/utils/createGraphEdge';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { addNodes } = useReactFlow();
+  const { addNodes, addEdges } = useReactFlow();
   const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
@@ -17,13 +18,18 @@ const Drawers = ({ children }: PropsWithChildren) => {
     addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
 
-  const handleAddWorkflowToPipeline = (wfId: string) => {
-    const { nodes } = transformWorkflowsToNodesAndEdges(pipelineId, [{ id: wfId, dependsOn: [] }], {
-      x: -9999,
-      y: 0,
-    });
-    addWorkflowToPipeline(pipelineId, wfId);
-    addNodes(nodes);
+  const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
+    addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
+
+    addNodes(
+      createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn: workflowId ? [workflowId] : [] }, pipelineId),
+    );
+
+    if (workflowId) {
+      addEdges(createGraphEdge(workflowId, selectedWorkflowId));
+    }
+
+    closeDialog();
   };
 
   return (

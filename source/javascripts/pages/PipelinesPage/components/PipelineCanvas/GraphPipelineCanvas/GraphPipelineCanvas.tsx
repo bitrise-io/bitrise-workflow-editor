@@ -8,13 +8,16 @@ import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmpty
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import transformWorkflowsToNodesAndEdges from './utils/transformWorkflowsToNodesAndEdges';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
+import PlaceholderNode from './components/WorkflowNode/PlaceholderWorkflowNode';
+import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
 
 const nodeTypes: NodeTypes = {
-  workflow: WorkflowNode,
+  [WORKFLOW_NODE_TYPE]: WorkflowNode,
+  [PLACEHOLDER_NODE_TYPE]: PlaceholderNode,
 };
 
 const edgeTypes: EdgeTypes = {
-  'graph-edge': GraphEdge,
+  [GRAPH_EDGE_TYPE]: GraphEdge,
 };
 
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
