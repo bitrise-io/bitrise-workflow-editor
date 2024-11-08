@@ -1870,6 +1870,96 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('updatePipelineWorkflowConditionRunIfExpression', () => {
+    it('should add set run_if.expression attribute if set', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: {} },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: { run_if: { expression: 'some expression' } }, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: {} },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
+        'pl1',
+        'wf1',
+        'some expression',
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove run_if attribute if set to empty string', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: { run_if: { expression: 'some expression' } }, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: { run_if: { expression: 'some expression' } } },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {}, wf2: {} },
+          },
+          pl2: {
+            workflows: { wf1: { run_if: { expression: 'some expression' } } },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression('pl1', 'wf1', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original yml if the workflow is not found in pipeline', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: { wf1: {} },
+          },
+          pl2: {
+            workflows: { wf2: {} },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
+        'pl1',
+        'wf2',
+        'some expression',
+        sourceAndExpectedYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('updateStackAndMachine', () => {
     it('should add stack and machine definition to a given workflow', () => {
       const sourceYml: BitriseYml = {

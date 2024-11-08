@@ -1,4 +1,5 @@
-import { Box, Divider, ExpandableCard, Select, Text, Toggle } from '@bitrise/bitkit';
+import { ChangeEventHandler } from 'react';
+import { Box, Textarea, Divider, ExpandableCard, Select, Text, Toggle } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
 
@@ -38,14 +39,18 @@ const PipelineConditionsCard = () => {
   const {
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
     updatePipelineWorkflowConditionShouldAlwaysRun,
+    updatePipelineWorkflowConditionRunIfExpression,
     abortOnFailureEnabled,
     shouldAlwaysRunValue,
+    runIfExpression,
   } = useBitriseYmlStore((s) => ({
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled:
       s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
     updatePipelineWorkflowConditionShouldAlwaysRun: s.updatePipelineWorkflowConditionShouldAlwaysRun,
+    updatePipelineWorkflowConditionRunIfExpression: s.updatePipelineWorkflowConditionRunIfExpression,
     abortOnFailureEnabled: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
     shouldAlwaysRunValue: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off',
+    runIfExpression: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
   }));
 
   const onAbortOnFailureToggleChange = () => {
@@ -57,6 +62,10 @@ const PipelineConditionsCard = () => {
   )?.helperText;
   const onShouldAlwaysRunChange = (value: string) => {
     updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, value);
+  };
+
+  const onRunIfExpressionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, e.target.value);
   };
 
   return (
@@ -86,6 +95,10 @@ const PipelineConditionsCard = () => {
           </option>
         ))}
       </Select>
+
+      <Divider my="24" />
+
+      <Textarea label="Additional running conditions" value={runIfExpression} onChange={onRunIfExpressionChange} />
     </ExpandableCard>
   );
 };
