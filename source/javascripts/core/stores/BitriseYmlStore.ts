@@ -34,6 +34,7 @@ type BitriseYmlStoreState = {
   deletePipeline: (pipelineId: string) => void;
   deletePipelines: (pipelineIds: string[]) => void;
   addWorkflowToPipeline: (pipelineId: string, workflowId: string, parentWorkflowId?: string) => void;
+  removeWorkflowFromPipeline: (pipelineId: string, workflowId: string) => void;
 
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
   appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
@@ -162,6 +163,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.addWorkflowToPipeline(pipelineId, workflowId, state.yml, parentWorkflowId),
+        };
+      });
+    },
+    removeWorkflowFromPipeline(pipelineId, workflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.removeWorkflowFromPipeline(pipelineId, workflowId, state.yml),
         };
       });
     },

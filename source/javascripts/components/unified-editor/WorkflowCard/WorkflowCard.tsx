@@ -9,15 +9,17 @@ import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
+type Action = 'edit' | 'chain' | 'remove';
+
 type Props = WorkflowActions &
   StepActions & {
     id: string;
     isCollapsable?: boolean;
     containerProps?: CardProps;
-    hideEditWorkflowButton?: boolean;
+    hideActions?: Action[];
   };
 
-const WorkflowCard = ({ id, isCollapsable, containerProps, hideEditWorkflowButton, ...actions }: Props) => {
+const WorkflowCard = ({ id, isCollapsable, containerProps, hideActions, ...actions }: Props) => {
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
@@ -78,7 +80,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, hideEditWorkflowButto
           </Text>
         </Box>
 
-        {onAddChainedWorkflow && (
+        {onAddChainedWorkflow && !hideActions?.includes('chain') && (
           <ControlButton
             size="xs"
             display="none"
@@ -89,7 +91,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, hideEditWorkflowButto
             onClick={() => onAddChainedWorkflow(id)}
           />
         )}
-        {onEditWorkflow && !hideEditWorkflowButton && (
+        {onEditWorkflow && !hideActions?.includes('edit') && (
           <ControlButton
             size="xs"
             display="none"
@@ -98,6 +100,17 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, hideEditWorkflowButto
             tooltipProps={{ 'aria-label': 'Edit Workflow' }}
             _groupHover={{ display: 'inline-flex' }}
             onClick={() => onEditWorkflow(id)}
+          />
+        )}
+        {onRemoveWorkflow && !hideActions?.includes('remove') && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="Trash"
+            aria-label="Remove Workflow"
+            tooltipProps={{ 'aria-label': 'Remove Workflow' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={() => onRemoveWorkflow(id)}
           />
         )}
       </Box>
