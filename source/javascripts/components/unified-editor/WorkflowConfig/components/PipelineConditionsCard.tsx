@@ -1,4 +1,4 @@
-import { Box, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { Box, Divider, ExpandableCard, Select, Text, Toggle } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
 
@@ -22,16 +22,40 @@ const ButtonContent = ({ pipelineId }: ButtonContentProps) => {
 const PipelineConditionsCard = () => {
   const { pipelineId, workflowId } = usePipelinesPageStore();
 
-  const { updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled, yml } = useBitriseYmlStore((s) => ({
+  const {
+    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
+    updatePipelineWorkflowConditionShouldAlwaysRun,
+    yml,
+  } = useBitriseYmlStore((s) => ({
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled:
       s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
+    updatePipelineWorkflowConditionShouldAlwaysRun: s.updatePipelineWorkflowConditionShouldAlwaysRun,
     yml: s.yml,
   }));
 
   const abortOnFailureEnabled = yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false;
-
   const onAbortOnFailureToggleChange = () => {
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, !abortOnFailureEnabled);
+  };
+
+  const shouldAlwaysRunOptions = [
+    {
+      value: 'off',
+      label: 'Off',
+      helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
+    },
+    {
+      value: 'workflow',
+      label: 'Workflow',
+      helperText: 'This Workflow will start if previous Workflows failed.',
+    },
+  ];
+  const shouldAlwaysRunValue = yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off';
+  const shouldAlwaysRunHelperText = shouldAlwaysRunOptions.find(
+    (option) => option.value === shouldAlwaysRunValue,
+  )?.helperText;
+  const onShouldAlwaysRunChange = (value: string) => {
+    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, value);
   };
 
   return (
@@ -47,6 +71,22 @@ const PipelineConditionsCard = () => {
           onAbortOnFailureToggleChange();
         }}
       />
+
+      <Divider my="24" />
+
+      <Select
+        isRequired
+        label="Always run"
+        value={shouldAlwaysRunValue}
+        helperText={shouldAlwaysRunHelperText}
+        onChange={(e) => onShouldAlwaysRunChange(e.target.value)}
+      >
+        {shouldAlwaysRunOptions.map(({ value, label }) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </Select>
     </ExpandableCard>
   );
 };

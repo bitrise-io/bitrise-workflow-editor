@@ -268,6 +268,10 @@ const BitriseYmlSchema = {
                 abort_on_fail: {
                   type: 'boolean',
                 },
+                should_always_run: {
+                  type: 'string',
+                  enum: ['off', 'workflow'],
+                },
               },
               additionalProperties: false,
               type: 'object',

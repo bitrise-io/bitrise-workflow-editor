@@ -39,7 +39,11 @@ type BitriseYmlStoreState = {
     workflowId: string,
     abortPipelineOnFailureEnabled: boolean,
   ) => void;
-
+  updatePipelineWorkflowConditionShouldAlwaysRun: (
+    pipelineId: string,
+    workflowId: string,
+    shouldAlwaysRun: string,
+  ) => void;
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
   appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
   updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
@@ -181,6 +185,18 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
             pipelineId,
             workflowId,
             abortPipelineOnFailureEnabled,
+            state.yml,
+          ),
+        };
+      });
+    },
+    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, shouldAlwaysRun) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionShouldAlwaysRun(
+            pipelineId,
+            workflowId,
+            shouldAlwaysRun,
             state.yml,
           ),
         };
