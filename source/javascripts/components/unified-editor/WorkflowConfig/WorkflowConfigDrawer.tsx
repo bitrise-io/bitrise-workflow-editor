@@ -15,10 +15,11 @@ import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 
 type Props = UseDisclosureProps & {
   workflowId: string;
+  onRename: (name: string) => void;
   onCloseComplete?: VoidFunction;
 };
 
-const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
+const WorkflowConfigDrawerContent = ({ onRename, onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
   const { isOpen, onClose } = useDisclosure(props);
 
   return (
@@ -54,7 +55,7 @@ const WorkflowConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 
                 <ConfigurationTab />
               </TabPanel>
               <TabPanel>
-                <PropertiesTab variant="drawer" />
+                <PropertiesTab variant="drawer" onRename={onRename} />
               </TabPanel>
             </TabPanels>
           </DrawerBody>
