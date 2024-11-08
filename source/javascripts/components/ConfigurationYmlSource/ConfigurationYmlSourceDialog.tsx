@@ -69,7 +69,7 @@ type ConfigurationYmlSourceDialogProps = {
   defaultBranch: string;
   gitRepoSlug: string;
   lastModified: string | null;
-  initialYmlRootPath: string;
+  initialYmlRootPath: string | null;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -241,6 +241,42 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             Git repository
           </Radio>
         </RadioGroup>
+        {usesRepositoryYml && (
+          <>
+            <Input
+              label="Bitrise.yml location"
+              value={ymlRootPath}
+              onChange={(e) => setYmlRootPath(e.target.value)}
+              leftAddon={
+                <Box maxWidth="124" padding="8px 12px" display="flex">
+                  <Text textStyle="body/md/regular" hasEllipsis>
+                    {gitRepoSlug}
+                  </Text>
+                  <Text textStyle="body/md/regular">/</Text>
+                </Box>
+              }
+              rightAddon={
+                <Text padding="8px 12px" textStyle="body/md/regular">
+                  /bitrise.yml
+                </Text>
+              }
+              inputWrapperStyle={{
+                background: 'background/disabled',
+                border: '1px solid #dfdae1',
+                borderRadius: '4',
+              }}
+              placeholder={initialYmlRootPath === '' ? '' : 'example/configs'}
+              helperText="Define the source of your configuration file."
+              isRequired
+              marginInlineStart="32"
+            />
+            {initialYmlRootPath !== null && (
+              <Notification status="warning" marginBlockStart="24">
+                Ensure that Bitrise has access to all repositories where configuration files are stored.
+              </Notification>
+            )}
+          </>
+        )}
         {isSourceSelected && !usesRepositoryYml && (
           <>
             <Divider marginY="24" />
@@ -287,35 +323,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               </Radio>
             </RadioGroup>
           </>
-        )}
-        {usesRepositoryYml && (
-          <Input
-            label="Bitrise.yml location"
-            value={ymlRootPath}
-            onChange={(e) => setYmlRootPath(e.target.value)}
-            leftAddon={
-              <Box maxWidth="124" padding="8px 12px" display="flex">
-                <Text textStyle="body/md/regular" hasEllipsis>
-                  {gitRepoSlug}
-                </Text>
-                <Text textStyle="body/md/regular">/</Text>
-              </Box>
-            }
-            rightAddon={
-              <Text padding="8px 12px" textStyle="body/md/regular">
-                /bitrise.yml
-              </Text>
-            }
-            inputWrapperStyle={{
-              background: 'background/disabled',
-              border: '1px solid #dfdae1',
-              borderRadius: '4',
-            }}
-            placeholder="example/configs"
-            helperText="Define the source of your configuration file."
-            isRequired
-            marginInlineStart="32"
-          />
         )}
         {isSourceSelected && usesRepositoryYml && (
           <>
@@ -399,14 +406,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                     Follow this guide
                   </Link>{' '}
                   to split up your configuration into smaller, more manageable files. This feature is only available for
-                  Workspaces on Enterprise plan.{' '}
-                  <Link
-                    href="https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html"
-                    colorScheme="purple"
-                    isExternal
-                  >
-                    Learn more
-                  </Link>{' '}
+                  Workspaces on Enterprise plan.
                 </Text>
               </ListItem>
             </List>

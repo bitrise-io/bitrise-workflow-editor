@@ -25,7 +25,7 @@ export type YmlEditorHeaderProps = {
   modularYamlSupported?: boolean;
   lines: number;
   lastModified: string | null;
-  initialYmlRootPath: string;
+  initialYmlRootPath: string | null;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   const {
