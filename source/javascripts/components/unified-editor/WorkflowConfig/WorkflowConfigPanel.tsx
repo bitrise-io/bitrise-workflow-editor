@@ -3,6 +3,7 @@ import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
 import TriggersTabPanel from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/components/TriggersTabPanel';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -13,6 +14,7 @@ const TAB_IDS = [WorkflowConfigTab.CONFIGURATION, WorkflowConfigTab.PROPERTIES, 
 
 const WorkflowConfigPanelContent = () => {
   const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
+  const [, setSelectedWorkflow] = useSelectedWorkflow();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -48,7 +50,7 @@ const WorkflowConfigPanelContent = () => {
           <ConfigurationTab />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
-          <PropertiesTab variant="panel" />
+          <PropertiesTab variant="panel" onRename={setSelectedWorkflow} />
         </TabPanel>
         {isTargetBasedTriggersEnabled && (
           <TabPanel overflowY="auto" h="100%">

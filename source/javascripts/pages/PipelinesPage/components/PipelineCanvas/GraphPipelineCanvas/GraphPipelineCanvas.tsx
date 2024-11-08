@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ReactFlow, EdgeTypes, NodeTypes, ReactFlowProps, useEdgesState, useNodesState } from '@xyflow/react';
+import { EdgeTypes, NodeTypes, ReactFlow, ReactFlowProps, useEdgesState, useNodesState } from '@xyflow/react';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import WorkflowNode from './components/WorkflowNode/WorkflowNode';

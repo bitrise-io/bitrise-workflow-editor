@@ -8,9 +8,12 @@ import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 import createNodeFromPipelineWorkflow from '../PipelineCanvas/GraphPipelineCanvas/utils/createNodeFromPipelineWorkflow';
 import createGraphEdge from '../PipelineCanvas/GraphPipelineCanvas/utils/createGraphEdge';
+import usePipelineWorkflows from '../PipelineCanvas/GraphPipelineCanvas/hooks/usePipelineWorkflows';
+import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { addNodes, addEdges } = useReactFlow();
+  const workflows = usePipelineWorkflows();
+  const { addNodes, addEdges, setNodes, setEdges } = useReactFlow();
   const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
@@ -21,15 +24,20 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
     addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
 
-    addNodes(
-      createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn: workflowId ? [workflowId] : [] }, pipelineId),
-    );
+    const dependsOn = workflowId ? [workflowId] : [];
+    addNodes(createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn }, pipelineId));
 
     if (workflowId) {
       addEdges(createGraphEdge(workflowId, selectedWorkflowId));
     }
 
     closeDialog();
+  };
+
+  const handleRenameWorkflow = () => {
+    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows);
+    setNodes(nodes);
+    setEdges(edges);
   };
 
   return (
@@ -67,6 +75,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelineConfigDialogType.WORKFLOW_CONFIG) && (
         <WorkflowConfigDrawer
           workflowId={workflowId}
+          onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
