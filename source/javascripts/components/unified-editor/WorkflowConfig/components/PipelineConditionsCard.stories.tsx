@@ -1,23 +1,19 @@
-import { useEffect } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
 import PipelineConditionsCard from './PipelineConditionsCard';
+
+usePipelinesPageStore.setState({
+  pipelineId: 'graph-pipeline',
+  workflowId: 'wf1',
+});
 
 export default {
   component: PipelineConditionsCard,
   decorators: [
     (Story) => {
-      const { setPipelineId, setWorkflowId } = usePipelinesPageStore();
-
-      useEffect(() => {
-        setPipelineId('pipeline-1');
-        setWorkflowId('workflow-1');
-      }, [setPipelineId, setWorkflowId]);
-
       return (
-        <BitriseYmlProvider yml={MockYml}>
+        <BitriseYmlProvider yml={TEST_BITRISE_YML}>
           <Story />
         </BitriseYmlProvider>
       );

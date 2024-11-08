@@ -25,15 +25,16 @@ const PipelineConditionsCard = () => {
   const {
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
     updatePipelineWorkflowConditionShouldAlwaysRun,
-    yml,
+    abortOnFailureEnabled,
+    shouldAlwaysRunValue,
   } = useBitriseYmlStore((s) => ({
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled:
       s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
     updatePipelineWorkflowConditionShouldAlwaysRun: s.updatePipelineWorkflowConditionShouldAlwaysRun,
-    yml: s.yml,
+    abortOnFailureEnabled: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
+    shouldAlwaysRunValue: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off',
   }));
 
-  const abortOnFailureEnabled = yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false;
   const onAbortOnFailureToggleChange = () => {
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, !abortOnFailureEnabled);
   };
@@ -50,7 +51,6 @@ const PipelineConditionsCard = () => {
       helperText: 'This Workflow will start if previous Workflows failed.',
     },
   ];
-  const shouldAlwaysRunValue = yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off';
   const shouldAlwaysRunHelperText = shouldAlwaysRunOptions.find(
     (option) => option.value === shouldAlwaysRunValue,
   )?.helperText;
