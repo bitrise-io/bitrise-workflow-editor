@@ -98,7 +98,13 @@ const PipelineConditionsCard = () => {
 
       <Divider my="24" />
 
-      <Textarea label="Additional running conditions" value={runIfExpression} onChange={onRunIfExpressionChange} />
+      <Textarea
+        label="Additional running conditions"
+        placeholder="Enter any valid Go template"
+        value={runIfExpression}
+        helperText='You can use e.g. "getenv": createGetEnvForEnvVars(envs), "enveq": createEnvEqForEnvVars(envs)'
+        onChange={onRunIfExpressionChange}
+      />
     </ExpandableCard>
   );
 };
