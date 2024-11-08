@@ -3,11 +3,6 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
 import PipelineConditionsCard from './PipelineConditionsCard';
 
-usePipelinesPageStore.setState({
-  pipelineId: 'graph-pipeline',
-  workflowId: 'wf1',
-});
-
 export default {
   component: PipelineConditionsCard,
   decorators: [
@@ -19,6 +14,19 @@ export default {
       );
     },
   ],
+  beforeEach: () => {
+    usePipelinesPageStore.setState({
+      pipelineId: 'graph-pipeline',
+      workflowId: 'wf1',
+    });
+
+    return () => {
+      usePipelinesPageStore.setState({
+        pipelineId: '',
+        workflowId: '',
+      });
+    };
+  },
 } as Meta<typeof PipelineConditionsCard>;
 
 type Story = StoryObj<typeof PipelineConditionsCard>;

@@ -19,6 +19,19 @@ const ButtonContent = ({ pipelineId }: ButtonContentProps) => {
   );
 };
 
+const shouldAlwaysRunOptions = [
+  {
+    value: 'off',
+    label: 'Off',
+    helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
+  },
+  {
+    value: 'workflow',
+    label: 'Workflow',
+    helperText: 'This Workflow will start if previous Workflows failed.',
+  },
+];
+
 const PipelineConditionsCard = () => {
   const { pipelineId, workflowId } = usePipelinesPageStore();
 
@@ -39,18 +52,6 @@ const PipelineConditionsCard = () => {
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, !abortOnFailureEnabled);
   };
 
-  const shouldAlwaysRunOptions = [
-    {
-      value: 'off',
-      label: 'Off',
-      helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
-    },
-    {
-      value: 'workflow',
-      label: 'Workflow',
-      helperText: 'This Workflow will start if previous Workflows failed.',
-    },
-  ];
   const shouldAlwaysRunHelperText = shouldAlwaysRunOptions.find(
     (option) => option.value === shouldAlwaysRunValue,
   )?.helperText;
@@ -67,9 +68,7 @@ const PipelineConditionsCard = () => {
         label="Abort Pipeline on failure"
         helperText="Running Workflows will shut down, future ones won’t start if this one fails."
         isChecked={abortOnFailureEnabled}
-        onChange={() => {
-          onAbortOnFailureToggleChange();
-        }}
+        onChange={onAbortOnFailureToggleChange}
       />
 
       <Divider my="24" />
