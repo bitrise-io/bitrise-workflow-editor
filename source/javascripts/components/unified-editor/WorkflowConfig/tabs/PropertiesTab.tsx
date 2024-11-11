@@ -13,15 +13,14 @@ import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
-import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import GitStatusNameInput from '../components/GitStatusNameInput';
 import useFeatureFlag from '../../../../hooks/useFeatureFlag';
+import useRenameWorkflow from '../hooks/useRenameWorkflow';
 
 type Props = {
   variant: 'panel' | 'drawer';
+  onRename: (name: string) => void;
 };
 
 type State = {
@@ -31,11 +30,9 @@ type State = {
   validationResult: boolean | string;
 };
 
-const NameInput = ({ variant }: Props) => {
+const NameInput = ({ onRename }: { onRename: (name: string) => void }) => {
   const workflow = useWorkflowConfigContext();
   const workflowNames = Object.keys(useWorkflows()).filter((id) => id !== workflow?.id);
-  const [, setSelectedWorkflow] = useSelectedWorkflow();
-  const { openWorkflowConfigDrawer } = useWorkflowsPageStore();
 
   // TODO maybe useEditable hook from Chakra UI
   const [editable, updateEditable] = useReducer<Reducer<State, Partial<State>>>(
@@ -66,15 +63,7 @@ const NameInput = ({ variant }: Props) => {
     updateEditable({ value, isEditing: false, validationResult: true });
   }, [editable.committedValue]);
 
-  const performRename = useRenameWorkflow((newWorkflowId: string) => {
-    if (variant === 'panel') {
-      setSelectedWorkflow(newWorkflowId);
-    }
-
-    if (variant === 'drawer') {
-      openWorkflowConfigDrawer(newWorkflowId);
-    }
-  });
+  const performRename = useRenameWorkflow(onRename);
 
   const handleCommit = useCallback(() => {
     if (editable.validationResult !== true) {
@@ -151,7 +140,7 @@ const NameInput = ({ variant }: Props) => {
   );
 };
 
-const PropertiesTab = ({ variant }: Props) => {
+const PropertiesTab = ({ variant, onRename }: Props) => {
   const workflow = useWorkflowConfigContext();
 
   const isGitStatusNameEnabled =
@@ -198,7 +187,7 @@ const PropertiesTab = ({ variant }: Props) => {
 
   return (
     <Box gap="24" display="flex" flexDir="column">
-      <NameInput variant={variant} />
+      <NameInput onRename={onRename} />
       <Textarea label="Summary" value={summary} onChange={onSummaryChange} />
       <Textarea label="Description" value={description} onChange={onDescriptionChange} />
       {isGitStatusNameEnabled && (

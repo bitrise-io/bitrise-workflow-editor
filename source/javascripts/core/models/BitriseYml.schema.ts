@@ -265,6 +265,16 @@ const BitriseYmlSchema = {
                     type: 'string',
                   },
                 },
+                abort_on_fail: {
+                  type: 'boolean',
+                },
+                should_always_run: {
+                  type: 'string',
+                  enum: ['off', 'workflow'],
+                },
+                run_if: {
+                  $ref: '#/definitions/RunIfModel',
+                },
               },
               additionalProperties: false,
               type: 'object',
@@ -274,6 +284,15 @@ const BitriseYmlSchema = {
         },
         triggers: {
           type: 'object',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    RunIfModel: {
+      properties: {
+        expression: {
+          type: 'string',
         },
       },
       additionalProperties: false,
