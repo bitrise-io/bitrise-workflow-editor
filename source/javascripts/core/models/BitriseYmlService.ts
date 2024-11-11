@@ -495,6 +495,24 @@ function addWorkflowToPipeline(
   return copy;
 }
 
+function removeWorkflowFromPipeline(pipelineId: string, workflowId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  delete copy.pipelines[pipelineId].workflows[workflowId];
+  copy.pipelines[pipelineId].workflows = deleteWorkflowFromDependsOn(workflowId, copy.pipelines[pipelineId].workflows);
+
+  // NOTE - This is commented out until the BE validation is changed
+  // if (shouldRemoveField(copy.pipelines[pipelineId].workflows, yml.pipelines?.[pipelineId]?.workflows)) {
+  //   delete copy.pipelines[pipelineId].workflows;
+  // }
+
+  return copy;
+}
+
 function updatePipelineWorkflowConditionAbortPipelineOnFailure(
   pipelineId: string,
   workflowId: string,
@@ -975,6 +993,7 @@ export default {
   deletePipeline,
   deletePipelines,
   addWorkflowToPipeline,
+  removeWorkflowFromPipeline,
   updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updatePipelineWorkflowConditionShouldAlwaysRun,
   updatePipelineWorkflowConditionRunIfExpression,
