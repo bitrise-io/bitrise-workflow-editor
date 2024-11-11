@@ -6,12 +6,14 @@ import { PipelineConfigDialogType, usePipelinesPageStore } from '../../Pipelines
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
-import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
+import createNodeFromPipelineWorkflow from '../PipelineCanvas/GraphPipelineCanvas/utils/createNodeFromPipelineWorkflow';
+import createGraphEdge from '../PipelineCanvas/GraphPipelineCanvas/utils/createGraphEdge';
 import usePipelineWorkflows from '../PipelineCanvas/GraphPipelineCanvas/hooks/usePipelineWorkflows';
+import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { addNodes, setNodes, setEdges } = useReactFlow();
   const workflows = usePipelineWorkflows();
+  const { addNodes, addEdges, setNodes, setEdges } = useReactFlow();
   const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
@@ -19,20 +21,21 @@ const Drawers = ({ children }: PropsWithChildren) => {
     addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
 
-  const handleAddWorkflowToPipeline = (wfId: string) => {
-    const { nodes } = transformWorkflowsToNodesAndEdges(pipelineId, [{ id: wfId, dependsOn: [] }], {
-      x: -9999,
-      y: 0,
-    });
-    addWorkflowToPipeline(pipelineId, wfId);
-    addNodes(nodes);
+  const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
+    addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
+
+    const dependsOn = workflowId ? [workflowId] : [];
+    addNodes(createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn }, pipelineId));
+
+    if (workflowId) {
+      addEdges(createGraphEdge(workflowId, selectedWorkflowId));
+    }
+
+    closeDialog();
   };
 
   const handleRenameWorkflow = () => {
-    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows, {
-      x: -9999,
-      y: 0,
-    });
+    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows);
     setNodes(nodes);
     setEdges(edges);
   };

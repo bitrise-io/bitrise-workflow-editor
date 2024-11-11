@@ -15,7 +15,7 @@ const GraphEdge = (props: EdgeProps) => {
   );
 };
 
-const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
+export const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
   const { fromX, fromY, toX, toY, connectionLineStyle, fromPosition, toPosition, connectionStatus } = props;
 
   const targetXOffset = toPosition === Position.Left ? -8 : 8;
@@ -40,4 +40,3 @@ const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
 };
 
 export default GraphEdge;
-export { ConnectionGraphEdge };
