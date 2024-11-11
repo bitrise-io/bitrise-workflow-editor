@@ -28,10 +28,14 @@ export default function autoLayoutingGraphNodes(nodes: Node[]) {
     node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
   });
 
-  dagre.layout(graph);
+  dagre.layout(graph, { disableOptimalOrderHeuristic: true });
 
   return nodes.map((n) => {
     const { x, y, width, height } = graph.node(n.id);
+
+    if (n.data.fixed) {
+      return n;
+    }
 
     return {
       ...n,

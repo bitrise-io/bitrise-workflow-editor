@@ -24,14 +24,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
   const { openDialog } = usePipelinesPageStore();
   const { removeWorkflowFromPipeline } = useBitriseYmlStore();
   return (
-    <Box
-      ref={ref}
-      display="flex"
-      zIndex={zIndex}
-      alignItems="stretch"
-      minW={WORKFLOW_NODE_WIDTH}
-      maxW={WORKFLOW_NODE_WIDTH}
-    >
+    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH}>
       <LeftHandle />
       <WorkflowCard
         id={id}
