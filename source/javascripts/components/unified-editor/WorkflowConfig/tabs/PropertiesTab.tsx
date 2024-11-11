@@ -13,9 +13,9 @@ import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import GitStatusNameInput from '../components/GitStatusNameInput';
-import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 import useRenameWorkflow from '../hooks/useRenameWorkflow';
 
 type Props = {
