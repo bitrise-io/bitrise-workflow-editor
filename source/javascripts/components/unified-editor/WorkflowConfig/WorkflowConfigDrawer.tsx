@@ -20,7 +20,7 @@ type Props = UseDisclosureProps & {
   showPipelineConditions?: boolean;
 };
 
-const WorkflowConfigDrawerContent = ({ onRename, onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
+const WorkflowConfigDrawerContent = ({ onRename, onCloseComplete, showPipelineConditions, ...props }: Omit<Props, 'workflowId'>) => {
   const { isOpen, onClose } = useDisclosure(props);
 
   return (
