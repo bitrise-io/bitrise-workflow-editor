@@ -75,6 +75,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelineConfigDialogType.WORKFLOW_CONFIG) && (
         <WorkflowConfigDrawer
           workflowId={workflowId}
+          showPipelineConditions
           onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}

@@ -20,6 +20,7 @@ type Action = {
   closeDialog: () => void;
   unmountDialog: () => void;
   setPipelineId: (pipelineId?: string) => void;
+  setWorkflowId: (workflowId?: string) => void;
   isDialogOpen: (type: PipelineConfigDialogType) => boolean;
   isDialogMounted: (type: PipelineConfigDialogType) => boolean;
 };
@@ -55,6 +56,11 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   setPipelineId: (pipelineId = '') => {
     return set(() => ({
       pipelineId,
+    }));
+  },
+  setWorkflowId: (workflowId = '') => {
+    return set(() => ({
+      workflowId,
     }));
   },
   isDialogOpen: (type) => {

@@ -17,9 +17,15 @@ type Props = UseDisclosureProps & {
   workflowId: string;
   onRename: (name: string) => void;
   onCloseComplete?: VoidFunction;
+  showPipelineConditions?: boolean;
 };
 
-const WorkflowConfigDrawerContent = ({ onRename, onCloseComplete, ...props }: Omit<Props, 'workflowId'>) => {
+const WorkflowConfigDrawerContent = ({
+  onRename,
+  onCloseComplete,
+  showPipelineConditions,
+  ...props
+}: Omit<Props, 'workflowId'>) => {
   const { isOpen, onClose } = useDisclosure(props);
 
   return (
@@ -52,7 +58,7 @@ const WorkflowConfigDrawerContent = ({ onRename, onCloseComplete, ...props }: Om
           <DrawerBody p="24" flex="1" overflowY="auto">
             <TabPanels>
               <TabPanel>
-                <ConfigurationTab />
+                <ConfigurationTab showPipelineConditions={showPipelineConditions} />
               </TabPanel>
               <TabPanel>
                 <PropertiesTab variant="drawer" onRename={onRename} />
