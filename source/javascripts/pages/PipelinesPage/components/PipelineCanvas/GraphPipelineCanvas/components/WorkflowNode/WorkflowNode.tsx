@@ -40,7 +40,6 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
         onRemoveWorkflow={() => {
           removeWorkflowFromPipeline(pipelineId, id);
           deleteElements({ nodes: [{ id, type: 'workflow ' }] });
-          console.log(`Remove workflow (${id}) from pipeline (${pipelineId})`);
         }}
       />
       <RightHandle />
