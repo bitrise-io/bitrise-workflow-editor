@@ -1,4 +1,4 @@
-import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useReducer } from 'react';
+import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 import { ButtonGroup, ControlButton, Input, InputProps } from '@bitrise/bitkit';
 
 type Props = InputProps & {
@@ -28,6 +28,10 @@ const EditableInput = ({ sanitize = (value) => value, validate = () => true, onC
     },
   );
 
+  useEffect(() => {
+    updateEditable({ value: String(value ?? '') });
+  }, [value, defaultValue]);
+
   const handleEdit = useCallback(() => {
     updateEditable({ isEditing: true });
   }, []);
@@ -35,13 +39,20 @@ const EditableInput = ({ sanitize = (value) => value, validate = () => true, onC
   const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
       const sanitizedValue = sanitize(e.target.value);
-      updateEditable({ value: sanitizedValue, validationResult: validate(sanitizedValue) });
+      updateEditable({
+        value: sanitizedValue,
+        validationResult: validate(sanitizedValue),
+      });
     },
     [sanitize, validate],
   );
 
   const handleCancel = useCallback(() => {
-    updateEditable({ value: editable.committedValue, isEditing: false, validationResult: true });
+    updateEditable({
+      value: editable.committedValue,
+      isEditing: false,
+      validationResult: true,
+    });
   }, [editable.committedValue]);
 
   const handleCommit = useCallback(() => {
