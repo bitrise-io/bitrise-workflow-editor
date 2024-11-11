@@ -29,7 +29,7 @@ const EditableInput = ({ sanitize = (value) => value, validate = () => true, onC
   );
 
   useEffect(() => {
-    updateEditable({ value: String(value ?? defaultValue ?? '') });
+    updateEditable({ value: String(value ?? '') });
   }, [value, defaultValue]);
 
   const handleEdit = useCallback(() => {

@@ -67,7 +67,7 @@ const PropertiesTab = ({ variant, onRename }: Props) => {
         isRequired
         name="name"
         label="Name"
-        defaultValue={workflow?.id || ''}
+        value={workflow?.id || ''}
         sanitize={WorkflowService.sanitizeName}
         validate={WorkflowService.validateName}
         onCommit={handleNameChange}
