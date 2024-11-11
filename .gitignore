@@ -26,3 +26,7 @@ ld.local.json
 
 # OS X
 .DS_Store
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
