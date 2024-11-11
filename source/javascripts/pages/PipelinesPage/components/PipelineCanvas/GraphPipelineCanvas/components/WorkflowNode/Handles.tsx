@@ -39,14 +39,14 @@ const defaultHandleButtonStyle: CSSProperties = {
   backgroundColor: 'transparent',
 };
 
-const placeholderNode = (dependsOn?: string | null): Node<PipelineWorkflow> => ({
+const createPlaceholderNode = (dependsOn?: string | null): Node<PipelineWorkflow> => ({
   id: PLACEHOLDER_NODE_TYPE,
   type: PLACEHOLDER_NODE_TYPE,
   position: { x: -9999, y: 0 },
   data: { id: PLACEHOLDER_NODE_TYPE, dependsOn: dependsOn ? [dependsOn] : [] },
 });
 
-const placeholderEdge = (source?: string | null): Edge => ({
+const createPlaceholderEdge = (source?: string | null): Edge => ({
   id: `${source}->${PLACEHOLDER_NODE_TYPE}`,
   type: GRAPH_EDGE_TYPE,
   source: source || '',
@@ -82,8 +82,8 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
   const { addNodes, deleteElements, addEdges, updateNodeData } = useReactFlow();
 
   const onPointerEnter = () => {
-    addNodes(placeholderNode(id));
-    addEdges(placeholderEdge(id));
+    addNodes(createPlaceholderNode(id));
+    addEdges(createPlaceholderEdge(id));
     updateNodeData(id || '', (data) => ({ ...data, fixed: true }));
   };
 
