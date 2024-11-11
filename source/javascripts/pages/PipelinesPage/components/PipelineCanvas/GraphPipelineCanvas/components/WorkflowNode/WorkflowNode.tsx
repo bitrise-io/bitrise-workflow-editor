@@ -13,16 +13,16 @@ type Props = NodeProps<Node<WorkflowNodeDataType>>;
 type WorkflowNodeDataType = PipelineWorkflow & { pipelineId: string };
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
-  const { updateNode, deleteElements } = useReactFlow();
   const ref = useRef<HTMLDivElement>(null);
+  const { openDialog } = usePipelinesPageStore();
+  const { updateNode, deleteElements } = useReactFlow();
+  const { removeWorkflowFromPipeline } = useBitriseYmlStore();
 
   useResizeObserver({
     ref,
     onResize: (size) => updateNode(id, { height: size.height }),
   });
 
-  const { openDialog } = usePipelinesPageStore();
-  const { removeWorkflowFromPipeline } = useBitriseYmlStore();
   return (
     <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH}>
       <LeftHandle />
@@ -32,7 +32,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
         onEditWorkflow={openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id)}
         onRemoveWorkflow={() => {
           removeWorkflowFromPipeline(pipelineId, id);
-          deleteElements({ nodes: [{ id, type: 'workflow ' }] });
+          deleteElements({ nodes: [{ id }] });
         }}
       />
       <RightHandle />

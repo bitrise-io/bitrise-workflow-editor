@@ -4,7 +4,7 @@ import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_TYPE, WORKFLOW_NODE_WIDTH } from '.
 export default function createNodeFromPipelineWorkflow(workflow: PipelineWorkflow, pipelineId?: string) {
   return {
     id: workflow.id,
-    deletable: false,
+    deletable: true,
     draggable: false,
     focusable: false,
     selectable: true,
