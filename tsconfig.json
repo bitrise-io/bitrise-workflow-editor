@@ -38,6 +38,8 @@
     "experimentalDecorators": true
   },
   "include": [
+    "tests/**/*.ts",
+    "playwright.config.ts",
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
     "source/javascripts/**/*.tsx"

@@ -84,6 +84,13 @@ module.exports = {
         '@typescript-eslint/no-non-null-assertion': 'off',
       },
     },
+
+    {
+      files: ['./tests/*.spec.ts'],
+      rules: {
+        'testing-library/prefer-screen-queries': 'off',
+      },
+    },
   ],
   settings: {
     'import/resolver': {
