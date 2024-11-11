@@ -513,6 +513,70 @@ function removeWorkflowFromPipeline(pipelineId: string, workflowId: string, yml:
   return copy;
 }
 
+function updatePipelineWorkflowConditionAbortPipelineOnFailure(
+  pipelineId: string,
+  workflowId: string,
+  abortPipelineOnFailureEnabled: boolean,
+  yml: BitriseYml,
+) {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (abortPipelineOnFailureEnabled) {
+    copy.pipelines[pipelineId].workflows[workflowId].abort_on_fail = true;
+  } else {
+    delete copy.pipelines[pipelineId].workflows[workflowId].abort_on_fail;
+  }
+
+  return copy;
+}
+
+function updatePipelineWorkflowConditionShouldAlwaysRun(
+  pipelineId: string,
+  workflowId: string,
+  shouldAlwaysRun: string,
+  yml: BitriseYml,
+) {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (shouldAlwaysRun === 'workflow') {
+    copy.pipelines[pipelineId].workflows[workflowId].should_always_run = 'workflow';
+  } else {
+    delete copy.pipelines[pipelineId].workflows[workflowId].should_always_run;
+  }
+
+  return copy;
+}
+
+function updatePipelineWorkflowConditionRunIfExpression(
+  pipelineId: string,
+  workflowId: string,
+  runIfExpression: string,
+  yml: BitriseYml,
+) {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (runIfExpression !== '') {
+    const runIf = { expression: runIfExpression };
+    copy.pipelines[pipelineId].workflows[workflowId].run_if = runIf;
+  } else {
+    delete copy.pipelines[pipelineId].workflows[workflowId].run_if;
+  }
+
+  return copy;
+}
+
 function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -930,6 +994,9 @@ export default {
   deletePipelines,
   addWorkflowToPipeline,
   removeWorkflowFromPipeline,
+  updatePipelineWorkflowConditionAbortPipelineOnFailure,
+  updatePipelineWorkflowConditionShouldAlwaysRun,
+  updatePipelineWorkflowConditionRunIfExpression,
   updateStackAndMachine,
   updateTriggerMap,
   appendWorkflowEnvVar,

@@ -35,7 +35,17 @@ type BitriseYmlStoreState = {
   deletePipelines: (pipelineIds: string[]) => void;
   addWorkflowToPipeline: (pipelineId: string, workflowId: string, parentWorkflowId?: string) => void;
   removeWorkflowFromPipeline: (pipelineId: string, workflowId: string) => void;
-
+  updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled: (
+    pipelineId: string,
+    workflowId: string,
+    abortPipelineOnFailureEnabled: boolean,
+  ) => void;
+  updatePipelineWorkflowConditionShouldAlwaysRun: (
+    pipelineId: string,
+    workflowId: string,
+    shouldAlwaysRun: string,
+  ) => void;
+  updatePipelineWorkflowConditionRunIfExpression: (pipelineId: string, workflowId: string, expression: string) => void;
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
   appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
   updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
@@ -173,6 +183,47 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
+    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(
+      pipelineId,
+      workflowId,
+      abortPipelineOnFailureEnabled,
+    ) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
+            pipelineId,
+            workflowId,
+            abortPipelineOnFailureEnabled,
+            state.yml,
+          ),
+        };
+      });
+    },
+    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, shouldAlwaysRun) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionShouldAlwaysRun(
+            pipelineId,
+            workflowId,
+            shouldAlwaysRun,
+            state.yml,
+          ),
+        };
+      });
+    },
+    updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, runIfExpression) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
+            pipelineId,
+            workflowId,
+            runIfExpression,
+            state.yml,
+          ),
+        };
+      });
+    },
+
     updateStackAndMachine(workflowId, stack, machineTypeId) {
       return set((state) => {
         return {
