@@ -15,16 +15,14 @@ type WorkflowNodeDataType = PipelineWorkflow & { pipelineId: string };
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
-  const { updateNode, setNodes, setEdges } = useReactFlow<Node<WorkflowNodeDataType>>();
   const removeWorkflowFromPipeline = useBitriseYmlStore((s) => s.removeWorkflowFromPipeline);
+  const { updateNode, setNodes, deleteElements } = useReactFlow<Node<WorkflowNodeDataType>>();
 
   const handleRemoveWorkflow = useCallback(() => {
     removeWorkflowFromPipeline(pipelineId, id);
-
+    deleteElements({ nodes: [{ id }] });
     setNodes((nodes) => {
-      const filteredNodes = nodes.filter((node) => node.id !== id);
-
-      return filteredNodes.map((node) => {
+      return nodes.map((node) => {
         return {
           ...node,
           data: {
@@ -34,11 +32,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
         };
       });
     });
-
-    setEdges((edges) => {
-      return edges.filter((edge) => edge.source !== id && edge.target !== id);
-    });
-  }, [id, pipelineId, removeWorkflowFromPipeline, setEdges, setNodes]);
+  }, [id, pipelineId, deleteElements, removeWorkflowFromPipeline, setNodes]);
 
   useResizeObserver({
     ref,
