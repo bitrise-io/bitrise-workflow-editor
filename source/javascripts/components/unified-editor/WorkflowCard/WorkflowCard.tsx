@@ -4,32 +4,42 @@ import useWorkflow from '@/hooks/useWorkflow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
-import { EMPTY_ACTIONS, StepActions, WorkflowActions } from './WorkflowCard.types';
+import { StepActions, WorkflowActions } from './WorkflowCard.types';
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
-type Props = {
-  id: string;
-  isCollapsable?: boolean;
-  containerProps?: CardProps;
-  workflowActions?: WorkflowActions;
-  hideEditWorkflowButton?: boolean;
-  stepActions?: StepActions;
-};
+type Action = 'edit' | 'chain' | 'remove';
 
-const WorkflowCard = ({
-  id,
-  isCollapsable,
-  containerProps,
-  stepActions = EMPTY_ACTIONS,
-  workflowActions = EMPTY_ACTIONS,
-  hideEditWorkflowButton,
-}: Props) => {
-  const { onCreateWorkflow, onAddChainedWorkflowClick, onEditWorkflowClick } = workflowActions;
+type Props = WorkflowActions &
+  StepActions & {
+    id: string;
+    isCollapsable?: boolean;
+    containerProps?: CardProps;
+    hideActions?: Action[];
+  };
+
+const WorkflowCard = ({ id, isCollapsable, containerProps, hideActions, ...actions }: Props) => {
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
+  const {
+    onCreateWorkflow,
+    onEditWorkflow,
+    onRemoveWorkflow,
+    onAddChainedWorkflow,
+    onRemoveChainedWorkflow,
+    onChainedWorkflowsUpdate,
+    ...stepActions
+  } = actions;
+  const workflowActions = {
+    onCreateWorkflow,
+    onEditWorkflow,
+    onRemoveWorkflow,
+    onAddChainedWorkflow,
+    onRemoveChainedWorkflow,
+    onChainedWorkflowsUpdate,
+  };
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
   if (!workflow) {
@@ -70,7 +80,7 @@ const WorkflowCard = ({
           </Text>
         </Box>
 
-        {onAddChainedWorkflowClick && (
+        {onAddChainedWorkflow && !hideActions?.includes('chain') && (
           <ControlButton
             size="xs"
             display="none"
@@ -78,10 +88,10 @@ const WorkflowCard = ({
             aria-label="Chain Workflows"
             tooltipProps={{ 'aria-label': 'Chain Workflows' }}
             _groupHover={{ display: 'inline-flex' }}
-            onClick={() => onAddChainedWorkflowClick(id)}
+            onClick={() => onAddChainedWorkflow(id)}
           />
         )}
-        {onEditWorkflowClick && !hideEditWorkflowButton && (
+        {onEditWorkflow && !hideActions?.includes('edit') && (
           <ControlButton
             size="xs"
             display="none"
@@ -89,7 +99,18 @@ const WorkflowCard = ({
             aria-label="Edit Workflow"
             tooltipProps={{ 'aria-label': 'Edit Workflow' }}
             _groupHover={{ display: 'inline-flex' }}
-            onClick={() => onEditWorkflowClick(id)}
+            onClick={() => onEditWorkflow(id)}
+          />
+        )}
+        {onRemoveWorkflow && !hideActions?.includes('remove') && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="Trash"
+            aria-label="Remove Workflow"
+            tooltipProps={{ 'aria-label': 'Remove Workflow' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={() => onRemoveWorkflow(id)}
           />
         )}
       </Box>
@@ -101,18 +122,18 @@ const WorkflowCard = ({
               key={`${id}->before_run`}
               placement="before_run"
               parentWorkflowId={id}
-              workflowActions={workflowActions}
-              stepActions={stepActions}
+              {...workflowActions}
+              {...stepActions}
             />
 
-            <StepList workflowId={id} stepActions={stepActions} />
+            <StepList workflowId={id} {...stepActions} />
 
             <ChainedWorkflowList
               key={`${id}->after_run`}
               placement="after_run"
               parentWorkflowId={id}
-              workflowActions={workflowActions}
-              stepActions={stepActions}
+              {...workflowActions}
+              {...stepActions}
             />
           </Box>
         </SortableWorkflowsContext>
