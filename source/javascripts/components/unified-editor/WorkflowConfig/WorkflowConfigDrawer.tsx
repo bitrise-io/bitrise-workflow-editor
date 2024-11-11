@@ -53,7 +53,7 @@ const WorkflowConfigDrawerContent = ({ onRename, onCloseComplete, showPipelineCo
           <DrawerBody p="24" flex="1" overflowY="auto">
             <TabPanels>
               <TabPanel>
-                <ConfigurationTab showPipelineConditions={props.showPipelineConditions} />
+                <ConfigurationTab showPipelineConditions={showPipelineConditions} />
               </TabPanel>
               <TabPanel>
                 <PropertiesTab variant="drawer" onRename={onRename} />
