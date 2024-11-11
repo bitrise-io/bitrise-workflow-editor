@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { useResizeObserver } from 'usehooks-ts';
 import { Node, NodeProps, useReactFlow } from '@xyflow/react';
@@ -14,9 +14,31 @@ type WorkflowNodeDataType = PipelineWorkflow & { pipelineId: string };
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const { openDialog } = usePipelinesPageStore();
-  const { updateNode, deleteElements } = useReactFlow();
-  const { removeWorkflowFromPipeline } = useBitriseYmlStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
+  const { updateNode, setNodes, setEdges } = useReactFlow<Node<WorkflowNodeDataType>>();
+  const removeWorkflowFromPipeline = useBitriseYmlStore((s) => s.removeWorkflowFromPipeline);
+
+  const handleRemoveWorkflow = useCallback(() => {
+    removeWorkflowFromPipeline(pipelineId, id);
+
+    setNodes((nodes) => {
+      const filteredNodes = nodes.filter((node) => node.id !== id);
+
+      return filteredNodes.map((node) => {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            dependsOn: node.data.dependsOn.filter((dep) => dep !== id),
+          },
+        };
+      });
+    });
+
+    setEdges((edges) => {
+      return edges.filter((edge) => edge.source !== id && edge.target !== id);
+    });
+  }, [id, pipelineId, removeWorkflowFromPipeline, setEdges, setNodes]);
 
   useResizeObserver({
     ref,
@@ -30,10 +52,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
         id={id}
         isCollapsable
         onEditWorkflow={openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id)}
-        onRemoveWorkflow={() => {
-          removeWorkflowFromPipeline(pipelineId, id);
-          deleteElements({ nodes: [{ id }] });
-        }}
+        onRemoveWorkflow={handleRemoveWorkflow}
       />
       <RightHandle />
     </Box>
