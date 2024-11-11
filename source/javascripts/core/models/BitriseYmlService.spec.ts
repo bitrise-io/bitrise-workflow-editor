@@ -1711,6 +1711,109 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('removeWorkflowFromPipeline', () => {
+    it('should remove the workflow from the given pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+              wf2: { depends_on: ['wf1'] },
+            },
+          },
+          pl2: {
+            workflows: {
+              wf1: { depends_on: ['wf2'] },
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf2: {},
+            },
+          },
+          pl2: {
+            workflows: {
+              wf1: { depends_on: ['wf2'] },
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.removeWorkflowFromPipeline('pl1', 'wf1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the pipeline does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.removeWorkflowFromPipeline('pl2', 'wf1', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.removeWorkflowFromPipeline('pl1', 'wf2', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should NOT remove the workflows field if it becomes empty after removal', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {},
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.removeWorkflowFromPipeline('pl1', 'wf1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('updatePipelineWorkflowConditionAbortPipelineOnFailure', () => {
     it('should add abort on fail attribute if set to true', () => {
       const sourceYml: BitriseYml = {

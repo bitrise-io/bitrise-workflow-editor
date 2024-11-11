@@ -20,7 +20,7 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import { EMPTY_ACTIONS, SortableStepItem, StepActions } from '../WorkflowCard.types';
+import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -60,14 +60,13 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   );
 };
 
-type StepCardProps = {
+type StepCardProps = StepActions & {
   uniqueId: string;
   workflowId: string;
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
   showSecondary?: boolean;
-  actions?: StepActions;
 };
 
 const StepCard = ({
@@ -77,11 +76,13 @@ const StepCard = ({
   isSortable,
   isDragging,
   showSecondary = true,
-  actions = EMPTY_ACTIONS,
+  onSelectStep,
+  onUpgradeStep,
+  onCloneStep,
+  onDeleteStep,
 }: StepCardProps) => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const result = useStep(workflowId, stepIndex);
-  const { onStepSelect, onUpgradeStep, onCloneStep, onDeleteStep } = actions;
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
 
   const sortable = useSortable({
@@ -142,8 +143,8 @@ const StepCard = ({
     );
   }
 
-  const isButton = Boolean(onStepSelect);
-  const handleClick = isButton ? () => onStepSelect?.(workflowId, stepIndex, library) : undefined;
+  const isButton = Boolean(onSelectStep);
+  const handleClick = isButton ? () => onSelectStep?.(workflowId, stepIndex, library) : undefined;
 
   return (
     <Card

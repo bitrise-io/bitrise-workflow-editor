@@ -6,17 +6,16 @@ import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/cor
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import { EMPTY_ACTIONS, SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
 
-type Props = {
-  placement: Placement;
-  parentWorkflowId: string;
-  containerProps?: BoxProps;
-  workflowActions?: WorkflowActions;
-  stepActions?: StepActions;
-};
+type Props = WorkflowActions &
+  StepActions & {
+    placement: Placement;
+    parentWorkflowId: string;
+    containerProps?: BoxProps;
+  };
 
 function anotherPlacement(placement: Placement): Placement {
   return placement === 'after_run' ? 'before_run' : 'after_run';
@@ -42,14 +41,8 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const ChainedWorkflowList = ({
-  placement,
-  containerProps,
-  parentWorkflowId,
-  stepActions = EMPTY_ACTIONS,
-  workflowActions = EMPTY_ACTIONS,
-}: Props) => {
-  const { onChainedWorkflowsUpdate } = workflowActions;
+const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...actions }: Props) => {
+  const { onChainedWorkflowsUpdate } = actions;
   const isAfterRun = placement === 'after_run';
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
@@ -194,12 +187,7 @@ const ChainedWorkflowList = ({
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {isAfterRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
         {sortableItems.map((item) => (
-          <ChainedWorkflowCard
-            key={item.uniqueId}
-            {...item}
-            workflowActions={workflowActions}
-            stepActions={stepActions}
-          />
+          <ChainedWorkflowCard key={item.uniqueId} {...item} {...actions} />
         ))}
         {isBeforeRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
       </Box>
