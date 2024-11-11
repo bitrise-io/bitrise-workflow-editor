@@ -37,10 +37,10 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
           return omit(oldSearchParams, 'workflow_id');
         }
 
-        return { ...oldSearchParams, workflow_id: selectValidWorkflowId(workflowIds, workflowId) };
+        return { ...oldSearchParams, workflow_id: workflowId };
       });
     },
-    [workflowIds, setSearchParams],
+    [setSearchParams],
   );
 
   useEffect(() => {

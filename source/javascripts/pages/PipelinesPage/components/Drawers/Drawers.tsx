@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { WorkflowConfigDrawer } from '@/components/unified-editor';
+import useSearchParams from '@/hooks/useSearchParams';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -13,8 +14,10 @@ import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCa
 
 const Drawers = ({ children }: PropsWithChildren) => {
   const workflows = usePipelineWorkflows();
+  const [, setSearchParams] = useSearchParams();
   const { addNodes, addEdges, setNodes, setEdges } = useReactFlow();
-  const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
+  const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog, setWorkflowId } =
+    usePipelinesPageStore();
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
@@ -34,7 +37,14 @@ const Drawers = ({ children }: PropsWithChildren) => {
     closeDialog();
   };
 
-  const handleRenameWorkflow = () => {
+  const handleRenameWorkflow = (newWorkflowId: string) => {
+    setWorkflowId(newWorkflowId);
+    setSearchParams((params) => {
+      if (params.workflow_id === workflowId) {
+        return { ...params, workflow_id: newWorkflowId };
+      }
+      return params;
+    });
     const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows);
     setNodes(nodes);
     setEdges(edges);
