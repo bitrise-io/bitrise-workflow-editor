@@ -505,9 +505,10 @@ function removeWorkflowFromPipeline(pipelineId: string, workflowId: string, yml:
   delete copy.pipelines[pipelineId].workflows[workflowId];
   copy.pipelines[pipelineId].workflows = deleteWorkflowFromDependsOn(workflowId, copy.pipelines[pipelineId].workflows);
 
-  if (shouldRemoveField(copy.pipelines[pipelineId].workflows, yml.pipelines?.[pipelineId]?.workflows)) {
-    delete copy.pipelines[pipelineId].workflows;
-  }
+  // NOTE - This is commented out until the BE validation is changed
+  // if (shouldRemoveField(copy.pipelines[pipelineId].workflows, yml.pipelines?.[pipelineId]?.workflows)) {
+  //   delete copy.pipelines[pipelineId].workflows;
+  // }
 
   return copy;
 }

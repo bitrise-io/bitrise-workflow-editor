@@ -1787,7 +1787,7 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
 
-    it('should remove the workflows field if it becomes empty after removal', () => {
+    it('should NOT remove the workflows field if it becomes empty after removal', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
@@ -1802,7 +1802,9 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
-          pl1: {},
+          pl1: {
+            workflows: {},
+          },
         },
       };
 
