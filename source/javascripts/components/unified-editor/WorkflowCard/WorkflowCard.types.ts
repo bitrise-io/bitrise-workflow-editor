@@ -5,9 +5,11 @@ import { LibraryType } from '@/core/models/Step';
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
   onEditWorkflow?: (workflowId: string) => void;
+  onEditChainedWorkflow?: (workflowId: string) => void;
+  onChainWorkflow?: (workflowId: string) => void;
+  onChainChainedWorkflow?: (workflowId: string) => void;
   onRemoveWorkflow?: (workflowId: string) => void;
-  onAddChainedWorkflow?: (workflowId: string) => void;
-  onRemoveChainedWorkflow?: BitriseYmlStoreState['deleteChainedWorkflow'];
+  onRemoveChainedWorkflow?: BitriseYmlStoreState['removeChainedWorkflow'];
   onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
 };
 

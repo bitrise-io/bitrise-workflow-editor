@@ -1,8 +1,19 @@
 import { useCallback } from 'react';
-import { EdgeTypes, NodeTypes, ReactFlow, ReactFlowProps, useEdgesState, useNodesState } from '@xyflow/react';
+import {
+  Edge,
+  EdgeTypes,
+  Node,
+  NodeTypes,
+  ReactFlow,
+  ReactFlowProps,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
+} from '@xyflow/react';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
-import WorkflowNode from './components/WorkflowNode/WorkflowNode';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import WorkflowNode, { WorkflowNodeDataType } from './components/WorkflowNode/WorkflowNode';
 import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmptyState';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
@@ -24,18 +35,39 @@ const edgeTypes: EdgeTypes = {
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
   const { openDialog } = usePipelinesPageStore();
+  const { removeWorkflowFromPipeline, removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
+    removeWorkflowFromPipeline: s.removeWorkflowFromPipeline,
+    removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
+  }));
+
+  const { updateNode } = useReactFlow<Node<WorkflowNodeDataType>>();
   const { selectedPipeline } = usePipelineSelector();
   const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initialNodes));
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
-  const autoLayoutOnNodesChange: typeof onNodesChange = useCallback(
+  const handleNodesChanges: typeof onNodesChange = useCallback(
     (changes) => {
       onNodesChange(changes);
       setNodes(autoLayoutingGraphNodes);
     },
     [onNodesChange, setNodes],
+  );
+
+  const updateAffectedNodes = useCallback(
+    (deletedEdges: Edge[]) => {
+      deletedEdges.forEach((e) => {
+        updateNode(e.target, (node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            dependsOn: node.data.dependsOn.filter((dId) => dId !== e.source),
+          },
+        }));
+      });
+    },
+    [updateNode],
   );
 
   return (
@@ -46,7 +78,18 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
-        onNodesChange={autoLayoutOnNodesChange}
+        onEdgesDelete={(deletedEdges) => {
+          deletedEdges.forEach((edge) => {
+            removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
+          });
+          updateAffectedNodes(deletedEdges);
+        }}
+        onNodesChange={handleNodesChanges}
+        onNodesDelete={(deletedNodes) => {
+          deletedNodes.forEach((node) => {
+            removeWorkflowFromPipeline(selectedPipeline, node.id);
+          });
+        }}
         connectionLineComponent={ConnectionGraphEdge}
         isValidConnection={validateConnection(nodes)}
         {...props}

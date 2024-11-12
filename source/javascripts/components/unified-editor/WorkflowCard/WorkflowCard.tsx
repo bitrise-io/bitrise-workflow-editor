@@ -9,34 +9,32 @@ import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
-type Action = 'edit' | 'chain' | 'remove';
-
 type Props = WorkflowActions &
   StepActions & {
     id: string;
     isCollapsable?: boolean;
     containerProps?: CardProps;
-    hideActions?: Action[];
   };
 
-const WorkflowCard = ({ id, isCollapsable, containerProps, hideActions, ...actions }: Props) => {
+const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) => {
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
   const {
     onCreateWorkflow,
     onEditWorkflow,
+    onChainWorkflow,
     onRemoveWorkflow,
-    onAddChainedWorkflow,
+    onChainChainedWorkflow,
+    onEditChainedWorkflow,
     onRemoveChainedWorkflow,
     onChainedWorkflowsUpdate,
     ...stepActions
   } = actions;
   const workflowActions = {
     onCreateWorkflow,
-    onEditWorkflow,
-    onRemoveWorkflow,
-    onAddChainedWorkflow,
+    onEditChainedWorkflow,
+    onChainChainedWorkflow,
     onRemoveChainedWorkflow,
     onChainedWorkflowsUpdate,
   };
@@ -80,7 +78,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, hideActions, ...actio
           </Text>
         </Box>
 
-        {onAddChainedWorkflow && !hideActions?.includes('chain') && (
+        {onChainWorkflow && (
           <ControlButton
             size="xs"
             display="none"
@@ -89,10 +87,10 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, hideActions, ...actio
             aria-label="Chain Workflows"
             tooltipProps={{ 'aria-label': 'Chain Workflows' }}
             _groupHover={{ display: 'inline-flex' }}
-            onClick={() => onAddChainedWorkflow(id)}
+            onClick={() => onChainWorkflow(id)}
           />
         )}
-        {onEditWorkflow && !hideActions?.includes('edit') && (
+        {onEditWorkflow && (
           <ControlButton
             size="xs"
             display="none"
@@ -104,7 +102,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, hideActions, ...actio
             onClick={() => onEditWorkflow(id)}
           />
         )}
-        {onRemoveWorkflow && !hideActions?.includes('remove') && (
+        {onRemoveWorkflow && (
           <ControlButton
             size="xs"
             display="none"

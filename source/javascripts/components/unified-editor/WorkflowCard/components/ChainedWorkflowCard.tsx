@@ -37,13 +37,16 @@ const ChainedWorkflowCard = ({
   const {
     onCreateWorkflow,
     onEditWorkflow,
-    onAddChainedWorkflow,
+    onChainWorkflow,
+    onRemoveWorkflow,
+    onEditChainedWorkflow,
+    onChainChainedWorkflow,
     onRemoveChainedWorkflow,
     onChainedWorkflowsUpdate,
     ...stepActions
   } = actions;
 
-  const isEditable = Boolean(onEditWorkflow || onAddChainedWorkflow || onRemoveChainedWorkflow);
+  const isEditable = Boolean(onEditChainedWorkflow || onChainChainedWorkflow || onRemoveChainedWorkflow);
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
   const result = useWorkflow(id);
@@ -144,7 +147,7 @@ const ChainedWorkflowCard = ({
 
         {isEditable && (
           <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-            {onAddChainedWorkflow && (
+            {onChainChainedWorkflow && (
               <ControlButton
                 size="xs"
                 iconName="Link"
@@ -152,17 +155,17 @@ const ChainedWorkflowCard = ({
                 tooltipProps={{ 'aria-label': 'Chain Workflows' }}
                 onClick={() => {
                   onOpen();
-                  onAddChainedWorkflow(id);
+                  onChainChainedWorkflow(id);
                 }}
               />
             )}
-            {onEditWorkflow && (
+            {onEditChainedWorkflow && (
               <ControlButton
                 size="xs"
                 iconName="Settings"
                 aria-label="Edit Workflow"
                 tooltipProps={{ 'aria-label': 'Edit Workflow' }}
-                onClick={() => onEditWorkflow(id)}
+                onClick={() => onEditChainedWorkflow(id)}
               />
             )}
             {onRemoveChainedWorkflow && (

@@ -6,11 +6,20 @@ const edgeStyle = (style?: CSSProperties) => {
 };
 
 const GraphEdge = (props: EdgeProps) => {
-  const { style } = props;
+  const { style, selected } = props;
 
   const [path] = getSmoothStepPath({ ...props, offset: 0, borderRadius: 12 });
 
-  return <BaseEdge {...props} path={path} style={edgeStyle({ ...style, stroke: 'var(--colors-border-minimal)' })} />;
+  return (
+    <BaseEdge
+      {...props}
+      path={path}
+      style={edgeStyle({
+        ...style,
+        stroke: selected ? 'var(--colors-border-selected)' : 'var(--colors-border-minimal)',
+      })}
+    />
+  );
 };
 
 export const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {

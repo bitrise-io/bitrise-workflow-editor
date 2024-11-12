@@ -19,6 +19,8 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog, setWorkflowId } =
     usePipelinesPageStore();
 
+  const showPipelineConditions = workflows.some((wf) => wf.id === workflowId);
+
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
     addWorkflowToPipeline: s.addWorkflowToPipeline,
@@ -85,7 +87,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelineConfigDialogType.WORKFLOW_CONFIG) && (
         <WorkflowConfigDrawer
           workflowId={workflowId}
-          showPipelineConditions
+          showPipelineConditions={showPipelineConditions}
           onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}

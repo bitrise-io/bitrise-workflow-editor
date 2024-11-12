@@ -6,25 +6,29 @@ import WorkflowCard from './WorkflowCard';
 
 export default {
   component: WorkflowCard,
-  args: {
-    id: 'wf1',
-    isCollapsable: true,
-  },
   argTypes: {
     // Workflow actions
     onCreateWorkflow: { type: 'function' },
+    onChainWorkflow: { type: 'function' },
+    onChainChainedWorkflow: { type: 'function' },
     onEditWorkflow: { type: 'function' },
+    onEditChainedWorkflow: { type: 'function' },
     onRemoveWorkflow: { type: 'function' },
-    onAddChainedWorkflow: { type: 'function' },
     onRemoveChainedWorkflow: { type: 'function' },
-    onChainedWorkflowsUpdate: { type: 'function' },
-
+    onChainedWorkflowsUpdate: {
+      type: 'function',
+    },
+    // Step actions
     onAddStep: { type: 'function' },
     onMoveStep: { type: 'function' },
     onSelectStep: { type: 'function' },
     onUpgradeStep: { type: 'function' },
     onCloneStep: { type: 'function' },
     onDeleteStep: { type: 'function' },
+  },
+  args: {
+    id: 'wf1',
+    isCollapsable: true,
   },
   decorators: (Story) => withBitriseYml(MockYml, Story),
   render: withQueryClientProvider((props) => <WorkflowCard {...props} />),

@@ -5,7 +5,7 @@ export default function createGraphEdge(sourceWorkflowId: string, targetWorkflow
     id: `${sourceWorkflowId}->${targetWorkflowId}`,
     deletable: true,
     focusable: false,
-    selectable: false,
+    selectable: true,
     reconnectable: false,
     type: GRAPH_EDGE_TYPE,
     source: sourceWorkflowId,
