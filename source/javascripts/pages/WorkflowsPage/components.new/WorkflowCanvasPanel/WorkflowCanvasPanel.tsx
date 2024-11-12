@@ -13,11 +13,11 @@ type Props = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
-  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, deleteChainedWorkflow } =
+  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, removeChainedWorkflow } =
     useBitriseYmlStore((s) => ({
       moveStep: s.moveStep,
       setChainedWorkflows: s.setChainedWorkflows,
-      deleteChainedWorkflow: s.deleteChainedWorkflow,
+      removeChainedWorkflow: s.removeChainedWorkflow,
       upgradeStep: s.changeStepVersion,
       cloneStep: s.cloneStep,
       deleteStep: s.deleteStep,
@@ -33,7 +33,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     openWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
-  const openStepLikeDrawer: StepActions['onStepSelect'] = (wfId, stepIndex, libraryType) => {
+  const openStepLikeDrawer: StepActions['onSelectStep'] = (wfId, stepIndex, libraryType) => {
     switch (libraryType) {
       case LibraryType.WITH:
         openWithGroupConfigDrawer(wfId, stepIndex);
@@ -72,22 +72,22 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
           id={workflowId}
-          workflowActions={{
-            onEditWorkflowClick: openWorkflowConfigDrawer,
-            onChainedWorkflowsUpdate: setChainedWorkflows,
-            onAddChainedWorkflowClick: openChainWorkflowDialog,
-            onDeleteChainedWorkflowClick: deleteChainedWorkflow,
-          }}
-          hideEditWorkflowButton
-          stepActions={{
-            onStepMove: moveStep,
-            onStepSelect: openStepLikeDrawer,
-            onAddStepClick: openStepSelectorDrawer,
-            onUpgradeStep: upgradeStep,
-            onCloneStep: cloneStep,
-            onDeleteStep: deleteStep,
-          }}
           containerProps={{ maxW: 400, marginX: 'auto' }}
+          // Workflow actions
+          onEditWorkflow={undefined}
+          onEditChainedWorkflow={openWorkflowConfigDrawer}
+          onChainWorkflow={openChainWorkflowDialog}
+          onChainChainedWorkflow={openChainWorkflowDialog}
+          onRemoveWorkflow={undefined}
+          onRemoveChainedWorkflow={removeChainedWorkflow}
+          onChainedWorkflowsUpdate={setChainedWorkflows}
+          // Step actions
+          onAddStep={openStepSelectorDrawer}
+          onSelectStep={openStepLikeDrawer}
+          onMoveStep={moveStep}
+          onUpgradeStep={upgradeStep}
+          onCloneStep={cloneStep}
+          onDeleteStep={deleteStep}
         />
       </Box>
     </Box>

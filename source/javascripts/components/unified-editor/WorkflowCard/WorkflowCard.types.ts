@@ -4,16 +4,19 @@ import { LibraryType } from '@/core/models/Step';
 
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
-  onEditWorkflowClick?: (workflowId: string) => void;
-  onAddChainedWorkflowClick?: (workflowId: string) => void;
+  onEditWorkflow?: (workflowId: string) => void;
+  onEditChainedWorkflow?: (workflowId: string) => void;
+  onChainWorkflow?: (workflowId: string) => void;
+  onChainChainedWorkflow?: (workflowId: string) => void;
+  onRemoveWorkflow?: (workflowId: string) => void;
+  onRemoveChainedWorkflow?: BitriseYmlStoreState['removeChainedWorkflow'];
   onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
-  onDeleteChainedWorkflowClick?: BitriseYmlStoreState['deleteChainedWorkflow'];
 };
 
 export type StepActions = {
-  onAddStepClick?: (workflowId: string, stepIndex: number) => void;
-  onStepSelect?: (workflowId: string, stepIndex: number, libraryType: LibraryType) => void;
-  onStepMove?: BitriseYmlStoreState['moveStep'];
+  onAddStep?: (workflowId: string, stepIndex: number) => void;
+  onSelectStep?: (workflowId: string, stepIndex: number, libraryType: LibraryType) => void;
+  onMoveStep?: BitriseYmlStoreState['moveStep'];
   onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
   onCloneStep?: BitriseYmlStoreState['cloneStep'];
   onDeleteStep?: BitriseYmlStoreState['deleteStep'];
@@ -32,5 +35,3 @@ export type SortableStepItem = {
   stepIndex: number;
   workflowId: string;
 };
-
-export const EMPTY_ACTIONS = {};

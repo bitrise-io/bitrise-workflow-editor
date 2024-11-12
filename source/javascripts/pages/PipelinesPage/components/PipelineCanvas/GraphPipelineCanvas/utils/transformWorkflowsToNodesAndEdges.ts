@@ -1,41 +1,24 @@
 import { Edge, Node } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
-import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
+import createGraphEdge from './createGraphEdge';
+import createNodeFromPipelineWorkflow from './createNodeFromPipelineWorkflow';
 
 export default function transformWorkflowsToNodesAndEdges(
   pipelineId: string,
   workflows: PipelineWorkflow[],
-  position = { x: 0, y: 0 },
-) {
+  isActionable: boolean,
+): {
+  nodes: Node[];
+  edges: Edge[];
+} {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
   workflows.forEach((workflow) => {
-    nodes.push({
-      position,
-      id: workflow.id,
-      data: { ...workflow, pipelineId },
-      type: 'workflow',
-      deletable: false,
-      draggable: false,
-      focusable: false,
-      selectable: true,
-      connectable: false,
-      width: WORKFLOW_NODE_WIDTH,
-      height: WORKFLOW_NODE_HEIGHT,
-    });
+    nodes.push(createNodeFromPipelineWorkflow(workflow, pipelineId, isActionable));
 
     workflow.dependsOn.forEach((source) => {
-      edges.push({
-        id: `${source}->${workflow.id}`,
-        source,
-        target: workflow.id,
-        type: 'graph-edge',
-        deletable: false,
-        focusable: false,
-        selectable: false,
-        reconnectable: false,
-      });
+      edges.push(createGraphEdge(source, workflow.id, isActionable));
     });
   });
 

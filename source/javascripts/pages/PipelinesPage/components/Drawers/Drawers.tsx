@@ -2,37 +2,54 @@ import { PropsWithChildren } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { WorkflowConfigDrawer } from '@/components/unified-editor';
+import useSearchParams from '@/hooks/useSearchParams';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
-import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
+import createNodeFromPipelineWorkflow from '../PipelineCanvas/GraphPipelineCanvas/utils/createNodeFromPipelineWorkflow';
+import createGraphEdge from '../PipelineCanvas/GraphPipelineCanvas/utils/createGraphEdge';
 import usePipelineWorkflows from '../PipelineCanvas/GraphPipelineCanvas/hooks/usePipelineWorkflows';
+import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { addNodes, setNodes, setEdges } = useReactFlow();
+  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const workflows = usePipelineWorkflows();
-  const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog } = usePipelinesPageStore();
+  const [, setSearchParams] = useSearchParams();
+  const { addNodes, addEdges, setNodes, setEdges } = useReactFlow();
+  const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog, setWorkflowId } =
+    usePipelinesPageStore();
+
+  const showPipelineConditions = workflows.some((wf) => wf.id === workflowId);
 
   const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
     addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
 
-  const handleAddWorkflowToPipeline = (wfId: string) => {
-    const { nodes } = transformWorkflowsToNodesAndEdges(pipelineId, [{ id: wfId, dependsOn: [] }], {
-      x: -9999,
-      y: 0,
-    });
-    addWorkflowToPipeline(pipelineId, wfId);
-    addNodes(nodes);
+  const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
+    addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
+
+    const dependsOn = workflowId ? [workflowId] : [];
+    addNodes(createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn }, pipelineId));
+
+    if (workflowId) {
+      addEdges(createGraphEdge(workflowId, selectedWorkflowId));
+    }
+
+    closeDialog();
   };
 
-  const handleRenameWorkflow = () => {
-    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows, {
-      x: -9999,
-      y: 0,
+  const handleRenameWorkflow = (newWorkflowId: string) => {
+    setWorkflowId(newWorkflowId);
+    setSearchParams((params) => {
+      if (params.workflow_id === workflowId) {
+        return { ...params, workflow_id: newWorkflowId };
+      }
+      return params;
     });
+    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows, isGraphPipelinesEnabled);
     setNodes(nodes);
     setEdges(edges);
   };
@@ -72,7 +89,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelineConfigDialogType.WORKFLOW_CONFIG) && (
         <WorkflowConfigDrawer
           workflowId={workflowId}
-          showPipelineConditions
+          showPipelineConditions={showPipelineConditions}
           onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}

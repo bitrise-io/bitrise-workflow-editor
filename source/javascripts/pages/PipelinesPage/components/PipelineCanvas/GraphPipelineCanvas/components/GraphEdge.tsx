@@ -6,16 +6,23 @@ const edgeStyle = (style?: CSSProperties) => {
 };
 
 const GraphEdge = (props: EdgeProps) => {
-  const { style } = props;
+  const { style, selected } = props;
 
-  const [edgePath] = getSmoothStepPath({ ...props, offset: 0, borderRadius: 12 });
+  const [path] = getSmoothStepPath({ ...props, offset: 0, borderRadius: 12 });
 
   return (
-    <BaseEdge {...props} path={edgePath} style={edgeStyle({ ...style, stroke: 'var(--colors-border-minimal)' })} />
+    <BaseEdge
+      {...props}
+      path={path}
+      style={edgeStyle({
+        ...style,
+        stroke: selected ? 'var(--colors-border-selected)' : 'var(--colors-border-minimal)',
+      })}
+    />
   );
 };
 
-const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
+export const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
   const { fromX, fromY, toX, toY, connectionLineStyle, fromPosition, toPosition, connectionStatus } = props;
 
   const targetXOffset = toPosition === Position.Left ? -8 : 8;
@@ -25,7 +32,7 @@ const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
     ? 'var(--colors-icon-interactive)'
     : 'var(--colors-icon-negative)';
 
-  const [edgePath] = getSmoothStepPath({
+  const [path] = getSmoothStepPath({
     offset: 0,
     targetY: toY,
     targetX: toX + targetXOffset,
@@ -36,8 +43,7 @@ const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
     targetPosition: toPosition,
   });
 
-  return <BaseEdge path={edgePath} style={edgeStyle({ ...connectionLineStyle, stroke })} />;
+  return <BaseEdge path={path} style={edgeStyle({ ...connectionLineStyle, stroke })} />;
 };
 
 export default GraphEdge;
-export { ConnectionGraphEdge };

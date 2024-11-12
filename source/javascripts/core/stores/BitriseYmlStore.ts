@@ -14,6 +14,28 @@ type BitriseYmlStoreState = {
 
   getUniqueStepIds: () => string[];
 
+  // Pipeline related actions
+  createPipeline: (pipelineId: string, basePipelineId?: string) => void;
+  renamePipeline: (pipelineId: string, newPipelineId: string) => void;
+  updatePipeline: (pipelineId: string, pipeline: PipelineYmlObject) => void;
+  deletePipeline: (pipelineId: string) => void;
+  deletePipelines: (pipelineIds: string[]) => void;
+  addWorkflowToPipeline: (pipelineId: string, workflowId: string, parentWorkflowId?: string) => void;
+  removeWorkflowFromPipeline: (pipelineId: string, workflowId: string) => void;
+  addPipelineWorkflowDependency: (pipelineId: string, workflowId: string, dependencyId: string) => void;
+  removePipelineWorkflowDependency: (pipelineId: string, workflowId: string, dependencyId: string) => void;
+  updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled: (
+    pipelineId: string,
+    workflowId: string,
+    abortPipelineOnFailureEnabled: boolean,
+  ) => void;
+  updatePipelineWorkflowConditionShouldAlwaysRun: (
+    pipelineId: string,
+    workflowId: string,
+    shouldAlwaysRun: string,
+  ) => void;
+  updatePipelineWorkflowConditionRunIfExpression: (pipelineId: string, workflowId: string, expression: string) => void;
+
   // Workflow related actions
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
@@ -26,33 +48,16 @@ type BitriseYmlStoreState = {
     parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
-
-  // Pipeline related actions
-  createPipeline: (pipelineId: string, basePipelineId?: string) => void;
-  renamePipeline: (pipelineId: string, newPipelineId: string) => void;
-  updatePipeline: (pipelineId: string, pipeline: PipelineYmlObject) => void;
-  deletePipeline: (pipelineId: string) => void;
-  deletePipelines: (pipelineIds: string[]) => void;
-  addWorkflowToPipeline: (pipelineId: string, workflowId: string, parentWorkflowId?: string) => void;
-  updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled: (
-    pipelineId: string,
-    workflowId: string,
-    abortPipelineOnFailureEnabled: boolean,
-  ) => void;
-  updatePipelineWorkflowConditionShouldAlwaysRun: (
-    pipelineId: string,
-    workflowId: string,
-    shouldAlwaysRun: string,
-  ) => void;
-  updatePipelineWorkflowConditionRunIfExpression: (pipelineId: string, workflowId: string, expression: string) => void;
-  updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
-  appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
-  updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
-  deleteChainedWorkflow: (
+  removeChainedWorkflow: (
     chainedWorkflowIndex: number,
     parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
+  updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
+  appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
+  updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
+
+  // Step related actions
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   cloneStep: (workflowId: string, stepIndex: number) => void;
@@ -84,6 +89,113 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
     getUniqueStepIds() {
       return BitriseYmlService.getUniqueStepIds(get().yml);
     },
+
+    // Pipeline related actions
+    createPipeline(pipelineId, basePipelineId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.createPipeline(pipelineId, state.yml, basePipelineId),
+        };
+      });
+    },
+    renamePipeline(pipelineId, newPipelineId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.renamePipeline(pipelineId, newPipelineId, state.yml),
+        };
+      });
+    },
+    updatePipeline(pipelineId, pipeline) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipeline(pipelineId, pipeline, state.yml),
+        };
+      });
+    },
+    deletePipeline(pipelineId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deletePipeline(pipelineId, state.yml),
+        };
+      });
+    },
+    deletePipelines(pipelineIds) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deletePipelines(pipelineIds, state.yml),
+        };
+      });
+    },
+    addWorkflowToPipeline(pipelineId, workflowId, parentWorkflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.addWorkflowToPipeline(pipelineId, workflowId, state.yml, parentWorkflowId),
+        };
+      });
+    },
+    removeWorkflowFromPipeline(pipelineId, workflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.removeWorkflowFromPipeline(pipelineId, workflowId, state.yml),
+        };
+      });
+    },
+    addPipelineWorkflowDependency(pipelineId, workflowId, dependencyId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.addPipelineWorkflowDependency(pipelineId, workflowId, dependencyId, state.yml),
+        };
+      });
+    },
+    removePipelineWorkflowDependency: (pipelineId, workflowId, dependencyId) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.removePipelineWorkflowDependency(pipelineId, workflowId, dependencyId, state.yml),
+        };
+      });
+    },
+    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(
+      pipelineId,
+      workflowId,
+      abortPipelineOnFailureEnabled,
+    ) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
+            pipelineId,
+            workflowId,
+            abortPipelineOnFailureEnabled,
+            state.yml,
+          ),
+        };
+      });
+    },
+    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, shouldAlwaysRun) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionShouldAlwaysRun(
+            pipelineId,
+            workflowId,
+            shouldAlwaysRun,
+            state.yml,
+          ),
+        };
+      });
+    },
+    updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, runIfExpression) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
+            pipelineId,
+            workflowId,
+            runIfExpression,
+            state.yml,
+          ),
+        };
+      });
+    },
+
+    // Workflow related actions
     createWorkflow(workflowId, baseWorkflowId) {
       return set((state) => {
         return {
@@ -133,89 +245,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    createPipeline(pipelineId, basePipelineId) {
+    removeChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.createPipeline(pipelineId, state.yml, basePipelineId),
+          yml: BitriseYmlService.removeChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement, state.yml),
         };
       });
     },
-    renamePipeline(pipelineId, newPipelineId) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.renamePipeline(pipelineId, newPipelineId, state.yml),
-        };
-      });
-    },
-    updatePipeline(pipelineId, pipeline) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.updatePipeline(pipelineId, pipeline, state.yml),
-        };
-      });
-    },
-    deletePipeline(pipelineId) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.deletePipeline(pipelineId, state.yml),
-        };
-      });
-    },
-    deletePipelines(pipelineIds) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.deletePipelines(pipelineIds, state.yml),
-        };
-      });
-    },
-    addWorkflowToPipeline(pipelineId, workflowId, parentWorkflowId) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.addWorkflowToPipeline(pipelineId, workflowId, state.yml, parentWorkflowId),
-        };
-      });
-    },
-    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(
-      pipelineId,
-      workflowId,
-      abortPipelineOnFailureEnabled,
-    ) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
-            pipelineId,
-            workflowId,
-            abortPipelineOnFailureEnabled,
-            state.yml,
-          ),
-        };
-      });
-    },
-    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, shouldAlwaysRun) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.updatePipelineWorkflowConditionShouldAlwaysRun(
-            pipelineId,
-            workflowId,
-            shouldAlwaysRun,
-            state.yml,
-          ),
-        };
-      });
-    },
-    updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, runIfExpression) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
-            pipelineId,
-            workflowId,
-            runIfExpression,
-            state.yml,
-          ),
-        };
-      });
-    },
-
     updateStackAndMachine(workflowId, stack, machineTypeId) {
       return set((state) => {
         return {
@@ -237,13 +273,8 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement, state.yml),
-        };
-      });
-    },
+
+    // Step related actions
     addStep(workflowId, cvs, to) {
       return set((state) => {
         return {

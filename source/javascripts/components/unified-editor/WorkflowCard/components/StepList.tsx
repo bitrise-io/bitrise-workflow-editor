@@ -8,21 +8,20 @@ import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 
-type Props = {
+type Props = StepActions & {
   workflowId: string;
   containerProps?: BoxProps;
-  stepActions?: StepActions;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
+const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
-  const { onAddStepClick, onStepMove, ...actions } = stepActions ?? {};
+  const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -33,7 +32,7 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
   }, [steps, workflowId]);
 
   const isEmpty = !steps.length;
-  const isSortable = Boolean(onStepMove);
+  const isSortable = Boolean(onMoveStep);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
   const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
@@ -52,13 +51,13 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
         setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
         setTimeout(() => {
-          onStepMove?.(workflowId, currentActiveIndex, currentOverIndex);
+          onMoveStep?.(workflowId, currentActiveIndex, currentOverIndex);
         }, defaultDropAnimation.duration);
       }
 
       setActiveItem(undefined);
     },
-    [onStepMove, sortableItems, workflowId],
+    [onMoveStep, sortableItems, workflowId],
   );
 
   const handleDragCancel = useCallback(() => {
@@ -77,15 +76,15 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
         paddingX="16"
         iconName="Steps"
         title="Empty Workflow"
-        description={onAddStepClick ? 'Add Steps from the library.' : undefined}
+        description={onAddStep ? 'Add Steps from the library.' : undefined}
       >
-        {onAddStepClick && (
+        {onAddStep && (
           <Button
             size="md"
             variant="secondary"
             alignSelf="stretch"
             leftIconName="PlusCircle"
-            onClick={() => onAddStepClick(workflowId, 0)}
+            onClick={() => onAddStep(workflowId, 0)}
           >
             Add Step
           </Button>
@@ -98,7 +97,7 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
     return (
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {sortableItems.map((item) => {
-          return <StepCard key={item.uniqueId} {...item} actions={actions} />;
+          return <StepCard key={item.uniqueId} {...item} {...actions} />;
         })}
       </Box>
     );
@@ -122,20 +121,17 @@ const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
 
             return (
               <Fragment key={item.stepIndex}>
-                <AddStepButton my={-8} onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))} />
-                <StepCard {...item} isSortable actions={actions} />
+                <AddStepButton my={-8} onClick={onAddStep && (() => onAddStep(workflowId, item.stepIndex))} />
+                <StepCard {...item} isSortable {...actions} />
                 {isLast && (
-                  <AddStepButton
-                    my={-8}
-                    onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex + 1))}
-                  />
+                  <AddStepButton my={-8} onClick={onAddStep && (() => onAddStep(workflowId, item.stepIndex + 1))} />
                 )}
               </Fragment>
             );
           })}
         </Box>
       </SortableContext>
-      <DragOverlay>{activeItem && <StepCard {...activeItem} actions={actions} isDragging isSortable />}</DragOverlay>
+      <DragOverlay>{activeItem && <StepCard {...activeItem} {...actions} isDragging isSortable />}</DragOverlay>
     </DndContext>
   );
 };

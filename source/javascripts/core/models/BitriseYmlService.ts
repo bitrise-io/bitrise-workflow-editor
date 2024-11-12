@@ -295,7 +295,7 @@ function deleteWorkflows(workflowIds: string[], yml: BitriseYml): BitriseYml {
   return copy;
 }
 
-function deleteChainedWorkflow(
+function removeChainedWorkflow(
   chainedWorkflowIndex: number,
   parentWorkflowId: string,
   placement: Placement,
@@ -492,6 +492,80 @@ function addWorkflowToPipeline(
     ...copy.pipelines[pipelineId].workflows,
     ...workflowToAdd,
   };
+  return copy;
+}
+
+function removeWorkflowFromPipeline(pipelineId: string, workflowId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  delete copy.pipelines[pipelineId].workflows[workflowId];
+  copy.pipelines[pipelineId].workflows = deleteWorkflowFromDependsOn(workflowId, copy.pipelines[pipelineId].workflows);
+
+  // NOTE - This is commented out until the BE validation is changed
+  // if (shouldRemoveField(copy.pipelines[pipelineId].workflows, yml.pipelines?.[pipelineId]?.workflows)) {
+  //   delete copy.pipelines[pipelineId].workflows;
+  // }
+
+  return copy;
+}
+
+function addPipelineWorkflowDependency(
+  pipelineId: string,
+  workflowId: string,
+  dependencyId: string,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[dependencyId]) {
+    return copy;
+  }
+
+  if (workflowId === dependencyId) {
+    return copy;
+  }
+
+  const workflow = copy.pipelines[pipelineId].workflows[workflowId];
+
+  if (workflow.depends_on?.includes(dependencyId)) {
+    return copy;
+  }
+
+  workflow.depends_on = [...(workflow.depends_on ?? []), dependencyId];
+
+  return copy;
+}
+
+function removePipelineWorkflowDependency(
+  pipelineId: string,
+  workflowId: string,
+  dependencyId: string,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  const workflow = copy.pipelines[pipelineId].workflows[workflowId];
+
+  if (workflow.depends_on) {
+    workflow.depends_on = workflow.depends_on.filter((id) => id !== dependencyId);
+  }
+
+  if (shouldRemoveField(workflow.depends_on, yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.depends_on)) {
+    delete workflow.depends_on;
+  }
+
   return copy;
 }
 
@@ -968,13 +1042,16 @@ export default {
   deleteWorkflows,
   addChainedWorkflow,
   setChainedWorkflows,
-  deleteChainedWorkflow,
+  removeChainedWorkflow,
   createPipeline,
   renamePipeline,
   updatePipeline,
   deletePipeline,
   deletePipelines,
   addWorkflowToPipeline,
+  removeWorkflowFromPipeline,
+  addPipelineWorkflowDependency,
+  removePipelineWorkflowDependency,
   updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updatePipelineWorkflowConditionShouldAlwaysRun,
   updatePipelineWorkflowConditionRunIfExpression,

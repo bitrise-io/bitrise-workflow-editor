@@ -24,14 +24,21 @@ export default function autoLayoutingGraphNodes(nodes: Node[]) {
   });
 
   (nodes as Array<Node<PipelineWorkflow>>).forEach((node) => {
-    graph.setNode(node.data.id, { width: WORKFLOW_NODE_WIDTH, height: node.height ?? WORKFLOW_NODE_HEIGHT });
+    graph.setNode(node.data.id, {
+      width: WORKFLOW_NODE_WIDTH,
+      height: node.height ?? WORKFLOW_NODE_HEIGHT,
+    });
     node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
   });
 
-  dagre.layout(graph);
+  dagre.layout(graph, { disableOptimalOrderHeuristic: true });
 
   return nodes.map((n) => {
     const { x, y, width, height } = graph.node(n.id);
+
+    if (n.data.fixed) {
+      return n;
+    }
 
     return {
       ...n,

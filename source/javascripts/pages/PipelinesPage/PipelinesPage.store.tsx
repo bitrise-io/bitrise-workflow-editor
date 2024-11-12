@@ -47,6 +47,8 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   },
   unmountDialog: () => {
     return set(() => ({
+      pipelineId: '',
+      workflowId: '',
       openedDialogType: PipelineConfigDialogType.NONE,
       mountedDialogType: PipelineConfigDialogType.NONE,
     }));

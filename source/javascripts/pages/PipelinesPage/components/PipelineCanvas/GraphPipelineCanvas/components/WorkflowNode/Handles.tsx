@@ -1,10 +1,23 @@
 import { CSSProperties, useRef } from 'react';
-import { Handle, HandleProps, Position, useConnection, useNodeId } from '@xyflow/react';
+import {
+  Edge,
+  Handle,
+  HandleProps,
+  Node,
+  Position,
+  useConnection,
+  useEdges,
+  useNodeId,
+  useReactFlow,
+} from '@xyflow/react';
 import { Box, BoxProps } from '@bitrise/bitkit';
 import { useHover } from 'usehooks-ts';
 import { Icon, IconProps } from '@chakra-ui/react';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { WORKFLOW_NODE_HEIGHT } from '../../GraphPipelineCanvas.const';
+import { PipelineWorkflow } from '@/core/models/Workflow';
+import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
+import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_HEIGHT } from '../../GraphPipelineCanvas.const';
 
 const defaultHandleStyle: CSSProperties = {
   width: 12,
@@ -25,6 +38,21 @@ const defaultHandleButtonStyle: CSSProperties = {
   transform: `translate(0, -50%)`,
   backgroundColor: 'transparent',
 };
+
+const createPlaceholderNode = (dependsOn?: string | null): Node<PipelineWorkflow> => ({
+  id: PLACEHOLDER_NODE_TYPE,
+  type: PLACEHOLDER_NODE_TYPE,
+  position: { x: -9999, y: 0 },
+  data: { id: PLACEHOLDER_NODE_TYPE, dependsOn: dependsOn ? [dependsOn] : [] },
+});
+
+const createPlaceholderEdge = (source?: string | null): Edge => ({
+  id: `${source}->${PLACEHOLDER_NODE_TYPE}`,
+  type: GRAPH_EDGE_TYPE,
+  source: source || '',
+  target: PLACEHOLDER_NODE_TYPE,
+  animated: true,
+});
 
 const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean }) => {
   const hoverStyle = {
@@ -49,15 +77,38 @@ const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean 
 };
 
 const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & { isDragging: boolean }) => {
+  const id = useNodeId();
+  const { openDialog } = usePipelinesPageStore();
+  const { selectedPipeline } = usePipelineSelector();
+  const { addNodes, deleteElements, addEdges, updateNodeData } = useReactFlow();
+
+  const onPointerEnter = () => {
+    addNodes(createPlaceholderNode(id));
+    addEdges(createPlaceholderEdge(id));
+    updateNodeData(id || '', (data) => ({ ...data, fixed: true }));
+  };
+
+  const onPointerLeave = () => {
+    deleteElements({
+      nodes: [{ id: PLACEHOLDER_NODE_TYPE }],
+      edges: [{ id: `${id}->${PLACEHOLDER_NODE_TYPE}` }],
+    });
+    updateNodeData(id || '', (data) => ({ ...data, fixed: false }));
+  };
+
   return (
     <Box
       width={16}
       height={16}
       style={style}
-      className="group"
+      role="button"
       position="absolute"
+      className="group nopan"
       transform="translate(0, -50%)"
       top={WORKFLOW_NODE_HEIGHT / 2}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline, id ?? '')}
     >
       <HandleIcon isDragging={isDragging} />
       <Handle {...props} position={position} style={{ ...defaultHandleButtonStyle }} />
@@ -67,28 +118,22 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
 
 export const LeftHandle = (props: BoxProps) => {
   const id = useNodeId();
-  const ref = useRef(null);
-  const hover = useHover(ref);
-  const fromHandle = useConnection((s) => s.fromHandle);
-  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+  const edges = useEdges();
+  const isConnectionInProgress = useConnection((s) => s.inProgress);
 
-  const isDragging = fromHandle?.position === Position.Left && fromHandle?.nodeId === id;
-  const isInButtonState = isGraphPipelinesEnabled && (hover || isDragging);
+  const hasDependencies = edges.some(({ target }) => target === id);
+  const isHidden = !hasDependencies && !isConnectionInProgress;
 
   return (
     <Box
       w={16}
-      ref={ref}
       {...props}
       cursor="grab"
+      overflow="hidden"
       position="relative"
-      overflow={isInButtonState ? 'visible' : 'hidden'}
+      visibility={isHidden ? 'hidden' : undefined}
     >
-      {isInButtonState ? (
-        <HandleButton type="target" position={Position.Left} style={{ left: 6 }} isDragging={isDragging} />
-      ) : (
-        <Handle type="target" position={Position.Left} style={{ ...defaultHandleStyle, left: 8 }} />
-      )}
+      <Handle type="target" position={Position.Left} style={{ ...defaultHandleStyle, left: 8 }} />
     </Box>
   );
 };
@@ -101,7 +146,7 @@ export const RightHandle = (props: BoxProps) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const isDragging = fromHandle?.position === Position.Right && fromHandle?.nodeId === id;
-  const isInButtonState = isGraphPipelinesEnabled && (hover || isDragging);
+  const isInButtonState = isGraphPipelinesEnabled && (isDragging || (hover && !fromHandle));
 
   return (
     <Box
