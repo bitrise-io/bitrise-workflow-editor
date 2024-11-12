@@ -16,6 +16,7 @@ import {
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WorkflowNode, { WorkflowNodeDataType } from './components/WorkflowNode/WorkflowNode';
 import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmptyState';
@@ -36,11 +37,18 @@ const edgeTypes: EdgeTypes = {
 };
 
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
-  const workflows = usePipelineWorkflows();
-  const { openDialog } = usePipelinesPageStore();
+  const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
+
   const { selectedPipeline } = usePipelineSelector();
+  const workflows = usePipelineWorkflows();
+
+  const { openDialog } = usePipelinesPageStore();
   const { updateNode } = useReactFlow<Node<WorkflowNodeDataType>>();
-  const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows);
+  const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(
+    selectedPipeline,
+    workflows,
+    isGraphPipelineEnabled,
+  );
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initialNodes));

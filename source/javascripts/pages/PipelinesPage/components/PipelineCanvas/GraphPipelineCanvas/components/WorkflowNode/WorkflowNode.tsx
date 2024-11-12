@@ -4,16 +4,19 @@ import { useResizeObserver } from 'usehooks-ts';
 import { Node, NodeProps, useReactFlow } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import { WorkflowCard } from '@/components/unified-editor';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { WORKFLOW_NODE_WIDTH } from '../../GraphPipelineCanvas.const';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<Node<WorkflowNodeDataType>>;
-export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId: string };
+export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId?: string };
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = usePipelinesPageStore();
+  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+
   const { updateNode, deleteElements } = useReactFlow<Node<WorkflowNodeDataType>>();
   /* NOTE: will be included later
   const { removeChainedWorkflow } = useBitriseYmlStore((s) => ({
@@ -53,9 +56,9 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
         onChainChainedWorkflow={}
         onChainedWorkflowsUpdate={}
          */
-        onEditWorkflow={openEditWorkflowDialog}
+        onEditWorkflow={isGraphPipelinesEnabled ? openEditWorkflowDialog : undefined}
         // onEditChainedWorkflow={openEditWorkflowDialog}
-        onRemoveWorkflow={(wfId) => deleteElements({ nodes: [{ id: wfId }] })}
+        onRemoveWorkflow={isGraphPipelinesEnabled ? (wfId) => deleteElements({ nodes: [{ id: wfId }] }) : undefined}
         // onRemoveChainedWorkflow={removeChainedWorkflow}
         containerProps={{ style: selected ? hoverStyle : {} }}
       />
