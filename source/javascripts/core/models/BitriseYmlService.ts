@@ -513,6 +513,37 @@ function removeWorkflowFromPipeline(pipelineId: string, workflowId: string, yml:
   return copy;
 }
 
+function addPipelineWorkflowDependency(
+  pipelineId: string,
+  workflowId: string,
+  dependencyId: string,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[dependencyId]) {
+    return copy;
+  }
+
+  if (workflowId === dependencyId) {
+    return copy;
+  }
+
+  const workflow = copy.pipelines[pipelineId].workflows[workflowId];
+
+  if (workflow.depends_on?.includes(dependencyId)) {
+    return copy;
+  }
+
+  workflow.depends_on = [...(workflow.depends_on ?? []), dependencyId];
+
+  return copy;
+}
+
 function removePipelineWorkflowDependency(
   pipelineId: string,
   workflowId: string,
@@ -1019,6 +1050,7 @@ export default {
   deletePipelines,
   addWorkflowToPipeline,
   removeWorkflowFromPipeline,
+  addPipelineWorkflowDependency,
   removePipelineWorkflowDependency,
   updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updatePipelineWorkflowConditionShouldAlwaysRun,
