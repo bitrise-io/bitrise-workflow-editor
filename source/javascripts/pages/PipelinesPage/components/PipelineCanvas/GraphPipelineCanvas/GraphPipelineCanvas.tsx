@@ -10,6 +10,7 @@ import transformWorkflowsToNodesAndEdges from './utils/transformWorkflowsToNodes
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import PlaceholderNode from './components/WorkflowNode/PlaceholderWorkflowNode';
 import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
+import validateConnection from './utils/validateConnection';
 
 const nodeTypes: NodeTypes = {
   [WORKFLOW_NODE_TYPE]: WorkflowNode,
@@ -47,6 +48,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         onEdgesChange={onEdgesChange}
         onNodesChange={autoLayoutOnNodesChange}
         connectionLineComponent={ConnectionGraphEdge}
+        isValidConnection={validateConnection(nodes)}
         {...props}
       />
       {nodes.length === 0 && (
