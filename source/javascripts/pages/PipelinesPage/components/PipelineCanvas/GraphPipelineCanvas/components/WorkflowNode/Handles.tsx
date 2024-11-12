@@ -51,6 +51,7 @@ const createPlaceholderEdge = (source?: string | null): Edge => ({
   type: GRAPH_EDGE_TYPE,
   source: source || '',
   target: PLACEHOLDER_NODE_TYPE,
+  animated: true,
 });
 
 const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean }) => {
@@ -88,7 +89,10 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
   };
 
   const onPointerLeave = () => {
-    deleteElements({ nodes: [{ id: PLACEHOLDER_NODE_TYPE }], edges: [{ id: `${id}->${PLACEHOLDER_NODE_TYPE}` }] });
+    deleteElements({
+      nodes: [{ id: PLACEHOLDER_NODE_TYPE }],
+      edges: [{ id: `${id}->${PLACEHOLDER_NODE_TYPE}` }],
+    });
     updateNodeData(id || '', (data) => ({ ...data, fixed: false }));
   };
 
