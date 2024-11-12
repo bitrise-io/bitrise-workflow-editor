@@ -12,7 +12,7 @@ import { LeftHandle, RightHandle } from './Handles';
 type Props = NodeProps<Node<WorkflowNodeDataType>>;
 type WorkflowNodeDataType = PipelineWorkflow & { pipelineId: string };
 
-const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
+const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = usePipelinesPageStore();
   const { updateNode, deleteElements } = useReactFlow();
@@ -23,6 +23,11 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
     (workflowId: string) => openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, workflowId)(),
     [openDialog, pipelineId],
   );
+
+  const hoverStyle = {
+    outline: '2px solid',
+    outlineColor: 'var(--colors-border-selected)',
+  };
 
   useResizeObserver({
     ref,
@@ -38,6 +43,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
         onEditWorkflow={openEditWorkflowDialog}
         onRemoveWorkflow={(wfId) => deleteElements({ nodes: [{ id: wfId }] })}
         onRemoveChainedWorkflow={removeChainedWorkflow}
+        containerProps={{ style: selected ? hoverStyle : {} }}
       />
       <RightHandle />
     </Box>
