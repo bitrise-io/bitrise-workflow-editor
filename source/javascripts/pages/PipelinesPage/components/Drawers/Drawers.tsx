@@ -3,6 +3,7 @@ import { useReactFlow } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { WorkflowConfigDrawer } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -13,6 +14,7 @@ import usePipelineWorkflows from '../PipelineCanvas/GraphPipelineCanvas/hooks/us
 import transformWorkflowsToNodesAndEdges from '../PipelineCanvas/GraphPipelineCanvas/utils/transformWorkflowsToNodesAndEdges';
 
 const Drawers = ({ children }: PropsWithChildren) => {
+  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const workflows = usePipelineWorkflows();
   const [, setSearchParams] = useSearchParams();
   const { addNodes, addEdges, setNodes, setEdges } = useReactFlow();
@@ -47,7 +49,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       }
       return params;
     });
-    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows);
+    const { nodes, edges } = transformWorkflowsToNodesAndEdges(pipelineId, workflows, isGraphPipelinesEnabled);
     setNodes(nodes);
     setEdges(edges);
   };
