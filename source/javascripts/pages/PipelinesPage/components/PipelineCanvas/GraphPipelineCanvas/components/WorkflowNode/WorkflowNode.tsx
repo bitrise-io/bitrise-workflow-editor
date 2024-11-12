@@ -14,25 +14,15 @@ type WorkflowNodeDataType = PipelineWorkflow & { pipelineId: string };
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const openDialog = usePipelinesPageStore((s) => s.openDialog);
-  const removeWorkflowFromPipeline = useBitriseYmlStore((s) => s.removeWorkflowFromPipeline);
-  const { updateNode, setNodes, deleteElements } = useReactFlow<Node<WorkflowNodeDataType>>();
-
-  const handleRemoveWorkflow = useCallback(() => {
-    removeWorkflowFromPipeline(pipelineId, id);
-    deleteElements({ nodes: [{ id }] });
-    setNodes((nodes) => {
-      return nodes.map((node) => {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            dependsOn: node.data.dependsOn.filter((dep) => dep !== id),
-          },
-        };
-      });
-    });
-  }, [id, pipelineId, deleteElements, removeWorkflowFromPipeline, setNodes]);
+  const { openDialog } = usePipelinesPageStore();
+  const { updateNode, deleteElements } = useReactFlow();
+  const { removeChainedWorkflow } = useBitriseYmlStore((s) => ({
+    removeChainedWorkflow: s.removeChainedWorkflow,
+  }));
+  const openEditWorkflowDialog = useCallback(
+    (workflowId: string) => openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, workflowId)(),
+    [openDialog, pipelineId],
+  );
 
   useResizeObserver({
     ref,
@@ -45,8 +35,9 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex }: Props) => {
       <WorkflowCard
         id={id}
         isCollapsable
-        onEditWorkflow={openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, id)}
-        onRemoveWorkflow={handleRemoveWorkflow}
+        onEditWorkflow={openEditWorkflowDialog}
+        onRemoveWorkflow={(wfId) => deleteElements({ nodes: [{ id: wfId }] })}
+        onRemoveChainedWorkflow={removeChainedWorkflow}
       />
       <RightHandle />
     </Box>

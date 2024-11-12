@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { EdgeTypes, NodeTypes, ReactFlow, ReactFlowProps, useEdgesState, useNodesState } from '@xyflow/react';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowNode from './components/WorkflowNode/WorkflowNode';
 import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmptyState';
@@ -24,6 +25,10 @@ const edgeTypes: EdgeTypes = {
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
   const { openDialog } = usePipelinesPageStore();
+  const { removeWorkflowFromPipeline, removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
+    removeWorkflowFromPipeline: s.removeWorkflowFromPipeline,
+    removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
+  }));
   const { selectedPipeline } = usePipelineSelector();
   const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows);
 
@@ -46,7 +51,17 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
+        onEdgesDelete={(deletedEdges) => {
+          deletedEdges.forEach((edge) => {
+            removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
+          });
+        }}
         onNodesChange={autoLayoutOnNodesChange}
+        onNodesDelete={(deletedNodes) => {
+          deletedNodes.forEach((node) => {
+            removeWorkflowFromPipeline(selectedPipeline, node.id);
+          });
+        }}
         connectionLineComponent={ConnectionGraphEdge}
         isValidConnection={validateConnection(nodes)}
         {...props}
