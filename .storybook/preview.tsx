@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 initialize({
   serviceWorker: {
-    url: './mockServiceWorker.js',
+    url: "./mockServiceWorker.js",
   },
 });
 
@@ -41,6 +41,7 @@ const preview: Preview = {
       },
       limits: {
         uniqueStepLimit: undefined,
+        isPipelinesAvailable: true,
       },
       project: {
         slug: "asd-123",

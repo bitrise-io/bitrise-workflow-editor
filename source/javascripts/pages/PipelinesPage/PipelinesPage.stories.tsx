@@ -31,26 +31,32 @@ export default {
 
 type Story = StoryObj<typeof PipelinesPage>;
 
-export const Default: Story = {};
+export const ReadOnly: Story = {};
 
-export const Empty: Story = {
+export const CreateFirstGraphPipeline: Story = {
   args: {
     yml: { format_version: '2' },
   },
-};
-
-export const WithEnabledDagPipelinesFeature: Story = {
   beforeEach: () => {
     if (window.parent.globalProps) {
       window.parent.globalProps = {
         ...window.parent.globalProps,
-        featureFlags: { user: {}, account: { 'enable-dag-pipelines': true } },
+        featureFlags: {
+          user: {},
+          account: { slug: 'workspace-1', 'enable-dag-pipelines': true },
+        },
       };
     }
   },
 };
 
-export const EmptyWithEnabledDagPipelinesFeature: Story = {
+export const CreateFirstStagedPipeline: Story = {
+  args: {
+    yml: { format_version: '2' },
+  },
+};
+
+export const UpgradePlan: Story = {
   args: {
     yml: { format_version: '2' },
   },
@@ -58,7 +64,60 @@ export const EmptyWithEnabledDagPipelinesFeature: Story = {
     if (window.parent.globalProps) {
       window.parent.globalProps = {
         ...window.parent.globalProps,
-        featureFlags: { user: {}, account: { 'enable-dag-pipelines': true } },
+        featureFlags: {
+          user: {},
+          account: { slug: 'workspace-1', 'enable-dag-pipelines': true },
+        },
+      };
+    }
+    if (window.parent.pageProps) {
+      window.parent.pageProps = {
+        ...window.parent.pageProps,
+        abilities: {
+          canRunBuilds: true,
+        },
+        limits: {
+          isPipelinesAvailable: false,
+        },
+      };
+    }
+  },
+};
+
+export const ReactivatePlan: Story = {
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: {
+          user: {},
+          account: { slug: 'workspace-1', 'enable-dag-pipelines': true },
+        },
+      };
+    }
+    if (window.parent.pageProps) {
+      window.parent.pageProps = {
+        ...window.parent.pageProps,
+        abilities: {
+          canRunBuilds: true,
+        },
+        limits: {
+          isPipelinesAvailable: false,
+        },
+      };
+    }
+  },
+};
+
+export const GraphPipelineWithEditing: Story = {
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: {
+          user: {},
+          account: { slug: 'workspace-1', 'enable-dag-pipelines': true },
+        },
       };
     }
   },
