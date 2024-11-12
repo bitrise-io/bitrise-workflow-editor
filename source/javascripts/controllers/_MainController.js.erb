@@ -1,11 +1,11 @@
 import _ from "underscore";
 import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
-import {safeDigest} from "@/services/react-compat";
+import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
+import { safeDigest } from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
-import {segmentTrack} from "@/utils/segmentTracking";
+import { segmentTrack } from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -186,11 +186,19 @@ import {segmentTrack} from "@/utils/segmentTracking";
         $q(function (resolve, reject) {
           switch (viewModel.currentMenu.id) {
             case "pipelines":
-              appService.getAppConfig().then(() => {
+              var loadPromises = [appService.getAppConfig()];
+
+              if (requestService.isWebsiteMode()) {
+                loadPromises.push(appService.getPipelineConfig());
+              }
+
+              $q.all(loadPromises).then(() => {
                 if (requestService.isWebsiteMode()) {
-                  return Stack.getAll().then(appService.getStackAndDockerImage);
+                  return Stack.getAll().then(appService.getStackAndDockerImage).then(resolve, reject);
                 }
-              }).then(resolve, reject);
+
+                return resolve();
+              }, reject);
 
               break;
             case "workflows":
@@ -364,7 +372,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
+              viewModel.save({ shouldReturnPromise: true, source: "unsaved_changes_save_button" }).then(
                 function () {
                   resolve();
                 },
@@ -379,7 +387,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           );
         }).then(
           function () {
-            logger.setTags({menuID: menu.id});
+            logger.setTags({ menuID: menu.id });
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -567,7 +575,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
+      viewModel.save = function ({ shouldReturnPromise, source = 'save_changes_button' }) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
@@ -657,7 +665,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
               }
             }
           )
-        ;
+          ;
 
         if (shouldReturnPromise) {
           return promise;
@@ -697,7 +705,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
+            viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
           }
 
           return false;
