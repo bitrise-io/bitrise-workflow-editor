@@ -1,9 +1,12 @@
 import { useCallback } from 'react';
 import {
-  Edge,
+  addEdge,
   EdgeTypes,
   Node,
   NodeTypes,
+  OnConnect,
+  OnEdgesDelete,
+  OnNodesDelete,
   ReactFlow,
   ReactFlowProps,
   useEdgesState,
@@ -35,17 +38,19 @@ const edgeTypes: EdgeTypes = {
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
   const { openDialog } = usePipelinesPageStore();
-  const { removeWorkflowFromPipeline, removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
-    removeWorkflowFromPipeline: s.removeWorkflowFromPipeline,
-    removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
-  }));
-
-  const { updateNode } = useReactFlow<Node<WorkflowNodeDataType>>();
   const { selectedPipeline } = usePipelineSelector();
+  const { updateNode } = useReactFlow<Node<WorkflowNodeDataType>>();
   const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows);
 
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initialNodes));
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+
+  const { addPipelineWorkflowDependency, removeWorkflowFromPipeline, removePipelineWorkflowDependency } =
+    useBitriseYmlStore((s) => ({
+      removeWorkflowFromPipeline: s.removeWorkflowFromPipeline,
+      addPipelineWorkflowDependency: s.addPipelineWorkflowDependency,
+      removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
+    }));
 
   const handleNodesChanges: typeof onNodesChange = useCallback(
     (changes) => {
@@ -55,19 +60,44 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
     [onNodesChange, setNodes],
   );
 
-  const updateAffectedNodes = useCallback(
-    (deletedEdges: Edge[]) => {
-      deletedEdges.forEach((e) => {
-        updateNode(e.target, (node) => ({
+  const handleEdgesDelete: OnEdgesDelete = useCallback(
+    (deletedEdges) => {
+      deletedEdges.forEach((edge) => {
+        removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
+        updateNode(edge.target, (node) => ({
           ...node,
           data: {
             ...node.data,
-            dependsOn: node.data.dependsOn.filter((dId) => dId !== e.source),
+            dependsOn: node.data.dependsOn.filter((dId) => dId !== edge.source),
           },
         }));
       });
     },
-    [updateNode],
+    [selectedPipeline, removePipelineWorkflowDependency, updateNode],
+  );
+
+  const handleNodesDelete: OnNodesDelete = useCallback(
+    (deletedNodes) => {
+      deletedNodes.forEach((node) => {
+        removeWorkflowFromPipeline(selectedPipeline, node.id);
+      });
+    },
+    [removeWorkflowFromPipeline, selectedPipeline],
+  );
+
+  const handleConnect: OnConnect = useCallback(
+    (params) => {
+      addPipelineWorkflowDependency(selectedPipeline, params.target, params.source);
+      setEdges((pervEdges) => addEdge({ ...params, type: GRAPH_EDGE_TYPE }, pervEdges));
+      updateNode(params.target, (node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          dependsOn: [...node.data.dependsOn, params.source],
+        },
+      }));
+    },
+    [selectedPipeline, addPipelineWorkflowDependency, setEdges, updateNode],
   );
 
   return (
@@ -78,20 +108,12 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onEdgesChange={onEdgesChange}
-        onEdgesDelete={(deletedEdges) => {
-          deletedEdges.forEach((edge) => {
-            removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
-          });
-          updateAffectedNodes(deletedEdges);
-        }}
+        onEdgesDelete={handleEdgesDelete}
         onNodesChange={handleNodesChanges}
-        onNodesDelete={(deletedNodes) => {
-          deletedNodes.forEach((node) => {
-            removeWorkflowFromPipeline(selectedPipeline, node.id);
-          });
-        }}
-        connectionLineComponent={ConnectionGraphEdge}
+        onNodesDelete={handleNodesDelete}
+        onConnect={handleConnect}
         isValidConnection={validateConnection(nodes)}
+        connectionLineComponent={ConnectionGraphEdge}
         {...props}
       />
       {nodes.length === 0 && (
