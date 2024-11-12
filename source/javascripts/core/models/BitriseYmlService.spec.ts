@@ -1814,6 +1814,108 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('addPipelineWorkflowDependency', () => {
+    it('should add the dependency to the workflow in the pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: { depends_on: ['wf2'] },
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.addPipelineWorkflowDependency('pl1', 'wf1', 'wf2', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the pipeline does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.addPipelineWorkflowDependency('pl2', 'wf1', 'wf2', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.addPipelineWorkflowDependency('pl1', 'wf3', 'wf2', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the dependency workflow is not part of the pipeline', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.addPipelineWorkflowDependency('pl1', 'wf1', 'wf2', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the workflow and the dependency is the same', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.addPipelineWorkflowDependency('pl1', 'wf1', 'wf1', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('removePipelineWorkflowDependency', () => {
     it('should delete the dependency from the workflow in the pipeline', () => {
       const sourceYml: BitriseYml = {
