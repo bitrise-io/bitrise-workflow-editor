@@ -41,7 +41,20 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
       <WorkflowCard
         id={id}
         isCollapsable
+        /* TODO needs plumbing
+        onAddStep={}
+        onSelectStep={}
+        onMoveStep={}
+        onUpgradeStep={}
+        onCloneStep={}
+        onDeleteStep={}
+        onCreateWorkflow={]
+        onChainWorkflow={}
+        onChainChainedWorkflow={}
+        onChainedWorkflowsUpdate={}
+         */
         onEditWorkflow={openEditWorkflowDialog}
+        // onEditChainedWorkflow={openEditWorkflowDialog}
         onRemoveWorkflow={(wfId) => deleteElements({ nodes: [{ id: wfId }] })}
         // onRemoveChainedWorkflow={removeChainedWorkflow}
         containerProps={{ style: selected ? hoverStyle : {} }}

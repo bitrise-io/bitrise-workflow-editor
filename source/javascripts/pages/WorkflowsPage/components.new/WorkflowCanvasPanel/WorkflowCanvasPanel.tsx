@@ -73,10 +73,12 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         <WorkflowCard
           id={workflowId}
           containerProps={{ maxW: 400, marginX: 'auto' }}
-          hideActions={['edit', 'remove']}
           // Workflow actions
-          onEditWorkflow={openWorkflowConfigDrawer}
-          onAddChainedWorkflow={openChainWorkflowDialog}
+          onEditWorkflow={undefined}
+          onEditChainedWorkflow={openWorkflowConfigDrawer}
+          onChainWorkflow={openChainWorkflowDialog}
+          onChainChainedWorkflow={openChainWorkflowDialog}
+          onRemoveWorkflow={undefined}
           onRemoveChainedWorkflow={removeChainedWorkflow}
           onChainedWorkflowsUpdate={setChainedWorkflows}
           // Step actions
