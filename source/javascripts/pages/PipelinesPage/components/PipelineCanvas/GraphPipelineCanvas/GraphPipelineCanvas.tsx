@@ -107,13 +107,13 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
+        onConnect={handleConnect}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={handleEdgesDelete}
         onNodesChange={handleNodesChanges}
         onNodesDelete={handleNodesDelete}
-        onConnect={handleConnect}
-        isValidConnection={validateConnection(nodes)}
         connectionLineComponent={ConnectionGraphEdge}
+        isValidConnection={validateConnection(nodes, edges)}
         {...props}
       />
       {nodes.length === 0 && (
