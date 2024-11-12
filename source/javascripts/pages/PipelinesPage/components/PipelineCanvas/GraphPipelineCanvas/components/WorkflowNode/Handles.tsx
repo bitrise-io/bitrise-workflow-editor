@@ -107,7 +107,7 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
       onClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline, id ?? '')}
     >
       <HandleIcon isDragging={isDragging} />
-      <Handle {...props} position={position} style={{ ...defaultHandleButtonStyle }} isConnectable={false} />
+      <Handle {...props} position={position} style={{ ...defaultHandleButtonStyle }} />
     </Box>
   );
 };
@@ -115,14 +115,20 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
 export const LeftHandle = (props: BoxProps) => {
   const id = useNodeId();
   const edges = useEdges();
-  const hasDependencies = edges.some(({ target }) => target === id);
+  const isConnectionInProgress = useConnection((s) => s.inProgress);
 
-  if (!hasDependencies) {
-    return null;
-  }
+  const hasDependencies = edges.some(({ target }) => target === id);
+  const isHidden = !hasDependencies && !isConnectionInProgress;
 
   return (
-    <Box w={16} {...props} cursor="grab" overflow="hidden" position="relative">
+    <Box
+      w={16}
+      {...props}
+      cursor="grab"
+      overflow="hidden"
+      position="relative"
+      visibility={isHidden ? 'hidden' : undefined}
+    >
       <Handle type="target" position={Position.Left} style={{ ...defaultHandleStyle, left: 8 }} />
     </Box>
   );
@@ -136,7 +142,7 @@ export const RightHandle = (props: BoxProps) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const isDragging = fromHandle?.position === Position.Right && fromHandle?.nodeId === id;
-  const isInButtonState = isGraphPipelinesEnabled && (hover || isDragging);
+  const isInButtonState = isGraphPipelinesEnabled && (isDragging || (hover && !fromHandle));
 
   return (
     <Box
