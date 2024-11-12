@@ -295,7 +295,7 @@ function deleteWorkflows(workflowIds: string[], yml: BitriseYml): BitriseYml {
   return copy;
 }
 
-function deleteChainedWorkflow(
+function removeChainedWorkflow(
   chainedWorkflowIndex: number,
   parentWorkflowId: string,
   placement: Placement,
@@ -1042,7 +1042,7 @@ export default {
   deleteWorkflows,
   addChainedWorkflow,
   setChainedWorkflows,
-  deleteChainedWorkflow,
+  removeChainedWorkflow,
   createPipeline,
   renamePipeline,
   updatePipeline,

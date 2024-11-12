@@ -7,7 +7,7 @@ export type WorkflowActions = {
   onEditWorkflow?: (workflowId: string) => void;
   onRemoveWorkflow?: (workflowId: string) => void;
   onAddChainedWorkflow?: (workflowId: string) => void;
-  onRemoveChainedWorkflow?: BitriseYmlStoreState['deleteChainedWorkflow'];
+  onRemoveChainedWorkflow?: BitriseYmlStoreState['removeChainedWorkflow'];
   onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
 };
 

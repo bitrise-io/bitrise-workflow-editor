@@ -13,11 +13,11 @@ type Props = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
-  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, deleteChainedWorkflow } =
+  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, removeChainedWorkflow } =
     useBitriseYmlStore((s) => ({
       moveStep: s.moveStep,
       setChainedWorkflows: s.setChainedWorkflows,
-      deleteChainedWorkflow: s.deleteChainedWorkflow,
+      removeChainedWorkflow: s.removeChainedWorkflow,
       upgradeStep: s.changeStepVersion,
       cloneStep: s.cloneStep,
       deleteStep: s.deleteStep,
@@ -77,7 +77,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           // Workflow actions
           onEditWorkflow={openWorkflowConfigDrawer}
           onAddChainedWorkflow={openChainWorkflowDialog}
-          onRemoveChainedWorkflow={deleteChainedWorkflow}
+          onRemoveChainedWorkflow={removeChainedWorkflow}
           onChainedWorkflowsUpdate={setChainedWorkflows}
           // Step actions
           onAddStep={openStepSelectorDrawer}
