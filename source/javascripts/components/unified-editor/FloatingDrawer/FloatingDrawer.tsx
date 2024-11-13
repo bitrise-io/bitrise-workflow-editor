@@ -59,7 +59,7 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
 };
 
 const FloatingDrawerHeader = (props: ModalHeaderProps) => {
-  return <DrawerHeader p="24" pb="16" color="inherit" textTransform="inherit" fontWeight="inherit" {...props} />;
+  return <DrawerHeader p="24" pb="16" color="initial" textTransform="initial" fontWeight="initial" {...props} />;
 };
 
 const FloatingDrawerBody = (props: ModalBodyProps) => {
