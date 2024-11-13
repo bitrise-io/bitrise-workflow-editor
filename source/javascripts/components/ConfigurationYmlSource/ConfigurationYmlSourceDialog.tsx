@@ -104,8 +104,13 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
   const [ymlRootPath, setYmlRootPath] = useState(initialYmlRootPath || '');
 
-  const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig, updatePipelineConfigReset } =
-    useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml, ymlRootPath);
+  const {
+    updatePipelineConfigStatus,
+    updatePipelineConfigLoading,
+    updatePipelineConfig,
+    updatePipelineConfigReset,
+    updatePipelineConfigFailed,
+  } = useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml, ymlRootPath);
 
   const yml = useFormattedYml(appConfig);
 
@@ -129,11 +134,15 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       eventProps.selected_yml_source = configurationSource;
     }
     segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
-    if (configurationSource === 'git') {
-      getAppConfigFromRepo();
-    }
-    if (configurationSource === 'bitrise') {
+    if (usesRepositoryYml === true) {
       updatePipelineConfig();
+    } else {
+      if (configurationSource === 'git') {
+        getAppConfigFromRepo();
+      }
+      if (configurationSource === 'bitrise') {
+        updatePipelineConfig();
+      }
     }
   };
 
@@ -248,7 +257,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               value={ymlRootPath}
               onChange={(e) => setYmlRootPath(e.target.value)}
               leftAddon={
-                <Box maxWidth="124" padding="8px 12px" display="flex">
+                <Box maxWidth="124" padding="8px 12px" display="flex" title={gitRepoSlug}>
                   <Text textStyle="body/md/regular" hasEllipsis>
                     {gitRepoSlug}
                   </Text>
@@ -424,7 +433,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           <ErrorNotification status={postAppConfigStatus} message={postAppConfigFailed?.error_msg} />
         )}
         {updatePipelineConfigStatus && updatePipelineConfigStatus !== 200 && (
-          <ErrorNotification status={getAppConfigFromRepoStatus} message="Unknown error" />
+          <ErrorNotification
+            status={updatePipelineConfigStatus}
+            message={updatePipelineConfigFailed?.error_msg || ''}
+          />
         )}
       </DialogBody>
       <DialogFooter>
