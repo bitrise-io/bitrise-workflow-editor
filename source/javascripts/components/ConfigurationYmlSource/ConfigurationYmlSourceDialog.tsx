@@ -435,7 +435,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         {updatePipelineConfigStatus && updatePipelineConfigStatus !== 200 && (
           <ErrorNotification
             status={updatePipelineConfigStatus}
-            message={updatePipelineConfigFailed?.error_msg || ''}
+            message={updatePipelineConfigFailed?.error_msg || 'Unknown error'}
           />
         )}
       </DialogBody>
