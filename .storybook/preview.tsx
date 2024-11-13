@@ -41,7 +41,6 @@ const preview: Preview = {
       },
       limits: {
         uniqueStepLimit: undefined,
-        isPipelinesAvailable: true,
       },
       project: {
         slug: "asd-123",
