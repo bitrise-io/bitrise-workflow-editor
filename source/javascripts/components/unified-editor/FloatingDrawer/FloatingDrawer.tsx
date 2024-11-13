@@ -52,7 +52,7 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
       overflow="hidden"
       boxShadow="large"
       borderRadius={[0, 12]}
-      maxWidth={['100%', 'min(50%, 700px)']}
+      maxWidth={['100%', 'clamp(420px, 30%, 700px)']}
       {...props}
     />
   );
