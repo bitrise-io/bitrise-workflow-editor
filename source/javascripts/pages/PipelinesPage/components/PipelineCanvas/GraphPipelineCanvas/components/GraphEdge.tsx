@@ -25,8 +25,8 @@ const GraphEdge = (props: EdgeProps) => {
 export const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
   const { fromX, fromY, toX, toY, connectionLineStyle, fromPosition, toPosition, connectionStatus } = props;
 
-  const targetXOffset = toPosition === Position.Left ? -8 : 8;
-  const sourceXOffset = fromPosition === Position.Left ? -8 : 8;
+  const targetXOffset = toPosition === Position.Left ? -6 : 8;
+  const sourceXOffset = fromPosition === Position.Left ? -6 : 8;
 
   const stroke = ['valid', null].includes(connectionStatus)
     ? 'var(--colors-icon-interactive)'
