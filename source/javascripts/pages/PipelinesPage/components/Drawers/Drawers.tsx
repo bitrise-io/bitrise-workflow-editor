@@ -32,10 +32,12 @@ const Drawers = ({ children }: PropsWithChildren) => {
     addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
 
     const dependsOn = workflowId ? [workflowId] : [];
-    addNodes(createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn }, pipelineId));
+    addNodes(
+      createNodeFromPipelineWorkflow({ id: selectedWorkflowId, dependsOn }, pipelineId, isGraphPipelinesEnabled),
+    );
 
     if (workflowId) {
-      addEdges(createGraphEdge(workflowId, selectedWorkflowId));
+      addEdges(createGraphEdge(workflowId, selectedWorkflowId, isGraphPipelinesEnabled));
     }
 
     closeDialog();

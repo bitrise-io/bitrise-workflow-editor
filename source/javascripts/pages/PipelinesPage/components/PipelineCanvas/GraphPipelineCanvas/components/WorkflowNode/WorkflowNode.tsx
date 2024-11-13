@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useMemo, useRef } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { useResizeObserver } from 'usehooks-ts';
 import { Node, NodeProps, useReactFlow } from '@xyflow/react';
@@ -12,31 +12,48 @@ import { LeftHandle, RightHandle } from './Handles';
 type Props = NodeProps<Node<WorkflowNodeDataType>>;
 export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId?: string };
 
+const hoverStyle = {
+  outline: '2px solid',
+  outlineColor: 'border/selected',
+  outlineOffset: '-2px',
+};
+
+const defaultStyle = {
+  border: '1px solid',
+  borderColor: 'border/regular',
+};
+
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = usePipelinesPageStore();
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
-
   const { updateNode, deleteElements } = useReactFlow<Node<WorkflowNodeDataType>>();
+
   /* NOTE: will be included later
   const { removeChainedWorkflow } = useBitriseYmlStore((s) => ({
     removeChainedWorkflow: s.removeChainedWorkflow,
   }));
   */
-  const openEditWorkflowDialog = useCallback(
-    (workflowId: string) => openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, workflowId)(),
-    [openDialog, pipelineId],
-  );
 
-  const hoverStyle = {
-    outline: '2px solid',
-    outlineColor: 'var(--colors-border-selected)',
-  };
+  useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
-  useResizeObserver({
-    ref,
-    onResize: (size) => updateNode(id, { height: size.height }),
-  });
+  const handleEditWorkflow = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return (workflowId: string) => openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, pipelineId, workflowId)();
+  }, [isGraphPipelinesEnabled, openDialog, pipelineId]);
+
+  const handleRemoveWorkflow = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] });
+  }, [deleteElements, isGraphPipelinesEnabled]);
+
+  const containerProps = useMemo(() => (selected ? hoverStyle : defaultStyle), [selected]);
 
   return (
     <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH}>
@@ -44,6 +61,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
       <WorkflowCard
         id={id}
         isCollapsable
+        containerProps={containerProps}
         /* TODO needs plumbing
         onAddStep={}
         onSelectStep={}
@@ -56,11 +74,10 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
         onChainChainedWorkflow={}
         onChainedWorkflowsUpdate={}
          */
-        onEditWorkflow={isGraphPipelinesEnabled ? openEditWorkflowDialog : undefined}
+        onEditWorkflow={handleEditWorkflow}
         // onEditChainedWorkflow={openEditWorkflowDialog}
-        onRemoveWorkflow={isGraphPipelinesEnabled ? (wfId) => deleteElements({ nodes: [{ id: wfId }] }) : undefined}
+        onRemoveWorkflow={handleRemoveWorkflow}
         // onRemoveChainedWorkflow={removeChainedWorkflow}
-        containerProps={{ style: selected ? hoverStyle : {} }}
       />
       <RightHandle />
     </Box>
