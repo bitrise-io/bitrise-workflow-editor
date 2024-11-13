@@ -6,7 +6,7 @@ const usePipelineWorkflows = (): PipelineWorkflow[] => {
   const { selectedPipeline } = usePipelineSelector();
 
   return useBitriseYmlStore(({ yml }) => {
-    const pipelineWorkflows = yml.pipelines?.[selectedPipeline].workflows ?? {};
+    const pipelineWorkflows = yml.pipelines?.[selectedPipeline]?.workflows ?? {};
 
     return Object.entries(pipelineWorkflows).map(([id, pipelineWorkflow]) => {
       return {

@@ -30,6 +30,10 @@ function limits() {
   return pageProps()?.limits;
 }
 
+function abilities() {
+  return pageProps()?.abilities;
+}
+
 export default {
   dataLayer,
   globalProps,
@@ -39,4 +43,5 @@ export default {
   userSlug,
   project,
   limits,
+  abilities,
 };

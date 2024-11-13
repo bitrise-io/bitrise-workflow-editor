@@ -51,6 +51,7 @@ declare global {
       };
       limits?: {
         uniqueStepLimit?: number;
+        isPipelinesAvailable?: boolean;
       };
       project?: {
         slug: string;

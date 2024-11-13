@@ -25,32 +25,50 @@ export default {
     },
   ],
   beforeEach: () => {
-    process.env.MODE = 'cli';
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: {
+          user: {},
+          account: { 'enable-dag-pipelines': true },
+        },
+      };
+    }
+
+    if (window.parent.pageProps) {
+      window.parent.pageProps = {
+        ...window.parent.pageProps,
+        limits: {
+          isPipelinesAvailable: true,
+        },
+      };
+    }
   },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;
 
-export const Default: Story = {};
-
-export const Empty: Story = {
-  args: {
-    yml: { format_version: '2' },
-  },
-};
-
-export const WithEnabledDagPipelinesFeature: Story = {
+export const ReadOnly: Story = {
   beforeEach: () => {
     if (window.parent.globalProps) {
       window.parent.globalProps = {
         ...window.parent.globalProps,
-        featureFlags: { user: {}, account: { 'enable-dag-pipelines': true } },
+        featureFlags: {
+          user: {},
+          account: { 'enable-dag-pipelines': false },
+        },
       };
     }
   },
 };
 
-export const EmptyWithEnabledDagPipelinesFeature: Story = {
+export const CreateFirstGraphPipeline: Story = {
+  args: {
+    yml: { format_version: '2' },
+  },
+};
+
+export const CreateFirstStagedPipeline: Story = {
   args: {
     yml: { format_version: '2' },
   },
@@ -58,8 +76,42 @@ export const EmptyWithEnabledDagPipelinesFeature: Story = {
     if (window.parent.globalProps) {
       window.parent.globalProps = {
         ...window.parent.globalProps,
-        featureFlags: { user: {}, account: { 'enable-dag-pipelines': true } },
+        featureFlags: {
+          user: {},
+          account: { 'enable-dag-pipelines': false },
+        },
       };
     }
   },
 };
+
+export const UpgradePlan: Story = {
+  args: {
+    yml: { format_version: '2' },
+  },
+  beforeEach: () => {
+    if (window.parent.pageProps) {
+      window.parent.pageProps = {
+        ...window.parent.pageProps,
+        limits: {
+          isPipelinesAvailable: false,
+        },
+      };
+    }
+  },
+};
+
+export const ReactivatePlan: Story = {
+  beforeEach: () => {
+    if (window.parent.pageProps) {
+      window.parent.pageProps = {
+        ...window.parent.pageProps,
+        limits: {
+          isPipelinesAvailable: false,
+        },
+      };
+    }
+  },
+};
+
+export const GraphPipelineWithEditing: Story = {};
