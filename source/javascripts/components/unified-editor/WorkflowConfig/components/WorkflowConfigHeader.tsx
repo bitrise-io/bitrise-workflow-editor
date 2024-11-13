@@ -7,9 +7,10 @@ import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
+  context: 'pipeline' | 'workflow';
 };
 
-const WorkflowConfigHeader = ({ variant }: Props) => {
+const WorkflowConfigHeader = ({ variant, context }: Props) => {
   const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
   const dependants = useDependantWorkflows(id);
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
@@ -17,6 +18,7 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
   const shouldShowDeleteButton = variant === 'panel';
   const shouldShowTriggersTab =
     useFeatureFlag('enable-target-based-triggers') && !WorkflowService.isUtilityWorkflow(id) && variant === 'panel';
+  const showSubTitle = context === 'workflow';
 
   return (
     <>
@@ -26,7 +28,7 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
             {userValues?.title || id || 'Workflow'}
           </Text>
           <Text textStyle="body/sm/regular" color="text/secondary">
-            {WorkflowService.getUsedByText(dependants)}
+            {showSubTitle && WorkflowService.getUsedByText(dependants)}
           </Text>
         </Box>
         {shouldShowDeleteButton && (

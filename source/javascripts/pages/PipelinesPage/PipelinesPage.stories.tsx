@@ -25,6 +25,7 @@ export default {
     },
   ],
   beforeEach: () => {
+    process.env.MODE = 'cli';
     if (window.parent.globalProps) {
       window.parent.globalProps = {
         ...window.parent.globalProps,
