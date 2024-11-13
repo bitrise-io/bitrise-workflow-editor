@@ -1,6 +1,6 @@
 import { memo, useMemo, useRef } from 'react';
-import { Box } from '@bitrise/bitkit';
-import { useResizeObserver } from 'usehooks-ts';
+import { Box, CardProps } from '@bitrise/bitkit';
+import { useHover, useResizeObserver } from 'usehooks-ts';
 import { Node, NodeProps, useReactFlow } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import { WorkflowCard } from '@/components/unified-editor';
@@ -12,19 +12,24 @@ import { LeftHandle, RightHandle } from './Handles';
 type Props = NodeProps<Node<WorkflowNodeDataType>>;
 export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId?: string };
 
+const defaultStyle = {
+  variant: 'outline',
+} satisfies CardProps;
+
 const hoverStyle = {
+  boxShadow: 'small',
+  borderColor: 'border/hover',
+} satisfies CardProps;
+
+const selectedStyle = {
   outline: '2px solid',
   outlineColor: 'border/selected',
   outlineOffset: '-2px',
-};
-
-const defaultStyle = {
-  border: '1px solid',
-  borderColor: 'border/regular',
-};
+} satisfies CardProps;
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
+  const isHover = useHover(ref);
   const { openDialog } = usePipelinesPageStore();
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements } = useReactFlow<Node<WorkflowNodeDataType>>();
@@ -53,10 +58,13 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
     return (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] });
   }, [deleteElements, isGraphPipelinesEnabled]);
 
-  const containerProps = useMemo(() => (selected ? hoverStyle : defaultStyle), [selected]);
+  const containerProps = useMemo(
+    () => ({ ...defaultStyle, ...(selected ? selectedStyle : {}), ...(isHover ? hoverStyle : {}) }),
+    [selected, isHover],
+  );
 
   return (
-    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH}>
+    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH} className="nopan">
       <LeftHandle />
       <WorkflowCard
         id={id}
