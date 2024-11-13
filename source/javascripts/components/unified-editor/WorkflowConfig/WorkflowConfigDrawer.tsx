@@ -13,8 +13,8 @@ import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  context: 'pipeline' | 'workflow';
   workflowId: string;
+  context: 'pipeline' | 'workflow';
   onRename: (name: string) => void;
 };
 
@@ -28,7 +28,7 @@ const WorkflowConfigDrawerContent = ({ context, onRename, ...props }: Omit<Props
         <FloatingDrawerContent {...contentProps}>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader p="0" pb="0">
-            <WorkflowConfigHeader variant="drawer" />
+            <WorkflowConfigHeader variant="drawer" context={context} />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
             <TabPanels>
