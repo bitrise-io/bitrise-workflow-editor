@@ -1,29 +1,57 @@
-import { CSSProperties } from 'react';
-import { BaseEdge, ConnectionLineComponentProps, EdgeProps, getSmoothStepPath, Position } from '@xyflow/react';
+import { CSSProperties, useEffect } from 'react';
+import {
+  BaseEdge,
+  ConnectionLineComponentProps,
+  EdgeProps,
+  getSmoothStepPath,
+  Position,
+  useReactFlow,
+} from '@xyflow/react';
+import {
+  DEFAULT_GRAPH_EDGE_ZINDEX,
+  HIGHLIGHTED_GRAPH_EDGE_ZINDEX,
+  SELECTED_GRAPH_EDGE_ZINDEX,
+} from '../GraphPipelineCanvas.const';
 
 const edgeStyle = (style?: CSSProperties) => {
   return { strokeWidth: 2, ...style };
 };
 
-const GraphEdge = (props: EdgeProps) => {
-  const { style, selected } = props;
-
+const GraphEdge = ({ id, style, selected, data: { highlighted } = {}, ...props }: EdgeProps) => {
+  const { updateEdge } = useReactFlow();
   const [path] = getSmoothStepPath({ ...props, offset: 0, borderRadius: 12 });
+
+  useEffect(() => {
+    updateEdge(id, (edge) => {
+      if (selected) {
+        return { zIndex: SELECTED_GRAPH_EDGE_ZINDEX };
+      }
+
+      if (edge.data?.highlighted) {
+        return { zIndex: HIGHLIGHTED_GRAPH_EDGE_ZINDEX };
+      }
+
+      return { zIndex: DEFAULT_GRAPH_EDGE_ZINDEX };
+    });
+  }, [id, selected, updateEdge]);
 
   return (
     <BaseEdge
       {...props}
+      id={id}
       path={path}
       style={edgeStyle({
         ...style,
-        stroke: selected ? 'var(--colors-border-selected)' : 'var(--colors-border-minimal)',
+        ...{ stroke: 'var(--colors-border-regular)' },
+        ...(highlighted ? { stroke: 'var(--colors-border-hover)' } : {}),
+        ...(selected ? { stroke: 'var(--colors-border-selected)' } : {}),
       })}
     />
   );
 };
 
 export const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
-  const { fromX, fromY, toX, toY, connectionLineStyle, fromPosition, toPosition, connectionStatus } = props;
+  const { toX, toY, fromX, fromY, toPosition, fromPosition, connectionStatus, connectionLineStyle } = props;
 
   const targetXOffset = toPosition === Position.Left ? -6 : 8;
   const sourceXOffset = fromPosition === Position.Left ? -6 : 8;

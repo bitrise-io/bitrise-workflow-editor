@@ -124,10 +124,14 @@ export const LeftHandle = (props: BoxProps) => {
 
   const isHidden = !edges.some(({ target }) => target === id) && !inProgress;
   const isConnectionSnapped = isValid && inProgress && toHandle?.nodeId === id;
+  const isSelected = edges.some(({ target, selected }) => target === id && selected);
+  const isHighlighted = edges.some(({ target, data }) => target === id && data?.highlighted);
 
-  const style = defaultHandleStyle(
-    isConnectionSnapped ? { left: 8, background: 'var(--colors-border-selected)' } : { left: 8 },
-  );
+  const style = defaultHandleStyle({
+    ...{ left: 8 },
+    ...(isHighlighted ? { background: 'var(--colors-border-hover)' } : {}),
+    ...(isConnectionSnapped || isSelected ? { background: 'var(--colors-border-selected)' } : {}),
+  });
 
   return (
     <Box
@@ -146,12 +150,21 @@ export const LeftHandle = (props: BoxProps) => {
 export const RightHandle = (props: BoxProps) => {
   const id = useNodeId();
   const ref = useRef(null);
+  const edges = useEdges();
   const hover = useHover(ref);
   const fromHandle = useConnection((s) => s.fromHandle);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const isDragging = fromHandle?.position === Position.Right && fromHandle?.nodeId === id;
   const isInButtonState = isGraphPipelinesEnabled && (isDragging || (hover && !fromHandle));
+  const isSelected = edges.some(({ source, selected }) => source === id && selected);
+  const isHighlighted = edges.some(({ source, data }) => source === id && data?.highlighted);
+
+  const style = defaultHandleStyle({
+    ...{ right: 8 },
+    ...(isHighlighted ? { background: 'var(--colors-border-hover)' } : {}),
+    ...(isSelected ? { background: 'var(--colors-border-selected)' } : {}),
+  });
 
   return (
     <Box
@@ -165,7 +178,7 @@ export const RightHandle = (props: BoxProps) => {
       {isInButtonState ? (
         <HandleButton type="source" position={Position.Right} style={{ right: 6 }} isDragging={isDragging} />
       ) : (
-        <Handle type="source" position={Position.Right} style={defaultHandleStyle({ right: 8 })} />
+        <Handle type="source" position={Position.Right} style={style} />
       )}
     </Box>
   );
