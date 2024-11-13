@@ -19,7 +19,7 @@ import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/Pipelin
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_HEIGHT } from '../../GraphPipelineCanvas.const';
 
-const defaultHandleStyle: CSSProperties = {
+const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
   width: 12,
   height: 12,
   border: 'none',
@@ -28,7 +28,8 @@ const defaultHandleStyle: CSSProperties = {
   top: WORKFLOW_NODE_HEIGHT / 2,
   transform: `translate(0, -50%)`,
   background: 'var(--colors-background-active)',
-};
+  ...overrides,
+});
 
 const defaultHandleButtonStyle: CSSProperties = {
   width: 16,
@@ -119,10 +120,14 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
 export const LeftHandle = (props: BoxProps) => {
   const id = useNodeId();
   const edges = useEdges();
-  const isConnectionInProgress = useConnection((s) => s.inProgress);
+  const { inProgress, toHandle, isValid } = useConnection();
 
-  const hasDependencies = edges.some(({ target }) => target === id);
-  const isHidden = !hasDependencies && !isConnectionInProgress;
+  const isHidden = !edges.some(({ target }) => target === id) && !inProgress;
+  const isConnectionSnapped = isValid && inProgress && toHandle?.nodeId === id;
+
+  const style = defaultHandleStyle(
+    isConnectionSnapped ? { left: 8, background: 'var(--colors-border-selected)' } : { left: 8 },
+  );
 
   return (
     <Box
@@ -133,7 +138,7 @@ export const LeftHandle = (props: BoxProps) => {
       position="relative"
       visibility={isHidden ? 'hidden' : undefined}
     >
-      <Handle type="target" position={Position.Left} style={{ ...defaultHandleStyle, left: 8 }} />
+      <Handle type="target" position={Position.Left} style={style} />
     </Box>
   );
 };
@@ -160,7 +165,7 @@ export const RightHandle = (props: BoxProps) => {
       {isInButtonState ? (
         <HandleButton type="source" position={Position.Right} style={{ right: 6 }} isDragging={isDragging} />
       ) : (
-        <Handle type="source" position={Position.Right} style={{ ...defaultHandleStyle, right: 8 }} />
+        <Handle type="source" position={Position.Right} style={defaultHandleStyle({ right: 8 })} />
       )}
     </Box>
   );
