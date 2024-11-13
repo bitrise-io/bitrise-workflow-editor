@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 initialize({
   serviceWorker: {
-    url: './mockServiceWorker.js',
+    url: "./mockServiceWorker.js",
   },
 });
 
