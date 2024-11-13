@@ -14,10 +14,14 @@ export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId?: string };
 
 const hoverStyle = {
   outline: '2px solid',
-  outlineColor: 'var(--colors-border-selected)',
+  outlineColor: 'border/selected',
+  outlineOffset: '-2px',
 };
 
-const defaultStyle = {};
+const defaultStyle = {
+  border: '1px solid',
+  borderColor: 'border/regular',
+};
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -49,7 +53,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
     return (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] });
   }, [deleteElements, isGraphPipelinesEnabled]);
 
-  const containerProps = useMemo(() => ({ style: selected ? hoverStyle : defaultStyle }), [selected]);
+  const containerProps = useMemo(() => (selected ? hoverStyle : defaultStyle), [selected]);
 
   return (
     <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH}>
