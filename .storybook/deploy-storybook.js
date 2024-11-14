@@ -22,14 +22,14 @@ async function createComment(path) {
   const resp = await fetch(commentsURL, { headers });
   const comments = await resp.json();
   const existing = comments.find((comment) => comment.body.includes('Storybook uploaded to'));
-  // if (!existing) {
-  if (existing) {
+  console.log(existing);
+  // if (existing) {
     await fetch(commentsURL, {
       body: JSON.stringify({body: `Storybook uploaded to: https://storybook.services.bitrise.dev/projects/${path}/`}),
       headers,
       method: 'POST',
     });
-  }
+  // }
 }
 
 async function uploadFiles() {
