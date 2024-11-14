@@ -81,7 +81,6 @@
     "angular-elastic": "^2.5.1",
     "angular-route": "^1.8.3",
     "angular-sanitize": "^1.8.3",
-    "axios": "^1.7.7",
     "classnames": "^2.5.1",
     "esprima": "^4.0.1",
     "fuse.js": "^7.0.0",
