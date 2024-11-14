@@ -1,6 +1,6 @@
 const glob = require('glob');
 const { Storage } = require('@google-cloud/storage');
-const axios = require('axios').default;
+const Client = require('../source/javascripts/core/api/client').default;
 
 function getPath() {
   const prID = process.env.BITRISE_PULL_REQUEST;
@@ -13,23 +13,22 @@ function getPath() {
   return null;
 }
 
+const headers = {
+  Authorization: `token ${process.env.GITHUB_API_TOKEN}`,
+};
+
 async function createComment(path) {
   const commentsURL = `https://api.github.com/repos/${process.env.BITRISEIO_GIT_REPOSITORY_OWNER}/${process.env.BITRISEIO_GIT_REPOSITORY_SLUG}/issues/${process.env.BITRISE_PULL_REQUEST}/comments`;
-  const client = axios.create({
-    headers: {
-      common: {
-        Authorization: `token ${process.env.GITHUB_API_TOKEN}`,
-      },
-    },
-  });
 
-  const { data: comments } = await client.get(commentsURL);
+  const { data: comments } = await Client.get(commentsURL, { headers });
   const existing = comments.find((comment) => comment.body.includes('Storybook uploaded to'));
-  if (!existing) {
-    await client.post(commentsURL, {
+  console.log(existing)
+  //if (!existing) {
+    await Client.post(commentsURL, {
       body: `Storybook uploaded to: https://storybook.services.bitrise.dev/projects/${path}/`,
+      headers,
     });
-  }
+  //}
 }
 
 async function uploadFiles() {
