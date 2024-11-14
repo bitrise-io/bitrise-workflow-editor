@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import {
   addEdge,
+  EdgeMouseHandler,
   EdgeTypes,
   Node,
   NodeTypes,
@@ -24,7 +25,14 @@ import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import transformWorkflowsToNodesAndEdges from './utils/transformWorkflowsToNodesAndEdges';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import PlaceholderNode from './components/WorkflowNode/PlaceholderWorkflowNode';
-import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
+import {
+  DEFAULT_GRAPH_EDGE_ZINDEX,
+  GRAPH_EDGE_TYPE,
+  HIGHLIGHTED_GRAPH_EDGE_ZINDEX,
+  PLACEHOLDER_NODE_TYPE,
+  SELECTED_GRAPH_EDGE_ZINDEX,
+  WORKFLOW_NODE_TYPE,
+} from './GraphPipelineCanvas.const';
 import validateConnection from './utils/validateConnection';
 
 const nodeTypes: NodeTypes = {
@@ -37,21 +45,15 @@ const edgeTypes: EdgeTypes = {
 };
 
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
-  const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
-
-  const { selectedPipeline } = usePipelineSelector();
   const workflows = usePipelineWorkflows();
-
   const { openDialog } = usePipelinesPageStore();
-  const { updateNode } = useReactFlow<Node<WorkflowNodeDataType>>();
-  const { nodes: initialNodes, edges: initialEdges } = transformWorkflowsToNodesAndEdges(
-    selectedPipeline,
-    workflows,
-    isGraphPipelineEnabled,
-  );
+  const { selectedPipeline } = usePipelineSelector();
+  const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
+  const { updateNode, updateEdge } = useReactFlow<Node<WorkflowNodeDataType>>();
+  const initial = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows, isGraphPipelineEnabled);
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initialNodes));
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initial.nodes));
 
   const { addPipelineWorkflowDependency, removeWorkflowFromPipeline, removePipelineWorkflowDependency } =
     useBitriseYmlStore((s) => ({
@@ -108,6 +110,40 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
     [selectedPipeline, addPipelineWorkflowDependency, setEdges, updateNode],
   );
 
+  const handleEdgeMouseEnter: EdgeMouseHandler = useCallback(
+    (_, { id, selected, data }) => {
+      if (data?.highlighted) {
+        return;
+      }
+
+      let zIndex = DEFAULT_GRAPH_EDGE_ZINDEX;
+      if (selected) {
+        zIndex = SELECTED_GRAPH_EDGE_ZINDEX;
+      } else {
+        zIndex = HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
+      }
+
+      updateEdge(id, { zIndex, data: { highlighted: true } });
+    },
+    [updateEdge],
+  );
+
+  const handleEdgeMouseLeave: EdgeMouseHandler = useCallback(
+    (_, { id, target, selected }) => {
+      const targetNodeSelected = nodes.some((node) => node.id === target && node.selected);
+
+      let zIndex = DEFAULT_GRAPH_EDGE_ZINDEX;
+      if (selected) {
+        zIndex = SELECTED_GRAPH_EDGE_ZINDEX;
+      } else if (targetNodeSelected) {
+        zIndex = HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
+      }
+
+      updateEdge(id, { zIndex, data: { highlighted: targetNodeSelected } });
+    },
+    [updateEdge, nodes],
+  );
+
   return (
     <>
       <ReactFlow
@@ -120,6 +156,9 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         onEdgesDelete={handleEdgesDelete}
         onNodesChange={handleNodesChanges}
         onNodesDelete={handleNodesDelete}
+        onEdgeMouseMove={handleEdgeMouseEnter}
+        onEdgeMouseEnter={handleEdgeMouseEnter}
+        onEdgeMouseLeave={handleEdgeMouseLeave}
         connectionLineComponent={ConnectionGraphEdge}
         isValidConnection={validateConnection(nodes, edges)}
         {...props}
