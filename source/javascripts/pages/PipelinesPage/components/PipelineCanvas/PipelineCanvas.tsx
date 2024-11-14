@@ -28,7 +28,7 @@ const PipelineCanvas = () => {
       />
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
         <Controls />
-        <MiniMap />
+        <MiniMap pannable zoomable zoomStep={1} />
       </CanvasComponent>
     </Box>
   );
