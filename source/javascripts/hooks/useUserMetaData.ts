@@ -18,7 +18,7 @@ const useUserMetaData = (key: string, enabled: boolean) => {
           [key]: newValue,
         },
       }),
-    onSuccess: (_newData, variables) => {
+    onMutate: (variables) => {
       setValue(variables);
     },
   });
