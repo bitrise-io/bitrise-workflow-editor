@@ -14,7 +14,7 @@ const PipelineCanvas = () => {
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
 
   return (
-    <Box bg="background/secondary" flex="1" position="relative">
+    <Box bg="background/secondary" flex="1" position="relative" userSelect="none">
       <Toolbar
         top="16"
         left="50%"
