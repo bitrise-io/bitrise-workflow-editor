@@ -339,23 +339,15 @@
       };
 
       appService.saveSecrets = function () {
-        appService.secrets = _.filter(appService.secrets, function (aSecretVar) {
-          return !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value());
+        appService.secrets = appService.secrets.filter((aSecretVar) => !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
+        appService.secrets.filter((s) => s.scope() !== 'workspace').forEach((aSecretVar) => {
+          aSecretVar.isKeyChangeable = false;
+          aSecretVar.shouldShowValue = false;
+          if (aSecretVar.isProtected()) {
+            aSecretVar.value(null);
+          }
         });
-
-        const appLevelSecrets = appService.secrets.filter((s) => s.scope() !== 'workspace');
-
-        return validateVariables(appLevelSecrets, true, true)
-          .then(function () {
-            _.each(appService.secrets, function (secret) {
-              secret.isKeyChangeable = false;
-              secret.shouldShowValue = false;
-              if (secret.isProtected()) {
-                secret.value(null);
-              }
-            });
-            appService.savedSecrets = angular.copy(appService.secrets);
-          });
+        appService.savedSecrets = angular.copy(appService.secrets);
       };
 
       appService.discardSecretsChanges = function () {
