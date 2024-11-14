@@ -111,18 +111,8 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   );
 
   const handleEdgeMouseEnter: EdgeMouseHandler = useCallback(
-    (_, { id, selected, data }) => {
-      if (data?.highlighted) {
-        return;
-      }
-
-      let zIndex = DEFAULT_GRAPH_EDGE_ZINDEX;
-      if (selected) {
-        zIndex = SELECTED_GRAPH_EDGE_ZINDEX;
-      } else {
-        zIndex = HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
-      }
-
+    (_, { id, selected }) => {
+      const zIndex = selected ? SELECTED_GRAPH_EDGE_ZINDEX : HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
       updateEdge(id, { zIndex, data: { highlighted: true } });
     },
     [updateEdge],
