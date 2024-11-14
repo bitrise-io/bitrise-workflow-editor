@@ -1,42 +1,33 @@
-import { useMemo } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import useGetUserMetaData from '@/hooks/api/useGetUserMetaData';
-import { monolith } from './api/client';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import UserApi from '../core/api/UserApi';
 
-type MetadataResult = {
-  value: boolean | null;
-};
+const useUserMetaData = (key: string, enabled: boolean) => {
+  const [value, setValue] = useState<string | undefined | null>(undefined);
+  const { data } = useQuery({
+    enabled,
+    queryKey: ['userMetaData', key],
+    queryFn: () => UserApi.getUserMetadataValue({ key }),
+    staleTime: Infinity,
+  });
 
-type Props = {
-  key: string;
-  enabled: boolean;
-};
-
-type NotificationResult = {
-  isVisible: boolean;
-  close: VoidFunction;
-};
-
-const useUserMetaData = ({ key, enabled }: Props): NotificationResult => {
   const { mutate } = useMutation({
-    mutationFn: (value: boolean) =>
-      monolith.put('/me/profile/metadata.json', {
-        [key]: value,
+    mutationFn: (newValue: string) =>
+      UserApi.updateUserMetadata({
+        metadata: {
+          [key]: newValue,
+        },
       }),
-    onSuccess: () => {
-      refetch();
+    onSuccess: (_newData, variables) => {
+      setValue(variables);
     },
   });
-  const { data: metadata, refetch } = useGetUserMetaData<MetadataResult>(key, {
-    enabled,
-  });
 
-  const close = () => {
-    mutate(true);
-  };
+  useEffect(() => {
+    setValue(data);
+  }, [data]);
 
-  const isVisible = useMemo(() => Boolean(metadata && metadata.value === null), [metadata]);
-  return { isVisible, close };
+  return { value, update: mutate };
 };
 
-export { useUserMetaData };
+export default useUserMetaData;
