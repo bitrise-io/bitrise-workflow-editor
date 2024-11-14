@@ -122,6 +122,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         onNodesDelete={handleNodesDelete}
         connectionLineComponent={ConnectionGraphEdge}
         isValidConnection={validateConnection(nodes, edges)}
+        style={{ userSelect: 'none', WebkitUserSelect: 'none' }} // NOTE: Safari fix
         {...props}
       />
       {nodes.length === 0 && (
