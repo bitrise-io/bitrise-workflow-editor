@@ -1,22 +1,27 @@
-import { memo, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { Box, CardProps } from '@bitrise/bitkit';
 import { useHover, useResizeObserver } from 'usehooks-ts';
 import { Node, NodeProps, useReactFlow } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import { WorkflowCard } from '@/components/unified-editor';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { WORKFLOW_NODE_WIDTH } from '../../GraphPipelineCanvas.const';
+import {
+  DEFAULT_GRAPH_EDGE_ZINDEX,
+  HIGHLIGHTED_GRAPH_EDGE_ZINDEX,
+  SELECTED_GRAPH_EDGE_ZINDEX,
+  WORKFLOW_NODE_WIDTH,
+} from '../../GraphPipelineCanvas.const';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<Node<WorkflowNodeDataType>>;
-export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId?: string };
+export type WorkflowNodeDataType = PipelineWorkflow & { pipelineId?: string; highlighted?: boolean };
 
 const defaultStyle = {
   variant: 'outline',
 } satisfies CardProps;
 
-const hoverStyle = {
+const hoveredStyle = {
   boxShadow: 'small',
   borderColor: 'border/hover',
 } satisfies CardProps;
@@ -29,10 +34,10 @@ const selectedStyle = {
 
 const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const isHover = useHover(ref);
+  const hovered = useHover(ref);
   const { openDialog } = usePipelinesPageStore();
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
-  const { updateNode, deleteElements } = useReactFlow<Node<WorkflowNodeDataType>>();
+  const { updateNode, deleteElements, setEdges } = useReactFlow<Node<WorkflowNodeDataType>>();
 
   /* NOTE: will be included later
   const { removeChainedWorkflow } = useBitriseYmlStore((s) => ({
@@ -59,9 +64,31 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
   }, [deleteElements, isGraphPipelinesEnabled]);
 
   const containerProps = useMemo(
-    () => ({ ...defaultStyle, ...(selected ? selectedStyle : {}), ...(isHover ? hoverStyle : {}) }),
-    [selected, isHover],
+    () => ({ ...defaultStyle, ...(selected ? selectedStyle : {}), ...(hovered ? hoveredStyle : {}) }),
+    [selected, hovered],
   );
+
+  const highlighted = selected || hovered;
+
+  useEffect(() => {
+    setEdges((edges) => {
+      return edges.map((edge) => {
+        if (edge.target === id) {
+          const newEdge = { ...edge, zIndex: DEFAULT_GRAPH_EDGE_ZINDEX, data: { ...edge.data, highlighted } };
+
+          if (edge.selected) {
+            newEdge.zIndex = SELECTED_GRAPH_EDGE_ZINDEX;
+          } else if (highlighted) {
+            newEdge.zIndex = HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
+          }
+
+          return newEdge;
+        }
+
+        return edge;
+      });
+    });
+  }, [id, highlighted, setEdges]);
 
   return (
     <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH} className="nopan">
