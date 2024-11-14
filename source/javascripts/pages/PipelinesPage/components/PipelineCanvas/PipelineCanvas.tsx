@@ -27,7 +27,7 @@ const PipelineCanvas = () => {
         onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)}
       />
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
-        <Controls />
+        <Controls showInteractive={false} />
         <MiniMap pannable zoomable zoomStep={1} />
       </CanvasComponent>
     </Box>
