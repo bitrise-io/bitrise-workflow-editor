@@ -1,11 +1,11 @@
 import _ from "underscore";
 import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
-import { safeDigest } from "@/services/react-compat";
+import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
+import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
-import { segmentTrack } from "@/utils/segmentTracking";
+import {segmentTrack} from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -346,8 +346,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
             return;
           }
 
-          cleanupMenu();
-
           if (!viewModel.hasUnsavedChanges()) {
             resolve();
 
@@ -372,7 +370,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save({ shouldReturnPromise: true, source: "unsaved_changes_save_button" }).then(
+              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
                 function () {
                   resolve();
                 },
@@ -387,7 +385,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           );
         }).then(
           function () {
-            logger.setTags({ menuID: menu.id });
+            logger.setTags({menuID: menu.id});
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -443,26 +441,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
         logger.error(rejection);
       });
 
-      viewModel.isDiscardSaveAvailable = function () {
-        if (!viewModel.currentMenu) {
-          return undefined;
-        }
-
-        switch (viewModel.currentMenu.id) {
-          case "secrets":
-          case "code-signing":
-            return false;
-          default:
-            return true;
-        }
-      };
-
-      function cleanupMenu() {
-        if (viewModel.currentMenu?.id == "secrets") {
-          $rootScope.$emit("MainController::cleanupMenu");
-        }
-      }
-
       viewModel.hasUnsavedChanges = function () {
         if (!viewModel.currentMenu) {
           return undefined;
@@ -475,7 +453,8 @@ import { segmentTrack } from "@/utils/segmentTracking";
           case "triggers":
             return appService.appConfigHasUnsavedChanges();
           case "secrets":
-            return appService.secretsHaveUnsavedChanges();
+            // Disables the discard and save buttons for the secrets tab
+            return false;
           case "stack":
             return (
               appService.appConfigHasUnsavedChanges() ||
@@ -497,8 +476,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
       };
 
       window.onbeforeunload = function (event) {
-        cleanupMenu();
-
         if (viewModel.hasUnsavedChanges()) {
           return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
         }
@@ -575,7 +552,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({ shouldReturnPromise, source = 'save_changes_button' }) {
+      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
@@ -665,7 +642,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
               }
             }
           )
-          ;
+        ;
 
         if (shouldReturnPromise) {
           return promise;
@@ -705,7 +682,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
+            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
           }
 
           return false;
@@ -726,8 +703,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
             break;
           case "secrets":
-            appService.discardSecretsChanges();
-
             break;
           case "licenses":
             appService.discardAppConfigChanges();
