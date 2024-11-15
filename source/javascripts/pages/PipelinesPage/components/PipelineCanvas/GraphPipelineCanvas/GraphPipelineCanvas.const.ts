@@ -8,3 +8,8 @@ export const TOOLBAR_CONTAINER_HEIGHT = 88;
 export const GRAPH_EDGE_TYPE = 'graph-edge';
 export const WORKFLOW_NODE_TYPE = 'workflow';
 export const PLACEHOLDER_NODE_TYPE = 'placeholder';
+
+export const DEFAULT_GRAPH_EDGE_ZINDEX = 0;
+export const HIGHLIGHTED_GRAPH_EDGE_ZINDEX = 1;
+export const SELECTED_GRAPH_EDGE_ZINDEX = 2;
+export const DEFAULT_WORKFLOW_NODE_ZINDEX = 3;

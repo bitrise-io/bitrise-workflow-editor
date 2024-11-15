@@ -12,7 +12,6 @@ import {
   Toggle,
 } from '@bitrise/bitkit';
 import isEqual from 'lodash/isEqual';
-import { useUserMetaData } from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -27,6 +26,7 @@ import {
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '@/pages/TriggersPage/components/TargetBasedTriggers/AddTrigger';
 import { segmentTrack } from '@/utils/segmentTracking';
+import useUserMetaData from '../../../../../hooks/useUserMetaData';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
@@ -121,10 +121,10 @@ const TriggersTabPanel = () => {
   );
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
-  const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
-    key: 'wfe_target_based_triggering_notification_closed',
-    enabled: isWebsiteMode,
-  });
+  const { value: metaDataValue, update: updateMetaData } = useUserMetaData(
+    'wfe_target_based_triggering_notification_closed',
+    isWebsiteMode,
+  );
 
   const workflow = useWorkflowConfigContext();
 
@@ -236,8 +236,8 @@ const TriggersTabPanel = () => {
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
-        {isNotificationVisible && (
-          <Notification status="info" onClose={closeNotification} marginBlockEnd="24">
+        {metaDataValue === null && (
+          <Notification status="info" onClose={() => updateMetaData('true')} marginBlockEnd="24">
             <Text textStyle="heading/h4">Target based triggers</Text>
             <Text>
               Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple

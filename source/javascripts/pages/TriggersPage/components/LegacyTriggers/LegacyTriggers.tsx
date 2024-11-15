@@ -31,10 +31,10 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useUserMetaData } from '@/hooks/useUserMetaData';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useUserMetaData from '@/hooks/useUserMetaData';
 import { TriggerType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPageFunctions';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
@@ -49,7 +49,6 @@ type LegacyTriggersProps = {
 const LegacyTriggers = (props: LegacyTriggersProps) => {
   const { yml } = props;
 
-  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const pipelines = yml.pipelines ? Object.keys(yml.pipelines) : [];
   const workflows = yml.workflows ? Object.keys(yml.workflows).filter((workflowID) => !workflowID.startsWith('_')) : [];
   const triggerMap = yml.trigger_map;
@@ -60,12 +59,14 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
   );
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+
   const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
 
-  const { isVisible: isOrderNotificationOpen, close: closeOrderNotification } = useUserMetaData({
-    key: ORDER_NOTIFICATION_METADATA_KEY,
-    enabled: isWebsiteMode,
-  });
+  const { value: metaDataValue, update: updateMetaData } = useUserMetaData(
+    ORDER_NOTIFICATION_METADATA_KEY,
+    isWebsiteMode,
+  );
 
   const { updateTriggerMap } = useBitriseYmlStore((s) => ({
     updateTriggerMap: s.updateTriggerMap,
@@ -229,8 +230,8 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 </DragOverlay>
               </DndContext>
             </div>
-            {triggers.push.length > 1 && isOrderNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeOrderNotification}>
+            {triggers.push.length > 1 && metaDataValue === null && (
+              <Notification status="info" marginTop="12" onClose={() => updateMetaData('true')}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
@@ -296,8 +297,8 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 </DragOverlay>
               </DndContext>
             </div>
-            {triggers.pull_request.length > 1 && isOrderNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeOrderNotification}>
+            {triggers.pull_request.length > 1 && metaDataValue === null && (
+              <Notification status="info" marginTop="12" onClose={() => updateMetaData('true')}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
@@ -359,8 +360,8 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 </DragOverlay>
               </DndContext>
             </div>
-            {triggers.tag.length > 1 && isOrderNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeOrderNotification}>
+            {triggers.tag.length > 1 && metaDataValue === null && (
+              <Notification status="info" marginTop="12" onClose={() => updateMetaData('true')}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is

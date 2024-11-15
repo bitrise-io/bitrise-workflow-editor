@@ -158,6 +158,7 @@ const WorkflowsPageContent = () => {
 
       {isWorkflowConfigDrawerMounted && (
         <WorkflowConfigDrawer
+          context="workflow"
           workflowId={workflowId}
           onRename={openWorkflowConfigDrawer}
           isOpen={isWorkflowConfigDrawerOpen}

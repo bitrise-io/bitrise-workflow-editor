@@ -44,10 +44,10 @@ const WorkflowConfigPanelContent = () => {
       index={tabIndex}
       onChange={onTabChange}
     >
-      <WorkflowConfigHeader variant="panel" />
+      <WorkflowConfigHeader variant="panel" context="workflow" />
       <TabPanels flex="1" minH="0">
         <TabPanel p="24" overflowY="auto" h="100%">
-          <ConfigurationTab />
+          <ConfigurationTab context="workflow" />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
           <PropertiesTab variant="panel" onRename={setSelectedWorkflow} />
