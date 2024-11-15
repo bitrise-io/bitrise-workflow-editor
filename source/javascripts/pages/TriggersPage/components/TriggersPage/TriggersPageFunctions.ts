@@ -1,6 +1,6 @@
-import isObject from 'lodash/isObject';
+import { isObject } from 'es-toolkit/compat';
 import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
-import { TriggerType, TriggerItem, LegacyConditionType, ConditionType } from './TriggersPage.types';
+import { ConditionType, LegacyConditionType, TriggerItem, TriggerType } from './TriggersPage.types';
 
 const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMapYml => {
   const triggerMap: TriggerMapYml = Object.values(triggers)

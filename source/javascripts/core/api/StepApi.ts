@@ -1,6 +1,5 @@
 import algoliasearch from 'algoliasearch';
-import uniqBy from 'lodash/uniqBy';
-import sortBy from 'lodash/sortBy';
+import { sortBy, uniqBy } from 'es-toolkit';
 import { parse } from 'yaml';
 import {
   BITRISE_STEP_LIBRARY_SSH_URL,
@@ -141,7 +140,7 @@ async function getAlgoliaSteps(defaultStepLibrary: string): Promise<StepApiResul
     batch: (objects) => results.push(...objects),
     filters: 'is_latest:true AND is_deprecated:false',
   });
-  return uniqBy(results, 'id')
+  return uniqBy(results, (r) => r.id)
     .map((step) => toStep(step.cvs, defaultStepLibrary, step))
     .filter(Boolean) as StepApiResult[];
 }
@@ -303,7 +302,9 @@ async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable
     filters: `cvs:${cvs}`,
   });
 
-  return sortBy(results, 'order').map(toStepVariable).filter(Boolean) as StepInputVariable[];
+  return sortBy(results, [(r) => r.order])
+    .map(toStepVariable)
+    .filter(Boolean) as StepInputVariable[];
 }
 
 export { AlgoliaStepResponse, AlgoliaStepInputResponse, StepInfo, StepApiResult };

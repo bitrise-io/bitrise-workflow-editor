@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'es-toolkit';
 import { SearchInput, SearchInputProps } from '@bitrise/bitkit';
 
 const DEBOUNCE_TIME = 300;

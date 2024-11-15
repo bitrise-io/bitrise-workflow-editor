@@ -1,4 +1,4 @@
-import merge from 'lodash/merge';
+import { toMerged } from 'es-toolkit';
 import getCookie from '@/utils/cookies';
 
 const DEFAULT_TIMEOUT = 60_000;
@@ -21,12 +21,10 @@ class NetworkError extends Error {
 }
 
 async function client(url: string, options?: ClientOpts) {
-  const headers = merge(
-    {},
-    DEFAULT_HEADERS,
-    options?.headers,
-    !options?.excludeCSRF && { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') },
-  );
+  const headers = toMerged(DEFAULT_HEADERS, {
+    ...options?.headers,
+    ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') }),
+  });
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort('TimeoutError'), options?.timeout ?? DEFAULT_TIMEOUT);

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
 import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
 import { getConditionList, TargetBasedTriggerItem } from '../TriggersPage/TriggersPage.utils';

@@ -1,8 +1,5 @@
-import uniq from 'lodash/uniq';
-import isEmpty from 'lodash/isEmpty';
-import find from 'lodash/find';
-import keys from 'lodash/keys';
-import compact from 'lodash/compact';
+import { compact, uniq } from 'es-toolkit';
+import { isEmpty } from 'es-toolkit/compat';
 import semver from 'semver';
 import {
   BITRISE_STEP_LIBRARY_SSH_URL,
@@ -308,7 +305,7 @@ function getInputNames(step?: StepApiResult): string[] {
     return [];
   }
 
-  return compact(step.defaultValues.inputs.map((inputObj) => find(keys(inputObj), (k) => k !== 'opts')));
+  return compact(step.defaultValues.inputs.map((inputObj) => Object.keys(inputObj).find((k) => k !== 'opts')));
 }
 
 function calculateChange(

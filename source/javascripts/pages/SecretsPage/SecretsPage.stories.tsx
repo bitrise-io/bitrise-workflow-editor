@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react';
-import noop from 'lodash/noop';
 import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import SecretsPage from './SecretsPage';
 
@@ -7,7 +6,6 @@ export default {
   component: SecretsPage,
   args: {
     appSlug: 'app-slug',
-    onSecretsChange: noop,
     sharedSecretsAvailable: false,
   },
   parameters: {

@@ -4,7 +4,7 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import omit from 'lodash/omit';
+import { omit } from 'es-toolkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
@@ -146,7 +146,7 @@ const EnvVarCard = ({ env, isDragging, onRemove, onChange }: EnvVarCardProps) =>
           isChecked={env.isExpand !== false}
           onChange={(e) => {
             if (e.target.checked) {
-              onChange?.(omit(env, 'isExpand'));
+              onChange?.(omit(env, ['isExpand']));
             } else {
               onChange?.({ ...env, isExpand: false });
             }
