@@ -31,7 +31,6 @@
         dockerImage: undefined,
         savedDockerImage: undefined,
         projectType: undefined,
-        validationWarnings: [],
         accountData: undefined,
         pipelineConfig: undefined,
         accountFeatures: undefined,
@@ -378,19 +377,6 @@
           appService.appConfig = undefined;
           appService.savedAppConfig = undefined;
           appService.savedAppConfigYML = appService.appConfigYML;
-
-          if (!validationData.warnings) {
-            return;
-          }
-
-          appService.validationWarnings = [];
-          if (validationData.warnings.config != null) {
-            appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
-          }
-
-          if (validationData.warnings.secrets != null) {
-            appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
-          }
         });
       };
 

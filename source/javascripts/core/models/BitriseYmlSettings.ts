@@ -4,6 +4,7 @@ type BitriseYmlSettings = {
   isYmlSplit: boolean;
   isRepositoryYml: boolean;
   isModularYamlSupported: boolean;
+  ymlRootPath: string;
 };
 
 export { BitriseYmlSettings };

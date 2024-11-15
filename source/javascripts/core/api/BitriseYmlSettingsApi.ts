@@ -8,10 +8,12 @@ type BitriseYmlSettingsResponse = {
   split: boolean;
   uses_repository_yml: boolean;
   modular_yaml_supported: boolean;
+  yml_root_path: string | null;
 };
 
 type BitriseYmlSettingsRequest = {
   uses_repository_yml: boolean;
+  yml_root_path: string;
 };
 
 // TRANSFORMATIONS
@@ -22,12 +24,14 @@ function toYmlSettings(response: BitriseYmlSettingsResponse): BitriseYmlSettings
     isYmlSplit: response.split,
     isRepositoryYml: response.uses_repository_yml,
     isModularYamlSupported: response.modular_yaml_supported,
+    ymlRootPath: response.yml_root_path || '',
   };
 }
 
 function toYmlSettingUpdateModel(model: Partial<BitriseYmlSettings>): BitriseYmlSettingsRequest {
   return {
     uses_repository_yml: Boolean(model?.isRepositoryYml),
+    yml_root_path: model?.ymlRootPath || '',
   };
 }
 

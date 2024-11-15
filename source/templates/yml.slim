@@ -1,10 +1,4 @@
 .tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
-  section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
-    .icon
-    .message
-      .title == data[:strings][:yml][:warn][:title]
-      ul
-        li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
   r-yml-editor-header[
     url="ymlCtrl.downloadAppConfigYMLPath()"
     initial-uses-repository-yml="ymlCtrl.usesRepositoryYml"

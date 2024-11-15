@@ -674,9 +674,6 @@ def strings
         load_progress: {
           loading: "Loading, wait a sec..."
         },
-        warn: {
-          title: "Uups, we found some warnings in your configuration, please consider checking them."
-        },
         store_in_repository: {
           loading: "Looking for bitrise.yml in the app repository...",
           not_found: "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.",
