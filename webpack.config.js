@@ -62,11 +62,11 @@ const MonacoPluginOptions = {
   ],
 };
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
-const isHotjarEnabled = HOTJAR === 'true';
+const isClarityEnabled = CLARITY === 'true';
 const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
 
@@ -93,8 +93,8 @@ const entry = {
   routes: './javascripts/routes.js.erb',
   main: './javascripts/index.js',
 };
-if (isHotjarEnabled) {
-  entry.hotjar = './javascripts/hotjar.js';
+if (isClarityEnabled) {
+  entry.clarity = './javascripts/clarity.js';
 }
 if (isDataDogRumEnabled) {
   entry.datadogrum = './javascripts/datadog-rum.js.erb';
