@@ -16,9 +16,10 @@ const meta: Meta<YmlEditorHeaderProps> = {
     modularYamlSupported: false,
     lines: 400,
     lastModified: '2024-05-12T09:23:48.190Z',
+    initialYmlRootPath: '',
   },
   argTypes: {
-    onUsesRepositoryYmlChangeSaved: { type: 'function' },
+    onConfigSourceChangeSaved: { type: 'function' },
   },
   parameters: {
     msw: [...makeNotificationMetadataEndpoint()],

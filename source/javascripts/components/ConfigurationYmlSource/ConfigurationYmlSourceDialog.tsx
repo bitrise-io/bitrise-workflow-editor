@@ -6,6 +6,7 @@ import {
   DialogBody,
   DialogFooter,
   Divider,
+  Input,
   Link,
   List,
   ListItem,
@@ -64,10 +65,11 @@ type ConfigurationYmlSourceDialogProps = {
   initialUsesRepositoryYml: boolean;
   appConfig: AppConfig | string;
   appSlug: string;
-  onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
+  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
   gitRepoSlug: string;
   lastModified: string | null;
+  initialYmlRootPath: string | null;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -79,8 +81,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     initialUsesRepositoryYml,
     appConfig,
     appSlug,
-    onUsesRepositoryYmlChangeSaved,
+    onConfigSourceChangeSaved,
     lastModified,
+    initialYmlRootPath,
   } = props;
 
   const {
@@ -99,9 +102,15 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
+  const [ymlRootPath, setYmlRootPath] = useState(initialYmlRootPath || '');
 
-  const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig, updatePipelineConfigReset } =
-    useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml);
+  const {
+    updatePipelineConfigStatus,
+    updatePipelineConfigLoading,
+    updatePipelineConfig,
+    updatePipelineConfigReset,
+    updatePipelineConfigFailed,
+  } = useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml, ymlRootPath);
 
   const yml = useFormattedYml(appConfig);
 
@@ -125,11 +134,15 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       eventProps.selected_yml_source = configurationSource;
     }
     segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
-    if (configurationSource === 'git') {
-      getAppConfigFromRepo();
-    }
-    if (configurationSource === 'bitrise') {
+    if (usesRepositoryYml === true) {
       updatePipelineConfig();
+    } else {
+      if (configurationSource === 'git') {
+        getAppConfigFromRepo();
+      }
+      if (configurationSource === 'bitrise') {
+        updatePipelineConfig();
+      }
     }
   };
 
@@ -166,7 +179,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       status: 'success',
       isClosable: true,
     });
-    onUsesRepositoryYmlChangeSaved(usesRepositoryYml);
+    onConfigSourceChangeSaved(usesRepositoryYml, ymlRootPath);
     segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
       yml_source: usesRepositoryYml ? 'git' : 'bitrise',
     });
@@ -237,6 +250,42 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             Git repository
           </Radio>
         </RadioGroup>
+        {usesRepositoryYml && (
+          <>
+            <Input
+              label="Bitrise.yml location"
+              value={ymlRootPath}
+              onChange={(e) => setYmlRootPath(e.target.value)}
+              leftAddon={
+                <Box maxWidth="124" padding="8px 12px" display="flex" title={gitRepoSlug}>
+                  <Text textStyle="body/md/regular" hasEllipsis>
+                    {gitRepoSlug}
+                  </Text>
+                  <Text textStyle="body/md/regular">/</Text>
+                </Box>
+              }
+              rightAddon={
+                <Text padding="8px 12px" textStyle="body/md/regular">
+                  /bitrise.yml
+                </Text>
+              }
+              inputWrapperStyle={{
+                background: 'background/disabled',
+                border: '1px solid #dfdae1',
+                borderRadius: '4',
+              }}
+              placeholder={initialYmlRootPath === '' ? '' : 'example/configs'}
+              helperText="Define the source of your configuration file."
+              isRequired
+              marginInlineStart="32"
+            />
+            {initialYmlRootPath !== null && (
+              <Notification status="warning" marginBlockStart="24">
+                Ensure that Bitrise has access to all repositories where configuration files are stored.
+              </Notification>
+            )}
+          </>
+        )}
         {isSourceSelected && !usesRepositoryYml && (
           <>
             <Divider marginY="24" />
@@ -290,54 +339,58 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             <Text marginBlockEnd="4" textStyle="heading/h3">
               Complete the following tasks
             </Text>
-            <Text marginBlockEnd="24">
+            <Text marginBlockEnd="24" textStyle="body/md/regular">
               Make sure to complete all the mandatory tasks before updating. A missing or invalid configuration file can
               lead to failed builds.
             </Text>
             <List variant="ordered">
               <ListItem>
-                Add configuration file
-                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="8">
-                  Add your current configuration YAML from Bitrise to your {gitRepoSlug} repository’s {defaultBranch}{' '}
-                  branch.{' '}
-                  <Link
-                    href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/managing-an-app-s-bitrise-yml-file.html#storing-the-bitrise-yml-file-in-your-repository"
-                    colorScheme="purple"
-                    isExternal
-                  >
-                    Learn more
-                  </Link>
+                Add configuration YAML to your repository
+                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="12">
+                  Add your current configuration YAML to{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    {initialYmlRootPath}
+                  </Text>{' '}
+                  on the{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    {defaultBranch}
+                  </Text>{' '}
+                  branch of your{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    {gitRepoSlug}
+                  </Text>{' '}
+                  repository.{' '}
                 </Text>
-                <Box display="flex" flexDir="column" gap="8">
+                <Box display="flex" gap="8">
                   <Button
                     as="a"
                     href={`data:attachment/text,${encodeURIComponent(yml)}`}
                     target="_blank"
                     download="bitrise.yml"
-                    variant="tertiary"
+                    variant="secondary"
                     leftIconName="Download"
                     width="fit-content"
                     size="sm"
                     onClick={onDownloadClick}
                   >
-                    Download current version
+                    Download bitrise.yml
                   </Button>
                   <CopyToClipboard text={yml} onCopy={onCopyClick}>
                     <Button
-                      variant="tertiary"
+                      variant="secondary"
                       leftIconName="Duplicate"
                       width="fit-content"
                       size="sm"
-                      marginBlockEnd="16"
+                      marginBlockEnd="24"
                     >
-                      Copy configuration content
+                      Copy YML contents
                     </Button>
                   </CopyToClipboard>
                 </Box>
               </ListItem>
               <ListItem>
                 Provide repository access
-                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
+                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="24">
                   Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
                   <Link
                     href="https://devcenter.bitrise.io/en/connectivity/connecting-to-services/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html#github-app-integration"
@@ -362,10 +415,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                     Follow this guide
                   </Link>{' '}
                   to split up your configuration into smaller, more manageable files. This feature is only available for
-                  Workspaces on{' '}
-                  <Text as="span" textStyle="body/md/semibold">
-                    Enterprise plan.
-                  </Text>
+                  Workspaces on Enterprise plan.
                 </Text>
               </ListItem>
             </List>
@@ -383,7 +433,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           <ErrorNotification status={postAppConfigStatus} message={postAppConfigFailed?.error_msg} />
         )}
         {updatePipelineConfigStatus && updatePipelineConfigStatus !== 200 && (
-          <ErrorNotification status={getAppConfigFromRepoStatus} message="Unknown error" />
+          <ErrorNotification
+            status={updatePipelineConfigStatus}
+            message={updatePipelineConfigFailed?.error_msg || 'Unknown error'}
+          />
         )}
       </DialogBody>
       <DialogFooter>
@@ -391,7 +444,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           Cancel
         </Button>
         <Tooltip label={toolTip} isDisabled={isSourceSelected}>
-          <Button onClick={onValidateAndSave} isDisabled={!isSourceSelected} isLoading={isDialogDisabled}>
+          <Button
+            onClick={onValidateAndSave}
+            isDisabled={!isSourceSelected && ymlRootPath === initialYmlRootPath}
+            isLoading={isDialogDisabled}
+          >
             Validate and save
           </Button>
         </Tooltip>
