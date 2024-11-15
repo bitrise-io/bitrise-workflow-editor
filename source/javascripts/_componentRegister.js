@@ -108,7 +108,7 @@ angular
       "initialUsesRepositoryYml",
       "appSlug",
       "appConfig",
-      "onUsesRepositoryYmlChangeSaved",
+      "onConfigSourceChangeSaved",
       "repositoryYmlAvailable",
       "isWebsiteMode",
       "defaultBranch",
@@ -117,6 +117,7 @@ angular
       "split",
       "modularYamlSupported",
       "lastModified",
+      "initialYmlRootPath"
     ]),
   )
   .component(

@@ -628,7 +628,8 @@ import jsyaml from "js-yaml";
                 lines: response.data.lines || 0,
                 split: !!response.data.split,
                 modularYamlSupported: !!response.data.modular_yaml_supported,
-                lastModified: response.data.last_modified || null
+                lastModified: response.data.last_modified || null,
+                ymlRootPath: response.data.yml_root_path || ''
               });
             },
             function (response) {

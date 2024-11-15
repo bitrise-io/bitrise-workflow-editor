@@ -9,7 +9,11 @@ export interface FetchResponse {
   updatePipelineConfigReset: () => void;
 }
 
-export default function useUpdatePipelineConfigCallback(appSlug: string, usesRepositoryYml: boolean): FetchResponse {
+export default function useUpdatePipelineConfigCallback(
+  appSlug: string,
+  usesRepositoryYml: boolean,
+  ymlRootPath: string,
+): FetchResponse {
   const {
     statusCode: updatePipelineConfigStatus,
     loading: updatePipelineConfigLoading,
@@ -20,6 +24,7 @@ export default function useUpdatePipelineConfigCallback(appSlug: string, usesRep
     method: 'PUT',
     body: JSON.stringify({
       uses_repository_yml: usesRepositoryYml,
+      yml_root_path: ymlRootPath,
     }),
   });
 

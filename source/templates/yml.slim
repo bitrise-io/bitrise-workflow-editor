@@ -10,7 +10,7 @@
     initial-uses-repository-yml="ymlCtrl.usesRepositoryYml"
     app-slug="ymlCtrl.appSlug"
     app-config="ymlCtrl.appConfigYML"
-    on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved"
+    on-config-source-change-saved="ymlCtrl.onConfigSourceChangeSaved"
     repository-yml-available="ymlCtrl.repositoryYmlAvailable"
     is-website-mode="ymlCtrl.isWebsiteMode"
     default-branch="ymlCtrl.defaultBranch"
@@ -19,6 +19,7 @@
     split="ymlCtrl.split"
     modular-yaml-supported="ymlCtrl.modularYamlSupported"
     last-modified="ymlCtrl.lastModified"
+    initial-yml-root-path="ymlCtrl.ymlRootPath"
   ]
   #editor-container
     r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler" is-loading="ymlCtrl.isEditorLoading"]
