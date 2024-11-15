@@ -27,7 +27,7 @@
     "lint": "eslint source/javascripts --cache",
     "lint:fix": "eslint source/javascripts --cache --quiet --fix",
     "build": "webpack --bail",
-    "build:website": "MODE=WEBSITE ANALYTICS=true HOTJAR=true DATADOG_RUM=true npm run build",
+    "build:website": "MODE=WEBSITE ANALYTICS=true CLARITY=true DATADOG_RUM=true npm run build",
     "build:plugin": "MODE=CLI ANALYTICS=true npm run build && ./_scripts/compile_api.sh",
     "start:dev": "webpack-dev-server",
     "start:base": "concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 4000\"",
