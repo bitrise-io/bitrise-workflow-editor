@@ -25,14 +25,7 @@ import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import transformWorkflowsToNodesAndEdges from './utils/transformWorkflowsToNodesAndEdges';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import PlaceholderNode from './components/WorkflowNode/PlaceholderWorkflowNode';
-import {
-  DEFAULT_GRAPH_EDGE_ZINDEX,
-  GRAPH_EDGE_TYPE,
-  HIGHLIGHTED_GRAPH_EDGE_ZINDEX,
-  PLACEHOLDER_NODE_TYPE,
-  SELECTED_GRAPH_EDGE_ZINDEX,
-  WORKFLOW_NODE_TYPE,
-} from './GraphPipelineCanvas.const';
+import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
 import validateConnection from './utils/validateConnection';
 
 const nodeTypes: NodeTypes = {
@@ -49,7 +42,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const { openDialog } = usePipelinesPageStore();
   const { selectedPipeline } = usePipelineSelector();
   const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
-  const { updateNode, updateEdge } = useReactFlow<Node<WorkflowNodeDataType>>();
+  const { updateNode, updateEdgeData } = useReactFlow<Node<WorkflowNodeDataType>>();
   const initial = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows, isGraphPipelineEnabled);
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
@@ -111,27 +104,16 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   );
 
   const handleEdgeMouseEnter: EdgeMouseHandler = useCallback(
-    (_, { id, selected }) => {
-      const zIndex = selected ? SELECTED_GRAPH_EDGE_ZINDEX : HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
-      updateEdge(id, { zIndex, data: { highlighted: true } });
-    },
-    [updateEdge],
+    (_, { id }) => updateEdgeData(id, { highlighted: true }),
+    [updateEdgeData],
   );
 
   const handleEdgeMouseLeave: EdgeMouseHandler = useCallback(
-    (_, { id, target, selected }) => {
+    (_, { id, target }) => {
       const targetNodeSelected = nodes.some((node) => node.id === target && node.selected);
-
-      let zIndex = DEFAULT_GRAPH_EDGE_ZINDEX;
-      if (selected) {
-        zIndex = SELECTED_GRAPH_EDGE_ZINDEX;
-      } else if (targetNodeSelected) {
-        zIndex = HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
-      }
-
-      updateEdge(id, { zIndex, data: { highlighted: targetNodeSelected } });
+      updateEdgeData(id, { highlighted: targetNodeSelected });
     },
-    [updateEdge, nodes],
+    [updateEdgeData, nodes],
   );
 
   return (

@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect } from 'react';
+import { CSSProperties, useEffect, useMemo } from 'react';
 import {
   BaseEdge,
   ConnectionLineComponentProps,
@@ -17,23 +17,19 @@ const edgeStyle = (style?: CSSProperties) => {
   return { strokeWidth: 2, ...style };
 };
 
-const GraphEdge = ({ id, style, selected, data: { highlighted } = {}, ...props }: EdgeProps) => {
+const GraphEdge = ({ id, style, selected, data, ...props }: EdgeProps) => {
   const { updateEdge } = useReactFlow();
   const [path] = getSmoothStepPath({ ...props, offset: 0, borderRadius: 12 });
 
+  const zIndex = useMemo(() => {
+    if (selected) return SELECTED_GRAPH_EDGE_ZINDEX;
+    if (data?.highlighted) return HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
+    return DEFAULT_GRAPH_EDGE_ZINDEX;
+  }, [data?.highlighted, selected]);
+
   useEffect(() => {
-    updateEdge(id, (edge) => {
-      if (selected) {
-        return { zIndex: SELECTED_GRAPH_EDGE_ZINDEX };
-      }
-
-      if (edge.data?.highlighted) {
-        return { zIndex: HIGHLIGHTED_GRAPH_EDGE_ZINDEX };
-      }
-
-      return { zIndex: DEFAULT_GRAPH_EDGE_ZINDEX };
-    });
-  }, [id, selected, updateEdge]);
+    updateEdge(id, { zIndex });
+  }, [id, zIndex, updateEdge]);
 
   return (
     <BaseEdge
@@ -43,7 +39,7 @@ const GraphEdge = ({ id, style, selected, data: { highlighted } = {}, ...props }
       style={edgeStyle({
         ...style,
         ...{ stroke: 'var(--colors-border-regular)' },
-        ...(highlighted ? { stroke: 'var(--colors-border-hover)' } : {}),
+        ...(data?.highlighted ? { stroke: 'var(--colors-border-hover)' } : {}),
         ...(selected ? { stroke: 'var(--colors-border-selected)' } : {}),
       })}
     />
