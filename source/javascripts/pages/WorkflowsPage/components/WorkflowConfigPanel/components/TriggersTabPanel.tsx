@@ -11,7 +11,7 @@ import {
   Text,
   Toggle,
 } from '@bitrise/bitkit';
-import isEqual from 'lodash/isEqual';
+import { isEqual } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';

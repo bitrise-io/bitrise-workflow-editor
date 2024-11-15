@@ -1,5 +1,5 @@
 import _ from "underscore";
-import isEqual from "lodash/isEqual";
+import {isEqual} from "es-toolkit";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
 import {safeDigest} from "@/services/react-compat";
@@ -573,76 +573,73 @@ import {segmentTrack} from "@/utils/segmentTracking";
           });
         }
 
-        var promise = $q
-          .all([
-            $q(function (resolve, reject) {
-              switch (viewModel.currentMenu.id) {
-                case "workflows":
-                case "pipelines":
-                case "env-vars":
-                case "triggers":
-                case "licenses":
-                  viewModel.dataToSave = appService.appConfig;
-                  return appService
-                    .saveAppConfig(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
-                    .then(function () {
-                      return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                        ? reloadAppConfig()
-                        : $q.when();
-                    })
-                    .then(resolve, reject);
-                case "secrets":
-                  resolve();
-                  break;
-                case "stack":
-                  viewModel.dataToSave = appService.appConfig;
-                  var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
+        var promise = $q.all([
+          $q(function (resolve, reject) {
+            switch (viewModel.currentMenu.id) {
+              case "workflows":
+              case "pipelines":
+              case "env-vars":
+              case "triggers":
+              case "licenses":
+                viewModel.dataToSave = appService.appConfig;
+                return appService
+                  .saveAppConfig(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
+                  .then(function () {
+                    return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                      ? reloadAppConfig()
+                      : $q.when();
+                  })
+                  .then(resolve, reject);
+              case "secrets":
+                resolve();
+                break;
+              case "stack":
+                viewModel.dataToSave = appService.appConfig;
+                var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
 
-                  return appService
-                    .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
-                    .then(function () {
+                return appService
+                  .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
+                  .then(function () {
 
-                      return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                        ? reloadStack()
-                        : $q.when();
-                    })
-                    .then(resolve, reject);
-                case "yml":
-                  viewModel.appConfigYML = appService.appConfigYML;
-                  return appService
-                    .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
-                    .then(function () {
-                      return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                        ? reloadAppConfigYML()
-                        : $q.when();
-                    })
-                    .then(resolve, reject);
-              }
-            }),
-            $timeout(function () {
-            }, dateService.defaultSaveDelayDurationInMilliseconds)
-          ])
-          .then(
-            function () {
-              viewModel.saveProgress.reset();
-              $rootScope.$emit("MainController::savedFinishedWithSuccess");
-              updateLastWorkflowMetadata();
-            },
-            function (error) {
-              viewModel.saveProgress.reset();
-              $rootScope.$emit("MainController::savedFinishedWithError");
-              segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-                tab_name: viewModel.currentMenu.id,
-                source: 'save'
-              });
-              Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
-
-              if (shouldReturnPromise) {
-                return $q.reject(error);
-              }
+                    return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                      ? reloadStack()
+                      : $q.when();
+                  })
+                  .then(resolve, reject);
+              case "yml":
+                viewModel.appConfigYML = appService.appConfigYML;
+                return appService
+                  .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
+                  .then(function () {
+                    return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                      ? reloadAppConfigYML()
+                      : $q.when();
+                  })
+                  .then(resolve, reject);
             }
-          )
-        ;
+          }),
+          $timeout(function () {
+          }, dateService.defaultSaveDelayDurationInMilliseconds)
+        ]).then(
+          function () {
+            viewModel.saveProgress.reset();
+            $rootScope.$emit("MainController::savedFinishedWithSuccess");
+            updateLastWorkflowMetadata();
+          },
+          function (error) {
+            viewModel.saveProgress.reset();
+            $rootScope.$emit("MainController::savedFinishedWithError");
+            segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+              tab_name: viewModel.currentMenu.id,
+              source: 'save'
+            });
+            Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+
+            if (shouldReturnPromise) {
+              return $q.reject(error);
+            }
+          }
+        );
 
         if (shouldReturnPromise) {
           return promise;

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import omit from 'lodash/omit';
+import { omit } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelineYmlObject } from '@/core/models/Pipeline';
 import useSearchParams from '@/hooks/useSearchParams';
@@ -24,7 +24,7 @@ const usePipelineSelector = () => {
       if (key) {
         setSearchParams((prev) => ({ ...prev, pipeline: key }));
       } else {
-        setSearchParams((prev) => omit(prev, 'pipeline'));
+        setSearchParams((prev) => omit(prev, ['pipeline']));
       }
     },
     [setSearchParams],

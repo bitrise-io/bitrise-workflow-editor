@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import omit from 'lodash/omit';
+import { omit } from 'es-toolkit';
 import { Workflow } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import useSearchParams from './useSearchParams';
@@ -34,7 +34,7 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
     (workflowId?: string | null) => {
       setSearchParams((oldSearchParams) => {
         if (!workflowId) {
-          return omit(oldSearchParams, 'workflow_id');
+          return omit(oldSearchParams, ['workflow_id']);
         }
 
         return { ...oldSearchParams, workflow_id: workflowId };

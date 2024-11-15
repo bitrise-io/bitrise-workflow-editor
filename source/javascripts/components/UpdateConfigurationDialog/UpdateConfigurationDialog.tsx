@@ -3,10 +3,10 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useT
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
+import useFormattedYml from '@/hooks/useFormattedYml';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
 import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
 import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
-import { useFormattedYml } from '../common/RepoYmlStorageActions';
 
 type UpdateConfigurationDialogProps = {
   onClose: () => void;

@@ -1,4 +1,4 @@
-import mapValues from 'lodash/mapValues';
+import { mapValues } from 'es-toolkit';
 import { Stack } from '../models/Stack';
 import { MachineType } from '../models/MachineType';
 import Client from './client';
@@ -48,7 +48,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
 
   mapValues(response.available_stacks, ({ title, available_machines = [] }, id) => {
     availableStacks.push({
-      id,
+      id: String(id),
       name: title,
       machineTypes: available_machines,
     });
@@ -59,7 +59,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
 
     mapValues(machine_types, (machine, id) => {
       availableMachineTypes.push({
-        id,
+        id: String(id),
         name: machine.name,
         creditCost: machine.credit_per_min,
         specs: {

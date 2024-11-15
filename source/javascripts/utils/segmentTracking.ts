@@ -1,4 +1,4 @@
-import merge from 'lodash/merge';
+import { toMerged } from 'es-toolkit';
 import { AnalyticsBrowser } from '@segment/analytics-next';
 import WindowUtils from '@/core/utils/WindowUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -76,8 +76,8 @@ export const segmentTrack = (
   eventProps?: Partial<SegmentEventProperties>,
   eventContext?: Partial<SegmentEventContext>,
 ) => {
-  const mergedProps = merge({}, baseProperties, eventProps || {});
-  const mergedContext = merge({}, baseContext, eventContext || {});
+  const mergedProps = toMerged(baseProperties, eventProps || {});
+  const mergedContext = toMerged(baseContext, eventContext || {});
   console.debug('Tracking event:', eventName, mergedProps, mergedContext);
 
   if (RuntimeUtils.isWebsiteMode() && segmentAnalytics) {

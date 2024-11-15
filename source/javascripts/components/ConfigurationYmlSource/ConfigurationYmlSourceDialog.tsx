@@ -26,7 +26,7 @@ import { AppConfig } from '@/models/AppConfig';
 import DateFormatter from '@/utils/dateFormatter';
 import { segmentTrack } from '@/utils/segmentTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { useFormattedYml } from '../common/RepoYmlStorageActions';
+import useFormattedYml from '@/hooks/useFormattedYml';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
   let action: NotificationProps['action'];
