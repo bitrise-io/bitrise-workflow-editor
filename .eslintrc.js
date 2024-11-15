@@ -18,7 +18,7 @@ module.exports = {
     Promise: false,
   },
   extends: ['plugin:@bitrise/config'],
-  plugins: ['jasmine', 'lodash'],
+  plugins: ['jasmine'],
   rules: {
     /** * Import related rules ** */
     'import/no-extraneous-dependencies': [

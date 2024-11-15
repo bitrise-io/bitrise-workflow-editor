@@ -1,5 +1,5 @@
 import { PartialDeep } from 'type-fest';
-import merge from 'lodash/merge';
+import { toMerged } from 'es-toolkit';
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { MachineType, MachineTypeOption } from './MachineType';
 import { Stack, StackOption } from './Stack';
@@ -30,7 +30,7 @@ function createStack(override?: PartialDeep<Stack>): Stack {
     machineTypes: [],
   };
 
-  return merge({}, base, override);
+  return toMerged(base, override || {});
 }
 
 function createMachineType(override?: PartialDeep<MachineType>): MachineType {
@@ -41,7 +41,7 @@ function createMachineType(override?: PartialDeep<MachineType>): MachineType {
     specs: { cpu: { chip: '', cpuCount: '', cpuDescription: '' }, ram: '' },
   };
 
-  return merge({}, base, override);
+  return toMerged(base, override || {}) as MachineType;
 }
 
 function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
@@ -76,9 +76,15 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
   const isInvalidInitialStack = !!initialStackId && !initialStack && !isAnotherStackSelected;
 
   if (isInvalidInitialStack) {
-    result.selectedStack = createStack({ id: initialStackId, name: initialStackId });
+    result.selectedStack = createStack({
+      id: initialStackId,
+      name: initialStackId,
+    });
     result.isInvalidInitialStack = isInvalidInitialStack;
-    result.availableStackOptions.push({ label: initialStackId, value: initialStackId });
+    result.availableStackOptions.push({
+      label: initialStackId,
+      value: initialStackId,
+    });
   } else if (selectedStack) {
     result.selectedStack = selectedStack;
   } else if (defaultStack) {
@@ -86,7 +92,10 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
   }
 
   if (defaultStack) {
-    const defaultStackOption = { label: `Default (${defaultStack.name})`, value: '' };
+    const defaultStackOption = {
+      label: `Default (${defaultStack.name})`,
+      value: '',
+    };
     result.availableStackOptions = [defaultStackOption, ...result.availableStackOptions];
   }
 
@@ -116,9 +125,15 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
       : selectableMachines.map(MachineTypeService.toMachineOption);
 
     if (isInvalidInitialMachineType) {
-      result.selectedMachineType = createMachineType({ id: initialMachineTypeId, name: initialMachineTypeId });
+      result.selectedMachineType = createMachineType({
+        id: initialMachineTypeId,
+        name: initialMachineTypeId,
+      });
       result.isInvalidInitialMachineType = isInvalidInitialMachineType;
-      result.availableMachineTypeOptions.push({ label: initialMachineTypeId, value: initialMachineTypeId });
+      result.availableMachineTypeOptions.push({
+        label: initialMachineTypeId,
+        value: initialMachineTypeId,
+      });
     } else if (selectedMachineType) {
       result.selectedMachineType = selectedMachineType;
     } else if (defaultMachineType) {
@@ -128,10 +143,16 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     }
 
     if (defaultMachineType) {
-      const defaultMachineTypeOption = { label: `Default (${defaultMachineType.name})`, value: '' };
+      const defaultMachineTypeOption = {
+        label: `Default (${defaultMachineType.name})`,
+        value: '',
+      };
       result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
     } else if (defaultMachineTypeOfOS) {
-      const defaultMachineTypeOption = { label: `Default (${defaultMachineTypeOfOS.name})`, value: '' };
+      const defaultMachineTypeOption = {
+        label: `Default (${defaultMachineTypeOfOS.name})`,
+        value: '',
+      };
       result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
     }
   }

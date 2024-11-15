@@ -1,7 +1,7 @@
-import isEqual from 'lodash/isEqual';
-import isObject from 'lodash/isObject';
+import { isEqual } from 'es-toolkit';
+import { isObject } from 'es-toolkit/compat';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import { TriggerItem, Condition, ConditionType, TriggerType } from './TriggersPage.types';
+import { Condition, ConditionType, TriggerItem, TriggerType } from './TriggersPage.types';
 
 export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
   let isUsed = false;
@@ -46,6 +46,7 @@ export type TargetBasedTriggerItem = {
 };
 
 export type TargetBasedTriggers = Record<TriggerType, TargetBasedTriggerItem[]> & { enabled?: boolean };
+
 export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
   pipelineableId: string;
   pipelineableType: 'pipeline' | 'workflow';

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import merge from 'lodash/merge';
+import { toMerged } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { Step, StepBundle, StepLike, WithGroup } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
@@ -153,7 +153,7 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
         icon: icon || defaultIcon || '',
         defaultValues,
         userValues,
-        mergedValues: merge({}, defaultValues, userValues, { inputs }),
+        mergedValues: toMerged(defaultValues || {}, toMerged(userValues || {}, { inputs })),
         resolvedInfo,
       } as Step,
       error,

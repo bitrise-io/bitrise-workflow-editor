@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import uniq from 'lodash/uniq';
+import { uniq } from 'es-toolkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';

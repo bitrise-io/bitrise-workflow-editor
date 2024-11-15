@@ -1,12 +1,5 @@
-import omit from 'lodash/omit';
-import omitBy from 'lodash/omitBy';
-import isNull from 'lodash/isNull';
-import mapKeys from 'lodash/mapKeys';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNumber from 'lodash/isNumber';
-import isBoolean from 'lodash/isBoolean';
-import mapValues from 'lodash/mapValues';
+import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy } from 'es-toolkit';
+import { isEmpty, isNumber } from 'es-toolkit/compat';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import { TargetBasedTriggers } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
@@ -99,12 +92,9 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
     return copy;
   }
 
-  copy.workflows[workflowId].steps[stepIndex] = mapKeys(
-    copy.workflows[workflowId].steps[stepIndex],
-    (_, cvs: string) => {
-      return StepService.updateVersion(cvs, defaultStepLibrary, version);
-    },
-  );
+  copy.workflows[workflowId].steps[stepIndex] = mapKeys(copy.workflows[workflowId].steps[stepIndex], (_, cvs) => {
+    return StepService.updateVersion(String(cvs), defaultStepLibrary, version);
+  });
 
   return copy;
 }
@@ -133,7 +123,7 @@ function updateStepInputs(
       stepYmlObject.inputs = [];
     }
 
-    const [key, defaultValue] = Object.entries(omit(input, 'opts'))[0];
+    const [key, defaultValue] = Object.entries(omit(input, ['opts']))[0];
     const newValue = newInputs.find((i) => Object.keys(i).includes(key))?.[key];
     const inputIndexInYml = stepYmlObject.inputs.findIndex((i) => Object.keys(i).includes(key));
     const isInputExistsInTheYml = inputIndexInYml > -1;
@@ -736,21 +726,21 @@ function getUniqueStepIds(yml: BitriseYml) {
   const ids = new Set<string>();
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
-  mapValues(yml.workflows, (workflow) => {
+  mapValues(yml.workflows || {}, (workflow) => {
     workflow.steps?.forEach((stepLikeObject) => {
       mapValues(stepLikeObject, (stepLike, cvsLike) => {
-        if (StepService.isStep(cvsLike, defaultStepLibrary, stepLike)) {
-          const { id } = StepService.parseStepCVS(cvsLike, defaultStepLibrary);
+        if (StepService.isStep(String(cvsLike), defaultStepLibrary, stepLike)) {
+          const { id } = StepService.parseStepCVS(String(cvsLike), defaultStepLibrary);
           ids.add(id);
         }
 
         if (
-          StepService.isStepBundle(cvsLike, defaultStepLibrary, stepLike) ||
-          StepService.isWithGroup(cvsLike, defaultStepLibrary, stepLike)
+          StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
+          StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
         ) {
           stepLike.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
-              const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
+              const { id } = StepService.parseStepCVS(String(cvs), defaultStepLibrary);
               ids.add(id);
             });
           });
@@ -806,11 +796,11 @@ function isNotEmpty<T>(v: T) {
 }
 
 function omitEmpty<T>(o: Record<string, T>) {
-  return omitBy(o, isEmpty);
+  return omitBy(o, isEmpty) as Record<string, T>;
 }
 
 function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
-  return omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k));
+  return omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k)) as Record<string, T>;
 }
 
 function shouldRemoveField<T>(modified: T, original: T) {
@@ -916,7 +906,7 @@ function deleteWorkflowFromStages(workflowId: string, stages: StagesYml = {}): S
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
 
-    stageCopy.workflows = stageCopy.workflows?.map((workflowsObj) => omit(workflowsObj, workflowId));
+    stageCopy.workflows = stageCopy.workflows?.map((workflowsObj) => omit(workflowsObj, [workflowId]));
     stageCopy.workflows = stageCopy.workflows?.filter(isNotEmpty);
 
     if (shouldRemoveField(stageCopy.workflows, stage.workflows)) {
