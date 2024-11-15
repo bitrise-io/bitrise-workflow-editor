@@ -68,7 +68,7 @@ def analytics?
     ENV['ANALYTICS'] == 'true'
 end
 
-def clarity
+def clarity?
     ENV['CLARITY'] == 'true'
 end
 
