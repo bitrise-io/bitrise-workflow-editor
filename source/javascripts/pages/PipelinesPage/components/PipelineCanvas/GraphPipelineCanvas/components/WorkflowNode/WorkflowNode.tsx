@@ -5,12 +5,7 @@ import { Node, NodeProps, useReactFlow } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import { WorkflowCard } from '@/components/unified-editor';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import {
-  DEFAULT_GRAPH_EDGE_ZINDEX,
-  HIGHLIGHTED_GRAPH_EDGE_ZINDEX,
-  SELECTED_GRAPH_EDGE_ZINDEX,
-  WORKFLOW_NODE_WIDTH,
-} from '../../GraphPipelineCanvas.const';
+import { WORKFLOW_NODE_WIDTH } from '../../GraphPipelineCanvas.const';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
@@ -74,15 +69,7 @@ const WorkflowNode = ({ data: { pipelineId }, id, zIndex, selected }: Props) => 
     setEdges((edges) => {
       return edges.map((edge) => {
         if (edge.target === id) {
-          const newEdge = { ...edge, zIndex: DEFAULT_GRAPH_EDGE_ZINDEX, data: { ...edge.data, highlighted } };
-
-          if (edge.selected) {
-            newEdge.zIndex = SELECTED_GRAPH_EDGE_ZINDEX;
-          } else if (highlighted) {
-            newEdge.zIndex = HIGHLIGHTED_GRAPH_EDGE_ZINDEX;
-          }
-
-          return newEdge;
+          return { ...edge, data: { ...edge.data, highlighted } };
         }
 
         return edge;
