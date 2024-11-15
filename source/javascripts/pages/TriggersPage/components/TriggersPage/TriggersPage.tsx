@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, Notification, Text } from '@bitrise/bitkit';
-import { useUserMetaData } from '@/hooks/useUserMetaData';
 import WindowUtils from '@/core/utils/WindowUtils';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useUserMetaData from '@/hooks/useUserMetaData';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import LegacyTriggers from '../LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from '../TargetBasedTriggers/TargetBasedTriggers';
 
@@ -19,16 +19,17 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
   const { yml } = props;
 
   const appSlug = WindowUtils.appSlug() ?? '';
-  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 
-  const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useUserMetaData({
-    key: TRIGGERS_CONFIGURED_METADATA_KEY,
-    enabled: isWebsiteMode,
-  });
-
   const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
+
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+
+  const { value: metaDataValue, update: updateMetaData } = useUserMetaData(
+    TRIGGERS_CONFIGURED_METADATA_KEY,
+    isWebsiteMode,
+  );
 
   return (
     <>
@@ -45,10 +46,10 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
           Learn more
         </Link>
       </Text>
-      {isWebhookNotificationOpen && (
+      {metaDataValue === null && (
         <Notification
           status="info"
-          onClose={closeWebhookNotification}
+          onClose={() => updateMetaData('true')}
           action={{ href: integrationsUrl, label: 'Set up webhooks' }}
           marginY="32"
         >
