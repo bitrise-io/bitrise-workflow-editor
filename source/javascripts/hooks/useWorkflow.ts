@@ -1,4 +1,4 @@
-import merge from 'lodash/merge';
+import { toMerged } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { Workflow } from '@/core/models/Workflow';
 
@@ -11,7 +11,7 @@ const useWorkflow = (id: string): Workflow | undefined => {
     }
 
     if (defaultMeta || workflow.meta) {
-      workflow.meta = merge({}, defaultMeta, workflow.meta);
+      workflow.meta = toMerged(defaultMeta || {}, workflow.meta || {});
     }
 
     return { id, userValues: workflow };

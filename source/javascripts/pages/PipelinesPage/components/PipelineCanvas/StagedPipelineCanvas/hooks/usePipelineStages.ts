@@ -1,4 +1,4 @@
-import merge from 'lodash/merge';
+import { toMerged } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelinesStages, Stage } from '@/core/models/Stage';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
@@ -17,7 +17,7 @@ const usePipelineStages = (): Stage[] => {
 
       return {
         id: stageId,
-        userValues: merge({}, yml.stages?.[stageId], {
+        userValues: toMerged(yml.stages?.[stageId] || {}, {
           abort_on_fail,
           should_always_run,
         }),

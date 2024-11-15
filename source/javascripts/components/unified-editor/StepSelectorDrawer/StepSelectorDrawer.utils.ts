@@ -1,4 +1,4 @@
-import capitalize from 'lodash/capitalize';
+import { capitalize } from 'es-toolkit';
 import { Step } from '@/core/models/Step';
 import { StepApiResult } from '@/core/api/StepApi';
 import { CategoryRowItem, StepsRowItem, VirtualizedListItem } from './StepSelectorDrawer.types';
