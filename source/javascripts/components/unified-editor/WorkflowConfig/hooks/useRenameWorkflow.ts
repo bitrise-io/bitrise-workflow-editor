@@ -3,8 +3,9 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
-  const [isRenaming, setIsRenaming] = useState(false);
   const { id: currentWorkflowId } = useWorkflowConfigContext() ?? { id: '' };
+
+  const [isRenaming, setIsRenaming] = useState(false);
   const [previousWorkflowId, setPreviousWorkflowId] = useState(currentWorkflowId);
 
   const { createWorkflow, renameWorkflow, deleteWorkflow } = useBitriseYmlStore((s) => ({
