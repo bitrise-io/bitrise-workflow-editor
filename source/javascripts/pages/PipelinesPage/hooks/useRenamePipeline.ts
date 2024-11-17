@@ -1,60 +1,39 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { uniq } from 'es-toolkit';
+import { useCallback, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from './usePipelineSelector';
 
 const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
-  const { selectedPipeline } = usePipelineSelector();
-  const oldPipelineIdRef = useRef(selectedPipeline);
-  const newPipelineIdRef = useRef(selectedPipeline);
-  const removablePipelineIdsRef = useRef<string[]>([]);
+  const { selectedPipeline: currentPipelineId } = usePipelineSelector();
 
-  const { pipelines, createPipeline, renamePipeline, deletePipelines } = useBitriseYmlStore((s) => ({
-    pipelines: s.yml.pipelines ?? {},
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [previousPipelineId, setPreviousPipelineId] = useState(currentPipelineId);
+
+  const { createPipeline, renamePipeline, deletePipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
     renamePipeline: s.renamePipeline,
-    deletePipelines: s.deletePipelines,
+    deletePipeline: s.deletePipeline,
   }));
-
-  useEffect(() => {
-    newPipelineIdRef.current = selectedPipeline;
-  }, [selectedPipeline]);
-
-  useEffect(() => {
-    const isChanged = oldPipelineIdRef.current !== newPipelineIdRef.current;
-    const isNewPipelineExists = Object.keys(pipelines).includes(newPipelineIdRef.current);
-    const isNewPipelineSelected = selectedPipeline === newPipelineIdRef.current;
-
-    if (!isChanged || !isNewPipelineExists) {
-      return;
-    }
-
-    if (!isNewPipelineSelected) {
-      onChange?.(newPipelineIdRef.current);
-    }
-
-    if (isNewPipelineSelected) {
-      oldPipelineIdRef.current = newPipelineIdRef.current;
-      deletePipelines(removablePipelineIdsRef.current);
-      removablePipelineIdsRef.current = [];
-    }
-  }, [selectedPipeline, pipelines, deletePipelines, onChange]);
 
   const renameCallback = useCallback(
     (newPipelineId: string) => {
-      removablePipelineIdsRef.current =
-        newPipelineIdRef.current === newPipelineId
-          ? removablePipelineIdsRef.current
-          : uniq([...removablePipelineIdsRef.current, newPipelineIdRef.current]);
+      setIsRenaming(true);
+      renamePipeline(currentPipelineId, newPipelineId);
+      createPipeline(currentPipelineId, newPipelineId);
+      setPreviousPipelineId(currentPipelineId);
 
-      renamePipeline(newPipelineIdRef.current, newPipelineId);
-      createPipeline(newPipelineIdRef.current, newPipelineId);
-
-      newPipelineIdRef.current = newPipelineId;
+      onChange?.(newPipelineId);
     },
-    [createPipeline, renamePipeline],
+    [onChange, createPipeline, renamePipeline, currentPipelineId],
   );
+
+  useEffect(() => {
+    if (isRenaming && previousPipelineId && currentPipelineId && previousPipelineId !== currentPipelineId) {
+      setIsRenaming(false);
+      deletePipeline(previousPipelineId);
+      setPreviousPipelineId(currentPipelineId);
+    }
+  }, [isRenaming, currentPipelineId, previousPipelineId, deletePipeline]);
 
   return useDebounceCallback(renameCallback, 250);
 };
