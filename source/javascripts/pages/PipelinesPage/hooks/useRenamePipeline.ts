@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from './usePipelineSelector';
 
@@ -35,7 +34,7 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
     }
   }, [isRenaming, currentPipelineId, previousPipelineId, deletePipeline]);
 
-  return useDebounceCallback(renameCallback, 250);
+  return renameCallback;
 };
 
 export default useRenamePipeline;
