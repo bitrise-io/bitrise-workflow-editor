@@ -4,6 +4,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
 import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
 import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
@@ -46,7 +47,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     }
   };
 
-  const yml = useFormattedYml(appConfig);
+  const ymlString = useFormattedYml(appConfig as BitriseYml).data || '';
 
   const toast = useToast();
 
@@ -87,7 +88,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
         <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
           <Button
             as="a"
-            href={`data:attachment/text,${encodeURIComponent(yml)}`}
+            href={`data:attachment/text,${encodeURIComponent(ymlString)}`}
             target="_blank"
             download="bitrise.yml"
             variant="tertiary"
@@ -98,7 +99,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           >
             Download changed version
           </Button>
-          <CopyToClipboard text={yml} onCopy={onCopyClick}>
+          <CopyToClipboard text={ymlString} onCopy={onCopyClick}>
             <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Duplicate">
               Copy changed configuration
             </Button>
