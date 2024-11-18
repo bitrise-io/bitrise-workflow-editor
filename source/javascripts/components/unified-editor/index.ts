@@ -1,6 +1,6 @@
 import WorkflowEmptyState from './WorkflowEmptyState';
 import CreateWorkflowDialog from './CreateWorkflowDialog/CreateWorkflowDialog';
-import RunWorkflowDialog from './RunWorkflowDialog/RunWorkflowDialog';
+import StartBuildDialog from './StartBuildDialog/StartBuildDialog';
 import StepConfigDrawer from './StepConfigDrawer/StepConfigDrawer';
 import StepSelectorDrawer from './StepSelectorDrawer/StepSelectorDrawer';
 import WorkflowCard from './WorkflowCard/WorkflowCard';
@@ -14,7 +14,7 @@ import StepBundleDrawer from './StepBundle/StepBundleDrawer';
 
 export {
   CreateWorkflowDialog,
-  RunWorkflowDialog,
+  StartBuildDialog,
   StepConfigDrawer,
   StepSelectorDrawer,
   WorkflowCard,

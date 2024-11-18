@@ -25,6 +25,7 @@ const PipelineCanvas = () => {
         onWorkflowsClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
         onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
         onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)}
+        onRunClick={openDialog(PipelineConfigDialogType.START_BUILD, selectedPipeline)}
       />
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
         <Controls showInteractive={false} />

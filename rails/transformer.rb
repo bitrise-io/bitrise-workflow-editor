@@ -68,8 +68,8 @@ def analytics?
     ENV['ANALYTICS'] == 'true'
 end
 
-def hotjar?
-    ENV['HOTJAR'] == 'true'
+def clarity?
+    ENV['CLARITY'] == 'true'
 end
 
 def freshpaint?

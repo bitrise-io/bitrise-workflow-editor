@@ -6,6 +6,7 @@ export enum PipelineConfigDialogType {
   CREATE_PIPELINE,
   WORKFLOW_SELECTOR,
   WORKFLOW_CONFIG,
+  START_BUILD,
 }
 
 type State = {
