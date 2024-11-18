@@ -9,6 +9,7 @@ const DEFAULT_HEADERS = {
 
 type ExtraOpts = {
   excludeCSRF?: boolean;
+  textResponse?: boolean;
   timeout?: number;
 };
 type ClientOpts = RequestInit & ExtraOpts;
@@ -85,6 +86,10 @@ async function post<T>(url: string, options?: ClientOpts) {
 
   if (response.status === 204 || response.headers.get('Content-Length') === '0') {
     return undefined;
+  }
+
+  if (options?.textResponse) {
+    return (await response.text()) as T;
   }
 
   return (await response.json()) as T;

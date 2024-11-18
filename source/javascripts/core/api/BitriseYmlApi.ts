@@ -76,13 +76,15 @@ function updateBitriseYml({
   });
 }
 
-async function formatYml(model: unknown): Promise<string> {
+async function formatYml({ model, signal }: { model: BitriseYml; signal?: AbortSignal }): Promise<string> {
   if (RuntimeUtils.isWebsiteMode()) {
     const response = await Client.post<string>(FORMAT_YML_PATH, {
+      signal,
       body: toJSON(model),
       headers: {
         Accept: 'application/x-yaml, application/json',
       },
+      textResponse: true,
     });
 
     return response || '';

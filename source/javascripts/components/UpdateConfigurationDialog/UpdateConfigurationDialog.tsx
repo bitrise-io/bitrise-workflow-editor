@@ -46,7 +46,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     }
   };
 
-  const yml = useFormattedYml(appConfig);
+  const ymlString = useFormattedYml(appConfig as any).data || '';
 
   const toast = useToast();
 
@@ -87,7 +87,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
         <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
           <Button
             as="a"
-            href={`data:attachment/text,${encodeURIComponent(yml)}`}
+            href={`data:attachment/text,${encodeURIComponent(ymlString)}`}
             target="_blank"
             download="bitrise.yml"
             variant="tertiary"
@@ -98,7 +98,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           >
             Download changed version
           </Button>
-          <CopyToClipboard text={yml} onCopy={onCopyClick}>
+          <CopyToClipboard text={ymlString} onCopy={onCopyClick}>
             <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Duplicate">
               Copy changed configuration
             </Button>
