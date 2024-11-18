@@ -3,10 +3,12 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from './usePipelineSelector';
 
 const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
-  const { selectedPipeline: currentPipelineId } = usePipelineSelector();
+  const selectedPipelineId = usePipelineSelector().selectedPipeline;
+  const pipelineIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.pipelines ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);
-  const [previousPipelineId, setPreviousPipelineId] = useState(currentPipelineId);
+  const [nextPipelineId, setNextPipelineId] = useState(selectedPipelineId);
+  const [prevPipelineId, setPrevPipelineId] = useState(selectedPipelineId);
 
   const { createPipeline, renamePipeline, deletePipeline } = useBitriseYmlStore((s) => ({
     createPipeline: s.createPipeline,
@@ -14,27 +16,39 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
     deletePipeline: s.deletePipeline,
   }));
 
-  const renameCallback = useCallback(
-    (newPipelineId: string) => {
-      setIsRenaming(true);
-      renamePipeline(currentPipelineId, newPipelineId);
-      createPipeline(currentPipelineId, newPipelineId);
-      setPreviousPipelineId(currentPipelineId);
+  const isNewPipelinePersisted = pipelineIdsInTheStore.includes(nextPipelineId);
+  const isNewPipelineSelected = prevPipelineId !== nextPipelineId && nextPipelineId === selectedPipelineId;
 
-      onChange?.(newPipelineId);
-    },
-    [onChange, createPipeline, renamePipeline, currentPipelineId],
-  );
+  const shouldRunOnChange = isRenaming && isNewPipelinePersisted && !isNewPipelineSelected;
+  const shouldFinishRenaming = isRenaming && isNewPipelinePersisted && isNewPipelineSelected;
 
   useEffect(() => {
-    if (isRenaming && previousPipelineId && currentPipelineId && previousPipelineId !== currentPipelineId) {
-      setIsRenaming(false);
-      deletePipeline(previousPipelineId);
-      setPreviousPipelineId(currentPipelineId);
+    if (shouldRunOnChange) {
+      onChange?.(nextPipelineId);
     }
-  }, [isRenaming, currentPipelineId, previousPipelineId, deletePipeline]);
+  }, [onChange, shouldRunOnChange, nextPipelineId]);
 
-  return renameCallback;
+  useEffect(() => {
+    if (shouldFinishRenaming) {
+      setIsRenaming(false);
+      deletePipeline(prevPipelineId);
+    }
+  }, [deletePipeline, shouldFinishRenaming, prevPipelineId]);
+
+  return useCallback(
+    (newPipelineId: string) => {
+      if (selectedPipelineId) {
+        setIsRenaming(true);
+
+        renamePipeline(selectedPipelineId, newPipelineId);
+        createPipeline(selectedPipelineId, newPipelineId);
+
+        setNextPipelineId(newPipelineId);
+        setPrevPipelineId(selectedPipelineId);
+      }
+    },
+    [createPipeline, renamePipeline, selectedPipelineId],
+  );
 };
 
 export default useRenamePipeline;
