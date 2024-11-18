@@ -9,7 +9,6 @@ const DEFAULT_HEADERS = {
 
 type ExtraOpts = {
   excludeCSRF?: boolean;
-  textResponse?: boolean;
   timeout?: number;
 };
 type ClientOpts = RequestInit & ExtraOpts;
@@ -88,10 +87,6 @@ async function post<T>(url: string, options?: ClientOpts) {
     return undefined;
   }
 
-  if (options?.textResponse) {
-    return (await response.text()) as T;
-  }
-
   return (await response.json()) as T;
 }
 
@@ -127,8 +122,8 @@ async function del<T>(url: string, options?: ClientOpts) {
 
 async function text(url: string, options?: ClientOpts) {
   const response = await client(url, {
-    ...options,
     method: 'GET',
+    ...options,
   });
   return response.text();
 }
