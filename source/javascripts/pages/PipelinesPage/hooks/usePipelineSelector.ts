@@ -1,23 +1,23 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { omit } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { PipelineYmlObject } from '@/core/models/Pipeline';
 import useSearchParams from '@/hooks/useSearchParams';
 
 const usePipelineSelector = () => {
-  const options = useBitriseYmlStore(({ yml }) => {
-    return Object.fromEntries(
-      Object.entries<PipelineYmlObject>(yml.pipelines ?? {}).map(([pipelineKey, pipeline]) => {
-        return [pipelineKey, pipeline.title || pipelineKey];
-      }),
-    );
+  const { options, keys } = useBitriseYmlStore(({ yml }) => {
+    const entries = Object.entries(yml.pipelines ?? {});
+
+    return {
+      keys: entries.map(([id]) => id),
+      options: Object.fromEntries(entries.map(([id, pipeline]) => [id, pipeline.title || id])),
+    };
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const keys = Object.keys(options);
   const searchedPipeline = searchParams.pipeline || keys[0];
-  const selectedPipeline = keys.includes(searchedPipeline) ? searchedPipeline : keys[0];
+  const searchedPipelineIsInOptions = keys.includes(searchedPipeline);
+  const selectedPipeline = searchedPipelineIsInOptions ? searchedPipeline : keys[0];
 
   const onSelectPipeline = useCallback(
     (key: string) => {
@@ -30,12 +30,21 @@ const usePipelineSelector = () => {
     [setSearchParams],
   );
 
-  return {
-    keys,
-    options,
-    selectedPipeline,
-    onSelectPipeline,
-  };
+  useEffect(() => {
+    if (!searchedPipelineIsInOptions) {
+      onSelectPipeline(selectedPipeline);
+    }
+  }, [onSelectPipeline, searchedPipelineIsInOptions, selectedPipeline]);
+
+  return useMemo(
+    () => ({
+      keys,
+      options,
+      selectedPipeline,
+      onSelectPipeline,
+    }),
+    [keys, options, selectedPipeline, onSelectPipeline],
+  );
 };
 
 export default usePipelineSelector;
