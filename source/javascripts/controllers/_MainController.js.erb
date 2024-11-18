@@ -1,11 +1,11 @@
 import _ from "underscore";
-import {isEqual} from "es-toolkit";
+import { isEqual } from "es-toolkit";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
-import {safeDigest} from "@/services/react-compat";
+import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
+import { safeDigest } from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
-import {segmentTrack} from "@/utils/segmentTracking";
+import { segmentTrack } from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -51,7 +51,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           id: "workflows",
           title: "<%= data[:strings][:main][:menus][:workflows] %>",
           path: "<%= data[:routes][:endpoints][:workflows] %>",
-          possibleURLParameterKeys: ["workflow_id", "tab"],
+          possibleURLParameterKeys: ["pipeline", "workflow_id", "tab"],
           cssClass: "workflows"
         },
         {
@@ -65,21 +65,21 @@ import {segmentTrack} from "@/utils/segmentTracking";
           id: "secrets",
           title: "<%= data[:strings][:main][:menus][:secrets] %>",
           path: "<%= data[:routes][:endpoints][:secrets] %>",
-          possibleURLParameterKeys: ["workflow_id"],
+          possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "secrets"
         },
         {
           id: "env-vars",
           title: "<%= data[:strings][:main][:menus][:env_vars] %>",
           path: "<%= data[:routes][:endpoints][:env_vars] %>",
-          possibleURLParameterKeys: ["workflow_id"],
+          possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "env-vars"
         },
         {
           id: "triggers",
           title: "<%= data[:strings][:main][:menus][:triggers] %>",
           path: "<%= data[:routes][:endpoints][:triggers] %>",
-          possibleURLParameterKeys: ["trigger_type", "workflow_id"],
+          possibleURLParameterKeys: ["trigger_type", "pipeline", "workflow_id"],
           cssClass: "triggers"
         },
         requestService.mode == "website"
@@ -87,7 +87,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
             id: "stack",
             title: "<%= data[:strings][:main][:menus][:stack] %>",
             path: "<%= data[:routes][:endpoints][:stack] %>",
-            possibleURLParameterKeys: ["workflow_id"],
+            possibleURLParameterKeys: ["pipeline", "workflow_id"],
             cssClass: "stack"
           }
           : null,
@@ -96,7 +96,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
             id: "licenses",
             title: "<%= data[:strings][:main][:menus][:licenses] %>",
             path: "<%= data[:routes][:endpoints][:licenses] %>",
-            possibleURLParameterKeys: ["workflow_id"],
+            possibleURLParameterKeys: ["pipeline", "workflow_id"],
             cssClass: "hidden"
           }
           : null,
@@ -104,7 +104,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           id: "yml",
           title: "<%= data[:strings][:main][:menus][:yml] %>",
           path: "<%= data[:routes][:endpoints][:yml] %>",
-          possibleURLParameterKeys: ["workflow_id"],
+          possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "yml",
           divided: true
         }
@@ -371,7 +371,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
+              viewModel.save({ shouldReturnPromise: true, source: "unsaved_changes_save_button" }).then(
                 function () {
                   resolve();
                 },
@@ -386,7 +386,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           );
         }).then(
           function () {
-            logger.setTags({menuID: menu.id});
+            logger.setTags({ menuID: menu.id });
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -553,7 +553,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
+      viewModel.save = function ({ shouldReturnPromise, source = 'save_changes_button' }) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
@@ -680,7 +680,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
+            viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
           }
 
           return false;
