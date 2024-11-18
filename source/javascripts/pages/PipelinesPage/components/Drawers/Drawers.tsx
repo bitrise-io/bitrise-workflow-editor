@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { WorkflowConfigDrawer } from '@/components/unified-editor';
+import { StartBuildDialog, WorkflowConfigDrawer } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
@@ -92,6 +92,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
           workflowId={workflowId}
           onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(PipelineConfigDialogType.START_BUILD) && (
+        <StartBuildDialog
+          pipelineId={pipelineId}
+          isOpen={isDialogOpen(PipelineConfigDialogType.START_BUILD)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />

@@ -8,7 +8,8 @@ type StartBuildRequestBody = {
       build_trigger_token: string;
     };
     build_params: {
-      workflow_id: string;
+      workflow_id?: string;
+      pipeline_id?: string;
       branch: string;
     };
     triggered_by: string;
@@ -22,10 +23,12 @@ type StartBuildResponse = {
 };
 
 function createStartBuildRequestBody({
+  pipelineId,
   workflowId,
   branch,
 }: {
-  workflowId: string;
+  pipelineId?: string;
+  workflowId?: string;
   branch: string;
 }): StartBuildRequestBody {
   const username = WindowUtils.globalProps()?.user?.username;
@@ -37,6 +40,7 @@ function createStartBuildRequestBody({
         build_trigger_token: WindowUtils.pageProps()?.project?.buildTriggerToken || '',
       },
       build_params: {
+        pipeline_id: pipelineId,
         workflow_id: workflowId,
         branch,
       },
@@ -53,17 +57,19 @@ function getStartBuildPath(appSlug: string) {
 
 function startBuild({
   appSlug,
-  workflowId,
   branch,
+  pipelineId,
+  workflowId,
   signal,
 }: {
   appSlug: string;
-  workflowId: string;
   branch: string;
+  pipelineId?: string;
+  workflowId?: string;
   signal?: AbortSignal;
 }) {
   return Client.post<StartBuildResponse>(getStartBuildPath(appSlug), {
-    body: JSON.stringify(createStartBuildRequestBody({ workflowId, branch })),
+    body: JSON.stringify(createStartBuildRequestBody({ pipelineId, workflowId, branch })),
     signal,
   });
 }

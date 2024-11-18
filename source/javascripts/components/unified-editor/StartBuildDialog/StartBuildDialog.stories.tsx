@@ -1,21 +1,32 @@
 import { Meta } from '@storybook/react';
 import BuildApiMocks from '@/core/api/BuildApi.mswMocks';
-import RunWorkflowDialog from './RunWorkflowDialog';
+import StartBuildDialog from './StartBuildDialog';
 
 export default {
-  component: RunWorkflowDialog,
+  component: StartBuildDialog,
   args: {
     isOpen: true,
     workflowId: 'primary-workflow',
   },
   argTypes: {
+    pipelineId: { type: 'string' },
     workflowId: { type: 'string' },
     isOpen: { type: 'boolean', control: { type: 'boolean' } },
     onClose: { type: 'function' },
   },
-} as Meta<typeof RunWorkflowDialog>;
+} as Meta<typeof StartBuildDialog>;
 
-export const Default = {
+export const Pipeline = {
+  args: {
+    pipelineId: 'pipeline-1',
+    workflowId: undefined,
+  },
+  parameters: {
+    msw: [BuildApiMocks.startBuild('success')],
+  },
+};
+
+export const Workflow = {
   parameters: {
     msw: [BuildApiMocks.startBuild('success')],
   },
