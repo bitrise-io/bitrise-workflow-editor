@@ -161,7 +161,8 @@ import {segmentTrack} from "@/utils/segmentTracking";
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
         $timeout(function () {
           viewModel.changeMenuProgress.success();
-          if (window !== window.parent && window.parent && next !== current) {
+          // TODO: This should be removed when the new workflows page is enabled by default
+          if (!viewModel.enableNewWorkflowsPage && window !== window.parent && window.parent && next !== current) {
             window.parent.location.hash = new URL(next).hash;
           }
         }, 0);
@@ -969,7 +970,12 @@ import {segmentTrack} from "@/utils/segmentTracking";
         }
       });
 
+      // TODO: This should be removed when the new workflows page is enabled by default
       window.parent.addEventListener('hashchange', () => {
+        if (viewModel.enableNewWorkflowsPage) {
+          return;
+        }
+
         const oldSearchParams = $location.search();
         const newSearchParams = getSearchParamsFromLocationHash();
 
