@@ -47,7 +47,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     }
   };
 
-  const ymlString = useFormattedYml(appConfig as BitriseYml).data || '';
+  const ymlString = useFormattedYml(appConfig as BitriseYml) || '';
 
   const toast = useToast();
 
