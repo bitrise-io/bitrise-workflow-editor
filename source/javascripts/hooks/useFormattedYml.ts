@@ -22,11 +22,13 @@ const useFormattedYml = (appConfig: AppConfig): string => {
 
   // NOTE: call function isn't referentially stable
   useEffect(() => {
+    console.log(1);
     formatAppConfigRef.current = call;
   });
 
   // Set the js-yaml value as fallback, kick off format endpoint
   useEffect(() => {
+    console.log(2);
     const yaml = BitriseYmlApi.toYml(appConfig);
     setYml(yaml);
 

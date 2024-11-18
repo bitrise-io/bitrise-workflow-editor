@@ -52,6 +52,7 @@ declare global {
       limits?: {
         uniqueStepLimit?: number;
         isPipelinesAvailable?: boolean;
+        isRepositoryYmlAvailable?: boolean;
       };
       project?: {
         slug: string;

@@ -35,6 +35,7 @@ import {
   SecretsPage,
   TriggersPage,
   WorkflowsPage,
+  YmlPage,
 } from "./pages";
 
 function register(component, props, injects) {
@@ -56,7 +57,8 @@ angular
     ]),
   )
   .component("rPipelinesPage", register(PipelinesPage, ["yml", "onChange"]))
-  .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]));
+  .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]))
+  .component("rYmlPage", register(YmlPage, ["yml", 'ymlString', "onChange"]));
 
 // Components
 angular
@@ -104,15 +106,16 @@ angular
   .component(
     "rYmlEditorHeader",
     register(YmlEditorHeader, [
-      "url",
-      "initialUsesRepositoryYml",
       "appSlug",
-      "appConfig",
+      "ymlString",
       "onConfigSourceChangeSaved",
-      "repositoryYmlAvailable",
+      "isRepositoryYmlAvailable",
       "isWebsiteMode",
       "defaultBranch",
       "gitRepoSlug",
+      "ymlSettings",
+
+      "initialUsesRepositoryYml",
       "lines",
       "split",
       "modularYamlSupported",

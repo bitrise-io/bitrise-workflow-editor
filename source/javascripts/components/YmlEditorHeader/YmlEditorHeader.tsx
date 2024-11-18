@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure, Notification } from '@bitrise/bitkit';
-import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
+import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 
 const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
@@ -11,57 +11,55 @@ const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
 export type YmlEditorHeaderProps = {
   appSlug: string;
-  appConfig: AppConfig | string;
-  url: string;
-  initialUsesRepositoryYml?: boolean;
-  repositoryYmlAvailable: boolean;
-  isWebsiteMode: boolean;
-  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
   gitRepoSlug: string;
-  split: boolean;
-  modularYamlSupported?: boolean;
-  lines: number;
-  lastModified: string | null;
-  initialYmlRootPath: string | null;
+  isRepositoryYmlAvailable: boolean;
+  isWebsiteMode: boolean;
+  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
+  ymlSettings: BitriseYmlSettings;
+  ymlString: string;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   const {
     appSlug,
-    appConfig,
     defaultBranch,
     gitRepoSlug,
-    onConfigSourceChangeSaved,
-    repositoryYmlAvailable,
+    isRepositoryYmlAvailable,
     isWebsiteMode,
-    url,
-    initialUsesRepositoryYml,
-    split,
-    modularYamlSupported,
-    lines,
-    lastModified,
-    initialYmlRootPath,
+    onConfigSourceChangeSaved,
+    ymlSettings,
+    ymlString,
   } = props;
+
+  const {
+    isModularYamlSupported,
+    isYmlSplit,
+    lastModified,
+    lines,
+    usesRepositoryYml: initialUsesRepositoryYml,
+    ymlRootPath,
+  } = ymlSettings;
+
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
 
   const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
     SPLITTED_METADATA_KEY,
-    isWebsiteMode && split && usesRepositoryYml,
+    isWebsiteMode && !!isYmlSplit && !!initialUsesRepositoryYml,
   );
   const { value: splitMetaDataValue, update: updateSplitMetaData } = useUserMetaData(
-    modularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
-    isWebsiteMode && !split && lines > 500,
+    isModularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
+    isWebsiteMode && !isYmlSplit && lines > 500,
   );
 
   let infoLabel;
   if (usesRepositoryYml) {
-    infoLabel = split
+    infoLabel = isYmlSplit
       ? `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`
       : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
   }
 
-  const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
+  const isChangeEnabled = isRepositoryYmlAvailable;
 
   const onYmlSourceChangeClick = () => {
     onOpen();
@@ -90,10 +88,10 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
           Configuration YAML
         </Text>
-        {url && (
+        {usesRepositoryYml && isWebsiteMode && (
           <Button
             as="a"
-            href={url}
+            href={`/api/app/${appSlug}/config.yml?is_download=1`}
             leftIconName="Download"
             size="sm"
             target="_blank"
@@ -140,7 +138,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           <Text>
             We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
             files for easier maintenance.{' '}
-            {modularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
+            {isModularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
           </Text>
         </Notification>
       )}
@@ -150,21 +148,23 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           one merged YAML.
         </Notification>
       )}
-      <ConfigurationYmlSourceDialog
-        isOpen={isOpen}
-        onClose={onClose}
-        initialUsesRepositoryYml={usesRepositoryYml}
-        appConfig={appConfig}
-        appSlug={appSlug}
-        onConfigSourceChangeSaved={(newValue: boolean, ymlRootPath: string) => {
-          onConfigSourceChangeSaved(newValue, ymlRootPath);
-          setUsesRepositoryYml(newValue);
-        }}
-        defaultBranch={defaultBranch}
-        gitRepoSlug={gitRepoSlug}
-        lastModified={lastModified}
-        initialYmlRootPath={initialYmlRootPath}
-      />
+      {!!ymlSettings && (
+        <ConfigurationYmlSourceDialog
+          isOpen={isOpen}
+          onClose={onClose}
+          initialUsesRepositoryYml={usesRepositoryYml}
+          appSlug={appSlug}
+          onConfigSourceChangeSaved={(newValue: boolean, newYmlRootPath: string) => {
+            onConfigSourceChangeSaved(newValue, newYmlRootPath);
+            setUsesRepositoryYml(newValue);
+          }}
+          defaultBranch={defaultBranch}
+          gitRepoSlug={gitRepoSlug}
+          lastModified={lastModified}
+          initialYmlRootPath={ymlRootPath}
+          ymlString={ymlString}
+        />
+      )}
     </>
   );
 };

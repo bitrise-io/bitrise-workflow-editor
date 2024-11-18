@@ -22,15 +22,15 @@ function toYmlSettings(response: BitriseYmlSettingsResponse): BitriseYmlSettings
     lastModified: response.last_modified,
     lines: response.lines,
     isYmlSplit: response.split,
-    isRepositoryYml: response.uses_repository_yml,
     isModularYamlSupported: response.modular_yaml_supported,
+    usesRepositoryYml: response.uses_repository_yml,
     ymlRootPath: response.yml_root_path || '',
   };
 }
 
 function toYmlSettingUpdateModel(model: Partial<BitriseYmlSettings>): BitriseYmlSettingsRequest {
   return {
-    uses_repository_yml: Boolean(model?.isRepositoryYml),
+    uses_repository_yml: Boolean(model?.usesRepositoryYml),
     yml_root_path: model?.ymlRootPath || '',
   };
 }

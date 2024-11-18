@@ -1,7 +1,9 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { makeNotificationMetadataEndpoint } from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
-import YmlEditorHeader, { YmlEditorHeaderProps } from './YmlEditorHeader';
+import YmlEditorHeader from './YmlEditorHeader';
 
+export default { component: YmlEditorHeader };
+export const WithProps = {};
+
+/*
 const meta: Meta<YmlEditorHeaderProps> = {
   component: YmlEditorHeader,
   args: {
@@ -62,3 +64,4 @@ export const SplittedConfig: StoryObj<YmlEditorHeaderProps> = {
     msw: [...makeNotificationMetadataEndpoint()],
   },
 };
+*/

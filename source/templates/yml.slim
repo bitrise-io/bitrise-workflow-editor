@@ -1,19 +1,17 @@
 .tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
+  r-yml-page[
+    yml="ymlCtrl.yml"
+    ymlString="ymlCtrl.appConfigYML"
+  ]
   r-yml-editor-header[
-    url="ymlCtrl.downloadAppConfigYMLPath()"
-    initial-uses-repository-yml="ymlCtrl.usesRepositoryYml"
+    yml-string="ymlCtrl.ymlString"
     app-slug="ymlCtrl.appSlug"
-    app-config="ymlCtrl.appConfigYML"
-    on-config-source-change-saved="ymlCtrl.onConfigSourceChangeSaved"
-    repository-yml-available="ymlCtrl.repositoryYmlAvailable"
-    is-website-mode="ymlCtrl.isWebsiteMode"
     default-branch="ymlCtrl.defaultBranch"
     git-repo-slug="ymlCtrl.gitRepoSlug"
-    lines="ymlCtrl.lines"
-    split="ymlCtrl.split"
-    modular-yaml-supported="ymlCtrl.modularYamlSupported"
-    last-modified="ymlCtrl.lastModified"
-    initial-yml-root-path="ymlCtrl.ymlRootPath"
+    is-website-mode="ymlCtrl.isWebsiteMode"
+    on-config-source-change-saved="ymlCtrl.onConfigSourceChangeSaved"
+    is-repository-yml-available="ymlCtrl.isRepositoryYmlAvailable"
+    yml-settings="ymlCtrl.ymlSettings"
   ]
   #editor-container
-    r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler" is-loading="ymlCtrl.isEditorLoading"]
+    r-yml-editor[yml="ymlCtrl.ymlString" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler" is-loading="ymlCtrl.isEditorLoading"]
