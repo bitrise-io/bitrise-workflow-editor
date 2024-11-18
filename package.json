@@ -108,7 +108,7 @@
   },
   "devDependencies": {
     "@bitrise/eslint-plugin": "^2.12.0",
-    "@chakra-ui/cli": "^2.4.1",
+    "@chakra-ui/cli": "^3.0.0",
     "@google-cloud/storage": "^7.14.0",
     "@playwright/test": "^1.48.2",
     "@storybook/addon-essentials": "^8.4.4",
