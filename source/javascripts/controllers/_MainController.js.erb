@@ -415,7 +415,10 @@ import { segmentTrack } from "@/utils/segmentTracking";
               }
             }
 
-            if (!isInitialSelection) {
+            const isNewPipelinesPage = menu.id === "pipelines";
+            const isNewWorkflowsPage = menu.id === "workflows" && viewModel.enableNewWorkflowsPage;
+
+            if (!isInitialSelection && !isNewPipelinesPage && !isNewWorkflowsPage) {
               viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
             }
 
