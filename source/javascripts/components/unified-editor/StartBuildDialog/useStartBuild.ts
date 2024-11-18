@@ -4,11 +4,12 @@ import WindowUtils from '@/core/utils/WindowUtils';
 
 function useStartBuild() {
   return useMutation({
-    mutationFn: ({ workflowId, branch }: { workflowId: string; branch: string }) =>
+    mutationFn: ({ pipelineId, workflowId, branch }: { pipelineId?: string; workflowId?: string; branch: string }) =>
       BuildApi.startBuild({
         appSlug: WindowUtils.appSlug() ?? '',
-        workflowId,
         branch,
+        pipelineId,
+        workflowId,
       }),
   });
 }

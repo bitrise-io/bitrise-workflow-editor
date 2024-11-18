@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 
-import { RunWorkflowDialog } from '@/components/unified-editor';
+import { StartBuildDialog } from '@/components/unified-editor';
 import { Workflow } from '@/models';
 import WindowUtils from '@/core/utils/WindowUtils';
 import WorkflowSelector from './WorkflowSelector/WorkflowSelector';
@@ -136,7 +136,7 @@ const WorkflowMainToolbar = ({
         )}
       </Box>
 
-      {selectedWorkflow && <RunWorkflowDialog workflowId={selectedWorkflow?.id} isOpen={isOpen} onClose={onClose} />}
+      {selectedWorkflow && <StartBuildDialog workflowId={selectedWorkflow?.id} isOpen={isOpen} onClose={onClose} />}
     </>
   );
 };
