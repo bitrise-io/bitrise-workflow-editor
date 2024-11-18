@@ -3,10 +3,12 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
-  const { id: currentWorkflowId } = useWorkflowConfigContext() ?? { id: '' };
+  const selectedWorkflowId = useWorkflowConfigContext()?.id ?? '';
+  const workflowIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.workflows ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);
-  const [previousWorkflowId, setPreviousWorkflowId] = useState(currentWorkflowId);
+  const [nextWorkflowId, setNextWorkflowId] = useState(selectedWorkflowId);
+  const [prevWorkflowId, setPrevWorkflowId] = useState(selectedWorkflowId);
 
   const { createWorkflow, renameWorkflow, deleteWorkflow } = useBitriseYmlStore((s) => ({
     createWorkflow: s.createWorkflow,
@@ -14,27 +16,39 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
     deleteWorkflow: s.deleteWorkflow,
   }));
 
-  const renameCallback = useCallback(
-    (newWorkflowId: string) => {
-      setIsRenaming(true);
-      renameWorkflow(currentWorkflowId, newWorkflowId);
-      createWorkflow(currentWorkflowId, newWorkflowId);
-      setPreviousWorkflowId(currentWorkflowId);
+  const isNewWorkflowPersisted = workflowIdsInTheStore.includes(nextWorkflowId);
+  const isNewWorkflowSelected = nextWorkflowId === selectedWorkflowId;
 
-      onChange?.(newWorkflowId);
-    },
-    [onChange, createWorkflow, renameWorkflow, currentWorkflowId],
-  );
+  const shouldRunOnChange = isRenaming && isNewWorkflowPersisted && !isNewWorkflowSelected;
+  const shouldFinishRenaming = isRenaming && isNewWorkflowPersisted && isNewWorkflowSelected;
 
   useEffect(() => {
-    if (isRenaming && previousWorkflowId && currentWorkflowId && previousWorkflowId !== currentWorkflowId) {
-      setIsRenaming(false);
-      deleteWorkflow(previousWorkflowId);
-      setPreviousWorkflowId(currentWorkflowId);
+    if (shouldRunOnChange) {
+      onChange?.(nextWorkflowId);
     }
-  }, [isRenaming, currentWorkflowId, previousWorkflowId, deleteWorkflow]);
+  }, [onChange, shouldRunOnChange, nextWorkflowId]);
 
-  return renameCallback;
+  useEffect(() => {
+    if (shouldFinishRenaming) {
+      setIsRenaming(false);
+      deleteWorkflow(prevWorkflowId);
+    }
+  }, [deleteWorkflow, shouldFinishRenaming, prevWorkflowId]);
+
+  return useCallback(
+    (newWorkflowId: string) => {
+      if (selectedWorkflowId) {
+        setIsRenaming(true);
+
+        renameWorkflow(selectedWorkflowId, newWorkflowId);
+        createWorkflow(selectedWorkflowId, newWorkflowId);
+
+        setNextWorkflowId(newWorkflowId);
+        setPrevWorkflowId(selectedWorkflowId);
+      }
+    },
+    [createWorkflow, renameWorkflow, selectedWorkflowId],
+  );
 };
 
 export default useRenameWorkflow;
