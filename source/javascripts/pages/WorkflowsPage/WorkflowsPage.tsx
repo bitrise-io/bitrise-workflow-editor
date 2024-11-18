@@ -4,7 +4,7 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
-  RunWorkflowDialog,
+  StartBuildDialog,
   StepBundleDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
@@ -104,7 +104,7 @@ const WorkflowsPageContent = () => {
         <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       </Box>
 
-      <RunWorkflowDialog workflowId={workflowId} isOpen={isRunWorkflowDialogOpen} onClose={closeDialog} />
+      <StartBuildDialog workflowId={workflowId} isOpen={isRunWorkflowDialogOpen} onClose={closeDialog} />
 
       <CreateWorkflowDialog
         isOpen={isCreateWorkflowDialogOpen}

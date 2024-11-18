@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Box, BoxProps, Button, Dropdown, DropdownSearch, DropdownOption } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
-  onCreatePipelineClick?: () => void;
   onRunClick?: () => void;
   onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
+  onCreatePipelineClick?: () => void;
 };
 
 // TODO: Enable buttons when the feature is ready
@@ -17,7 +17,10 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
   const hasOptions = keys.length > 0;
-  const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => !!s.yml.pipelines?.[selectedPipeline]?.workflows);
+  const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
+  const hasWorkflows = useBitriseYmlStore(
+    (s) => !!Object.keys(s.yml.pipelines?.[selectedPipeline]?.workflows || {}).length,
+  );
 
   const [search, setSearch] = useState('');
 
@@ -106,9 +109,9 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         </>
       )}
 
-      {/* <Button size="md" variant="secondary" leftIconName="Play" onClick={onRunClick}>
+      <Button size="md" variant="secondary" leftIconName="Play" isDisabled={!hasWorkflows} onClick={onRunClick}>
         Run
-      </Button> */}
+      </Button>
     </Box>
   );
 };

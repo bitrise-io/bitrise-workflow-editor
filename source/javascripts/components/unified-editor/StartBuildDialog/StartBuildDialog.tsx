@@ -1,24 +1,32 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, Input, useToast } from '@bitrise/bitkit';
 import { DialogProps } from '@bitrise/bitkit/src/Components/Dialog/Dialog';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useStartBuild from './useStartBuild';
 
-type RunWorkflowDialogProps = Pick<DialogProps, 'isOpen' | 'onClose'> & {
-  workflowId: string;
+type RunWorkflowDialogProps = Omit<DialogProps, 'title'> & {
+  pipelineId?: string;
+  workflowId?: string;
 };
 
-const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogProps) => {
+const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflowDialogProps) => {
   const [branch, setBranch] = useState(WindowUtils.pageProps()?.project?.defaultBranch || '');
   const toast = useToast();
   const { mutate: startBuild, isPending } = useStartBuild();
+
+  const { onClose, onCloseComplete } = dialogProps;
+
+  const handleOnCloseComplete = useCallback(() => {
+    setBranch(WindowUtils.pageProps()?.project?.defaultBranch || '');
+    onCloseComplete?.();
+  }, [onCloseComplete]);
 
   const handleAction = () => {
     if (!branch) {
       return;
     }
     startBuild(
-      { workflowId, branch },
+      { pipelineId, workflowId, branch },
       {
         onSuccess: (data) => {
           onClose();
@@ -38,12 +46,7 @@ const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogPro
   };
 
   return (
-    <Dialog
-      title={`Run "${workflowId}"`}
-      isOpen={isOpen}
-      onClose={onClose}
-      onCloseComplete={() => setBranch(WindowUtils.pageProps()?.project?.defaultBranch || '')}
-    >
+    <Dialog title={`Run "${pipelineId || workflowId}"`} {...dialogProps} onCloseComplete={handleOnCloseComplete}>
       <DialogBody>
         <Input
           autoFocus
@@ -61,17 +64,17 @@ const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogPro
           Cancel
         </Button>
         <Button
-          aria-label="Run Workflow"
+          aria-label="Start build"
           rightIconName="OpenInBrowser"
           isDisabled={!branch}
           isLoading={isPending}
           onClick={handleAction}
         >
-          Run Workflow
+          Start build
         </Button>
       </DialogFooter>
     </Dialog>
   );
 };
 
-export default RunWorkflowDialog;
+export default StartBuildDialog;
