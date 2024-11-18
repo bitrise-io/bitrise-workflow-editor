@@ -14,7 +14,10 @@ type State = {
   validationResult: boolean | string;
 };
 
-const EditableInput = ({ sanitize = (value) => value, validate = () => true, onCommit, ...props }: Props) => {
+const defaultValidateFn: Props['validate'] = () => true;
+const defaultSanitizeFn: Props['sanitize'] = (value) => value;
+
+const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidateFn, onCommit, ...props }: Props) => {
   const { value, defaultValue, ...inputProps } = props;
 
   // TODO maybe useEditable hook from Chakra UI

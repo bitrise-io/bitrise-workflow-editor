@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 
 export const getSearchParamsFromLocationHash = (): Record<string, string> => {
   return Object.fromEntries(new URLSearchParams(window.parent.location.hash.split('?')[1] || ''));
@@ -17,7 +17,7 @@ const useSearchParams = () => {
     setSearchParamsInLocationHash(typeof value === 'function' ? value(getSearchParamsFromLocationHash()) : value);
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const listener = () => setSearchParams(getSearchParamsFromLocationHash());
     window.parent.addEventListener('hashchange', listener);
     return () => window.parent.removeEventListener('hashchange', listener);
