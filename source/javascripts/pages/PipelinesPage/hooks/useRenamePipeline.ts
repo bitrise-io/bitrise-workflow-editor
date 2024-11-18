@@ -17,7 +17,7 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
   }));
 
   const isNewPipelinePersisted = pipelineIdsInTheStore.includes(nextPipelineId);
-  const isNewPipelineSelected = prevPipelineId !== nextPipelineId && nextPipelineId === selectedPipelineId;
+  const isNewPipelineSelected = nextPipelineId === selectedPipelineId;
 
   const shouldRunOnChange = isRenaming && isNewPipelinePersisted && !isNewPipelineSelected;
   const shouldFinishRenaming = isRenaming && isNewPipelinePersisted && isNewPipelineSelected;

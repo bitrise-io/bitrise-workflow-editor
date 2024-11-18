@@ -17,7 +17,7 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
   }));
 
   const isNewWorkflowPersisted = workflowIdsInTheStore.includes(nextWorkflowId);
-  const isNewWorkflowSelected = prevWorkflowId !== nextWorkflowId && nextWorkflowId === selectedWorkflowId;
+  const isNewWorkflowSelected = nextWorkflowId === selectedWorkflowId;
 
   const shouldRunOnChange = isRenaming && isNewWorkflowPersisted && !isNewWorkflowSelected;
   const shouldFinishRenaming = isRenaming && isNewWorkflowPersisted && isNewWorkflowSelected;
