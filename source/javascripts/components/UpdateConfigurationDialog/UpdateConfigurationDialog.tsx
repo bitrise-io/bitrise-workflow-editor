@@ -47,7 +47,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     }
   };
 
-  const ymlString = useFormattedYml(appConfig as BitriseYml) || '';
+  const { data: ymlString = '', mutate: formatToYml } = useFormattedYml();
 
   const toast = useToast();
 
@@ -71,6 +71,10 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
       source: 'update_configuration_yml_modal',
     });
   };
+
+  useEffect(() => {
+    formatToYml(appConfig as BitriseYml);
+  }, [appConfig, formatToYml]);
 
   return (
     <Dialog isOpen onClose={onClose} title="Update configuration YAML">
