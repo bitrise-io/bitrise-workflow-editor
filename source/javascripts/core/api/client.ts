@@ -13,10 +13,25 @@ type ExtraOpts = {
 };
 type ClientOpts = RequestInit & ExtraOpts;
 
-class NetworkError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'NetworkError';
+/* eslint-disable no-underscore-dangle */
+class ClientError extends Error {
+  private _error: Error;
+
+  private _response?: Response;
+
+  constructor(error: Error, response?: Response) {
+    super(error.message);
+    this.name = 'ClientError';
+    this._error = error;
+    this._response = response;
+  }
+
+  public get error() {
+    return this._error;
+  }
+
+  public get response() {
+    return this._response;
   }
 }
 
@@ -33,8 +48,10 @@ async function client(url: string, options?: ClientOpts) {
     clearTimeout(timeoutId);
   });
 
+  let response: Response | undefined;
+
   try {
-    const response = await fetch(url, {
+    response = await fetch(url, {
       ...options,
       headers,
       signal: controller.signal,
@@ -42,36 +59,14 @@ async function client(url: string, options?: ClientOpts) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new NetworkError(`HTTP ${response.status} ${response.statusText}`);
+      throw new Error('Response was not 2xx');
     }
 
     return response;
   } catch (error) {
+    throw new ClientError(error as Error, response);
+  } finally {
     clearTimeout(timeoutId);
-    handleError(error);
-  }
-}
-
-function handleError(error: unknown): never {
-  if (error instanceof TypeError) {
-    console.error('Fetch Error:', error);
-    throw error;
-  } else if (error instanceof DOMException) {
-    if (error.name === 'TimeoutError') {
-      console.error('Timeout Error:', error);
-    } else {
-      console.error('Abort Error:', error);
-    }
-    throw error;
-  } else if (error instanceof NetworkError) {
-    console.error('Network Error:', error);
-    throw error;
-  } else if (error instanceof SyntaxError) {
-    console.error('JSON Error:', error);
-    throw error;
-  } else {
-    console.error('Error during fetch operation:', error);
-    throw error;
   }
 }
 
@@ -128,6 +123,7 @@ async function text(url: string, options?: ClientOpts) {
   return response.text();
 }
 
+export { ClientError };
 export default {
   get,
   post,
