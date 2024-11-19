@@ -18,7 +18,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
       $q,
       $location,
       $timeout,
-      $cookies,
       requestService,
       appService,
       stringService,
@@ -161,10 +160,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
         $timeout(function () {
           viewModel.changeMenuProgress.success();
-          // TODO: This should be removed when the new workflows page is enabled by default
-          if (!viewModel.enableNewWorkflowsPage && window !== window.parent && window.parent && next !== current) {
-            window.parent.location.hash = new URL(next).hash;
-          }
         }, 0);
       });
 
@@ -203,16 +198,14 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
               break;
             case "workflows":
-              if (viewModel.enableNewWorkflowsPage) {
-                var loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-
-                $q.all(loadPromises).then(resolve, reject);
-
-                break;
+              var loadPromises = [appService.getAppConfig()];
+              if (requestService.isWebsiteMode()) {
+                loadPromises.push(appService.getPipelineConfig());
               }
+
+              $q.all(loadPromises).then(resolve, reject);
+
+              break;
             case "env-vars":
               var loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
@@ -416,7 +409,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             }
 
             const isNewPipelinesPage = menu.id === "pipelines";
-            const isNewWorkflowsPage = menu.id === "workflows" && viewModel.enableNewWorkflowsPage;
+            const isNewWorkflowsPage = menu.id === "workflows";
 
             if (!isInitialSelection && !isNewPipelinesPage && !isNewWorkflowsPage) {
               viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
@@ -805,7 +798,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
         $q(function (resolve, reject) {
           launchDarklyService.initialize().then(() => {
-            viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
             viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
 
             switch (requestService.mode) {
@@ -970,20 +962,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
         if (menu) {
           viewModel.menuSelected(menu, e.detail.params);
-        }
-      });
-
-      // TODO: This should be removed when the new workflows page is enabled by default
-      window.parent.addEventListener('hashchange', () => {
-        if (viewModel.enableNewWorkflowsPage) {
-          return;
-        }
-
-        const oldSearchParams = $location.search();
-        const newSearchParams = getSearchParamsFromLocationHash();
-
-        if (!isEqual(oldSearchParams, newSearchParams)) {
-          $location.search(newSearchParams).replace();
         }
       });
     });
