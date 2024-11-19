@@ -18,9 +18,19 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
-  const hasWorkflows = useBitriseYmlStore(
-    (s) => !!Object.keys(s.yml.pipelines?.[selectedPipeline]?.workflows || {}).length,
-  );
+  const isEmpty = useBitriseYmlStore((s) => {
+    const pipeline = s.yml.pipelines?.[selectedPipeline];
+
+    if (pipeline?.workflows) {
+      return Object.keys(pipeline.workflows).length === 0;
+    }
+
+    if (pipeline?.stages) {
+      return pipeline.stages.length === 0;
+    }
+
+    return true;
+  });
 
   const [search, setSearch] = useState('');
 
@@ -109,7 +119,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         </>
       )}
 
-      <Button size="md" variant="secondary" leftIconName="Play" isDisabled={!hasWorkflows} onClick={onRunClick}>
+      <Button size="md" variant="secondary" leftIconName="Play" isDisabled={isEmpty} onClick={onRunClick}>
         Run
       </Button>
     </Box>
