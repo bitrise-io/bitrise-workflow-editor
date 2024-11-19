@@ -154,7 +154,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         isOpen={isOpen}
         onClose={onClose}
         initialUsesRepositoryYml={usesRepositoryYml}
-        appConfig={appConfig}
+        appConfig={appConfig as string}
         appSlug={appSlug}
         onConfigSourceChangeSaved={(newValue: boolean, ymlRootPath: string) => {
           onConfigSourceChangeSaved(newValue, ymlRootPath);

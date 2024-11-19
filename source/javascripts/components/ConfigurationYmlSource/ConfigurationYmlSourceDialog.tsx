@@ -22,11 +22,9 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
 import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
-import { AppConfig } from '@/models/AppConfig';
 import DateFormatter from '@/utils/dateFormatter';
 import { segmentTrack } from '@/utils/segmentTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import useFormattedYml from '@/hooks/useFormattedYml';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
   let action: NotificationProps['action'];
@@ -63,7 +61,7 @@ type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   initialUsesRepositoryYml: boolean;
-  appConfig: AppConfig | string;
+  appConfig: string;
   appSlug: string;
   onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
@@ -111,8 +109,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     updatePipelineConfigReset,
     updatePipelineConfigFailed,
   } = useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml, ymlRootPath);
-
-  const yml = useFormattedYml(appConfig);
 
   const toast = useToast();
 
@@ -364,7 +360,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Box display="flex" gap="8">
                   <Button
                     as="a"
-                    href={`data:attachment/text,${encodeURIComponent(yml)}`}
+                    href={`data:attachment/text,${encodeURIComponent(appConfig)}`}
                     target="_blank"
                     download="bitrise.yml"
                     variant="secondary"
@@ -375,7 +371,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   >
                     Download bitrise.yml
                   </Button>
-                  <CopyToClipboard text={yml} onCopy={onCopyClick}>
+                  <CopyToClipboard text={appConfig} onCopy={onCopyClick}>
                     <Button
                       variant="secondary"
                       leftIconName="Duplicate"

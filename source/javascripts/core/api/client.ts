@@ -117,8 +117,8 @@ async function del<T>(url: string, options?: ClientOpts) {
 
 async function text(url: string, options?: ClientOpts) {
   const response = await client(url, {
-    ...options,
     method: 'GET',
+    ...options,
   });
   return response.text();
 }
