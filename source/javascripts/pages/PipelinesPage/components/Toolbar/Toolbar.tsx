@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -32,9 +32,14 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return true;
   });
 
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [search, setSearch] = useState('');
-
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    setDebouncedSearch(value);
+  };
+
   const [pipelineIds] = useMemo(() => {
     const ids: string[] = [];
 
@@ -47,12 +52,24 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return [ids];
   }, [debouncedSearch, keys]);
 
-  const onSearchChange = (value: string) => {
-    setSearch(value);
-    setDebouncedSearch(value);
-  };
-
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+  useEffect(() => {
+    const listener = (event: CustomEvent<boolean>) => {
+      setHasUnsavedChanges(event.detail);
+    };
+
+    window.addEventListener('main::yml::has-unsaved-changes' as never, listener);
+
+    return () => window.removeEventListener('main::yml::has-unsaved-changes' as never, listener);
+  }, []);
+
+  const runButtonAriaLabel = useMemo(() => {
+    if (hasUnsavedChanges) {
+      return 'Save changes before running';
+    }
+
+    return 'Run Pipeline';
+  }, [hasUnsavedChanges]);
 
   return (
     <Box
@@ -119,7 +136,14 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         </>
       )}
 
-      <Button size="md" variant="secondary" leftIconName="Play" isDisabled={isEmpty} onClick={onRunClick}>
+      <Button
+        size="md"
+        variant="secondary"
+        leftIconName="Play"
+        aria-label={runButtonAriaLabel}
+        isDisabled={isEmpty || hasUnsavedChanges}
+        onClick={onRunClick}
+      >
         Run
       </Button>
     </Box>
