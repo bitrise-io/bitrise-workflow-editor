@@ -108,7 +108,6 @@ import { segmentTrack } from "@/utils/segmentTracking";
       viewModel.currentMenu;
       viewModel.tourIds = ["menu-nav", "workflow-main-toolbar", "steps-container"];
 
-
       viewModel.loadDataProgress = new Progress();
       viewModel.saveProgress = new Progress();
       viewModel.changeMenuProgress = new Progress();
@@ -860,6 +859,27 @@ import { segmentTrack } from "@/utils/segmentTracking";
           }
         ).then(function () {
           selectInitialMenu();
+
+          // NOTE: this is a workaround for the hashchange sync issue between the iframe and the parent window
+          if (window !== window.parent) {
+            window.addEventListener('hashchange', (e) => {
+              const newHash = new URL(e.newURL).hash;
+              const oldHash = window.parent.location.hash;
+
+              if (oldHash !== newHash) {
+                window.parent.location.hash = newHash;
+              }
+            });
+
+            window.parent.addEventListener('hashchange', (e) => {
+              const newHash = new URL(e.newURL).hash;
+              const oldHash = window.location.hash;
+
+              if (oldHash !== newHash) {
+                window.location.hash = newHash;
+              }
+            });
+          }
         });
       };
 
