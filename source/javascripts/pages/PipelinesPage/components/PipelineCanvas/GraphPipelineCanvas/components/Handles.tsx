@@ -1,23 +1,15 @@
 import { CSSProperties, useRef } from 'react';
-import {
-  Edge,
-  Handle,
-  HandleProps,
-  Node,
-  Position,
-  useConnection,
-  useEdges,
-  useNodeId,
-  useReactFlow,
-} from '@xyflow/react';
+import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
 import { Box, BoxProps } from '@bitrise/bitkit';
 import { useHover } from 'usehooks-ts';
 import { Icon, IconProps } from '@chakra-ui/react';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { PipelineWorkflow } from '@/core/models/Workflow';
-import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
-import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
-import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_HEIGHT } from '../../GraphPipelineCanvas.const';
+
+import createPlaceholderNode from '../utils/createPlaceholderNode';
+import createPlaceholderEdge from '../utils/createPlaceholderEdge';
+import usePipelineSelector from '../../../../hooks/usePipelineSelector';
+import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanvas.const';
+import { PipelineConfigDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 
 const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
   width: 12,
@@ -39,21 +31,6 @@ const defaultHandleButtonStyle: CSSProperties = {
   transform: `translate(0, -50%)`,
   backgroundColor: 'transparent',
 };
-
-const createPlaceholderNode = (dependsOn?: string | null): Node<PipelineWorkflow> => ({
-  id: PLACEHOLDER_NODE_TYPE,
-  type: PLACEHOLDER_NODE_TYPE,
-  position: { x: -9999, y: 0 },
-  data: { id: PLACEHOLDER_NODE_TYPE, dependsOn: dependsOn ? [dependsOn] : [] },
-});
-
-const createPlaceholderEdge = (source?: string | null): Edge => ({
-  id: `${source}->${PLACEHOLDER_NODE_TYPE}`,
-  type: GRAPH_EDGE_TYPE,
-  source: source || '',
-  target: PLACEHOLDER_NODE_TYPE,
-  animated: true,
-});
 
 const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean }) => {
   const hoverStyle = {
@@ -81,20 +58,24 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
   const id = useNodeId();
   const { openDialog } = usePipelinesPageStore();
   const { selectedPipeline } = usePipelineSelector();
-  const { addNodes, deleteElements, addEdges, updateNodeData } = useReactFlow();
+  const { updateNodeData, addNodes, addEdges, deleteElements } = useReactFlow();
 
   const onPointerEnter = () => {
-    addNodes(createPlaceholderNode(id));
-    addEdges(createPlaceholderEdge(id));
-    updateNodeData(id || '', (data) => ({ ...data, fixed: true }));
+    if (id) {
+      addNodes(createPlaceholderNode(id));
+      addEdges(createPlaceholderEdge(id));
+      updateNodeData(id, (data) => ({ ...data, fixed: true }));
+    }
   };
 
   const onPointerLeave = () => {
-    deleteElements({
-      nodes: [{ id: PLACEHOLDER_NODE_TYPE }],
-      edges: [{ id: `${id}->${PLACEHOLDER_NODE_TYPE}` }],
-    });
-    updateNodeData(id || '', (data) => ({ ...data, fixed: false }));
+    if (id) {
+      deleteElements({
+        nodes: [{ id: PLACEHOLDER_NODE_ID }],
+        edges: [{ id: `${id}->${PLACEHOLDER_NODE_ID}` }],
+      });
+      updateNodeData(id, (data) => ({ ...data, fixed: false }));
+    }
   };
 
   return (
