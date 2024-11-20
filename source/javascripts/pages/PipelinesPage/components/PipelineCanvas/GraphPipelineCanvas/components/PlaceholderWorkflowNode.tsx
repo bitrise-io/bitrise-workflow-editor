@@ -1,6 +1,7 @@
 import { Box, Icon, Text } from '@bitrise/bitkit';
 import { NodeProps } from '@xyflow/react';
-import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../../GraphPipelineCanvas.const';
+
+import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import { LeftHandle } from './Handles';
 
 type Props = NodeProps;

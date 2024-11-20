@@ -2,18 +2,19 @@ import '@xyflow/react/dist/style.css';
 import { useMemo } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import UpgradePlanEmptyState from '@/pages/PipelinesPage/components/PipelineCanvas/GraphPipelineCanvas/components/UpgradePlanEmptyState';
-import ReactivatePlanEmptyState from '@/pages/PipelinesPage/components/PipelineCanvas/GraphPipelineCanvas/components/ReactivatePlanEmptyState';
 import WindowUtils from '@/core/utils/WindowUtils';
-import usePipelineSelector from './hooks/usePipelineSelector';
-import StagePipelineEmptyState from './components/PipelineCanvas/StagedPipelineCanvas/components/StagePipelineEmptyState';
-import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
+
 import Drawers from './components/Drawers/Drawers';
+import usePipelineSelector from './hooks/usePipelineSelector';
+import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
 import { PipelineConfigDialogType, usePipelinesPageStore } from './PipelinesPage.store';
-import CreateFirstGraphPipelineEmptyState from './components/PipelineCanvas/GraphPipelineCanvas/components/CreateFirstGraphPipelineEmptyState';
+import UpgradePlanEmptyState from './components/EmptyStates/UpgradePlanEmptyState';
+import StagePipelineEmptyState from './components/EmptyStates/StagePipelineEmptyState';
+import ReactivatePlanEmptyState from './components/EmptyStates/ReactivatePlanEmptyState';
+import CreateFirstGraphPipelineEmptyState from './components/EmptyStates/CreateFirstGraphPipelineEmptyState';
 
 type Props = {
   yml: BitriseYml;
@@ -40,9 +41,8 @@ const PipelinesPage = ({ yml, onChange }: Props) => {
 
 const PipelinesPageContent = () => {
   const { keys } = usePipelineSelector();
-
-  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { openDialog } = usePipelinesPageStore();
+  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const hasPipelines = keys.length > 0;
   const canAccessPipelines = WindowUtils.limits()?.isPipelinesAvailable;

@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import GraphPipelineCanvasEmptyState from '@/pages/PipelinesPage/components/PipelineCanvas/GraphPipelineCanvas/components/GraphPipelineCanvasEmptyState';
+import GraphPipelineCanvasEmptyState from '@/pages/PipelinesPage/components/EmptyStates/GraphPipelineCanvasEmptyState';
 
 export default {
   component: GraphPipelineCanvasEmptyState,
