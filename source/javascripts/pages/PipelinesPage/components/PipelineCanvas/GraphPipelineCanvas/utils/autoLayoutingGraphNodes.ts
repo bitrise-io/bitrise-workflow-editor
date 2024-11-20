@@ -8,7 +8,7 @@ import {
   WORKFLOW_NODE_HEIGHT,
   WORKFLOW_NODE_WIDTH,
 } from '../GraphPipelineCanvas.const';
-import { GraphPipelineNodeType, isPlaceholderNode } from '../GraphPipelineCanvas.types';
+import { GraphPipelineNodeType, isPlaceholderNode, isWorkflowNode } from '../GraphPipelineCanvas.types';
 
 function autoLayoutingGraphNodes(workflows: PipelineWorkflow[], nodes: GraphPipelineNodeType[]) {
   const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
@@ -42,7 +42,7 @@ function autoLayoutingGraphNodes(workflows: PipelineWorkflow[], nodes: GraphPipe
   dagre.layout(graph, { disableOptimalOrderHeuristic: true });
 
   return nodes.map((node) => {
-    if (!isPlaceholderNode(node) && node.data.fixed) {
+    if (isWorkflowNode(node) && node.data.fixed) {
       return node;
     }
 

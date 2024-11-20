@@ -107,9 +107,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
       });
 
       setEdges((eds) => {
-        return entities.edges.map((edge) => {
-          return eds.find((e) => e.id === edge.id) || edge;
-        });
+        return entities.edges.map((edge) => eds.find((e) => e.id === edge.id) || edge);
       });
 
       setPrevWorkflows(workflows);
