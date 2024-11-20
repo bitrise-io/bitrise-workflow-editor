@@ -7,7 +7,7 @@ import {
 } from '../GraphPipelineCanvas.const';
 import { GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 
-function createGraphPipelineNode(workflow: PipelineWorkflow, actionable: boolean) {
+function createWorkflowNode(workflow: PipelineWorkflow, actionable: boolean) {
   return {
     id: workflow.id,
     data: {},
@@ -24,4 +24,4 @@ function createGraphPipelineNode(workflow: PipelineWorkflow, actionable: boolean
   } satisfies GraphPipelineNodeType;
 }
 
-export default createGraphPipelineNode;
+export default createWorkflowNode;
