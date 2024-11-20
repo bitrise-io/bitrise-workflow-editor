@@ -1,4 +1,3 @@
-import { Node } from '@xyflow/react';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import {
   DEFAULT_WORKFLOW_NODE_ZINDEX,
@@ -6,15 +5,12 @@ import {
   WORKFLOW_NODE_TYPE,
   WORKFLOW_NODE_WIDTH,
 } from '../GraphPipelineCanvas.const';
-import { WorkflowNodeDataType } from '../components/WorkflowNode/WorkflowNode';
+import { GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 
-export default function createNodeFromPipelineWorkflow(
-  workflow: PipelineWorkflow,
-  pipelineId?: string,
-  actionable: boolean = false,
-): Node<WorkflowNodeDataType> {
+function createWorkflowNode(workflow: PipelineWorkflow, actionable: boolean) {
   return {
     id: workflow.id,
+    data: {},
     deletable: actionable,
     draggable: false,
     focusable: false,
@@ -24,7 +20,8 @@ export default function createNodeFromPipelineWorkflow(
     width: WORKFLOW_NODE_WIDTH,
     height: WORKFLOW_NODE_HEIGHT,
     position: { x: -9999, y: -9999 },
-    data: { ...workflow, pipelineId },
     zIndex: DEFAULT_WORKFLOW_NODE_ZINDEX,
-  };
+  } satisfies GraphPipelineNodeType;
 }
+
+export default createWorkflowNode;

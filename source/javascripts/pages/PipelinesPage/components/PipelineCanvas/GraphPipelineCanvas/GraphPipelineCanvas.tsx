@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  addEdge,
+  applyNodeChanges,
   EdgeMouseHandler,
   EdgeTypes,
-  Node,
   NodeTypes,
   OnConnect,
   OnEdgesDelete,
+  OnNodesChange,
   OnNodesDelete,
   ReactFlow,
   ReactFlowProps,
@@ -14,19 +14,22 @@ import {
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
+import { isEqual } from 'es-toolkit';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import WorkflowNode, { WorkflowNodeDataType } from './components/WorkflowNode/WorkflowNode';
-import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
-import GraphPipelineCanvasEmptyState from './components/GraphPipelineCanvasEmptyState';
-import usePipelineWorkflows from './hooks/usePipelineWorkflows';
-import transformWorkflowsToNodesAndEdges from './utils/transformWorkflowsToNodesAndEdges';
-import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
-import PlaceholderNode from './components/WorkflowNode/PlaceholderWorkflowNode';
-import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
+
+import GraphPipelineCanvasEmptyState from '../../EmptyStates/GraphPipelineCanvasEmptyState';
+import WorkflowNode from './components/WorkflowNode';
 import validateConnection from './utils/validateConnection';
+import usePipelineWorkflows from './hooks/usePipelineWorkflows';
+import PlaceholderNode from './components/PlaceholderWorkflowNode';
+import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
+import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
+import transformWorkflowsToGraphEntities from './utils/transformWorkflowsToGraphEntities';
+import { GraphPipelineEdgeType, GraphPipelineNodeType } from './GraphPipelineCanvas.types';
+import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
 
 const nodeTypes: NodeTypes = {
   [WORKFLOW_NODE_TYPE]: WorkflowNode,
@@ -41,12 +44,13 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
   const { openDialog } = usePipelinesPageStore();
   const { selectedPipeline } = usePipelineSelector();
+  const [prevWorkflows, setPrevWorkflows] = useState(workflows);
   const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
-  const { updateNode, updateEdgeData } = useReactFlow<Node<WorkflowNodeDataType>>();
-  const initial = transformWorkflowsToNodesAndEdges(selectedPipeline, workflows, isGraphPipelineEnabled);
+  const initial = transformWorkflowsToGraphEntities(workflows, isGraphPipelineEnabled);
+  const { updateEdgeData } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
-  const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutingGraphNodes(initial.nodes));
+  const [nodes, setNodes] = useNodesState(autoLayoutingGraphNodes(workflows, initial.nodes));
 
   const { addPipelineWorkflowDependency, removeWorkflowFromPipeline, removePipelineWorkflowDependency } =
     useBitriseYmlStore((s) => ({
@@ -55,52 +59,23 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
       removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
     }));
 
-  const handleNodesChanges: typeof onNodesChange = useCallback(
-    (changes) => {
-      onNodesChange(changes);
-      setNodes(autoLayoutingGraphNodes);
-    },
-    [onNodesChange, setNodes],
-  );
-
   const handleEdgesDelete: OnEdgesDelete = useCallback(
     (deletedEdges) => {
-      deletedEdges.forEach((edge) => {
-        removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
-        updateNode(edge.target, (node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            dependsOn: node.data.dependsOn.filter((dId) => dId !== edge.source),
-          },
-        }));
-      });
+      deletedEdges.forEach((edge) => removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source));
     },
-    [selectedPipeline, removePipelineWorkflowDependency, updateNode],
+    [removePipelineWorkflowDependency, selectedPipeline],
   );
 
   const handleNodesDelete: OnNodesDelete = useCallback(
     (deletedNodes) => {
-      deletedNodes.forEach((node) => {
-        removeWorkflowFromPipeline(selectedPipeline, node.id);
-      });
+      deletedNodes.forEach((node) => removeWorkflowFromPipeline(selectedPipeline, node.id));
     },
     [removeWorkflowFromPipeline, selectedPipeline],
   );
 
   const handleConnect: OnConnect = useCallback(
-    (params) => {
-      addPipelineWorkflowDependency(selectedPipeline, params.target, params.source);
-      setEdges((pervEdges) => addEdge({ ...params, type: GRAPH_EDGE_TYPE }, pervEdges));
-      updateNode(params.target, (node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          dependsOn: [...node.data.dependsOn, params.source],
-        },
-      }));
-    },
-    [selectedPipeline, addPipelineWorkflowDependency, setEdges, updateNode],
+    (params) => addPipelineWorkflowDependency(selectedPipeline, params.target, params.source),
+    [addPipelineWorkflowDependency, selectedPipeline],
   );
 
   const handleEdgeMouseEnter: EdgeMouseHandler = useCallback(
@@ -116,6 +91,29 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
     [updateEdgeData, nodes],
   );
 
+  const onNodesChange: OnNodesChange<GraphPipelineNodeType> = useCallback(
+    (changes) => setNodes((nds) => autoLayoutingGraphNodes(workflows, applyNodeChanges(changes, nds))),
+    [workflows, setNodes],
+  );
+
+  // Update nodes and edges when workflows change
+  useEffect(() => {
+    if (!isEqual(workflows, prevWorkflows)) {
+      const entities = transformWorkflowsToGraphEntities(workflows, isGraphPipelineEnabled);
+
+      setNodes((nds) => {
+        const newNodes = entities.nodes.map((node) => nds.find((n) => n.id === node.id) || node);
+        return autoLayoutingGraphNodes(workflows, newNodes);
+      });
+
+      setEdges((eds) => {
+        return entities.edges.map((edge) => eds.find((e) => e.id === edge.id) || edge);
+      });
+
+      setPrevWorkflows(workflows);
+    }
+  }, [workflows, prevWorkflows, isGraphPipelineEnabled, setNodes, setEdges]);
+
   return (
     <>
       <ReactFlow
@@ -124,9 +122,9 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onConnect={handleConnect}
+        onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={handleEdgesDelete}
-        onNodesChange={handleNodesChanges}
         onNodesDelete={handleNodesDelete}
         onEdgeMouseMove={handleEdgeMouseEnter}
         onEdgeMouseEnter={handleEdgeMouseEnter}

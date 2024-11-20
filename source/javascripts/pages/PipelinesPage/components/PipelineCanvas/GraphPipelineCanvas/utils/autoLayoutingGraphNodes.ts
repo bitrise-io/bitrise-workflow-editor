@@ -1,4 +1,3 @@
-import { Node } from '@xyflow/react';
 import dagre from '@dagrejs/dagre';
 import { PipelineWorkflow } from '@/core/models/Workflow';
 import {
@@ -9,8 +8,9 @@ import {
   WORKFLOW_NODE_HEIGHT,
   WORKFLOW_NODE_WIDTH,
 } from '../GraphPipelineCanvas.const';
+import { GraphPipelineNodeType, isPlaceholderNode, isWorkflowNode } from '../GraphPipelineCanvas.types';
 
-export default function autoLayoutingGraphNodes(nodes: Node[]) {
+function autoLayoutingGraphNodes(workflows: PipelineWorkflow[], nodes: GraphPipelineNodeType[]) {
   const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
   graph.setGraph({
@@ -23,29 +23,32 @@ export default function autoLayoutingGraphNodes(nodes: Node[]) {
     edgesep: WORKFLOW_NODE_HEIGHT + WORKFLOW_NODE_GAP_Y,
   });
 
-  (nodes as Array<Node<PipelineWorkflow>>).forEach((node) => {
-    graph.setNode(node.data.id, {
-      width: WORKFLOW_NODE_WIDTH,
-      height: node.height ?? WORKFLOW_NODE_HEIGHT,
-    });
-    node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
+  nodes.forEach((node) => {
+    if (isPlaceholderNode(node)) {
+      graph.setNode(node.id, { width: WORKFLOW_NODE_WIDTH, height: WORKFLOW_NODE_HEIGHT });
+      node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
+    } else {
+      const workflow = workflows.find((w) => w.id === node.id);
+
+      if (!workflow) {
+        return;
+      }
+
+      graph.setNode(node.id, { width: WORKFLOW_NODE_WIDTH, height: node.height ?? WORKFLOW_NODE_HEIGHT });
+      workflow.dependsOn.forEach((source) => graph.setEdge(source, node.id));
+    }
   });
 
   dagre.layout(graph, { disableOptimalOrderHeuristic: true });
 
-  return nodes.map((n) => {
-    const { x, y, width, height } = graph.node(n.id);
-
-    if (n.data.fixed) {
-      return n;
+  return nodes.map((node) => {
+    if (isWorkflowNode(node) && node.data.fixed) {
+      return node;
     }
 
-    return {
-      ...n,
-      position: {
-        x: x - width / 2,
-        y: y - height / 2,
-      },
-    };
+    const { x, y, width, height } = graph.node(node.id);
+    return { ...node, position: { x: x - width / 2, y: y - height / 2 } };
   });
 }
+
+export default autoLayoutingGraphNodes;
