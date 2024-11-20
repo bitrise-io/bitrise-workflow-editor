@@ -13,7 +13,7 @@ const StepBundleContent = () => {
   const { replace } = useNavigation();
 
   return (
-    <Box padding="24">
+    <Box p="24">
       <Notification
         action={{
           label: 'Go to YAML page',

@@ -1,24 +1,22 @@
-import { Icon, useDisclosure } from '@bitrise/bitkit';
-import {
-  Drawer,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  UseDisclosureProps,
-} from '@chakra-ui/react';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import FloatingDrawer, {
+  FloatingDrawerBody,
+  FloatingDrawerCloseButton,
+  FloatingDrawerContent,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
+} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import { StepBundleContent, StepBundleHeader } from './StepBundlePanel';
 
-type Props = UseDisclosureProps & {
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   stepIndex: number;
 };
 
-const StepBundleDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
+const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
@@ -30,34 +28,18 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) 
   const { title } = data;
 
   return (
-    <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false}>
-      <DrawerOverlay
-        top={0}
-        bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
-      />
-      <DrawerContent
-        top={0}
-        gap="0"
-        padding={0}
-        display="flex"
-        flexDir="column"
-        margin={[0, 24]}
-        overflow="hidden"
-        boxShadow="large"
-        borderRadius={[0, 12]}
-        maxWidth={['100%', '50%']}
-      >
-        <DrawerCloseButton size="md">
-          <Icon name="Cross" />
-        </DrawerCloseButton>
-
-        <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
+    <FloatingDrawer {...props}>
+      <FloatingDrawerOverlay />
+      <FloatingDrawerContent maxWidth={['100%', '50%']}>
+        <FloatingDrawerCloseButton />
+        <FloatingDrawerHeader p="0" pb="0">
           <StepBundleHeader title={title} />
-        </DrawerHeader>
-
-        <StepBundleContent />
-      </DrawerContent>
-    </Drawer>
+        </FloatingDrawerHeader>
+        <FloatingDrawerBody p="0" pt="0">
+          <StepBundleContent />
+        </FloatingDrawerBody>
+      </FloatingDrawerContent>
+    </FloatingDrawer>
   );
 };
 
