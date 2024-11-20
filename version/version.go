@@ -1,5 +1,5 @@
 package version
 
 // VERSION ...
-const VERSION = "1.5.12468"
+const VERSION = "1.5.12470"
 	
