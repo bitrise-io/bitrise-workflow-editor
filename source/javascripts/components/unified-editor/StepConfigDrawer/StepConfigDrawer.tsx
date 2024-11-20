@@ -1,31 +1,28 @@
-import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  UseDisclosureProps,
-} from '@chakra-ui/react';
 import semver from 'semver';
-import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
+import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
 import StepBadge from '@/components/StepBadge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import VersionUtils from '@/core/utils/VersionUtils';
+import FloatingDrawer, {
+  FloatingDrawerBody,
+  FloatingDrawerCloseButton,
+  FloatingDrawerContent,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
+} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 
-type Props = UseDisclosureProps & {
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   stepIndex: number;
-  onCloseComplete?: () => void;
 };
 
 const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
-  const { isOpen, onClose } = useDisclosure(props);
   const { workflowId, stepIndex, data } = useStepDrawerContext();
   const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
 
@@ -40,29 +37,12 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
 
   return (
     <Tabs>
-      <Drawer isFullHeight isOpen={isOpen} autoFocus={false} onClose={onClose} onCloseComplete={onCloseComplete}>
-        <DrawerOverlay
-          top={0}
-          bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
-        />
-        <DrawerContent
-          top={0}
-          gap="0"
-          padding={0}
-          display="flex"
-          flexDir="column"
-          margin={[0, 24]}
-          overflow="hidden"
-          boxShadow="large"
-          borderRadius={[0, 12]}
-          maxWidth={['100%', '50%']}
-        >
-          <DrawerCloseButton size="md">
-            <Icon name="Cross" />
-          </DrawerCloseButton>
-
-          <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
-            <Box display="flex" px="24" pt="24" gap="16">
+      <FloatingDrawer {...props}>
+        <FloatingDrawerOverlay />
+        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+          <FloatingDrawerCloseButton />
+          <FloatingDrawerHeader>
+            <Box display="flex" gap="16">
               <Avatar
                 size="48"
                 src={data?.icon || defaultIcon}
@@ -103,15 +83,15 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                 </Box>
               </Box>
             </Box>
-            <Box position="relative" mt="8">
+            <Box position="relative" mt="8" mx="-24">
               <TabList paddingX="8">
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
               </TabList>
             </Box>
-          </DrawerHeader>
-          <DrawerBody p="16" flex="1" overflowY="auto">
+          </FloatingDrawerHeader>
+          <FloatingDrawerBody pt="0">
             <TabPanels>
               <TabPanel>
                 <ConfigurationTab />
@@ -125,9 +105,9 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
                 </TabPanel>
               )}
             </TabPanels>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+          </FloatingDrawerBody>
+        </FloatingDrawerContent>
+      </FloatingDrawer>
     </Tabs>
   );
 };
