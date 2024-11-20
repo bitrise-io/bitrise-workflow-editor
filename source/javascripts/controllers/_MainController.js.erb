@@ -1,7 +1,5 @@
 import _ from "underscore";
-import { isEqual } from "es-toolkit";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
 import { safeDigest } from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
@@ -424,6 +422,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
               yml_source: appService?.pipelineConfig?.usesRepositoryYml ? "git" : "bitrise"
             });
             datadogRumCustomTiming("wfe", "topNavigation");
+
           },
           function () {
             viewModel.menuProgress.reset();
@@ -437,31 +436,41 @@ import { segmentTrack } from "@/utils/segmentTracking";
       });
 
       viewModel.hasUnsavedChanges = function () {
+
         if (!viewModel.currentMenu) {
           return undefined;
         }
+
+        let result = false;
 
         switch (viewModel.currentMenu.id) {
           case "workflows":
           case "env-vars":
           case "pipelines":
           case "triggers":
-            return appService.appConfigHasUnsavedChanges();
+            result = appService.appConfigHasUnsavedChanges();
+            break;
           case "secrets":
-            // Disables the discard and save buttons for the secrets tab
-            return false;
+            result = false;
+            break;
           case "stack":
-            return (
+            result = (
               appService.appConfigHasUnsavedChanges() ||
               appService.stackHasUnsavedChanges() ||
               appService.defaultMachineTypeHasUnsavedChanges() ||
               appService.rollbackVersionHasUnsavedChanges()
             );
+            break;
           case "licenses":
-            return appService.appConfigHasUnsavedChanges();
+            result = appService.appConfigHasUnsavedChanges();
+            break;
           case "yml":
-            return appService.appConfigYMLHasUnsavedChanges();
+            result = appService.appConfigYMLHasUnsavedChanges();
+            break;
         }
+
+        window.dispatchEvent(new CustomEvent('main::yml::has-unsaved-changes', { detail: result }));
+        return result;
       };
 
       window.onload = function () {
