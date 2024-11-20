@@ -1,30 +1,26 @@
-import { Box, Icon, Notification, Tag, Text, useDisclosure } from '@bitrise/bitkit';
-import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  UseDisclosureProps,
-} from '@chakra-ui/react';
+import { Box, Notification, Tag, Text } from '@bitrise/bitkit';
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import FloatingDrawer, {
+  FloatingDrawerBody,
+  FloatingDrawerCloseButton,
+  FloatingDrawerContent,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
+} from '../FloatingDrawer/FloatingDrawer';
 import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
-type Props = UseDisclosureProps & {
-  yml?: BitriseYml;
+type Props = Omit<FloatingDrawerProps, 'children'> & {
+  context: 'pipeline' | 'workflow';
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepSelectorDrawerContent = ({ enabledSteps, onSelectStep, ...disclosureProps }: Props) => {
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
+const StepSelectorDrawer = ({ context, enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
   const form = useForm<SearchFormValues>({
     defaultValues: {
       search: '',
@@ -38,26 +34,20 @@ const StepSelectorDrawerContent = ({ enabledSteps, onSelectStep, ...disclosurePr
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
   const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
+  const handleCloseCompete = () => {
+    form.reset();
+    onCloseComplete?.();
+  };
+
+  const contentProps = context === 'workflow' ? { maxWidth: ['100%', '50%'] } : {};
+
   return (
     <FormProvider {...form}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={form.reset}>
-        <DrawerOverlay
-          top="0px"
-          bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
-        />
-        <DrawerContent
-          top="0px"
-          display="flex"
-          flexDir="column"
-          margin={[0, 24]}
-          boxShadow="large"
-          borderRadius={[0, 12]}
-          maxWidth={['100%', '50%']}
-        >
-          <DrawerCloseButton size="md">
-            <Icon name="Cross" />
-          </DrawerCloseButton>
-          <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
+      <FloatingDrawer isFullHeight onCloseComplete={handleCloseCompete} {...props}>
+        <FloatingDrawerOverlay />
+        <FloatingDrawerContent {...contentProps}>
+          <FloatingDrawerCloseButton />
+          <FloatingDrawerHeader>
             <Box display="flex" gap="12">
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
                 Add Step
@@ -90,27 +80,13 @@ const StepSelectorDrawerContent = ({ enabledSteps, onSelectStep, ...disclosurePr
             )}
 
             <StepFilter my={16} />
-          </DrawerHeader>
-          <DrawerBody flex="1" overflow="auto">
+          </FloatingDrawerHeader>
+          <FloatingDrawerBody>
             <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+          </FloatingDrawerBody>
+        </FloatingDrawerContent>
+      </FloatingDrawer>
     </FormProvider>
-  );
-};
-
-const StepSelectorDrawer = ({ yml, enabledSteps, onSelectStep, ...disclosureProps }: Props) => {
-  return (
-    <>
-      {yml ? (
-        <BitriseYmlProvider yml={yml}>
-          <StepSelectorDrawerContent enabledSteps={enabledSteps} onSelectStep={onSelectStep} {...disclosureProps} />
-        </BitriseYmlProvider>
-      ) : (
-        <StepSelectorDrawerContent enabledSteps={enabledSteps} onSelectStep={onSelectStep} {...disclosureProps} />
-      )}
-    </>
   );
 };
 

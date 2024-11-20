@@ -15,7 +15,6 @@ import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
 import {
   StepBundlePanel,
-  StepSelectorDrawer,
   WithGroupPanel,
   WorkflowEmptyState,
 } from "./components/unified-editor";
@@ -228,16 +227,6 @@ angular
       "yml",
       "defaultValues",
       "onChange",
-    ]),
-  )
-  .component(
-    "rStepSelectorDrawer",
-    register(StepSelectorDrawer, [
-      "yml",
-      "isOpen",
-      "onClose",
-      "enabledSteps",
-      "onSelectStep",
     ]),
   )
   .component(
