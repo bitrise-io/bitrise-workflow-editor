@@ -44,12 +44,24 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
+  const handleAddStep = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return (workflowId: string, stepIndex: number) => {
+      openDialog(PipelineConfigDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)();
+    };
+  }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
+
   const handleEditWorkflow = useMemo(() => {
     if (!isGraphPipelinesEnabled) {
       return undefined;
     }
 
-    return (workflowId: string) => openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)();
+    return (workflowId: string) => {
+      openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)();
+    };
   }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
 
   const handleRemoveWorkflow = useMemo(() => {
@@ -57,7 +69,9 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       return undefined;
     }
 
-    return (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] });
+    return (workflowId: string) => {
+      deleteElements({ nodes: [{ id: workflowId }] });
+    };
   }, [deleteElements, isGraphPipelinesEnabled]);
 
   const containerProps = useMemo(
@@ -87,7 +101,6 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onAddStep={}
         onSelectStep={}
         onMoveStep={}
         onUpgradeStep={}
@@ -97,7 +110,8 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         onChainWorkflow={}
         onChainChainedWorkflow={}
         onChainedWorkflowsUpdate={}
-         */
+        */
+        onAddStep={handleAddStep}
         onEditWorkflow={handleEditWorkflow}
         // onEditChainedWorkflow={openEditWorkflowDialog}
         onRemoveWorkflow={handleRemoveWorkflow}

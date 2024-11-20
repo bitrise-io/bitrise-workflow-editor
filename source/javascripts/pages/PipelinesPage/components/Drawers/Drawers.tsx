@@ -1,7 +1,8 @@
 import { PropsWithChildren } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StartBuildDialog, WorkflowConfigDrawer } from '@/components/unified-editor';
+import { StartBuildDialog, StepSelectorDrawer, WorkflowConfigDrawer } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
+import { Step } from '@/core/models/Step';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -9,13 +10,29 @@ import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDr
 
 const Drawers = ({ children }: PropsWithChildren) => {
   const [, setSearchParams] = useSearchParams();
-  const { pipelineId, workflowId, isDialogMounted, isDialogOpen, closeDialog, unmountDialog, setWorkflowId } =
-    usePipelinesPageStore();
 
-  const { createPipeline, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
+  const {
+    pipelineId,
+    workflowId,
+    stepIndex,
+    isDialogMounted,
+    isDialogOpen,
+    closeDialog,
+    unmountDialog,
+    setWorkflowId,
+  } = usePipelinesPageStore();
+
+  const { addStep, createPipeline, getUniqueStepIds, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
+    addStep: s.addStep,
     createPipeline: s.createPipeline,
+    getUniqueStepIds: s.getUniqueStepIds,
     addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
+
+  const handleAddStep = ({ cvs }: Step) => {
+    addStep(workflowId, cvs, stepIndex);
+    closeDialog();
+  };
 
   const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
     addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
@@ -75,6 +92,17 @@ const Drawers = ({ children }: PropsWithChildren) => {
           pipelineId={pipelineId}
           isOpen={isDialogOpen(PipelineConfigDialogType.START_BUILD)}
           onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(PipelineConfigDialogType.STEP_SELECTOR) && (
+        <StepSelectorDrawer
+          context="pipeline"
+          enabledSteps={new Set(getUniqueStepIds())}
+          isOpen={isDialogOpen(PipelineConfigDialogType.STEP_SELECTOR)}
+          onClose={closeDialog}
+          onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
         />
       )}

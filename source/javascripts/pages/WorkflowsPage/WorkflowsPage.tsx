@@ -150,6 +150,7 @@ const WorkflowsPageContent = () => {
       />
 
       <StepSelectorDrawer
+        context="workflow"
         enabledSteps={enabledSteps}
         isOpen={isStepSelectorDrawerOpen}
         onClose={closeDialog}

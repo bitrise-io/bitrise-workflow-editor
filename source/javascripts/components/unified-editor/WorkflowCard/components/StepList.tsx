@@ -69,6 +69,26 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
     setSortableItems(initialSortableItems);
   }, [initialSortableItems]);
 
+  const content = useMemo(() => {
+    return (
+      <Box display="flex" flexDir="column" gap="8" {...containerProps}>
+        {sortableItems.map((item) => {
+          const isLast = item.stepIndex === sortableItems.length - 1;
+
+          return (
+            <Fragment key={item.stepIndex}>
+              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
+              <StepCard {...item} isSortable={isSortable} {...actions} />
+              {isLast && onAddStep && (
+                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
+              )}
+            </Fragment>
+          );
+        })}
+      </Box>
+    );
+  }, [actions, containerProps, isSortable, onAddStep, sortableItems, workflowId]);
+
   if (isEmpty) {
     return (
       <EmptyState
@@ -94,13 +114,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
   }
 
   if (!isSortable) {
-    return (
-      <Box display="flex" flexDir="column" gap="8" {...containerProps}>
-        {sortableItems.map((item) => {
-          return <StepCard key={item.uniqueId} {...item} {...actions} />;
-        })}
-      </Box>
-    );
+    return content;
   }
 
   return (
@@ -115,21 +129,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
         strategy={verticalListSortingStrategy}
         items={getSortableItemUniqueIds(sortableItems)}
       >
-        <Box display="flex" flexDir="column" gap="8" {...containerProps}>
-          {sortableItems.map((item) => {
-            const isLast = item.stepIndex === sortableItems.length - 1;
-
-            return (
-              <Fragment key={item.stepIndex}>
-                <AddStepButton my={-8} onClick={onAddStep && (() => onAddStep(workflowId, item.stepIndex))} />
-                <StepCard {...item} isSortable {...actions} />
-                {isLast && (
-                  <AddStepButton my={-8} onClick={onAddStep && (() => onAddStep(workflowId, item.stepIndex + 1))} />
-                )}
-              </Fragment>
-            );
-          })}
-        </Box>
+        {content}
       </SortableContext>
       <DragOverlay>{activeItem && <StepCard {...activeItem} {...actions} isDragging isSortable />}</DragOverlay>
     </DndContext>
