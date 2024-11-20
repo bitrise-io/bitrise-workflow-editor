@@ -2,7 +2,6 @@ import StepBundlePanel from '@/components/unified-editor/StepBundle/StepBundlePa
 import WithGroupPanel from '@/components/unified-editor/WithGroup/WithGroupPanel';
 import WorkflowToolbar from './components/WorkflowMainToolbar';
 import WorkflowConfigPanel from './components/WorkflowConfigPanel/WorkflowConfigPanel';
-import ChainWorkflowDrawer from './components/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import StepConfigPanel from './components/StepConfigPanel/StepConfigPanel';
 import VersionChangeDialog from './components/StepConfigPanel/components/VersionChangeDialog';
 import DeleteWorkflowDialog from './components/DeleteWorkflowDialog/DeleteWorkflowDialog';
@@ -14,7 +13,6 @@ export {
   WorkflowConfigPanel,
   StepConfigPanel,
   StepItem,
-  ChainWorkflowDrawer,
   CreateWorkflowDialog,
   VersionChangeDialog,
   DeleteWorkflowDialog,

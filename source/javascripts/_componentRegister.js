@@ -20,7 +20,6 @@ import {
 } from "./components/unified-editor";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
-  ChainWorkflowDrawer,
   CreateWorkflowDialog,
   DeleteWorkflowDialog,
   StepConfigPanel,
@@ -116,7 +115,7 @@ angular
       "split",
       "modularYamlSupported",
       "lastModified",
-      "initialYmlRootPath"
+      "initialYmlRootPath",
     ]),
   )
   .component(
@@ -227,16 +226,6 @@ angular
       "yml",
       "defaultValues",
       "onChange",
-    ]),
-  )
-  .component(
-    "rChainWorkflowDrawer",
-    register(ChainWorkflowDrawer, [
-      "workflowId",
-      "yml",
-      "isOpen",
-      "onClose",
-      "onChainWorkflow",
     ]),
   )
   .component(

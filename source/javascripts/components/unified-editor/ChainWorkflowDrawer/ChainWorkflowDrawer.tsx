@@ -1,15 +1,14 @@
-import { Box, Icon, Notification, SearchInput, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Notification, SearchInput, Text } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  UseDisclosureProps,
-} from '@chakra-ui/react';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import FloatingDrawer, {
+  FloatingDrawerBody,
+  FloatingDrawerCloseButton,
+  FloatingDrawerContent,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
+} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
 
 type FormValues = {
@@ -22,35 +21,26 @@ type ChainWorkflowCallback = (
   placement: ChainedWorkflowPlacement,
 ) => void;
 
-type Props = UseDisclosureProps & {
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }: Props) => {
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
+const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...props }: Props) => {
   const form = useForm<FormValues>({ defaultValues: { search: '' } });
+
+  const handleCloseCompete = () => {
+    form.reset();
+    onCloseComplete?.();
+  };
 
   return (
     <FormProvider {...form}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={form.reset}>
-        <DrawerOverlay
-          top="0px"
-          bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
-        />
-        <DrawerContent
-          top="0px"
-          display="flex"
-          flexDir="column"
-          margin={[0, 24]}
-          boxShadow="large"
-          borderRadius={[0, 12]}
-          maxWidth={['100%', '50%']}
-        >
-          <DrawerCloseButton size="md">
-            <Icon name="Cross" />
-          </DrawerCloseButton>
-          <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
+      <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
+        <FloatingDrawerOverlay />
+        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+          <FloatingDrawerCloseButton />
+          <FloatingDrawerHeader>
             <Box display="flex" flexDir="column" gap="16">
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
                 Chain Workflows to '{workflowId}'
@@ -74,12 +64,12 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }
                 )}
               />
             </Box>
-          </DrawerHeader>
-          <DrawerBody flex="1" overflow="auto" mt="16">
+          </FloatingDrawerHeader>
+          <FloatingDrawerBody>
             <ChainableWorkflowList workflowId={workflowId} onChainWorkflow={onChainWorkflow} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+          </FloatingDrawerBody>
+        </FloatingDrawerContent>
+      </FloatingDrawer>
     </FormProvider>
   );
 };
