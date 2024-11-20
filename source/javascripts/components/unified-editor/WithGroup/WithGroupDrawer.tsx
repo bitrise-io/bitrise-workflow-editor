@@ -1,25 +1,23 @@
-import { Icon, useDisclosure } from '@bitrise/bitkit';
-import {
-  Drawer,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  UseDisclosureProps,
-} from '@chakra-ui/react';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
 import { WithGroup } from '@/core/models/Step';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import FloatingDrawer, {
+  FloatingDrawerBody,
+  FloatingDrawerCloseButton,
+  FloatingDrawerContent,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
+} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import { WithBlockContent, WithBlockHeader } from './WithGroupPanel';
 
-type Props = UseDisclosureProps & {
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   stepIndex: number;
 };
 
-const WithGroupDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
+const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const isWithGroup = StepService.isWithGroup(data?.cvs || '', defaultStepLibrary, data?.userValues);
@@ -34,34 +32,18 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) =
   } = data as WithGroup;
 
   return (
-    <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false}>
-      <DrawerOverlay
-        top={0}
-        bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
-      />
-      <DrawerContent
-        top={0}
-        gap="0"
-        padding={0}
-        display="flex"
-        flexDir="column"
-        margin={[0, 24]}
-        overflow="hidden"
-        boxShadow="large"
-        borderRadius={[0, 12]}
-        maxWidth={['100%', '50%']}
-      >
-        <DrawerCloseButton size="md">
-          <Icon name="Cross" />
-        </DrawerCloseButton>
-
-        <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
+    <FloatingDrawer {...props}>
+      <FloatingDrawerOverlay />
+      <FloatingDrawerContent maxWidth={['100%', '50%']}>
+        <FloatingDrawerCloseButton />
+        <FloatingDrawerHeader p="0" pb="0">
           <WithBlockHeader title={title} />
-        </DrawerHeader>
-
-        <WithBlockContent imageName={container} services={services} />
-      </DrawerContent>
-    </Drawer>
+        </FloatingDrawerHeader>
+        <FloatingDrawerBody p="0" pt="0">
+          <WithBlockContent imageName={container} services={services} />
+        </FloatingDrawerBody>
+      </FloatingDrawerContent>
+    </FloatingDrawer>
   );
 };
 
