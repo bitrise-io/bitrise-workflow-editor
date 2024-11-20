@@ -15,12 +15,11 @@ import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  context: 'pipeline' | 'workflow';
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepSelectorDrawer = ({ context, enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
   const form = useForm<SearchFormValues>({
     defaultValues: {
       search: '',
@@ -39,13 +38,11 @@ const StepSelectorDrawer = ({ context, enabledSteps, onSelectStep, onCloseComple
     onCloseComplete?.();
   };
 
-  const contentProps = context === 'workflow' ? { maxWidth: ['100%', '50%'] } : {};
-
   return (
     <FormProvider {...form}>
       <FloatingDrawer isFullHeight onCloseComplete={handleCloseCompete} {...props}>
         <FloatingDrawerOverlay />
-        <FloatingDrawerContent {...contentProps}>
+        <FloatingDrawerContent maxWidth={['100%', '50%']}>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="12">

@@ -98,7 +98,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(PipelineConfigDialogType.STEP_SELECTOR) && (
         <StepSelectorDrawer
-          context="pipeline"
           enabledSteps={new Set(getUniqueStepIds())}
           isOpen={isDialogOpen(PipelineConfigDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
