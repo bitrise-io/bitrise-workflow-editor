@@ -54,6 +54,16 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     };
   }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
 
+  const handleSelectStep = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return (workflowId: string, stepIndex: number) => {
+      openDialog(PipelineConfigDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)();
+    };
+  }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
+
   const handleEditWorkflow = useMemo(() => {
     if (!isGraphPipelinesEnabled) {
       return undefined;
@@ -101,7 +111,6 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onSelectStep={}
         onMoveStep={}
         onUpgradeStep={}
         onCloneStep={}
@@ -112,6 +121,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         onChainedWorkflowsUpdate={}
         */
         onAddStep={handleAddStep}
+        onSelectStep={handleSelectStep}
         onEditWorkflow={handleEditWorkflow}
         // onEditChainedWorkflow={openEditWorkflowDialog}
         onRemoveWorkflow={handleRemoveWorkflow}

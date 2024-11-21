@@ -11,7 +11,7 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerOverlay,
   FloatingDrawerProps,
-} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+} from '../FloatingDrawer/FloatingDrawer';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
@@ -22,7 +22,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepIndex: number;
 };
 
-const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
+const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>) => {
   const { workflowId, stepIndex, data } = useStepDrawerContext();
   const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
 
