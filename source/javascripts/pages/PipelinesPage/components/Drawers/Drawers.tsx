@@ -1,6 +1,11 @@
 import { PropsWithChildren } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StartBuildDialog, StepSelectorDrawer, WorkflowConfigDrawer } from '@/components/unified-editor';
+import {
+  StartBuildDialog,
+  StepConfigDrawer,
+  StepSelectorDrawer,
+  WorkflowConfigDrawer,
+} from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
 import { Step } from '@/core/models/Step';
 import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
@@ -102,6 +107,16 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelineConfigDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
           onSelectStep={handleAddStep}
+          onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(PipelineConfigDialogType.STEP_CONFIG) && (
+        <StepConfigDrawer
+          workflowId={workflowId}
+          stepIndex={stepIndex}
+          isOpen={isDialogOpen(PipelineConfigDialogType.STEP_CONFIG)}
+          onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
       )}
