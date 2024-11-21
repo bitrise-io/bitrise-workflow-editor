@@ -13,7 +13,6 @@ import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
-import { WorkflowEmptyState } from "./components/unified-editor";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
   CreateWorkflowDialog,
@@ -132,10 +131,6 @@ angular
       "canRunWorkflow",
       "isRunWorkflowDisabled",
     ]),
-  )
-  .component(
-    "rWorkflowEmptyState",
-    register(WorkflowEmptyState, ["onCreateWorkflow"]),
   )
   .component(
     "rWorkflowRecipesInfoBanner",
