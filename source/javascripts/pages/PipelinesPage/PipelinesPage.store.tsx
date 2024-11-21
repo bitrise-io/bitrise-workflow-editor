@@ -3,6 +3,7 @@ import { create } from 'zustand';
 export enum PipelineConfigDialogType {
   NONE,
   START_BUILD,
+  STEP_CONFIG,
   STEP_SELECTOR,
   PIPELINE_CONFIG,
   CREATE_PIPELINE,

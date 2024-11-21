@@ -18,8 +18,7 @@ import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import StepService from '@/core/models/StepService';
 import { BITRISE_STEP_LIBRARY_URL } from '@/core/models/Step';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
-import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
-import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
+import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 
 type Props = {
   yml: BitriseYml;
@@ -41,7 +40,7 @@ const WorkflowsPageContent = () => {
     unmountWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
-  const { addStep, createWorkflow, deleteWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
+  const { addStep, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
     addStep: s.addStep,
     createWorkflow: s.createWorkflow,
     deleteWorkflow: s.deleteWorkflow,
@@ -59,7 +58,6 @@ const WorkflowsPageContent = () => {
     isStepBundleDrawerOpen,
     isChainWorkflowDrawerOpen,
     isCreateWorkflowDialogOpen,
-    isDeleteWorkflowDialogOpen,
     isWorkflowConfigDrawerOpen,
     isWorkflowConfigDrawerMounted,
   } = {
@@ -72,7 +70,6 @@ const WorkflowsPageContent = () => {
     isStepBundleDrawerOpen: isDialogOpen === 'step-bundle-drawer',
     isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
-    isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
     isWorkflowConfigDrawerOpen: isDialogOpen === 'workflow-config-drawer',
     isWorkflowConfigDrawerMounted: dialogMounted['workflow-config-drawer'],
   };
@@ -117,12 +114,6 @@ const WorkflowsPageContent = () => {
         isOpen={isChainWorkflowDrawerOpen}
         onClose={closeDialog}
         onChainWorkflow={addChainedWorkflow}
-      />
-
-      <DeleteWorkflowDialog
-        isOpen={isDeleteWorkflowDialogOpen}
-        onClose={closeDialog}
-        onDeleteWorkflow={deleteWorkflow}
       />
 
       {isStepConfigDrawerMounted && (

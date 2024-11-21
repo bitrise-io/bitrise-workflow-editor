@@ -11,8 +11,8 @@ type ConfigurationTabProps = {
 };
 
 const ConfigurationTab = ({ context }: ConfigurationTabProps) => {
-  const workflow = useWorkflowConfigContext();
-  const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflow?.id || '');
+  const { id = '' } = useWorkflowConfigContext() || {};
+  const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(id);
 
   return (
     <Box display="flex" flexDir="column" gap="24">

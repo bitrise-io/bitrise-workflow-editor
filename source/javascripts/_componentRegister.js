@@ -9,20 +9,10 @@ import NotificationMessageWithLink from "./components/NotificationMessageWithLin
 import StepBadge from "./components/StepBadge";
 import Toggle from "./components/Toggle";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
-import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
-import {
-  CreateWorkflowDialog,
-  DeleteWorkflowDialog,
-  StepConfigPanel,
-  StepItem,
-  VersionChangeDialog,
-  WorkflowConfigPanel,
-  WorkflowToolbar,
-} from "./pages/WorkflowsPage";
 import {
   PipelinesPage,
   SecretsPage,
@@ -70,18 +60,6 @@ angular
   .component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
   .component("rRootComponent", react2angular(RootComponent))
   .component("rIcon", register(Icon, ["name", "textColor", "size"]))
-  .component(
-    "rStepItem",
-    register(StepItem, [
-      "workflowIndex",
-      "step",
-      "displayName",
-      "version",
-      "hasVersionUpdate",
-      "isSelected",
-      "onSelected",
-    ]),
-  )
   .component("rStepItemBadge", register(StepBadge, ["step"]))
   .component(
     "rUpdateConfigurationDialog",
@@ -116,25 +94,6 @@ angular
   .component(
     "rYmlEditor",
     register(YmlEditor, ["yml", "readonly", "onChange", "isLoading"]),
-  )
-  .component(
-    "rWorkflowToolbar",
-    register(WorkflowToolbar, [
-      "workflows",
-      "selectedWorkflow",
-      "selectWorkflow",
-      "createWorkflow",
-      "chainWorkflow",
-      "deleteWorkflow",
-      "rearrangeWorkflows",
-      "uniqueStepCount",
-      "canRunWorkflow",
-      "isRunWorkflowDisabled",
-    ]),
-  )
-  .component(
-    "rWorkflowRecipesInfoBanner",
-    register(WorkflowRecipesInfoBanner, []),
   )
   .component("rInfoTooltip", register(InfoTooltip, ["label"]))
   .component(
@@ -178,62 +137,4 @@ angular
   .component(
     "rNavigation",
     register(Navigation, ["items", "activeItem", "onItemSelected"]),
-  )
-  .component(
-    "rStepConfig",
-    register(StepConfigPanel, [
-      "step",
-      "environmentVariables",
-      "secrets",
-      "resolvedVersion",
-      "hasVersionUpdate",
-      "versionsWithRemarks",
-      "inputCategories",
-      "outputVariables",
-      "onChange",
-      "onClone",
-      "onRemove",
-      "onCreateSecret",
-      "onLoadSecrets",
-      "onCreateEnvVar",
-      "onLoadEnvVars",
-    ]),
-  )
-  .component(
-    "rVersionChangeDialog",
-    register(VersionChangeDialog, [
-      "isOpen",
-      "onClose",
-      "isMajorChange",
-      "newInputs",
-      "removedInputs",
-      "releaseNotesUrl",
-    ]),
-  )
-  .component(
-    "rWorkflowConfigPanel",
-    register(WorkflowConfigPanel, [
-      "appSlug",
-      "yml",
-      "defaultValues",
-      "onChange",
-    ]),
-  )
-  .component(
-    "rDeleteWorkflowDialog",
-    register(DeleteWorkflowDialog, [
-      "workflowId",
-      "isOpen",
-      "onClose",
-      "onDeleteWorkflow",
-    ]),
-  )
-  .component(
-    "rCreateWorkflowDialog",
-    register(CreateWorkflowDialog, [
-      "yml",
-      "isOpen",
-      "onClose",
-      "onCreateWorkflow",
-    ]),
   );
