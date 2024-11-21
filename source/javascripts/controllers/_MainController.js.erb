@@ -415,13 +415,23 @@ import { segmentTrack } from "@/utils/segmentTracking";
             }
 
             viewModel.menuProgress.success();
+
             segmentTrack("Workflow Editor Tab Displayed", {
               tab_name: menu.id,
               is_default_tab: isInitialSelection,
               yml_source: appService?.pipelineConfig?.usesRepositoryYml ? "git" : "bitrise"
             });
+
             datadogRumCustomTiming("wfe", "topNavigation");
 
+            if (window.clarity) {
+              if (WindowUtils?.userSlug()) {
+                window.clarity("identify", WindowUtils.userSlug(), undefined, `WFE - ${menu.title}`);
+              }
+              if (WindowUtils?.workspaceSlug()) {
+                window.clarity("set", "workspace_slug", WindowUtils.workspaceSlug());
+              }
+            }
           },
           function () {
             viewModel.menuProgress.reset();
