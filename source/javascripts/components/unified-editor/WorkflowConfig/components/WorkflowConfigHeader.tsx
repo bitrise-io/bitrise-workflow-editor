@@ -11,18 +11,26 @@ type Props = {
 };
 
 const WorkflowConfigHeader = ({ variant, context }: Props) => {
-  const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
+  const { id = '', userValues } = useWorkflowConfigContext() ?? {};
+
   const dependants = useDependantWorkflows(id);
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
+  const showSubTitle = context === 'workflow';
   const shouldShowDeleteButton = variant === 'panel';
   const shouldShowTriggersTab =
-    useFeatureFlag('enable-target-based-triggers') && !WorkflowService.isUtilityWorkflow(id) && variant === 'panel';
-  const showSubTitle = context === 'workflow';
+    variant === 'panel' && isTargetBasedTriggersEnabled && !WorkflowService.isUtilityWorkflow(id);
 
   return (
     <>
-      <Box px="24" py="16" display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        px={variant === 'panel' ? '24' : '0'}
+        py={variant === 'panel' ? '16' : '0'}
+      >
         <Box>
           <Text as="h3" textStyle="heading/h3">
             {userValues?.title || id || 'Workflow'}
@@ -43,11 +51,13 @@ const WorkflowConfigHeader = ({ variant, context }: Props) => {
           />
         )}
       </Box>
-      <TabList paddingX="8" position="relative" mt="8">
-        <Tab>Configuration</Tab>
-        <Tab>Properties</Tab>
-        {shouldShowTriggersTab && <Tab>Triggers</Tab>}
-      </TabList>
+      <Box mx={variant === 'drawer' ? '-24' : '0'} mt="16">
+        <TabList position="relative" paddingX="8">
+          <Tab>Configuration</Tab>
+          <Tab>Properties</Tab>
+          {shouldShowTriggersTab && <Tab>Triggers</Tab>}
+        </TabList>
+      </Box>
     </>
   );
 };

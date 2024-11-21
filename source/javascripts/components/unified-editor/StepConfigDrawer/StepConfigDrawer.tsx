@@ -91,7 +91,7 @@ const StepConfigDrawerContent = ({ onCloseComplete, ...props }: Omit<Props, 'wor
               </TabList>
             </Box>
           </FloatingDrawerHeader>
-          <FloatingDrawerBody pt="0">
+          <FloatingDrawerBody>
             <TabPanels>
               <TabPanel>
                 <ConfigurationTab />

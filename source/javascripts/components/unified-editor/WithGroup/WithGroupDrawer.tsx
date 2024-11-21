@@ -1,3 +1,4 @@
+import { Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
 import { WithGroup } from '@/core/models/Step';
@@ -10,7 +11,7 @@ import FloatingDrawer, {
   FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import { WithBlockContent, WithBlockHeader } from './WithGroupPanel';
+import useNavigation from '@/hooks/useNavigation';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
@@ -18,6 +19,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 };
 
 const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+  const { replace } = useNavigation();
   const { data } = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const isWithGroup = StepService.isWithGroup(data?.cvs || '', defaultStepLibrary, data?.userValues);
@@ -36,11 +38,45 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
       <FloatingDrawerOverlay />
       <FloatingDrawerContent maxWidth={['100%', '50%']}>
         <FloatingDrawerCloseButton />
-        <FloatingDrawerHeader p="0" pb="0">
-          <WithBlockHeader title={title} />
+        <FloatingDrawerHeader>
+          <Text as="h3" textStyle="heading/h3">
+            {title}
+          </Text>
         </FloatingDrawerHeader>
-        <FloatingDrawerBody p="0" pt="0">
-          <WithBlockContent imageName={container} services={services} />
+        <FloatingDrawerBody>
+          {!!container && (
+            <Input
+              isRequired
+              isReadOnly
+              label="Image"
+              inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+              marginBlockEnd="24"
+              value={container}
+            />
+          )}
+          {services && services.length > 0 && (
+            <TagsInput
+              isReadOnly
+              label="Service"
+              isRequired
+              marginBlockEnd="24"
+              value={services}
+              onNewValues={() => {}}
+              onRemove={() => {}}
+            />
+          )}
+          <Notification
+            action={{
+              label: 'Go to YAML page',
+              onClick: () => replace('/yml'),
+            }}
+            status="info"
+          >
+            <Text textStyle="comp/notification/title">Edit container or service configuration</Text>
+            <Text textStyle="comp/notification/message">
+              View more details or edit the container or service configuration on the Configuration YAML page.
+            </Text>
+          </Notification>
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>

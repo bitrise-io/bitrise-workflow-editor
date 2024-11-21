@@ -59,11 +59,11 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
 };
 
 const FloatingDrawerHeader = (props: ModalHeaderProps) => {
-  return <DrawerHeader p="24" pb="16" color="initial" textTransform="initial" fontWeight="initial" {...props} />;
+  return <DrawerHeader p="24" pb="0" color="initial" textTransform="initial" fontWeight="initial" {...props} />;
 };
 
 const FloatingDrawerBody = (props: ModalBodyProps) => {
-  return <DrawerBody p="24" pt="16" flex="1" overflowY="auto" {...props} />;
+  return <DrawerBody p="24" flex="1" overflowY="auto" {...props} />;
 };
 
 const FloatingDrawerFooter = (props: ModalFooterProps) => {

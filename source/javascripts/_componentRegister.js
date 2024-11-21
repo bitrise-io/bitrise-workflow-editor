@@ -13,11 +13,7 @@ import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
-import {
-  StepBundlePanel,
-  WithGroupPanel,
-  WorkflowEmptyState,
-} from "./components/unified-editor";
+import { WorkflowEmptyState } from "./components/unified-editor";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
   CreateWorkflowDialog,
@@ -245,9 +241,4 @@ angular
       "onClose",
       "onCreateWorkflow",
     ]),
-  )
-  .component("rStepBundlePanel", register(StepBundlePanel, ["bundleName"]))
-  .component(
-    "rWithGroupPanel",
-    register(WithGroupPanel, ["groupName", "imageName", "services"]),
   );

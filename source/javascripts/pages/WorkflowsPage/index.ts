@@ -1,5 +1,3 @@
-import StepBundlePanel from '@/components/unified-editor/StepBundle/StepBundlePanel';
-import WithGroupPanel from '@/components/unified-editor/WithGroup/WithGroupPanel';
 import WorkflowToolbar from './components/WorkflowMainToolbar';
 import WorkflowConfigPanel from './components/WorkflowConfigPanel/WorkflowConfigPanel';
 import StepConfigPanel from './components/StepConfigPanel/StepConfigPanel';
@@ -16,6 +14,4 @@ export {
   CreateWorkflowDialog,
   VersionChangeDialog,
   DeleteWorkflowDialog,
-  StepBundlePanel,
-  WithGroupPanel,
 };

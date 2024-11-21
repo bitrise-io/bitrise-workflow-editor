@@ -76,7 +76,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
               </Notification>
             )}
 
-            <StepFilter my={16} />
+            <StepFilter mt={16} />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
             <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
