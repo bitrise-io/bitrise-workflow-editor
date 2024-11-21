@@ -7,7 +7,7 @@ import WorkflowService from '@/core/models/WorkflowService';
 import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
-import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
+import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
 type Props = {
   workflowId: string;

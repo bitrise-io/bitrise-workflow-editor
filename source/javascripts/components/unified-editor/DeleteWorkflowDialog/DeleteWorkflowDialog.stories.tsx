@@ -7,16 +7,12 @@ export default {
   component: DeleteWorkflowDialog,
   args: {
     isOpen: true,
+    workflowId: 'wf-1',
   },
   argTypes: {
     isOpen: { type: 'boolean' },
     onClose: { type: 'function' },
-    onDelete: { type: 'function' },
-  },
-  parameters: {
-    query: {
-      workflow_id: 'wf-1',
-    },
+    onDeleteWorkflow: { type: 'function' },
   },
   decorators: (Story) => withBitriseYml(MockYml, Story),
 } as Meta<typeof DeleteWorkflowDialog>;

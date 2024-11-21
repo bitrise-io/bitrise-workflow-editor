@@ -1,29 +1,26 @@
-import { Button, Dialog, DialogBody, DialogFooter, List, ListItem, Text } from '@bitrise/bitkit';
-import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
-import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import { useWorkflows } from '@/hooks/useWorkflows';
+import { useCallback } from 'react';
+import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-type Props = UseDisclosureProps & {
-  onDeleteWorkflow: (workflowId: string) => void;
+type Props = Omit<DialogProps, 'title'> & {
+  workflowId: string;
+  onDeleteWorkflow?: (workflowId: string) => void;
 };
 
-const DeleteWorkflowDialog = ({ onDeleteWorkflow, ...disclosureProps }: Props) => {
-  const workflows = useWorkflows();
-  const workflowIds = Object.keys(workflows);
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
-  const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
+const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialogProps }: Props) => {
+  const deleteWorkflow = useBitriseYmlStore((s) => s.deleteWorkflow);
 
-  const handleDelete = () => {
-    setSelectedWorkflow(workflowIds.find((id) => id !== selectedWorkflowId));
-    onDeleteWorkflow(selectedWorkflowId);
+  const handleDelete = useCallback(() => {
+    deleteWorkflow(workflowId);
+    onDeleteWorkflow?.(workflowId);
     onClose();
-  };
+  }, [workflowId, deleteWorkflow, onDeleteWorkflow, onClose]);
 
   return (
-    <Dialog isOpen={isOpen} title="Delete Workflow?" onClose={onClose}>
+    <Dialog title="Delete Workflow?" onClose={onClose} {...dialogProps}>
       <DialogBody display="flex" flexDir="column" gap="24">
         <Text>
-          Are you sure you want to delete <strong>{selectedWorkflowId}</strong>?
+          Are you sure you want to delete <strong>{workflowId}</strong>?
         </Text>
         <List variant="unstyled" spacing="6">
           <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
