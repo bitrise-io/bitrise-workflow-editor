@@ -3,6 +3,7 @@ import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from 
 import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
@@ -136,16 +137,18 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         </>
       )}
 
-      <Button
-        size="md"
-        variant="secondary"
-        leftIconName="Play"
-        aria-label={runButtonAriaLabel}
-        isDisabled={isEmpty || hasUnsavedChanges}
-        onClick={onRunClick}
-      >
-        Run
-      </Button>
+      {RuntimeUtils.isWebsiteMode() && (
+        <Button
+          size="md"
+          variant="secondary"
+          leftIconName="Play"
+          aria-label={runButtonAriaLabel}
+          isDisabled={isEmpty || hasUnsavedChanges}
+          onClick={onRunClick}
+        >
+          Run
+        </Button>
+      )}
     </Box>
   );
 };
