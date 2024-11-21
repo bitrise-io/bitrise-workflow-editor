@@ -13,14 +13,8 @@ import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
-import {
-  StepBundlePanel,
-  WithGroupPanel,
-  WorkflowEmptyState,
-} from "./components/unified-editor";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
-  ChainWorkflowDrawer,
   CreateWorkflowDialog,
   DeleteWorkflowDialog,
   StepConfigPanel,
@@ -116,7 +110,7 @@ angular
       "split",
       "modularYamlSupported",
       "lastModified",
-      "initialYmlRootPath"
+      "initialYmlRootPath",
     ]),
   )
   .component(
@@ -137,10 +131,6 @@ angular
       "canRunWorkflow",
       "isRunWorkflowDisabled",
     ]),
-  )
-  .component(
-    "rWorkflowEmptyState",
-    register(WorkflowEmptyState, ["onCreateWorkflow"]),
   )
   .component(
     "rWorkflowRecipesInfoBanner",
@@ -230,16 +220,6 @@ angular
     ]),
   )
   .component(
-    "rChainWorkflowDrawer",
-    register(ChainWorkflowDrawer, [
-      "workflowId",
-      "yml",
-      "isOpen",
-      "onClose",
-      "onChainWorkflow",
-    ]),
-  )
-  .component(
     "rDeleteWorkflowDialog",
     register(DeleteWorkflowDialog, [
       "workflowId",
@@ -256,9 +236,4 @@ angular
       "onClose",
       "onCreateWorkflow",
     ]),
-  )
-  .component("rStepBundlePanel", register(StepBundlePanel, ["bundleName"]))
-  .component(
-    "rWithGroupPanel",
-    register(WithGroupPanel, ["groupName", "imageName", "services"]),
   );
