@@ -37,12 +37,12 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
 
   return (
     <Tabs>
-      <FloatingDrawer isFullHeight autoFocus={false} {...props}>
+      <FloatingDrawer {...props}>
         <FloatingDrawerOverlay />
         <FloatingDrawerContent maxWidth={['100%', '50%']}>
           <FloatingDrawerCloseButton />
-          <FloatingDrawerHeader p="0" pb="0">
-            <Box display="flex" px="24" pt="24" gap="16">
+          <FloatingDrawerHeader>
+            <Box display="flex" gap="16">
               <Avatar
                 size="48"
                 src={data?.icon || defaultIcon}
@@ -83,7 +83,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
                 </Box>
               </Box>
             </Box>
-            <Box position="relative" mt="8">
+            <Box position="relative" mt="8" mx="-24">
               <TabList paddingX="8">
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
@@ -91,7 +91,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
               </TabList>
             </Box>
           </FloatingDrawerHeader>
-          <FloatingDrawerBody p="16">
+          <FloatingDrawerBody>
             <TabPanels>
               <TabPanel>
                 <ConfigurationTab />
