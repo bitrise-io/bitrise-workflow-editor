@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
-import { MockYml } from '@/core/models/BitriseYml.mocks';
 import WithGroupDrawer from './WithGroupDrawer';
 
 export default {
@@ -8,10 +7,10 @@ export default {
   component: WithGroupDrawer,
   args: {
     isOpen: true,
-    workflowId: 'with-group',
-    stepIndex: 0,
+    workflowId: 'wf7',
+    stepIndex: 3,
   },
-  decorators: [(Story) => withBitriseYml(MockYml, Story)],
+  decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
 } as Meta<typeof WithGroupDrawer>;
 
 export const Drawer: StoryObj<typeof WithGroupDrawer> = {};

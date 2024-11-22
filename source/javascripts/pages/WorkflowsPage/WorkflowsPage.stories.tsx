@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
-import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
@@ -17,7 +16,12 @@ type Story = StoryObj<typeof WorkflowsPage>;
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
   args: {
-    yml: MockYml,
+    yml: TEST_BITRISE_YML,
+  },
+  argTypes: {
+    onChange: {
+      type: 'function',
+    },
   },
   parameters: {
     layout: 'fullscreen',
@@ -30,11 +34,6 @@ const meta: Meta<typeof WorkflowsPage> = {
         getFileStorageDocuments(),
         getDefaultOutputs(':appSlug'),
       ],
-    },
-  },
-  argTypes: {
-    onChange: {
-      type: 'function',
     },
   },
   decorators: (Story) => (
