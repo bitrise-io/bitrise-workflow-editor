@@ -10,19 +10,19 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
 import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
-type Props = Omit<FloatingDrawerProps, 'children'> & {
+type Props = Omit<FloatingDrawerProps, 'size' | 'children'> & {
+  size?: 'md' | 'lg';
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ size = 'md', enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({ tabIds: ['step', 'stepBundle'] });
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -49,8 +49,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
     <Tabs variant="line" index={tabIndex} onChange={setTabIndex}>
       <FormProvider {...form}>
         <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
-          <FloatingDrawerOverlay />
-          <FloatingDrawerContent maxWidth={['100%', '50%']} data-clarity-unmask="true">
+          <FloatingDrawerContent size={size} data-clarity-unmask="true">
             <FloatingDrawerCloseButton />
             <FloatingDrawerHeader>
               <Box display="flex" gap="12">

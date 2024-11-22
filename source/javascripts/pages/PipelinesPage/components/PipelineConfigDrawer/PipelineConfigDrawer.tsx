@@ -5,7 +5,6 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -67,7 +66,6 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   return (
     <>
       <FloatingDrawer {...props}>
-        <FloatingDrawerOverlay />
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>

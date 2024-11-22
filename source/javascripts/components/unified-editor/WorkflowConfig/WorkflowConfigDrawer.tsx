@@ -4,7 +4,6 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowConfigProvider from './WorkflowConfig.context';
@@ -12,20 +11,18 @@ import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 
-type Props = Omit<FloatingDrawerProps, 'children'> & {
+type Props = Omit<FloatingDrawerProps, 'size' | 'children'> & {
+  size?: 'md' | 'lg';
   workflowId: string;
   context: 'pipeline' | 'workflow';
   onRename: (name: string) => void;
 };
 
-const WorkflowConfigDrawerContent = ({ context, onRename, ...props }: Omit<Props, 'workflowId'>) => {
-  const contentProps = context === 'workflow' ? { maxWidth: ['100%', '50%'] } : {};
-
+const WorkflowConfigDrawerContent = ({ size = 'md', context, onRename, ...props }: Omit<Props, 'workflowId'>) => {
   return (
     <Tabs>
       <FloatingDrawer {...props}>
-        <FloatingDrawerOverlay />
-        <FloatingDrawerContent {...contentProps}>
+        <FloatingDrawerContent size={size}>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <WorkflowConfigHeader variant="drawer" context={context} />

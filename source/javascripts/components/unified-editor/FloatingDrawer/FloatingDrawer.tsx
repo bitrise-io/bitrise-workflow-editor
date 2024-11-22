@@ -18,8 +18,14 @@ import { Icon } from '@bitrise/bitkit';
 
 type FloatingDrawerProps = DrawerProps;
 
-const FloatingDrawer = (props: FloatingDrawerProps) => {
-  return <Drawer isFullHeight {...props} />;
+const FloatingDrawer = ({ children, ...props }: FloatingDrawerProps) => {
+  return (
+    <Drawer isFullHeight blockScrollOnMount={false} closeOnOverlayClick={false} {...props}>
+      {/* NOTE: Without the overlay the close animation doesn't occur */}
+      <FloatingDrawerOverlay zIndex="fullDialogOverlay" display="none" />
+      {children}
+    </Drawer>
+  );
 };
 
 const FloatingDrawerOverlay = (props: ModalOverlayProps) => {
@@ -40,19 +46,39 @@ const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => 
   );
 };
 
-const FloatingDrawerContent = (props: DrawerContentProps) => {
+function getContentMaxWidth(size: 'md' | 'lg') {
+  switch (size) {
+    case 'lg':
+      return ['100%', 'clamp(420px, 60%, 1024px)'];
+    case 'md':
+    default:
+      return ['100%', 'clamp(420px, 40%, 700px)'];
+  }
+}
+
+type FloatingDrawerContentProps = DrawerContentProps & {
+  size?: 'md' | 'lg';
+};
+const FloatingDrawerContent = ({ size = 'md', ...props }: FloatingDrawerContentProps) => {
+  const maxW = getContentMaxWidth(size);
+
   return (
     <DrawerContent
+      zIndex="fullDialog"
       top={0}
       gap={0}
       padding={0}
       margin={[0, 24]}
+      marginTop={[0, 64]}
       display="flex"
       flexDir="column"
       overflow="hidden"
       boxShadow="large"
       borderRadius={[0, 12]}
-      maxWidth={['100%', 'clamp(420px, 30%, 700px)']}
+      maxW={maxW}
+      containerProps={{
+        display: 'contents',
+      }}
       {...props}
     />
   );
