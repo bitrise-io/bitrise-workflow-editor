@@ -110,11 +110,6 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-<<<<<<< HEAD
-        onSelectStep={}
-=======
-        onMoveStep={}
->>>>>>> master
         onUpgradeStep={}
         onCloneStep={}
         onDeleteStep={}
