@@ -242,7 +242,10 @@ const TriggersTab = () => {
             <Text>
               Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
               targets.{' '}
-              <Link href="https://devcenter.bitrise.io/" isUnderlined>
+              <Link
+                href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+                isUnderlined
+              >
                 Learn more
               </Link>
             </Text>
