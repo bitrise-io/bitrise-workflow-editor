@@ -62,9 +62,9 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
             className="nopan"
             onClick={onToggle}
             iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-            aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+            aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
             tooltipProps={{
-              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details`,
+              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
             }}
           />
         )}
@@ -104,6 +104,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
         )}
         {onRemoveWorkflow && (
           <ControlButton
+            isDanger
             size="xs"
             display="none"
             iconName="Trash"

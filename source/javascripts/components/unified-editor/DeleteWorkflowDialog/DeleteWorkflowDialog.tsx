@@ -1,21 +1,23 @@
-import { Button, Dialog, DialogBody, DialogFooter, List, ListItem, Text } from '@bitrise/bitkit';
-import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
+import { useCallback } from 'react';
+import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-type Props = UseDisclosureProps & {
+type Props = Omit<DialogProps, 'title'> & {
   workflowId: string;
-  onDeleteWorkflow: (workflowId: string) => void;
+  onDeleteWorkflow?: (workflowId: string) => void;
 };
 
-const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps }: Props) => {
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
+const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialogProps }: Props) => {
+  const deleteWorkflow = useBitriseYmlStore((s) => s.deleteWorkflow);
 
-  const handleDelete = () => {
-    onDeleteWorkflow(workflowId);
+  const handleDelete = useCallback(() => {
+    deleteWorkflow(workflowId);
+    onDeleteWorkflow?.(workflowId);
     onClose();
-  };
+  }, [workflowId, deleteWorkflow, onDeleteWorkflow, onClose]);
 
   return (
-    <Dialog isOpen={isOpen} title="Delete Workflow?" onClose={onClose}>
+    <Dialog title="Delete Workflow?" onClose={onClose} {...dialogProps}>
       <DialogBody display="flex" flexDir="column" gap="24">
         <Text>
           Are you sure you want to delete <strong>{workflowId}</strong>?

@@ -26,7 +26,7 @@ import {
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '@/pages/TriggersPage/components/TargetBasedTriggers/AddTrigger';
 import { segmentTrack } from '@/utils/segmentTracking';
-import useUserMetaData from '../../../../../hooks/useUserMetaData';
+import useUserMetaData from '../../../../hooks/useUserMetaData';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
@@ -114,7 +114,7 @@ const TriggerItem = (props: TriggerItemProps) => {
   );
 };
 
-const TriggersTabPanel = () => {
+const TriggersTab = () => {
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTriggerItem } | undefined>(
     undefined,
@@ -366,4 +366,4 @@ const TriggersTabPanel = () => {
   );
 };
 
-export default TriggersTabPanel;
+export default TriggersTab;

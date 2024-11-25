@@ -128,9 +128,9 @@ const ChainedWorkflowCard = ({
           onClick={onToggle}
           isDisabled={isDragging}
           iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-          aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+          aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
           tooltipProps={{
-            'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details`,
+            'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
           }}
         />
 
@@ -170,9 +170,10 @@ const ChainedWorkflowCard = ({
             )}
             {onRemoveChainedWorkflow && (
               <ControlButton
+                isDanger
                 size="xs"
                 iconName="Trash"
-                aria-label="Remove"
+                aria-label="Remove Workflow"
                 tooltipProps={{ 'aria-label': 'Remove' }}
                 onClick={() => onRemoveChainedWorkflow(index, parentWorkflowId, placement)}
               />
