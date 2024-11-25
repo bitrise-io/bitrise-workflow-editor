@@ -1,11 +1,7 @@
-import { Edge } from '@xyflow/react';
 import { GRAPH_EDGE_TYPE } from '../GraphPipelineCanvas.const';
+import { GraphPipelineEdgeType } from '../GraphPipelineCanvas.types';
 
-export default function createGraphEdge(
-  sourceWorkflowId: string,
-  targetWorkflowId: string,
-  actionable: boolean = false,
-): Edge {
+function createGraphPipelineEdge(sourceWorkflowId: string, targetWorkflowId: string, actionable: boolean) {
   return {
     id: `${sourceWorkflowId}->${targetWorkflowId}`,
     deletable: actionable,
@@ -15,5 +11,7 @@ export default function createGraphEdge(
     type: GRAPH_EDGE_TYPE,
     source: sourceWorkflowId,
     target: targetWorkflowId,
-  };
+  } satisfies GraphPipelineEdgeType;
 }
+
+export default createGraphPipelineEdge;

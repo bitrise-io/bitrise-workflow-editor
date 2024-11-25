@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
@@ -18,13 +19,28 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
-  const hasWorkflows = useBitriseYmlStore(
-    (s) => !!Object.keys(s.yml.pipelines?.[selectedPipeline]?.workflows || {}).length,
-  );
+  const isEmpty = useBitriseYmlStore((s) => {
+    const pipeline = s.yml.pipelines?.[selectedPipeline];
 
+    if (pipeline?.workflows) {
+      return Object.keys(pipeline.workflows).length === 0;
+    }
+
+    if (pipeline?.stages) {
+      return pipeline.stages.length === 0;
+    }
+
+    return true;
+  });
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [search, setSearch] = useState('');
-
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    setDebouncedSearch(value);
+  };
+
   const [pipelineIds] = useMemo(() => {
     const ids: string[] = [];
 
@@ -37,12 +53,24 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return [ids];
   }, [debouncedSearch, keys]);
 
-  const onSearchChange = (value: string) => {
-    setSearch(value);
-    setDebouncedSearch(value);
-  };
-
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+  useEffect(() => {
+    const listener = (event: CustomEvent<boolean>) => {
+      setHasUnsavedChanges(event.detail);
+    };
+
+    window.addEventListener('main::yml::has-unsaved-changes' as never, listener);
+
+    return () => window.removeEventListener('main::yml::has-unsaved-changes' as never, listener);
+  }, []);
+
+  const runButtonAriaLabel = useMemo(() => {
+    if (hasUnsavedChanges) {
+      return 'Save changes before running';
+    }
+
+    return 'Run Pipeline';
+  }, [hasUnsavedChanges]);
 
   return (
     <Box
@@ -109,9 +137,18 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         </>
       )}
 
-      <Button size="md" variant="secondary" leftIconName="Play" isDisabled={!hasWorkflows} onClick={onRunClick}>
-        Run
-      </Button>
+      {RuntimeUtils.isWebsiteMode() && (
+        <Button
+          size="md"
+          variant="secondary"
+          leftIconName="Play"
+          aria-label={runButtonAriaLabel}
+          isDisabled={isEmpty || hasUnsavedChanges}
+          onClick={onRunClick}
+        >
+          Run
+        </Button>
+      )}
     </Box>
   );
 };

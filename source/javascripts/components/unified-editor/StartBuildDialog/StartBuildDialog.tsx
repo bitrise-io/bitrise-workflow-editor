@@ -34,11 +34,11 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
             window.open(data?.build_url, '_blank');
           }
         },
-        onError: (error) => {
+        onError: async (error) => {
           toast({
             status: 'error',
             title: 'Failed to start build',
-            description: error.message,
+            description: error.response ? (await error.response.json()).message : error.message,
           });
         },
       },

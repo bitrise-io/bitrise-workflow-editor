@@ -27,7 +27,7 @@ const WorkflowConfigDrawerContent = ({ context, onRename, ...props }: Omit<Props
         <FloatingDrawerOverlay />
         <FloatingDrawerContent {...contentProps}>
           <FloatingDrawerCloseButton />
-          <FloatingDrawerHeader p="0" pb="0">
+          <FloatingDrawerHeader>
             <WorkflowConfigHeader variant="drawer" context={context} />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>

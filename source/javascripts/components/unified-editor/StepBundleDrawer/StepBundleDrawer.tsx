@@ -1,7 +1,6 @@
-import { Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
+import { Notification, Text } from '@bitrise/bitkit';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
-import { WithGroup } from '@/core/models/Step';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -18,20 +17,17 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepIndex: number;
 };
 
-const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { replace } = useNavigation();
   const { data } = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
-  const isWithGroup = StepService.isWithGroup(data?.cvs || '', defaultStepLibrary, data?.userValues);
 
-  if (!isWithGroup || !data) {
+  const title = data?.title;
+  const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
+
+  if (!isStepBundle || !data) {
     return null;
   }
-
-  const {
-    title,
-    userValues: { container = '', services = [] },
-  } = data as WithGroup;
 
   return (
     <FloatingDrawer {...props}>
@@ -44,27 +40,6 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
           </Text>
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
-          {!!container && (
-            <Input
-              isRequired
-              isReadOnly
-              label="Image"
-              inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-              marginBlockEnd="24"
-              value={container}
-            />
-          )}
-          {services && services.length > 0 && (
-            <TagsInput
-              isReadOnly
-              label="Service"
-              isRequired
-              marginBlockEnd="24"
-              value={services}
-              onNewValues={() => {}}
-              onRemove={() => {}}
-            />
-          )}
           <Notification
             action={{
               label: 'Go to YAML page',
@@ -72,9 +47,9 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
             }}
             status="info"
           >
-            <Text textStyle="comp/notification/title">Edit container or service configuration</Text>
+            <Text textStyle="comp/notification/title">Edit step bundle configuration</Text>
             <Text textStyle="comp/notification/message">
-              View more details or edit the container or service configuration on the Configuration YAML page.
+              View more details or edit step bundle configuration in the Configuration YAML page.
             </Text>
           </Notification>
         </FloatingDrawerBody>
@@ -83,4 +58,4 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   );
 };
 
-export default WithGroupDrawer;
+export default StepBundleDrawer;

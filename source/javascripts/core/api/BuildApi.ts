@@ -22,6 +22,14 @@ type StartBuildResponse = {
   build_url?: string;
 };
 
+type StartBuildErrorResponse = {
+  status: string;
+  message: string;
+  triggered_workflow?: string;
+  triggered_pipeline?: string;
+  results: Omit<StartBuildErrorResponse, 'results'>[];
+};
+
 function createStartBuildRequestBody({
   pipelineId,
   workflowId,
@@ -74,5 +82,5 @@ function startBuild({
   });
 }
 
-export type { StartBuildResponse };
+export type { StartBuildRequestBody, StartBuildResponse, StartBuildErrorResponse };
 export default { getStartBuildPath, startBuild };

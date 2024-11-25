@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Box, IconButton } from '@bitrise/bitkit';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, removeChainedWorkflow } =
     useBitriseYmlStore((s) => ({
       moveStep: s.moveStep,
@@ -32,6 +34,28 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     openChainWorkflowDialog,
     openWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
+
+  useEffect(() => {
+    const listener = (event: CustomEvent<boolean>) => {
+      setHasUnsavedChanges(event.detail);
+    };
+
+    window.addEventListener('main::yml::has-unsaved-changes' as never, listener);
+
+    return () => window.removeEventListener('main::yml::has-unsaved-changes' as never, listener);
+  }, []);
+
+  const runButtonAriaLabel = useMemo(() => {
+    if (WorkflowService.isUtilityWorkflow(workflowId)) {
+      return "Utility workflows can't be run";
+    }
+
+    if (hasUnsavedChanges) {
+      return 'Save changes before running';
+    }
+
+    return 'Run Workflow';
+  }, [hasUnsavedChanges, workflowId]);
 
   const openStepLikeDrawer: StepActions['onSelectStep'] = (wfId, stepIndex, libraryType) => {
     switch (libraryType) {
@@ -56,15 +80,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
             size="md"
             iconName="Play"
             variant="secondary"
-            aria-label={
-              WorkflowService.isUtilityWorkflow(workflowId) ? "Utility workflows can't be run" : 'Run Workflow'
-            }
+            aria-label={runButtonAriaLabel}
             tooltipProps={{
-              'aria-label': WorkflowService.isUtilityWorkflow(workflowId)
-                ? "Utility workflows can't be run"
-                : 'Run Workflow',
+              'aria-label': runButtonAriaLabel,
             }}
-            isDisabled={WorkflowService.isUtilityWorkflow(workflowId)}
+            isDisabled={WorkflowService.isUtilityWorkflow(workflowId) || hasUnsavedChanges}
             onClick={() => openRunWorkflowDialog(workflowId)}
           />
         )}

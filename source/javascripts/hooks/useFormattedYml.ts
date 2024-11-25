@@ -1,16 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { BitriseYml } from '../core/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 
-const useFormattedYml = (appConfig: BitriseYml) => {
-  return useQuery({
-    queryKey: ['format-yml', appConfig],
-    queryFn: ({ signal }) =>
-      BitriseYmlApi.formatYml({
-        model: appConfig,
-        signal,
-      }),
-    staleTime: Infinity,
+const useFormattedYml = () => {
+  return useMutation({
+    mutationFn: (ciConfig: BitriseYml) => BitriseYmlApi.formatYml(ciConfig),
   });
 };
 
