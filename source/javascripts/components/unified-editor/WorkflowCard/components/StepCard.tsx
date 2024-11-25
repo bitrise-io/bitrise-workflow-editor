@@ -21,6 +21,7 @@ import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -81,8 +82,9 @@ const StepCard = ({
   onCloneStep,
   onDeleteStep,
 }: StepCardProps) => {
-  const defaultStepLibrary = useDefaultStepLibrary();
+  const scale = getRectFlowViewportScale();
   const result = useStep(workflowId, stepIndex);
+  const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
 
   const sortable = useSortable({
@@ -121,6 +123,11 @@ const StepCard = ({
     );
   }
 
+  const style = {
+    transition: sortable.transition,
+    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+  };
+
   if (sortable.isDragging) {
     return (
       <Box
@@ -135,10 +142,7 @@ const StepCard = ({
         textStyle="body/sm/regular"
         borderColor="border/strong"
         backgroundColor="background/secondary"
-        style={{
-          transition: sortable.transition,
-          transform: CSS.Transform.toString(sortable.transform),
-        }}
+        style={style}
       />
     );
   }
@@ -155,10 +159,7 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      style={{
-        transition: sortable.transition,
-        transform: CSS.Transform.toString(sortable.transform),
-      }}
+      style={style}
     >
       {isSortable && (
         <DragHandle

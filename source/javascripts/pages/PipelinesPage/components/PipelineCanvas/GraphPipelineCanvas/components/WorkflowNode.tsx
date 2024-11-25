@@ -1,9 +1,10 @@
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { Box, CardProps } from '@bitrise/bitkit';
-import { useHover, useResizeObserver } from 'usehooks-ts';
 import { NodeProps, useReactFlow } from '@xyflow/react';
-import { WorkflowCard } from '@/components/unified-editor';
+import { useHover, useResizeObserver } from 'usehooks-ts';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { WorkflowCard } from '@/components/unified-editor';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
@@ -36,11 +37,9 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  /* NOTE: will be included later
-  const { removeChainedWorkflow } = useBitriseYmlStore((s) => ({
-    removeChainedWorkflow: s.removeChainedWorkflow,
+  const { moveStep } = useBitriseYmlStore((s) => ({
+    moveStep: s.moveStep,
   }));
-  */
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
@@ -111,7 +110,6 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onMoveStep={}
         onUpgradeStep={}
         onCloneStep={}
         onDeleteStep={}
@@ -120,6 +118,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         onChainChainedWorkflow={}
         onChainedWorkflowsUpdate={}
         */
+        onMoveStep={moveStep}
         onAddStep={handleAddStep}
         onSelectStep={handleSelectStep}
         onEditWorkflow={handleEditWorkflow}
