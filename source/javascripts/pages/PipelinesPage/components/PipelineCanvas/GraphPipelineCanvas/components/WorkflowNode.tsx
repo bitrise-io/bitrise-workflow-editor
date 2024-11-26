@@ -37,8 +37,11 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  const { moveStep } = useBitriseYmlStore((s) => ({
+  const { moveStep, cloneStep, deleteStep, upgradeStep } = useBitriseYmlStore((s) => ({
     moveStep: s.moveStep,
+    cloneStep: s.cloneStep,
+    deleteStep: s.deleteStep,
+    upgradeStep: s.changeStepVersion,
   }));
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
@@ -62,6 +65,30 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       openDialog(PipelinesPageDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)();
     };
   }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
+
+  const handleClonseStep = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return cloneStep;
+  }, [isGraphPipelinesEnabled, cloneStep]);
+
+  const handleDeleteStep = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return deleteStep;
+  }, [isGraphPipelinesEnabled, deleteStep]);
+
+  const handleUpgradeStep = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return upgradeStep;
+  }, [isGraphPipelinesEnabled, upgradeStep]);
 
   const handleEditWorkflow = useMemo(() => {
     if (!isGraphPipelinesEnabled) {
@@ -110,9 +137,6 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onUpgradeStep={}
-        onCloneStep={}
-        onDeleteStep={}
         onCreateWorkflow={]
         onChainWorkflow={}
         onChainChainedWorkflow={}
@@ -120,7 +144,10 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         */
         onMoveStep={moveStep}
         onAddStep={handleAddStep}
+        onCloneStep={handleClonseStep}
         onSelectStep={handleSelectStep}
+        onDeleteStep={handleDeleteStep}
+        onUpgradeStep={handleUpgradeStep}
         onEditWorkflow={handleEditWorkflow}
         // onEditChainedWorkflow={openEditWorkflowDialog}
         onRemoveWorkflow={handleRemoveWorkflow}
