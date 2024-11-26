@@ -9,7 +9,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineNodeType, GraphPipelineEdgeType } from '../GraphPipelineCanvas.types';
-import { usePipelinesPageStore, PipelineConfigDialogType } from '../../../../PipelinesPage.store';
+import { usePipelinesPageStore, PipelinesPageDialogType } from '../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -49,7 +49,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     }
 
     return (workflowId: string, stepIndex: number) => {
-      openDialog(PipelineConfigDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)();
+      openDialog(PipelinesPageDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)();
     };
   }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
 
@@ -59,7 +59,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     }
 
     return (workflowId: string, stepIndex: number) => {
-      openDialog(PipelineConfigDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)();
+      openDialog(PipelinesPageDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)();
     };
   }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
 
@@ -69,7 +69,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     }
 
     return (workflowId: string) => {
-      openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)();
+      openDialog(PipelinesPageDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)();
     };
   }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
 

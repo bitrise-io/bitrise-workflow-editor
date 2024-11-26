@@ -10,15 +10,15 @@ import {
   EmptyState,
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
-import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 const WorkflowSelector = () => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
+  const { openDialog } = useWorkflowsPageStore();
   const dropdownRef = useRef<HTMLButtonElement>(null);
-  const { openCreateWorkflowDialog } = useWorkflowsPageStore();
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
   const [search, setSearch] = useState('');
@@ -50,7 +50,7 @@ const WorkflowSelector = () => {
   };
 
   const onCreateWorkflow = () => {
-    openCreateWorkflowDialog();
+    openDialog(WorkflowsPageDialogType.CREATE_WORKFLOW)();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 

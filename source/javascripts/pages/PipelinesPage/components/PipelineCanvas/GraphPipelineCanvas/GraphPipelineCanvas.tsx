@@ -15,7 +15,7 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
-import { PipelineConfigDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
@@ -137,7 +137,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         <GraphPipelineCanvasEmptyState
           inset="0"
           position="absolute"
-          onAddWorkflow={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
+          onAddWorkflow={openDialog(PipelinesPageDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
         />
       )}
     </>
