@@ -32,7 +32,6 @@ import {
 } from '@dnd-kit/sortable';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { TriggerType, TriggerItem } from '../TriggersPage/TriggersPage.types';
@@ -155,27 +154,23 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     openTagTriggerDialog();
   };
 
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
-
   return (
     <>
-      {isTargetBasedTriggersEnabled && (
-        <>
-          <Text as="h3" textStyle="heading/h3" marginBottom="4">
-            Legacy triggers
-          </Text>
-          <Text color="text/secondary">
-            A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
-            <Link
-              colorScheme="purple"
-              href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-              isExternal
-            >
-              Learn more
-            </Link>
-          </Text>
-        </>
-      )}
+      <>
+        <Text as="h3" textStyle="heading/h3" marginBottom="4">
+          Legacy triggers
+        </Text>
+        <Text color="text/secondary">
+          A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
+          <Link
+            colorScheme="purple"
+            href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+            isExternal
+          >
+            Learn more
+          </Link>
+        </Text>
+      </>
       <Tabs marginTop="24" marginBottom="24">
         <TabList>
           <Tab>Push</Tab>

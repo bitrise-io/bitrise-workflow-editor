@@ -3,7 +3,6 @@ import { Link, Notification, Text } from '@bitrise/bitkit';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import LegacyTriggers from '../LegacyTriggers/LegacyTriggers';
@@ -21,8 +20,6 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
   const appSlug = WindowUtils.appSlug() ?? '';
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
-
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
@@ -57,7 +54,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
           <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>
       )}
-      {isTargetBasedTriggersEnabled && <TargetBasedTriggers yml={yml} />}
+      <TargetBasedTriggers yml={yml} />
       <LegacyTriggers yml={yml} />
     </>
   );
