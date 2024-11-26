@@ -1,4 +1,4 @@
-import { Box, Notification, Tag, Text } from '@bitrise/bitkit';
+import { Box, Card, Notification, Tab, TabList, Tabs, TabPanels, TabPanel, Tag, Text } from '@bitrise/bitkit';
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -55,31 +55,44 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                 </Tag>
               )}
             </Box>
-
-            {stepLimitReached && (
-              <Notification
-                mt={16}
-                status="warning"
-                alignSelf="flex-end"
-                action={{
-                  label: 'Upgrade',
-                  href: upgradeLink,
-                  target: '_blank',
-                  rel: 'noreferrer noopener',
-                }}
-              >
-                <Text size="3" fontWeight="bold">
-                  You cannot add a new Step now
-                </Text>
-                Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in your
-                current plan. To add more Steps, upgrade your plan.
-              </Notification>
-            )}
-
-            <StepFilter mt={16} />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
+            <Tabs variant="line">
+              <TabList>
+                <Tab>Step</Tab>
+                <Tab>Step bundle</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  {stepLimitReached && (
+                    <Notification
+                      mt={16}
+                      status="warning"
+                      alignSelf="flex-end"
+                      action={{
+                        label: 'Upgrade',
+                        href: upgradeLink,
+                        target: '_blank',
+                        rel: 'noreferrer noopener',
+                      }}
+                    >
+                      <Text size="3" fontWeight="bold">
+                        You cannot add a new Step now
+                      </Text>
+                      Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in
+                      your current plan. To add more Steps, upgrade your plan.
+                    </Notification>
+                  )}
+                  <StepFilter mt={16} />
+                  <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
+                </TabPanel>
+                <TabPanel display="flex" flexDir="column" gap="16">
+                  <StepFilter mt={16} />
+                  <Card variant="outline">Step bundle 1</Card>
+                  <Card variant="outline">Step bundle 2</Card>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
       </FloatingDrawer>
