@@ -49,6 +49,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
 
   const {
     handleAddStep,
+    handleMoveStep,
     handleSelectStep,
     handleClonseStep,
     handleDeleteStep,
@@ -65,6 +66,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     return {
       handleAddStep: (workflowId: string, stepIndex: number) =>
         openDialog(PipelinesPageDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)(),
+      handleMoveStep: moveStep,
       handleSelectStep: (workflowId: string, stepIndex: number) =>
         openDialog(PipelinesPageDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)(),
       handleClonseStep: cloneStep,
@@ -78,6 +80,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       handleRemoveChainedWorkflow: removeChainedWorkflow,
     };
   }, [
+    moveStep,
     cloneStep,
     openDialog,
     deleteStep,
@@ -118,8 +121,8 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         onCreateWorkflow={]
         onChainedWorkflowsUpdate={}
         */
-        onMoveStep={moveStep}
         onAddStep={handleAddStep}
+        onMoveStep={handleMoveStep}
         onCloneStep={handleClonseStep}
         onSelectStep={handleSelectStep}
         onDeleteStep={handleDeleteStep}
