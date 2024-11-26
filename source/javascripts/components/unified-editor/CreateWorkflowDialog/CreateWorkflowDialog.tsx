@@ -1,6 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
-import { UseDisclosureProps } from '@chakra-ui/react';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -10,15 +9,14 @@ type FormValues = {
   baseWorkflowId: string;
 };
 
-type Props = UseDisclosureProps & {
+type Props = Omit<DialogProps, 'title'> & {
   onCreateWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
 };
 
-const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) => {
+const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...props }: Props) => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
   const [, setSelectedWorkflow] = useSelectedWorkflow();
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const {
     reset,
@@ -43,11 +41,6 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
     });
   };
 
-  const handleClose = () => {
-    onClose();
-    reset();
-  };
-
   const handleCreate = handleSubmit(({ workflowId, baseWorkflowId }) => {
     onCreateWorkflow(workflowId, baseWorkflowId);
     onClose();
@@ -59,10 +52,11 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
       setSelectedWorkflow(workflowId);
     }
     reset();
+    onCloseComplete?.();
   };
 
   return (
-    <Dialog title="Create Workflow" isOpen={isOpen} onClose={handleClose} onCloseComplete={handleCloseComplete}>
+    <Dialog title="Create Workflow" onClose={onClose} onCloseComplete={handleCloseComplete} {...props}>
       <DialogBody>
         <Box as="form" display="flex" flexDir="column" gap="24">
           <Input
@@ -90,7 +84,7 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
         </Box>
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
         <Button type="submit" onClick={handleCreate}>
