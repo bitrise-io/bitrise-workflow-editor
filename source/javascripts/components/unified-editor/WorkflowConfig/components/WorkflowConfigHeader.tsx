@@ -1,7 +1,6 @@
 import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type Props = {
@@ -13,11 +12,9 @@ const WorkflowConfigHeader = ({ variant, context }: Props) => {
   const { id = '', userValues } = useWorkflowConfigContext() ?? {};
 
   const dependants = useDependantWorkflows(id);
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const showSubTitle = context === 'workflow';
-  const shouldShowTriggersTab =
-    variant === 'panel' && isTargetBasedTriggersEnabled && !WorkflowService.isUtilityWorkflow(id);
+  const shouldShowTriggersTab = variant === 'panel' && !WorkflowService.isUtilityWorkflow(id);
 
   return (
     <>

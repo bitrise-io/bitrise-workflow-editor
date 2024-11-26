@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
 import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/TriggersTab';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -17,7 +16,6 @@ const WorkflowConfigPanelContent = () => {
   const workflows = useWorkflows();
   const [, setSelectedWorkflow] = useSelectedWorkflow();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
   const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({
     tabIds: TAB_IDS,
   });
@@ -56,11 +54,9 @@ const WorkflowConfigPanelContent = () => {
         <TabPanel p="24" overflowY="auto" h="100%">
           <PropertiesTab variant="panel" onRename={setSelectedWorkflow} onDelete={onDelete} />
         </TabPanel>
-        {isTargetBasedTriggersEnabled && (
-          <TabPanel overflowY="auto" h="100%">
-            <TriggersTab />
-          </TabPanel>
-        )}
+        <TabPanel overflowY="auto" h="100%">
+          <TriggersTab />
+        </TabPanel>
       </TabPanels>
     </Tabs>
   );
