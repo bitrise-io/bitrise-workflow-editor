@@ -7,7 +7,12 @@ import StepService from '@/core/models/StepService';
 import { SearchFormValues } from '../StepSelectorDrawer.types';
 import { formValueToArray } from '../StepSelectorDrawer.utils';
 
-const StepFilter = (props: BoxProps) => {
+interface StepFilterProps extends BoxProps {
+  activeTab: 'step' | 'stepBundle';
+}
+
+const StepFilter = (props: StepFilterProps) => {
+  const { activeTab } = props;
   const { data: steps = [] } = useAlgoliaSteps();
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
 
@@ -18,31 +23,33 @@ const StepFilter = (props: BoxProps) => {
         render={({ field: { ref, onChange, ...rest } }) => (
           <SearchInput
             inputRef={ref}
-            placeholder="Filter by name or description"
+            placeholder={activeTab === 'step' ? 'Filter by name or description...' : 'Filter by name...'}
             onChange={(value) => onChange({ target: { value } })}
             {...rest}
           />
         )}
       />
-      <Controller<SearchFormValues>
-        name="categories"
-        render={({ field: { ref, value, ...rest } }) => (
-          <SelectableTagGroup
-            display="flex"
-            flexWrap="wrap"
-            columnGap="8"
-            rowGap="16"
-            value={formValueToArray(value)}
-            {...rest}
-          >
-            {categories.map((category) => (
-              <SelectableTag key={category} value={category}>
-                {category}
-              </SelectableTag>
-            ))}
-          </SelectableTagGroup>
-        )}
-      />
+      {activeTab === 'step' && (
+        <Controller<SearchFormValues>
+          name="categories"
+          render={({ field: { ref, value, ...rest } }) => (
+            <SelectableTagGroup
+              display="flex"
+              flexWrap="wrap"
+              columnGap="8"
+              rowGap="16"
+              value={formValueToArray(value)}
+              {...rest}
+            >
+              {categories.map((category) => (
+                <SelectableTag key={category} value={category} mb={24}>
+                  {category}
+                </SelectableTag>
+              ))}
+            </SelectableTagGroup>
+          )}
+        />
+      )}
     </Box>
   );
 };
