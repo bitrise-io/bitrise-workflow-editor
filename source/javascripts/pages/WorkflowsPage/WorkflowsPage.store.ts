@@ -17,6 +17,11 @@ type State = {
   stepIndex: number;
   openedDialogType: WorkflowsPageDialogType;
   mountedDialogType: WorkflowsPageDialogType;
+  nextDialog?: {
+    type: WorkflowsPageDialogType;
+    workflowId: string;
+    stepIndex: number;
+  };
 };
 
 type Action = {
@@ -35,12 +40,20 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   mountedDialogType: WorkflowsPageDialogType.NONE,
   openDialog: (type, workflowId = '', stepIndex = -1) => {
     return () => {
-      return set(() => ({
-        workflowId,
-        stepIndex,
-        openedDialogType: type,
-        mountedDialogType: type,
-      }));
+      return set(({ openedDialogType, closeDialog }) => {
+        if (openedDialogType !== WorkflowsPageDialogType.NONE) {
+          closeDialog();
+          return { nextDialog: { type, workflowId, stepIndex } };
+        }
+
+        return {
+          workflowId,
+          stepIndex,
+          nextDialog: undefined,
+          openedDialogType: type,
+          mountedDialogType: type,
+        };
+      });
     };
   },
   closeDialog: () => {
@@ -49,12 +62,21 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
     }));
   },
   unmountDialog: () => {
-    return set(() => ({
-      workflowId: '',
-      stepIndex: -1,
-      openedDialogType: WorkflowsPageDialogType.NONE,
-      mountedDialogType: WorkflowsPageDialogType.NONE,
-    }));
+    return set(({ nextDialog, openDialog }) => {
+      if (nextDialog) {
+        requestAnimationFrame(() => {
+          openDialog(nextDialog.type, nextDialog.workflowId, nextDialog.stepIndex)();
+        });
+      }
+
+      return {
+        workflowId: '',
+        stepIndex: -1,
+        nextDialog: undefined,
+        openedDialogType: WorkflowsPageDialogType.NONE,
+        mountedDialogType: WorkflowsPageDialogType.NONE,
+      };
+    });
   },
   setWorkflowId: (workflowId = '') => {
     return set(() => ({
