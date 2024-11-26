@@ -6,7 +6,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WorkflowService from '@/core/models/WorkflowService';
 import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
-import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
 type Props = {
@@ -15,25 +15,18 @@ type Props = {
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, removeChainedWorkflow } =
+
+  const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
     useBitriseYmlStore((s) => ({
       moveStep: s.moveStep,
-      setChainedWorkflows: s.setChainedWorkflows,
-      removeChainedWorkflow: s.removeChainedWorkflow,
-      upgradeStep: s.changeStepVersion,
       cloneStep: s.cloneStep,
       deleteStep: s.deleteStep,
+      upgradeStep: s.changeStepVersion,
+      setChainedWorkflows: s.setChainedWorkflows,
+      removeChainedWorkflow: s.removeChainedWorkflow,
     }));
 
-  const {
-    openStepConfigDrawer,
-    openWithGroupConfigDrawer,
-    openStepBundleDrawer,
-    openStepSelectorDrawer,
-    openRunWorkflowDialog,
-    openChainWorkflowDialog,
-    openWorkflowConfigDrawer,
-  } = useWorkflowsPageStore();
+  const { openDialog } = useWorkflowsPageStore();
 
   useEffect(() => {
     const listener = (event: CustomEvent<boolean>) => {
@@ -60,15 +53,31 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const openStepLikeDrawer: StepActions['onSelectStep'] = (wfId, stepIndex, libraryType) => {
     switch (libraryType) {
       case LibraryType.WITH:
-        openWithGroupConfigDrawer(wfId, stepIndex);
+        openDialog(WorkflowsPageDialogType.WITH_GROUP, wfId, stepIndex)();
         break;
       case LibraryType.BUNDLE:
-        openStepBundleDrawer(wfId, stepIndex);
+        openDialog(WorkflowsPageDialogType.STEP_BUNDLE, wfId, stepIndex)();
         break;
       default:
-        openStepConfigDrawer(wfId, stepIndex);
+        openDialog(WorkflowsPageDialogType.STEP_CONFIG, wfId, stepIndex)();
         break;
     }
+  };
+
+  const openRunWorkflowDialog = (wfId: string) => {
+    openDialog(WorkflowsPageDialogType.START_BUILD, wfId)();
+  };
+
+  const openWorkflowConfigDrawer = (wfId: string) => {
+    openDialog(WorkflowsPageDialogType.WORKFLOW_CONFIG, wfId)();
+  };
+
+  const openChainWorkflowDialog = (wfId: string) => {
+    openDialog(WorkflowsPageDialogType.CHAIN_WORKFLOW, wfId)();
+  };
+
+  const openStepSelectorDrawer = (wfId: string, stepIndex: number) => {
+    openDialog(WorkflowsPageDialogType.STEP_SELECTOR, wfId, stepIndex)();
   };
 
   return (

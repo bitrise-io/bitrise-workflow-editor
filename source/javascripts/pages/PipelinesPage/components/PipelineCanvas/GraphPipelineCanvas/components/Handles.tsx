@@ -9,7 +9,7 @@ import createPlaceholderNode from '../utils/createPlaceholderNode';
 import createPlaceholderEdge from '../utils/createPlaceholderEdge';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanvas.const';
-import { PipelineConfigDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 
 const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
   width: 12,
@@ -90,7 +90,7 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
       top={WORKFLOW_NODE_HEIGHT / 2}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      onClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline, id ?? '')}
+      onClick={openDialog(PipelinesPageDialogType.WORKFLOW_SELECTOR, selectedPipeline, id ?? '')}
     >
       <HandleIcon isDragging={isDragging} />
       <Handle {...props} position={position} style={{ ...defaultHandleButtonStyle }} />

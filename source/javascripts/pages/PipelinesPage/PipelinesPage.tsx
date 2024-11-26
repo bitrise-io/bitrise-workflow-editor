@@ -10,7 +10,7 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import Drawers from './components/Drawers/Drawers';
 import usePipelineSelector from './hooks/usePipelineSelector';
 import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
-import { PipelineConfigDialogType, usePipelinesPageStore } from './PipelinesPage.store';
+import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.store';
 import UpgradePlanEmptyState from './components/EmptyStates/UpgradePlanEmptyState';
 import StagePipelineEmptyState from './components/EmptyStates/StagePipelineEmptyState';
 import ReactivatePlanEmptyState from './components/EmptyStates/ReactivatePlanEmptyState';
@@ -72,7 +72,7 @@ const PipelinesPageContent = () => {
     case 'reactivate-your-pipelines':
       return <ReactivatePlanEmptyState onReactivate={canAccessPipelines === false ? upgradePlan : undefined} />;
     case 'create-first-graph-pipeline':
-      return <CreateFirstGraphPipelineEmptyState onCreate={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)} />;
+      return <CreateFirstGraphPipelineEmptyState onCreate={openDialog(PipelinesPageDialogType.CREATE_PIPELINE)} />;
     case 'create-first-staged-pipeline':
       return <StagePipelineEmptyState />;
   }

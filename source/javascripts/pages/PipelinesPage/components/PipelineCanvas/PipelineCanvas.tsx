@@ -3,7 +3,7 @@ import { Controls, MiniMap } from '@xyflow/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 import Toolbar from '../Toolbar/Toolbar';
-import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
 
@@ -22,10 +22,10 @@ const PipelineCanvas = () => {
         position="absolute"
         transform="translateX(-50%)"
         width="clamp(0px, calc(100% - 32px), 768px)"
-        onWorkflowsClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
-        onPropertiesClick={openDialog(PipelineConfigDialogType.PIPELINE_CONFIG, selectedPipeline)}
-        onCreatePipelineClick={openDialog(PipelineConfigDialogType.CREATE_PIPELINE)}
-        onRunClick={openDialog(PipelineConfigDialogType.START_BUILD, selectedPipeline)}
+        onWorkflowsClick={openDialog(PipelinesPageDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
+        onPropertiesClick={openDialog(PipelinesPageDialogType.PIPELINE_CONFIG, selectedPipeline)}
+        onCreatePipelineClick={openDialog(PipelinesPageDialogType.CREATE_PIPELINE)}
+        onRunClick={openDialog(PipelinesPageDialogType.START_BUILD, selectedPipeline)}
       />
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
         <Controls showInteractive={false} />
