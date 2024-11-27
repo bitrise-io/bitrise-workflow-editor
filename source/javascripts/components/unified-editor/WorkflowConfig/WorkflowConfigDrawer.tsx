@@ -11,18 +11,17 @@ import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 
-type Props = Omit<FloatingDrawerProps, 'size' | 'children'> & {
-  size?: 'md' | 'lg';
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   context: 'pipeline' | 'workflow';
   onRename: (name: string) => void;
 };
 
-const WorkflowConfigDrawerContent = ({ size = 'md', context, onRename, ...props }: Omit<Props, 'workflowId'>) => {
+const WorkflowConfigDrawerContent = ({ context, onRename, ...props }: Omit<Props, 'workflowId'>) => {
   return (
     <Tabs>
       <FloatingDrawer {...props}>
-        <FloatingDrawerContent size={size}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <WorkflowConfigHeader variant="drawer" context={context} />

@@ -16,8 +16,7 @@ import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.type
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
-type Props = Omit<FloatingDrawerProps, 'size' | 'children'> & {
-  size?: 'md' | 'lg';
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
 };

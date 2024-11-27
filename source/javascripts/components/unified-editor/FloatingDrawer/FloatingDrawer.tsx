@@ -1,3 +1,4 @@
+import { createContext, useContext, useMemo } from 'react';
 import {
   CloseButtonProps,
   Drawer,
@@ -16,15 +17,24 @@ import {
 } from '@chakra-ui/react';
 import { Icon } from '@bitrise/bitkit';
 
-type FloatingDrawerProps = DrawerProps;
+type FloatingDrawerProps = Omit<DrawerProps, 'size'> & {
+  size?: 'md' | 'lg';
+};
 
-const FloatingDrawer = ({ children, ...props }: FloatingDrawerProps) => {
+const FloatingDrawerContext = createContext<Required<Pick<FloatingDrawerProps, 'size'>>>({ size: 'md' });
+const useFloatingDrawerContext = () => useContext(FloatingDrawerContext);
+
+const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps) => {
+  const providerProps = useMemo(() => ({ size }), [size]);
+
   return (
-    <Drawer isFullHeight blockScrollOnMount={false} closeOnOverlayClick={false} {...props}>
-      {/* NOTE: Without the overlay the close animation doesn't occur */}
-      <FloatingDrawerOverlay zIndex="fullDialogOverlay" display="none" />
-      {children}
-    </Drawer>
+    <FloatingDrawerContext.Provider value={providerProps}>
+      <Drawer isFullHeight blockScrollOnMount={false} closeOnOverlayClick={false} {...props}>
+        {/* NOTE: Without the overlay the close animation doesn't occur */}
+        <FloatingDrawerOverlay zIndex="fullDialogOverlay" display="none" />
+        {children}
+      </Drawer>
+    </FloatingDrawerContext.Provider>
   );
 };
 
@@ -56,10 +66,8 @@ function getContentMaxWidth(size: 'md' | 'lg') {
   }
 }
 
-type FloatingDrawerContentProps = DrawerContentProps & {
-  size?: 'md' | 'lg';
-};
-const FloatingDrawerContent = ({ size = 'md', ...props }: FloatingDrawerContentProps) => {
+const FloatingDrawerContent = (props: DrawerContentProps) => {
+  const { size } = useFloatingDrawerContext();
   const maxW = getContentMaxWidth(size);
 
   return (

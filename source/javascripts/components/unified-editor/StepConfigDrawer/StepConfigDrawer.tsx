@@ -16,13 +16,12 @@ import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 
-type Props = Omit<FloatingDrawerProps, 'size' | 'children'> & {
-  size?: 'md' | 'lg';
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   stepIndex: number;
 };
 
-const StepConfigDrawerContent = ({ size = 'md', ...props }: Omit<Props, 'workflowId' | 'stepIndex'>) => {
+const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>) => {
   const { workflowId, stepIndex, data } = useStepDrawerContext();
   const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
 
@@ -38,7 +37,7 @@ const StepConfigDrawerContent = ({ size = 'md', ...props }: Omit<Props, 'workflo
   return (
     <Tabs>
       <FloatingDrawer {...props}>
-        <FloatingDrawerContent size={size}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">

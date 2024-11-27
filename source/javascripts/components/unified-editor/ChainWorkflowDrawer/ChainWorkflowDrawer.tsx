@@ -20,13 +20,12 @@ type ChainWorkflowCallback = (
   placement: ChainedWorkflowPlacement,
 ) => void;
 
-type Props = Omit<FloatingDrawerProps, 'size' | 'children'> & {
-  size?: 'md' | 'lg';
+type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainWorkflowDrawer = ({ size = 'md', workflowId, onChainWorkflow, onCloseComplete, ...props }: Props) => {
+const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...props }: Props) => {
   const form = useForm<FormValues>({ defaultValues: { search: '' } });
 
   const handleCloseCompete = () => {
@@ -37,7 +36,7 @@ const ChainWorkflowDrawer = ({ size = 'md', workflowId, onChainWorkflow, onClose
   return (
     <FormProvider {...form}>
       <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
-        <FloatingDrawerContent size={size}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" flexDir="column" gap="16">
