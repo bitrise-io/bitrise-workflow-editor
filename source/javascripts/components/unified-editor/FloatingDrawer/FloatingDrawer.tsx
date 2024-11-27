@@ -10,6 +10,7 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerProps,
+  HTMLChakraProps,
   ModalBodyProps,
   ModalFooterProps,
   ModalHeaderProps,
@@ -29,9 +30,9 @@ const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps
 
   return (
     <FloatingDrawerContext.Provider value={providerProps}>
-      <Drawer isFullHeight blockScrollOnMount={false} closeOnOverlayClick={false} {...props}>
+      <Drawer blockScrollOnMount={false} closeOnOverlayClick={false} trapFocus={false} isFullHeight {...props}>
         {/* NOTE: Without the overlay the close animation doesn't occur */}
-        <FloatingDrawerOverlay zIndex="fullDialogOverlay" display="none" />
+        <FloatingDrawerOverlay display="none" />
         {children}
       </Drawer>
     </FloatingDrawerContext.Provider>
@@ -42,6 +43,7 @@ const FloatingDrawerOverlay = (props: ModalOverlayProps) => {
   return (
     <DrawerOverlay
       top="0px"
+      zIndex="fullDialogOverlay"
       bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
       {...props}
     />
@@ -67,6 +69,7 @@ function getContentMaxWidth(size: 'md' | 'lg') {
 }
 
 const FloatingDrawerContent = (props: DrawerContentProps) => {
+  const containerProps = useMemo<HTMLChakraProps<'div'>>(() => ({ display: 'contents' }), []);
   const { size } = useFloatingDrawerContext();
   const maxW = getContentMaxWidth(size);
 
@@ -75,18 +78,16 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
       zIndex="fullDialog"
       top={0}
       gap={0}
+      maxW={maxW}
       padding={0}
-      margin={[0, 24]}
-      marginTop={[0, 64]}
       display="flex"
       flexDir="column"
       overflow="hidden"
       boxShadow="large"
+      margin={[0, 24]}
+      marginTop={[0, 64]}
       borderRadius={[0, 12]}
-      maxW={maxW}
-      containerProps={{
-        display: 'contents',
-      }}
+      containerProps={containerProps}
       {...props}
     />
   );

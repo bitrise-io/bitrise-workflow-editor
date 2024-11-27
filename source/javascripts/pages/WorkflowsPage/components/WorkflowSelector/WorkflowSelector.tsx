@@ -17,8 +17,8 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 const WorkflowSelector = () => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
-  const { openDialog } = useWorkflowsPageStore();
   const dropdownRef = useRef<HTMLButtonElement>(null);
+  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
   const [search, setSearch] = useState('');

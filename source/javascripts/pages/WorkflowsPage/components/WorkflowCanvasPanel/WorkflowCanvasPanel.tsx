@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, IconButton } from '@bitrise/bitkit';
+import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -13,7 +13,13 @@ type Props = {
   workflowId: string;
 };
 
+const containerProps: CardProps = {
+  maxW: 400,
+  marginX: 'auto',
+};
+
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
+  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
@@ -25,8 +31,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       setChainedWorkflows: s.setChainedWorkflows,
       removeChainedWorkflow: s.removeChainedWorkflow,
     }));
-
-  const { openDialog } = useWorkflowsPageStore();
 
   useEffect(() => {
     const listener = (event: CustomEvent<boolean>) => {
@@ -101,22 +105,22 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
           id={workflowId}
-          containerProps={{ maxW: 400, marginX: 'auto' }}
+          containerProps={containerProps}
           // Workflow actions
           onEditWorkflow={undefined}
-          onEditChainedWorkflow={openWorkflowConfigDrawer}
-          onChainWorkflow={openChainWorkflowDialog}
-          onChainChainedWorkflow={openChainWorkflowDialog}
           onRemoveWorkflow={undefined}
-          onRemoveChainedWorkflow={removeChainedWorkflow}
+          onChainWorkflow={openChainWorkflowDialog}
           onChainedWorkflowsUpdate={setChainedWorkflows}
+          onRemoveChainedWorkflow={removeChainedWorkflow}
+          onEditChainedWorkflow={openWorkflowConfigDrawer}
+          onChainChainedWorkflow={openChainWorkflowDialog}
           // Step actions
-          onAddStep={openStepSelectorDrawer}
-          onSelectStep={openStepLikeDrawer}
           onMoveStep={moveStep}
-          onUpgradeStep={upgradeStep}
           onCloneStep={cloneStep}
           onDeleteStep={deleteStep}
+          onUpgradeStep={upgradeStep}
+          onSelectStep={openStepLikeDrawer}
+          onAddStep={openStepSelectorDrawer}
         />
       </Box>
     </Box>
