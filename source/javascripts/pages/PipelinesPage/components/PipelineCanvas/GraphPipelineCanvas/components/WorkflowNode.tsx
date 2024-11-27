@@ -37,11 +37,12 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  const { moveStep, cloneStep, deleteStep, upgradeStep } = useBitriseYmlStore((s) => ({
+  const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows } = useBitriseYmlStore((s) => ({
     moveStep: s.moveStep,
     cloneStep: s.cloneStep,
     deleteStep: s.deleteStep,
     upgradeStep: s.changeStepVersion,
+    setChainedWorkflows: s.setChainedWorkflows,
   }));
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
@@ -110,6 +111,14 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     };
   }, [deleteElements, isGraphPipelinesEnabled]);
 
+  const handleChainedWorkflowsUpdate = useMemo(() => {
+    if (!isGraphPipelinesEnabled) {
+      return undefined;
+    }
+
+    return setChainedWorkflows;
+  }, [isGraphPipelinesEnabled, setChainedWorkflows]);
+
   const containerProps = useMemo(
     () => ({ ...defaultStyle, ...(selected ? selectedStyle : {}), ...(hovered ? hoveredStyle : {}) }),
     [selected, hovered],
@@ -152,6 +161,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         // onEditChainedWorkflow={openEditWorkflowDialog}
         onRemoveWorkflow={handleRemoveWorkflow}
         // onRemoveChainedWorkflow={removeChainedWorkflow}
+        onChainedWorkflowsUpdate={handleChainedWorkflowsUpdate}
       />
       <RightHandle />
     </Box>
