@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Box, Card, Notification, Tab, TabList, Tabs, TabPanels, TabPanel, Tag, Text } from '@bitrise/bitkit';
+import { Box, Notification, Tab, TabList, Tabs, TabPanels, TabPanel, Tag, Text } from '@bitrise/bitkit';
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
+import StepBundleFilter from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleFilter';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -21,7 +21,6 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 };
 
 const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
-  const [activeTab, setActiveTab] = useState<'step' | 'stepBundle'>('step');
   const form = useForm<SearchFormValues>({
     defaultValues: {
       search: '',
@@ -38,10 +37,6 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
   const handleCloseCompete = () => {
     form.reset();
     onCloseComplete?.();
-  };
-
-  const handleTabChange = (index: number) => {
-    setActiveTab(index === 0 ? 'step' : 'stepBundle');
   };
 
   return (
@@ -63,7 +58,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
             </Box>
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <Tabs variant="line" onChange={handleTabChange}>
+            <Tabs variant="line">
               <TabList>
                 <Tab>Step</Tab>
                 <Tab>Step bundle</Tab>
@@ -89,19 +84,11 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                       your current plan. To add more Steps, upgrade your plan.
                     </Notification>
                   )}
-                  <StepFilter mt={16} activeTab={activeTab} />
+                  <StepFilter mt={16} />
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel display="flex" flexDir="column" gap="16">
-                  <StepFilter mt={16} activeTab={activeTab} />
-                  <Card variant="outline" padding="8px 12px">
-                    <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-                      Step bundle 1
-                    </Text>
-                    <Text textStyle="body/md/regular" color="text/secondary">
-                      Not used by any Workflows
-                    </Text>
-                  </Card>
+                  <StepBundleFilter marginBlockStart={16} />
                 </TabPanel>
               </TabPanels>
             </Tabs>
