@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
+  ChainWorkflowDrawer,
   StartBuildDialog,
   StepConfigDrawer,
   StepSelectorDrawer,
@@ -29,12 +30,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     isDialogMounted,
   } = usePipelinesPageStore();
 
-  const { addStep, createPipeline, getUniqueStepIds, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
-    addStep: s.addStep,
-    createPipeline: s.createPipeline,
-    getUniqueStepIds: s.getUniqueStepIds,
-    addWorkflowToPipeline: s.addWorkflowToPipeline,
-  }));
+  const { addStep, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } = useBitriseYmlStore(
+    (s) => ({
+      addStep: s.addStep,
+      createPipeline: s.createPipeline,
+      getUniqueStepIds: s.getUniqueStepIds,
+      addChainedWorkflow: s.addChainedWorkflow,
+      addWorkflowToPipeline: s.addWorkflowToPipeline,
+    }),
+  );
 
   const handleAddStep = ({ cvs }: Step) => {
     const { id, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
@@ -122,6 +126,16 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(PipelinesPageDialogType.CHAIN_WORKFLOW) && (
+        <ChainWorkflowDrawer
+          workflowId={workflowId}
+          isOpen={isDialogOpen(PipelinesPageDialogType.CHAIN_WORKFLOW)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onChainWorkflow={addChainedWorkflow}
         />
       )}
     </>

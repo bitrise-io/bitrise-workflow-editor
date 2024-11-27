@@ -20,6 +20,8 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
+  const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: !isCollapsable });
+
   const {
     onCreateWorkflow,
     onEditWorkflow,
@@ -31,6 +33,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
     onChainedWorkflowsUpdate,
     ...stepActions
   } = actions;
+
   const workflowActions = {
     onCreateWorkflow,
     onEditChainedWorkflow,
@@ -38,7 +41,6 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
     onRemoveChainedWorkflow,
     onChainedWorkflowsUpdate,
   };
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
   if (!workflow) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -87,7 +89,10 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
             aria-label="Chain Workflows"
             tooltipProps={{ 'aria-label': 'Chain Workflows' }}
             _groupHover={{ display: 'inline-flex' }}
-            onClick={() => onChainWorkflow(id)}
+            onClick={() => {
+              onOpen();
+              onChainWorkflow(id);
+            }}
           />
         )}
         {onEditWorkflow && (
