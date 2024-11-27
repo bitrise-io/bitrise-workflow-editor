@@ -33,6 +33,25 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
   const showStepLimit = typeof uniqueStepLimit === 'number';
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
   const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
+  const stepLimitReachedNotification = (
+    <Notification
+      mt={16}
+      status="warning"
+      alignSelf="flex-end"
+      action={{
+        label: 'Upgrade',
+        href: upgradeLink,
+        target: '_blank',
+        rel: 'noreferrer noopener',
+      }}
+    >
+      <Text size="3" fontWeight="bold">
+        You cannot add a new Step now
+      </Text>
+      Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in your current plan.
+      To add more Steps, upgrade your plan.
+    </Notification>
+  );
 
   const handleCloseCompete = () => {
     form.reset();
@@ -65,29 +84,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  {stepLimitReached && (
-                    <Notification
-                      mt={16}
-                      status="warning"
-                      alignSelf="flex-end"
-                      action={{
-                        label: 'Upgrade',
-                        href: upgradeLink,
-                        target: '_blank',
-                        rel: 'noreferrer noopener',
-                      }}
-                    >
-                      <Text size="3" fontWeight="bold">
-                        You cannot add a new Step now
-                      </Text>
-                      Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in
-                      your current plan. To add more Steps, upgrade your plan.
-                    </Notification>
-                  )}
+                  {stepLimitReached && stepLimitReachedNotification}
                   <StepFilter mt={16} />
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel display="flex" flexDir="column" gap="16">
+                  {stepLimitReached && stepLimitReachedNotification}
                   <StepBundleFilter marginBlockStart={16} />
                 </TabPanel>
               </TabPanels>
