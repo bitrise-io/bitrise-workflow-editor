@@ -88,7 +88,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   <StepFilter mt={16} />
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
-                <TabPanel display="flex" flexDir="column" gap="16">
+                <TabPanel>
                   {stepLimitReached && stepLimitReachedNotification}
                   <StepBundleFilter marginBlockStart={16} />
                 </TabPanel>
