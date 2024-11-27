@@ -29,11 +29,10 @@ const PipelinesPage = ({ yml, onChange }: Props) => {
   return (
     <BitriseYmlProvider yml={yml} onChange={onChange}>
       <ReactFlowProvider>
-        <Drawers>
-          <Box display="flex" flexDir="column" h="100%">
-            <PipelinesPageContent />
-          </Box>
-        </Drawers>
+        <Box display="flex" flexDir="column" h="100%">
+          <PipelinesPageContent />
+        </Box>
+        <Drawers />
       </ReactFlowProvider>
     </BitriseYmlProvider>
   );
@@ -41,7 +40,7 @@ const PipelinesPage = ({ yml, onChange }: Props) => {
 
 const PipelinesPageContent = () => {
   const { keys } = usePipelineSelector();
-  const { openDialog } = usePipelinesPageStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const hasPipelines = keys.length > 0;
@@ -72,7 +71,13 @@ const PipelinesPageContent = () => {
     case 'reactivate-your-pipelines':
       return <ReactivatePlanEmptyState onReactivate={canAccessPipelines === false ? upgradePlan : undefined} />;
     case 'create-first-graph-pipeline':
-      return <CreateFirstGraphPipelineEmptyState onCreate={openDialog(PipelinesPageDialogType.CREATE_PIPELINE)} />;
+      return (
+        <CreateFirstGraphPipelineEmptyState
+          onCreate={openDialog({
+            type: PipelinesPageDialogType.CREATE_PIPELINE,
+          })}
+        />
+      );
     case 'create-first-staged-pipeline':
       return <StagePipelineEmptyState />;
   }

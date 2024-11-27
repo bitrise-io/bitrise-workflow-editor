@@ -8,7 +8,7 @@ function useBitriseYmlStore<U = BitriseYmlStoreState>(selector?: (state: Bitrise
   const store = useContext(BitriseYmlContext);
 
   if (!store) {
-    throw new Error('Missing BitriseYmlContext.Provider in the tree');
+    throw new Error('useBitriseYmlStore must be used within a BitriseYmlProvider');
   }
 
   return useStore(store, useShallow(selector || ((s) => s as U)));

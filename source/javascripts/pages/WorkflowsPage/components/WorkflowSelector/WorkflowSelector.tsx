@@ -50,7 +50,7 @@ const WorkflowSelector = () => {
   };
 
   const onCreateWorkflow = () => {
-    openDialog(WorkflowsPageDialogType.CREATE_WORKFLOW)();
+    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 

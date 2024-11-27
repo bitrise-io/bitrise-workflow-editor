@@ -17,20 +17,22 @@ type State = {
   stepIndex: number;
   openedDialogType: WorkflowsPageDialogType;
   mountedDialogType: WorkflowsPageDialogType;
-  nextDialog?: {
-    type: WorkflowsPageDialogType;
-    workflowId: string;
-    stepIndex: number;
-  };
+  _nextDialog?: Required<DialogParams>;
+};
+
+type DialogParams = {
+  type: WorkflowsPageDialogType;
+  workflowId?: string;
+  stepIndex?: number;
 };
 
 type Action = {
-  openDialog: (type: WorkflowsPageDialogType, workflowId?: string, stepIndex?: number) => () => void;
-  closeDialog: () => void;
-  unmountDialog: () => void;
-  setWorkflowId: (workflowId?: string) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
   isDialogMounted: (type: WorkflowsPageDialogType) => boolean;
+  setWorkflowId: (workflowId?: string) => void;
+  openDialog: (params: DialogParams) => () => void;
+  closeDialog: () => void;
+  unmountDialog: () => void;
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
@@ -38,18 +40,22 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   workflowId: '',
   openedDialogType: WorkflowsPageDialogType.NONE,
   mountedDialogType: WorkflowsPageDialogType.NONE,
-  openDialog: (type, workflowId = '', stepIndex = -1) => {
+  openDialog: ({ type, workflowId = '', stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
           closeDialog();
-          return { nextDialog: { type, workflowId, stepIndex } };
+          return {
+            workflowId,
+            stepIndex,
+            _nextDialog: { type, workflowId, stepIndex },
+          };
         }
 
         return {
           workflowId,
           stepIndex,
-          nextDialog: undefined,
+          _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
         };
@@ -62,11 +68,9 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
     }));
   },
   unmountDialog: () => {
-    return set(({ nextDialog, openDialog }) => {
-      if (nextDialog) {
-        requestAnimationFrame(() => {
-          openDialog(nextDialog.type, nextDialog.workflowId, nextDialog.stepIndex)();
-        });
+    return set(({ _nextDialog, openDialog }) => {
+      if (_nextDialog) {
+        requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
       return {

@@ -43,7 +43,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
-    openDialog(WorkflowsPageDialogType.STEP_CONFIG, workflowId, stepIndex)();
+    openDialog(
+      {
+        type: WorkflowsPageDialogType.STEP_CONFIG,
+        workflowId,
+        stepIndex,
+      },
+      // TODO: need to get access to setSelection
+      // (params) => setSelection(params.workflowId, params.stepIndex),
+    )();
   };
 
   const handleRenameWorkflow = (newWorkflowId: string) => {

@@ -30,7 +30,7 @@ const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps
 
   return (
     <FloatingDrawerContext.Provider value={providerProps}>
-      <Drawer blockScrollOnMount={false} closeOnOverlayClick={false} trapFocus={false} isFullHeight {...props}>
+      <Drawer isFullHeight blockScrollOnMount={false} closeOnOverlayClick={false} trapFocus={false} {...props}>
         {/* NOTE: Without the overlay the close animation doesn't occur */}
         <FloatingDrawerOverlay display="none" />
         {children}

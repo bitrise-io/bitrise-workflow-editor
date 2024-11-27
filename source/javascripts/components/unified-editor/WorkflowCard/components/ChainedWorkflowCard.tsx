@@ -8,22 +8,22 @@ import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
+import { SortableWorkflowItem } from '../WorkflowCard.types';
 import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
 
-type Props = WorkflowActions &
-  StepActions & {
-    id: string;
-    index: number;
-    uniqueId: string;
-    placement: Placement;
-    isDragging?: boolean;
-    parentWorkflowId: string;
-    containerProps?: CardProps;
-  };
+type Props = {
+  id: string;
+  index: number;
+  uniqueId: string;
+  placement: Placement;
+  isDragging?: boolean;
+  parentWorkflowId: string;
+  containerProps?: CardProps;
+};
 
 const ChainedWorkflowCard = ({
   id,
@@ -33,28 +33,19 @@ const ChainedWorkflowCard = ({
   isDragging,
   containerProps,
   parentWorkflowId,
-  ...actions
 }: Props) => {
-  const {
-    onCreateWorkflow,
-    onEditWorkflow,
-    onChainWorkflow,
-    onRemoveWorkflow,
-    onEditChainedWorkflow,
-    onChainChainedWorkflow,
-    onRemoveChainedWorkflow,
-    onChainedWorkflowsUpdate,
-    ...stepActions
-  } = actions;
-
-  const isEditable = Boolean(onEditChainedWorkflow || onChainChainedWorkflow || onRemoveChainedWorkflow);
+  const { onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow, onChainedWorkflowsUpdate } =
+    useWorkflowActions();
   const isSortable = Boolean(onChainedWorkflowsUpdate);
+  const { isSelected } = useSelection();
+  const isHighlighted = isSelected(id);
+  const isEditable = Boolean(onEditChainedWorkflow || onChainChainedWorkflow || onRemoveChainedWorkflow);
 
   const result = useWorkflow(id);
   const containerRef = useRef(null);
   const scale = getRectFlowViewportScale();
   const dependants = useDependantWorkflows(id);
-  const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: false });
+  const { isOpen, onToggle, onOpen } = useDisclosure();
 
   const sortable = useSortable({
     id: uniqueId,
@@ -108,6 +99,7 @@ const ChainedWorkflowCard = ({
       ref={sortable.setNodeRef}
       {...containerProps}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      {...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {})}
       style={style}
     >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
@@ -186,9 +178,9 @@ const ChainedWorkflowCard = ({
       <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} {...actions} />
-            <StepList workflowId={id} {...stepActions} />
-            <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} {...actions} />
+            <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
+            <StepList workflowId={id} />
+            <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
           </Box>
         </SortableWorkflowsContext>
       </Collapse>

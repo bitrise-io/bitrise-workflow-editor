@@ -4,9 +4,9 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { WorkflowConfigPanel, WorkflowEmptyState } from '@/components/unified-editor';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import Drawers from './components/Drawers/Drawers';
 import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
+import Drawers from './components/Drawers/Drawers';
 
 type Props = {
   yml: BitriseYml;
@@ -25,7 +25,11 @@ const WorkflowsPageContent = () => {
   if (!selectedWorkflowId) {
     return (
       <Box h="100%" display="grid" gridTemplateRows="100%">
-        <WorkflowEmptyState onCreateWorkflow={openDialog(WorkflowsPageDialogType.CREATE_WORKFLOW)} />
+        <WorkflowEmptyState
+          onCreateWorkflow={openDialog({
+            type: WorkflowsPageDialogType.CREATE_WORKFLOW,
+          })}
+        />
       </Box>
     );
   }
@@ -41,8 +45,8 @@ const WorkflowsPageContent = () => {
 const WorkflowsPage = ({ yml, onChange }: Props) => {
   return (
     <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <Drawers />
       <WorkflowsPageContent />
+      <Drawers />
     </BitriseYmlProvider>
   );
 };

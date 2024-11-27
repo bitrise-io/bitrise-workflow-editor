@@ -20,7 +20,8 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
+import { SortableStepItem } from '../WorkflowCard.types';
 import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 
 type StepSecondaryTextProps = {
@@ -61,7 +62,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   );
 };
 
-type StepCardProps = StepActions & {
+type StepCardProps = {
   uniqueId: string;
   workflowId: string;
   stepIndex: number;
@@ -70,22 +71,15 @@ type StepCardProps = StepActions & {
   showSecondary?: boolean;
 };
 
-const StepCard = ({
-  uniqueId,
-  workflowId,
-  stepIndex,
-  isSortable,
-  isDragging,
-  showSecondary = true,
-  onSelectStep,
-  onUpgradeStep,
-  onCloneStep,
-  onDeleteStep,
-}: StepCardProps) => {
+const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, showSecondary = true }: StepCardProps) => {
+  const { isSelected } = useSelection();
   const scale = getRectFlowViewportScale();
-  const result = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
+  const result = useStep(workflowId, stepIndex);
+  const { onUpgradeStep, onSelectStep, onCloneStep, onDeleteStep } = useStepActions();
+
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
+  const isHighlighted = isSelected(workflowId, stepIndex);
 
   const sortable = useSortable({
     id: uniqueId,
@@ -125,7 +119,12 @@ const StepCard = ({
 
   const style = {
     transition: sortable.transition,
-    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+    transform: CSS.Transform.toString(
+      sortable.transform && {
+        ...sortable.transform,
+        y: sortable.transform.y / scale,
+      },
+    ),
   };
 
   if (sortable.isDragging) {
@@ -159,6 +158,7 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      {...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {})}
       style={style}
     >
       {isSortable && (

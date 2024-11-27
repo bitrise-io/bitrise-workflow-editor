@@ -49,7 +49,10 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveItem({ ...(event.active.data.current as SortableWorkflowItem), uniqueId: event.active.id.toString() });
+    setActiveItem({
+      ...(event.active.data.current as SortableWorkflowItem),
+      uniqueId: event.active.id.toString(),
+    });
   }, []);
 
   const handleDragEndOrCancel = useCallback(() => {

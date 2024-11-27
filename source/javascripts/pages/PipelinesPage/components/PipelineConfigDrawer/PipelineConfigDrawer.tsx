@@ -20,7 +20,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 };
 
 const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
-  const { setPipelineId } = usePipelinesPageStore();
+  const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { keys, onSelectPipeline } = usePipelineSelector();
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 

@@ -4,13 +4,14 @@ import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartE
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import { useStepActions } from '../contexts/WorkflowCardContext';
+import { SortableStepItem } from '../WorkflowCard.types';
 import dragOverlayScaleModifier from '../utils/dragOverlayScaleModifier';
 import scaleInsensitiveMeasure from '../utils/scaleInsensitiveMeasure';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 
-type Props = StepActions & {
+type Props = {
   workflowId: string;
   containerProps?: BoxProps;
 };
@@ -19,8 +20,8 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
-  const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
+const StepList = ({ workflowId, containerProps }: Props) => {
+  const { onAddStep, onMoveStep } = useStepActions();
 
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
@@ -81,7 +82,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
           return (
             <Fragment key={item.stepIndex}>
               {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
-              <StepCard {...item} isSortable={isSortable} {...actions} />
+              <StepCard {...item} isSortable={isSortable} />
               {isLast && onAddStep && (
                 <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
               )}
@@ -90,7 +91,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
         })}
       </Box>
     );
-  }, [actions, containerProps, isSortable, onAddStep, sortableItems, workflowId]);
+  }, [containerProps, isSortable, onAddStep, sortableItems, workflowId]);
 
   if (isEmpty) {
     return (

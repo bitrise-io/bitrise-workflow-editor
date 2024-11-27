@@ -6,16 +6,16 @@ import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/cor
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import { useWorkflowActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { SortableWorkflowItem } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
 
-type Props = WorkflowActions &
-  StepActions & {
-    placement: Placement;
-    parentWorkflowId: string;
-    containerProps?: BoxProps;
-  };
+type Props = {
+  placement: Placement;
+  parentWorkflowId: string;
+  containerProps?: BoxProps;
+};
 
 function anotherPlacement(placement: Placement): Placement {
   return placement === 'after_run' ? 'before_run' : 'after_run';
@@ -41,8 +41,9 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...actions }: Props) => {
-  const { onChainedWorkflowsUpdate } = actions;
+const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId }: Props) => {
+  const { onChainedWorkflowsUpdate } = useWorkflowActions();
+
   const isAfterRun = placement === 'after_run';
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
@@ -58,7 +59,7 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...a
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {
     return validChainedWorkflowIds.map(getSortableItem(placement, parentWorkflowId));
-  }, [validChainedWorkflowIds, parentWorkflowId, placement]);
+  }, [validChainedWorkflowIds, placement, parentWorkflowId]);
 
   const [sortableItems, setSortableItems] = useState<SortableWorkflowItem[]>(initialSortableItems);
 
@@ -187,7 +188,7 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...a
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {isAfterRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
         {sortableItems.map((item) => (
-          <ChainedWorkflowCard key={item.uniqueId} {...item} {...actions} />
+          <ChainedWorkflowCard key={item.uniqueId} {...item} />
         ))}
         {isBeforeRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
       </Box>

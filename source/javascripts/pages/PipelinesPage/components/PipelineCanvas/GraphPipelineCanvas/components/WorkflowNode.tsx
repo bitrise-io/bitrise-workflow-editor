@@ -8,8 +8,8 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
-import { GraphPipelineNodeType, GraphPipelineEdgeType } from '../GraphPipelineCanvas.types';
-import { usePipelinesPageStore, PipelinesPageDialogType } from '../../../../PipelinesPage.store';
+import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -32,7 +32,10 @@ const selectedStyle = {
 const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const hovered = useHover(ref);
-  const { openDialog } = usePipelinesPageStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
+  const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
+  const selectedStepIndex = usePipelinesPageStore((s) => s.stepIndex);
+
   const { selectedPipeline } = usePipelineSelector();
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
@@ -47,7 +50,10 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       removeChainedWorkflow: s.removeChainedWorkflow,
     }));
 
-  useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
+  useResizeObserver({
+    ref,
+    onResize: ({ height }) => updateNode(id, { height }),
+  });
 
   const {
     handleAddStep,
@@ -68,17 +74,35 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
 
     return {
       handleAddStep: (workflowId: string, stepIndex: number) =>
-        openDialog(PipelinesPageDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)(),
+        openDialog({
+          type: PipelinesPageDialogType.STEP_SELECTOR,
+          pipelineId: selectedPipeline,
+          workflowId,
+          stepIndex,
+        })(),
       handleMoveStep: moveStep,
       handleSelectStep: (workflowId: string, stepIndex: number) =>
-        openDialog(PipelinesPageDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)(),
+        openDialog({
+          type: PipelinesPageDialogType.STEP_CONFIG,
+          pipelineId: selectedPipeline,
+          workflowId,
+          stepIndex,
+        })(),
       handleClonseStep: cloneStep,
       handleDeleteStep: deleteStep,
       handleUpgradeStep: upgradeStep,
       handleEditWorkflow: (workflowId: string) =>
-        openDialog(PipelinesPageDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)(),
+        openDialog({
+          type: PipelinesPageDialogType.WORKFLOW_CONFIG,
+          pipelineId: selectedPipeline,
+          workflowId,
+        })(),
       handleChainWorkflow: (workflowId: string) =>
-        openDialog(PipelinesPageDialogType.CHAIN_WORKFLOW, selectedPipeline, workflowId)(),
+        openDialog({
+          type: PipelinesPageDialogType.CHAIN_WORKFLOW,
+          pipelineId: selectedPipeline,
+          workflowId,
+        })(),
       handleRemoveWorkflow: (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] }),
       handleRemoveChainedWorkflow: removeChainedWorkflow,
       handleChainedWorkflowsUpdate: setChainedWorkflows,
@@ -97,7 +121,11 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   ]);
 
   const containerProps = useMemo(
-    () => ({ ...defaultStyle, ...(selected ? selectedStyle : {}), ...(hovered ? hoveredStyle : {}) }),
+    () => ({
+      ...defaultStyle,
+      ...(selected ? selectedStyle : {}),
+      ...(hovered ? hoveredStyle : {}),
+    }),
     [selected, hovered],
   );
 
@@ -122,6 +150,8 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         id={id}
         isCollapsable
         containerProps={containerProps}
+        selectedWorkflowId={selectedWorkflowId}
+        selectedStepIndex={selectedStepIndex}
         /* TODO needs plumbing
         onCreateWorkflow={}
         */

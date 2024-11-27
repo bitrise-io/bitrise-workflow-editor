@@ -1,7 +1,7 @@
 import { ChangeEventHandler } from 'react';
-import { Box, Textarea, Divider, ExpandableCard, Select, Text, Toggle } from '@bitrise/bitkit';
+import { Box, Divider, ExpandableCard, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
+import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 type ButtonContentProps = {
   pipelineId: string;
@@ -34,7 +34,8 @@ const shouldAlwaysRunOptions = [
 ];
 
 const PipelineConditionsCard = () => {
-  const { pipelineId, workflowId } = usePipelinesPageStore();
+  const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
+  const workflowId = usePipelinesPageStore((s) => s.workflowId);
 
   const {
     updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,

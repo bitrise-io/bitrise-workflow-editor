@@ -2,45 +2,36 @@ import { memo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
+import { StepActions, WorkflowActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
-import { StepActions, WorkflowActions } from './WorkflowCard.types';
+import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
-type Props = WorkflowActions &
-  StepActions & {
-    id: string;
-    isCollapsable?: boolean;
-    containerProps?: CardProps;
-  };
+const HIGHLIGHTED_STYLE = {
+  outline: '2px solid',
+  outlineColor: 'border/selected',
+};
 
-const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) => {
+type ContentProps = {
+  id: string;
+  isCollapsable?: boolean;
+  containerProps?: CardProps;
+};
+
+const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: ContentProps) => {
+  const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
-  const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const { isOpen, onToggle } = useDisclosure({
+    defaultIsOpen: !isCollapsable,
+  });
 
-  const {
-    onCreateWorkflow,
-    onEditWorkflow,
-    onChainWorkflow,
-    onRemoveWorkflow,
-    onChainChainedWorkflow,
-    onEditChainedWorkflow,
-    onRemoveChainedWorkflow,
-    onChainedWorkflowsUpdate,
-    ...stepActions
-  } = actions;
-
-  const workflowActions = {
-    onCreateWorkflow,
-    onEditChainedWorkflow,
-    onChainChainedWorkflow,
-    onRemoveChainedWorkflow,
-    onChainedWorkflowsUpdate,
-  };
+  const { isSelected } = useSelection();
+  const isHighlighted = isSelected(id);
 
   if (!workflow) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -55,7 +46,13 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
   });
 
   return (
-    <Card borderRadius="8" variant="elevated" minW={0} {...containerProps}>
+    <Card
+      borderRadius="8"
+      variant="elevated"
+      minW={0}
+      {...containerProps}
+      {...(isHighlighted ? HIGHLIGHTED_STYLE : {})}
+    >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton
@@ -125,28 +122,37 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...actions }: Props) 
       <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <ChainedWorkflowList
-              key={`${id}->before_run`}
-              placement="before_run"
-              parentWorkflowId={id}
-              {...workflowActions}
-              {...stepActions}
-            />
-
-            <StepList workflowId={id} {...stepActions} />
-
-            <ChainedWorkflowList
-              key={`${id}->after_run`}
-              placement="after_run"
-              parentWorkflowId={id}
-              {...workflowActions}
-              {...stepActions}
-            />
+            <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
+            <StepList workflowId={id} />
+            <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
           </Box>
         </SortableWorkflowsContext>
       </Collapse>
     </Card>
   );
+});
+
+type Selection = {
+  selectedStepIndex?: number;
+  selectedWorkflowId?: string;
 };
+type Props = ContentProps & WorkflowActions & StepActions & Selection;
+
+const WorkflowCard = ({
+  id,
+  isCollapsable,
+  containerProps,
+  selectedWorkflowId = '',
+  selectedStepIndex = -1,
+  ...actions
+}: Props) => (
+  <WorkflowCardContextProvider
+    selectedWorkflowId={selectedWorkflowId}
+    selectedStepIndex={selectedStepIndex}
+    {...actions}
+  >
+    <WorkflowCardContent id={id} isCollapsable={isCollapsable} containerProps={containerProps} />
+  </WorkflowCardContextProvider>
+);
 
 export default memo(WorkflowCard);
