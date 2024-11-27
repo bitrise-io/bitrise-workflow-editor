@@ -123,8 +123,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onCreateWorkflow={]
-        onChainedWorkflowsUpdate={}
+        onCreateWorkflow={}
         */
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
