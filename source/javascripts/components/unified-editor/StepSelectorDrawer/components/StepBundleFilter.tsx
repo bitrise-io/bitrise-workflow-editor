@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Box, BoxProps, Button, Card, EmptyState, Link, SearchInput, Text } from '@bitrise/bitkit';
+import { useModalContext } from '@chakra-ui/react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const StepBundleFilter = (props: BoxProps) => {
+  const { onClose } = useModalContext();
   const [filterString, setFilterString] = useState('');
   const { yml } = useBitriseYmlStore((s) => ({ yml: s.yml }));
   const stepBundlesLength = Object.keys(yml.step_bundles || {}).length;
@@ -16,6 +18,11 @@ const StepBundleFilter = (props: BoxProps) => {
     return false;
   });
 
+  const handleClick = (stepBundleName: string) => {
+    console.log(stepBundleName);
+    onClose();
+  };
+
   return (
     <Box {...props}>
       {stepBundlesLength > 0 ? (
@@ -28,7 +35,14 @@ const StepBundleFilter = (props: BoxProps) => {
           {filteredItems.length > 0 ? (
             filteredItems.map((stepBundleName) => {
               return (
-                <Card key={stepBundleName} variant="outline" padding="8px 12px" marginBlockStart="16">
+                <Card
+                  key={stepBundleName}
+                  variant="outline"
+                  padding="8px 12px"
+                  marginBlockStart="16"
+                  _hover={{ borderColor: 'border/hover', cursor: 'pointer' }}
+                  onClick={() => handleClick(stepBundleName)}
+                >
                   <Text textStyle="body/lg/semibold" marginBlockEnd="4">
                     {stepBundleName}
                   </Text>
