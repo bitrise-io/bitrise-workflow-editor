@@ -10,7 +10,7 @@ import SkeletonRows from './SkeletonRows';
 import VirtualizedRow from './VirtualizedRow';
 
 const InitialValues: SearchFormValues = {
-  search: '',
+  searchSteps: '',
   categories: [],
 };
 
@@ -39,7 +39,7 @@ const StepList = ({ enabledSteps, onSelectStep }: Props) => {
   } = useVirtualizedItems({
     containerRef: listRef,
     columns,
-    hideCategoryNames: Boolean(formValues.search),
+    hideCategoryNames: Boolean(formValues.searchSteps),
     selectedCategories: formValues.categories,
     steps,
     enabledSteps,
