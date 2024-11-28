@@ -37,13 +37,15 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  const { moveStep, cloneStep, deleteStep, upgradeStep, removeChainedWorkflow } = useBitriseYmlStore((s) => ({
-    moveStep: s.moveStep,
-    cloneStep: s.cloneStep,
-    deleteStep: s.deleteStep,
-    upgradeStep: s.changeStepVersion,
-    removeChainedWorkflow: s.removeChainedWorkflow,
-  }));
+  const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
+    useBitriseYmlStore((s) => ({
+      moveStep: s.moveStep,
+      cloneStep: s.cloneStep,
+      deleteStep: s.deleteStep,
+      upgradeStep: s.changeStepVersion,
+      setChainedWorkflows: s.setChainedWorkflows,
+      removeChainedWorkflow: s.removeChainedWorkflow,
+    }));
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
@@ -58,6 +60,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     handleChainWorkflow,
     handleRemoveWorkflow,
     handleRemoveChainedWorkflow,
+    handleChainedWorkflowsUpdate,
   } = useMemo(() => {
     if (!isGraphPipelinesEnabled) {
       return {};
@@ -78,6 +81,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         openDialog(PipelinesPageDialogType.CHAIN_WORKFLOW, selectedPipeline, workflowId)(),
       handleRemoveWorkflow: (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] }),
       handleRemoveChainedWorkflow: removeChainedWorkflow,
+      handleChainedWorkflowsUpdate: setChainedWorkflows,
     };
   }, [
     moveStep,
@@ -87,6 +91,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     upgradeStep,
     deleteElements,
     selectedPipeline,
+    setChainedWorkflows,
     removeChainedWorkflow,
     isGraphPipelinesEnabled,
   ]);
@@ -118,8 +123,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onCreateWorkflow={]
-        onChainedWorkflowsUpdate={}
+        onCreateWorkflow={}
         */
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
@@ -133,6 +137,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         onEditChainedWorkflow={handleEditWorkflow}
         onChainChainedWorkflow={handleChainWorkflow}
         onRemoveChainedWorkflow={handleRemoveChainedWorkflow}
+        onChainedWorkflowsUpdate={handleChainedWorkflowsUpdate}
       />
       <RightHandle />
     </Box>

@@ -23,15 +23,19 @@
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
 			section.machine-type-settings[ng-if="stackCtrl.canShowDefaulStackMachines()"]
 				h4.machine-type-header Machine type for the default stack
-				div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(appService.stack.id)"]
-					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'apple'"]
+				div[ng-repeat="groupId in stackCtrl.getStackMachineTypeGroupIds(appService.stack.id)"]
+					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && groupId === 'apple'"]
 						| macOS virtual machines (Apple Silicon)
 						.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData && ['g2-m1.4core', 'g2-m1.8core'].indexOf(appService.defaultMachineType.id) != -1"]
 							r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'info'" link-url="stackCtrl.buildMachineDeprecationData.linkUrl" link-text="stackCtrl.buildMachineDeprecationData.linkLabel"]
-					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'intel'"]
+					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && groupId === 'intel'"]
 						| macOS virtual machines (Intel)
+					h5.machine-type-subheader[ng-if="appService.stack.type === 'linux' && groupId === 'gen1'"]
+						| Linux machines
+					h5.machine-type-subheader[ng-if="appService.stack.type === 'linux' && groupId === 'gen2'"]
+						| Pro Linux machines
 					.machine-types
-						.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[appService.stack.id][machineChip] track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
+						.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[appService.stack.id][groupId] track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 							.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
 							.machine-type-icon[ng-if="machineType.cssClass == 'elite'"]  == svg("elite-machine-type-icon")
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
@@ -85,15 +89,19 @@
 							p.stack-update-policy == data[:strings][:stack][:stack_update_policy]
 				.machine-type-settings[ng-if="stackCtrl.canShowWorkflowStackMachines(workflow)"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
-					div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
-						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && machineChip === 'apple'"]
+					div[ng-repeat="groupId in stackCtrl.getStackMachineTypeGroupIds(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
+						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && groupId === 'apple'"]
 							| macOS virtual machines (Apple Silicon)
 							.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData && ['g2-m1.4core', 'g2-m1.8core'].indexOf(stackCtrl.workflowMachineType(workflow).id) != -1"]
 								r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'info'" link-url="stackCtrl.buildMachineDeprecationData.linkUrl" link-text="stackCtrl.buildMachineDeprecationData.linkLabel"]
-						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && machineChip === 'intel'"]
+						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && groupId === 'intel'"]
 							| macOS virtual machines (Intel)
+						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'linux' && groupId === 'gen1'"]
+							| Linux machines
+						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'linux' && groupId === 'gen2'"]
+							| Pro Linux machines
 						.machine-types
-							.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id][machineChip]" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
+							.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id][groupId]" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 								.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
 								.machine-type-icon[ng-if="machineType.cssClass == 'elite'"]  == svg("elite-machine-type-icon")
 								.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")

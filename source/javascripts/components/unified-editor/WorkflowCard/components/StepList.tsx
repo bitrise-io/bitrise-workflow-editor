@@ -141,7 +141,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
       </SortableContext>
       <Portal>
         <DragOverlay modifiers={[dragOverlayScaleModifier]} zIndex={5} adjustScale>
-          {activeItem && <StepCard {...activeItem} {...actions} isDragging isSortable />}
+          {activeItem && <StepCard {...activeItem} isDragging isSortable />}
         </DragOverlay>
       </Portal>
     </DndContext>
