@@ -39,7 +39,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           variant="tertiary"
           size="sm"
           leftIconName="ArrowQuit"
-          onClick={() => onChainWorkflow(chainableWorkflowId, parentWorkflowId, 'before_run')}
+          onClick={() => onChainWorkflow(parentWorkflowId, 'before_run', chainableWorkflowId)}
         >
           Add before
         </Button>
@@ -48,7 +48,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           variant="tertiary"
           size="sm"
           leftIconName="ArrowForwardAndDown"
-          onClick={() => onChainWorkflow(chainableWorkflowId, parentWorkflowId, 'after_run')}
+          onClick={() => onChainWorkflow(parentWorkflowId, 'after_run', chainableWorkflowId)}
         >
           Add after
         </Button>

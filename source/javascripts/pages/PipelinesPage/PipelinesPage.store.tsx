@@ -29,13 +29,14 @@ type DialogParams = {
 };
 
 type Action = {
+  setPipelineId: (pipelineId?: string) => void;
+  setWorkflowId: (workflowId?: string) => void;
+  setStepIndex: (stepIndex?: number) => void;
+  isDialogOpen: (type: PipelinesPageDialogType) => boolean;
+  isDialogMounted: (type: PipelinesPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
   closeDialog: () => void;
   unmountDialog: () => void;
-  setPipelineId: (pipelineId?: string) => void;
-  setWorkflowId: (workflowId?: string) => void;
-  isDialogOpen: (type: PipelinesPageDialogType) => boolean;
-  isDialogMounted: (type: PipelinesPageDialogType) => boolean;
 };
 
 export const usePipelinesPageStore = create<State & Action>((set, get) => ({
@@ -44,6 +45,21 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   workflowId: '',
   openedDialogType: PipelinesPageDialogType.NONE,
   mountedDialogType: PipelinesPageDialogType.NONE,
+  setPipelineId: (pipelineId = '') => {
+    return set(() => ({
+      pipelineId,
+    }));
+  },
+  setWorkflowId: (workflowId = '') => {
+    return set(() => ({
+      workflowId,
+    }));
+  },
+  setStepIndex: (stepIndex = -1) => {
+    return set(() => ({
+      stepIndex,
+    }));
+  },
   openDialog: ({ type, pipelineId = '', workflowId = '', stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
@@ -88,16 +104,6 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
         mountedDialogType: PipelinesPageDialogType.NONE,
       };
     });
-  },
-  setPipelineId: (pipelineId = '') => {
-    return set(() => ({
-      pipelineId,
-    }));
-  },
-  setWorkflowId: (workflowId = '') => {
-    return set(() => ({
-      workflowId,
-    }));
   },
   isDialogOpen: (type) => {
     return get().openedDialogType === type;

@@ -5,6 +5,8 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WorkflowService from '@/core/models/WorkflowService';
 import { LibraryType } from '@/core/models/Step';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
@@ -18,9 +20,12 @@ const containerProps: CardProps = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
+  const workflows = useWorkflows();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const selectedWorkflowId = useWorkflowsPageStore((s) => s.workflowId);
   const selectedStepIndex = useWorkflowsPageStore((s) => s.stepIndex);
+  const setStepIndex = useWorkflowsPageStore((s) => s.setStepIndex);
+  const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
   const deferredStepIndex = useDeferredValue(selectedStepIndex);
   const deferredWorkflowId = useDeferredValue(selectedWorkflowId);
 
@@ -117,6 +122,28 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [openDialog],
   );
 
+  const handleRemoveChainedWorkflow = useCallback(
+    (
+      parentWorkflowId: string,
+      placement: ChainedWorkflowPlacement,
+      deletedWorkflowId: string,
+      deletedWorkflowIndex: number,
+    ) => {
+      removeChainedWorkflow(parentWorkflowId, placement, deletedWorkflowId, deletedWorkflowIndex);
+
+      // Close the dialog if the selected workflow is deleted
+      if (deletedWorkflowId === selectedWorkflowId) {
+        closeDialog();
+      }
+
+      // Close the dialog if the selected workflow is chained to the deleted workflow
+      if (WorkflowService.getWorkflowChain(workflows, deletedWorkflowId).includes(selectedWorkflowId)) {
+        closeDialog();
+      }
+    },
+    [closeDialog, removeChainedWorkflow, selectedWorkflowId, workflows],
+  );
+
   const openStepSelectorDrawer = useCallback(
     (wfId: string, stepIndex: number) => {
       openDialog({
@@ -126,6 +153,47 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       })();
     },
     [openDialog],
+  );
+
+  const handleMoveStep = useCallback(
+    (wfId: string, stepIndex: number, targetIndex: number) => {
+      moveStep(wfId, stepIndex, targetIndex);
+
+      // Adjust index if the selected step is moved
+      if (wfId === selectedWorkflowId && selectedStepIndex === stepIndex) {
+        setStepIndex(targetIndex);
+      }
+    },
+    [moveStep, selectedStepIndex, selectedWorkflowId, setStepIndex],
+  );
+
+  const handleCloneStep = useCallback(
+    (wfId: string, stepIndex: number) => {
+      cloneStep(wfId, stepIndex);
+
+      // Adjust index if the selected step is cloned
+      if (wfId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+        setStepIndex(selectedStepIndex + 1);
+      }
+    },
+    [cloneStep, selectedStepIndex, selectedWorkflowId, setStepIndex],
+  );
+
+  const handleDeleteStep = useCallback(
+    (wfId: string, stepIndex: number) => {
+      deleteStep(wfId, stepIndex);
+
+      // Close the dialog if the selected step is deleted
+      if (wfId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+        closeDialog();
+      }
+
+      // Adjust index if a step is deleted before the selected step
+      if (wfId === selectedWorkflowId && stepIndex < selectedStepIndex) {
+        setStepIndex(selectedStepIndex - 1);
+      }
+    },
+    [deleteStep, selectedWorkflowId, selectedStepIndex, closeDialog, setStepIndex],
   );
 
   return (
@@ -158,13 +226,13 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onRemoveWorkflow={undefined}
           onChainWorkflow={openChainWorkflowDialog}
           onChainedWorkflowsUpdate={setChainedWorkflows}
-          onRemoveChainedWorkflow={removeChainedWorkflow}
+          onRemoveChainedWorkflow={handleRemoveChainedWorkflow}
           onEditChainedWorkflow={openWorkflowConfigDrawer}
           onChainChainedWorkflow={openChainWorkflowDialog}
           // Step actions
-          onMoveStep={moveStep}
-          onCloneStep={cloneStep}
-          onDeleteStep={deleteStep}
+          onMoveStep={handleMoveStep}
+          onCloneStep={handleCloneStep}
+          onDeleteStep={handleDeleteStep}
           onUpgradeStep={upgradeStep}
           onSelectStep={openStepLikeDrawer}
           onAddStep={openStepSelectorDrawer}

@@ -27,19 +27,36 @@ type DialogParams = {
 };
 
 type Action = {
+  setWorkflowId: (workflowId?: string) => void;
+  setStepIndex: (stepIndex?: number) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
   isDialogMounted: (type: WorkflowsPageDialogType) => boolean;
-  setWorkflowId: (workflowId?: string) => void;
   openDialog: (params: DialogParams) => () => void;
   closeDialog: () => void;
   unmountDialog: () => void;
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
-  stepIndex: -1,
   workflowId: '',
+  stepIndex: -1,
   openedDialogType: WorkflowsPageDialogType.NONE,
   mountedDialogType: WorkflowsPageDialogType.NONE,
+  setWorkflowId: (workflowId = '') => {
+    return set(() => ({
+      workflowId,
+    }));
+  },
+  setStepIndex: (stepIndex = -1) => {
+    return set(() => ({
+      stepIndex,
+    }));
+  },
+  isDialogOpen: (type) => {
+    return get().openedDialogType === type;
+  },
+  isDialogMounted: (type) => {
+    return get().mountedDialogType === type;
+  },
   openDialog: ({ type, workflowId = '', stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
@@ -81,16 +98,5 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         mountedDialogType: WorkflowsPageDialogType.NONE,
       };
     });
-  },
-  setWorkflowId: (workflowId = '') => {
-    return set(() => ({
-      workflowId,
-    }));
-  },
-  isDialogOpen: (type) => {
-    return get().openedDialogType === type;
-  },
-  isDialogMounted: (type) => {
-    return get().mountedDialogType === type;
   },
 }));

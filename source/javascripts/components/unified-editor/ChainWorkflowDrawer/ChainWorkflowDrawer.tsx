@@ -15,9 +15,9 @@ type FormValues = {
 };
 
 type ChainWorkflowCallback = (
-  chainableWorkflowId: string,
   parentWorkflowId: string,
   placement: ChainedWorkflowPlacement,
+  chainableWorkflowId: string,
 ) => void;
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {

@@ -65,7 +65,12 @@ const ChainedWorkflowCard = ({
 
   const style = {
     transition: sortable.transition,
-    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+    transform: CSS.Transform.toString(
+      sortable.transform && {
+        ...sortable.transform,
+        y: sortable.transform.y / scale,
+      },
+    ),
   };
 
   if (sortable.isDragging) {
@@ -168,7 +173,7 @@ const ChainedWorkflowCard = ({
                 iconName="Trash"
                 aria-label="Remove Workflow"
                 tooltipProps={{ 'aria-label': 'Remove' }}
-                onClick={() => onRemoveChainedWorkflow(index, parentWorkflowId, placement)}
+                onClick={() => onRemoveChainedWorkflow(parentWorkflowId, placement, id, index)}
               />
             )}
           </ButtonGroup>

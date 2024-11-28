@@ -32,7 +32,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const { addStep, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
     addStep: s.addStep,
     createWorkflow: s.createWorkflow,
-    deleteWorkflow: s.deleteWorkflow,
     getUniqueStepIds: s.getUniqueStepIds,
     addChainedWorkflow: s.addChainedWorkflow,
   }));

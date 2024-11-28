@@ -26,7 +26,7 @@ const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: Content
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
-  const { isOpen, onToggle } = useDisclosure({
+  const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
 
