@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
 import StepBundleFilter from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleFilter';
 import StepBundleList from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleList';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -30,6 +31,8 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
       categories: [],
     },
   });
+
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -60,10 +63,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   </Tag>
                 )}
               </Box>
-              <TabList>
-                <Tab>Step</Tab>
-                <Tab>Step bundle</Tab>
-              </TabList>
+              {enableStepBundles && (
+                <TabList>
+                  <Tab>Step</Tab>
+                  <Tab>Step bundle</Tab>
+                </TabList>
+              )}
               {stepLimitReached && (
                 <Notification
                   mt={16}
@@ -92,7 +97,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel>
-                  <StepBundleList onSelectStep={onSelectStep} />
+                  <StepBundleList />
                 </TabPanel>
               </TabPanels>
             </FloatingDrawerBody>

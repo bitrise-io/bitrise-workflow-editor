@@ -2,17 +2,9 @@ import { Button, Card, EmptyState, Text } from '@bitrise/bitkit';
 import { useModalContext } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import {
-  SearchFormValues,
-  SelectStepHandlerFn,
-} from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
+import { SearchFormValues } from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
 
-type StepBundleListProps = {
-  onSelectStep: SelectStepHandlerFn;
-};
-
-const StepBundleList = (props: StepBundleListProps) => {
-  const { onSelectStep } = props;
+const StepBundleList = () => {
   const { yml } = useBitriseYmlStore((s) => ({ yml: s.yml }));
   const { onClose } = useModalContext();
 
@@ -29,8 +21,7 @@ const StepBundleList = (props: StepBundleListProps) => {
     return false;
   });
 
-  const handleClick = (stepBundleName: string) => {
-    console.log(stepBundleName);
+  const handleClick = () => {
     onClose();
   };
 
@@ -57,12 +48,14 @@ const StepBundleList = (props: StepBundleListProps) => {
   return filteredItems.length > 0 ? (
     filteredItems.map((stepBundleName) => (
       <Card
+        as="button"
         key={stepBundleName}
         variant="outline"
         padding="8px 12px"
+        textAlign="left"
+        _hover={{ borderColor: 'border/hover' }}
         marginBlockStart="16"
-        _hover={{ borderColor: 'border/hover', cursor: 'pointer' }}
-        onClick={() => handleClick(stepBundleName)}
+        onClick={() => handleClick()}
       >
         <Text textStyle="body/lg/semibold" marginBlockEnd="4">
           {stepBundleName}

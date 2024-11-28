@@ -1,9 +1,13 @@
 import { memo } from 'react';
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 type Props = BoxProps;
 
 const AddStepButton = ({ onClick, ...props }: Props) => {
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+  const tooltipLabel = enableStepBundles ? 'Add Step or Step bundle' : 'Add Step';
+
   return (
     <Box h={8} cursor="pointer" position="relative" {...props} className="group">
       <Box
@@ -18,7 +22,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           display: 'block',
         }}
       />
-      <Tooltip label="Add Step or Step bundle" aria-label="Add Step or Step bundle">
+      <Tooltip label={tooltipLabel} aria-label={tooltipLabel}>
         <Box
           w={20}
           h={20}
