@@ -40,9 +40,9 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
 
   return (
     <FormProvider {...form}>
-      <FloatingDrawer onCloseComplete={handleCloseCompete} {...props} data-clarity-unmask="true">
+      <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
         <FloatingDrawerOverlay />
-        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+        <FloatingDrawerContent maxWidth={['100%', '50%']} data-clarity-unmask="true">
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="12">
