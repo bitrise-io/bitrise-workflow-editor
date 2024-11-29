@@ -13,14 +13,17 @@ type YmlStepResult = {
 
 function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
+
   return useBitriseYmlStore(({ yml }) => {
     let stepObjectFromYml: StepLikeYmlObject | undefined;
-    if (isWorkflowProps(props)) {
+
+    if (props.workflowId) {
       const { workflowId, stepIndex } = props;
       stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
-    } else {
+    } else if (props.stepBundleId) {
       const { stepBundleId, stepIndex } = props;
-      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
+      // TODO: Investigate why this type override is needed
+      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex] as StepLikeYmlObject | undefined;
     }
 
     if (!stepObjectFromYml) {
@@ -114,31 +117,16 @@ type UseStepResult = {
   error?: Error | null;
 };
 
-type UseWorkflowStepProps = {
-  workflowId: string;
+type UseStepProps = {
+  workflowId?: string;
+  stepBundleId?: string;
   stepIndex: number;
-};
-
-type UseStepBundleProps = {
-  stepBundleId: string;
-  stepIndex: number;
-};
-
-type UseStepProps = UseWorkflowStepProps | UseStepBundleProps;
-
-const isWorkflowProps = (props: UseStepProps): props is UseWorkflowStepProps => {
-  return 'workflowId' in props;
 };
 
 const useStep = (props: UseStepProps): UseStepResult => {
-  const { stepIndex } = props;
-  const defaultStepLibrary = useDefaultStepLibrary();
   const { data: ymlData } = useStepFromYml(props);
+  const defaultStepLibrary = useDefaultStepLibrary();
   const { data: apiData, error, isLoading } = useStepFromApi(ymlData?.cvs ?? '');
-
-  if (isWorkflowProps(props)) {
-    const { workflowId } = props;
-  }
 
   return useMemo(() => {
     const { cvs, id, title, icon, userValues } = ymlData ?? {};

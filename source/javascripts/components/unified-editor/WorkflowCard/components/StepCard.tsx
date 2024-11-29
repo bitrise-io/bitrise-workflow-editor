@@ -63,7 +63,8 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
 
 type StepCardProps = StepActions & {
   uniqueId: string;
-  parentId: string;
+  workflowId?: string;
+  stepBundleId?: string;
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
@@ -72,7 +73,8 @@ type StepCardProps = StepActions & {
 
 const StepCard = ({
   uniqueId,
-  parentId,
+  workflowId,
+  stepBundleId,
   stepIndex,
   isSortable,
   isDragging,
@@ -83,7 +85,7 @@ const StepCard = ({
   onDeleteStep,
 }: StepCardProps) => {
   const scale = getRectFlowViewportScale();
-  const result = useStep(parentId, stepIndex);
+  const result = useStep({ workflowId, stepBundleId, stepIndex });
   console.log('parentId:', parentId, 'stepIndex:', stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
