@@ -3,6 +3,48 @@ import { useModalContext } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { SearchFormValues } from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
+import StepBundleService from '@/core/models/StepBundleService';
+
+type StepBundleListItemProps = {
+  stepBundleName: string;
+  handleClick: (stepBundleName: string) => void;
+};
+
+const StepBundleListItem = (props: StepBundleListItemProps) => {
+  const { stepBundleName, handleClick } = props;
+  const usedInWorkflowsText = useBitriseYmlStore(({ yml: { workflows } }) => {
+    const count = StepBundleService.countInWorkflows(stepBundleName, workflows);
+
+    if (count === 0) {
+      return 'Not used by any Workflows';
+    }
+
+    if (count === 1) {
+      return 'Used in 1 Workflow';
+    }
+
+    return `Used in ${count} Workflows`;
+  });
+
+  return (
+    <Card
+      as="button"
+      variant="outline"
+      padding="8px 12px"
+      textAlign="left"
+      _hover={{ borderColor: 'border/hover' }}
+      marginBlockStart="16"
+      onClick={() => handleClick(stepBundleName)}
+    >
+      <Text textStyle="body/lg/semibold" marginBlockEnd="4">
+        {stepBundleName}
+      </Text>
+      <Text textStyle="body/md/regular" color="text/secondary">
+        {usedInWorkflowsText}
+      </Text>
+    </Card>
+  );
+};
 
 const StepBundleList = () => {
   const { yml } = useBitriseYmlStore((s) => ({ yml: s.yml }));
@@ -21,7 +63,8 @@ const StepBundleList = () => {
     return false;
   });
 
-  const handleClick = () => {
+  const handleClick = (stepBundleName: string) => {
+    console.log(stepBundleName);
     onClose();
   };
 
@@ -47,23 +90,11 @@ const StepBundleList = () => {
 
   return filteredItems.length > 0 ? (
     filteredItems.map((stepBundleName) => (
-      <Card
-        as="button"
+      <StepBundleListItem
+        stepBundleName={stepBundleName}
+        handleClick={() => handleClick(stepBundleName)}
         key={stepBundleName}
-        variant="outline"
-        padding="8px 12px"
-        textAlign="left"
-        _hover={{ borderColor: 'border/hover' }}
-        marginBlockStart="16"
-        onClick={() => handleClick()}
-      >
-        <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-          {stepBundleName}
-        </Text>
-        <Text textStyle="body/md/regular" color="text/secondary">
-          Not used by any Workflows
-        </Text>
-      </Card>
+      />
     ))
   ) : (
     <EmptyState
