@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toMerged } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Step, StepBundle, StepLike, WithGroup } from '@/core/models/Step';
+import { Step, StepBundle, StepLike, StepLikeYmlObject, WithGroup } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import StepApi, { StepApiResult } from '@/core/api/StepApi';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
@@ -11,10 +11,17 @@ type YmlStepResult = {
   data?: StepLike;
 };
 
-function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
+function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
   return useBitriseYmlStore(({ yml }) => {
-    const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+    let stepObjectFromYml: StepLikeYmlObject | undefined;
+    if (isWorkflowProps(props)) {
+      const { workflowId, stepIndex } = props;
+      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+    } else {
+      const { stepBundleId, stepIndex } = props;
+      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
+    }
 
     if (!stepObjectFromYml) {
       return { data: undefined };
@@ -107,10 +114,31 @@ type UseStepResult = {
   error?: Error | null;
 };
 
-const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
+type UseWorkflowStepProps = {
+  workflowId: string;
+  stepIndex: number;
+};
+
+type UseStepBundleProps = {
+  stepBundleId: string;
+  stepIndex: number;
+};
+
+type UseStepProps = UseWorkflowStepProps | UseStepBundleProps;
+
+const isWorkflowProps = (props: UseStepProps): props is UseWorkflowStepProps => {
+  return 'workflowId' in props;
+};
+
+const useStep = (props: UseStepProps): UseStepResult => {
+  const { stepIndex } = props;
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { data: ymlData } = useStepFromYml(workflowId, stepIndex);
+  const { data: ymlData } = useStepFromYml(props);
   const { data: apiData, error, isLoading } = useStepFromApi(ymlData?.cvs ?? '');
+
+  if (isWorkflowProps(props)) {
+    const { workflowId } = props;
+  }
 
   return useMemo(() => {
     const { cvs, id, title, icon, userValues } = ymlData ?? {};

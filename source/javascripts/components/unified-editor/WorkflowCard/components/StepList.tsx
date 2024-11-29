@@ -11,28 +11,35 @@ import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 
 type Props = StepActions & {
-  workflowId: string;
+  workflowId?: string;
   containerProps?: BoxProps;
+  stepBundleId?: string;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
+const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: Props) => {
   const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
-
+  const parentId = workflowId || stepBundleId || '';
   const steps = useBitriseYmlStore(({ yml }) => {
-    return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
+    if (workflowId) {
+      return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
+    }
+    if (stepBundleId) {
+      return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
+    }
+    return [];
   });
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
       uniqueId: crypto.randomUUID(),
       stepIndex,
-      workflowId,
+      parentId,
     }));
-  }, [steps, workflowId]);
+  }, [parentId, steps]);
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMoveStep);
@@ -54,13 +61,13 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
         setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
         setTimeout(() => {
-          onMoveStep?.(workflowId, currentActiveIndex, currentOverIndex);
+          onMoveStep?.(parentId, currentActiveIndex, currentOverIndex);
         }, defaultDropAnimation.duration);
       }
 
       setActiveItem(undefined);
     },
-    [onMoveStep, sortableItems, workflowId],
+    [onMoveStep, parentId, sortableItems],
   );
 
   const handleDragCancel = useCallback(() => {
@@ -80,17 +87,15 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
 
           return (
             <Fragment key={item.stepIndex}>
-              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
+              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(parentId, item.stepIndex)} />}
               <StepCard {...item} isSortable={isSortable} {...actions} />
-              {isLast && onAddStep && (
-                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
-              )}
+              {isLast && onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(parentId, item.stepIndex + 1)} />}
             </Fragment>
           );
         })}
       </Box>
     );
-  }, [actions, containerProps, isSortable, onAddStep, sortableItems, workflowId]);
+  }, [actions, containerProps, isSortable, onAddStep, parentId, sortableItems]);
 
   if (isEmpty) {
     return (
@@ -107,7 +112,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
             variant="secondary"
             alignSelf="stretch"
             leftIconName="PlusCircle"
-            onClick={() => onAddStep(workflowId, 0)}
+            onClick={() => onAddStep(parentId, 0)}
           >
             Add Step
           </Button>

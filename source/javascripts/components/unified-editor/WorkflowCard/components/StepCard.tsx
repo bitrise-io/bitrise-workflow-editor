@@ -63,7 +63,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
 
 type StepCardProps = StepActions & {
   uniqueId: string;
-  workflowId: string;
+  parentId: string;
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
@@ -72,7 +72,7 @@ type StepCardProps = StepActions & {
 
 const StepCard = ({
   uniqueId,
-  workflowId,
+  parentId,
   stepIndex,
   isSortable,
   isDragging,
@@ -83,7 +83,8 @@ const StepCard = ({
   onDeleteStep,
 }: StepCardProps) => {
   const scale = getRectFlowViewportScale();
-  const result = useStep(workflowId, stepIndex);
+  const result = useStep(parentId, stepIndex);
+  console.log('parentId:', parentId, 'stepIndex:', stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
 
@@ -93,7 +94,7 @@ const StepCard = ({
     data: {
       uniqueId,
       stepIndex,
-      workflowId,
+      parentId,
     } satisfies SortableStepItem,
   });
 
@@ -148,7 +149,7 @@ const StepCard = ({
   }
 
   const isButton = Boolean(onSelectStep);
-  const handleClick = isButton ? () => onSelectStep?.(workflowId, stepIndex, library) : undefined;
+  const handleClick = isButton ? () => onSelectStep?.(parentId, stepIndex, library) : undefined;
 
   return (
     <Card
@@ -217,7 +218,7 @@ const StepCard = ({
                 _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onUpgradeStep?.(workflowId, stepIndex, latestMajor ?? '');
+                  onUpgradeStep?.(parentId, stepIndex, latestMajor ?? '');
                 }}
               />
             )}
@@ -231,7 +232,7 @@ const StepCard = ({
                 _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onCloneStep(workflowId, stepIndex);
+                  onCloneStep(parentId, stepIndex);
                 }}
               />
             )}
@@ -246,7 +247,7 @@ const StepCard = ({
                 _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDeleteStep(workflowId, stepIndex);
+                  onDeleteStep(parentId, stepIndex);
                 }}
               />
             )}

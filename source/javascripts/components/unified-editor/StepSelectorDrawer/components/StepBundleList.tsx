@@ -14,16 +14,16 @@ const StepBundleList = () => {
 
   const stepBundlesLength = Object.keys(yml.step_bundles || {}).length;
 
-  const filteredItems = Object.keys(yml.step_bundles || {}).filter((stepBundleName) => {
+  const filteredItems = Object.keys(yml.step_bundles || {}).filter((stepBundleId) => {
     const lowerCaseFilterString = filterStepBundles?.toLowerCase();
-    if (typeof stepBundleName === 'string' && stepBundleName.toLowerCase().includes(lowerCaseFilterString || '')) {
+    if (typeof stepBundleId === 'string' && stepBundleId.toLowerCase().includes(lowerCaseFilterString || '')) {
       return true;
     }
     return false;
   });
 
-  const handleClick = (stepBundleName: string) => {
-    console.log(stepBundleName);
+  const handleClick = (stepBundleId: string) => {
+    console.log(stepBundleId);
     onClose();
   };
 
@@ -48,11 +48,11 @@ const StepBundleList = () => {
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((stepBundleName) => (
+    filteredItems.map((stepBundleId) => (
       <SelectableStepBundleCard
-        stepBundleName={stepBundleName}
-        handleClick={() => handleClick(stepBundleName)}
-        key={stepBundleName}
+        stepBundleId={stepBundleId}
+        handleClick={() => handleClick(stepBundleId)}
+        key={stepBundleId}
       />
     ))
   ) : (

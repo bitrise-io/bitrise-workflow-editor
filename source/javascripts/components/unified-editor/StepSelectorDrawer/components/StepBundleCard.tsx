@@ -1,7 +1,10 @@
-import { Box, Card, CardProps, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { useRef } from 'react';
+import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
+import SortableWorkflowsContext from '@/components/unified-editor/WorkflowCard/components/SortableWorkflowsContext';
+import StepList from '@/components/unified-editor/WorkflowCard/components/StepList';
 
 type StepBundleCardProps = StepActions & {
   stepBundleId: string;
@@ -12,6 +15,7 @@ type StepBundleCardProps = StepActions & {
 const StepBundleCard = (props: StepBundleCardProps) => {
   const { stepBundleId, isCollapsable, containerProps } = props;
   const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleId });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
@@ -25,9 +29,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             className="nopan"
             onClick={onToggle}
             iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-            aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+            aria-label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
             tooltipProps={{
-              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
+              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`,
             }}
           />
         )}
@@ -40,10 +44,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Text>
         </Box>
       </Box>
+      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+        <SortableWorkflowsContext containerRef={containerRef}>
+          <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+            <StepList stepBundleId={stepBundleId} />
+          </Box>
+        </SortableWorkflowsContext>
+      </Collapse>
     </Card>
   );
 };
 export default StepBundleCard;
-function getUsedByText() {
-  throw new Error('Function not implemented.');
-}
