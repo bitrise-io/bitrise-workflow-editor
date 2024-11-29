@@ -92,8 +92,8 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
               {tabId === 'stepBundle' && <StepBundleFilter marginBlockStart={16} />}
             </FloatingDrawerHeader>
             <FloatingDrawerBody>
-              <TabPanels>
-                <TabPanel>
+              <TabPanels height={tabId === 'step' ? '100%' : undefined}>
+                <TabPanel height={tabId === 'step' ? '100%' : undefined}>
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel>
