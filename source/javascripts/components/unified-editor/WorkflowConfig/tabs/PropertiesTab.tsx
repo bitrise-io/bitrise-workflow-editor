@@ -3,7 +3,6 @@ import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/models/WorkflowService';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import DeleteWorkflowDialog from '@/components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog';
@@ -20,7 +19,6 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   const workflow = useWorkflowConfigContext();
   const handleNameChange = useRenameWorkflow(onRename);
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
-  const isCustomGitStatusNameEnabled = useFeatureFlag('enable-custom-commit-status-name');
 
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
@@ -32,7 +30,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   });
   const isDeleteable = variant === 'panel';
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflow?.id || '');
-  const isGitStatusNameEnabled = variant === 'panel' && isCustomGitStatusNameEnabled && !isUtilityWorkflow;
+  const isGitStatusNameEnabled = variant === 'panel' && !isUtilityWorkflow;
 
   const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, summary: e.target.value }));
