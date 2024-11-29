@@ -14,11 +14,11 @@ const StepFilter = (props: BoxProps) => {
   return (
     <Box display="flex" flexDir="column" gap="16" {...props}>
       <Controller<SearchFormValues>
-        name="search"
+        name="searchSteps"
         render={({ field: { ref, onChange, ...rest } }) => (
           <SearchInput
             inputRef={ref}
-            placeholder="Filter by name or description"
+            placeholder="Filter by name or description..."
             onChange={(value) => onChange({ target: { value } })}
             {...rest}
           />
@@ -32,7 +32,8 @@ const StepFilter = (props: BoxProps) => {
             flexWrap="wrap"
             columnGap="8"
             rowGap="16"
-            value={formValueToArray(value)}
+            mb={24}
+            value={formValueToArray(value || '')}
             {...rest}
           >
             {categories.map((category) => (

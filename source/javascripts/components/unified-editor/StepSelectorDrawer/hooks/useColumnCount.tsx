@@ -1,4 +1,4 @@
-import { RefObject, useMemo } from 'react';
+import { createRef, RefObject, useMemo } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
 const MinColumnWidth = 325;
@@ -8,9 +8,11 @@ type Props = {
 };
 
 const useColumnCount = ({ ref }: Props): number => {
+  const fallbackRef = createRef<HTMLElement>();
+
   // HACK: useResizeObserver has a bug https://github.com/juliencrn/usehooks-ts/pull/542
   const { width = 0 } = useResizeObserver({
-    ref: ref.current ? ref : { current: null },
+    ref: ref.current ? ref : fallbackRef,
   });
 
   return useMemo(() => {

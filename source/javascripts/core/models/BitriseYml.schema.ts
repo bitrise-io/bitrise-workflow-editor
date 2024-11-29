@@ -114,6 +114,14 @@ const BitriseYmlSchema = {
           },
           type: 'object',
         },
+        step_bundles: {
+          patternProperties: {
+            '.*': {
+              $ref: '#/definitions/StepBundleModel',
+            },
+          },
+          type: 'object',
+        },
         workflows: {
           patternProperties: {
             '.*': {
@@ -320,6 +328,26 @@ const BitriseYmlSchema = {
             patternProperties: {
               '.*': {
                 $ref: '#/definitions/WorkflowStageConfigModel',
+              },
+            },
+            type: 'object',
+          },
+          type: 'array',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    StepBundleModel: {
+      properties: {
+        envs: {
+          $ref: '#/definitions/EnvModel',
+        },
+        steps: {
+          items: {
+            patternProperties: {
+              '.*': {
+                $ref: '#/definitions/StepModel',
               },
             },
             type: 'object',
