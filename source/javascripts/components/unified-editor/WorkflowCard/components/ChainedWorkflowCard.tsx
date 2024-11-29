@@ -53,7 +53,7 @@ const ChainedWorkflowCard = ({
   const result = useWorkflow(id);
   const containerRef = useRef(null);
   const scale = getRectFlowViewportScale();
-  const dependants = useDependantWorkflows(id);
+  const dependants = useDependantWorkflows({ workflowId: id });
   const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: false });
 
   const sortable = useSortable({

@@ -49,3 +49,20 @@ export const Error: StoryObj = {
     },
   },
 };
+
+export const EnabledFeatureFlag: StoryObj = {
+  args: {
+    isOpen: true,
+  },
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: {
+          user: {},
+          account: { 'enable-wfe-step-bundles-ui': true },
+        },
+      };
+    }
+  },
+};

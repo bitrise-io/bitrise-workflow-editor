@@ -11,7 +11,7 @@ type Props = {
 const WorkflowConfigHeader = ({ variant, context }: Props) => {
   const { id = '', userValues } = useWorkflowConfigContext() ?? {};
 
-  const dependants = useDependantWorkflows(id);
+  const dependants = useDependantWorkflows({ workflowId: id });
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = variant === 'panel' && !WorkflowService.isUtilityWorkflow(id);
