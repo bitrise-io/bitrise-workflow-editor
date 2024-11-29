@@ -13,6 +13,7 @@ import {
 } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useViewport } from '@xyflow/react';
 import useStep from '@/hooks/useStep';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
@@ -21,7 +22,6 @@ import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
-import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -82,7 +82,7 @@ const StepCard = ({
   onCloneStep,
   onDeleteStep,
 }: StepCardProps) => {
-  const scale = getRectFlowViewportScale();
+  const { zoom } = useViewport();
   const result = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
@@ -125,7 +125,7 @@ const StepCard = ({
 
   const style = {
     transition: sortable.transition,
-    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / zoom }),
   };
 
   if (sortable.isDragging) {

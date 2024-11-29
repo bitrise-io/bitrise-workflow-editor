@@ -3,15 +3,15 @@ import { memo, useRef } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useViewport } from '@xyflow/react';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
-import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
-import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
+import ChainedWorkflowList from './ChainedWorkflowList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
 
 type Props = WorkflowActions &
@@ -51,8 +51,8 @@ const ChainedWorkflowCard = ({
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
   const result = useWorkflow(id);
+  const { zoom } = useViewport();
   const containerRef = useRef(null);
-  const scale = getRectFlowViewportScale();
   const dependants = useDependantWorkflows(id);
   const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: false });
 
@@ -74,7 +74,7 @@ const ChainedWorkflowCard = ({
 
   const style = {
     transition: sortable.transition,
-    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / zoom }),
   };
 
   if (sortable.isDragging) {

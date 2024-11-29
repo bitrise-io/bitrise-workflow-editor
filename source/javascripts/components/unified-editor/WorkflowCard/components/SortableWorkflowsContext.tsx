@@ -1,21 +1,12 @@
 /* eslint-disable import/no-cycle */
 import { memo, PropsWithChildren, RefObject, useCallback, useState } from 'react';
-import {
-  closestCenter,
-  CollisionDetection,
-  DataRef,
-  DndContext,
-  DragOverlay,
-  DragStartEvent,
-  Modifier,
-} from '@dnd-kit/core';
+import { closestCenter, CollisionDetection, DataRef, DndContext, DragStartEvent, Modifier } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { Portal } from '@bitrise/bitkit';
 import { noop } from 'es-toolkit';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
-import dragOverlayScaleModifier from '../utils/dragOverlayScaleModifier';
-import scaleInsensitiveMeasure from '../utils/scaleInsensitiveMeasure';
+import { dndKitMeasuring } from '../WorkflowCard.const';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
+import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = PropsWithChildren<{
   containerRef?: RefObject<HTMLElement>;
@@ -58,23 +49,17 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
 
   return (
     <DndContext
+      measuring={dndKitMeasuring}
+      collisionDetection={customCollisionDetection}
+      modifiers={[restrictToVerticalAxis, restrictToContainer]}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEndOrCancel}
       onDragCancel={handleDragEndOrCancel}
-      collisionDetection={customCollisionDetection}
-      modifiers={[restrictToVerticalAxis, restrictToContainer]}
-      measuring={{
-        draggable: { measure: scaleInsensitiveMeasure },
-        droppable: { measure: scaleInsensitiveMeasure },
-        dragOverlay: { measure: scaleInsensitiveMeasure },
-      }}
     >
       {children}
-      <Portal>
-        <DragOverlay modifiers={[dragOverlayScaleModifier]} zIndex={5} adjustScale>
-          {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
-        </DragOverlay>
-      </Portal>
+      <ScaledDragOverlay zIndex={5}>
+        {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
+      </ScaledDragOverlay>
     </DndContext>
   );
 };

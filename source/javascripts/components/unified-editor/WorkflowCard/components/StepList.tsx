@@ -1,14 +1,14 @@
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { Box, BoxProps, Button, EmptyState, Portal } from '@bitrise/bitkit';
-import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { Box, BoxProps, Button, EmptyState } from '@bitrise/bitkit';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
-import dragOverlayScaleModifier from '../utils/dragOverlayScaleModifier';
-import scaleInsensitiveMeasure from '../utils/scaleInsensitiveMeasure';
+import { dndKitMeasuring } from '../WorkflowCard.const';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
+import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = StepActions & {
   workflowId: string;
@@ -122,15 +122,11 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
 
   return (
     <DndContext
+      measuring={dndKitMeasuring}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       onDragCancel={handleDragCancel}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-      measuring={{
-        draggable: { measure: scaleInsensitiveMeasure },
-        droppable: { measure: scaleInsensitiveMeasure },
-        dragOverlay: { measure: scaleInsensitiveMeasure },
-      }}
     >
       <SortableContext
         disabled={!isSortable}
@@ -139,11 +135,9 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
       >
         {content}
       </SortableContext>
-      <Portal>
-        <DragOverlay modifiers={[dragOverlayScaleModifier]} zIndex={5} adjustScale>
-          {activeItem && <StepCard {...activeItem} isDragging isSortable />}
-        </DragOverlay>
-      </Portal>
+      <ScaledDragOverlay zIndex={5}>
+        {activeItem && <StepCard {...activeItem} isDragging isSortable />}
+      </ScaledDragOverlay>
     </DndContext>
   );
 };
