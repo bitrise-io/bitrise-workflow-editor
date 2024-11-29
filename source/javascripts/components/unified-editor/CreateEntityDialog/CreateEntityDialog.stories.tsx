@@ -9,7 +9,7 @@ export default {
     entityName: 'Entity',
     isOpen: true,
     sanitizer: (value) => value,
-    validator: (value) => value,
+    validator: (value) => (value ? true : 'This is required'),
   },
   argTypes: {
     onClose: { type: 'function' },
