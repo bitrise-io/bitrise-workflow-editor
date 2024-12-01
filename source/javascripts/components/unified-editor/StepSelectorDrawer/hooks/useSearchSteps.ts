@@ -8,7 +8,7 @@ import { StepApiResult } from '@/core/api/StepApi';
 import { SearchFormValues } from '../StepSelectorDrawer.types';
 import { compareByPriority } from '../StepSelectorDrawer.utils';
 
-const useSearchSteps = ({ search, categories }: SearchFormValues) => {
+const useSearchSteps = ({ searchSteps, categories }: SearchFormValues) => {
   const { data: steps = [], isLoading, isError, refetch } = useAlgoliaSteps();
   const index = useMemo(() => {
     const options = {
@@ -30,13 +30,13 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
     enabled: !isLoading,
     staleTime: Infinity,
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ['steps', { search, categories }],
+    queryKey: ['steps', { searchSteps, categories }],
     queryFn: async () => {
       let items = steps || ([] as StepApiResult[]);
       const expressions = [];
 
-      if (search) {
-        const term = search.trim().toLowerCase();
+      if (searchSteps) {
+        const term = searchSteps.trim().toLowerCase();
         const exp = {
           $or: [
             { $path: 'id', $val: term },

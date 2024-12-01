@@ -1,8 +1,6 @@
-import { Box, IconButton, Tab, TabList, Text } from '@bitrise/bitkit';
+import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type Props = {
@@ -14,13 +12,9 @@ const WorkflowConfigHeader = ({ variant, context }: Props) => {
   const { id = '', userValues } = useWorkflowConfigContext() ?? {};
 
   const dependants = useDependantWorkflows(id);
-  const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const showSubTitle = context === 'workflow';
-  const shouldShowDeleteButton = variant === 'panel';
-  const shouldShowTriggersTab =
-    variant === 'panel' && isTargetBasedTriggersEnabled && !WorkflowService.isUtilityWorkflow(id);
+  const shouldShowTriggersTab = variant === 'panel' && !WorkflowService.isUtilityWorkflow(id);
 
   return (
     <>
@@ -39,17 +33,6 @@ const WorkflowConfigHeader = ({ variant, context }: Props) => {
             {showSubTitle && WorkflowService.getUsedByText(dependants)}
           </Text>
         </Box>
-        {shouldShowDeleteButton && (
-          <IconButton
-            isDanger
-            size="md"
-            variant="secondary"
-            iconName="Trash"
-            aria-label={`Delete '${id}'`}
-            tooltipProps={{ 'aria-label': `Delete '${id}'` }}
-            onClick={openDeleteWorkflowDialog}
-          />
-        )}
       </Box>
       <Box mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <TabList position="relative" paddingX="8">

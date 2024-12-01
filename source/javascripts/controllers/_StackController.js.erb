@@ -43,12 +43,18 @@ import WindowUtils from "@/core/utils/WindowUtils";
           }
           return machineType.stackType === stack.type;
         });
-        result[stack.id] = _.groupBy(stackMachineTypes, 'chip');
+
+        if (stack.type === 'osx') {
+          result[stack.id] = _.groupBy(stackMachineTypes, 'chip');
+        }
+        else {
+          result[stack.id] = _.groupBy(stackMachineTypes, 'tag');
+        }
 
         return result;
       }, {});
 
-      viewModel.getStackMachineTypeChipOrder = function (stackId) {
+      viewModel.getStackMachineTypeGroupIds = function (stackId) {
         if (viewModel.stackMachineMap) {
           return Object.keys(viewModel.stackMachineMap[stackId] || {}).sort();
         }

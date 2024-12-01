@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Button, Text, Textarea, useDisclosure } from '@bitrise/bitkit';
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -19,17 +20,10 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
 };
 
-// TODO: Uncomment the Delete Pipeline button when feature is implemented
 const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   const { setPipelineId } = usePipelinesPageStore();
-  const { onSelectPipeline, keys } = usePipelineSelector();
-  const deletePipeline = useBitriseYmlStore((s) => s.deletePipeline);
-
-  const {
-    isOpen: isOpenDeletionDialog,
-    onOpen: onOpenDeleteionDialog,
-    onClose: onCloseDeletionDialog,
-  } = useDisclosure();
+  const { keys, onSelectPipeline } = usePipelineSelector();
+  const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 
   const { summary, description, updatePipeline } = useBitriseYmlStore((s) => ({
     summary: s.yml.pipelines?.[pipelineId]?.summary || '',
@@ -57,12 +51,14 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
     return PipelineService.sanitizeName(value);
   };
 
-  const onDeletePipeline = () => {
-    props.onClose();
-    onCloseDeletionDialog();
-    deletePipeline(pipelineId);
-    onSelectPipeline(keys.filter((key) => key !== pipelineId)[0]);
-  };
+  const closeDrawer = props.onClose;
+  const onDeletePipeline = useCallback(
+    (deletedId: string) => {
+      closeDrawer();
+      onSelectPipeline(keys.filter((key) => key !== deletedId)[0]);
+    },
+    [keys, closeDrawer, onSelectPipeline],
+  );
 
   if (!pipelineId) {
     return null;
@@ -101,12 +97,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
               value={description}
               onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
             />
-            <Button
-              leftIconName="Trash"
-              alignSelf="flex-start"
-              variant="danger-secondary"
-              onClick={onOpenDeleteionDialog}
-            >
+            <Button leftIconName="Trash" alignSelf="flex-start" variant="danger-secondary" onClick={onOpenDeleteDialog}>
               Delete Pipeline
             </Button>
           </FloatingDrawerBody>
@@ -115,8 +106,8 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
 
       <DeletePipelineDialog
         pipelineId={pipelineId}
-        isOpen={isOpenDeletionDialog}
-        onClose={onCloseDeletionDialog}
+        isOpen={isDeleteDialogOpen}
+        onClose={onCloseDeleteDialog}
         onDeletePipeline={onDeletePipeline}
       />
     </>

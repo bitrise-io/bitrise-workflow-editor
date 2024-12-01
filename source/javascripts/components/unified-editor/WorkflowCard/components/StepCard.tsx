@@ -21,6 +21,7 @@ import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -81,8 +82,9 @@ const StepCard = ({
   onCloneStep,
   onDeleteStep,
 }: StepCardProps) => {
-  const defaultStepLibrary = useDefaultStepLibrary();
+  const scale = getRectFlowViewportScale();
   const result = useStep(workflowId, stepIndex);
+  const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
 
   const sortable = useSortable({
@@ -121,6 +123,11 @@ const StepCard = ({
     );
   }
 
+  const style = {
+    transition: sortable.transition,
+    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+  };
+
   if (sortable.isDragging) {
     return (
       <Box
@@ -135,10 +142,7 @@ const StepCard = ({
         textStyle="body/sm/regular"
         borderColor="border/strong"
         backgroundColor="background/secondary"
-        style={{
-          transition: sortable.transition,
-          transform: CSS.Transform.toString(sortable.transform),
-        }}
+        style={style}
       />
     );
   }
@@ -155,10 +159,7 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      style={{
-        transition: sortable.transition,
-        transform: CSS.Transform.toString(sortable.transform),
-      }}
+      style={style}
     >
       {isSortable && (
         <DragHandle
@@ -196,7 +197,7 @@ const StepCard = ({
           </Text>
           {showSecondary && (
             <StepSecondaryText
-              errorText={error ? 'Failed to load step data' : undefined}
+              errorText={error ? 'Failed to load Step' : undefined}
               isUpgradable={isUpgradable}
               resolvedVersion={resolvedInfo?.resolvedVersion}
             />
@@ -211,8 +212,8 @@ const StepCard = ({
                 display="none"
                 iconName="ArrowUp"
                 colorScheme="orange"
-                aria-label="Update to latest step version"
-                tooltipProps={{ 'aria-label': 'Update to latest step version' }}
+                aria-label="Update Step"
+                tooltipProps={{ 'aria-label': 'Update Step' }}
                 _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -225,8 +226,8 @@ const StepCard = ({
                 size="xs"
                 display="none"
                 iconName="Duplicate"
-                aria-label="Clone this step"
-                tooltipProps={{ 'aria-label': 'Clone this step' }}
+                aria-label="Clone Step"
+                tooltipProps={{ 'aria-label': 'Clone Step' }}
                 _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -239,9 +240,9 @@ const StepCard = ({
                 isDanger
                 size="xs"
                 display="none"
-                iconName="MinusCircle"
-                aria-label="Remove this step"
-                tooltipProps={{ 'aria-label': 'Remove this step' }}
+                iconName="Trash"
+                aria-label="Remove Step"
+                tooltipProps={{ 'aria-label': 'Remove Step' }}
                 _groupHover={{ display: 'inline-flex' }}
                 onClick={(e) => {
                   e.stopPropagation();

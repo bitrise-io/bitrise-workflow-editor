@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 
-export enum PipelineConfigDialogType {
+export enum PipelinesPageDialogType {
   NONE,
   START_BUILD,
   STEP_CONFIG,
   STEP_SELECTOR,
+  CHAIN_WORKFLOW,
   PIPELINE_CONFIG,
   CREATE_PIPELINE,
   WORKFLOW_CONFIG,
@@ -15,13 +16,13 @@ type State = {
   pipelineId: string;
   workflowId: string;
   stepIndex: number;
-  openedDialogType: PipelineConfigDialogType;
-  mountedDialogType: PipelineConfigDialogType;
+  openedDialogType: PipelinesPageDialogType;
+  mountedDialogType: PipelinesPageDialogType;
 };
 
 type Action = {
   openDialog: (
-    type: PipelineConfigDialogType,
+    type: PipelinesPageDialogType,
     pipelineId?: string,
     workflowId?: string,
     stepIndex?: number,
@@ -30,16 +31,16 @@ type Action = {
   unmountDialog: () => void;
   setPipelineId: (pipelineId?: string) => void;
   setWorkflowId: (workflowId?: string) => void;
-  isDialogOpen: (type: PipelineConfigDialogType) => boolean;
-  isDialogMounted: (type: PipelineConfigDialogType) => boolean;
+  isDialogOpen: (type: PipelinesPageDialogType) => boolean;
+  isDialogMounted: (type: PipelinesPageDialogType) => boolean;
 };
 
 export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   stepIndex: -1,
   pipelineId: '',
   workflowId: '',
-  openedDialogType: PipelineConfigDialogType.NONE,
-  mountedDialogType: PipelineConfigDialogType.NONE,
+  openedDialogType: PipelinesPageDialogType.NONE,
+  mountedDialogType: PipelinesPageDialogType.NONE,
   openDialog: (type, pipelineId = '', workflowId = '', stepIndex = -1) => {
     return () => {
       return set(() => ({
@@ -53,7 +54,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   },
   closeDialog: () => {
     return set(() => ({
-      openedDialogType: PipelineConfigDialogType.NONE,
+      openedDialogType: PipelinesPageDialogType.NONE,
     }));
   },
   unmountDialog: () => {
@@ -61,8 +62,8 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       pipelineId: '',
       workflowId: '',
       stepIndex: -1,
-      openedDialogType: PipelineConfigDialogType.NONE,
-      mountedDialogType: PipelineConfigDialogType.NONE,
+      openedDialogType: PipelinesPageDialogType.NONE,
+      mountedDialogType: PipelinesPageDialogType.NONE,
     }));
   },
   setPipelineId: (pipelineId = '') => {

@@ -3,28 +3,28 @@ import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = Omit<DialogProps, 'title'> & {
-  pipelineId: string;
-  onDeletePipeline?: (pipelineId: string) => void;
+  workflowId: string;
+  onDeleteWorkflow?: (workflowId: string) => void;
 };
 
-const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props }: Props) => {
-  const deletePipeline = useBitriseYmlStore((s) => s.deletePipeline);
+const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialogProps }: Props) => {
+  const deleteWorkflow = useBitriseYmlStore((s) => s.deleteWorkflow);
 
-  const handleDeletePipeline = useCallback(() => {
-    deletePipeline(pipelineId);
-    onDeletePipeline?.(pipelineId);
+  const handleDelete = useCallback(() => {
+    deleteWorkflow(workflowId);
+    onDeleteWorkflow?.(workflowId);
     onClose();
-  }, [pipelineId, deletePipeline, onDeletePipeline, onClose]);
+  }, [workflowId, deleteWorkflow, onDeleteWorkflow, onClose]);
 
   return (
-    <Dialog {...props} title="Delete Pipeline" onClose={onClose}>
+    <Dialog title="Delete Workflow?" onClose={onClose} {...dialogProps}>
       <DialogBody display="flex" flexDir="column" gap="24">
         <Text>
-          Are you sure you want to delete <strong>{pipelineId}</strong>?
+          Are you sure you want to delete <strong>{workflowId}</strong>?
         </Text>
         <List variant="unstyled" spacing="6">
           <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
-            All settings of this Pipeline will be deleted.
+            All settings, Steps and EnvVars specific to this Workflow will be deleted.
           </ListItem>
           <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
             Dependent automated tasks, builds and deployments will stop functioning.
@@ -39,7 +39,7 @@ const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props 
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="danger-primary" onClick={handleDeletePipeline}>
+        <Button isDanger onClick={handleDelete}>
           Delete
         </Button>
       </DialogFooter>
@@ -47,4 +47,4 @@ const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props 
   );
 };
 
-export default DeletePipelineDialog;
+export default DeleteWorkflowDialog;

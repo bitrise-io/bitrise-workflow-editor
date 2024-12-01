@@ -1,7 +1,8 @@
 import { Step } from '@/core/models/Step';
 
 export type SearchFormValues = {
-  search: string;
+  searchSteps?: string;
+  filterStepBundles?: string;
   categories: string[];
 };
 

@@ -1,10 +1,12 @@
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { Box, BoxProps, Button, EmptyState } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, EmptyState, Portal } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import dragOverlayScaleModifier from '../utils/dragOverlayScaleModifier';
+import scaleInsensitiveMeasure from '../utils/scaleInsensitiveMeasure';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 
@@ -18,10 +20,11 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
 }
 
 const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
+  const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
+
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
-  const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -123,6 +126,11 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
       onDragStart={handleDragStart}
       onDragCancel={handleDragCancel}
       modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      measuring={{
+        draggable: { measure: scaleInsensitiveMeasure },
+        droppable: { measure: scaleInsensitiveMeasure },
+        dragOverlay: { measure: scaleInsensitiveMeasure },
+      }}
     >
       <SortableContext
         disabled={!isSortable}
@@ -131,7 +139,11 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
       >
         {content}
       </SortableContext>
-      <DragOverlay>{activeItem && <StepCard {...activeItem} {...actions} isDragging isSortable />}</DragOverlay>
+      <Portal>
+        <DragOverlay modifiers={[dragOverlayScaleModifier]} zIndex={5} adjustScale>
+          {activeItem && <StepCard {...activeItem} isDragging isSortable />}
+        </DragOverlay>
+      </Portal>
     </DndContext>
   );
 };

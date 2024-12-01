@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Box,
-  BoxProps,
   Button,
   Dropdown,
   DropdownGroup,
@@ -11,22 +10,17 @@ import {
   EmptyState,
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
-type Props = {
-  workflowIds: string[];
-  containerProps?: BoxProps;
-  selectedWorkflowId: string;
-  onSelectWorkflowId: (workflowId?: string | null) => void;
-  onCreateWorkflow: VoidFunction;
-};
+const WorkflowSelector = () => {
+  const workflows = useWorkflows();
+  const workflowIds = Object.keys(workflows);
+  const { openDialog } = useWorkflowsPageStore();
+  const dropdownRef = useRef<HTMLButtonElement>(null);
+  const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
-const WorkflowSelector = ({
-  workflowIds,
-  containerProps,
-  selectedWorkflowId,
-  onSelectWorkflowId,
-  onCreateWorkflow,
-}: Props) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
@@ -34,12 +28,12 @@ const WorkflowSelector = ({
     const utility: string[] = [];
     const runnable: string[] = [];
 
-    workflowIds.forEach((id) => {
-      if (id?.toLowerCase().includes(debouncedSearch?.toLowerCase())) {
-        if (id.startsWith('_')) {
-          utility.push(id);
+    workflowIds.forEach((workflowName) => {
+      if (workflowName.toLowerCase().includes(debouncedSearch.toLowerCase())) {
+        if (workflowName.startsWith('_')) {
+          utility.push(workflowName);
         } else {
-          runnable.push(id);
+          runnable.push(workflowName);
         }
       }
     });
@@ -55,67 +49,75 @@ const WorkflowSelector = ({
     setDebouncedSearch(value);
   };
 
+  const onCreateWorkflow = () => {
+    openDialog(WorkflowsPageDialogType.CREATE_WORKFLOW)();
+    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
+  };
+
   return (
-    <Box sx={{ '--dropdown-floating-max': '359px' }} {...containerProps}>
-      <Dropdown
-        size="md"
-        value={selectedWorkflowId}
-        onChange={({ target: { value } }) => onSelectWorkflowId(value)}
-        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
+    <Dropdown
+      flex="1"
+      size="md"
+      ref={dropdownRef}
+      dropdownMaxHeight="359px"
+      minWidth="0"
+      formLabel={selectedWorkflowId ?? 'Select a Workflow'}
+      value={selectedWorkflowId}
+      onChange={({ target: { value } }) => setSelectedWorkflow(value)}
+      search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
+    >
+      {runnableWorkflows.map((id) => (
+        <DropdownOption key={id} value={id}>
+          {id}
+        </DropdownOption>
+      ))}
+
+      {hasUtilityWorkflows && (
+        <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
+          {utilityWorkflows.map((id) => (
+            <DropdownOption key={id} value={id}>
+              {id}
+            </DropdownOption>
+          ))}
+        </DropdownGroup>
+      )}
+
+      {hasNoSearchResults && (
+        <DropdownNoResultsFound>
+          <EmptyState
+            iconName="Magnifier"
+            backgroundColor="background/primary"
+            title="No Workflows are matching your filter"
+            description="Modify your search to get results"
+          />
+        </DropdownNoResultsFound>
+      )}
+
+      <Box
+        w="100%"
+        mt="8"
+        py="12"
+        mb="-12"
+        bottom="-12"
+        position="sticky"
+        borderTop="1px solid"
+        borderColor="border/regular"
+        backgroundColor="background/primary"
       >
-        {runnableWorkflows.map((id) => (
-          <DropdownOption key={id} value={id}>
-            {id}
-          </DropdownOption>
-        ))}
-
-        {hasUtilityWorkflows && (
-          <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
-            {utilityWorkflows.map((id) => (
-              <DropdownOption key={id} value={id}>
-                {id}
-              </DropdownOption>
-            ))}
-          </DropdownGroup>
-        )}
-
-        {hasNoSearchResults && (
-          <DropdownNoResultsFound>
-            <EmptyState
-              iconName="Magnifier"
-              backgroundColor="background/primary"
-              title="No Workflows are matching your filter"
-              description="Modify your search to get results"
-            />
-          </DropdownNoResultsFound>
-        )}
-
-        <Box
+        <Button
           w="100%"
-          mt="8"
-          py="12"
-          mb="-12"
-          bottom="-12"
-          position="sticky"
-          borderTop="1px solid"
-          borderColor="border/regular"
-          backgroundColor="background/primary"
+          border="none"
+          fontWeight="400"
+          borderRadius="0"
+          variant="secondary"
+          leftIconName="PlusCircle"
+          justifyContent="flex-start"
+          onClick={onCreateWorkflow}
         >
-          <Button
-            w="100%"
-            border="none"
-            fontWeight="400"
-            borderRadius="0"
-            variant="secondary"
-            leftIconName="PlusCircle"
-            justifyContent="flex-start"
-            onClick={onCreateWorkflow}
-          >
-            Create Workflow
-          </Button>
-        </Box>
-      </Dropdown>
-    </Box>
+          Create Workflow
+        </Button>
+      </Box>
+    </Dropdown>
   );
 };
 

@@ -9,6 +9,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
@@ -51,6 +52,7 @@ const ChainedWorkflowCard = ({
 
   const result = useWorkflow(id);
   const containerRef = useRef(null);
+  const scale = getRectFlowViewportScale();
   const dependants = useDependantWorkflows(id);
   const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: false });
 
@@ -70,6 +72,11 @@ const ChainedWorkflowCard = ({
     return null;
   }
 
+  const style = {
+    transition: sortable.transition,
+    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / scale }),
+  };
+
   if (sortable.isDragging) {
     return (
       <Box
@@ -85,10 +92,7 @@ const ChainedWorkflowCard = ({
         borderColor="border/strong"
         backgroundColor="background/secondary"
         {...containerProps}
-        style={{
-          transition: sortable.transition,
-          transform: CSS.Transform.toString(sortable.transform),
-        }}
+        style={style}
       >
         {id}
       </Box>
@@ -104,10 +108,7 @@ const ChainedWorkflowCard = ({
       ref={sortable.setNodeRef}
       {...containerProps}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      style={{
-        transition: sortable.transition,
-        transform: CSS.Transform.toString(sortable.transform),
-      }}
+      style={style}
     >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isSortable && (
@@ -128,9 +129,9 @@ const ChainedWorkflowCard = ({
           onClick={onToggle}
           isDisabled={isDragging}
           iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-          aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+          aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
           tooltipProps={{
-            'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details`,
+            'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
           }}
         />
 
@@ -170,9 +171,10 @@ const ChainedWorkflowCard = ({
             )}
             {onRemoveChainedWorkflow && (
               <ControlButton
+                isDanger
                 size="xs"
                 iconName="Trash"
-                aria-label="Remove"
+                aria-label="Remove Workflow"
                 tooltipProps={{ 'aria-label': 'Remove' }}
                 onClick={() => onRemoveChainedWorkflow(index, parentWorkflowId, placement)}
               />

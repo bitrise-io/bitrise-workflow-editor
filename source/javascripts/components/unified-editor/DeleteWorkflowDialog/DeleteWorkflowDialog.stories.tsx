@@ -1,18 +1,19 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
-import CreateWorkflowDialog from './CreateWorkflowDialog';
+import DeleteWorkflowDialog from './DeleteWorkflowDialog';
 
 export default {
-  component: CreateWorkflowDialog,
+  component: DeleteWorkflowDialog,
   args: {
     isOpen: true,
+    workflowId: 'wf-1',
   },
   argTypes: {
     isOpen: { type: 'boolean' },
     onClose: { type: 'function' },
-    onCreateWorkflow: { type: 'function' },
+    onDeleteWorkflow: { type: 'function' },
   },
   decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
-} as Meta<typeof CreateWorkflowDialog>;
+} as Meta<typeof DeleteWorkflowDialog>;
 
 export const Default: StoryObj = {};

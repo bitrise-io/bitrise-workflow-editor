@@ -1,14 +1,15 @@
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { Box, CardProps } from '@bitrise/bitkit';
-import { useHover, useResizeObserver } from 'usehooks-ts';
 import { NodeProps, useReactFlow } from '@xyflow/react';
-import { WorkflowCard } from '@/components/unified-editor';
+import { useHover, useResizeObserver } from 'usehooks-ts';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { WorkflowCard } from '@/components/unified-editor';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineNodeType, GraphPipelineEdgeType } from '../GraphPipelineCanvas.types';
-import { usePipelinesPageStore, PipelineConfigDialogType } from '../../../../PipelinesPage.store';
+import { usePipelinesPageStore, PipelinesPageDialogType } from '../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -36,53 +37,64 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  /* NOTE: will be included later
-  const { removeChainedWorkflow } = useBitriseYmlStore((s) => ({
-    removeChainedWorkflow: s.removeChainedWorkflow,
-  }));
-  */
+  const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
+    useBitriseYmlStore((s) => ({
+      moveStep: s.moveStep,
+      cloneStep: s.cloneStep,
+      deleteStep: s.deleteStep,
+      upgradeStep: s.changeStepVersion,
+      setChainedWorkflows: s.setChainedWorkflows,
+      removeChainedWorkflow: s.removeChainedWorkflow,
+    }));
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
-  const handleAddStep = useMemo(() => {
+  const {
+    handleAddStep,
+    handleMoveStep,
+    handleSelectStep,
+    handleClonseStep,
+    handleDeleteStep,
+    handleUpgradeStep,
+    handleEditWorkflow,
+    handleChainWorkflow,
+    handleRemoveWorkflow,
+    handleRemoveChainedWorkflow,
+    handleChainedWorkflowsUpdate,
+  } = useMemo(() => {
     if (!isGraphPipelinesEnabled) {
-      return undefined;
+      return {};
     }
 
-    return (workflowId: string, stepIndex: number) => {
-      openDialog(PipelineConfigDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)();
+    return {
+      handleAddStep: (workflowId: string, stepIndex: number) =>
+        openDialog(PipelinesPageDialogType.STEP_SELECTOR, selectedPipeline, workflowId, stepIndex)(),
+      handleMoveStep: moveStep,
+      handleSelectStep: (workflowId: string, stepIndex: number) =>
+        openDialog(PipelinesPageDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)(),
+      handleClonseStep: cloneStep,
+      handleDeleteStep: deleteStep,
+      handleUpgradeStep: upgradeStep,
+      handleEditWorkflow: (workflowId: string) =>
+        openDialog(PipelinesPageDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)(),
+      handleChainWorkflow: (workflowId: string) =>
+        openDialog(PipelinesPageDialogType.CHAIN_WORKFLOW, selectedPipeline, workflowId)(),
+      handleRemoveWorkflow: (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] }),
+      handleRemoveChainedWorkflow: removeChainedWorkflow,
+      handleChainedWorkflowsUpdate: setChainedWorkflows,
     };
-  }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
-
-  const handleSelectStep = useMemo(() => {
-    if (!isGraphPipelinesEnabled) {
-      return undefined;
-    }
-
-    return (workflowId: string, stepIndex: number) => {
-      openDialog(PipelineConfigDialogType.STEP_CONFIG, selectedPipeline, workflowId, stepIndex)();
-    };
-  }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
-
-  const handleEditWorkflow = useMemo(() => {
-    if (!isGraphPipelinesEnabled) {
-      return undefined;
-    }
-
-    return (workflowId: string) => {
-      openDialog(PipelineConfigDialogType.WORKFLOW_CONFIG, selectedPipeline, workflowId)();
-    };
-  }, [isGraphPipelinesEnabled, openDialog, selectedPipeline]);
-
-  const handleRemoveWorkflow = useMemo(() => {
-    if (!isGraphPipelinesEnabled) {
-      return undefined;
-    }
-
-    return (workflowId: string) => {
-      deleteElements({ nodes: [{ id: workflowId }] });
-    };
-  }, [deleteElements, isGraphPipelinesEnabled]);
+  }, [
+    moveStep,
+    cloneStep,
+    openDialog,
+    deleteStep,
+    upgradeStep,
+    deleteElements,
+    selectedPipeline,
+    setChainedWorkflows,
+    removeChainedWorkflow,
+    isGraphPipelinesEnabled,
+  ]);
 
   const containerProps = useMemo(
     () => ({ ...defaultStyle, ...(selected ? selectedStyle : {}), ...(hovered ? hoveredStyle : {}) }),
@@ -111,21 +123,21 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         isCollapsable
         containerProps={containerProps}
         /* TODO needs plumbing
-        onMoveStep={}
-        onUpgradeStep={}
-        onCloneStep={}
-        onDeleteStep={}
-        onCreateWorkflow={]
-        onChainWorkflow={}
-        onChainChainedWorkflow={}
-        onChainedWorkflowsUpdate={}
+        onCreateWorkflow={}
         */
         onAddStep={handleAddStep}
+        onMoveStep={handleMoveStep}
+        onCloneStep={handleClonseStep}
         onSelectStep={handleSelectStep}
+        onDeleteStep={handleDeleteStep}
+        onUpgradeStep={handleUpgradeStep}
         onEditWorkflow={handleEditWorkflow}
-        // onEditChainedWorkflow={openEditWorkflowDialog}
+        onChainWorkflow={handleChainWorkflow}
         onRemoveWorkflow={handleRemoveWorkflow}
-        // onRemoveChainedWorkflow={removeChainedWorkflow}
+        onEditChainedWorkflow={handleEditWorkflow}
+        onChainChainedWorkflow={handleChainWorkflow}
+        onRemoveChainedWorkflow={handleRemoveChainedWorkflow}
+        onChainedWorkflowsUpdate={handleChainedWorkflowsUpdate}
       />
       <RightHandle />
     </Box>
