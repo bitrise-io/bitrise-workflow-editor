@@ -13,7 +13,6 @@ import {
 } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useViewport } from '@xyflow/react';
 import useStep from '@/hooks/useStep';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
@@ -22,6 +21,7 @@ import { Step } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import useReactFlowZoom from '../hooks/useReactFlowZoom';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -82,7 +82,7 @@ const StepCard = ({
   onCloneStep,
   onDeleteStep,
 }: StepCardProps) => {
-  const { zoom } = useViewport();
+  const zoom = useReactFlowZoom();
   const result = useStep(workflowId, stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
@@ -110,7 +110,7 @@ const StepCard = ({
 
   if (isLoading) {
     return (
-      <Card display="flex" variant="outline" borderRadius="4" alignItems="center">
+      <Card ref={sortable.setNodeRef} display="flex" variant="outline" borderRadius="4" alignItems="center">
         {isSortable && <DragHandle alignSelf="stretch" isDisabled />}
         <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
           <SkeletonBox height="32" width="32" borderRadius="4" />

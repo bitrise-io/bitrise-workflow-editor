@@ -1,10 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { DragOverlay, DragOverlayProps, DropAnimation, Modifier } from '@dnd-kit/core';
-import { useViewport } from '@xyflow/react';
+import useReactFlowZoom from '../hooks/useReactFlowZoom';
 
 const ScaledDragOverlay = ({ modifiers, ...props }: DragOverlayProps) => {
-  const { zoom } = useViewport();
+  const zoom = useReactFlowZoom();
 
   const overlayZoomModifier: Modifier = useCallback(
     ({ transform }) => {
@@ -18,7 +18,7 @@ const ScaledDragOverlay = ({ modifiers, ...props }: DragOverlayProps) => {
       keyframes: (params) => {
         const activeNodeTop = params.active.node.getBoundingClientRect().top ?? 0;
         const dragOverlayTop = params.dragOverlay.node.getBoundingClientRect().top ?? 0;
-        const dragOverlayTopDelta = (dragOverlayTop - activeNodeTop) / zoom;
+        const dragOverlayTopDelta = (activeNodeTop - dragOverlayTop) / zoom;
 
         const { initial, final } = params.transform;
 
@@ -37,4 +37,4 @@ const ScaledDragOverlay = ({ modifiers, ...props }: DragOverlayProps) => {
   return <DragOverlay dropAnimation={dropAnimation} modifiers={mergedModifiers} {...props} />;
 };
 
-export default ScaledDragOverlay;
+export default memo(ScaledDragOverlay);

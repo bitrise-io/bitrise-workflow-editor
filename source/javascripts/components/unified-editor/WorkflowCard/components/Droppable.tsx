@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box, BoxProps } from '@bitrise/bitkit';
 import { useDroppable } from '@dnd-kit/core';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
@@ -41,4 +42,4 @@ const Droppable = ({ placement, parentWorkflowId, containerProps }: Props) => {
   );
 };
 
-export default Droppable;
+export default memo(Droppable);

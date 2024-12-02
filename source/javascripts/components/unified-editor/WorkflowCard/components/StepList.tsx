@@ -122,6 +122,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
 
   return (
     <DndContext
+      autoScroll={false}
       measuring={dndKitMeasuring}
       modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       onDragEnd={handleDragEnd}
