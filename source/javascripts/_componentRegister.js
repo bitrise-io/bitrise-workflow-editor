@@ -9,8 +9,6 @@ import NotificationMessageWithLink from "./components/NotificationMessageWithLin
 import StepBadge from "./components/StepBadge";
 import Toggle from "./components/Toggle";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
-import YmlEditor from "./pages/YmlPage/components/YmlEditor";
-import YmlEditorHeader from "./pages/YmlPage/components/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
