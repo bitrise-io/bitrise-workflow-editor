@@ -86,9 +86,10 @@ const StepCard = ({
 }: StepCardProps) => {
   const scale = getRectFlowViewportScale();
   const result = useStep({ workflowId, stepBundleId, stepIndex });
-  console.log('parentId:', parentId, 'stepIndex:', stepIndex);
   const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
+
+  const parentId = workflowId || stepBundleId || '';
 
   const sortable = useSortable({
     id: uniqueId,

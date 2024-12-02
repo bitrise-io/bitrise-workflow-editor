@@ -88,14 +88,20 @@ const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: 
           return (
             <Fragment key={item.stepIndex}>
               {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(parentId, item.stepIndex)} />}
-              <StepCard {...item} isSortable={isSortable} {...actions} />
+              <StepCard
+                {...item}
+                isSortable={isSortable}
+                {...actions}
+                stepBundleId={stepBundleId}
+                workflowId={workflowId}
+              />
               {isLast && onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(parentId, item.stepIndex + 1)} />}
             </Fragment>
           );
         })}
       </Box>
     );
-  }, [actions, containerProps, isSortable, onAddStep, parentId, sortableItems]);
+  }, [actions, containerProps, isSortable, onAddStep, parentId, sortableItems, stepBundleId, workflowId]);
 
   if (isEmpty) {
     return (

@@ -422,3 +422,5 @@ step_bundles:
       opts: {}
     - NPM_COMMAND: install
       opts: {}
+    steps:
+    - script@1: {}
