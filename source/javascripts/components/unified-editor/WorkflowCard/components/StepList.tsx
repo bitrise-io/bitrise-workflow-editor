@@ -1,5 +1,5 @@
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { Box, BoxProps, Button, EmptyState } from '@bitrise/bitkit';
+import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -12,14 +12,13 @@ import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = StepActions & {
   workflowId: string;
-  containerProps?: BoxProps;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
+const StepList = ({ workflowId, ...stepActions }: Props) => {
   const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
 
   const steps = useBitriseYmlStore(({ yml }) => {
@@ -74,7 +73,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" gap="8" {...containerProps}>
+      <Box display="flex" flexDir="column" gap="8">
         {sortableItems.map((item) => {
           const isLast = item.stepIndex === sortableItems.length - 1;
 
@@ -90,7 +89,7 @@ const StepList = ({ workflowId, containerProps, ...stepActions }: Props) => {
         })}
       </Box>
     );
-  }, [actions, containerProps, isSortable, onAddStep, sortableItems, workflowId]);
+  }, [actions, isSortable, onAddStep, sortableItems, workflowId]);
 
   if (isEmpty) {
     return (

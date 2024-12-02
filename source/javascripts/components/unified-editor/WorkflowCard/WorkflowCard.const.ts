@@ -1,13 +1,16 @@
-import { MeasuringConfiguration } from '@dnd-kit/core';
+import { getScrollableAncestors, MeasuringConfiguration } from '@dnd-kit/core';
 
 export const dndKitMeasuring: MeasuringConfiguration = {
   draggable: {
     measure: (elem) => {
+      const scrollContainer = getScrollableAncestors(elem)[0];
+      const top = elem.offsetTop - scrollContainer.scrollTop;
+
       return {
-        top: elem.offsetTop,
-        right: elem.offsetLeft + elem.offsetWidth,
-        bottom: elem.offsetTop + elem.offsetHeight,
+        top,
+        bottom: top + elem.offsetHeight,
         left: elem.offsetLeft,
+        right: elem.offsetLeft + elem.offsetWidth,
         width: elem.offsetWidth,
         height: elem.offsetHeight,
       };
