@@ -1,32 +1,35 @@
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import WindowUtils from '@/core/utils/WindowUtils';
+import { Box } from '@chakra-ui/react';
+import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
+import YmlEditor from './components/YmlEditor';
+import YmlEditorHeader from './components/YmlEditorHeader';
 
-type YmlPageContentProps = {
-  yml: BitriseYml;
-  ymlString: string;
+type YmlPageProps = {
+  ciConfigYml: string;
+  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
+  onEditorChange: (changedText?: string) => void;
+  isEditorLoading: boolean;
+  ymlSettings: BitriseYmlSettings;
 };
 
-const YmlPageContent = (props: YmlPageContentProps) => {
-  const { yml, ymlString } = props;
+const YmlPage = (props: YmlPageProps) => {
+  const { ciConfigYml, isEditorLoading, onConfigSourceChangeSaved, onEditorChange, ymlSettings } = props;
 
-  const isRepositoryYmlAvailable = WindowUtils.limits()?.isPipelinesAvailable;
-
-  console.log({ isRepositoryYmlAvailable, yml, ymlString });
-  return <>YmlPageContent</>;
-};
-
-type Props = {
-  onChange: (yml: BitriseYml) => void;
-  yml: BitriseYml;
-  ymlString: string;
-};
-
-const YmlPage = ({ onChange, yml, ymlString }: Props) => {
   return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <YmlPageContent yml={yml} ymlString={ymlString} />
-    </BitriseYmlProvider>
+    <Box height="100%" display="flex" flexDirection="column">
+      <YmlEditorHeader
+        ciConfigYml={ciConfigYml}
+        onConfigSourceChangeSaved={onConfigSourceChangeSaved}
+        ymlSettings={ymlSettings}
+      />
+      <Box flexGrow="1" flexShrink="1" borderRadius="8" paddingBlock="12" backgroundColor="#1e1e1e">
+        <YmlEditor
+          ciConfigYml={ciConfigYml}
+          isLoading={isEditorLoading}
+          readOnly={ymlSettings.usesRepositoryYml}
+          onEditorChange={onEditorChange}
+        />
+      </Box>
+    </Box>
   );
 };
 

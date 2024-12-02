@@ -9,8 +9,8 @@ import NotificationMessageWithLink from "./components/NotificationMessageWithLin
 import StepBadge from "./components/StepBadge";
 import Toggle from "./components/Toggle";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
-import YmlEditor from "./components/YmlEditor/YmlEditor";
-import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import YmlEditor from "./pages/YmlPage/components/YmlEditor";
+import YmlEditorHeader from "./pages/YmlPage/components/YmlEditorHeader";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
@@ -41,7 +41,7 @@ angular
   )
   .component("rPipelinesPage", register(PipelinesPage, ["yml", "onChange"]))
   .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]))
-  .component("rYmlPage", register(YmlPage, ["yml", 'ymlString', "onChange"]));
+  .component("rYmlPage", register(YmlPage, ["ciConfigYml", "isEditorLoading", "onConfigSourceChangeSaved", "onEditorChange", "ymlSettings"]));
 
 // Components
 angular
@@ -73,30 +73,6 @@ angular
       "defaultBranch",
       "gitRepoSlug",
     ]),
-  )
-  .component(
-    "rYmlEditorHeader",
-    register(YmlEditorHeader, [
-      "appSlug",
-      "ymlString",
-      "onConfigSourceChangeSaved",
-      "isRepositoryYmlAvailable",
-      "isWebsiteMode",
-      "defaultBranch",
-      "gitRepoSlug",
-      "ymlSettings",
-
-      "initialUsesRepositoryYml",
-      "lines",
-      "split",
-      "modularYamlSupported",
-      "lastModified",
-      "initialYmlRootPath",
-    ]),
-  )
-  .component(
-    "rYmlEditor",
-    register(YmlEditor, ["yml", "readonly", "onChange", "isLoading"]),
   )
   .component("rInfoTooltip", register(InfoTooltip, ["label"]))
   .component(

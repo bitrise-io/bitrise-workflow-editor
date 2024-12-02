@@ -59,6 +59,7 @@ declare global {
         name: string;
         defaultBranch?: string;
         buildTriggerToken?: string;
+        gitRepoSlug?: string;
       };
       settings?: {
         statusReport?: {

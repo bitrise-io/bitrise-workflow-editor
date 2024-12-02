@@ -3,33 +3,29 @@ import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure, 
 import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
-import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
+import WindowUtils from '@/core/utils/WindowUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import ConfigurationYmlSourceDialog from '../../../components/ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 
 const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
 const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
 export type YmlEditorHeaderProps = {
-  appSlug: string;
-  defaultBranch: string;
-  gitRepoSlug: string;
-  isRepositoryYmlAvailable: boolean;
-  isWebsiteMode: boolean;
+  ciConfigYml: string;
   onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   ymlSettings: BitriseYmlSettings;
-  ymlString: string;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
-  const {
-    appSlug,
-    defaultBranch,
-    gitRepoSlug,
-    isRepositoryYmlAvailable,
-    isWebsiteMode,
-    onConfigSourceChangeSaved,
-    ymlSettings,
-    ymlString,
-  } = props;
+  const { ciConfigYml, onConfigSourceChangeSaved, ymlSettings } = props;
+
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+
+  const isRepositoryYmlAvailable = WindowUtils.limits()?.isPipelinesAvailable;
+
+  const appSlug = WindowUtils.appSlug() || '';
+  const defaultBranch = WindowUtils.pageProps()?.project?.defaultBranch || '';
+  const gitRepoSlug = WindowUtils.pageProps()?.project?.gitRepoSlug || '';
 
   const {
     isModularYamlSupported,
@@ -162,7 +158,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           gitRepoSlug={gitRepoSlug}
           lastModified={lastModified}
           initialYmlRootPath={ymlRootPath}
-          ymlString={ymlString}
+          ciConfigYml={ciConfigYml}
         />
       )}
     </>

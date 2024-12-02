@@ -1,17 +1,8 @@
-.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
+.tab-yml[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
   r-yml-page[
-    yml="ymlCtrl.yml"
-    ymlString="ymlCtrl.appConfigYML"
-  ]
-  r-yml-editor-header[
-    yml-string="ymlCtrl.ymlString"
-    app-slug="ymlCtrl.appSlug"
-    default-branch="ymlCtrl.defaultBranch"
-    git-repo-slug="ymlCtrl.gitRepoSlug"
-    is-website-mode="ymlCtrl.isWebsiteMode"
+    ci-config-yml="ymlCtrl.ciConfigYml"
+    is-editor-loading="ymlCtrl.isEditorLoading"
     on-config-source-change-saved="ymlCtrl.onConfigSourceChangeSaved"
-    is-repository-yml-available="ymlCtrl.isRepositoryYmlAvailable"
+    on-editor-change="ymlCtrl.onEditorChange"
     yml-settings="ymlCtrl.ymlSettings"
   ]
-  #editor-container
-    r-yml-editor[yml="ymlCtrl.ymlString" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler" is-loading="ymlCtrl.isEditorLoading"]

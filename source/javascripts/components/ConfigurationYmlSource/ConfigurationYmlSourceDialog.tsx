@@ -67,7 +67,7 @@ type ConfigurationYmlSourceDialogProps = {
   gitRepoSlug: string;
   lastModified: string | null;
   initialYmlRootPath: string | null;
-  ymlString: string;
+  ciConfigYml: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -81,7 +81,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     onConfigSourceChangeSaved,
     lastModified,
     initialYmlRootPath,
-    ymlString,
+    ciConfigYml,
   } = props;
 
   const {
@@ -360,7 +360,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Box display="flex" gap="8">
                   <Button
                     as="a"
-                    href={`data:attachment/text,${encodeURIComponent(ymlString)}`}
+                    href={`data:attachment/text,${encodeURIComponent(ciConfigYml)}`}
                     target="_blank"
                     download="bitrise.yml"
                     variant="secondary"
@@ -371,7 +371,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   >
                     Download bitrise.yml
                   </Button>
-                  <CopyToClipboard text={ymlString} onCopy={onCopyClick}>
+                  <CopyToClipboard text={ciConfigYml} onCopy={onCopyClick}>
                     <Button
                       variant="secondary"
                       leftIconName="Duplicate"

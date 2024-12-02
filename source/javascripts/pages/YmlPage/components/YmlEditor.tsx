@@ -1,13 +1,14 @@
-import Editor from '@monaco-editor/react';
+import { Editor } from '@monaco-editor/react';
 import { configureMonacoYaml } from 'monaco-yaml';
 
 type YmlEditorProps = {
+  ciConfigYml: string;
   isLoading?: boolean;
-  readonly: boolean;
-  yml: string;
-  onChange: (changedText?: string) => void;
+  readOnly: boolean;
+  onEditorChange: (changedText?: string) => void;
 };
-const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
+const YmlEditor = (props: YmlEditorProps) => {
+  const { ciConfigYml, isLoading, readOnly, onEditorChange } = props;
   const defaultSchema = {
     uri: 'https://json.schemastore.org/bitrise.json',
     fileMatch: ['*'],
@@ -16,10 +17,10 @@ const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
   return (
     <Editor
       language="yaml"
-      value={isLoading ? 'Loading...' : yml}
+      value={isLoading ? 'Loading...' : ciConfigYml}
       theme="vs-dark"
       options={{
-        readOnly: readonly || isLoading,
+        readOnly: readOnly || isLoading,
         roundedSelection: false,
         scrollBeyondLastLine: false,
         stickyScroll: {
@@ -36,7 +37,7 @@ const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
           schemas: [defaultSchema],
         });
       }}
-      onChange={onChange}
+      onChange={onEditorChange}
     />
   );
 };
