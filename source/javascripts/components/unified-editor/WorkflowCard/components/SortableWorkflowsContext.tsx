@@ -11,7 +11,6 @@ import {
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { Portal } from '@bitrise/bitkit';
-import { noop } from 'es-toolkit';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 import dragOverlayScaleModifier from '../utils/dragOverlayScaleModifier';
 import scaleInsensitiveMeasure from '../utils/scaleInsensitiveMeasure';
@@ -75,7 +74,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
       {children}
       <Portal>
         <DragOverlay modifiers={[dragOverlayScaleModifier]} zIndex={5} adjustScale>
-          {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
+          {activeItem && <ChainedWorkflowCard {...activeItem} isDragging />}
         </DragOverlay>
       </Portal>
     </DndContext>

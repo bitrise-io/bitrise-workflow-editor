@@ -1,4 +1,4 @@
-import { Box, Notification, Tab, TabList, Tabs, TabPanels, TabPanel, Tag, Text, useTabs } from '@bitrise/bitkit';
+import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -21,8 +21,10 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepSelectorDrawer = ({ size = 'md', enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
-  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({ tabIds: ['step', 'stepBundle'] });
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
+    tabIds: ['step', 'stepBundle'],
+  });
   const form = useForm<SearchFormValues>({
     defaultValues: {
       searchSteps: '',
@@ -48,7 +50,7 @@ const StepSelectorDrawer = ({ size = 'md', enabledSteps, onSelectStep, onCloseCo
     <Tabs variant="line" index={tabIndex} onChange={setTabIndex}>
       <FormProvider {...form}>
         <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
-          <FloatingDrawerContent size={size} data-clarity-unmask="true">
+          <FloatingDrawerContent data-clarity-unmask="true">
             <FloatingDrawerCloseButton />
             <FloatingDrawerHeader>
               <Box display="flex" gap="12">
