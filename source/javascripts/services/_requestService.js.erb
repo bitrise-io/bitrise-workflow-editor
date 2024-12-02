@@ -538,15 +538,6 @@ import jsyaml from "js-yaml";
         });
       };
 
-      requestService.appConfigYMLDownloadPath = function () {
-        return stringService.stringReplacedWithParameters(
-          "<%= webserver_path(data[:routes][:website][:yml_download]) %>",
-          {
-            app_slug: requestService.appSlug
-          }
-        );
-      };
-
       // Secrets
 
       requestService.postSecrets = function (secrets, requestConfig) {
