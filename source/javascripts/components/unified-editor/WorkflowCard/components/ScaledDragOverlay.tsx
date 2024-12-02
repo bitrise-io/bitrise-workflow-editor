@@ -8,7 +8,7 @@ const ScaledDragOverlay = ({ modifiers, ...props }: DragOverlayProps) => {
 
   const overlayZoomModifier: Modifier = useCallback(
     ({ transform }) => {
-      return { ...transform, x: transform.x / zoom, y: transform.y / zoom };
+      return { ...transform, x: 0, y: transform.y / zoom };
     },
     [zoom],
   );
