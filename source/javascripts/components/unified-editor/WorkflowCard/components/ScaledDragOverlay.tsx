@@ -23,8 +23,8 @@ const ScaledDragOverlay = ({ modifiers, ...props }: DragOverlayProps) => {
         const { initial, final } = params.transform;
 
         return [
-          { transform: CSS.Translate.toString(initial) },
-          { transform: CSS.Translate.toString({ ...final, x: 0, y: initial.y + dragOverlayTopDelta }) },
+          { transform: CSS.Transform.toString(initial) },
+          { transform: CSS.Transform.toString({ ...final, x: 0, y: initial.y + dragOverlayTopDelta }) },
         ];
       },
     };

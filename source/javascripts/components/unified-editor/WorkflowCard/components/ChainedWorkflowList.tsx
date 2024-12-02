@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, BoxProps, Icon } from '@bitrise/bitkit';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
@@ -42,14 +42,15 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
 }
 
 const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...actions }: Props) => {
+  const workflows = useWorkflows();
+  const { droppableContainers } = useDndContext();
+  const workflowIds = useMemo(() => Object.keys(workflows), [workflows]);
+
   const { onChainedWorkflowsUpdate } = actions;
+
   const isAfterRun = placement === 'after_run';
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
-  const workflows = useWorkflows();
-  const workflowIds = useMemo(() => Object.keys(workflows), [workflows]);
-
-  const { droppableContainers, active, measureDroppableContainers } = useDndContext();
 
   const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
     const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
@@ -153,30 +154,11 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...a
     },
   });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setSortableItems(initialSortableItems);
   }, [initialSortableItems]);
 
-  if (sortableItems.length === 0) {
-    return (
-      <Box
-        gap="8"
-        display="flex"
-        overflow="clip"
-        flexDir="column"
-        transition="all 250ms"
-        height={active ? 74 : 0}
-        mt={!active && isAfterRun ? -8 : 0}
-        mb={!active && isBeforeRun ? -8 : 0}
-        onTransitionEnd={() => measureDroppableContainers(droppableContainers.toArray().map((d) => d.id))}
-        {...containerProps}
-      >
-        {isAfterRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
-        <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />
-        {isBeforeRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
-      </Box>
-    );
-  }
+  const isEmpty = sortableItems.length === 0;
 
   return (
     <SortableContext
@@ -184,12 +166,16 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...a
       strategy={verticalListSortingStrategy}
       items={getSortableItemUniqueIds(sortableItems)}
     >
-      <Box display="flex" flexDir="column" gap="8" {...containerProps}>
-        {isAfterRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+      <Box display="flex" flexDir="column" gap={isEmpty ? 0 : 8} {...containerProps}>
+        {isAfterRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+        {isAfterRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
+
         {sortableItems.map((item) => (
           <ChainedWorkflowCard key={item.uniqueId} {...item} {...actions} />
         ))}
-        {isBeforeRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+
+        {isBeforeRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
+        {isBeforeRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
       </Box>
     </SortableContext>
   );

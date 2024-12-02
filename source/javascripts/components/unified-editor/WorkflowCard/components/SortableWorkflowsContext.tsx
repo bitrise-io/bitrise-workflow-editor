@@ -40,7 +40,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveItem({ ...(event.active.data.current as SortableWorkflowItem), uniqueId: event.active.id.toString() });
+    setActiveItem({ ...(event.active.data.current as SortableWorkflowItem) });
   }, []);
 
   const handleDragEndOrCancel = useCallback(() => {
@@ -49,6 +49,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
 
   return (
     <DndContext
+      autoScroll={false}
       measuring={dndKitMeasuring}
       collisionDetection={customCollisionDetection}
       modifiers={[restrictToVerticalAxis, restrictToContainer]}
@@ -57,7 +58,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
       onDragCancel={handleDragEndOrCancel}
     >
       {children}
-      <ScaledDragOverlay zIndex={5}>
+      <ScaledDragOverlay>
         {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
       </ScaledDragOverlay>
     </DndContext>
