@@ -89,6 +89,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         size="md"
         disabled={!hasOptions}
         value={selectedPipeline}
+        formLabel={selectedPipeline ?? 'Select a Pipeline'}
         onChange={(e) => onSelectPipeline(e.target.value || '')}
         placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
         search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
