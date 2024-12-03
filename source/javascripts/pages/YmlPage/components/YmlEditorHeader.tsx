@@ -84,7 +84,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
           Configuration YAML
         </Text>
-        {usesRepositoryYml && isWebsiteMode && (
+        {!usesRepositoryYml && isWebsiteMode && (
           <Button
             as="a"
             href={`/api/app/${appSlug}/config.yml?is_download=1`}
