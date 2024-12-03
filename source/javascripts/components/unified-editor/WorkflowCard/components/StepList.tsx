@@ -1,18 +1,17 @@
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { Box, BoxProps, Button, EmptyState, Portal } from '@bitrise/bitkit';
-import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { Box, Button, EmptyState } from '@bitrise/bitkit';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
-import dragOverlayScaleModifier from '../utils/dragOverlayScaleModifier';
-import scaleInsensitiveMeasure from '../utils/scaleInsensitiveMeasure';
+import { dndKitMeasuring } from '../WorkflowCard.const';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
+import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = StepActions & {
   workflowId?: string;
-  containerProps?: BoxProps;
   stepBundleId?: string;
 };
 
@@ -20,7 +19,7 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: Props) => {
+const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
   const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
   const parentId = workflowId || stepBundleId || '';
   const steps = useBitriseYmlStore(({ yml }) => {
@@ -81,7 +80,7 @@ const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: 
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" gap="8" {...containerProps}>
+      <Box display="flex" flexDir="column" gap="8">
         {sortableItems.map((item) => {
           const isLast = item.stepIndex === sortableItems.length - 1;
 
@@ -101,7 +100,7 @@ const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: 
         })}
       </Box>
     );
-  }, [actions, containerProps, isSortable, onAddStep, parentId, sortableItems, stepBundleId, workflowId]);
+  }, [actions, isSortable, onAddStep, parentId, sortableItems, stepBundleId, workflowId]);
 
   if (isEmpty) {
     return (
@@ -133,15 +132,12 @@ const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: 
 
   return (
     <DndContext
+      autoScroll={false}
+      measuring={dndKitMeasuring}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       onDragCancel={handleDragCancel}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-      measuring={{
-        draggable: { measure: scaleInsensitiveMeasure },
-        droppable: { measure: scaleInsensitiveMeasure },
-        dragOverlay: { measure: scaleInsensitiveMeasure },
-      }}
     >
       <SortableContext
         disabled={!isSortable}
@@ -150,11 +146,7 @@ const StepList = ({ stepBundleId, workflowId, containerProps, ...stepActions }: 
       >
         {content}
       </SortableContext>
-      <Portal>
-        <DragOverlay modifiers={[dragOverlayScaleModifier]} zIndex={5} adjustScale>
-          {activeItem && <StepCard {...activeItem} isDragging isSortable />}
-        </DragOverlay>
-      </Portal>
+      <ScaledDragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</ScaledDragOverlay>
     </DndContext>
   );
 };
