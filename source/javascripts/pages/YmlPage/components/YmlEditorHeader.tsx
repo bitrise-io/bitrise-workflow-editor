@@ -5,7 +5,7 @@ import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import WindowUtils from '@/core/utils/WindowUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import ConfigurationYmlSourceDialog from '../../../components/ConfigurationYmlSource/ConfigurationYmlSourceDialog';
+import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
 const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
@@ -55,8 +55,6 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
       : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
   }
 
-  const isChangeEnabled = isRepositoryYmlAvailable;
-
   const onYmlSourceChangeClick = () => {
     onOpen();
     segmentTrack('Change Configuration Yml Source Button Clicked', {
@@ -101,10 +99,15 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           <DataWidget
             additionalElement={
               <Tooltip
-                isDisabled={isChangeEnabled}
+                isDisabled={isRepositoryYmlAvailable}
                 label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
               >
-                <Button isDisabled={!isChangeEnabled} onClick={onYmlSourceChangeClick} size="sm" variant="tertiary">
+                <Button
+                  isDisabled={!isRepositoryYmlAvailable}
+                  onClick={onYmlSourceChangeClick}
+                  size="sm"
+                  variant="tertiary"
+                >
                   Change
                 </Button>
               </Tooltip>

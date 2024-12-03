@@ -19,9 +19,12 @@ export default {
     lastModified: '2024-05-12T09:23:48.190Z',
     onConfigSourceChangeSaved: () => {},
     initialYmlRootPath: 'spongebob/squarepants',
+    ciConfigYml: 'ciConfigYml content',
   },
   parameters: {
-    msw: [getConfig(), putPipelineConfig(), postConfig()],
+    msw: {
+      handlers: [getConfig(), putPipelineConfig(), postConfig()],
+    },
   },
 } as Meta<typeof ConfigurationYmlSourceDialog>;
 
@@ -42,7 +45,9 @@ export const StoringFailedOnGit: StoryObj<typeof ConfigurationYmlSourceDialog> =
     initialUsesRepositoryYml: false,
   },
   parameters: {
-    msw: [getConfigFailed()],
+    msw: {
+      handlers: [getConfigFailed()],
+    },
   },
 };
 
@@ -51,6 +56,8 @@ export const StoringFailedOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialo
     initialUsesRepositoryYml: true,
   },
   parameters: {
-    msw: [getConfig(), postConfig(), putPipelineConfigFailed()],
+    msw: {
+      handlers: [getConfig(), postConfig(), putPipelineConfigFailed()],
+    },
   },
 };

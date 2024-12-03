@@ -74,7 +74,8 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
 
   useEffect(() => {
     formatToYml(appConfig as BitriseYml);
-  }, [appConfig, formatToYml]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Dialog isOpen onClose={onClose} title="Update configuration YAML">

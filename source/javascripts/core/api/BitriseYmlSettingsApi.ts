@@ -36,20 +36,20 @@ function toYmlSettingUpdateModel(model: Partial<BitriseYmlSettings>): BitriseYml
 }
 
 // API CALLS
-const PIPELINE_CONFIG_PATH = 'app/:appSlug/pipeline_config';
+const YML_SETTINGS_PATH = 'app/:projectSlug/pipeline_config';
 
-function getYmlSettingsPath(appSlug: string): string {
-  return PIPELINE_CONFIG_PATH.replace(':appSlug', appSlug);
+function getYmlSettingsPath(projectSlug: string): string {
+  return YML_SETTINGS_PATH.replace(':projectSlug', projectSlug);
 }
 
 async function getYmlSettings({
-  appSlug,
+  projectSlug,
   signal,
 }: {
-  appSlug: string;
+  projectSlug: string;
   signal?: AbortSignal;
 }): Promise<BitriseYmlSettings> {
-  const response = await Client.get<BitriseYmlSettingsResponse>(getYmlSettingsPath(appSlug), {
+  const response = await Client.get<BitriseYmlSettingsResponse>(getYmlSettingsPath(projectSlug), {
     signal,
   });
 
@@ -57,15 +57,15 @@ async function getYmlSettings({
 }
 
 function updateYmlSettings({
-  appSlug,
+  projectSlug,
   model,
   signal,
 }: {
-  appSlug: string;
+  projectSlug: string;
   model: Partial<BitriseYmlSettings>;
   signal?: AbortSignal;
 }): Promise<BitriseYmlSettingsResponse | undefined> {
-  return Client.put<BitriseYmlSettingsResponse>(getYmlSettingsPath(appSlug), {
+  return Client.put<BitriseYmlSettingsResponse>(getYmlSettingsPath(projectSlug), {
     body: JSON.stringify(toYmlSettingUpdateModel(model)),
     signal,
   });
