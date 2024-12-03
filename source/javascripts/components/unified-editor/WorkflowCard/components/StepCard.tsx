@@ -161,7 +161,7 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
   }, [isPlaceholder, isHighlighted, isButton, isDragging]);
 
   const buttonGroup = useMemo(() => {
-    if (!isUpgradable && !onCloneStep && !onDeleteStep) {
+    if (isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
       return null;
     }
 
@@ -213,7 +213,7 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
         )}
       </ButtonGroup>
     );
-  }, [isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
+  }, [isDragging, isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
 
   return (
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>

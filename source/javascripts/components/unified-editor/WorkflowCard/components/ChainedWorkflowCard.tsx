@@ -91,7 +91,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   }, [isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
-    if (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow) {
+    if (isDragging || (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow)) {
       return null;
     }
 
@@ -134,6 +134,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     id,
     index,
     placement,
+    isDragging,
     parentWorkflowId,
     onOpen,
     onEditChainedWorkflow,
@@ -168,7 +169,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               onClick={onToggle}
               isDisabled={isDragging}
               iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-              aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+              aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
               tooltipProps={{
                 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
               }}

@@ -58,7 +58,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
     >
       {children}
       <ScaledDragOverlay>
-        {activeItem && <ChainedWorkflowCard {...activeItem} isSortable={false} isDragging />}
+        {activeItem && <ChainedWorkflowCard {...activeItem} isSortable isDragging />}
       </ScaledDragOverlay>
     </DndContext>
   );
