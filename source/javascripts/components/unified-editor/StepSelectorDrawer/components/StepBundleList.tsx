@@ -2,10 +2,18 @@ import { Button, EmptyState } from '@bitrise/bitkit';
 import { useModalContext } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { SearchFormValues } from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
+import {
+  SearchFormValues,
+  SelectStepHandlerFn,
+} from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
 import SelectableStepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/SelectableStepBundleCard';
 
-const StepBundleList = () => {
+type StepBundleListProps = {
+  onSelectStep: SelectStepHandlerFn;
+};
+
+const StepBundleList = (props: StepBundleListProps) => {
+  const { onSelectStep } = props;
   const { yml } = useBitriseYmlStore((s) => ({ yml: s.yml }));
   const { onClose } = useModalContext();
 
@@ -23,7 +31,7 @@ const StepBundleList = () => {
   });
 
   const handleClick = (stepBundleId: string) => {
-    console.log(stepBundleId);
+    onSelectStep(`bundle::${stepBundleId}`);
     onClose();
   };
 

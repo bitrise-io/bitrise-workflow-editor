@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
@@ -14,7 +15,7 @@ type StepBundleCardProps = StepActions & {
 
 const StepBundleCard = (props: StepBundleCardProps) => {
   const { stepBundleId, isCollapsable, containerProps } = props;
-  const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleId });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);

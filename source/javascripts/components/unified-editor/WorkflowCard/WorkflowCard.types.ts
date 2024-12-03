@@ -33,5 +33,6 @@ export type SortableWorkflowItem = {
 export type SortableStepItem = {
   uniqueId: string;
   stepIndex: number;
-  parentId: string;
+  workflowId?: string;
+  stepBundleId?: string;
 };

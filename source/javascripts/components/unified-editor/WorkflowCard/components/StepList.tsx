@@ -1,9 +1,12 @@
+/* eslint-disable import/no-cycle */
+
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import StepListItem from '@/components/unified-editor/WorkflowCard/components/StepListItem';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import AddStepButton from './AddStepButton';
@@ -19,9 +22,8 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
+const StepList = ({ stepBundleId, workflowId = '', ...stepActions }: Props) => {
   const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
-  const parentId = workflowId || stepBundleId || '';
   const steps = useBitriseYmlStore(({ yml }) => {
     if (workflowId) {
       return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
@@ -36,9 +38,10 @@ const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
     return steps.map((_, stepIndex) => ({
       uniqueId: crypto.randomUUID(),
       stepIndex,
-      parentId,
+      workflowId,
+      stepBundleId,
     }));
-  }, [parentId, steps]);
+  }, [stepBundleId, steps, workflowId]);
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMoveStep);
@@ -60,13 +63,13 @@ const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
         setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
         setTimeout(() => {
-          onMoveStep?.(parentId, currentActiveIndex, currentOverIndex);
+          onMoveStep?.(workflowId, currentActiveIndex, currentOverIndex);
         }, defaultDropAnimation.duration);
       }
 
       setActiveItem(undefined);
     },
-    [onMoveStep, parentId, sortableItems],
+    [onMoveStep, workflowId, sortableItems],
   );
 
   const handleDragCancel = useCallback(() => {
@@ -86,21 +89,17 @@ const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
 
           return (
             <Fragment key={item.stepIndex}>
-              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(parentId, item.stepIndex)} />}
-              <StepCard
-                {...item}
-                isSortable={isSortable}
-                {...actions}
-                stepBundleId={stepBundleId}
-                workflowId={workflowId}
-              />
-              {isLast && onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(parentId, item.stepIndex + 1)} />}
+              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
+              <StepListItem {...item} isSortable={isSortable} {...actions} />
+              {isLast && onAddStep && (
+                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
+              )}
             </Fragment>
           );
         })}
       </Box>
     );
-  }, [actions, isSortable, onAddStep, parentId, sortableItems, stepBundleId, workflowId]);
+  }, [actions, isSortable, onAddStep, sortableItems, workflowId]);
 
   if (isEmpty) {
     return (
@@ -117,7 +116,7 @@ const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
             variant="secondary"
             alignSelf="stretch"
             leftIconName="PlusCircle"
-            onClick={() => onAddStep(parentId, 0)}
+            onClick={() => onAddStep(workflowId, 0)}
           >
             Add Step
           </Button>

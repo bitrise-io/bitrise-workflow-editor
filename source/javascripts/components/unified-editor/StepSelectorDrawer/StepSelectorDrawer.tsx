@@ -97,7 +97,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel>
-                  <StepBundleList />
+                  <StepBundleList onSelectStep={onSelectStep} />
                 </TabPanel>
               </TabPanels>
             </FloatingDrawerBody>

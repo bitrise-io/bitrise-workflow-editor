@@ -8,7 +8,7 @@ import {
   WorkflowConfigDrawer,
 } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
-import { BITRISE_STEP_LIBRARY_URL, Step } from '@/core/models/Step';
+import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
@@ -40,11 +40,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     }),
   );
 
-  const handleAddStep = ({ cvs }: Step) => {
-    const { id, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
-    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
-    addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
-    openDialog(PipelinesPageDialogType.STEP_CONFIG, pipelineId, workflowId, stepIndex)();
+  const handleAddStep = (cvs: string) => {
+    const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    if (library === LibraryType.BUNDLE) {
+      addStep(workflowId, cvs, stepIndex);
+    } else {
+      const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
+      addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
+      openDialog(PipelinesPageDialogType.STEP_CONFIG, pipelineId, workflowId, stepIndex)();
+    }
   };
 
   const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {

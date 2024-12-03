@@ -65,7 +65,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   );
 };
 
-type StepCardProps = StepActions & {
+export type StepCardProps = StepActions & {
   uniqueId: string;
   workflowId?: string;
   stepBundleId?: string;
@@ -77,7 +77,7 @@ type StepCardProps = StepActions & {
 
 const StepCard = ({
   uniqueId,
-  workflowId,
+  workflowId = '',
   stepBundleId,
   stepIndex,
   isSortable,
@@ -101,15 +101,14 @@ const StepCard = ({
     isLoading: boolean;
   };
 
-  const parentId = workflowId || stepBundleId || '';
-
   const sortable = useSortable({
     id: uniqueId,
     disabled: !isSortable,
     data: {
       uniqueId,
       stepIndex,
-      parentId,
+      workflowId,
+      stepBundleId,
     } satisfies SortableStepItem,
   });
 
@@ -129,7 +128,7 @@ const StepCard = ({
     onUpgradeStep &&
     VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
 
-  const handleClick = isButton ? () => onSelectStep?.(parentId, stepIndex, library) : undefined;
+  const handleClick = isButton ? () => onSelectStep?.(workflowId, stepIndex, library) : undefined;
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
@@ -183,7 +182,7 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              onUpgradeStep(parentId, stepIndex, latestMajor);
+              onUpgradeStep(workflowId, stepIndex, latestMajor);
             }}
           />
         )}
@@ -197,7 +196,7 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              onCloneStep(parentId, stepIndex);
+              onCloneStep(workflowId, stepIndex);
             }}
           />
         )}
@@ -212,13 +211,13 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteStep(parentId, stepIndex);
+              onDeleteStep(workflowId, stepIndex);
             }}
           />
         )}
       </ButtonGroup>
     );
-  }, [isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, parentId, stepIndex]);
+  }, [isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
 
   return (
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>

@@ -12,7 +12,7 @@ import {
 } from '@/components/unified-editor';
 import StepService from '@/core/models/StepService';
 import useSearchParams from '@/hooks/useSearchParams';
-import { BITRISE_STEP_LIBRARY_URL } from '@/core/models/Step';
+import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 
 const Drawers = ({ children }: PropsWithChildren) => {
@@ -40,10 +40,14 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStep = (cvs: string) => {
-    const { id, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
-    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
-    addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
-    openDialog(WorkflowsPageDialogType.STEP_CONFIG, workflowId, stepIndex)();
+    const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    if (library === LibraryType.BUNDLE) {
+      addStep(workflowId, cvs, stepIndex);
+    } else {
+      const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
+      addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
+      openDialog(WorkflowsPageDialogType.STEP_CONFIG, workflowId, stepIndex)();
+    }
   };
 
   const handleRenameWorkflow = (newWorkflowId: string) => {
@@ -118,7 +122,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           enabledSteps={enabledSteps}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
-          onSelectStep={({ cvs }) => handleAddStep(cvs)}
+          onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
         />
       )}
