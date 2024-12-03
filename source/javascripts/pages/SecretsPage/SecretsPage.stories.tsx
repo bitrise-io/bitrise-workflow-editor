@@ -6,6 +6,7 @@ export default {
   component: SecretsPage,
   args: {
     appSlug: 'app-slug',
+    onSecretsChange: console.log,
     sharedSecretsAvailable: false,
   },
   parameters: {

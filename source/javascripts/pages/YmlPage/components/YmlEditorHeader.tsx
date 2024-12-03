@@ -37,7 +37,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   } = ymlSettings;
 
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
+  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!ymlSettings?.usesRepositoryYml);
 
   const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
     SPLITTED_METADATA_KEY,

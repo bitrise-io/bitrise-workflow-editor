@@ -19,13 +19,13 @@ const YmlPage = (props: YmlPageProps) => {
       <YmlEditorHeader
         ciConfigYml={ciConfigYml}
         onConfigSourceChangeSaved={onConfigSourceChangeSaved}
-        ymlSettings={ymlSettings}
+        ymlSettings={ymlSettings || {}}
       />
       <Box flexGrow="1" flexShrink="1" borderRadius="8" paddingBlock="12" backgroundColor="#1e1e1e">
         <YmlEditor
           ciConfigYml={ciConfigYml}
           isLoading={isEditorLoading}
-          readOnly={ymlSettings.usesRepositoryYml}
+          readOnly={!!ymlSettings?.usesRepositoryYml}
           onEditorChange={onEditorChange}
         />
       </Box>
