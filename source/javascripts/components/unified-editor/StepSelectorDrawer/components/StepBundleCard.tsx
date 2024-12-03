@@ -1,11 +1,9 @@
-/* eslint-disable import/no-cycle */
 import { useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
-import SortableWorkflowsContext from '@/components/unified-editor/WorkflowCard/components/SortableWorkflowsContext';
-import StepList from '@/components/unified-editor/WorkflowCard/components/StepList';
+import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 
 type StepBundleCardProps = StepActions & {
   stepBundleId: string;
@@ -46,11 +44,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
         </Box>
       </Box>
       <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-        <SortableWorkflowsContext containerRef={containerRef}>
-          <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <StepList stepBundleId={stepBundleId} />
-          </Box>
-        </SortableWorkflowsContext>
+        <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+          <StepBundleStepList stepBundleId={stepBundleId} />
+        </Box>
       </Collapse>
     </Card>
   );

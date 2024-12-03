@@ -4,17 +4,19 @@ import { memo, useMemo, useRef } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
-import DragHandle from '@/components/DragHandle/DragHandle';
 import useWorkflow from '@/hooks/useWorkflow';
+import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
-import SortableWorkflowsContext from './SortableWorkflowsContext';
+
+import WorkflowStepList from './WorkflowStepList';
 import ChainedWorkflowList from './ChainedWorkflowList';
-import StepList from './StepList';
+import SortableWorkflowsContext from './SortableWorkflowsContext';
 
 type Props = WorkflowActions &
   StepActions & {
@@ -202,7 +204,7 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
                   {...actions}
                 />
 
-                <StepList workflowId={id} {...stepActions} />
+                <WorkflowStepList workflowId={id} {...stepActions} />
 
                 <ChainedWorkflowList
                   key={`${id}->after_run`}

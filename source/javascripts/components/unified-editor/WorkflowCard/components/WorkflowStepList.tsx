@@ -1,37 +1,32 @@
-/* eslint-disable import/no-cycle */
-
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
-import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepListItem from '@/components/unified-editor/WorkflowCard/components/StepListItem';
-import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+
 import { dndKitMeasuring } from '../WorkflowCard.const';
-import AddStepButton from './AddStepButton';
+import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+
 import StepCard from './StepCard';
+import StepListItem from './StepListItem';
+import AddStepButton from './AddStepButton';
 import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = StepActions & {
-  workflowId?: string;
-  stepBundleId?: string;
+  workflowId: string;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ stepBundleId, workflowId = '', ...stepActions }: Props) => {
+const WorkflowStepList = ({ workflowId, ...stepActions }: Props) => {
   const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
   const steps = useBitriseYmlStore(({ yml }) => {
-    if (workflowId) {
-      return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
-    }
-    if (stepBundleId) {
-      return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
-    }
-    return [];
+    return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
@@ -39,9 +34,8 @@ const StepList = ({ stepBundleId, workflowId = '', ...stepActions }: Props) => {
       uniqueId: crypto.randomUUID(),
       stepIndex,
       workflowId,
-      stepBundleId,
     }));
-  }, [stepBundleId, steps, workflowId]);
+  }, [steps, workflowId]);
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMoveStep);
@@ -138,20 +132,12 @@ const StepList = ({ stepBundleId, workflowId = '', ...stepActions }: Props) => {
       onDragStart={handleDragStart}
       onDragCancel={handleDragCancel}
     >
-      <SortableContext
-        disabled={!isSortable}
-        strategy={verticalListSortingStrategy}
-        items={getSortableItemUniqueIds(sortableItems)}
-      >
+      <SortableContext strategy={verticalListSortingStrategy} items={getSortableItemUniqueIds(sortableItems)}>
         {content}
       </SortableContext>
-      <ScaledDragOverlay>
-        {activeItem && (
-          <StepCard workflowId={workflowId} stepBundleId={stepBundleId} {...activeItem} isDragging isSortable />
-        )}
-      </ScaledDragOverlay>
+      <ScaledDragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</ScaledDragOverlay>
     </DndContext>
   );
 };
 
-export default memo(StepList);
+export default memo(WorkflowStepList);

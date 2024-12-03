@@ -77,7 +77,7 @@ export type StepCardProps = StepActions & {
 
 const StepCard = ({
   uniqueId,
-  workflowId = '',
+  workflowId,
   stepBundleId,
   stepIndex,
   isSortable,
@@ -122,7 +122,7 @@ const StepCard = ({
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
-  const isButton = Boolean(onSelectStep);
+  const isButton = !!onSelectStep && !!workflowId;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
     onUpgradeStep &&
@@ -165,7 +165,7 @@ const StepCard = ({
   }, [isPlaceholder, isButton, isDragging]);
 
   const buttonGroup = useMemo(() => {
-    if (!isUpgradable && !onCloneStep && !onDeleteStep) {
+    if (!workflowId || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
       return null;
     }
 
