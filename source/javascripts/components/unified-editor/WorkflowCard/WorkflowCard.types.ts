@@ -1,11 +1,6 @@
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import { LibraryType } from '@/core/models/Step';
 
-export type WorkflowSelectionRef = {
-  setSelection: (workflowId?: string, stepIndex?: number) => void;
-  resetSelection: VoidFunction;
-};
-
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
   onEditWorkflow?: (workflowId: string) => void;

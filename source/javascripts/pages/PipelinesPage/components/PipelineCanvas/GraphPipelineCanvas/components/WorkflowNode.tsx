@@ -78,6 +78,59 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       return {};
     }
 
+    function handleWorkflowActionDialogChange(workflowId: string, action: 'remove') {
+      switch (action) {
+        case 'remove': {
+          // Close the dialog if the selected workflow is in the deleted workflow's chain
+          if (WorkflowService.getWorkflowChain(workflows, workflowId).includes(selectedWorkflowId)) {
+            closeDialog();
+          }
+          break;
+        }
+      }
+    }
+
+    function handleStepActionDialogChange({
+      workflowId,
+      stepIndex,
+      targetIndex,
+      action,
+    }: {
+      workflowId: string;
+      stepIndex: number;
+      targetIndex?: number;
+      action: 'move' | 'clone' | 'remove';
+    }) {
+      switch (action) {
+        case 'move': {
+          // Adjust index if the selected step is moved
+          if (workflowId === selectedWorkflowId && selectedStepIndex === stepIndex) {
+            setStepIndex(targetIndex);
+          }
+          break;
+        }
+        case 'clone': {
+          // Adjust index if the selected step is cloned
+          if (workflowId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+            setStepIndex(selectedStepIndex + 1);
+          }
+          break;
+        }
+        case 'remove': {
+          // Close the dialog if the selected step is deleted
+          if (workflowId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+            closeDialog();
+          }
+
+          // Adjust index if a step is deleted before the selected step
+          if (workflowId === selectedWorkflowId && stepIndex < selectedStepIndex) {
+            setStepIndex(selectedStepIndex - 1);
+          }
+          break;
+        }
+      }
+    }
+
     return {
       handleAddStep: (workflowId: string, stepIndex: number) =>
         openDialog({
@@ -96,32 +149,28 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       handleUpgradeStep: upgradeStep,
       handleMoveStep: (workflowId: string, stepIndex: number, targetIndex: number) => {
         moveStep(workflowId, stepIndex, targetIndex);
-
-        // Adjust index if the selected step is moved
-        if (workflowId === selectedWorkflowId && selectedStepIndex === stepIndex) {
-          setStepIndex(targetIndex);
-        }
+        handleStepActionDialogChange({
+          workflowId,
+          stepIndex,
+          targetIndex,
+          action: 'move',
+        });
       },
       handleCloneStep: (workflowId: string, stepIndex: number) => {
         cloneStep(workflowId, stepIndex);
-
-        // Adjust index if the selected step is cloned
-        if (workflowId === selectedWorkflowId && stepIndex === selectedStepIndex) {
-          setStepIndex(selectedStepIndex + 1);
-        }
+        handleStepActionDialogChange({
+          workflowId,
+          stepIndex,
+          action: 'clone',
+        });
       },
       handleDeleteStep: (workflowId: string, stepIndex: number) => {
         deleteStep(workflowId, stepIndex);
-
-        // Close the dialog if the selected step is deleted
-        if (workflowId === selectedWorkflowId && stepIndex === selectedStepIndex) {
-          closeDialog();
-        }
-
-        // Adjust index if a step is deleted before the selected step
-        if (workflowId === selectedWorkflowId && stepIndex < selectedStepIndex) {
-          setStepIndex(selectedStepIndex - 1);
-        }
+        handleStepActionDialogChange({
+          workflowId,
+          stepIndex,
+          action: 'remove',
+        });
       },
       handleEditWorkflow: (workflowId: string) =>
         openDialog({
@@ -135,7 +184,10 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
           pipelineId: selectedPipeline,
           workflowId,
         })(),
-      handleRemoveWorkflow: (workflowId: string) => deleteElements({ nodes: [{ id: workflowId }] }),
+      handleRemoveWorkflow: (deletedWorkflowId: string) => {
+        deleteElements({ nodes: [{ id: deletedWorkflowId }] });
+        handleWorkflowActionDialogChange(deletedWorkflowId, 'remove');
+      },
       handleChainedWorkflowsUpdate: (
         parentWorkflowId: string,
         placement: ChainedWorkflowPlacement,
@@ -150,16 +202,7 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         deletedWorkflowIndex: number,
       ) => {
         removeChainedWorkflow(parentWorkflowId, placement, deletedWorkflowId, deletedWorkflowIndex);
-
-        // Close the dialog if the selected workflow is deleted
-        if (deletedWorkflowId === selectedWorkflowId) {
-          closeDialog();
-        }
-
-        // Close the dialog if the selected workflow is chained to the deleted workflow
-        if (WorkflowService.getWorkflowChain(workflows, deletedWorkflowId).includes(selectedWorkflowId)) {
-          closeDialog();
-        }
+        handleWorkflowActionDialogChange(deletedWorkflowId, 'remove');
       },
     };
   }, [
@@ -212,15 +255,13 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
         containerProps={containerProps}
         selectedWorkflowId={selectedWorkflowId}
         selectedStepIndex={selectedStepIndex}
-        /* TODO needs plumbing
-        onCreateWorkflow={}
-        */
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}
         onSelectStep={handleSelectStep}
         onDeleteStep={handleDeleteStep}
         onUpgradeStep={handleUpgradeStep}
+        onCreateWorkflow={undefined}
         onEditWorkflow={handleEditWorkflow}
         onChainWorkflow={handleChainWorkflow}
         onRemoveWorkflow={handleRemoveWorkflow}
