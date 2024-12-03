@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Box, BoxProps, Icon } from '@bitrise/bitkit';
+import { Box, Icon } from '@bitrise/bitkit';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -14,7 +14,6 @@ type Props = WorkflowActions &
   StepActions & {
     placement: Placement;
     parentWorkflowId: string;
-    containerProps?: BoxProps;
   };
 
 function anotherPlacement(placement: Placement): Placement {
@@ -41,7 +40,7 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...actions }: Props) => {
+const ChainedWorkflowList = ({ placement, parentWorkflowId, ...actions }: Props) => {
   const workflows = useWorkflows();
   const { droppableContainers } = useDndContext();
   const workflowIds = useMemo(() => Object.keys(workflows), [workflows]);
@@ -166,7 +165,13 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...a
       strategy={verticalListSortingStrategy}
       items={getSortableItemUniqueIds(sortableItems)}
     >
-      <Box display="flex" flexDir="column" gap={isEmpty ? 0 : 8} {...containerProps}>
+      <Box
+        gap={8}
+        display="flex"
+        flexDir="column"
+        mt={isEmpty && isAfterRun ? -8 : 0}
+        mb={isEmpty && isBeforeRun ? -8 : 0}
+      >
         {isAfterRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
         {isAfterRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
 
