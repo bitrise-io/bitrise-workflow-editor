@@ -4,7 +4,6 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowsList from './components/WorkflowsList';
@@ -17,7 +16,6 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Props) => {
   return (
     <FloatingDrawer {...props}>
-      <FloatingDrawerOverlay />
       <FloatingDrawerContent>
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>

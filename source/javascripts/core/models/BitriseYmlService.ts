@@ -285,30 +285,28 @@ function deleteWorkflows(workflowIds: string[], yml: BitriseYml): BitriseYml {
   return copy;
 }
 
-function removeChainedWorkflow(
-  chainedWorkflowIndex: number,
+function addChainedWorkflow(
   parentWorkflowId: string,
   placement: Placement,
+  chainableWorkflowId: string,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  // If the parent workflow or chained placement is missing in the YML just return the YML
-  if (!copy.workflows?.[parentWorkflowId]?.[placement]) {
+  // If the parent workflow or chainable workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[parentWorkflowId] || !copy.workflows?.[chainableWorkflowId]) {
     return copy;
   }
 
   // If the placement is not valid, return the YML
-  if (!['before_run', 'after_run'].includes(placement)) {
+  if (!['after_run', 'before_run'].includes(placement)) {
     return copy;
   }
 
-  copy.workflows[parentWorkflowId][placement].splice(chainedWorkflowIndex, 1);
-
-  // If the chained placement is empty, remove it
-  if (shouldRemoveField(copy.workflows[parentWorkflowId][placement], yml.workflows?.[parentWorkflowId]?.[placement])) {
-    delete copy.workflows[parentWorkflowId][placement];
-  }
+  copy.workflows[parentWorkflowId][placement] = [
+    ...(copy.workflows[parentWorkflowId][placement] ?? []),
+    chainableWorkflowId,
+  ];
 
   return copy;
 }
@@ -342,28 +340,38 @@ function setChainedWorkflows(
   return copy;
 }
 
-function addChainedWorkflow(
-  chainableWorkflowId: string,
+function removeChainedWorkflow(
   parentWorkflowId: string,
   placement: Placement,
+  chainedWorkflowId: string,
+  chainedWorkflowIndex: number,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  // If the parent workflow or chainable workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[parentWorkflowId] || !copy.workflows?.[chainableWorkflowId]) {
+  // If the parent workflow or chained placement is missing in the YML just return the YML
+  if (!copy.workflows?.[parentWorkflowId]?.[placement]) {
     return copy;
   }
 
   // If the placement is not valid, return the YML
-  if (!['after_run', 'before_run'].includes(placement)) {
+  if (!['before_run', 'after_run'].includes(placement)) {
     return copy;
   }
 
-  copy.workflows[parentWorkflowId][placement] = [
-    ...(copy.workflows[parentWorkflowId][placement] ?? []),
-    chainableWorkflowId,
-  ];
+  if (
+    !copy.workflows[parentWorkflowId][placement].includes(chainedWorkflowId) ||
+    copy.workflows[parentWorkflowId][placement][chainedWorkflowIndex] !== chainedWorkflowId
+  ) {
+    return copy;
+  }
+
+  copy.workflows[parentWorkflowId][placement].splice(chainedWorkflowIndex, 1);
+
+  // If the chained placement is empty, remove it
+  if (shouldRemoveField(copy.workflows[parentWorkflowId][placement], yml.workflows?.[parentWorkflowId]?.[placement])) {
+    delete copy.workflows[parentWorkflowId][placement];
+  }
 
   return copy;
 }

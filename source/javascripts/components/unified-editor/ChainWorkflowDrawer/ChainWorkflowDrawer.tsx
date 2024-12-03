@@ -6,7 +6,6 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
@@ -16,9 +15,9 @@ type FormValues = {
 };
 
 type ChainWorkflowCallback = (
-  chainableWorkflowId: string,
   parentWorkflowId: string,
   placement: ChainedWorkflowPlacement,
+  chainableWorkflowId: string,
 ) => void;
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
@@ -37,8 +36,7 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...
   return (
     <FormProvider {...form}>
       <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
-        <FloatingDrawerOverlay />
-        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" flexDir="column" gap="16">

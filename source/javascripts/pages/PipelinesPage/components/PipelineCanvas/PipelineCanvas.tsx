@@ -8,7 +8,7 @@ import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
 
 const PipelineCanvas = () => {
-  const { openDialog } = usePipelinesPageStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
   const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline].workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
@@ -22,10 +22,21 @@ const PipelineCanvas = () => {
         position="absolute"
         transform="translateX(-50%)"
         width="clamp(0px, calc(100% - 32px), 768px)"
-        onWorkflowsClick={openDialog(PipelinesPageDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
-        onPropertiesClick={openDialog(PipelinesPageDialogType.PIPELINE_CONFIG, selectedPipeline)}
-        onCreatePipelineClick={openDialog(PipelinesPageDialogType.CREATE_PIPELINE)}
-        onRunClick={openDialog(PipelinesPageDialogType.START_BUILD, selectedPipeline)}
+        onWorkflowsClick={openDialog({
+          type: PipelinesPageDialogType.WORKFLOW_SELECTOR,
+          pipelineId: selectedPipeline,
+        })}
+        onPropertiesClick={openDialog({
+          type: PipelinesPageDialogType.PIPELINE_CONFIG,
+          pipelineId: selectedPipeline,
+        })}
+        onCreatePipelineClick={openDialog({
+          type: PipelinesPageDialogType.CREATE_PIPELINE,
+        })}
+        onRunClick={openDialog({
+          type: PipelinesPageDialogType.START_BUILD,
+          pipelineId: selectedPipeline,
+        })}
       />
       <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
         <Controls showInteractive={false} />

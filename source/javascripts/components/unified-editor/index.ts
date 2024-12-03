@@ -7,7 +7,7 @@ import WorkflowCard from './WorkflowCard/WorkflowCard';
 import WorkflowConfigDrawer from './WorkflowConfig/WorkflowConfigDrawer';
 import WorkflowConfigPanel from './WorkflowConfig/WorkflowConfigPanel';
 import ChainWorkflowDrawer from './ChainWorkflowDrawer/ChainWorkflowDrawer';
-import WithGroupDrawer from './WithGroup/WithGroupDrawer';
+import WithGroupDrawer from './WithGroupDrawer/WithGroupDrawer';
 import StepBundleDrawer from './StepBundleDrawer/StepBundleDrawer';
 import DeleteWorkflowDialog from './DeleteWorkflowDialog/DeleteWorkflowDialog';
 
