@@ -18,21 +18,25 @@ type State = {
   stepIndex: number;
   openedDialogType: PipelinesPageDialogType;
   mountedDialogType: PipelinesPageDialogType;
+  _nextDialog?: Required<DialogParams>;
+};
+
+type DialogParams = {
+  type: PipelinesPageDialogType;
+  pipelineId?: string;
+  workflowId?: string;
+  stepIndex?: number;
 };
 
 type Action = {
-  openDialog: (
-    type: PipelinesPageDialogType,
-    pipelineId?: string,
-    workflowId?: string,
-    stepIndex?: number,
-  ) => () => void;
-  closeDialog: () => void;
-  unmountDialog: () => void;
   setPipelineId: (pipelineId?: string) => void;
   setWorkflowId: (workflowId?: string) => void;
+  setStepIndex: (stepIndex?: number) => void;
   isDialogOpen: (type: PipelinesPageDialogType) => boolean;
   isDialogMounted: (type: PipelinesPageDialogType) => boolean;
+  openDialog: (params: DialogParams) => () => void;
+  closeDialog: () => void;
+  unmountDialog: () => void;
 };
 
 export const usePipelinesPageStore = create<State & Action>((set, get) => ({
@@ -41,31 +45,6 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   workflowId: '',
   openedDialogType: PipelinesPageDialogType.NONE,
   mountedDialogType: PipelinesPageDialogType.NONE,
-  openDialog: (type, pipelineId = '', workflowId = '', stepIndex = -1) => {
-    return () => {
-      return set(() => ({
-        pipelineId,
-        workflowId,
-        stepIndex,
-        openedDialogType: type,
-        mountedDialogType: type,
-      }));
-    };
-  },
-  closeDialog: () => {
-    return set(() => ({
-      openedDialogType: PipelinesPageDialogType.NONE,
-    }));
-  },
-  unmountDialog: () => {
-    return set(() => ({
-      pipelineId: '',
-      workflowId: '',
-      stepIndex: -1,
-      openedDialogType: PipelinesPageDialogType.NONE,
-      mountedDialogType: PipelinesPageDialogType.NONE,
-    }));
-  },
   setPipelineId: (pipelineId = '') => {
     return set(() => ({
       pipelineId,
@@ -75,6 +54,56 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     return set(() => ({
       workflowId,
     }));
+  },
+  setStepIndex: (stepIndex = -1) => {
+    return set(() => ({
+      stepIndex,
+    }));
+  },
+  openDialog: ({ type, pipelineId = '', workflowId = '', stepIndex = -1 }) => {
+    return () => {
+      return set(({ openedDialogType, closeDialog }) => {
+        if (openedDialogType !== PipelinesPageDialogType.NONE) {
+          closeDialog();
+          return {
+            pipelineId,
+            workflowId,
+            stepIndex,
+            _nextDialog: { type, pipelineId, workflowId, stepIndex },
+          };
+        }
+
+        return {
+          pipelineId,
+          workflowId,
+          stepIndex,
+          _nextDialog: undefined,
+          openedDialogType: type,
+          mountedDialogType: type,
+        };
+      });
+    };
+  },
+  closeDialog: () => {
+    return set(() => ({
+      openedDialogType: PipelinesPageDialogType.NONE,
+    }));
+  },
+  unmountDialog: () => {
+    return set(({ _nextDialog, openDialog }) => {
+      if (_nextDialog) {
+        requestAnimationFrame(() => openDialog(_nextDialog)());
+      }
+
+      return {
+        pipelineId: '',
+        workflowId: '',
+        stepIndex: -1,
+        nextDialog: undefined,
+        openedDialogType: PipelinesPageDialogType.NONE,
+        mountedDialogType: PipelinesPageDialogType.NONE,
+      };
+    });
   },
   isDialogOpen: (type) => {
     return get().openedDialogType === type;

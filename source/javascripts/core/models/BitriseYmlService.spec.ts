@@ -1107,7 +1107,7 @@ describe('BitriseYmlService', () => {
             workflows: { wf1: { [placement]: ['wf2'] }, wf2: {} },
           };
 
-          const actualYml = BitriseYmlService.addChainedWorkflow('wf2', 'wf1', placement, sourceYml);
+          const actualYml = BitriseYmlService.addChainedWorkflow('wf1', placement, 'wf2', sourceYml);
 
           expect(actualYml).toMatchBitriseYml(expectedYml);
         });
@@ -1127,7 +1127,7 @@ describe('BitriseYmlService', () => {
             },
           };
 
-          const actualYml = BitriseYmlService.addChainedWorkflow('wf3', 'wf1', placement, sourceYml);
+          const actualYml = BitriseYmlService.addChainedWorkflow('wf1', placement, 'wf3', sourceYml);
 
           expect(actualYml).toMatchBitriseYml(expectedYml);
         });
@@ -1143,7 +1143,7 @@ describe('BitriseYmlService', () => {
             workflows: { wf1: { [placement]: ['wf2', 'wf2'] }, wf2: {} },
           };
 
-          const actualYml = BitriseYmlService.addChainedWorkflow('wf2', 'wf1', placement, sourceYml);
+          const actualYml = BitriseYmlService.addChainedWorkflow('wf1', placement, 'wf2', sourceYml);
 
           expect(actualYml).toMatchBitriseYml(expectedYml);
         });
@@ -1154,7 +1154,7 @@ describe('BitriseYmlService', () => {
             workflows: { wf1: { [placement]: ['wf2'] }, wf2: {} },
           };
 
-          const actualYml = BitriseYmlService.addChainedWorkflow('wf2', 'wf3', placement, sourceAndExpectedYml);
+          const actualYml = BitriseYmlService.addChainedWorkflow('wf3', placement, 'wf2', sourceAndExpectedYml);
 
           expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
         });
@@ -1165,7 +1165,7 @@ describe('BitriseYmlService', () => {
             workflows: { wf1: { [placement]: ['wf2'] }, wf2: {} },
           };
 
-          const actualYml = BitriseYmlService.addChainedWorkflow('wf3', 'wf1', placement, sourceAndExpectedYml);
+          const actualYml = BitriseYmlService.addChainedWorkflow('wf1', placement, 'wf3', sourceAndExpectedYml);
 
           expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
         });
@@ -1179,76 +1179,7 @@ describe('BitriseYmlService', () => {
       };
 
       const placement = 'invalid_placement' as ChainedWorkflowPlacement;
-      const actualYml = BitriseYmlService.addChainedWorkflow('wf2', 'wf3', placement, sourceAndExpectedYml);
-
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-    });
-  });
-
-  describe('removeChainedWorkflow', () => {
-    const placements: ChainedWorkflowPlacement[] = ['after_run', 'before_run'];
-
-    placements.forEach((placement) => {
-      describe(`when placement is '${placement}'`, () => {
-        it('should remove workflow from the target placement', () => {
-          const sourceYml: BitriseYml = {
-            format_version: '',
-            workflows: {
-              wf1: {
-                before_run: ['wf2', 'wf3', 'wf2'],
-                after_run: ['wf2', 'wf3', 'wf2'],
-              },
-            },
-          };
-
-          const actualYml = BitriseYmlService.removeChainedWorkflow(0, 'wf1', placement, sourceYml);
-
-          expect(actualYml.workflows?.wf1?.[placement]).toEqual(['wf3', 'wf2']);
-          // Check the other placement
-          expect(actualYml.workflows?.wf1?.[placement === 'before_run' ? 'after_run' : 'before_run']).toEqual([
-            'wf2',
-            'wf3',
-            'wf2',
-          ]);
-        });
-
-        it('should remove placement when placement is empty', () => {
-          const sourceYml: BitriseYml = {
-            format_version: '',
-            workflows: {
-              wf1: {
-                before_run: ['wf2'],
-                after_run: ['wf2'],
-              },
-            },
-          };
-
-          const actualYml = BitriseYmlService.removeChainedWorkflow(0, 'wf1', placement, sourceYml);
-
-          expect(actualYml.workflows?.wf1?.[placement]).toBeUndefined();
-        });
-
-        it('should return the original yml if the parentWorkflowID does not exist', () => {
-          const sourceAndExpectedYml: BitriseYml = {
-            format_version: '',
-            workflows: { wf1: { [placement]: ['wf2'] }, wf2: {} },
-          };
-
-          const actualYml = BitriseYmlService.removeChainedWorkflow(0, 'wf3', placement, sourceAndExpectedYml);
-
-          expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-        });
-      });
-    });
-
-    it('should return the original if the placement is invalid', () => {
-      const sourceAndExpectedYml: BitriseYml = {
-        format_version: '',
-        workflows: { wf1: {}, wf2: {} },
-      };
-
-      const placement = 'invalid_placement' as ChainedWorkflowPlacement;
-      const actualYml = BitriseYmlService.removeChainedWorkflow(0, 'wf2', placement, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.addChainedWorkflow('wf1', placement, 'wf2', sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -1374,7 +1305,7 @@ describe('BitriseYmlService', () => {
       });
     });
 
-    describe('when placement is not correct', () => {
+    describe('when placement is invalid', () => {
       it('should return the original YML', () => {
         const sourceYmlAndExpectedYml: BitriseYml = {
           format_version: '',
@@ -1385,13 +1316,104 @@ describe('BitriseYmlService', () => {
 
         const actualYml = BitriseYmlService.setChainedWorkflows(
           'wf2',
-          'after_runs' as ChainedWorkflowPlacement,
+          'invalid_placement' as ChainedWorkflowPlacement,
           ['foo', 'bar'],
           sourceYmlAndExpectedYml,
         );
 
         expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
       });
+    });
+  });
+
+  describe('removeChainedWorkflow', () => {
+    const placements: ChainedWorkflowPlacement[] = ['after_run', 'before_run'];
+
+    placements.forEach((placement) => {
+      describe(`when placement is '${placement}'`, () => {
+        it('should remove workflow from the target placement', () => {
+          const sourceYml: BitriseYml = {
+            format_version: '',
+            workflows: {
+              wf1: {
+                before_run: ['wf2', 'wf3', 'wf2'],
+                after_run: ['wf2', 'wf3', 'wf2'],
+              },
+            },
+          };
+
+          const actualYml = BitriseYmlService.removeChainedWorkflow('wf1', placement, 'wf2', 0, sourceYml);
+
+          expect(actualYml.workflows?.wf1?.[placement]).toEqual(['wf3', 'wf2']);
+          // Check the other placement
+          expect(actualYml.workflows?.wf1?.[placement === 'before_run' ? 'after_run' : 'before_run']).toEqual([
+            'wf2',
+            'wf3',
+            'wf2',
+          ]);
+        });
+
+        it('should remove placement when placement is empty', () => {
+          const sourceYml: BitriseYml = {
+            format_version: '',
+            workflows: {
+              wf1: {
+                before_run: ['wf2'],
+                after_run: ['wf2'],
+              },
+            },
+          };
+
+          const actualYml = BitriseYmlService.removeChainedWorkflow('wf1', placement, 'wf2', 0, sourceYml);
+
+          expect(actualYml.workflows?.wf1?.[placement]).toBeUndefined();
+        });
+
+        it('should return the original yml if the parentWorkflowID does not exist', () => {
+          const sourceAndExpectedYml: BitriseYml = {
+            format_version: '',
+            workflows: { wf1: { [placement]: ['wf2'] }, wf2: {} },
+          };
+
+          const actualYml = BitriseYmlService.removeChainedWorkflow('wf3', placement, 'wf2', 0, sourceAndExpectedYml);
+
+          expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+        });
+
+        it('should return the original yml if the chainedWorkflowID does not match the index', () => {
+          const sourceAndExpectedYml: BitriseYml = {
+            format_version: '',
+            workflows: { wf1: { [placement]: ['wf2', 'wf3'] }, wf2: {} },
+          };
+
+          const actualYml = BitriseYmlService.removeChainedWorkflow('wf1', placement, 'wf3', 0, sourceAndExpectedYml);
+
+          expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+        });
+
+        it('should return the original yml if the index is out of range', () => {
+          const sourceAndExpectedYml: BitriseYml = {
+            format_version: '',
+            workflows: { wf1: { [placement]: ['wf2', 'wf3'] }, wf2: {} },
+          };
+
+          const actualYml = BitriseYmlService.removeChainedWorkflow('wf1', placement, 'wf3', 2, sourceAndExpectedYml);
+
+          expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+        });
+      });
+    });
+
+    it('should return the original if the placement is invalid', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: {}, wf2: {} },
+      };
+
+      const placement = 'invalid_placement' as ChainedWorkflowPlacement;
+      const actualYml = BitriseYmlService.removeChainedWorkflow('wf1', placement, 'wf2', 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
 

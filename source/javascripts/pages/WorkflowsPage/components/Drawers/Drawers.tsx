@@ -32,7 +32,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const { addStep, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
     addStep: s.addStep,
     createWorkflow: s.createWorkflow,
-    deleteWorkflow: s.deleteWorkflow,
     getUniqueStepIds: s.getUniqueStepIds,
     addChainedWorkflow: s.addChainedWorkflow,
   }));
@@ -43,7 +42,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
-    openDialog(WorkflowsPageDialogType.STEP_CONFIG, workflowId, stepIndex)();
+    openDialog({
+      type: WorkflowsPageDialogType.STEP_CONFIG,
+      workflowId,
+      stepIndex,
+    })();
   };
 
   const handleRenameWorkflow = (newWorkflowId: string) => {
@@ -75,6 +78,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(WorkflowsPageDialogType.CHAIN_WORKFLOW) && (
         <ChainWorkflowDrawer
+          size="lg"
           workflowId={workflowId}
           isOpen={isDialogOpen(WorkflowsPageDialogType.CHAIN_WORKFLOW)}
           onClose={closeDialog}
@@ -85,6 +89,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(WorkflowsPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
+          size="lg"
           workflowId={workflowId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_CONFIG)}
@@ -95,6 +100,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(WorkflowsPageDialogType.WITH_GROUP) && (
         <WithGroupDrawer
+          size="lg"
           workflowId={workflowId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(WorkflowsPageDialogType.WITH_GROUP)}
@@ -105,6 +111,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(WorkflowsPageDialogType.STEP_BUNDLE) && (
         <StepBundleDrawer
+          size="lg"
           workflowId={workflowId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_BUNDLE)}
@@ -115,6 +122,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(WorkflowsPageDialogType.STEP_SELECTOR) && (
         <StepSelectorDrawer
+          size="lg"
           enabledSteps={enabledSteps}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
@@ -125,6 +133,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(WorkflowsPageDialogType.WORKFLOW_CONFIG) && (
         <WorkflowConfigDrawer
+          size="lg"
           context="workflow"
           workflowId={workflowId}
           onRename={handleRenameWorkflow}

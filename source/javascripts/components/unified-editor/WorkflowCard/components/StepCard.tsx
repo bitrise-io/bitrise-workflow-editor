@@ -25,7 +25,8 @@ import StepService from '@/core/models/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
-import { SortableStepItem, StepActions } from '../WorkflowCard.types';
+import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
+import { SortableStepItem } from '../WorkflowCard.types';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -65,7 +66,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   );
 };
 
-type StepCardProps = StepActions & {
+type StepCardProps = {
   uniqueId: string;
   workflowId: string;
   stepIndex: number;
@@ -74,20 +75,11 @@ type StepCardProps = StepActions & {
   showSecondary?: boolean;
 };
 
-const StepCard = ({
-  uniqueId,
-  workflowId,
-  stepIndex,
-  isSortable,
-  isDragging,
-  showSecondary = true,
-  onCloneStep,
-  onSelectStep,
-  onDeleteStep,
-  onUpgradeStep,
-}: StepCardProps) => {
+const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, showSecondary = true }: StepCardProps) => {
   const zoom = useReactFlowZoom();
+  const { isSelected } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
+  const { onUpgradeStep, onSelectStep, onCloneStep, onDeleteStep } = useStepActions();
 
   const {
     error,
@@ -111,11 +103,17 @@ const StepCard = ({
 
   const style = {
     transition: sortable.transition,
-    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / zoom }),
+    transform: CSS.Transform.toString(
+      sortable.transform && {
+        ...sortable.transform,
+        y: sortable.transform.y / zoom,
+      },
+    ),
   };
 
   const icon = step?.icon || defaultIcon;
   const title = step?.title || step?.cvs || '';
+  const isHighlighted = isSelected(workflowId, stepIndex);
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
@@ -155,14 +153,15 @@ const StepCard = ({
       return {
         ...common,
         _hover: { borderColor: 'border/hover' },
+        ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
       } as CardProps;
     }
 
     return common;
-  }, [isPlaceholder, isButton, isDragging]);
+  }, [isPlaceholder, isHighlighted, isButton, isDragging]);
 
   const buttonGroup = useMemo(() => {
-    if (!isUpgradable && !onCloneStep && !onDeleteStep) {
+    if (isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
       return null;
     }
 
@@ -214,7 +213,7 @@ const StepCard = ({
         )}
       </ButtonGroup>
     );
-  }, [isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
+  }, [isDragging, isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
 
   return (
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>

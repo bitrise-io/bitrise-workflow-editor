@@ -17,6 +17,7 @@ const StepFilter = (props: BoxProps) => {
         name="searchSteps"
         render={({ field: { ref, onChange, ...rest } }) => (
           <SearchInput
+            autoFocus
             inputRef={ref}
             placeholder="Filter by name or description..."
             onChange={(value) => onChange({ target: { value } })}
