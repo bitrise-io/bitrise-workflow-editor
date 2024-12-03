@@ -21,7 +21,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
 
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
-  const isRepositoryYmlAvailable = WindowUtils.limits()?.isPipelinesAvailable;
+  const isRepositoryYmlAvailable = WindowUtils.limits()?.isRepositoryYmlAvailable;
 
   const appSlug = WindowUtils.appSlug() || '';
   const defaultBranch = WindowUtils.pageProps()?.project?.defaultBranch || '';
