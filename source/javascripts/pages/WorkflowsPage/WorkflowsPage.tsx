@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Box } from '@bitrise/bitkit';
+import { ReactFlowProvider } from '@xyflow/react';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { WorkflowConfigPanel, WorkflowEmptyState } from '@/components/unified-editor';
@@ -44,10 +45,12 @@ const WorkflowsPageContent = () => {
 
 const WorkflowsPage = ({ yml, onChange }: Props) => {
   return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <WorkflowsPageContent />
-      <Drawers />
-    </BitriseYmlProvider>
+    <ReactFlowProvider>
+      <BitriseYmlProvider yml={yml} onChange={onChange}>
+        <WorkflowsPageContent />
+        <Drawers />
+      </BitriseYmlProvider>
+    </ReactFlowProvider>
   );
 };
 

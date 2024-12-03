@@ -1,9 +1,13 @@
-import { memo, ReactNode } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
+
+import { CSS } from '@dnd-kit/utilities';
+import { useSortable } from '@dnd-kit/sortable';
 import {
   Avatar,
   Box,
   ButtonGroup,
   Card,
+  CardProps,
   ControlButton,
   Icon,
   Skeleton,
@@ -11,18 +15,18 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+
 import useStep from '@/hooks/useStep';
-import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import VersionUtils from '@/core/utils/VersionUtils';
-import { Step } from '@/core/models/Step';
-import StepService from '@/core/models/StepService';
+import defaultIcon from '@/../images/step/icon-default.svg';
+
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import StepService from '@/core/models/StepService';
+import { Step } from '@/core/models/Step';
+import VersionUtils from '@/core/utils/VersionUtils';
+import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
-import getRectFlowViewportScale from '../utils/getReactFlowViewportScale';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -72,14 +76,20 @@ type StepCardProps = {
 };
 
 const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, showSecondary = true }: StepCardProps) => {
+  const zoom = useReactFlowZoom();
   const { isSelected } = useSelection();
-  const scale = getRectFlowViewportScale();
   const defaultStepLibrary = useDefaultStepLibrary();
-  const result = useStep(workflowId, stepIndex);
   const { onUpgradeStep, onSelectStep, onCloneStep, onDeleteStep } = useStepActions();
 
-  const { library } = StepService.parseStepCVS(result?.data?.cvs || '', defaultStepLibrary);
-  const isHighlighted = isSelected(workflowId, stepIndex);
+  const {
+    error,
+    isLoading,
+    data: step,
+  } = useStep(workflowId, stepIndex) as {
+    data?: Step;
+    error?: Error;
+    isLoading: boolean;
+  };
 
   const sortable = useSortable({
     id: uniqueId,
@@ -91,168 +101,182 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
     } satisfies SortableStepItem,
   });
 
-  if (!result) {
-    return null;
-  }
-
-  const { data, error, isLoading } = result;
-  const { cvs, title, icon } = data ?? {};
-  const resolvedInfo = (data as Step)?.resolvedInfo;
-  const isUpgradable =
-    onUpgradeStep && VersionUtils.hasVersionUpgrade(resolvedInfo?.normalizedVersion, resolvedInfo?.versions);
-  const latestMajor = VersionUtils.latestMajor(resolvedInfo?.versions)?.toString() ?? '';
-
-  if (isLoading) {
-    return (
-      <Card display="flex" variant="outline" borderRadius="4" alignItems="center">
-        {isSortable && <DragHandle alignSelf="stretch" isDisabled />}
-        <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
-          <SkeletonBox height="32" width="32" borderRadius="4" />
-          <Box display="flex" flexDir="column" gap="4">
-            <SkeletonBox height="14" width="150px" />
-            {showSecondary && <SkeletonBox height="14" width="75px" />}
-          </Box>
-        </Skeleton>
-      </Card>
-    );
-  }
-
   const style = {
     transition: sortable.transition,
     transform: CSS.Transform.toString(
       sortable.transform && {
         ...sortable.transform,
-        y: sortable.transform.y / scale,
+        y: sortable.transform.y / zoom,
       },
     ),
   };
 
-  if (sortable.isDragging) {
-    return (
-      <Box
-        height={42}
-        display="flex"
-        borderRadius="4"
-        border="1px dashed"
-        alignItems="center"
-        color="text/secondary"
-        justifyContent="center"
-        ref={sortable.setNodeRef}
-        textStyle="body/sm/regular"
-        borderColor="border/strong"
-        backgroundColor="background/secondary"
-        style={style}
-      />
-    );
-  }
+  const icon = step?.icon || defaultIcon;
+  const title = step?.title || step?.cvs || '';
+  const isHighlighted = isSelected(workflowId, stepIndex);
+  const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
+  const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
   const isButton = Boolean(onSelectStep);
+  const isPlaceholder = sortable.isDragging;
+  const isUpgradable =
+    onUpgradeStep &&
+    VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
+
   const handleClick = isButton ? () => onSelectStep?.(workflowId, stepIndex, library) : undefined;
 
+  const cardProps = useMemo(() => {
+    const common: CardProps = {
+      display: 'flex',
+      borderRadius: '4',
+      variant: 'outline',
+      className: 'group',
+      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
+    };
+
+    if (isPlaceholder) {
+      return {
+        ...common,
+        height: 42,
+        display: 'flex',
+        border: '1px dashed',
+        alignItems: 'center',
+        color: 'text/secondary',
+        justifyContent: 'center',
+        textStyle: 'body/sm/regular',
+        borderColor: 'border/strong',
+        backgroundColor: 'background/secondary',
+      } satisfies CardProps;
+    }
+
+    if (isButton) {
+      return {
+        ...common,
+        _hover: { borderColor: 'border/hover' },
+      } as CardProps;
+    }
+
+    return common;
+  }, [isPlaceholder, isHighlighted, isButton, isDragging]);
+
+  const buttonGroup = useMemo(() => {
+    if (!isUpgradable && !onCloneStep && !onDeleteStep) {
+      return null;
+    }
+
+    return (
+      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
+        {isUpgradable && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="ArrowUp"
+            colorScheme="orange"
+            aria-label="Update Step"
+            tooltipProps={{ 'aria-label': 'Update Step' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpgradeStep(workflowId, stepIndex, latestMajor);
+            }}
+          />
+        )}
+        {onCloneStep && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="Duplicate"
+            aria-label="Clone Step"
+            tooltipProps={{ 'aria-label': 'Clone Step' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCloneStep(workflowId, stepIndex);
+            }}
+          />
+        )}
+        {onDeleteStep && (
+          <ControlButton
+            isDanger
+            size="xs"
+            display="none"
+            iconName="Trash"
+            aria-label="Remove Step"
+            tooltipProps={{ 'aria-label': 'Remove Step' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteStep(workflowId, stepIndex);
+            }}
+          />
+        )}
+      </ButtonGroup>
+    );
+  }, [isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
+
   return (
-    <Card
-      display="flex"
-      variant="outline"
-      className="group"
-      borderRadius="4"
-      ref={sortable.setNodeRef}
-      _hover={isButton ? { borderColor: 'border/hover' } : {}}
-      {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      {...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {})}
-      style={style}
-    >
-      {isSortable && (
-        <DragHandle
-          withGroupHover
-          borderLeftRadius="4"
-          ref={sortable.setActivatorNodeRef}
-          {...sortable.listeners}
-          {...sortable.attributes}
-        />
-      )}
-
-      <Box
-        p="4"
-        pl={isSortable ? 0 : 4}
-        gap="8"
-        flex="1"
-        minW={0}
-        display="flex"
-        as={isButton ? 'button' : 'div'}
-        onClick={handleClick}
-      >
-        <Avatar
-          size="32"
-          src={icon || defaultIcon}
-          variant="step"
-          outline="1px solid"
-          name={title || cvs || ''}
-          outlineColor="border/minimal"
-          backgroundColor="background/primary"
-        />
-
-        <Box minW={0} textAlign="left" flex="1">
-          <Text textStyle="body/sm/regular" hasEllipsis>
-            {title || cvs || ''}
-          </Text>
-          {showSecondary && (
-            <StepSecondaryText
-              errorText={error ? 'Failed to load Step' : undefined}
-              isUpgradable={isUpgradable}
-              resolvedVersion={resolvedInfo?.resolvedVersion}
+    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
+      {!isPlaceholder && (
+        <>
+          {isSortable && (
+            <DragHandle
+              withGroupHover
+              borderLeftRadius="4"
+              isDisabled={isLoading}
+              ref={sortable.setActivatorNodeRef}
+              {...sortable.listeners}
+              {...sortable.attributes}
             />
           )}
-        </Box>
 
-        {Boolean(isUpgradable || onCloneStep || onDeleteStep) && (
-          <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-            {isUpgradable && (
-              <ControlButton
-                size="xs"
-                display="none"
-                iconName="ArrowUp"
-                colorScheme="orange"
-                aria-label="Update Step"
-                tooltipProps={{ 'aria-label': 'Update Step' }}
-                _groupHover={{ display: 'inline-flex' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpgradeStep?.(workflowId, stepIndex, latestMajor ?? '');
-                }}
+          {isLoading ? (
+            <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
+              <SkeletonBox height="32" width="32" borderRadius="4" />
+              <Box display="flex" flexDir="column" gap="4">
+                <SkeletonBox height="14" width="150px" />
+                {showSecondary && <SkeletonBox height="14" width="75px" />}
+              </Box>
+            </Skeleton>
+          ) : (
+            <Box
+              p="4"
+              pl={isSortable ? 0 : 4}
+              gap="8"
+              flex="1"
+              minW={0}
+              display="flex"
+              onClick={handleClick}
+              role={isButton ? 'button' : 'div'}
+            >
+              <Avatar
+                size="32"
+                src={icon}
+                name={title}
+                variant="step"
+                outline="1px solid"
+                outlineColor="border/minimal"
+                backgroundColor="background/primary"
               />
-            )}
-            {onCloneStep && (
-              <ControlButton
-                size="xs"
-                display="none"
-                iconName="Duplicate"
-                aria-label="Clone Step"
-                tooltipProps={{ 'aria-label': 'Clone Step' }}
-                _groupHover={{ display: 'inline-flex' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCloneStep(workflowId, stepIndex);
-                }}
-              />
-            )}
-            {onDeleteStep && (
-              <ControlButton
-                isDanger
-                size="xs"
-                display="none"
-                iconName="Trash"
-                aria-label="Remove Step"
-                tooltipProps={{ 'aria-label': 'Remove Step' }}
-                _groupHover={{ display: 'inline-flex' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteStep(workflowId, stepIndex);
-                }}
-              />
-            )}
-          </ButtonGroup>
-        )}
-      </Box>
+
+              <Box minW={0} textAlign="left" flex="1">
+                <Text textStyle="body/sm/regular" hasEllipsis>
+                  {title}
+                </Text>
+                {showSecondary && (
+                  <StepSecondaryText
+                    isUpgradable={isUpgradable}
+                    errorText={error ? 'Failed to load Step' : undefined}
+                    resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                  />
+                )}
+              </Box>
+
+              {buttonGroup}
+            </Box>
+          )}
+        </>
+      )}
     </Card>
   );
 };

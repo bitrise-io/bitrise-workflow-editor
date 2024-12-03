@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react';
+import { memo, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
@@ -9,11 +9,6 @@ import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from '.
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
-
-const HIGHLIGHTED_STYLE = {
-  outline: '2px solid',
-  outlineColor: 'border/selected',
-};
 
 type ContentProps = {
   id: string;
@@ -32,6 +27,18 @@ const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: Content
 
   const { isSelected } = useSelection();
   const isHighlighted = isSelected(id);
+  const cardPros = useMemo(
+    () => ({
+      ...containerProps,
+      ...(isHighlighted
+        ? {
+            outline: '2px solid',
+            outlineColor: 'border/selected',
+          }
+        : {}),
+    }),
+    [containerProps, isHighlighted],
+  );
 
   if (!workflow) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -46,13 +53,7 @@ const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: Content
   });
 
   return (
-    <Card
-      borderRadius="8"
-      variant="elevated"
-      minW={0}
-      {...containerProps}
-      {...(isHighlighted ? HIGHLIGHTED_STYLE : {})}
-    >
+    <Card minW={0} borderRadius="8" variant="elevated" {...cardPros}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton
