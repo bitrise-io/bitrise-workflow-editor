@@ -67,7 +67,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
       borderRadius: '4',
       variant: 'outline',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
-      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
 
     if (isPlaceholder) {
@@ -85,7 +84,10 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
       };
     }
 
-    return common;
+    return {
+      ...common,
+      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
+    };
   }, [isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {

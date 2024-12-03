@@ -132,7 +132,6 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
       variant: 'outline',
       className: 'group',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
-      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
 
     if (isPlaceholder) {
@@ -154,6 +153,7 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
       return {
         ...common,
         _hover: { borderColor: 'border/hover' },
+        ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
       } as CardProps;
     }
 
