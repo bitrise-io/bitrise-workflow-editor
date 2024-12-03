@@ -146,7 +146,11 @@ const StepList = ({ stepBundleId, workflowId, ...stepActions }: Props) => {
       >
         {content}
       </SortableContext>
-      <ScaledDragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</ScaledDragOverlay>
+      <ScaledDragOverlay>
+        {activeItem && (
+          <StepCard workflowId={workflowId} stepBundleId={stepBundleId} {...activeItem} isDragging isSortable />
+        )}
+      </ScaledDragOverlay>
     </DndContext>
   );
 };
