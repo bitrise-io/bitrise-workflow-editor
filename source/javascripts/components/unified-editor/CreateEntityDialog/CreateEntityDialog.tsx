@@ -62,7 +62,7 @@ const CreateEntityDialog = ({
 
   return (
     <Dialog title={`Create ${entityName}`} onClose={onClose} onCloseComplete={handleCloseComplete} {...props}>
-      <DialogBody as="form" display="flex" flexDir="column" gap="24">
+      <DialogBody as="form" display="flex" flexDir="column" gap="24" onSubmit={handleCreate}>
         <Input
           autoFocus
           isRequired
@@ -75,7 +75,7 @@ const CreateEntityDialog = ({
             validate: validator,
           })}
         />
-        <Select isRequired defaultValue="" label="Based on" {...register('baseEntityId')}>
+        <Select label="Based on" {...register('baseEntityId')}>
           <option key="" value="">
             An empty {entityName}
           </option>
