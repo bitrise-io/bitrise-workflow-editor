@@ -9,7 +9,6 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
 import ConfigurationTab from './tabs/ConfigurationTab';
@@ -38,8 +37,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
   return (
     <Tabs>
       <FloatingDrawer {...props}>
-        <FloatingDrawerOverlay />
-        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">

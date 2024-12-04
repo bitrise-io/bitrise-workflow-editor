@@ -17,8 +17,8 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 const WorkflowSelector = () => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
-  const { openDialog } = useWorkflowsPageStore();
   const dropdownRef = useRef<HTMLButtonElement>(null);
+  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
   const [search, setSearch] = useState('');
@@ -50,7 +50,7 @@ const WorkflowSelector = () => {
   };
 
   const onCreateWorkflow = () => {
-    openDialog(WorkflowsPageDialogType.CREATE_WORKFLOW)();
+    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 
@@ -61,8 +61,8 @@ const WorkflowSelector = () => {
       ref={dropdownRef}
       dropdownMaxHeight="359px"
       minWidth="0"
-      formLabel={selectedWorkflowId ?? 'Select a Workflow'}
       value={selectedWorkflowId}
+      formLabel={selectedWorkflowId ?? 'Select a Workflow'}
       onChange={({ target: { value } }) => setSelectedWorkflow(value)}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
     >

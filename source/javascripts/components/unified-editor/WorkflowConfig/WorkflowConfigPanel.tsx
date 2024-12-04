@@ -4,6 +4,7 @@ import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/Trigger
 import useSearchParams from '@/hooks/useSearchParams';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -13,12 +14,13 @@ import { WorkflowConfigTab } from './WorkflowConfig.types';
 const TAB_IDS = [WorkflowConfigTab.CONFIGURATION, WorkflowConfigTab.PROPERTIES, WorkflowConfigTab.TRIGGERS];
 
 const WorkflowConfigPanelContent = () => {
-  const workflows = useWorkflows();
   const [, setSelectedWorkflow] = useSelectedWorkflow();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const workflows = useWorkflows();
   const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({
     tabIds: TAB_IDS,
   });
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (searchParams.tab) {
@@ -33,8 +35,10 @@ const WorkflowConfigPanelContent = () => {
     });
   };
 
+  const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
   const onDelete = (deletedId: string) => {
     setSelectedWorkflow(Object.keys(workflows).find((workflowId) => workflowId !== deletedId));
+    closeDialog();
   };
 
   return (

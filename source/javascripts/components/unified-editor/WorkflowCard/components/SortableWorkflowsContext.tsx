@@ -2,7 +2,6 @@
 import { memo, PropsWithChildren, RefObject, useCallback, useState } from 'react';
 import { closestCenter, CollisionDetection, DataRef, DndContext, DragStartEvent, Modifier } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { noop } from 'es-toolkit';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
@@ -59,7 +58,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
     >
       {children}
       <ScaledDragOverlay>
-        {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
+        {activeItem && <ChainedWorkflowCard {...activeItem} isSortable isDragging />}
       </ScaledDragOverlay>
     </DndContext>
   );

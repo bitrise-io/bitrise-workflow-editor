@@ -1,5 +1,4 @@
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
-import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { LibraryType } from '@/core/models/Step';
 
 export type WorkflowActions = {
@@ -8,18 +7,23 @@ export type WorkflowActions = {
   onEditChainedWorkflow?: (workflowId: string) => void;
   onChainWorkflow?: (workflowId: string) => void;
   onChainChainedWorkflow?: (workflowId: string) => void;
+  onChainedWorkflowsUpdate?: (parentWorkflowId: string, placement: Placement, chainedWorkflows: string[]) => void;
   onRemoveWorkflow?: (workflowId: string) => void;
-  onRemoveChainedWorkflow?: BitriseYmlStoreState['removeChainedWorkflow'];
-  onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
+  onRemoveChainedWorkflow?: (
+    parentWorkflowId: string,
+    placement: Placement,
+    workflowId: string,
+    workflowIndex: number,
+  ) => void;
 };
 
 export type StepActions = {
   onAddStep?: (workflowId: string, stepIndex: number) => void;
   onSelectStep?: (workflowId: string, stepIndex: number, libraryType: LibraryType) => void;
-  onMoveStep?: BitriseYmlStoreState['moveStep'];
-  onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
-  onCloneStep?: BitriseYmlStoreState['cloneStep'];
-  onDeleteStep?: BitriseYmlStoreState['deleteStep'];
+  onMoveStep?: (workflowId: string, stepIndex: number, targetIndex: number) => void;
+  onUpgradeStep?: (workflowId: string, stepIndex: number, version: string) => void;
+  onCloneStep?: (workflowId: string, stepIndex: number) => void;
+  onDeleteStep?: (workflowId: string, stepIndex: number) => void;
 };
 
 export type SortableWorkflowItem = {

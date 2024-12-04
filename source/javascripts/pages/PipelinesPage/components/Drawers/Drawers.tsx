@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { memo, PropsWithChildren } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ChainWorkflowDrawer,
@@ -42,12 +42,16 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvs, stepIndex);
-    } else {
-      const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
       addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
-      openDialog(PipelinesPageDialogType.STEP_CONFIG, pipelineId, workflowId, stepIndex)();
+    } else {
+      openDialog({
+        type: PipelinesPageDialogType.STEP_CONFIG,
+        pipelineId,
+        workflowId,
+        stepIndex,
+      })();
     }
   };
 
@@ -146,4 +150,4 @@ const Drawers = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default Drawers;
+export default memo(Drawers);

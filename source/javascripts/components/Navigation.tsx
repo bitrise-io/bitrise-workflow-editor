@@ -8,6 +8,7 @@ import {
   SidebarItemIcon,
   SidebarItemLabel,
   TypeIconName,
+  useResponsive,
 } from '@bitrise/bitkit';
 import { segmentTrack } from '@/utils/segmentTracking';
 
@@ -76,14 +77,16 @@ const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem
 };
 
 const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
+  const { isMobile } = useResponsive();
+
   return (
     <Sidebar
-      width={256}
+      id="menu-nav"
       height="100%"
+      width={[72, 256]}
+      paddingTop={[0, 24]}
       borderRight="1px solid"
       borderColor="separator.primary"
-      id="menu-nav"
-      paddingTop="24"
     >
       <SidebarContainer>
         {items.map((item) => {
@@ -94,8 +97,8 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
             <Fragment key={item.id}>
               {item.divided && <SidebarDivider />}
               <NavigationItem e2e={item.cssClass} selected={isSelected} onClick={() => onItemSelected(item)}>
-                {icon && <SidebarItemIcon name={icon} />}
-                <SidebarItemLabel>{item.title}</SidebarItemLabel>
+                {icon && <SidebarItemIcon left={[-8, 0]} position="relative" name={icon} />}
+                {!isMobile && <SidebarItemLabel>{item.title}</SidebarItemLabel>}
               </NavigationItem>
             </Fragment>
           );
@@ -111,8 +114,8 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
             })
           }
         >
-          <SidebarItemIcon name="Doc" />
-          <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>
+          <SidebarItemIcon left={[-8, 0]} position="relative" name="Doc" />
+          {!isMobile && <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>}
         </WorkflowRecepiesItem>
       </SidebarFooter>
     </Sidebar>

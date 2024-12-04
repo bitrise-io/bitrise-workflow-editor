@@ -7,7 +7,6 @@ import FloatingDrawer, {
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useNavigation from '@/hooks/useNavigation';
@@ -31,8 +30,7 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
 
   return (
     <FloatingDrawer {...props}>
-      <FloatingDrawerOverlay />
-      <FloatingDrawerContent maxWidth={['100%', '50%']}>
+      <FloatingDrawerContent>
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">

@@ -56,7 +56,7 @@ const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean 
 
 const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & { isDragging: boolean }) => {
   const id = useNodeId();
-  const { openDialog } = usePipelinesPageStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
   const { updateNodeData, addNodes, addEdges, deleteElements } = useReactFlow();
 
@@ -90,7 +90,11 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
       top={WORKFLOW_NODE_HEIGHT / 2}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      onClick={openDialog(PipelinesPageDialogType.WORKFLOW_SELECTOR, selectedPipeline, id ?? '')}
+      onClick={openDialog({
+        type: PipelinesPageDialogType.WORKFLOW_SELECTOR,
+        pipelineId: selectedPipeline,
+        workflowId: id ?? '',
+      })}
     >
       <HandleIcon isDragging={isDragging} />
       <Handle {...props} position={position} style={{ ...defaultHandleButtonStyle }} />

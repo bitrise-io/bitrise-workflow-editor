@@ -11,32 +11,35 @@ import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
+import {
+  useSelection,
+  useWorkflowActions,
+} from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
-import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
+import { SortableWorkflowItem } from '../WorkflowCard.types';
 
 import WorkflowStepList from './WorkflowStepList';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
 
-type Props = WorkflowActions &
-  StepActions & {
-    id: string;
-    index: number;
-    uniqueId: string;
-    placement: Placement;
-    isDragging?: boolean;
-    parentWorkflowId: string;
-  };
+type Props = {
+  id: string;
+  index: number;
+  uniqueId: string;
+  placement: Placement;
+  isSortable?: boolean;
+  isDragging?: boolean;
+  parentWorkflowId: string;
+};
 
-const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, parentWorkflowId, ...actions }: Props) => {
-  const { onChainedWorkflowsUpdate, onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow } = actions;
-
+const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id);
+  const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
   const { isOpen, onOpen, onToggle } = useDisclosure();
-  const isSortable = Boolean(onChainedWorkflowsUpdate);
+  const { onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow } = useWorkflowActions();
 
   const sortable = useSortable({
     id: uniqueId,
@@ -52,11 +55,17 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
 
   const style = {
     transition: sortable.transition,
-    transform: CSS.Transform.toString(sortable.transform && { ...sortable.transform, y: sortable.transform.y / zoom }),
+    transform: CSS.Transform.toString(
+      sortable.transform && {
+        ...sortable.transform,
+        y: sortable.transform.y / zoom,
+      },
+    ),
   };
 
+  const isHighlighted = isSelected(id);
+  const isPlaceholder = sortable.isDragging;
   const title = workflow?.userValues?.title || id;
-  const isPlaceholer = sortable.isDragging;
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
@@ -65,7 +74,7 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
 
-    if (isPlaceholer) {
+    if (isPlaceholder) {
       return {
         ...common,
         height: 50,
@@ -80,11 +89,14 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
       };
     }
 
-    return common;
-  }, [isDragging, isPlaceholer]);
+    return {
+      ...common,
+      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
+    };
+  }, [isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
-    if (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow) {
+    if (isDragging || (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow)) {
       return null;
     }
 
@@ -118,7 +130,7 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
             iconName="Trash"
             aria-label="Remove Workflow"
             tooltipProps={{ 'aria-label': 'Remove' }}
-            onClick={() => onRemoveChainedWorkflow(index, parentWorkflowId, placement)}
+            onClick={() => onRemoveChainedWorkflow(parentWorkflowId, placement, id, index)}
           />
         )}
       </ButtonGroup>
@@ -127,6 +139,7 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
     id,
     index,
     placement,
+    isDragging,
     parentWorkflowId,
     onOpen,
     onEditChainedWorkflow,
@@ -134,26 +147,13 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
     onRemoveChainedWorkflow,
   ]);
 
-  const stepActions = useMemo(() => {
-    const { onAddStep, onCloneStep, onDeleteStep, onMoveStep, onSelectStep, onUpgradeStep } = actions;
-
-    return {
-      onAddStep,
-      onMoveStep,
-      onCloneStep,
-      onDeleteStep,
-      onSelectStep,
-      onUpgradeStep,
-    };
-  }, [actions]);
-
   if (!workflow) {
     return null;
   }
 
   return (
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
-      {!isPlaceholer && (
+      {!isPlaceholder && (
         <>
           <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
             {isSortable && (
@@ -174,7 +174,7 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
               onClick={onToggle}
               isDisabled={isDragging}
               iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-              aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+              aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
               tooltipProps={{
                 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
               }}
@@ -197,21 +197,11 @@ const ChainedWorkflowCard = ({ id, uniqueId, index, placement, isDragging, paren
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
             <SortableWorkflowsContext containerRef={containerRef}>
               <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-                <ChainedWorkflowList
-                  key={`${id}->before_run`}
-                  placement="before_run"
-                  parentWorkflowId={id}
-                  {...actions}
-                />
+                <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-                <WorkflowStepList workflowId={id} {...stepActions} />
+                <WorkflowStepList workflowId={id} />
 
-                <ChainedWorkflowList
-                  key={`${id}->after_run`}
-                  placement="after_run"
-                  parentWorkflowId={id}
-                  {...actions}
-                />
+                <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
               </Box>
             </SortableWorkflowsContext>
           </Collapse>

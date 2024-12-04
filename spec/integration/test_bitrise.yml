@@ -354,6 +354,8 @@ workflows:
       - git-clone@4.0.17: {}
       - script@1: {}
   wf4:
+    after_run:
+      - wf5
     envs:
       - opts:
           is_expand: false
@@ -423,11 +425,3 @@ step_bundles:
         opts: {}
       - NPM_COMMAND: install
         opts: {}
-    steps:
-      - activate-ssh-key: {}
-      - git-clone@4.0.17: {}
-      - script@1: {}
-      - git::https://github.com/my-bitrise-steps/steps-fastlane.git@master:
-          title: GitHub (org) (https) step
-          inputs:
-            - lane: github1

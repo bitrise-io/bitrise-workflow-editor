@@ -42,7 +42,7 @@ const edgeTypes: EdgeTypes = {
 
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
-  const { openDialog } = usePipelinesPageStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
   const [prevWorkflows, setPrevWorkflows] = useState(workflows);
   const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
@@ -137,7 +137,10 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         <GraphPipelineCanvasEmptyState
           inset="0"
           position="absolute"
-          onAddWorkflow={openDialog(PipelinesPageDialogType.WORKFLOW_SELECTOR, selectedPipeline)}
+          onAddWorkflow={openDialog({
+            type: PipelinesPageDialogType.WORKFLOW_SELECTOR,
+            pipelineId: selectedPipeline,
+          })}
         />
       )}
     </>

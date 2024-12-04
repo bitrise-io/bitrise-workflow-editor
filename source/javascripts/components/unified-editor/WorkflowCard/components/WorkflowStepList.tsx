@@ -6,16 +6,16 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-
+import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { SortableStepItem } from '../WorkflowCard.types';
 import { dndKitMeasuring } from '../WorkflowCard.const';
-import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
 import StepCard from './StepCard';
 import StepListItem from './StepListItem';
 import AddStepButton from './AddStepButton';
 import ScaledDragOverlay from './ScaledDragOverlay';
 
-type Props = StepActions & {
+type Props = {
   workflowId: string;
 };
 
@@ -23,8 +23,8 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const WorkflowStepList = ({ workflowId, ...stepActions }: Props) => {
-  const { onAddStep, onMoveStep, ...actions } = stepActions ?? {};
+const WorkflowStepList = ({ workflowId }: Props) => {
+  const { onAddStep, onMoveStep } = useStepActions();
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
@@ -84,7 +84,7 @@ const WorkflowStepList = ({ workflowId, ...stepActions }: Props) => {
           return (
             <Fragment key={item.stepIndex}>
               {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
-              <StepListItem {...item} isSortable={isSortable} {...actions} />
+              <StepListItem {...item} isSortable={isSortable} />
               {isLast && onAddStep && (
                 <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
               )}
@@ -93,7 +93,7 @@ const WorkflowStepList = ({ workflowId, ...stepActions }: Props) => {
         })}
       </Box>
     );
-  }, [actions, isSortable, onAddStep, sortableItems, workflowId]);
+  }, [isSortable, onAddStep, sortableItems, workflowId]);
 
   if (isEmpty) {
     return (
