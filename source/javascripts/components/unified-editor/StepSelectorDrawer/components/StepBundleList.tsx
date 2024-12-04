@@ -22,16 +22,16 @@ const StepBundleList = (props: StepBundleListProps) => {
 
   const stepBundlesLength = Object.keys(yml.step_bundles || {}).length;
 
-  const filteredItems = Object.keys(yml.step_bundles || {}).filter((stepBundleId) => {
+  const filteredItems = Object.keys(yml.step_bundles || {}).filter((id) => {
     const lowerCaseFilterString = filterStepBundles?.toLowerCase();
-    if (typeof stepBundleId === 'string' && stepBundleId.toLowerCase().includes(lowerCaseFilterString || '')) {
+    if (typeof id === 'string' && id.toLowerCase().includes(lowerCaseFilterString || '')) {
       return true;
     }
     return false;
   });
 
-  const handleClick = (stepBundleId: string) => {
-    onSelectStep(`bundle::${stepBundleId}`);
+  const handleClick = (id: string) => {
+    onSelectStep(`bundle::${id}`);
     onClose();
   };
 
@@ -56,13 +56,7 @@ const StepBundleList = (props: StepBundleListProps) => {
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((stepBundleId) => (
-      <SelectableStepBundleCard
-        stepBundleId={stepBundleId}
-        handleClick={() => handleClick(stepBundleId)}
-        key={stepBundleId}
-      />
-    ))
+    filteredItems.map((id) => <SelectableStepBundleCard id={id} handleClick={() => handleClick(id)} key={id} />)
   ) : (
     <EmptyState
       iconName="Magnifier"

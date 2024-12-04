@@ -6,16 +6,16 @@ import StepBundleService from '@/core/models/StepBundleService';
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 
 type StepBundleCardProps = StepActions & {
-  stepBundleId: string;
+  id: string;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const { stepBundleId, isCollapsable, containerProps } = props;
+  const { id, isCollapsable, containerProps } = props;
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
-  const dependants = useDependantWorkflows({ stepBundleId });
+  const dependants = useDependantWorkflows({ stepBundleId: id });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
   return (
@@ -36,7 +36,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
         )}
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <Text textStyle="body/md/semibold" hasEllipsis>
-            {stepBundleId}
+            {id}
           </Text>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {usedInWorkflowsText}
@@ -45,7 +45,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       </Box>
       <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
         <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-          <StepBundleStepList stepBundleId={stepBundleId} />
+          <StepBundleStepList stepBundleId={id} />
         </Box>
       </Collapse>
     </Card>

@@ -4,13 +4,13 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 
 type SelectableStepBundleCardProps = {
-  stepBundleId: string;
-  handleClick: (stepBundleId: string) => void;
+  id: string;
+  handleClick: (id: string) => void;
 };
 
 const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
-  const { stepBundleId, handleClick } = props;
-  const dependants = useDependantWorkflows({ stepBundleId });
+  const { id, handleClick } = props;
+  const dependants = useDependantWorkflows({ stepBundleId: id });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
   return (
@@ -23,10 +23,10 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           textAlign="left"
           _hover={{ borderColor: 'border/hover' }}
           marginBlockStart="16"
-          onClick={() => handleClick(stepBundleId)}
+          onClick={() => handleClick(id)}
         >
           <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-            {stepBundleId}
+            {id}
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary">
             {usedInWorkflowsText}
@@ -34,7 +34,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
         </Card>
       </PopoverTrigger>
       <PopoverContent width={320}>
-        <StepBundleCard stepBundleId={stepBundleId} />
+        <StepBundleCard id={id} />
       </PopoverContent>
     </Popover>
   );
