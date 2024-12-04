@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -15,6 +15,7 @@ type Props = BoxProps & {
 
 // TODO: Enable buttons when the feature is ready
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+  const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
   const hasOptions = keys.length > 0;
@@ -36,9 +37,15 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+
   const onSearchChange = (value: string) => {
     setSearch(value);
     setDebouncedSearch(value);
+  };
+
+  const onCreatePipeline = () => {
+    onCreatePipelineClick?.();
+    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 
   const [pipelineIds] = useMemo(() => {
@@ -85,10 +92,12 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       backgroundColor="background/primary"
     >
       <Dropdown
+        ref={dropdownRef}
         flex="1"
         size="md"
         disabled={!hasOptions}
         value={selectedPipeline}
+        formLabel={selectedPipeline ?? 'Select a Pipeline'}
         onChange={(e) => onSelectPipeline(e.target.value || '')}
         placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
         search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
@@ -118,7 +127,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
               variant="secondary"
               leftIconName="PlusCircle"
               justifyContent="flex-start"
-              onClick={onCreatePipelineClick}
+              onClick={onCreatePipeline}
             >
               Create Pipeline
             </Button>
