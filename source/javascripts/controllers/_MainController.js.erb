@@ -489,7 +489,9 @@ import { segmentTrack } from "@/utils/segmentTracking";
       };
 
       window.onbeforeunload = function (event) {
-        if (viewModel.hasUnsavedChanges()) {
+        const isProd = process.env.NODE_ENV === 'prod';
+
+        if (isProd && viewModel.hasUnsavedChanges()) {
           return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
         }
 
