@@ -2,11 +2,8 @@ import { Button, EmptyState } from '@bitrise/bitkit';
 import { useModalContext } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import {
-  SearchFormValues,
-  SelectStepHandlerFn,
-} from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
-import SelectableStepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/SelectableStepBundleCard';
+import { SearchFormValues, SelectStepHandlerFn } from '../StepSelectorDrawer.types';
+import SelectableStepBundleCard from './SelectableStepBundleCard';
 
 type StepBundleListProps = {
   onSelectStep: SelectStepHandlerFn;
@@ -56,7 +53,7 @@ const StepBundleList = (props: StepBundleListProps) => {
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((id) => <SelectableStepBundleCard id={id} handleClick={() => handleClick(id)} key={id} />)
+    filteredItems.map((id) => <SelectableStepBundleCard id={id} onClick={() => handleClick(id)} key={id} />)
   ) : (
     <EmptyState
       iconName="Magnifier"

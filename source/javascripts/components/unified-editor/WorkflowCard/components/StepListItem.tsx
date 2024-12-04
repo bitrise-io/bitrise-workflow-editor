@@ -15,8 +15,6 @@ const StepListItem = (props: StepCardProps) => {
     return Object.keys(s.yml.workflows?.[workflowId]?.steps?.[stepIndex] ?? {})[0];
   });
 
-  console.log('cvs', cvs);
-
   const defaultStepLibrary = useDefaultStepLibrary();
   const isStepBundle = StepService.isStepBundle(cvs, defaultStepLibrary);
 

@@ -6,7 +6,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 

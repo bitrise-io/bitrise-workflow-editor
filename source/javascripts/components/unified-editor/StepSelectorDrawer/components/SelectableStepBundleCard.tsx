@@ -6,11 +6,11 @@ import { WorkflowCardContextProvider } from '@/components/unified-editor/Workflo
 
 type SelectableStepBundleCardProps = {
   id: string;
-  handleClick: (id: string) => void;
+  onClick: (id: string) => void;
 };
 
 const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
-  const { id, handleClick } = props;
+  const { id, onClick } = props;
   const dependants = useDependantWorkflows({ stepBundleId: id });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
@@ -24,7 +24,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           textAlign="left"
           _hover={{ borderColor: 'border/hover' }}
           marginBlockStart="16"
-          onClick={() => handleClick(id)}
+          onClick={() => onClick(id)}
         >
           <Text textStyle="body/lg/semibold" marginBlockEnd="4">
             {id}

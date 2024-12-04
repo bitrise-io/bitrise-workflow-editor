@@ -11,12 +11,9 @@ import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
-import {
-  useSelection,
-  useWorkflowActions,
-} from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
+import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
 
 import WorkflowStepList from './WorkflowStepList';
 import ChainedWorkflowList from './ChainedWorkflowList';
