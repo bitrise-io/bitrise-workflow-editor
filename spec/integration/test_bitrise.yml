@@ -23,11 +23,11 @@ trigger_map:
     push_branch: release
   - type: pull_request
     workflow: wf3
-    pull_request_target_branch: '*'
+    pull_request_target_branch: "*"
 pipelines:
   graph-pipeline:
     workflows:
-      wf1: { }
+      wf1: {}
       wf2:
         depends_on:
           - wf1
@@ -46,32 +46,32 @@ pipelines:
       push:
         - branch: main
     stages:
-      - st1: { }
+      - st1: {}
   pl2:
     stages:
-      - st1: { }
-      - st2: { }
+      - st1: {}
+      - st2: {}
   pl3:
     stages:
-      - st3: { }
-      - st2: { }
-      - st1: { }
+      - st3: {}
+      - st2: {}
+      - st1: {}
 stages:
   st1:
     workflows:
-      - wf1: { }
+      - wf1: {}
   st2:
     workflows:
-      - wf2: { }
-      - wf3: { }
+      - wf2: {}
+      - wf3: {}
   st3:
     workflows:
-      - wf1: { }
-      - wf2: { }
-      - wf3: { }
-      - wf4: { }
-      - wf5: { }
-      - wf6: { }
+      - wf1: {}
+      - wf2: {}
+      - wf3: {}
+      - wf4: {}
+      - wf5: {}
+      - wf6: {}
 workflows:
   custom-steplib-steps:
     steps:
@@ -129,7 +129,7 @@ workflows:
             - lane: bitbucket2
   local-steps:
     steps:
-      - path::./spec/integration/fixture/test_local_step: { }
+      - path::./spec/integration/fixture/test_local_step: {}
       - path::./spec/integration/fixture/test_local_step:
           title: A local step with overwritten title & input
           inputs:
@@ -196,8 +196,8 @@ workflows:
                 meta:
                   bitrise.io:
                     stack: osx-xcode-11.3.x
-      - activate-ssh-key: { }
-      - certificate-and-profile-installer@1.10.2: { }
+      - activate-ssh-key: {}
+      - certificate-and-profile-installer@1.10.2: {}
       - authenticate-host-with-netrc@0.9.4:
           inputs:
             - username: $username
@@ -218,17 +218,17 @@ workflows:
       - git-clone@4.0.17:
           inputs:
             - clone_depth: "0"
-      - cache-pull@2.1.3: { }
-      - cache-pull@2: { }
-      - authenticate-with-github-oauth@0: { }
-      - cache-pull@2.1: { }
+      - cache-pull@2.1.3: {}
+      - cache-pull@2: {}
+      - authenticate-with-github-oauth@0: {}
+      - cache-pull@2.1: {}
       - fastlane@2.6:
           title: Carthage Bootstrap
           asset_urls:
             icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
           inputs:
             - lane: download_carthage_from_artifactory
-      - deploy-to-itunesconnect-application-loader: { }
+      - deploy-to-itunesconnect-application-loader: {}
       - fastlane-match@0.2:
           title: Fastlane Match Development
           inputs:
@@ -244,19 +244,19 @@ workflows:
       - virtual-device-testing-for-ios@0.9:
           inputs:
             - test_devices: iphonexsmax,12.1,en,portrait
-      - deploy-to-bitrise-io@1.7.1: { }
+      - deploy-to-bitrise-io@1.7.1: {}
       - cache-push@2:
           inputs:
-            - ignore_check_on_paths: '!./Pods'
+            - ignore_check_on_paths: "!./Pods"
             - cache_paths: ./Carthage -> ./Carthage/Cachefile
       - slack@3:
           inputs:
-            - channel: '#test'
-            - channel_on_error: '#test-error'
+            - channel: "#test"
+            - channel_on_error: "#test-error"
             - text_on_error: Oh No!
-            - emoji_on_error: ':white_frowning_face:'
-            - pretext_on_error: '*Failed Bro*'
-            - emoji: ':smile:'
+            - emoji_on_error: ":white_frowning_face:"
+            - pretext_on_error: "*Failed Bro*"
+            - emoji: ":smile:"
             - author_name: Bitrise
             - fields: |
                 App|${BITRISE_APP_TITLE}
@@ -272,7 +272,7 @@ workflows:
     triggers:
       tag:
         - name:
-            regex: '*'
+            regex: "*"
     before_run:
       - wf1
     after_run:
@@ -286,7 +286,8 @@ workflows:
     steps:
       - git::https://github.com/bitrise-steplib/steps-script:
           title: A script step referenced by git URL
-          summary: All non-overwritten attributes should be the step's default value
+          summary:
+            All non-overwritten attributes should be the step's default value
             from step.yml in the step's repository.
           inputs:
             - content: |
@@ -297,10 +298,10 @@ workflows:
                 set -x
 
                 # This step is referenced by git URL
-      - git::https://github.com/bitrise-steplib/steps-script@master: { }
+      - git::https://github.com/bitrise-steplib/steps-script@master: {}
       - git::https://github.com/bitrise-steplib/steps-script@master:
           title: ""
-      - path::./spec/integration/fixture/test_local_step: { }
+      - path::./spec/integration/fixture/test_local_step: {}
       - path::./spec/integration/fixture/test_local_step:
           title: A local step with overwritten title & input
           inputs:
@@ -349,9 +350,9 @@ workflows:
           is_expand: false
         project: vrbo
     steps:
-      - activate-ssh-key: { }
-      - git-clone@4.0.17: { }
-      - script@1: { }
+      - activate-ssh-key: {}
+      - git-clone@4.0.17: {}
+      - script@1: {}
   wf4:
     after_run:
       - wf5
@@ -360,14 +361,14 @@ workflows:
           is_expand: false
         project: testproject
     steps:
-      - script@1: { }
-      - path::./spec/integration/fixture/untitled_step: { }
+      - script@1: {}
+      - path::./spec/integration/fixture/untitled_step: {}
       - path::./spec/integration/fixture/test_local_step:
           summary: A local step with overwritten summary
           description: This local step has its description overwritten
           is_always_run: true
-      - path::./spec/integration/fixture/test_local_step: { }
-      - azure-devops-status@1: { }
+      - path::./spec/integration/fixture/test_local_step: {}
+      - azure-devops-status@1: {}
   wf5:
     envs:
       - opts:
@@ -376,8 +377,8 @@ workflows:
     steps:
       - script@1:
           inputs:
-            - content: '#!/usr/bin/env bash'
-      - xamarin-user-management: { }
+            - content: "#!/usr/bin/env bash"
+      - xamarin-user-management: {}
   wf6:
     summary: this is a short summary
     description: I don't know what to write here
@@ -401,7 +402,7 @@ workflows:
           branch: main
       pull_request:
         - target_branch: main
-          comment: '[workflow: deploy]'
+          comment: "[workflow: deploy]"
         - commit_message:
             regex: '.*\[workflow: deploy\].*'
       tag:
@@ -410,17 +411,22 @@ workflows:
     steps:
       - script@1:
           inputs:
-            - content: '#!/usr/bin/env bash'
-      - xamarin-user-management: { }
-      - bundle::install_deps: { }
+            - content: "#!/usr/bin/env bash"
+      - xamarin-user-management: {}
+      - bundle::install_deps: {}
       - with:
           container: ruby
           services:
             - postgres
 step_bundles:
   install_deps:
+    steps:
+      - script@1:
+          inputs:
+            - content: "#!/usr/bin/env bash"
+      - xamarin-user-management: {}
     envs:
       - CACHE_KEY: npm-cache-{{ checksum }}
-        opts: { }
+        opts: {}
       - NPM_COMMAND: install
-        opts: { }
+        opts: {}

@@ -1,13 +1,15 @@
 import { memo, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+
 import useWorkflow from '@/hooks/useWorkflow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
+
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
-import { StepActions, WorkflowActions } from './WorkflowCard.types';
 import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
-import StepList from './components/StepList';
+import WorkflowStepList from './components/WorkflowStepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
+import { StepActions, WorkflowActions } from './WorkflowCard.types';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
 type ContentProps = {
@@ -124,7 +126,7 @@ const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: Content
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
             <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
-            <StepList workflowId={id} />
+            <WorkflowStepList workflowId={id} />
             <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
           </Box>
         </SortableWorkflowsContext>

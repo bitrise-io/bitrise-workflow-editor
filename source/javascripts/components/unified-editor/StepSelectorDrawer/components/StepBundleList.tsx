@@ -1,52 +1,16 @@
-import { Button, Card, EmptyState, Text } from '@bitrise/bitkit';
+import { Button, EmptyState } from '@bitrise/bitkit';
 import { useModalContext } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { SearchFormValues } from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
-import StepBundleService from '@/core/models/StepBundleService';
+import { SearchFormValues, SelectStepHandlerFn } from '../StepSelectorDrawer.types';
+import SelectableStepBundleCard from './SelectableStepBundleCard';
 
-type StepBundleListItemProps = {
-  stepBundleName: string;
-  handleClick: (stepBundleName: string) => void;
+type StepBundleListProps = {
+  onSelectStep: SelectStepHandlerFn;
 };
 
-const StepBundleListItem = (props: StepBundleListItemProps) => {
-  const { stepBundleName, handleClick } = props;
-  const usedInWorkflowsText = useBitriseYmlStore(({ yml: { workflows } }) => {
-    const count = StepBundleService.countInWorkflows(stepBundleName, workflows);
-
-    if (count === 0) {
-      return 'Not used by any Workflows';
-    }
-
-    if (count === 1) {
-      return 'Used in 1 Workflow';
-    }
-
-    return `Used in ${count} Workflows`;
-  });
-
-  return (
-    <Card
-      as="button"
-      variant="outline"
-      padding="8px 12px"
-      textAlign="left"
-      _hover={{ borderColor: 'border/hover' }}
-      marginBlockStart="16"
-      onClick={() => handleClick(stepBundleName)}
-    >
-      <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-        {stepBundleName}
-      </Text>
-      <Text textStyle="body/md/regular" color="text/secondary">
-        {usedInWorkflowsText}
-      </Text>
-    </Card>
-  );
-};
-
-const StepBundleList = () => {
+const StepBundleList = (props: StepBundleListProps) => {
+  const { onSelectStep } = props;
   const { yml } = useBitriseYmlStore((s) => ({ yml: s.yml }));
   const { onClose } = useModalContext();
 
@@ -55,16 +19,16 @@ const StepBundleList = () => {
 
   const stepBundlesLength = Object.keys(yml.step_bundles || {}).length;
 
-  const filteredItems = Object.keys(yml.step_bundles || {}).filter((stepBundleName) => {
+  const filteredItems = Object.keys(yml.step_bundles || {}).filter((id) => {
     const lowerCaseFilterString = filterStepBundles?.toLowerCase();
-    if (typeof stepBundleName === 'string' && stepBundleName.toLowerCase().includes(lowerCaseFilterString || '')) {
+    if (typeof id === 'string' && id.toLowerCase().includes(lowerCaseFilterString || '')) {
       return true;
     }
     return false;
   });
 
-  const handleClick = (stepBundleName: string) => {
-    console.log(stepBundleName);
+  const handleClick = (id: string) => {
+    onSelectStep(`bundle::${id}`);
     onClose();
   };
 
@@ -89,13 +53,7 @@ const StepBundleList = () => {
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((stepBundleName) => (
-      <StepBundleListItem
-        stepBundleName={stepBundleName}
-        handleClick={() => handleClick(stepBundleName)}
-        key={stepBundleName}
-      />
-    ))
+    filteredItems.map((id) => <SelectableStepBundleCard id={id} onClick={() => handleClick(id)} key={id} />)
   ) : (
     <EmptyState
       iconName="Magnifier"

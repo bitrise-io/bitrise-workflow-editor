@@ -66,16 +66,25 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   );
 };
 
-type StepCardProps = {
+export type StepCardProps = {
   uniqueId: string;
-  workflowId: string;
+  workflowId?: string;
+  stepBundleId?: string;
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
   showSecondary?: boolean;
 };
 
-const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, showSecondary = true }: StepCardProps) => {
+const StepCard = ({
+  uniqueId,
+  workflowId,
+  stepIndex,
+  isSortable,
+  isDragging,
+  showSecondary = true,
+  stepBundleId,
+}: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const { isSelected } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -85,7 +94,7 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
     error,
     isLoading,
     data: step,
-  } = useStep(workflowId, stepIndex) as {
+  } = useStep({ workflowId, stepBundleId, stepIndex }) as {
     data?: Step;
     error?: Error;
     isLoading: boolean;
@@ -98,6 +107,7 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
       uniqueId,
       stepIndex,
       workflowId,
+      stepBundleId,
     } satisfies SortableStepItem,
   });
 
@@ -113,11 +123,11 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
 
   const icon = step?.icon || defaultIcon;
   const title = step?.title || step?.cvs || '';
-  const isHighlighted = isSelected(workflowId, stepIndex);
+  const isHighlighted = isSelected(workflowId || '', stepIndex);
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
-  const isButton = Boolean(onSelectStep);
+  const isButton = !!onSelectStep && !!workflowId;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
     onUpgradeStep &&
@@ -161,7 +171,7 @@ const StepCard = ({ uniqueId, workflowId, stepIndex, isSortable, isDragging, sho
   }, [isPlaceholder, isHighlighted, isButton, isDragging]);
 
   const buttonGroup = useMemo(() => {
-    if (isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
+    if (!workflowId || isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
       return null;
     }
 

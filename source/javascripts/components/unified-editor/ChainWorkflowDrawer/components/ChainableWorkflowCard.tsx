@@ -10,7 +10,7 @@ type Props = {
 };
 
 const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
-  const dependants = useDependantWorkflows(chainableWorkflowId);
+  const dependants = useDependantWorkflows({ workflowId: chainableWorkflowId });
   return (
     <Card
       className="group"
