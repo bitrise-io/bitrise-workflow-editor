@@ -7,14 +7,14 @@ type State = {
   selectedStepIndex: number;
 };
 type Actions = StepActions & WorkflowActions;
-type ContextState = State & Actions;
+type ContextState = Partial<State> & Actions;
 
 const WorkflowCardContext = createContext<ContextState | undefined>(undefined);
 
 const WorkflowCardContextProvider = ({
   children,
-  selectedWorkflowId,
-  selectedStepIndex,
+  selectedWorkflowId = '',
+  selectedStepIndex = -1,
   ...methods
 }: PropsWithChildren<ContextState>) => {
   const state = useMemo(

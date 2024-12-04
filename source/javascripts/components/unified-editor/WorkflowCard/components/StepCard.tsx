@@ -66,7 +66,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   );
 };
 
-type StepCardProps = {
+export type StepCardProps = {
   uniqueId: string;
   workflowId?: string;
   stepBundleId?: string;

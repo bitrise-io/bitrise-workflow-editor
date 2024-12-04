@@ -2,6 +2,7 @@ import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bi
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
+import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 
 type SelectableStepBundleCardProps = {
   id: string;
@@ -34,7 +35,9 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
         </Card>
       </PopoverTrigger>
       <PopoverContent width={320}>
-        <StepBundleCard id={id} />
+        <WorkflowCardContextProvider>
+          <StepBundleCard id={id} />
+        </WorkflowCardContextProvider>
       </PopoverContent>
     </Popover>
   );

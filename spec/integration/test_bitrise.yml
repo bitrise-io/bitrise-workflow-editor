@@ -420,6 +420,11 @@ workflows:
             - postgres
 step_bundles:
   install_deps:
+    steps:
+      - script@1:
+          inputs:
+            - content: "#!/usr/bin/env bash"
+      - xamarin-user-management: {}
     envs:
       - CACHE_KEY: npm-cache-{{ checksum }}
         opts: {}

@@ -42,8 +42,9 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
+      addStep(workflowId, cvs, stepIndex);
     } else {
+      addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
       openDialog({
         type: WorkflowsPageDialogType.STEP_CONFIG,
         workflowId,
