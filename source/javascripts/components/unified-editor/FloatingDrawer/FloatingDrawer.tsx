@@ -15,6 +15,7 @@ import {
   ModalFooterProps,
   ModalHeaderProps,
   ModalOverlayProps,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { Icon } from '@bitrise/bitkit';
 
@@ -27,10 +28,18 @@ const useFloatingDrawerContext = () => useContext(FloatingDrawerContext);
 
 const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps) => {
   const providerProps = useMemo(() => ({ size }), [size]);
+  const placement = useBreakpointValue<DrawerProps['placement']>({ base: 'bottom', tablet: 'right' }, { ssr: false });
 
   return (
     <FloatingDrawerContext.Provider value={providerProps}>
-      <Drawer isFullHeight blockScrollOnMount={false} closeOnOverlayClick={false} trapFocus={false} {...props}>
+      <Drawer
+        isFullHeight
+        trapFocus={false}
+        placement={placement}
+        blockScrollOnMount={false}
+        closeOnOverlayClick={false}
+        {...props}
+      >
         {/* NOTE: Without the overlay the close animation doesn't occur */}
         <FloatingDrawerOverlay display="none" />
         {children}
@@ -61,7 +70,7 @@ const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => 
 function getContentMaxWidth(size: 'md' | 'lg') {
   switch (size) {
     case 'lg':
-      return ['100%', 'clamp(420px, 60%, 1024px)'];
+      return ['100%', 'clamp(420px, 55%, 1024px)'];
     case 'md':
     default:
       return ['100%', 'clamp(420px, 40%, 700px)'];
@@ -84,8 +93,10 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
       flexDir="column"
       overflow="hidden"
       boxShadow="large"
+      border="1px solid"
+      borderColor="border/regular"
       margin={[0, 24]}
-      marginTop={[0, 64]}
+      marginTop={[0, 72]}
       borderRadius={[0, 12]}
       containerProps={containerProps}
       {...props}

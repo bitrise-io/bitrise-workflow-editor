@@ -1,5 +1,6 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
+import { cloneDeep } from 'es-toolkit';
 import { StepInputVariable } from '@/core/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import StepInput from '../components/StepInput';
@@ -33,7 +34,7 @@ const ConfigurationTab = () => {
   const defaultValues = data?.defaultValues ?? {};
 
   const onInputValueChange = (name: string, value?: string | null) => {
-    const clone = JSON.parse(JSON.stringify(mergedValues.inputs ?? [])) as StepInputVariable[];
+    const clone = cloneDeep(mergedValues.inputs ?? []);
 
     clone.forEach(({ opts, ...input }, index) => {
       if (Object.keys(input).includes(name)) {
