@@ -16,7 +16,9 @@ const meta: Meta<typeof WorkflowSelectorDrawer> = {
     onSelectWorkflow: { type: 'function' },
   },
   parameters: {
-    msw: [getStacksAndMachines()],
+    msw: {
+      handlers: [getStacksAndMachines()],
+    },
   },
   decorators: [(Story) => withBitriseYml(TEST_BITRISE_YML, Story)],
 };

@@ -52,12 +52,14 @@ declare global {
       limits?: {
         uniqueStepLimit?: number;
         isPipelinesAvailable?: boolean;
+        isRepositoryYmlAvailable?: boolean;
       };
       project?: {
         slug: string;
         name: string;
         defaultBranch?: string;
         buildTriggerToken?: string;
+        gitRepoSlug?: string;
       };
       settings?: {
         statusReport?: {

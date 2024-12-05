@@ -1,25 +1,8 @@
-.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
-  section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
-    .icon
-    .message
-      .title == data[:strings][:yml][:warn][:title]
-      ul
-        li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
-  r-yml-editor-header[
-    url="ymlCtrl.downloadAppConfigYMLPath()"
-    initial-uses-repository-yml="ymlCtrl.usesRepositoryYml"
-    app-slug="ymlCtrl.appSlug"
-    app-config="ymlCtrl.appConfigYML"
+.tab-yml[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
+  r-yml-page[
+    ci-config-yml="ymlCtrl.ciConfigYml"
+    is-editor-loading="ymlCtrl.isEditorLoading"
     on-config-source-change-saved="ymlCtrl.onConfigSourceChangeSaved"
-    repository-yml-available="ymlCtrl.repositoryYmlAvailable"
-    is-website-mode="ymlCtrl.isWebsiteMode"
-    default-branch="ymlCtrl.defaultBranch"
-    git-repo-slug="ymlCtrl.gitRepoSlug"
-    lines="ymlCtrl.lines"
-    split="ymlCtrl.split"
-    modular-yaml-supported="ymlCtrl.modularYamlSupported"
-    last-modified="ymlCtrl.lastModified"
-    initial-yml-root-path="ymlCtrl.ymlRootPath"
+    on-editor-change="ymlCtrl.onEditorChange"
+    yml-settings="ymlCtrl.ymlSettings"
   ]
-  #editor-container
-    r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler" is-loading="ymlCtrl.isEditorLoading"]

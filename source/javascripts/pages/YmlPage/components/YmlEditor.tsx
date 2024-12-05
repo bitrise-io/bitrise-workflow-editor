@@ -4,13 +4,14 @@ import Editor from '@monaco-editor/react';
 import { configureMonacoYaml, MonacoYaml } from 'monaco-yaml';
 
 type YmlEditorProps = {
+  ciConfigYml: string;
   isLoading?: boolean;
-  readonly: boolean;
-  yml: string;
-  onChange: (changedText?: string) => void;
+  readOnly: boolean;
+  onEditorChange: (changedText?: string) => void;
 };
 
-const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
+const YmlEditor = (props: YmlEditorProps) => {
+  const { ciConfigYml, isLoading, readOnly, onEditorChange } = props;
   const [monacoYaml, setMonacoYaml] = useState<MonacoYaml>();
 
   useEffect(() => {
@@ -20,12 +21,12 @@ const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
   return (
     <Editor
       language="yaml"
-      value={isLoading ? 'Loading...' : yml}
+      value={isLoading ? 'Loading...' : ciConfigYml}
       theme="vs-dark"
       options={{
         roundedSelection: false,
         scrollBeyondLastLine: false,
-        readOnly: readonly || isLoading,
+        readOnly: readOnly || isLoading,
         stickyScroll: {
           enabled: true,
         },
@@ -42,7 +43,7 @@ const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
           }),
         );
       }}
-      onChange={onChange}
+      onChange={onEditorChange}
     />
   );
 };

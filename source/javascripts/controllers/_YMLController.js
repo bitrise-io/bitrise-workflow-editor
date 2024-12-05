@@ -9,89 +9,56 @@ import { safeDigest } from "../services/react-compat";
     .controller("YMLController", function($scope, $rootScope, $timeout, appService, requestService) {
       var viewModel = this;
 
-      viewModel.usesRepositoryYml = false;
-      viewModel.appService = appService;
-      viewModel.appSlug = undefined;
-      viewModel.repositoryYmlAvailable = true;
-      viewModel.appConfigYML = undefined;
-      viewModel.defaultBranch = appService.appDetails?.defaultBranch;
-      viewModel.gitRepoSlug = appService.appDetails?.gitRepoSlug;
-      viewModel.lines = 0;
-      viewModel.split = false;
-      viewModel.modularYamlSupported = undefined;
-      viewModel.lastModified = null;
-      viewModel.isWebsiteMode = requestService.isWebsiteMode();
+      viewModel.ciConfigYml = undefined;
       viewModel.isEditorLoading = true;
-      viewModel.ymlRootPath = "";
-
-      viewModel.downloadAppConfigYMLPath = function () {
-        return requestService.isWebsiteMode() && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
-      }
+      viewModel.ymlSettings = {};
 
       viewModel.init = function () {
+        viewModel.isEditorLoading = true;
         if (requestService.isWebsiteMode()) {
-          viewModel.appSlug = requestService.appSlug;
-
           const fetchPipelineConfig = appService.getPipelineConfig()
             .then(function () {
-              viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
-              viewModel.lines = appService.pipelineConfig.lines;
-              viewModel.split = appService.pipelineConfig.split;
-              viewModel.modularYamlSupported = appService.pipelineConfig.modularYamlSupported;
-              viewModel.lastModified = appService.pipelineConfig.lastModified;
-              viewModel.ymlRootPath = appService.pipelineConfig.ymlRootPath;
+              viewModel.ciConfigYml = appService.appConfigYML;
+
+              viewModel.ymlSettings = appService.pipelineConfig;
+
+              viewModel.ymlSettings.isModularYamlSupported = appService.pipelineConfig.modularYamlSupported;
+              viewModel.ymlSettings.isYmlSplit = appService.pipelineConfig.split;
             });
-
-          const fetchOrgPlanData = appService.appDetails && appService.appDetails.ownerData
-            ? requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
-              .then(function (ownerPlanData) {
-                viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
-              })
-            : Promise.resolve();
         }
-
-        viewModel.yml;
-
-        viewModel.onChangeHandler = (value) => {
-          appService.appConfigYML = value;
-          safeDigest($rootScope);
-        };
-
-        var unwatchYMLChange = $scope.$watch(() => {
-          return appService.appConfigYML;
-        }, (value) => {
-          if (value !== undefined) {
-            viewModel.yml = value;
-            viewModel.isEditorLoading = false;
-            unwatchYMLChange();
-          }
-        });
 
         $scope.$watch(
           function() {
             return appService.appConfigYML;
           },
           function() {
-            viewModel.appConfigYML = appService.appConfigYML;
+            if (viewModel.isEditorLoading && appService.appConfigYML) {
+              viewModel.ciConfigYml = appService.appConfigYML;
+              viewModel.isEditorLoading = false;
+            }
           }
         );
 
         $scope.$on(
           "$destroy",
           $rootScope.$on("MainController::changesDiscarded", function () {
-            viewModel.yml = undefined;
+            viewModel.ciConfigYml = undefined;
             safeDigest($scope);
-            viewModel.yml = appService.appConfigYML;
+            viewModel.ciConfigYml = appService.appConfigYML;
             safeDigest($scope);
           })
         );
+
+        viewModel.onEditorChange = (value) => {
+          appService.appConfigYML = value;
+          safeDigest($rootScope);
+        };  
       }
 
       viewModel.onConfigSourceChangeSaved = function (usesRepositoryYml, ymlRootPath) {
         viewModel.isEditorLoading = true;
         appService.getAppConfigYML(true).then(() => {
-          viewModel.yml = appService.appConfigYML;
-          viewModel.isEditorLoading = false;
+          viewModel.ciConfigYml = appService.ciConfigYml;
         });
 
         appService.appConfig = undefined;
@@ -99,8 +66,8 @@ import { safeDigest } from "../services/react-compat";
         appService.pipelineConfig.ymlRootPath = ymlRootPath;
 
         $timeout(function () {
-          viewModel.usesRepositoryYml = usesRepositoryYml;
-          viewModel.ymlRootPath = ymlRootPath;
+          viewModel.ymlSettings.usesRepositoryYml = usesRepositoryYml;
+          viewModel.ymlSettings.ymlRootPath = ymlRootPath;
         }, 0);
       };
     });

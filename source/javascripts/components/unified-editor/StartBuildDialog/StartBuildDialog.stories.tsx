@@ -22,18 +22,24 @@ export const Pipeline = {
     workflowId: undefined,
   },
   parameters: {
-    msw: [BuildApiMocks.startBuild('success')],
+    msw: {
+      handlers: [BuildApiMocks.startBuild('success')],
+    },
   },
 };
 
 export const Workflow = {
   parameters: {
-    msw: [BuildApiMocks.startBuild('success')],
+    msw: {
+      handlers: [BuildApiMocks.startBuild('success')],
+    },
   },
 };
 
 export const Error = {
   parameters: {
-    msw: [BuildApiMocks.startBuild('error')],
+    msw: {
+      handlers: [BuildApiMocks.startBuild('error')],
+    },
   },
 };

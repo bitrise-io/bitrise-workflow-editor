@@ -1,67 +1,59 @@
 import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure, Notification } from '@bitrise/bitkit';
-import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
-import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
+import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
+import WindowUtils from '@/core/utils/WindowUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
 const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
 const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
 export type YmlEditorHeaderProps = {
-  appSlug: string;
-  appConfig: AppConfig | string;
-  url: string;
-  initialUsesRepositoryYml?: boolean;
-  repositoryYmlAvailable: boolean;
-  isWebsiteMode: boolean;
+  ciConfigYml: string;
   onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
-  defaultBranch: string;
-  gitRepoSlug: string;
-  split: boolean;
-  modularYamlSupported?: boolean;
-  lines: number;
-  lastModified: string | null;
-  initialYmlRootPath: string | null;
+  ymlSettings: BitriseYmlSettings;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
+  const { ciConfigYml, onConfigSourceChangeSaved, ymlSettings } = props;
+
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+
+  const isRepositoryYmlAvailable = WindowUtils.limits()?.isRepositoryYmlAvailable;
+
+  const appSlug = WindowUtils.appSlug() || '';
+  const defaultBranch = WindowUtils.pageProps()?.project?.defaultBranch || '';
+  const gitRepoSlug = WindowUtils.pageProps()?.project?.gitRepoSlug || '';
+
   const {
-    appSlug,
-    appConfig,
-    defaultBranch,
-    gitRepoSlug,
-    onConfigSourceChangeSaved,
-    repositoryYmlAvailable,
-    isWebsiteMode,
-    url,
-    initialUsesRepositoryYml,
-    split,
-    modularYamlSupported,
-    lines,
+    isModularYamlSupported,
+    isYmlSplit,
     lastModified,
-    initialYmlRootPath,
-  } = props;
+    lines,
+    usesRepositoryYml: initialUsesRepositoryYml,
+    ymlRootPath,
+  } = ymlSettings;
+
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
+  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!ymlSettings?.usesRepositoryYml);
 
   const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
     SPLITTED_METADATA_KEY,
-    isWebsiteMode && split && usesRepositoryYml,
+    isWebsiteMode && !!isYmlSplit && !!initialUsesRepositoryYml,
   );
   const { value: splitMetaDataValue, update: updateSplitMetaData } = useUserMetaData(
-    modularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
-    isWebsiteMode && !split && lines > 500,
+    isModularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
+    isWebsiteMode && !isYmlSplit && lines > 500,
   );
 
   let infoLabel;
   if (usesRepositoryYml) {
-    infoLabel = split
+    infoLabel = isYmlSplit
       ? `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`
       : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
   }
-
-  const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
 
   const onYmlSourceChangeClick = () => {
     onOpen();
@@ -90,10 +82,10 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
           Configuration YAML
         </Text>
-        {url && (
+        {!usesRepositoryYml && isWebsiteMode && (
           <Button
             as="a"
-            href={url}
+            href={`/api/app/${appSlug}/config.yml?is_download=1`}
             leftIconName="Download"
             size="sm"
             target="_blank"
@@ -107,10 +99,15 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           <DataWidget
             additionalElement={
               <Tooltip
-                isDisabled={isChangeEnabled}
+                isDisabled={isRepositoryYmlAvailable}
                 label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
               >
-                <Button isDisabled={!isChangeEnabled} onClick={onYmlSourceChangeClick} size="sm" variant="tertiary">
+                <Button
+                  isDisabled={!isRepositoryYmlAvailable}
+                  onClick={onYmlSourceChangeClick}
+                  size="sm"
+                  variant="tertiary"
+                >
                   Change
                 </Button>
               </Tooltip>
@@ -140,7 +137,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           <Text>
             We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
             files for easier maintenance.{' '}
-            {modularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
+            {isModularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
           </Text>
         </Notification>
       )}
@@ -150,21 +147,23 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           one merged YAML.
         </Notification>
       )}
-      <ConfigurationYmlSourceDialog
-        isOpen={isOpen}
-        onClose={onClose}
-        initialUsesRepositoryYml={usesRepositoryYml}
-        appConfig={appConfig as string}
-        appSlug={appSlug}
-        onConfigSourceChangeSaved={(newValue: boolean, ymlRootPath: string) => {
-          onConfigSourceChangeSaved(newValue, ymlRootPath);
-          setUsesRepositoryYml(newValue);
-        }}
-        defaultBranch={defaultBranch}
-        gitRepoSlug={gitRepoSlug}
-        lastModified={lastModified}
-        initialYmlRootPath={initialYmlRootPath}
-      />
+      {!!ymlSettings && (
+        <ConfigurationYmlSourceDialog
+          isOpen={isOpen}
+          onClose={onClose}
+          initialUsesRepositoryYml={usesRepositoryYml}
+          appSlug={appSlug}
+          onConfigSourceChangeSaved={(newValue: boolean, newYmlRootPath: string) => {
+            onConfigSourceChangeSaved(newValue, newYmlRootPath);
+            setUsesRepositoryYml(newValue);
+          }}
+          defaultBranch={defaultBranch}
+          gitRepoSlug={gitRepoSlug}
+          lastModified={lastModified}
+          initialYmlRootPath={ymlRootPath}
+          ciConfigYml={ciConfigYml}
+        />
+      )}
     </>
   );
 };
