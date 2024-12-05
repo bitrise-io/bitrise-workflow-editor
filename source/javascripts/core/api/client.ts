@@ -24,6 +24,7 @@ class ClientError extends Error {
     this.name = 'ClientError';
     this._error = error;
     this._response = response;
+    console.log(this._response);
   }
 
   public get error() {

@@ -1,11 +1,11 @@
-import { ReactElement, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
+import useGetCiConfig from '@/hooks/useGetCIConfig';
 import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
 import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
 
@@ -21,27 +21,30 @@ type UpdateConfigurationDialogProps = {
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
-  const { getAppConfigFromRepo, appConfigFromRepo, getAppConfigFromRepoStatus, getAppConfigFromRepoFailed } =
-    useGetAppConfigFromRepoCallback(appSlug);
+  const { error, isError, isLoading, isSuccess, refetch } = useGetCiConfig(appSlug, true);
 
-  const appConfig = getDataToSave();
+  // undefined :(
+  console.log(error?.response);
+
+  const ciConfig = getDataToSave();
 
   useEffect(() => {
-    if (appConfigFromRepo) {
+    if (isSuccess) {
       onComplete();
     }
-  }, [appConfigFromRepo, onComplete]);
+  }, [isSuccess, onComplete]);
 
-  const renderError = (): ReactElement => {
-    switch (getAppConfigFromRepoStatus) {
+  const renderError = () => {
+    const errorMessage = 'Unknown error';
+    switch (error?.response?.status) {
       case 404:
         return <YmlNotFoundInRepositoryError />;
       case 422:
-        return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed?.error_msg || 'Unknown error'} />;
+        return <YmlInRepositoryInvalidError errorMessage={errorMessage} />;
       default:
         return (
           <Notification status="error" marginBlockStart="24">
-            {getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}
+            {errorMessage}
           </Notification>
         );
     }
@@ -73,7 +76,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   };
 
   useEffect(() => {
-    formatToYml(appConfig as BitriseYml);
+    formatToYml(ciConfig as BitriseYml);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -114,13 +117,15 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-        {getAppConfigFromRepoFailed && renderError()}
+        {isError && renderError()}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button isLoading={isLoading} variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={getAppConfigFromRepo}>Done</Button>
+        <Button isLoading={isLoading} onClick={() => refetch()}>
+          Done
+        </Button>
       </DialogFooter>
     </Dialog>
   );
