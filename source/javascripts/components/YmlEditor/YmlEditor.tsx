@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
+
 import Editor from '@monaco-editor/react';
-import { configureMonacoYaml } from 'monaco-yaml';
+import { configureMonacoYaml, MonacoYaml } from 'monaco-yaml';
 
 type YmlEditorProps = {
   isLoading?: boolean;
@@ -7,11 +9,13 @@ type YmlEditorProps = {
   yml: string;
   onChange: (changedText?: string) => void;
 };
+
 const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
-  const defaultSchema = {
-    uri: 'https://json.schemastore.org/bitrise.json',
-    fileMatch: ['*'],
-  };
+  const [monacoYaml, setMonacoYaml] = useState<MonacoYaml>();
+
+  useEffect(() => {
+    return monacoYaml?.dispose;
+  }, [monacoYaml]);
 
   return (
     <Editor
@@ -19,22 +23,24 @@ const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
       value={isLoading ? 'Loading...' : yml}
       theme="vs-dark"
       options={{
-        readOnly: readonly || isLoading,
         roundedSelection: false,
         scrollBeyondLastLine: false,
+        readOnly: readonly || isLoading,
         stickyScroll: {
           enabled: true,
         },
       }}
-      onMount={(_, monaco) => {
-        configureMonacoYaml(monaco, {
-          validate: true,
-          enableSchemaRequest: true,
-          format: true,
-          hover: true,
-          completion: true,
-          schemas: [defaultSchema],
-        });
+      beforeMount={(monaco) => {
+        setMonacoYaml(
+          configureMonacoYaml(monaco, {
+            hover: true,
+            format: true,
+            validate: true,
+            completion: true,
+            enableSchemaRequest: true,
+            schemas: [{ uri: 'https://json.schemastore.org/bitrise.json', fileMatch: ['*'] }],
+          }),
+        );
       }}
       onChange={onChange}
     />
