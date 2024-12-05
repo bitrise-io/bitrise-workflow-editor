@@ -35,19 +35,25 @@ function fromYml(yml: string): unknown {
 }
 
 // API CALLS
-const BITRISE_YML_PATH = `/api/app/:appSlug/config`;
+const BITRISE_YML_PATH = `/api/app/:projectSlug/config`;
 const LOCAL_BITRISE_YAML_PATH = `/api/bitrise-yml.json`;
 const FORMAT_YML_PATH = `/api/cli/format`;
 
-function getBitriseYmlPath({ appSlug, readFromRepo = false }: { appSlug: string; readFromRepo?: boolean }): string {
-  return `${BITRISE_YML_PATH.replace(':appSlug', appSlug)}${readFromRepo ? '?is_force_from_repo=1' : ''}`;
+function getBitriseYmlPath({
+  projectSlug,
+  readFromRepo = false,
+}: {
+  projectSlug: string;
+  readFromRepo?: boolean;
+}): string {
+  return `${BITRISE_YML_PATH.replace(':projectSlug', projectSlug)}${readFromRepo ? '?is_force_from_repo=1' : ''}`;
 }
 
 async function getBitriseYml({
   signal,
   ...params
 }: {
-  appSlug: string;
+  projectSlug: string;
   readFromRepo?: boolean;
   signal?: AbortSignal;
 }): Promise<BitriseYml> {
@@ -62,15 +68,15 @@ async function getBitriseYml({
 }
 
 function updateBitriseYml({
-  appSlug,
+  projectSlug,
   model,
   signal,
 }: {
-  appSlug: string;
+  projectSlug: string;
   model: BitriseYml;
   signal?: AbortSignal;
 }): Promise<unknown> {
-  return Client.post<unknown>(getBitriseYmlPath({ appSlug }), {
+  return Client.post<unknown>(getBitriseYmlPath({ projectSlug }), {
     signal,
     body: toJSON(model),
   });

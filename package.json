@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "1.5.12599",
+  "version": "1.5.12616",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -89,7 +89,7 @@
     "jquery": "^3.7.1",
     "json-schema-to-ts": "^3.1.1",
     "launchdarkly-js-client-sdk": "^3.5.0",
-    "monaco-editor": "^0.52.0",
+    "monaco-editor": "0.51.0",
     "monaco-yaml": "^5.2.3",
     "ng-showdown": "^1.1.0",
     "prop-types": "^15.8.1",

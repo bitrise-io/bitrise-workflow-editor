@@ -61,13 +61,13 @@ type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   initialUsesRepositoryYml: boolean;
-  appConfig: string;
   appSlug: string;
   onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
   gitRepoSlug: string;
   lastModified: string | null;
   initialYmlRootPath: string | null;
+  ciConfigYml: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -77,11 +77,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     isOpen,
     onClose,
     initialUsesRepositoryYml,
-    appConfig,
     appSlug,
     onConfigSourceChangeSaved,
     lastModified,
     initialYmlRootPath,
+    ciConfigYml,
   } = props;
 
   const {
@@ -188,7 +188,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   };
 
   let lastModifiedFormatted;
-  if (lastModified !== null) {
+  if (lastModified && lastModified !== null) {
     const date = new Date(lastModified);
     lastModifiedFormatted = DateFormatter.getFormattedDate(date);
   }
@@ -360,7 +360,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Box display="flex" gap="8">
                   <Button
                     as="a"
-                    href={`data:attachment/text,${encodeURIComponent(appConfig)}`}
+                    href={`data:attachment/text,${encodeURIComponent(ciConfigYml)}`}
                     target="_blank"
                     download="bitrise.yml"
                     variant="secondary"
@@ -371,7 +371,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   >
                     Download bitrise.yml
                   </Button>
-                  <CopyToClipboard text={appConfig} onCopy={onCopyClick}>
+                  <CopyToClipboard text={ciConfigYml} onCopy={onCopyClick}>
                     <Button
                       variant="secondary"
                       leftIconName="Duplicate"

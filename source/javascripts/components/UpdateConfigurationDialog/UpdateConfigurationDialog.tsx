@@ -47,7 +47,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     }
   };
 
-  const { data: ymlString = '', mutate: formatToYml } = useFormattedYml();
+  const { data: ciConfigYML = '', mutate: formatToYml } = useFormattedYml();
 
   const toast = useToast();
 
@@ -74,7 +74,8 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
 
   useEffect(() => {
     formatToYml(appConfig as BitriseYml);
-  }, [appConfig, formatToYml]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Dialog isOpen onClose={onClose} title="Update configuration YAML">
@@ -92,7 +93,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
         <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
           <Button
             as="a"
-            href={`data:attachment/text,${encodeURIComponent(ymlString)}`}
+            href={`data:attachment/text,${encodeURIComponent(ciConfigYML)}`}
             target="_blank"
             download="bitrise.yml"
             variant="tertiary"
@@ -103,7 +104,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           >
             Download changed version
           </Button>
-          <CopyToClipboard text={ymlString} onCopy={onCopyClick}>
+          <CopyToClipboard text={ciConfigYML} onCopy={onCopyClick}>
             <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Duplicate">
               Copy changed configuration
             </Button>

@@ -674,9 +674,6 @@ def strings
         load_progress: {
           loading: "Loading, wait a sec..."
         },
-        warn: {
-          title: "Uups, we found some warnings in your configuration, please consider checking them."
-        },
         store_in_repository: {
           loading: "Looking for bitrise.yml in the app repository...",
           not_found: "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.",
@@ -1020,7 +1017,6 @@ def strings
         get_org_plan_data: "/organization/<org_slug>/payment_subscription_status",
         yml_post: "/api/app/<app_slug>/config.json",
         yml_get: "/api/app/<app_slug>/config.yml",
-        yml_download: "/api/app/<app_slug>/config.yml?is_download=1",
         secrets_post: "/api/app/<app_slug>/secrets-without-values",
         secrets_get: "/api/app/<app_slug>/secrets-without-values",
         pipeline_config_get: "/app/<app_slug>/pipeline_config",

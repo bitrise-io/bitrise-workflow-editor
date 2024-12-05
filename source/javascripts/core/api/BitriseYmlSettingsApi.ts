@@ -8,10 +8,12 @@ type BitriseYmlSettingsResponse = {
   split: boolean;
   uses_repository_yml: boolean;
   modular_yaml_supported: boolean;
+  yml_root_path: string | null;
 };
 
 type BitriseYmlSettingsRequest = {
   uses_repository_yml: boolean;
+  yml_root_path: string;
 };
 
 // TRANSFORMATIONS
@@ -20,32 +22,34 @@ function toYmlSettings(response: BitriseYmlSettingsResponse): BitriseYmlSettings
     lastModified: response.last_modified,
     lines: response.lines,
     isYmlSplit: response.split,
-    isRepositoryYml: response.uses_repository_yml,
     isModularYamlSupported: response.modular_yaml_supported,
+    usesRepositoryYml: response.uses_repository_yml,
+    ymlRootPath: response.yml_root_path || '',
   };
 }
 
 function toYmlSettingUpdateModel(model: Partial<BitriseYmlSettings>): BitriseYmlSettingsRequest {
   return {
-    uses_repository_yml: Boolean(model?.isRepositoryYml),
+    uses_repository_yml: Boolean(model?.usesRepositoryYml),
+    yml_root_path: model?.ymlRootPath || '',
   };
 }
 
 // API CALLS
-const PIPELINE_CONFIG_PATH = 'app/:appSlug/pipeline_config';
+const YML_SETTINGS_PATH = 'app/:projectSlug/pipeline_config';
 
-function getYmlSettingsPath(appSlug: string): string {
-  return PIPELINE_CONFIG_PATH.replace(':appSlug', appSlug);
+function getYmlSettingsPath(projectSlug: string): string {
+  return YML_SETTINGS_PATH.replace(':projectSlug', projectSlug);
 }
 
 async function getYmlSettings({
-  appSlug,
+  projectSlug,
   signal,
 }: {
-  appSlug: string;
+  projectSlug: string;
   signal?: AbortSignal;
 }): Promise<BitriseYmlSettings> {
-  const response = await Client.get<BitriseYmlSettingsResponse>(getYmlSettingsPath(appSlug), {
+  const response = await Client.get<BitriseYmlSettingsResponse>(getYmlSettingsPath(projectSlug), {
     signal,
   });
 
@@ -53,15 +57,15 @@ async function getYmlSettings({
 }
 
 function updateYmlSettings({
-  appSlug,
+  projectSlug,
   model,
   signal,
 }: {
-  appSlug: string;
+  projectSlug: string;
   model: Partial<BitriseYmlSettings>;
   signal?: AbortSignal;
 }): Promise<BitriseYmlSettingsResponse | undefined> {
-  return Client.put<BitriseYmlSettingsResponse>(getYmlSettingsPath(appSlug), {
+  return Client.put<BitriseYmlSettingsResponse>(getYmlSettingsPath(projectSlug), {
     body: JSON.stringify(toYmlSettingUpdateModel(model)),
     signal,
   });
