@@ -5,22 +5,22 @@ import StepBundleService from '@/core/models/StepBundleService';
 
 type Props = {
   workflowId?: string;
-  stepBundleId?: string;
+  stepBundleCvs?: string;
 };
 
 const useDependantWorkflows = (props: Props) => {
-  const { workflowId, stepBundleId } = props;
+  const { workflowId, stepBundleCvs } = props;
   const workflows = useWorkflows();
 
   return useMemo(() => {
     if (workflowId) {
       return WorkflowService.getDependantWorkflows(workflows, workflowId);
     }
-    if (stepBundleId) {
-      return StepBundleService.getDependantWorkflows(workflows, stepBundleId);
+    if (stepBundleCvs) {
+      return StepBundleService.getDependantWorkflows(workflows, stepBundleCvs);
     }
     return [];
-  }, [stepBundleId, workflowId, workflows]);
+  }, [stepBundleCvs, workflowId, workflows]);
 };
 
 export default useDependantWorkflows;
