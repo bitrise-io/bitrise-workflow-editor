@@ -5,21 +5,24 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 export const getConfig = () => {
   return http.get(BitriseYmlApi.getBitriseYmlPath({ projectSlug: ':slug' }), async () => {
     await delay(2000);
-    return new HttpResponse('{}', {
-      status: 200,
-    });
+    return HttpResponse.json(
+      { config: 'value' },
+      {
+        status: 200,
+      },
+    );
   });
 };
 
 export const getConfigFailed = () => {
   return http.get(BitriseYmlApi.getBitriseYmlPath({ projectSlug: ':slug' }), async () => {
     await delay(1000);
-    return new HttpResponse('{ "error_msg": "Split configuration requires an Enterprise plan" }', {
-      headers: {
-        'Content-Type': 'text/json',
+    return HttpResponse.json(
+      { error_msg: 'Split configuration requires an Enterprise plan' },
+      {
+        status: 422,
       },
-      status: 422,
-    });
+    );
   });
 };
 
