@@ -4,9 +4,11 @@ function getDependantWorkflows(workflows: Workflows, id: string) {
   const workflowIdsWhereWorkflowIsUsed = new Set<string>();
 
   Object.entries(workflows ?? {}).forEach(([workflowId, workflow]) => {
-    if (Object.keys(workflow.steps ?? {}).includes(id)) {
-      workflowIdsWhereWorkflowIsUsed.add(workflowId);
-    }
+    workflow.steps?.forEach((workflowObj) => {
+      if (Object.keys(workflowObj)[0] === id) {
+        workflowIdsWhereWorkflowIsUsed.add(workflowId);
+      }
+    });
   });
 
   return Array.from(workflowIdsWhereWorkflowIsUsed);

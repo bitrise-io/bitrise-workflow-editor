@@ -11,7 +11,7 @@ type SelectableStepBundleCardProps = {
 
 const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   const { id, onClick } = props;
-  const dependants = useDependantWorkflows({ stepBundleId: id });
+  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${id}` });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
   return (
@@ -36,7 +36,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
       </PopoverTrigger>
       <PopoverContent width={320}>
         <WorkflowCardContextProvider>
-          <StepBundleCard id={id} />
+          <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${id}`} />
         </WorkflowCardContextProvider>
       </PopoverContent>
     </Popover>

@@ -35,7 +35,7 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
   }, [stepBundleId, steps]);
 
   const isEmpty = !steps.length;
-  const isSortable = false; // TODO: Boolean(onMoveStep);
+  const isSortable = true; // TODO: Boolean(onMoveStep);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
   const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
