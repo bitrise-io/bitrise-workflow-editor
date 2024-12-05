@@ -56,7 +56,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
 
   return (
-    <Card borderRadius="8" variant="elevated" minW={0}>
+    <Card borderRadius="4" variant="outline" minW={0}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton
