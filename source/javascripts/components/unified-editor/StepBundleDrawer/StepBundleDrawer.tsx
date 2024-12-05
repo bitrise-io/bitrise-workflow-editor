@@ -18,7 +18,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 
 const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { replace } = useNavigation();
-  const { data } = useStep(workflowId, stepIndex);
+  const { data } = useStep({ workflowId, stepIndex });
   const defaultStepLibrary = useDefaultStepLibrary();
 
   const title = data?.title;

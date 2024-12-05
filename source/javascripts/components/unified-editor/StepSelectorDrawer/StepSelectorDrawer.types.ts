@@ -27,4 +27,4 @@ export type StepsRowItem = {
 };
 
 export type VirtualizedListItem = CategoryRowItem | StepsRowItem;
-export type SelectStepHandlerFn = (step: Step) => void;
+export type SelectStepHandlerFn = (cvs: string) => void;

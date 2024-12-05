@@ -45,7 +45,7 @@ const VirtualizedRow = ({ item, style = {}, onSelectStep }: VirtualizedRowProps)
             isDeprecated={step.resolvedInfo?.isDeprecated}
             isDisabled={isDisabled}
             cardProps={{ minH: `${RowHeights.steps}px` }}
-            onClick={() => onSelectStep(step)}
+            onClick={() => onSelectStep(step.cvs)}
           />
         ))}
       </SimpleGrid>

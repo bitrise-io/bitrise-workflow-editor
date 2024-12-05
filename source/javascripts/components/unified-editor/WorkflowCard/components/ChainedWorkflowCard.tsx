@@ -4,18 +4,20 @@ import { memo, useMemo, useRef } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
-import DragHandle from '@/components/DragHandle/DragHandle';
 import useWorkflow from '@/hooks/useWorkflow';
+import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
-import SortableWorkflowsContext from './SortableWorkflowsContext';
+import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
+
+import WorkflowStepList from './WorkflowStepList';
 import ChainedWorkflowList from './ChainedWorkflowList';
-import StepList from './StepList';
+import SortableWorkflowsContext from './SortableWorkflowsContext';
 
 type Props = {
   id: string;
@@ -31,7 +33,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id);
   const { isSelected } = useSelection();
-  const dependants = useDependantWorkflows(id);
+  const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
   const { isOpen, onOpen, onToggle } = useDisclosure();
   const { onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow } = useWorkflowActions();
@@ -194,7 +196,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
                 <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-                <StepList workflowId={id} />
+                <WorkflowStepList workflowId={id} />
 
                 <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
               </Box>
