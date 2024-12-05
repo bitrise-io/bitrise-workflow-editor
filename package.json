@@ -74,7 +74,7 @@
     "@types/segment-analytics": "^0.0.38",
     "@xyflow/react": "^12.3.4",
     "abortcontroller-polyfill": "^1.7.5",
-    "algoliasearch": "^4.24.0",
+    "algoliasearch": "^5.0.0",
     "angular": "^1.8.3",
     "angular-animate": "^1.8.3",
     "angular-cookies": "^1.8.3",
