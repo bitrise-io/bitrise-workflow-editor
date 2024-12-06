@@ -12,6 +12,7 @@ const usePipelineWorkflows = (): PipelineWorkflow[] => {
     return Object.entries(pipelineWorkflows).map(([id, pipelineWorkflow]) => {
       return {
         id,
+        basedOn: pipelineWorkflow.based_on,
         dependsOn: pipelineWorkflow.depends_on ?? [],
       } satisfies PipelineWorkflow;
     });

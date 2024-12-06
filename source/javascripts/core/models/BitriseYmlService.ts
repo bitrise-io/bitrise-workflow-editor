@@ -479,7 +479,7 @@ function addWorkflowToPipeline(
   }
 
   if (parentWorkflowId) {
-    if (!copy.workflows?.[parentWorkflowId] || !copy.pipelines?.[pipelineId]?.workflows?.[parentWorkflowId]) {
+    if (!copy.pipelines?.[pipelineId]?.workflows?.[parentWorkflowId]) {
       return copy;
     }
   }

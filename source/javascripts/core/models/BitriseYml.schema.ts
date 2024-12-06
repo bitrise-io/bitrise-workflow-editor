@@ -266,26 +266,7 @@ const BitriseYmlSchema = {
         workflows: {
           patternProperties: {
             '.*': {
-              properties: {
-                depends_on: {
-                  type: 'array',
-                  items: {
-                    type: 'string',
-                  },
-                },
-                abort_on_fail: {
-                  type: 'boolean',
-                },
-                should_always_run: {
-                  type: 'string',
-                  enum: ['off', 'workflow'],
-                },
-                run_if: {
-                  $ref: '#/definitions/RunIfModel',
-                },
-              },
-              additionalProperties: false,
-              type: 'object',
+              $ref: '#/definitions/GraphPipelineWorkflowModel',
             },
           },
           type: 'object',
@@ -298,6 +279,41 @@ const BitriseYmlSchema = {
       type: 'object',
     },
     RunIfModel: {
+      properties: {
+        expression: {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    GraphPipelineWorkflowModel: {
+      properties: {
+        based_on: {
+          type: 'string',
+        },
+        depends_on: {
+          items: {
+            type: 'string',
+          },
+          type: 'array',
+        },
+        abort_on_fail: {
+          type: 'boolean',
+        },
+        should_always_run: {
+          type: 'string',
+          enum: ['off', 'workflow'],
+        },
+        run_if: {
+          $ref: '#/definitions/GraphPipelineWorkflowRunIfModel',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    GraphPipelineWorkflowRunIfModel: {
+      required: ['expression'],
       properties: {
         expression: {
           type: 'string',
