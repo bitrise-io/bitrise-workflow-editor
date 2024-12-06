@@ -14,18 +14,19 @@ import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
 type ContentProps = {
   id: string;
+  basedOn?: string;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
-const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: ContentProps) => {
-  const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
-  const workflow = useWorkflow(id);
+const WorkflowCardContent = memo(({ id, basedOn, isCollapsable, containerProps }: ContentProps) => {
+  const workflowId = basedOn || id;
+
   const containerRef = useRef(null);
+  const workflow = useWorkflow(workflowId);
   const { data: stacksAndMachines } = useStacksAndMachines();
-  const { isOpen, onOpen, onToggle } = useDisclosure({
-    defaultIsOpen: !isCollapsable,
-  });
+  const { isOpen, onOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const { isSelected } = useSelection();
   const isHighlighted = isSelected(id);
@@ -73,10 +74,10 @@ const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: Content
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <Text textStyle="body/md/semibold" hasEllipsis>
-            {workflow.userValues.title || id}
+            {basedOn ? id : workflow.userValues.title || id}
           </Text>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {stack.name || 'Unknown stack'}
+            {basedOn ? `Based on ${basedOn}` : stack.name || 'Unknown stack'}
           </Text>
         </Box>
 
@@ -125,9 +126,13 @@ const WorkflowCardContent = memo(({ id, isCollapsable, containerProps }: Content
       <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
-            <WorkflowStepList workflowId={id} />
-            <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
+            <ChainedWorkflowList
+              key={`${workflowId}->before_run`}
+              placement="before_run"
+              parentWorkflowId={workflowId}
+            />
+            <WorkflowStepList workflowId={workflowId} />
+            <ChainedWorkflowList key={`${workflowId}->after_run`} placement="after_run" parentWorkflowId={workflowId} />
           </Box>
         </SortableWorkflowsContext>
       </Collapse>
@@ -143,6 +148,7 @@ type Props = ContentProps & WorkflowActions & StepActions & Selection;
 
 const WorkflowCard = ({
   id,
+  basedOn,
   isCollapsable,
   containerProps,
   selectedWorkflowId = '',
@@ -154,7 +160,7 @@ const WorkflowCard = ({
     selectedStepIndex={selectedStepIndex}
     {...actions}
   >
-    <WorkflowCardContent id={id} isCollapsable={isCollapsable} containerProps={containerProps} />
+    <WorkflowCardContent id={id} basedOn={basedOn} isCollapsable={isCollapsable} containerProps={containerProps} />
   </WorkflowCardContextProvider>
 );
 

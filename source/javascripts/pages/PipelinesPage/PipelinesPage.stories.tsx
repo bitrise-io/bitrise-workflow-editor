@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
+import { cloneDeep } from 'es-toolkit';
 import PipelinesPage from './PipelinesPage';
 
 export default {
@@ -116,3 +117,22 @@ export const ReactivatePlan: Story = {
 };
 
 export const GraphPipelineWithEditing: Story = {};
+
+const withWorkflowOverrideYml = () => {
+  const yml = cloneDeep(TEST_BITRISE_YML);
+
+  if (yml.pipelines?.['graph-pipeline']?.workflows) {
+    yml.pipelines['graph-pipeline'].workflows.override = {
+      based_on: 'wf3',
+      depends_on: ['wf1'],
+    };
+  }
+
+  return yml;
+};
+
+export const WithWorkflowOverride: Story = {
+  args: {
+    yml: withWorkflowOverrideYml(),
+  },
+};
