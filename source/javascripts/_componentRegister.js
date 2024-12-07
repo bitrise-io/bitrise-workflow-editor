@@ -8,7 +8,7 @@ import Notification from "./components/Notification";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import StepBadge from "./components/StepBadge";
 import Toggle from "./components/Toggle";
-import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
+import UpdateConfigurationDialog from "./components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog";
 import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
