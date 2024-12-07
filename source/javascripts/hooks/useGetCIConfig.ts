@@ -3,9 +3,13 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
-const useGetCiConfig = (projectSlug: string, readFromRepo?: boolean) => {
+type Props = { enabled?: boolean; projectSlug: string; readFromRepo?: boolean };
+
+const useGetCiConfig = (props: Props) => {
+  const { enabled, projectSlug, readFromRepo } = props;
+
   return useQuery<BitriseYml, ClientError>({
-    enabled: false,
+    enabled,
     retry: false,
     queryKey: [BitriseYmlApi.getBitriseYmlPath({ projectSlug }), readFromRepo],
     queryFn: ({ signal }) => BitriseYmlApi.getBitriseYml({ projectSlug, readFromRepo, signal }),

@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
-import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useToast } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import useGetCiConfig from '@/hooks/useGetCIConfig';
-import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
-import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
+import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 
 type UpdateConfigurationDialogProps = {
   onClose: () => void;
@@ -21,10 +20,11 @@ type UpdateConfigurationDialogProps = {
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
-  const { error, isError, isLoading, isSuccess, refetch } = useGetCiConfig(appSlug, true);
-
-  // undefined :(
-  console.log(error?.response);
+  const { error, isLoading, isSuccess, refetch } = useGetCiConfig({
+    enabled: false,
+    projectSlug: appSlug,
+    readFromRepo: true,
+  });
 
   const ciConfig = getDataToSave();
 
@@ -33,22 +33,6 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
       onComplete();
     }
   }, [isSuccess, onComplete]);
-
-  const renderError = () => {
-    const errorMessage = 'Unknown error';
-    switch (error?.response?.status) {
-      case 404:
-        return <YmlNotFoundInRepositoryError />;
-      case 422:
-        return <YmlInRepositoryInvalidError errorMessage={errorMessage} />;
-      default:
-        return (
-          <Notification status="error" marginBlockStart="24">
-            {errorMessage}
-          </Notification>
-        );
-    }
-  };
 
   const { data: ciConfigYML = '', mutate: formatToYml } = useFormattedYml();
 
@@ -117,7 +101,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-        {isError && renderError()}
+        {!!error && <YmlDialogErrorNotification response={error.response} />}
       </DialogBody>
       <DialogFooter>
         <Button isLoading={isLoading} variant="secondary" onClick={onClose}>
