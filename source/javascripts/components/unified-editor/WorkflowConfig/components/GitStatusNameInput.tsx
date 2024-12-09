@@ -80,7 +80,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
             You can use the following variables in your string:
           </Text>
           {Object.keys(variables).map((variable) => (
-            <CodeSnippet variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
+            <CodeSnippet key={variable} variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
               {variable}
             </CodeSnippet>
           ))}
