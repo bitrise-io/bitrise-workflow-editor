@@ -1,13 +1,12 @@
-import { ReactElement, useEffect } from 'react';
-import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useToast } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
-import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
-import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
+import { useCiConfigMutation } from '@/hooks/useGetCIConfig';
+import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type UpdateConfigurationDialogProps = {
   onClose: () => void;
@@ -21,31 +20,9 @@ type UpdateConfigurationDialogProps = {
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
-  const { getAppConfigFromRepo, appConfigFromRepo, getAppConfigFromRepoStatus, getAppConfigFromRepoFailed } =
-    useGetAppConfigFromRepoCallback(appSlug);
+  const { error, isPending, mutate, reset } = useCiConfigMutation();
 
-  const appConfig = getDataToSave();
-
-  useEffect(() => {
-    if (appConfigFromRepo) {
-      onComplete();
-    }
-  }, [appConfigFromRepo, onComplete]);
-
-  const renderError = (): ReactElement => {
-    switch (getAppConfigFromRepoStatus) {
-      case 404:
-        return <YmlNotFoundInRepositoryError />;
-      case 422:
-        return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed?.error_msg || 'Unknown error'} />;
-      default:
-        return (
-          <Notification status="error" marginBlockStart="24">
-            {getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}
-          </Notification>
-        );
-    }
-  };
+  const ciConfig = getDataToSave();
 
   const { data: ciConfigYML = '', mutate: formatToYml } = useFormattedYml();
 
@@ -65,20 +42,29 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     });
   };
 
-  const onDownloadClick = () => {
+  const handleDownloadClick = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
       yml_source: 'bitrise',
       source: 'update_configuration_yml_modal',
     });
   };
 
+  const handleDoneClick = () => {
+    mutate({ projectSlug: appSlug }, { onSuccess: onComplete });
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
   useEffect(() => {
-    formatToYml(appConfig as BitriseYml);
+    formatToYml(ciConfig as BitriseYml);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <Dialog isOpen onClose={onClose} title="Update configuration YAML">
+    <Dialog isOpen onClose={handleClose} title="Update configuration YAML">
       <DialogBody>
         <Text marginBlockEnd="24">
           If you would like to apply these changes to your configuration, depending on your setup, you need to do the
@@ -100,7 +86,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
             width="fit-content"
             size="sm"
             leftIconName="Download"
-            onClick={onDownloadClick}
+            onClick={handleDownloadClick}
           >
             Download changed version
           </Button>
@@ -114,13 +100,15 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-        {getAppConfigFromRepoFailed && renderError()}
+        {!!error?.response && <YmlDialogErrorNotification response={error.response} />}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button isLoading={isPending} variant="secondary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button onClick={getAppConfigFromRepo}>Done</Button>
+        <Button isLoading={isPending} onClick={handleDoneClick}>
+          Done
+        </Button>
       </DialogFooter>
     </Dialog>
   );

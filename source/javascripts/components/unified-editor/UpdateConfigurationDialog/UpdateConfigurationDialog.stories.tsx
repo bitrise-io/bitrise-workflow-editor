@@ -35,7 +35,7 @@ export const Default: StoryObj = {};
 export const Failed: StoryObj = {
   parameters: {
     msw: {
-      handlers: [getConfigFailed()],
+      handlers: [formatYml(), getConfigFailed()],
     },
   },
 };
