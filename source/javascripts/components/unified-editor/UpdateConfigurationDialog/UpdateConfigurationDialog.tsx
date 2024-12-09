@@ -5,7 +5,7 @@ import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import useGetCiConfig from '@/hooks/useGetCIConfig';
+import { useCiConfigMutation } from '@/hooks/useGetCIConfig';
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 
 type UpdateConfigurationDialogProps = {
@@ -20,19 +20,9 @@ type UpdateConfigurationDialogProps = {
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
-  const { error, isLoading, isSuccess, refetch } = useGetCiConfig({
-    enabled: false,
-    projectSlug: appSlug,
-    readFromRepo: true,
-  });
+  const { error, isPending, mutate, reset } = useCiConfigMutation();
 
   const ciConfig = getDataToSave();
-
-  useEffect(() => {
-    if (isSuccess) {
-      onComplete();
-    }
-  }, [isSuccess, onComplete]);
 
   const { data: ciConfigYML = '', mutate: formatToYml } = useFormattedYml();
 
@@ -52,11 +42,20 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
     });
   };
 
-  const onDownloadClick = () => {
+  const handleDownloadClick = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
       yml_source: 'bitrise',
       source: 'update_configuration_yml_modal',
     });
+  };
+
+  const handleDoneClick = () => {
+    mutate({ projectSlug: appSlug }, { onSuccess: onComplete });
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
   };
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   }, []);
 
   return (
-    <Dialog isOpen onClose={onClose} title="Update configuration YAML">
+    <Dialog isOpen onClose={handleClose} title="Update configuration YAML">
       <DialogBody>
         <Text marginBlockEnd="24">
           If you would like to apply these changes to your configuration, depending on your setup, you need to do the
@@ -87,7 +86,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
             width="fit-content"
             size="sm"
             leftIconName="Download"
-            onClick={onDownloadClick}
+            onClick={handleDownloadClick}
           >
             Download changed version
           </Button>
@@ -101,13 +100,13 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-        {!!error && <YmlDialogErrorNotification response={error.response} />}
+        {!!error?.response && <YmlDialogErrorNotification response={error.response} />}
       </DialogBody>
       <DialogFooter>
-        <Button isLoading={isLoading} variant="secondary" onClick={onClose}>
+        <Button isLoading={isPending} variant="secondary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button isLoading={isLoading} onClick={() => refetch()}>
+        <Button isLoading={isPending} onClick={handleDoneClick}>
           Done
         </Button>
       </DialogFooter>

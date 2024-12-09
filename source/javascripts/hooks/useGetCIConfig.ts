@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
-type Props = { enabled?: boolean; projectSlug: string; readFromRepo?: boolean };
+type QueryProps = { enabled?: boolean; projectSlug: string; readFromRepo?: boolean };
 
-const useGetCiConfig = (props: Props) => {
+const useCiConfigQuery = (props: QueryProps) => {
   const { enabled, projectSlug, readFromRepo } = props;
 
   return useQuery<BitriseYml, ClientError>({
@@ -17,4 +17,12 @@ const useGetCiConfig = (props: Props) => {
   });
 };
 
-export default useGetCiConfig;
+type MutationProps = Omit<QueryProps, 'enabled'>;
+
+const useCiConfigMutation = () => {
+  return useMutation<BitriseYml, ClientError, MutationProps>({
+    mutationFn: ({ projectSlug, readFromRepo }) => BitriseYmlApi.getBitriseYml({ projectSlug, readFromRepo }),
+  });
+};
+
+export { useCiConfigQuery, useCiConfigMutation };
