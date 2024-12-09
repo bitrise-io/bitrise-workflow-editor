@@ -18,7 +18,10 @@ export const getConfigFailed = () => {
   return http.get(BitriseYmlApi.getBitriseYmlPath({ projectSlug: ':slug' }), async () => {
     await delay(1000);
     return HttpResponse.json(
-      { error_msg: 'Split configuration requires an Enterprise plan' },
+      {
+        error_msg:
+          'config (/tmp/config20241207-26-5782vz.yaml) is not valid: trigger item #1: non-existent workflow defined as trigger target: primary',
+      },
       {
         status: 422,
       },

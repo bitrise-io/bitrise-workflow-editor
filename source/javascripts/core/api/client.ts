@@ -15,23 +15,15 @@ type ClientOpts = RequestInit & ExtraOpts;
 
 /* eslint-disable no-underscore-dangle */
 class ClientError extends Error {
-  private _error: Error;
+  public error: Error;
 
-  private _response?: Response;
+  public response?: Response;
 
   constructor(error: Error, response?: Response) {
     super(error.message);
     this.name = 'ClientError';
-    this._error = error;
-    this._response = response;
-  }
-
-  public get error() {
-    return this._error;
-  }
-
-  public get response() {
-    return this._response;
+    this.error = error;
+    this.response = response;
   }
 }
 
