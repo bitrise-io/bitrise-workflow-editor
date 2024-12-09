@@ -4,7 +4,7 @@ import { LibraryType } from '@/core/models/Step';
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
   onEditWorkflow?: (workflowId: string) => void;
-  onEditChainedWorkflow?: (workflowId: string) => void;
+  onEditChainedWorkflow?: (workflowId: string, parentWorkflowId: string) => void;
   onChainWorkflow?: (workflowId: string) => void;
   onChainChainedWorkflow?: (workflowId: string) => void;
   onChainedWorkflowsUpdate?: (parentWorkflowId: string, placement: Placement, chainedWorkflows: string[]) => void;

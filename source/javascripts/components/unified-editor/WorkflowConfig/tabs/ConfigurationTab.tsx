@@ -8,15 +8,17 @@ import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type ConfigurationTabProps = {
   context: 'pipeline' | 'workflow';
+  parentWorkflowId?: string;
 };
 
-const ConfigurationTab = ({ context }: ConfigurationTabProps) => {
+const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) => {
   const { id = '' } = useWorkflowConfigContext() || {};
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(id);
+  const isChainedWorkflow = !!parentWorkflowId;
 
   return (
     <Box display="flex" flexDir="column" gap="24">
-      {context === 'pipeline' && <PipelineConditionsCard />}
+      {context === 'pipeline' && !isChainedWorkflow && <PipelineConditionsCard />}
       {RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow && <StackAndMachineCard />}
       <EnvVarsCard />
     </Box>

@@ -103,10 +103,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const openWorkflowConfigDrawer = useCallback(
-    (wfId: string) => {
+    (wfId: string, parentWorkflowId?: string) => {
       openDialog({
         type: WorkflowsPageDialogType.WORKFLOW_CONFIG,
         workflowId: wfId,
+        parentWorkflowId,
       })();
     },
     [openDialog],

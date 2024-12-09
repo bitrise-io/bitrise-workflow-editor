@@ -13,23 +13,24 @@ import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
+  parentWorkflowId?: string;
   context: 'pipeline' | 'workflow';
   onRename: (name: string) => void;
 };
 
-const WorkflowConfigDrawerContent = ({ context, onRename, ...props }: Omit<Props, 'workflowId'>) => {
+const WorkflowConfigDrawerContent = ({ context, parentWorkflowId, onRename, ...props }: Omit<Props, 'workflowId'>) => {
   return (
     <Tabs>
       <FloatingDrawer {...props}>
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
-            <WorkflowConfigHeader variant="drawer" context={context} />
+            <WorkflowConfigHeader context={context} variant="drawer" />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
             <TabPanels>
               <TabPanel>
-                <ConfigurationTab context={context} />
+                <ConfigurationTab context={context} parentWorkflowId={parentWorkflowId} />
               </TabPanel>
               <TabPanel>
                 <PropertiesTab variant="drawer" onRename={onRename} />

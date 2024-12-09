@@ -13,9 +13,10 @@ export enum PipelinesPageDialogType {
 }
 
 type State = {
+  stepIndex: number;
   pipelineId: string;
   workflowId: string;
-  stepIndex: number;
+  parentWorkflowId: string;
   openedDialogType: PipelinesPageDialogType;
   mountedDialogType: PipelinesPageDialogType;
   _nextDialog?: Required<DialogParams>;
@@ -23,9 +24,10 @@ type State = {
 
 type DialogParams = {
   type: PipelinesPageDialogType;
+  stepIndex?: number;
   pipelineId?: string;
   workflowId?: string;
-  stepIndex?: number;
+  parentWorkflowId?: string;
 };
 
 type Action = {
@@ -43,6 +45,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   stepIndex: -1,
   pipelineId: '',
   workflowId: '',
+  parentWorkflowId: '',
   openedDialogType: PipelinesPageDialogType.NONE,
   mountedDialogType: PipelinesPageDialogType.NONE,
   setPipelineId: (pipelineId = '') => {
@@ -60,16 +63,20 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       stepIndex,
     }));
   },
-  openDialog: ({ type, pipelineId = '', workflowId = '', stepIndex = -1 }) => {
+  openDialog: ({ type, pipelineId = '', workflowId = '', parentWorkflowId = '', stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== PipelinesPageDialogType.NONE) {
           closeDialog();
+
           return {
-            pipelineId,
-            workflowId,
-            stepIndex,
-            _nextDialog: { type, pipelineId, workflowId, stepIndex },
+            _nextDialog: {
+              type,
+              stepIndex,
+              pipelineId,
+              workflowId,
+              parentWorkflowId,
+            },
           };
         }
 
@@ -77,6 +84,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
           pipelineId,
           workflowId,
           stepIndex,
+          parentWorkflowId,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
@@ -96,9 +104,10 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       }
 
       return {
+        stepIndex: -1,
         pipelineId: '',
         workflowId: '',
-        stepIndex: -1,
+        parentWorkflowId: '',
         nextDialog: undefined,
         openedDialogType: PipelinesPageDialogType.NONE,
         mountedDialogType: PipelinesPageDialogType.NONE,

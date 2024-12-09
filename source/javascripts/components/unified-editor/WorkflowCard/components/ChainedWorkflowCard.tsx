@@ -117,7 +117,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
             iconName="Settings"
             aria-label="Edit Workflow"
             tooltipProps={{ 'aria-label': 'Edit Workflow' }}
-            onClick={() => onEditChainedWorkflow(id)}
+            onClick={() => onEditChainedWorkflow(id, parentWorkflowId)}
           />
         )}
         {onRemoveChainedWorkflow && (

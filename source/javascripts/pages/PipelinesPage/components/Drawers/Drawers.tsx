@@ -22,6 +22,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     pipelineId,
     workflowId,
     stepIndex,
+    parentWorkflowId,
     openDialog,
     closeDialog,
     isDialogOpen,
@@ -102,6 +103,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <WorkflowConfigDrawer
           context="pipeline"
           workflowId={workflowId}
+          parentWorkflowId={parentWorkflowId}
           onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(PipelinesPageDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}
