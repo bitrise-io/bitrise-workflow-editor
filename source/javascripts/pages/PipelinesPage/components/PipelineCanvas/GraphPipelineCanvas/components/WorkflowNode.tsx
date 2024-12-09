@@ -184,11 +184,12 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'remove',
         });
       },
-      handleEditWorkflow: (workflowId: string) =>
+      handleEditWorkflow: (workflowId: string, parentWorkflowId?: string) =>
         openDialog({
           type: PipelinesPageDialogType.WORKFLOW_CONFIG,
           pipelineId: selectedPipeline,
           workflowId,
+          parentWorkflowId,
         })(),
       handleChainWorkflow: (workflowId: string) =>
         openDialog({
