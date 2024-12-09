@@ -32,18 +32,19 @@ const selectedStyle = {
   outlineOffset: '-2px',
 } satisfies CardProps;
 
-const WorkflowNode = ({ id, zIndex, selected }: Props) => {
+const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const hovered = useHover(ref);
   const workflows = useWorkflows();
+  const { selectedPipeline } = usePipelineSelector();
+
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
-  const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
-  const selectedStepIndex = usePipelinesPageStore((s) => s.stepIndex);
   const setStepIndex = usePipelinesPageStore((s) => s.setStepIndex);
-
-  const { selectedPipeline } = usePipelineSelector();
+  const selectedStepIndex = usePipelinesPageStore((s) => s.stepIndex);
+  const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
   const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
@@ -60,6 +61,8 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
     ref,
     onResize: ({ height }) => updateNode(id, { height }),
   });
+
+  const basedOn = 'basedOn' in data ? data.basedOn : undefined;
 
   const {
     handleAddStep,
@@ -129,6 +132,15 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
           break;
         }
       }
+    }
+
+    if (basedOn) {
+      return {
+        handleRemoveWorkflow: (deletedWorkflowId: string) => {
+          deleteElements({ nodes: [{ id: deletedWorkflowId }] });
+          handleWorkflowActionDialogChange(deletedWorkflowId, 'remove');
+        },
+      };
     }
 
     return {
@@ -206,21 +218,22 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       },
     };
   }, [
+    basedOn,
+    workflows,
+    selectedPipeline,
+    selectedStepIndex,
+    selectedWorkflowId,
     isGraphPipelinesEnabled,
     moveStep,
     cloneStep,
     upgradeStep,
     openDialog,
-    selectedPipeline,
     deleteStep,
-    selectedWorkflowId,
-    selectedStepIndex,
     closeDialog,
     setStepIndex,
     deleteElements,
-    removeChainedWorkflow,
-    workflows,
     setChainedWorkflows,
+    removeChainedWorkflow,
   ]);
 
   const containerProps = useMemo(
@@ -252,9 +265,10 @@ const WorkflowNode = ({ id, zIndex, selected }: Props) => {
       <WorkflowCard
         id={id}
         isCollapsable
+        basedOn={basedOn}
         containerProps={containerProps}
-        selectedWorkflowId={selectedWorkflowId}
         selectedStepIndex={selectedStepIndex}
+        selectedWorkflowId={selectedWorkflowId}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}
