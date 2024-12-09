@@ -7,6 +7,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
+import AddStepButton from '@/components/unified-editor/WorkflowCard/components/AddStepButton';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
@@ -77,12 +78,15 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" gap="8">
+      <Box display="flex" flexDir="column" mt={-8}>
         {sortableItems.map((item) => {
+          const isLast = item.stepIndex === sortableItems.length - 1;
           // TODO: Add the AddStepButton components, but they add steps to the step_bundles section of the YML instead of the workflows section
           return (
             <Fragment key={item.stepIndex}>
+              <AddStepButton />
               <StepCard {...item} isSortable={isSortable} {...actions} />
+              {isLast && <AddStepButton mb={-8} />}
             </Fragment>
           );
         })}
