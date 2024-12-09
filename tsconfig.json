@@ -42,7 +42,8 @@
     "playwright.config.ts",
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
-    "source/javascripts/**/*.tsx"
+    "source/javascripts/**/*.tsx",
+    "spec/mocks.js"
   ],
   "exclude": [
     ".ruby-lsp",
