@@ -22,8 +22,8 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 };
 
 const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
-  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
-    tabIds: ['step', 'stepBundle'],
+  const { tabId, tabIndex, setTabIndex } = useTabs<'steps' | 'stepBundles'>({
+    tabIds: ['steps', 'stepBundles'],
   });
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -65,8 +65,8 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
               </Box>
               {enableStepBundles && (
                 <TabList>
-                  <Tab>Step</Tab>
-                  <Tab>Step bundle</Tab>
+                  <Tab>Steps</Tab>
+                  <Tab>Step bundles</Tab>
                 </TabList>
               )}
               {stepLimitReached && (
@@ -88,12 +88,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   current plan. To add more Steps, upgrade your plan.
                 </Notification>
               )}
-              {tabId === 'step' && <StepFilter mt={16} />}
-              {tabId === 'stepBundle' && <StepBundleFilter marginBlockStart={16} />}
+              {tabId === 'steps' && <StepFilter mt={16} />}
+              {tabId === 'stepBundles' && <StepBundleFilter marginBlockStart={16} />}
             </FloatingDrawerHeader>
             <FloatingDrawerBody>
-              <TabPanels height={tabId === 'step' ? '100%' : undefined}>
-                <TabPanel height={tabId === 'step' ? '100%' : undefined}>
+              <TabPanels height={tabId === 'steps' ? '100%' : undefined}>
+                <TabPanel height={tabId === 'steps' ? '100%' : undefined}>
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel>
