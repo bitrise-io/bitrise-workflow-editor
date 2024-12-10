@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, Input, Select, Text, Tooltip } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
+import RegexCheckbox from '@/components/unified-editor/TriggersContent/RegexCheckbox';
 import { FormItems, TriggerItem } from '../TriggersPage/TriggersPage.types';
-import RegexCheckbox from '../TargetBasedTriggers/RegexCheckbox';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
 
 type DialogProps = {

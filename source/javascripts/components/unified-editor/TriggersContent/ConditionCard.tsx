@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Box, Card, Input, Select, Text } from '@bitrise/bitkit';
-import { Condition } from '../TriggersPage/TriggersPage.types';
+import { Condition } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
 import RegexCheckbox from './RegexCheckbox';
 
 type ConditionCardProps = {

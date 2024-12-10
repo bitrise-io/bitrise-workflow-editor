@@ -15,9 +15,9 @@ import {
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
+import ConditionCard from '@/components/unified-editor/TriggersContent/ConditionCard';
 import { FormItems, LegacyPushConditionType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
-import ConditionCard from '../TargetBasedTriggers/ConditionCard';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];

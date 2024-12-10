@@ -1,7 +1,14 @@
 import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import { Condition, ConditionType, TriggerItem, TriggerType } from './TriggersPage.types';
+import {
+  Condition,
+  ConditionType,
+  DecoratedPipelineableTriggerItem,
+  TargetBasedTriggerItem,
+  TriggerItem,
+  TriggerType,
+} from './TriggersPage.types';
 
 export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
   let isUsed = false;
@@ -25,33 +32,6 @@ export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger
   });
   return isUsed;
 };
-
-type StringOrRegex =
-  | string
-  | {
-      regex: string;
-    };
-
-export type TargetBasedTriggerItem = {
-  branch?: StringOrRegex;
-  changed_files?: StringOrRegex;
-  commit_message?: StringOrRegex;
-  comment?: StringOrRegex;
-  draft_enabled?: boolean;
-  enabled?: boolean;
-  label?: StringOrRegex;
-  source_branch?: StringOrRegex;
-  target_branch?: StringOrRegex;
-  tag?: StringOrRegex;
-};
-
-export type TargetBasedTriggers = Record<TriggerType, TargetBasedTriggerItem[]> & { enabled?: boolean };
-
-export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
-  pipelineableId: string;
-  pipelineableType: 'pipeline' | 'workflow';
-  type: TriggerType;
-}
 
 const looper = (
   pipelineableId: string,

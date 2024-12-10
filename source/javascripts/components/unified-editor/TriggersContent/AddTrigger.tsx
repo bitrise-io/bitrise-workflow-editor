@@ -3,12 +3,17 @@ import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitris
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
-import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
-import { getConditionList, TargetBasedTriggerItem } from '../TriggersPage/TriggersPage.utils';
+import {
+  TriggerType,
+  TargetBasedTriggerItem,
+  ConditionType,
+  FormItems,
+} from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
+import { getConditionList } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
-  workflowId?: string;
+  id?: string;
   triggerType: TriggerType;
   onSubmit: (trigger: TargetBasedTriggerItem) => void;
   onCancel: () => void;
@@ -20,17 +25,8 @@ type AddTriggerProps = {
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const {
-    currentTriggers,
-    editedItem,
-    labelsMap,
-    onCancel,
-    onSubmit,
-    optionsMap,
-    triggerType,
-    workflowId,
-    trackingData,
-  } = props;
+  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, id, trackingData } =
+    props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -69,9 +65,9 @@ const AddTrigger = (props: AddTriggerProps) => {
     });
   };
 
-  const onFormSubmit = (data: any) => {
+  const onFormSubmit = (data: FormItems) => {
     const filteredData = data;
-    filteredData.conditions = data.conditions.map((condition: Condition) => {
+    filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
       if (!newCondition.value) {
@@ -81,9 +77,11 @@ const AddTrigger = (props: AddTriggerProps) => {
     });
 
     const newTrigger: any = {};
-    filteredData.conditions.forEach((condition: Condition) => {
+    filteredData.conditions.forEach((condition) => {
       const value = condition.isRegex ? { regex: condition.value } : condition.value;
-      newTrigger[condition.type] = value;
+      if (condition.type) {
+        newTrigger[condition.type] = value;
+      }
     });
 
     if (!data.isDraftPr) {
@@ -150,7 +148,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             {title}
           </Text>
           <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-            Set up the trigger conditions that should all be met to execute the {workflowId} Workflow.
+            Set up the trigger conditions that should all be met to execute the {id} Workflow.
           </Text>
           {fields.map((item, index) => {
             return (

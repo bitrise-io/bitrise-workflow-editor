@@ -83,6 +83,8 @@ type BitriseYmlStoreState = {
   updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
   updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
   updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
+  updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
+  updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -353,6 +355,20 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateWorkflowTriggersEnabled(workflowId, isEnabled, state.yml),
+        };
+      });
+    },
+    updatePipelineTriggers(pipelineId, triggers) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineTriggers(pipelineId, triggers, state.yml),
+        };
+      });
+    },
+    updatePipelineTriggersEnabled(pipelineId, isEnabled) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
         };
       });
     },
