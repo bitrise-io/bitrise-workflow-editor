@@ -56,6 +56,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
       })();
     } else {
       addStepToStepBundle(stepBundleId, cvs, stepIndex);
+      openDialog({
+        type: WorkflowsPageDialogType.STEP_CONFIG,
+        stepBundleId,
+        stepIndex,
+      })();
     }
   };
 
@@ -100,6 +105,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(WorkflowsPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           size="lg"
+          stepBundleId={stepBundleId}
           workflowId={workflowId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_CONFIG)}

@@ -25,4 +25,26 @@ function getUsedByText(count: number) {
   }
 }
 
-export default { getDependantWorkflows, getUsedByText };
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function validateName(stepBundleName: string, stepBundleNames?: string[]) {
+  const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
+
+  if (!String(stepBundleName).trim()) {
+    return 'Step bundle name is required';
+  }
+
+  if (!WORKFLOW_NAME_REGEX.test(stepBundleName)) {
+    return 'Step bundle name must only contain letters, numbers, dashes, underscores or periods';
+  }
+
+  if (stepBundleNames?.includes(stepBundleName)) {
+    return 'Step bundle name should be unique.';
+  }
+
+  return true;
+}
+
+export default { getDependantWorkflows, getUsedByText, sanitizeName, validateName };

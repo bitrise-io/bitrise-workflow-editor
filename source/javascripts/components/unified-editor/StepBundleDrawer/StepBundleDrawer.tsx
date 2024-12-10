@@ -10,7 +10,7 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import StepBundlePropertiesTab from '@/components/StepBundlePropertiesTab';
+import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 
@@ -25,8 +25,8 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { tabIndex, setTabIndex } = useTabs<'configuration' | 'properties'>({
     tabIds: ['configuration', 'properties'],
   });
-  const title = data?.title;
-  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${title}` });
+  const stepBundleId = data?.title;
+  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
   const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
@@ -42,7 +42,7 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Text as="h3" textStyle="heading/h3">
-              {title}
+              {stepBundleId}
             </Text>
             <Text color="text/secondary" textStyle="body/md/regular" marginBlockEnd="16">
               {usedInWorkflowsText}
@@ -54,7 +54,7 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
           <FloatingDrawerBody>
             <TabPanels>
               <TabPanel>
-                <StepBundlePropertiesTab stepBundleName={title} workflowId={workflowId} stepIndex={stepIndex} />
+                <StepBundlePropertiesTab stepBundleId={stepBundleId} />
               </TabPanel>
             </TabPanels>
           </FloatingDrawerBody>

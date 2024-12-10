@@ -195,6 +195,71 @@ function addStepToStepBundle(stepBundleId: string, cvs: string, to: number, yml:
   return copy;
 }
 
+function changeStepVersionInStepBundles(stepBundleId: string, stepIndex: number, version: string, yml: BitriseYml) {
+  const copy = deepCloneSimpleObject(yml);
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.step_bundles[stepBundleId].steps[stepIndex] = mapKeys(
+    copy.step_bundles[stepBundleId].steps[stepIndex],
+    (_, cvs) => {
+      return StepService.updateVersion(String(cvs), defaultStepLibrary, version);
+    },
+  );
+
+  return copy;
+}
+
+function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.step_bundles = {
+    ...copy.step_bundles,
+    ...{
+      [stepBundleId]: baseStepBundleId ? (copy.step_bundles?.[baseStepBundleId] ?? {}) : {},
+    },
+  };
+
+  return copy;
+}
+
+function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]) {
+    return copy;
+  }
+
+  // Remove step bundle from `step_bundles` section of the YML
+  delete copy.step_bundles[stepBundleId];
+
+  // Remove the whole `step_bundles` section in the YML if empty
+  if (shouldRemoveField(copy.step_bundles, yml.step_bundles)) {
+    delete copy.step_bundles;
+  }
+
+  return copy;
+}
+
+function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.step_bundles) {
+    copy.step_bundles = Object.fromEntries(
+      Object.entries(copy.step_bundles).map(([id, stepBundle]) => {
+        return [id === stepBundleId ? newStepBundleId : id, stepBundle];
+      }),
+    );
+  }
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1049,6 +1114,10 @@ export default {
   updateStepInputs,
   deleteStep,
   addStepToStepBundle,
+  changeStepVersionInStepBundles,
+  createStepBundle,
+  deleteStepBundle,
+  renameStepBundle,
   createWorkflow,
   renameWorkflow,
   updateWorkflow,
