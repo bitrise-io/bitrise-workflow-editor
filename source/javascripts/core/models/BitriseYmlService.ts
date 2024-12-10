@@ -180,6 +180,21 @@ function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bit
   return copy;
 }
 
+function addStepToStepBundle(stepBundleId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]) {
+    return copy;
+  }
+
+  const steps = copy.step_bundles[stepBundleId].steps ?? [];
+  steps.splice(to, 0, { [cvs]: {} });
+  copy.step_bundles[stepBundleId].steps = steps;
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1033,6 +1048,7 @@ export default {
   changeStepVersion,
   updateStepInputs,
   deleteStep,
+  addStepToStepBundle,
   createWorkflow,
   renameWorkflow,
   updateWorkflow,

@@ -145,11 +145,22 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [closeDialog, removeChainedWorkflow, selectedWorkflowId, workflows],
   );
 
-  const openStepSelectorDrawer = useCallback(
+  const openStepSelectorDrawerFromWorkflow = useCallback(
     (wfId: string, stepIndex: number) => {
       openDialog({
         type: WorkflowsPageDialogType.STEP_SELECTOR,
         workflowId: wfId,
+        stepIndex,
+      })();
+    },
+    [openDialog],
+  );
+
+  const openStepSelectorDrawerFromStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number) => {
+      openDialog({
+        type: WorkflowsPageDialogType.STEP_SELECTOR,
+        stepBundleId,
         stepIndex,
       })();
     },
@@ -236,7 +247,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onDeleteStep={handleDeleteStep}
           onUpgradeStep={upgradeStep}
           onSelectStep={openStepLikeDrawer}
-          onAddStep={openStepSelectorDrawer}
+          onAddStep={openStepSelectorDrawerFromWorkflow}
+          onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}
         />
       </Box>
     </Box>

@@ -127,6 +127,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
+          showStepBundles={false}
         />
       )}
 

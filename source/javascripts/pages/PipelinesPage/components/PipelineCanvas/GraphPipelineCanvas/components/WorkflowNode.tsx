@@ -71,6 +71,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     handleCloneStep,
     handleDeleteStep,
     handleUpgradeStep,
+    handleAddStepToStepBundle,
     handleEditWorkflow,
     handleChainWorkflow,
     handleRemoveWorkflow,
@@ -184,6 +185,13 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'remove',
         });
       },
+      handleAddStepToStepBundle: (workflowId: string, stepIndex: number) =>
+        openDialog({
+          type: PipelinesPageDialogType.STEP_SELECTOR,
+          pipelineId: selectedPipeline,
+          workflowId,
+          stepIndex,
+        })(),
       handleEditWorkflow: (workflowId: string, parentWorkflowId?: string) =>
         openDialog({
           type: PipelinesPageDialogType.WORKFLOW_CONFIG,
@@ -276,6 +284,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         onSelectStep={handleSelectStep}
         onDeleteStep={handleDeleteStep}
         onUpgradeStep={handleUpgradeStep}
+        onAddStepToStepBundle={handleAddStepToStepBundle}
         onCreateWorkflow={undefined}
         onEditWorkflow={handleEditWorkflow}
         onChainWorkflow={handleChainWorkflow}

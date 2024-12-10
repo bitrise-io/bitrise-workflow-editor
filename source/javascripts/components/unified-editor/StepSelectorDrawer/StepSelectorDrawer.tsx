@@ -19,9 +19,10 @@ import StepList from './components/StepList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
+  showStepBundles: boolean;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, showStepBundles, ...props }: Props) => {
   const { tabId, tabIndex, setTabIndex } = useTabs<'steps' | 'stepBundles'>({
     tabIds: ['steps', 'stepBundles'],
   });
@@ -33,7 +34,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
     },
   });
 
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -55,7 +56,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
             <FloatingDrawerHeader>
               <Box display="flex" gap="12">
                 <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                  Add Step
+                  {showStepBundles ? 'Add Step or Step bundle' : 'Add step'}
                 </Text>
                 {showStepLimit && (
                   <Tag size="sm">

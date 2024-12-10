@@ -20,6 +20,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
   const {
     workflowId,
+    stepBundleId,
     stepIndex,
     openDialog,
     closeDialog,
@@ -29,12 +30,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     isDialogMounted,
   } = useWorkflowsPageStore();
 
-  const { addStep, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
-    addStep: s.addStep,
-    createWorkflow: s.createWorkflow,
-    getUniqueStepIds: s.getUniqueStepIds,
-    addChainedWorkflow: s.addChainedWorkflow,
-  }));
+  const { addStep, addStepToStepBundle, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
+    (s) => ({
+      addStep: s.addStep,
+      addStepToStepBundle: s.addStepToStepBundle,
+      createWorkflow: s.createWorkflow,
+      getUniqueStepIds: s.getUniqueStepIds,
+      addChainedWorkflow: s.addChainedWorkflow,
+    }),
+  );
 
   const enabledSteps = new Set(getUniqueStepIds());
 
@@ -43,13 +47,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
       addStep(workflowId, cvs, stepIndex);
-    } else {
+    } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
       openDialog({
         type: WorkflowsPageDialogType.STEP_CONFIG,
         workflowId,
         stepIndex,
       })();
+    } else {
+      addStepToStepBundle(stepBundleId, cvs, stepIndex);
     }
   };
 
@@ -132,6 +138,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
+          showStepBundles={!stepBundleId}
         />
       )}
 

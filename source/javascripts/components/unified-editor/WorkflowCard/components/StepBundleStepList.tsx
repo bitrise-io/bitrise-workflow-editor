@@ -8,6 +8,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import AddStepButton from '@/components/unified-editor/WorkflowCard/components/AddStepButton';
+import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
@@ -26,6 +27,8 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
+
+  const { onAddStepToStepBundle } = useStepActions();
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -84,15 +87,20 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
           // TODO: Add the AddStepButton components, but they add steps to the step_bundles section of the YML instead of the workflows section
           return (
             <Fragment key={item.stepIndex}>
-              <AddStepButton />
+              {onAddStepToStepBundle && (
+                <AddStepButton
+                  onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)}
+                  showStepBundles={false}
+                />
+              )}
               <StepCard {...item} isSortable={isSortable} {...actions} />
-              {isLast && <AddStepButton mb={-8} />}
+              {isLast && onAddStepToStepBundle && <AddStepButton mb={-8} showStepBundles={false} />}
             </Fragment>
           );
         })}
       </Box>
     );
-  }, [actions, isSortable, sortableItems]);
+  }, [actions, isSortable, onAddStepToStepBundle, sortableItems, stepBundleId]);
 
   if (isEmpty) {
     // TODO: Add the AddStep button component, but add step to the step_bundles section of the YML instead of the workflows section
