@@ -1,6 +1,7 @@
 import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
 import { BitriseYml } from '@/core/models/BitriseYml';
+import WorkflowService from '@/core/models/WorkflowService';
 import {
   Condition,
   ConditionType,
@@ -68,7 +69,7 @@ export const getPipelineableTriggers = (yml: BitriseYml) => {
   }
   if (yml.workflows) {
     Object.entries(yml.workflows).forEach(([id, w]) => {
-      if (w.triggers) {
+      if (!WorkflowService.isUtilityWorkflow(id) && w.triggers) {
         pipelineableTriggers = pipelineableTriggers.concat(
           looper(id, 'workflow', 'pull_request', w.triggers.pull_request as TargetBasedTriggerItem[]),
           looper(id, 'workflow', 'push', w.triggers.push as TargetBasedTriggerItem[]),

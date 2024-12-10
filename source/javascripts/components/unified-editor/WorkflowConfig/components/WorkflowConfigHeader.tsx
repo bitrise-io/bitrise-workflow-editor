@@ -6,15 +6,16 @@ import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 type Props = {
   variant: 'panel' | 'drawer';
   context: 'pipeline' | 'workflow';
+  parentWorkflowId?: string;
 };
 
-const WorkflowConfigHeader = ({ variant, context }: Props) => {
+const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
   const { id = '', userValues } = useWorkflowConfigContext() ?? {};
 
   const dependants = useDependantWorkflows({ workflowId: id });
 
   const showSubTitle = context === 'workflow';
-  const shouldShowTriggersTab = variant === 'panel' && !WorkflowService.isUtilityWorkflow(id);
+  const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id);
 
   return (
     <>
@@ -29,9 +30,11 @@ const WorkflowConfigHeader = ({ variant, context }: Props) => {
           <Text as="h3" textStyle="heading/h3">
             {userValues?.title || id || 'Workflow'}
           </Text>
-          <Text textStyle="body/sm/regular" color="text/secondary">
-            {showSubTitle && WorkflowService.getUsedByText(dependants)}
-          </Text>
+          {showSubTitle && (
+            <Text textStyle="body/sm/regular" color="text/secondary">
+              {WorkflowService.getUsedByText(dependants)}
+            </Text>
+          )}
         </Box>
       </Box>
       <Box mx={variant === 'drawer' ? '-24' : '0'} mt="16">

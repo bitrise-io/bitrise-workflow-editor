@@ -239,7 +239,7 @@ const TriggersContent = (props: TriggersContentProps) => {
           trackingData={trackingData}
         />
       )}
-      <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
+      <Box display={triggerType !== undefined ? 'none' : 'block'}>
         {metaDataValue === null && (
           <Notification status="info" onClose={() => updateMetaData('true')} marginBlockEnd="24">
             <Text textStyle="heading/h4">Target based triggers</Text>

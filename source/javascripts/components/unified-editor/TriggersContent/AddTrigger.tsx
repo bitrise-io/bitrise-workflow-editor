@@ -143,12 +143,12 @@ const AddTrigger = (props: AddTriggerProps) => {
   return (
     <FormProvider {...formMethods}>
       <Box as="form" display="flex" flexDir="column" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
-        <Box padding="24">
+        <Box>
           <Text textStyle="heading/h3" marginBlockEnd="8">
             {title}
           </Text>
           <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-            Set up the trigger conditions that should all be met to execute the {id} Workflow.
+            Set up the trigger conditions that should all be met to execute the {id} target.
           </Text>
           {fields.map((item, index) => {
             return (
@@ -192,7 +192,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             </Checkbox>
           )}
         </Box>
-        <ButtonGroup spacing="16" padding="24" paddingBlockStart="32" marginBlockStart="auto">
+        <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">
           <Tooltip
             isDisabled={!isSameTriggerExist && !hasEmptyCondition}
             label={

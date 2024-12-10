@@ -58,7 +58,7 @@ const WorkflowConfigPanelContent = () => {
         <TabPanel p="24" overflowY="auto" h="100%">
           <PropertiesTab variant="panel" onRename={setSelectedWorkflow} onDelete={onDelete} />
         </TabPanel>
-        <TabPanel overflowY="auto" h="100%">
+        <TabPanel p="24" overflowY="auto" h="100%">
           <TriggersTab />
         </TabPanel>
       </TabPanels>
