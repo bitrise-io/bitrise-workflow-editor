@@ -26,12 +26,12 @@
 				div[ng-repeat="groupId in stackCtrl.getStackMachineTypeGroupIds(appService.stack.id)"]
 					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && groupId === 'apple'"]
 						| macOS virtual machines (Apple Silicon)
-						.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData && ['g2-m1.4core', 'g2-m1.8core'].indexOf(appService.defaultMachineType.id) != -1"]
-							r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'info'" link-url="stackCtrl.buildMachineDeprecationData.linkUrl" link-text="stackCtrl.buildMachineDeprecationData.linkLabel"]
 					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && groupId === 'intel'"]
 						| macOS virtual machines (Intel)
 					h5.machine-type-subheader[ng-if="appService.stack.type === 'linux' && groupId === 'gen1'"]
 						| Linux machines
+						.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData && ['standard', 'elite', 'elite-xl'].indexOf(appService.defaultMachineType.id) != -1"]
+							r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'info'" link-url="stackCtrl.buildMachineDeprecationData.linkUrl" link-text="stackCtrl.buildMachineDeprecationData.linkLabel"]
 					h5.machine-type-subheader[ng-if="appService.stack.type === 'linux' && groupId === 'gen2'"]
 						| Pro Linux machines
 					.machine-types
@@ -92,12 +92,12 @@
 					div[ng-repeat="groupId in stackCtrl.getStackMachineTypeGroupIds(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
 						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && groupId === 'apple'"]
 							| macOS virtual machines (Apple Silicon)
-							.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData && ['g2-m1.4core', 'g2-m1.8core'].indexOf(stackCtrl.workflowMachineType(workflow).id) != -1"]
-								r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'info'" link-url="stackCtrl.buildMachineDeprecationData.linkUrl" link-text="stackCtrl.buildMachineDeprecationData.linkLabel"]
 						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && groupId === 'intel'"]
 							| macOS virtual machines (Intel)
 						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'linux' && groupId === 'gen1'"]
 							| Linux machines
+							.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData && ['standard', 'elite', 'elite-xl'].indexOf(stackCtrl.workflowMachineType(workflow).id) != -1"]
+								r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'info'" link-url="stackCtrl.buildMachineDeprecationData.linkUrl" link-text="stackCtrl.buildMachineDeprecationData.linkLabel"]
 						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'linux' && groupId === 'gen2'"]
 							| Pro Linux machines
 						.machine-types
