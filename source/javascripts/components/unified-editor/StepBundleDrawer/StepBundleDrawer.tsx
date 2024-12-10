@@ -53,9 +53,7 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
             <TabPanels>
-              <TabPanel>
-                <StepBundlePropertiesTab stepBundleId={stepBundleId} />
-              </TabPanel>
+              <TabPanel>{stepBundleId && <StepBundlePropertiesTab stepBundleId={stepBundleId} />}</TabPanel>
             </TabPanels>
           </FloatingDrawerBody>
         </FloatingDrawerContent>

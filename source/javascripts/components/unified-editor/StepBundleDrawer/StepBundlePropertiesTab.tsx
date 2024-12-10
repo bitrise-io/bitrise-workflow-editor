@@ -4,7 +4,7 @@ import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 type StepBundlesPropertiesTabProps = {
-  stepBundleId: string | undefined;
+  stepBundleId: string;
 };
 
 const StepBundlesPropertiesTab = (props: StepBundlesPropertiesTabProps) => {
@@ -13,7 +13,7 @@ const StepBundlesPropertiesTab = (props: StepBundlesPropertiesTabProps) => {
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
 
-  const handleNameChange = useRenameStepBundle();
+  const handleNameChange = useRenameStepBundle(stepBundleId);
 
   return (
     <EditableInput

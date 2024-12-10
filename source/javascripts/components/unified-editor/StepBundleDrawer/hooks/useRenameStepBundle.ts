@@ -1,27 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 
-const useRenameStepBundle = (onChange?: (newStepBundleId: string) => void) => {
-  const selectedStepBundleId = useWorkflowConfigContext()?.id ?? '';
-  // const selectedStepBundleId = useBitriseYmlStore((s) => s.yml.step_bundles?.id || '');
+const useRenameStepBundle = (selectedStepBundleId: string, onChange?: (newStepBundleId: string) => void) => {
   const stepBundleIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [nextStepBundleId, setNextStepBundleId] = useState(selectedStepBundleId);
   const [prevStepBundleId, setPrevStepBundleId] = useState(selectedStepBundleId);
 
-  const { createWorkflow, renameWorkflow, deleteWorkflow } = useBitriseYmlStore((s) => ({
-    createWorkflow: s.createWorkflow,
-    renameWorkflow: s.renameWorkflow,
-    deleteWorkflow: s.deleteWorkflow,
+  const { createStepBundle, renameStepBundle, deleteStepBundle } = useBitriseYmlStore((s) => ({
+    createStepBundle: s.createStepBundle,
+    renameStepBundle: s.renameStepBundle,
+    deleteStepBundle: s.deleteStepBundle,
   }));
 
-  const isNewWorkflowPersisted = stepBundleIdsInTheStore.includes(nextStepBundleId);
-  const isNewWorkflowSelected = nextStepBundleId === selectedStepBundleId;
+  const isNewStepBundlePersisted = stepBundleIdsInTheStore.includes(nextStepBundleId);
+  const isNewStepBundleSelected = nextStepBundleId === selectedStepBundleId;
 
-  const shouldRunOnChange = isRenaming && isNewWorkflowPersisted && !isNewWorkflowSelected;
-  const shouldFinishRenaming = isRenaming && isNewWorkflowPersisted && isNewWorkflowSelected;
+  const shouldRunOnChange = isRenaming && isNewStepBundlePersisted && !isNewStepBundleSelected;
+  const shouldFinishRenaming = isRenaming && isNewStepBundlePersisted && isNewStepBundleSelected;
 
   useEffect(() => {
     if (shouldRunOnChange) {
@@ -32,23 +29,23 @@ const useRenameStepBundle = (onChange?: (newStepBundleId: string) => void) => {
   useEffect(() => {
     if (shouldFinishRenaming) {
       setIsRenaming(false);
-      deleteWorkflow(prevStepBundleId);
+      deleteStepBundle(prevStepBundleId);
     }
-  }, [deleteWorkflow, shouldFinishRenaming, prevStepBundleId]);
+  }, [deleteStepBundle, shouldFinishRenaming, prevStepBundleId]);
 
   return useCallback(
     (newStepBundleId: string) => {
       if (selectedStepBundleId) {
         setIsRenaming(true);
 
-        renameWorkflow(selectedStepBundleId, newStepBundleId);
-        createWorkflow(selectedStepBundleId, newStepBundleId);
+        renameStepBundle(selectedStepBundleId, newStepBundleId);
+        createStepBundle(selectedStepBundleId, newStepBundleId);
 
         setNextStepBundleId(newStepBundleId);
         setPrevStepBundleId(selectedStepBundleId);
       }
     },
-    [createWorkflow, renameWorkflow, selectedStepBundleId],
+    [createStepBundle, renameStepBundle, selectedStepBundleId],
   );
 };
 

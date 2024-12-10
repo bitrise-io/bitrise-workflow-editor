@@ -71,6 +71,7 @@ type StepBundle = {
   id: string;
   title?: string;
   icon?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userValues: any;
   // TODO: investigate why StepBundleYmlObject type doesn't work with userValues
 };
