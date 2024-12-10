@@ -257,6 +257,24 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
     );
   }
 
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).map(([workflowId, workflow]) => {
+        let renamedSteps = workflow.steps;
+        if (workflow.steps) {
+          renamedSteps = workflow.steps.map((step: any) => {
+            const [stepId, stepDetails] = Object.entries(step)[0];
+            if (stepId === `bundle::${stepBundleId}`) {
+              return { [`bundle::${newStepBundleId}`]: stepDetails };
+            }
+            return step;
+          });
+        }
+        return [workflowId, { ...workflow, steps: renamedSteps }];
+      }),
+    );
+  }
+
   return copy;
 }
 

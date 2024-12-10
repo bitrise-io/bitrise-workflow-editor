@@ -8,8 +8,7 @@ const useRenameStepBundle = (selectedStepBundleId: string, onChange?: (newStepBu
   const [nextStepBundleId, setNextStepBundleId] = useState(selectedStepBundleId);
   const [prevStepBundleId, setPrevStepBundleId] = useState(selectedStepBundleId);
 
-  const { createStepBundle, renameStepBundle, deleteStepBundle } = useBitriseYmlStore((s) => ({
-    createStepBundle: s.createStepBundle,
+  const { renameStepBundle, deleteStepBundle } = useBitriseYmlStore((s) => ({
     renameStepBundle: s.renameStepBundle,
     deleteStepBundle: s.deleteStepBundle,
   }));
@@ -39,13 +38,12 @@ const useRenameStepBundle = (selectedStepBundleId: string, onChange?: (newStepBu
         setIsRenaming(true);
 
         renameStepBundle(selectedStepBundleId, newStepBundleId);
-        createStepBundle(selectedStepBundleId, newStepBundleId);
 
         setNextStepBundleId(newStepBundleId);
         setPrevStepBundleId(selectedStepBundleId);
       }
     },
-    [createStepBundle, renameStepBundle, selectedStepBundleId],
+    [renameStepBundle, selectedStepBundleId],
   );
 };
 
