@@ -13,8 +13,9 @@ export enum WorkflowsPageDialogType {
 }
 
 type State = {
-  workflowId: string;
   stepIndex: number;
+  workflowId: string;
+  parentWorkflowId: string;
   openedDialogType: WorkflowsPageDialogType;
   mountedDialogType: WorkflowsPageDialogType;
   _nextDialog?: Required<DialogParams>;
@@ -22,8 +23,9 @@ type State = {
 
 type DialogParams = {
   type: WorkflowsPageDialogType;
-  workflowId?: string;
   stepIndex?: number;
+  workflowId?: string;
+  parentWorkflowId?: string;
 };
 
 type Action = {
@@ -37,8 +39,9 @@ type Action = {
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
-  workflowId: '',
   stepIndex: -1,
+  workflowId: '',
+  parentWorkflowId: '',
   openedDialogType: WorkflowsPageDialogType.NONE,
   mountedDialogType: WorkflowsPageDialogType.NONE,
   setWorkflowId: (workflowId = '') => {
@@ -57,21 +60,26 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, workflowId = '', stepIndex = -1 }) => {
+  openDialog: ({ type, workflowId = '', parentWorkflowId = '', stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
           closeDialog();
+
           return {
-            workflowId,
-            stepIndex,
-            _nextDialog: { type, workflowId, stepIndex },
+            _nextDialog: {
+              type,
+              stepIndex,
+              workflowId,
+              parentWorkflowId,
+            },
           };
         }
 
         return {
-          workflowId,
           stepIndex,
+          workflowId,
+          parentWorkflowId,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
@@ -91,8 +99,9 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
       }
 
       return {
-        workflowId: '',
         stepIndex: -1,
+        workflowId: '',
+        parentWorkflowId: '',
         nextDialog: undefined,
         openedDialogType: WorkflowsPageDialogType.NONE,
         mountedDialogType: WorkflowsPageDialogType.NONE,
