@@ -9,6 +9,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import { LibraryType } from '@/core/models/Step';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
@@ -152,13 +153,26 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           workflowId,
           stepIndex,
         })(),
-      handleSelectStep: (workflowId: string, stepIndex: number) =>
-        openDialog({
-          type: PipelinesPageDialogType.STEP_CONFIG,
-          pipelineId: selectedPipeline,
-          workflowId,
-          stepIndex,
-        })(),
+      handleSelectStep: (workflowId: string, stepIndex: number, libraryType: LibraryType) => {
+        switch (libraryType) {
+          case LibraryType.BUNDLE:
+            openDialog({
+              type: PipelinesPageDialogType.STEP_BUNDLE,
+              pipelineId: selectedPipeline,
+              workflowId,
+              stepIndex,
+            })();
+            break;
+          default:
+            openDialog({
+              type: PipelinesPageDialogType.STEP_CONFIG,
+              pipelineId: selectedPipeline,
+              workflowId,
+              stepIndex,
+            })();
+            break;
+        }
+      },
       handleUpgradeStep: upgradeStep,
       handleMoveStep: (workflowId: string, stepIndex: number, targetIndex: number) => {
         moveStep(workflowId, stepIndex, targetIndex);

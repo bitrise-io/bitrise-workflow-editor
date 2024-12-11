@@ -3,6 +3,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ChainWorkflowDrawer,
   StartBuildDialog,
+  StepBundleDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
@@ -115,6 +116,17 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <StartBuildDialog
           pipelineId={pipelineId}
           isOpen={isDialogOpen(PipelinesPageDialogType.START_BUILD)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
+        <StepBundleDrawer
+          size="lg"
+          workflowId={workflowId}
+          stepIndex={stepIndex}
+          isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
