@@ -1,16 +1,19 @@
 import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
+
 import { StepInputVariable } from '@/core/models/Step';
+import StepCodeEditor from './StepCodeEditor';
 import StepInput from './StepInput';
 import StepSelectInput from './StepSelectInput';
 
 type Props = {
   title?: string;
+  stepId?: string;
   inputs?: StepInputVariable[];
   onChange?: (name: string, value: string | null) => void;
 };
 
-const StepInputGroup = ({ title, inputs, onChange }: Props) => {
+const StepInputGroup = ({ title, stepId, inputs, onChange }: Props) => {
   const content = (
     <>
       {inputs?.map(({ opts, ...input }, index) => {
@@ -18,12 +21,21 @@ const StepInputGroup = ({ title, inputs, onChange }: Props) => {
         const value = String(input[name] ?? '');
         const helper = { summary: opts?.summary, details: opts?.description };
         const isSelectInput = opts?.value_options && opts.value_options.length > 0;
+        const useCodeEditor = stepId === 'script' && name === 'content';
 
         return (
           <Fragment key={name}>
             {index > 0 && <Divider my={24} />}
 
-            {isSelectInput && (
+            {useCodeEditor && (
+              <StepCodeEditor
+                value={value}
+                label={opts?.title}
+                onChange={(changedValue) => onChange?.(name, changedValue ?? null)}
+              />
+            )}
+
+            {!useCodeEditor && isSelectInput && (
               <StepSelectInput
                 helper={helper}
                 label={opts?.title}
@@ -35,7 +47,7 @@ const StepInputGroup = ({ title, inputs, onChange }: Props) => {
               />
             )}
 
-            {!isSelectInput && (
+            {!useCodeEditor && !isSelectInput && (
               <StepInput
                 helper={helper}
                 label={opts?.title}
