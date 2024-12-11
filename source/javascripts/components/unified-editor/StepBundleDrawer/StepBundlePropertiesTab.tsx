@@ -22,7 +22,7 @@ const StepBundlesPropertiesTab = (props: StepBundlesPropertiesTabProps) => {
       label="Name"
       value={stepBundleId}
       sanitize={StepBundleService.sanitizeName}
-      validate={(v) => StepBundleService.validateName(v, stepBundleIds)}
+      validate={(v) => StepBundleService.validateName(v, stepBundleId, stepBundleIds)}
       onCommit={handleNameChange}
     />
   );
