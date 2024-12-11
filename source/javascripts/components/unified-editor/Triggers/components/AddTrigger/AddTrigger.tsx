@@ -8,7 +8,7 @@ import {
   TargetBasedTriggerItem,
   ConditionType,
   FormItems,
-} from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
+} from '@/components/unified-editor/Triggers/Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 

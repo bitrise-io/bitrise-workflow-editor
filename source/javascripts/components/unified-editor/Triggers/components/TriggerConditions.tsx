@@ -1,11 +1,11 @@
+import { Fragment } from 'react';
 import { Box, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
-import { Fragment } from 'react/jsx-runtime';
 import {
   Condition,
   ConditionType,
   LegacyConditionType,
   TriggerType,
-} from '../../../../pages/TriggersPage/components/TriggersPage/TriggersPage.types';
+} from '@/components/unified-editor/Triggers/Triggers.types';
 
 type TriggerConditionsProps = {
   conditions: Condition[];

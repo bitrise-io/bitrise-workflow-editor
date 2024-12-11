@@ -5,8 +5,8 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import LegacyTriggers from '../LegacyTriggers/LegacyTriggers';
-import TargetBasedTriggers from '../TargetBasedTriggers/TargetBasedTriggers';
+import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
+import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 

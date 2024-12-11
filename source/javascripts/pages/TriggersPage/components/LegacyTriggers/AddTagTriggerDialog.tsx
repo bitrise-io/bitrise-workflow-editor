@@ -13,8 +13,8 @@ import {
   Tooltip,
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { FormItems, TriggerItem } from '../TriggersPage/TriggersPage.types';
-import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
+import { FormItems, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];

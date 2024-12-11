@@ -14,15 +14,17 @@ import {
 import { isEqual } from 'es-toolkit';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import {
-  TargetBasedTriggerItem,
-  TargetBasedTriggers,
-  TriggerType,
-} from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { BitriseYml } from '@/core/models/BitriseYml';
+
+import {
+  TargetBasedTriggerItem,
+  TargetBasedTriggers,
+  TriggerType,
+} from '@/components/unified-editor/Triggers/Triggers.types';
+
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
 import { getConditionList, getPipelineableTriggers } from './Triggers.utils';

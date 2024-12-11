@@ -16,8 +16,8 @@ import {
 import { BitriseYml } from '@/core/models/BitriseYml';
 import useNavigation from '@/hooks/useNavigation';
 import { getConditionList, getPipelineableTriggers } from '@/components/unified-editor/Triggers/Triggers.utils';
-import { TriggerType } from '../TriggersPage/TriggersPage.types';
-import TriggerConditions from '../../../../components/unified-editor/Triggers/components/TriggerConditions';
+import { TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
+import TriggerConditions from '@/components/unified-editor/Triggers/components/TriggerConditions';
 
 const TYPE_MAP: Record<TriggerType, string> = {
   push: 'Push',

@@ -1,7 +1,12 @@
 import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
 import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
-import { ConditionType, TriggerItem, TriggerType, LegacyConditionType } from './TriggersPage.types';
+import {
+  ConditionType,
+  TriggerItem,
+  TriggerType,
+  LegacyConditionType,
+} from '@/components/unified-editor/Triggers/Triggers.types';
 
 const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
   if (type) {

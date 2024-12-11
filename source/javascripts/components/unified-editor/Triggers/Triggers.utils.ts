@@ -1,4 +1,4 @@
-import { isObject } from 'util';
+import { isObject } from 'es-toolkit/compat';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import WorkflowService from '@/core/models/WorkflowService';
 import {
@@ -7,7 +7,7 @@ import {
   TargetBasedTriggerItem,
   Condition,
   ConditionType,
-} from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
+} from '@/components/unified-editor/Triggers/Triggers.types';
 
 const looper = (
   pipelineableId: string,
