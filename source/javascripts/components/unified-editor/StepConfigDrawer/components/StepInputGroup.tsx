@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
 
 import { StepInputVariable } from '@/core/models/Step';
-import StepCodeEditor from '@/components/unified-editor/StepConfigDrawer/components/StepCodeEditor';
+import StepCodeEditor from './StepCodeEditor';
 import StepInput from './StepInput';
 import StepSelectInput from './StepSelectInput';
 
