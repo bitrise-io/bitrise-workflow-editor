@@ -28,7 +28,7 @@ import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import AddTrigger from './AddTrigger';
+import AddTrigger from './AddTrigger/AddTrigger';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
