@@ -31,15 +31,23 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
-  const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
-    useBitriseYmlStore((s) => ({
-      moveStep: s.moveStep,
-      cloneStep: s.cloneStep,
-      deleteStep: s.deleteStep,
-      upgradeStep: s.changeStepVersion,
-      setChainedWorkflows: s.setChainedWorkflows,
-      removeChainedWorkflow: s.removeChainedWorkflow,
-    }));
+  const {
+    moveStep,
+    cloneStep,
+    deleteStep,
+    upgradeStep,
+    moveStepInStepBundle,
+    setChainedWorkflows,
+    removeChainedWorkflow,
+  } = useBitriseYmlStore((s) => ({
+    moveStep: s.moveStep,
+    cloneStep: s.cloneStep,
+    deleteStep: s.deleteStep,
+    upgradeStep: s.changeStepVersion,
+    moveStepInStepBundle: s.moveStepInStepBundle,
+    setChainedWorkflows: s.setChainedWorkflows,
+    removeChainedWorkflow: s.removeChainedWorkflow,
+  }));
 
   useEffect(() => {
     const listener = (event: CustomEvent<boolean>) => {
@@ -208,6 +216,13 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [deleteStep, selectedWorkflowId, selectedStepIndex, closeDialog, setStepIndex],
   );
 
+  const handleMoveStepInStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number, targetIndex: number) => {
+      moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
+    },
+    [moveStepInStepBundle],
+  );
+
   return (
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
@@ -249,6 +264,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onSelectStep={openStepLikeDrawer}
           onAddStep={openStepSelectorDrawerFromWorkflow}
           onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}
+          onMoveStepInStepBundle={handleMoveStepInStepBundle}
         />
       </Box>
     </Box>

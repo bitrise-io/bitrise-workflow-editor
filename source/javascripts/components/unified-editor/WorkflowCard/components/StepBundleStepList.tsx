@@ -1,7 +1,7 @@
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { Box, EmptyState } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
@@ -28,7 +28,7 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
     return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
 
-  const { onAddStepToStepBundle } = useStepActions();
+  const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -39,7 +39,7 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
   }, [stepBundleId, steps]);
 
   const isEmpty = !steps.length;
-  const isSortable = true; // TODO: Boolean(onMoveStep);
+  const isSortable = Boolean(onMoveStepInStepBundle);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
   const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
@@ -58,16 +58,14 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
         setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
 
-        // TODO: Move steps inside the step_bundles section of the YML instead of the workflows section
-        //
-        // setTimeout(() => {
-        //   onMoveStep?.(workflowId, currentActiveIndex, currentOverIndex);
-        // }, defaultDropAnimation.duration);
+        setTimeout(() => {
+          onMoveStepInStepBundle?.(stepBundleId, currentActiveIndex, currentOverIndex);
+        }, defaultDropAnimation.duration);
       }
 
       setActiveItem(undefined);
     },
-    [sortableItems],
+    [onMoveStepInStepBundle, sortableItems, stepBundleId],
   );
 
   const handleDragCancel = useCallback(() => {
