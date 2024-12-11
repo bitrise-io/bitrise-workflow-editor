@@ -199,11 +199,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'remove',
         });
       },
-      handleAddStepToStepBundle: (workflowId: string, stepIndex: number) =>
+      handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) =>
         openDialog({
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
-          workflowId,
+          stepBundleId,
           stepIndex,
         })(),
       handleEditWorkflow: (workflowId: string, parentWorkflowId?: string) =>

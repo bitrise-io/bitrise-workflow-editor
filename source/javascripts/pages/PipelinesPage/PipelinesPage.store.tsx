@@ -16,6 +16,7 @@ export enum PipelinesPageDialogType {
 type State = {
   stepIndex: number;
   pipelineId: string;
+  stepBundleId: string;
   workflowId: string;
   parentWorkflowId: string;
   openedDialogType: PipelinesPageDialogType;
