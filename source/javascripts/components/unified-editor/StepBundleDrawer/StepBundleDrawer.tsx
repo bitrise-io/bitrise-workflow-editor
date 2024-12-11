@@ -1,5 +1,4 @@
-import { Tab, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
-import { TabList, TabPanel } from '@chakra-ui/react';
+import { Text } from '@bitrise/bitkit';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
@@ -22,9 +21,6 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep({ workflowId, stepIndex });
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { tabIndex, setTabIndex } = useTabs<'configuration' | 'properties'>({
-    tabIds: ['configuration', 'properties'],
-  });
   const stepBundleId = data?.title;
   const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
@@ -36,29 +32,22 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   }
 
   return (
-    <Tabs variant="line" index={tabIndex} onChange={setTabIndex}>
-      <FloatingDrawer {...props}>
-        <FloatingDrawerContent>
-          <FloatingDrawerCloseButton />
-          <FloatingDrawerHeader>
-            <Text as="h3" textStyle="heading/h3">
-              {stepBundleId}
-            </Text>
-            <Text color="text/secondary" textStyle="body/md/regular" marginBlockEnd="16">
-              {usedInWorkflowsText}
-            </Text>
-            <TabList>
-              <Tab>Properties</Tab>
-            </TabList>
-          </FloatingDrawerHeader>
-          <FloatingDrawerBody>
-            <TabPanels>
-              <TabPanel>{stepBundleId && <StepBundlePropertiesTab stepBundleId={stepBundleId} />}</TabPanel>
-            </TabPanels>
-          </FloatingDrawerBody>
-        </FloatingDrawerContent>
-      </FloatingDrawer>
-    </Tabs>
+    <FloatingDrawer {...props}>
+      <FloatingDrawerContent>
+        <FloatingDrawerCloseButton />
+        <FloatingDrawerHeader>
+          <Text as="h3" textStyle="heading/h3">
+            {stepBundleId}
+          </Text>
+          <Text color="text/secondary" textStyle="body/md/regular">
+            {usedInWorkflowsText}
+          </Text>
+        </FloatingDrawerHeader>
+        <FloatingDrawerBody>
+          {stepBundleId && <StepBundlePropertiesTab stepBundleId={stepBundleId} />}
+        </FloatingDrawerBody>
+      </FloatingDrawerContent>
+    </FloatingDrawer>
   );
 };
 

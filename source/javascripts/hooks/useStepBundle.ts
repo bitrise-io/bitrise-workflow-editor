@@ -1,7 +1,6 @@
-import { StepBundle } from '@/core/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const useStepBundle = (id: string): StepBundle | undefined => {
+const useStepBundle = (id: string): any => {
   return useBitriseYmlStore(({ yml }) => {
     const stepBundle = yml.step_bundles?.[id];
 
