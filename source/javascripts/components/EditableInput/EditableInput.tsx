@@ -18,7 +18,8 @@ const defaultValidateFn: Props['validate'] = () => true;
 const defaultSanitizeFn: Props['sanitize'] = (value) => value;
 
 const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidateFn, onCommit, ...props }: Props) => {
-  const { value, defaultValue, ...inputProps } = props;
+  const { size, value, defaultValue, ...inputProps } = props;
+  const buttonSize = size === 'lg' ? 'md' : 'sm';
 
   // TODO maybe useEditable hook from Chakra UI
   const [editable, updateEditable] = useReducer<Reducer<State, Partial<State>>>(
@@ -93,6 +94,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
   return (
     <Input
       {...inputProps}
+      size={size}
       value={editable.value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
@@ -104,16 +106,16 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
         editable.isEditing ? (
           <ButtonGroup justifyContent="center" spacing="0" m="4">
             <ControlButton
-              size="md"
+              size={buttonSize}
               iconName="Check"
               aria-label="Change"
               isDisabled={editable.validationResult !== true}
               onClick={handleCommit}
             />
-            <ControlButton size="md" aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
+            <ControlButton size={buttonSize} aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
           </ButtonGroup>
         ) : (
-          <ControlButton m="4" size="md" aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
+          <ControlButton m="4" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
         )
       }
     />

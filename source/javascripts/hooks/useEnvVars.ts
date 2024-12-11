@@ -27,7 +27,7 @@ const useAppLevelEnvVars = () => {
     const envVarMap = new Map<string, EnvVar>();
 
     s.yml.app?.envs?.forEach((envVarYml) => {
-      const env = EnvVarService.parseYmlEnvVar(envVarYml, 'app');
+      const env = EnvVarService.parseYmlEnvVar(envVarYml, 'Project env vars');
       envVarMap.set(env.key, env);
     });
 
@@ -42,7 +42,7 @@ const useWorkflowLevelEnvVars = (ids: string[]) => {
     ids.forEach((workflowId) => {
       WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
         s.yml.workflows?.[id]?.envs?.forEach((envVarYml) => {
-          const env = EnvVarService.parseYmlEnvVar(envVarYml, id);
+          const env = EnvVarService.parseYmlEnvVar(envVarYml, `Workflow: ${id}`);
           envVarMap.set(env.key, env);
         });
       });
@@ -86,7 +86,7 @@ const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
         result.forEach(({ data: step }) => {
           const source = step?.title || step?.id || step?.cvs || '';
           step?.defaultValues?.outputs?.forEach((ymlEnvVar) => {
-            const env = EnvVarService.parseYmlEnvVar(ymlEnvVar, source);
+            const env = EnvVarService.parseYmlEnvVar(ymlEnvVar, `Step: ${source}`);
             envVarMap.set(env.key, env);
           });
         });

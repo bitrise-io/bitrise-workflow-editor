@@ -76,9 +76,9 @@ const ConfigurationTab = () => {
         />
       </ExpandableCard>
 
-      {Object.entries(groupStepInputs(mergedValues.inputs) ?? {}).map(([title, inputs]) => {
-        return <StepInputGroup key={title} title={title} inputs={inputs} onChange={onInputValueChange} />;
-      })}
+      {Object.entries(groupStepInputs(mergedValues.inputs) ?? {}).map(([title, inputs]) => (
+        <StepInputGroup key={title} stepId={data?.id} title={title} inputs={inputs} onChange={onInputValueChange} />
+      ))}
     </Box>
   );
 };
