@@ -12,6 +12,9 @@ const EDITOR_OPTIONS = {
   stickyScroll: { enabled: true },
   contextmenu: false,
   minimap: { enabled: false },
+  padding: { top: 16, bottom: 16 },
+  suggestOnTriggerCharacters: true,
+  quickSuggestions: false,
 };
 
 type Props = {
@@ -34,7 +37,7 @@ const StepCodeEditor = ({ label, value, onChange }: Props) => {
       return;
     }
 
-    const contentHeight = editorInstance?.getContentHeight() || 0;
+    const contentHeight = Math.min(editorInstance?.getContentHeight() || 250, window.innerHeight * 0.5);
     requestAnimationFrame(() =>
       editorInstance?.layout({
         height: contentHeight,
@@ -44,15 +47,15 @@ const StepCodeEditor = ({ label, value, onChange }: Props) => {
   }, [editorInstance]);
 
   useEffect(() => {
-    editorInstance?.onDidChangeModelContent(updateEditorHeight);
+    editorInstance?.onDidContentSizeChange(updateEditorHeight);
     updateEditorHeight();
+    return undefined;
   }, [editorInstance, updateEditorHeight]);
 
   return (
     <Box display="flex" flexDir="column" gap="8px">
       {label && <Label>{label}</Label>}
       <Editor
-        height="initial"
         theme="vs-dark"
         defaultValue={value}
         options={EDITOR_OPTIONS}

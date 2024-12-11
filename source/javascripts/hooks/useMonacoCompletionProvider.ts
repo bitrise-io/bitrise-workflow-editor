@@ -15,18 +15,6 @@ const useEnvVarsAndSecretsCompletionProvider = ({ monaco, language }: Props) => 
     () => ({
       triggerCharacters: ['$'],
       provideCompletionItems: (model, position) => {
-        const textUntilPosition = model.getValueInRange({
-          startLineNumber: position.lineNumber,
-          startColumn: 1,
-          endLineNumber: position.lineNumber,
-          endColumn: position.column,
-        });
-
-        // Check if the last character is '$'
-        if (!textUntilPosition.endsWith('$')) {
-          return { suggestions: [] }; // Return empty suggestions if not triggered by '$'
-        }
-
         const word = model.getWordUntilPosition(position);
         const range = {
           startLineNumber: position.lineNumber,
