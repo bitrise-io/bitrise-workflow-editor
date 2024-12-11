@@ -35,7 +35,7 @@ type StepYmlObject = Omit<
   inputs?: StepInputVariable[];
   outputs?: StepOutputVariable[];
 };
-type StepBundleYmlObject = Extract<Steps[number][string], { steps?: StepYmlObject[] }>;
+type StepBundleYmlObject = Extract<Steps[number][string], { steps: StepYmlObject[] }>;
 type WithGroupYmlObject = Extract<
   Steps[number][string],
   {
