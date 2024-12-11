@@ -250,7 +250,10 @@ module.exports = {
 
   /* --- Plugins --- */
   plugins: [
-    new webpack.EnvironmentPlugin({ MODE: MODE || 'WEBSITE', NODE_ENV: NODE_ENV || 'development' }),
+    new webpack.EnvironmentPlugin({
+      MODE: MODE || 'WEBSITE',
+      NODE_ENV: NODE_ENV || 'development',
+    }),
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /.js$|.css$/,
