@@ -1,6 +1,6 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const useStepBundle = (id: string): any => {
+const useStepBundle = (id: string) => {
   return useBitriseYmlStore(({ yml }) => {
     const stepBundle = yml.step_bundles?.[id];
 
