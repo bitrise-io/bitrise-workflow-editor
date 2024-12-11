@@ -25,3 +25,11 @@ const meta: Meta<typeof StepConfigDrawer> = {
 export default meta;
 
 export const Default: Story = {};
+
+export const Script: Story = {
+  args: {
+    isOpen: true,
+    workflowId: 'steplib-steps',
+    stepIndex: 5,
+  },
+};
