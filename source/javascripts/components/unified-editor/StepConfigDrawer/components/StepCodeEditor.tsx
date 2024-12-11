@@ -37,7 +37,7 @@ const StepCodeEditor = ({ label, value, onChange }: Props) => {
       return;
     }
 
-    const contentHeight = editorInstance?.getContentHeight() || 250;
+    const contentHeight = Math.min(editorInstance?.getContentHeight() || 250, window.innerHeight * 0.5);
     requestAnimationFrame(() =>
       editorInstance?.layout({
         height: contentHeight,
