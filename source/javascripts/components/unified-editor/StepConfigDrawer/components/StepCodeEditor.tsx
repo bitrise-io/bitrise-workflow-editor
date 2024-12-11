@@ -10,6 +10,8 @@ const EDITOR_OPTIONS = {
   roundedSelection: false,
   scrollBeyondLastLine: false,
   stickyScroll: { enabled: true },
+  contextmenu: false,
+  minimap: { enabled: false },
 };
 
 type Props = {
