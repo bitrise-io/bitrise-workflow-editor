@@ -39,7 +39,6 @@ const useEnvVarsAndSecretsCompletionProvider = ({ monaco, language }: Props) => 
           label: item.key,
           insertText: item.key,
           detail: item.source,
-          documentation: item.source,
           kind: languages.CompletionItemKind.Variable,
           range,
         }));

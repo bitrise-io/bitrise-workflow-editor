@@ -72,7 +72,7 @@ function fromLocalResponse(response: LocalSecretItem): Secret {
   return {
     key: keyValue[0],
     value: keyValue[1] as string,
-    source: 'Bitrise.io',
+    source: 'Secrets',
     scope: response.opts?.scope || 'app',
     isExpand: Boolean(response.opts?.is_expand),
     isExpose: Boolean(response.opts?.meta?.['bitrise.io']?.is_expose),
