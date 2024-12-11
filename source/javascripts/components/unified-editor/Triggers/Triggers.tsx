@@ -19,11 +19,7 @@ import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
-import {
-  TargetBasedTriggerItem,
-  TargetBasedTriggers,
-  TriggerType,
-} from '@/components/unified-editor/Triggers/Triggers.types';
+import { TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
 
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';

@@ -7,7 +7,7 @@ import {
   TargetBasedTriggerItem,
   Condition,
   ConditionType,
-} from '@/components/unified-editor/Triggers/Triggers.types';
+} from './Triggers.types';
 
 const looper = (
   pipelineableId: string,

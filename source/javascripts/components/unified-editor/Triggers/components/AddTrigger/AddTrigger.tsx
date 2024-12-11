@@ -3,12 +3,7 @@ import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitris
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
-import {
-  TriggerType,
-  TargetBasedTriggerItem,
-  ConditionType,
-  FormItems,
-} from '@/components/unified-editor/Triggers/Triggers.types';
+import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 

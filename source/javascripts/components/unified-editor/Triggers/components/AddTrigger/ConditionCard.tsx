@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Box, Card, Checkbox, Icon, Input, Select, Text, Toggletip } from '@bitrise/bitkit';
-import { Condition } from '@/components/unified-editor/Triggers/Triggers.types';
+import { Condition } from '../../Triggers.types';
 
 type ConditionCardProps = {
   children: ReactNode;

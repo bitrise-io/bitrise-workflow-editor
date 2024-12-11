@@ -1,11 +1,6 @@
 import { Fragment } from 'react';
 import { Box, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
-import {
-  Condition,
-  ConditionType,
-  LegacyConditionType,
-  TriggerType,
-} from '@/components/unified-editor/Triggers/Triggers.types';
+import { Condition, ConditionType, LegacyConditionType, TriggerType } from '../Triggers.types';
 
 type TriggerConditionsProps = {
   conditions: Condition[];
