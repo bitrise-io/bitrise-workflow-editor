@@ -1,6 +1,6 @@
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import TriggersContent from '../../TriggersContent/TriggersContent';
+import Triggers from '@/components/unified-editor/Triggers/Triggers';
 
 const TriggersTab = () => {
   const workflow = useWorkflowConfigContext();
@@ -16,7 +16,7 @@ const TriggersTab = () => {
   }
 
   return (
-    <TriggersContent
+    <Triggers
       additionalTrackingData={{ tab_name: 'workflows', workflow_name: workflow.id }}
       id={workflow.id}
       triggers={workflow.userValues.triggers}

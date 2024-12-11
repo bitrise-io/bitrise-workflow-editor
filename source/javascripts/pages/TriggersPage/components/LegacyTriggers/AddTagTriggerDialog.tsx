@@ -1,7 +1,18 @@
 import { useEffect, useMemo } from 'react';
-import { Button, Dialog, DialogBody, DialogFooter, Input, Select, Text, Tooltip } from '@bitrise/bitkit';
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  Icon,
+  Input,
+  Select,
+  Text,
+  Toggletip,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import RegexCheckbox from '@/components/unified-editor/TriggersContent/AddTrigger/RegexCheckbox';
 import { FormItems, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
 
@@ -101,11 +112,19 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             Define a tag and select a Pipeline or Workflow for execution on Bitrise whenever the tag is pushed to your
             repository.
           </Text>
-
-          <RegexCheckbox
+          <Checkbox
+            marginBottom="16"
             isChecked={isRegex}
             onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
-          />
+          >
+            Use regex pattern
+            <Toggletip
+              label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method."
+              learnMoreUrl="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
+            >
+              <Icon name="Info" size="16" marginLeft="5" />
+            </Toggletip>
+          </Checkbox>
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (

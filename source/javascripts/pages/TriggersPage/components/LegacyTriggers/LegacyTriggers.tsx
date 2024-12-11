@@ -35,7 +35,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { TriggerType, TriggerItem } from '../TriggersPage/TriggersPage.types';
-import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPageFunctions';
+import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPage.utils';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';

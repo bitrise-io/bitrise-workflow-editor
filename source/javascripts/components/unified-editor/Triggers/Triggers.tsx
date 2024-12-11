@@ -19,16 +19,13 @@ import {
   TargetBasedTriggers,
   TriggerType,
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
-import TriggerConditions from '@/pages/TriggersPage/components/TargetBasedTriggers/TriggerConditions';
-import {
-  getConditionList,
-  getPipelineableTriggers,
-} from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import AddTrigger from './AddTrigger/AddTrigger';
+import AddTrigger from './components/AddTrigger/AddTrigger';
+import TriggerConditions from './components/TriggerConditions';
+import { getConditionList, getPipelineableTriggers } from './Triggers.utils';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
@@ -116,7 +113,7 @@ const TriggerItem = (props: TriggerItemProps) => {
   );
 };
 
-type TriggersContentProps = {
+type TriggersProps = {
   additionalTrackingData: Record<string, string>;
   id: string;
   triggers: TargetBasedTriggers;
@@ -125,7 +122,7 @@ type TriggersContentProps = {
   yml: BitriseYml;
 };
 
-const TriggersContent = (props: TriggersContentProps) => {
+const Triggers = (props: TriggersProps) => {
   const { additionalTrackingData, id, triggers: triggersProp, updateTriggers, updateTriggersEnabled, yml } = props;
 
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
@@ -373,4 +370,4 @@ const TriggersContent = (props: TriggersContentProps) => {
   );
 };
 
-export default TriggersContent;
+export default Triggers;

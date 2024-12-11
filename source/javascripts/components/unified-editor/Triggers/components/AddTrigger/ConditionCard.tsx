@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
-import { Box, Card, Input, Select, Text } from '@bitrise/bitkit';
+import { Box, Card, Checkbox, Icon, Input, Select, Text, Toggletip } from '@bitrise/bitkit';
 import { Condition } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
-import RegexCheckbox from './RegexCheckbox';
 
 type ConditionCardProps = {
   children: ReactNode;
@@ -49,10 +48,19 @@ const ConditionCard = (props: ConditionCardProps) => {
       />
       {!!type && (
         <>
-          <RegexCheckbox
+          <Checkbox
+            marginBottom="16"
             isChecked={isRegex}
             onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
-          />
+          >
+            Use regex pattern
+            <Toggletip
+              label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method."
+              learnMoreUrl="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
+            >
+              <Icon name="Info" size="16" marginLeft="5" />
+            </Toggletip>
+          </Checkbox>
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (

@@ -1,15 +1,91 @@
 import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import WorkflowService from '@/core/models/WorkflowService';
-import {
-  Condition,
-  ConditionType,
-  DecoratedPipelineableTriggerItem,
-  TargetBasedTriggerItem,
-  TriggerItem,
-  TriggerType,
-} from './TriggersPage.types';
+import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
+import { ConditionType, TriggerItem, TriggerType, LegacyConditionType } from './TriggersPage.types';
+
+const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
+  if (type) {
+    return type;
+  }
+  if (triggerKeys.includes('push_branch')) {
+    return 'push';
+  }
+  if (triggerKeys.includes('tag')) {
+    return 'tag';
+  }
+  return 'pull_request';
+};
+
+export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMapYml => {
+  const triggerMap: TriggerMapYml = Object.values(triggers)
+    .flat()
+    .map((trigger) => {
+      const finalItem: TriggerYmlObject = {};
+      trigger.conditions.forEach(({ isRegex, type, value }) => {
+        finalItem[type as LegacyConditionType] = isRegex ? { regex: value } : value;
+      });
+      if (!trigger.isActive) {
+        finalItem.enabled = false;
+      }
+      if (trigger.source === 'pull_request' && !trigger.isDraftPr) {
+        finalItem.draft_pull_request_enabled = false;
+      }
+      finalItem.type = trigger.source;
+      const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
+      finalItem[pipelinableType as 'workflow' | 'pipeline'] = pipelinableName;
+      return finalItem;
+    });
+
+  return triggerMap;
+};
+
+export const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<TriggerType, TriggerItem[]> => {
+  const triggers: Record<TriggerType, TriggerItem[]> = {
+    pull_request: [],
+    push: [],
+    tag: [],
+  };
+
+  triggerMap.forEach((trigger) => {
+    const triggerKeys = Object.keys(trigger) as (keyof TriggerYmlObject)[];
+    const source = getSourceType(triggerKeys, trigger.type as TriggerType);
+    const finalItem: TriggerItem = {
+      conditions: [],
+      pipelineable: trigger.workflow as string,
+      id: crypto.randomUUID(),
+      source,
+      isActive: trigger.enabled !== false,
+    };
+
+    if (source === 'pull_request') {
+      if (trigger.draft_pull_request_enabled !== false) {
+        finalItem.isDraftPr = true;
+      } else {
+        finalItem.isDraftPr = false;
+      }
+    }
+
+    if (trigger.workflow) {
+      finalItem.pipelineable = `workflow#${trigger.workflow}`;
+    }
+    if (trigger.pipeline) {
+      finalItem.pipelineable = `pipeline#${trigger.pipeline}`;
+    }
+
+    triggerKeys.forEach((key) => {
+      if (!['workflow', 'enabled', 'draft_pull_request_enabled', 'type', 'pipeline'].includes(key)) {
+        const isRegex = isObject(trigger[key]);
+        finalItem.conditions.push({
+          isRegex,
+          type: key as ConditionType,
+          value: isRegex ? (trigger[key] as { regex: string }).regex : (trigger[key] as string),
+        });
+      }
+    });
+    triggers[source].push(finalItem);
+  });
+  return triggers;
+};
 
 export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
   let isUsed = false;
@@ -32,68 +108,4 @@ export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger
     });
   });
   return isUsed;
-};
-
-const looper = (
-  pipelineableId: string,
-  pipelineableType: DecoratedPipelineableTriggerItem['pipelineableType'],
-  type: TriggerType,
-  array?: TargetBasedTriggerItem[],
-) => {
-  const decoratedTriggerItems: DecoratedPipelineableTriggerItem[] = [];
-  if (array?.length) {
-    array.forEach((trigger) => {
-      decoratedTriggerItems.push({
-        pipelineableId,
-        pipelineableType,
-        type,
-        ...trigger,
-      });
-    });
-  }
-  return decoratedTriggerItems;
-};
-
-export const getPipelineableTriggers = (yml: BitriseYml) => {
-  let pipelineableTriggers: DecoratedPipelineableTriggerItem[] = [];
-  if (yml.pipelines) {
-    Object.entries(yml.pipelines).forEach(([id, p]) => {
-      if (p.triggers) {
-        pipelineableTriggers = pipelineableTriggers.concat(
-          looper(id, 'pipeline', 'pull_request', p.triggers.pull_request as TargetBasedTriggerItem[]),
-          looper(id, 'pipeline', 'push', p.triggers.push as TargetBasedTriggerItem[]),
-          looper(id, 'pipeline', 'tag', p.triggers.tag as TargetBasedTriggerItem[]),
-        );
-      }
-    });
-  }
-  if (yml.workflows) {
-    Object.entries(yml.workflows).forEach(([id, w]) => {
-      if (!WorkflowService.isUtilityWorkflow(id) && w.triggers) {
-        pipelineableTriggers = pipelineableTriggers.concat(
-          looper(id, 'workflow', 'pull_request', w.triggers.pull_request as TargetBasedTriggerItem[]),
-          looper(id, 'workflow', 'push', w.triggers.push as TargetBasedTriggerItem[]),
-          looper(id, 'workflow', 'tag', w.triggers.tag as TargetBasedTriggerItem[]),
-        );
-      }
-    });
-  }
-
-  return pipelineableTriggers;
-};
-
-export const getConditionList = (trigger: TargetBasedTriggerItem) => {
-  const conditions: Condition[] = [];
-  const triggerKeys = Object.keys(trigger) as (keyof TargetBasedTriggerItem)[];
-  triggerKeys.forEach((key) => {
-    if (!['enabled', 'pipelineableId', 'pipelineableType', 'type', 'draft_enabled'].includes(key)) {
-      const isRegex = isObject(trigger[key]);
-      conditions.push({
-        isRegex,
-        type: key as ConditionType,
-        value: isRegex ? (trigger[key] as any).regex : (trigger[key] as string),
-      });
-    }
-  });
-  return conditions;
 };

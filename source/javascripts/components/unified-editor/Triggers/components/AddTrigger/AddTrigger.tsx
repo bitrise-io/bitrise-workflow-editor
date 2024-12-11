@@ -9,7 +9,7 @@ import {
   ConditionType,
   FormItems,
 } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.types';
-import { getConditionList } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
+import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {

@@ -15,9 +15,9 @@ import {
 } from '@bitrise/bitkit';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import useNavigation from '@/hooks/useNavigation';
-import { getConditionList, getPipelineableTriggers } from '../TriggersPage/TriggersPage.utils';
+import { getConditionList, getPipelineableTriggers } from '@/components/unified-editor/Triggers/Triggers.utils';
 import { TriggerType } from '../TriggersPage/TriggersPage.types';
-import TriggerConditions from './TriggerConditions';
+import TriggerConditions from '../../../../components/unified-editor/Triggers/components/TriggerConditions';
 
 const TYPE_MAP: Record<TriggerType, string> = {
   push: 'Push',
@@ -121,18 +121,17 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                       />
                     </Td>
                     <Td display="flex" justifyContent="flex-end" alignItems="center">
-                      {trigger.pipelineableType === 'workflow' && (
-                        <ControlButton
-                          aria-label="Edit trigger"
-                          iconName="Pencil"
-                          onClick={() =>
-                            replace('/workflows', { workflow_id: trigger.pipelineableId, tab: 'triggers' })
+                      <ControlButton
+                        aria-label="Edit trigger"
+                        iconName="Pencil"
+                        onClick={() => {
+                          if (trigger.pipelineableType === 'workflow') {
+                            replace('/workflows', { workflow_id: trigger.pipelineableId, tab: 'triggers' });
+                          } else {
+                            replace('/pipelines', { pipeline: trigger.pipelineableId });
                           }
-                        />
-                      )}
-                      {trigger.pipelineableType === 'pipeline' && (
-                        <ControlButton aria-label="Edit in YAML" iconName="Pencil" onClick={() => replace('/yml')} />
-                      )}
+                        }}
+                      />
                     </Td>
                   </Tr>
                 ))}

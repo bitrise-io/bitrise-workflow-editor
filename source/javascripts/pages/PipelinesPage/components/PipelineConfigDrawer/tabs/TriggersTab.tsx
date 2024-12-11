@@ -1,4 +1,4 @@
-import TriggersContent from '@/components/unified-editor/TriggersContent/TriggersContent';
+import Triggers from '@/components/unified-editor/Triggers/Triggers';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
@@ -13,7 +13,7 @@ const TriggersTab = ({ pipelineId }: Props) => {
   }));
 
   return (
-    <TriggersContent
+    <Triggers
       additionalTrackingData={{ tab_name: 'pipelines', pipeline_name: pipelineId }}
       id={pipelineId}
       triggers={yml.pipelines?.[pipelineId].triggers}

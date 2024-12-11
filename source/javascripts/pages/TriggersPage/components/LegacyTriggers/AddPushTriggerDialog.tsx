@@ -15,7 +15,7 @@ import {
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
-import ConditionCard from '@/components/unified-editor/TriggersContent/AddTrigger/ConditionCard';
+import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
 import { FormItems, LegacyPushConditionType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
 

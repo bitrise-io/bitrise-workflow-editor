@@ -41,10 +41,10 @@ pipelines:
       wf5:
         depends_on:
           - wf4
-  pl1:
     triggers:
       push:
         - branch: main
+  pl1:
     stages:
       - st1: {}
   pl2:
