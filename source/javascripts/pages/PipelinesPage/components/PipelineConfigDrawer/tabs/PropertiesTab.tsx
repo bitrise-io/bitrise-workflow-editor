@@ -3,18 +3,17 @@ import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import PipelineService from '@/core/models/PipelineService';
 import EditableInput from '@/components/EditableInput/EditableInput';
-import { FloatingDrawerProps } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import DeletePipelineDialog from '../components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = {
-  onClose: FloatingDrawerProps['onClose'];
+  onDelete: () => void;
   pipelineId: string;
 };
 
-const PropertiesTab = ({ onClose, pipelineId }: Props) => {
+const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
   const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { keys, onSelectPipeline } = usePipelineSelector();
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
@@ -47,10 +46,10 @@ const PropertiesTab = ({ onClose, pipelineId }: Props) => {
 
   const onDeletePipeline = useCallback(
     (deletedId: string) => {
-      onClose();
+      onDelete();
       onSelectPipeline(keys.filter((key) => key !== deletedId)[0]);
     },
-    [keys, onClose, onSelectPipeline],
+    [keys, onDelete, onSelectPipeline],
   );
 
   return (
