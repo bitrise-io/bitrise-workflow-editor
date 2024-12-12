@@ -54,7 +54,7 @@
     "stepDefinitions": "spec/integration"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.184.0",
+    "@bitrise/bitkit": "^13.186.0",
     "@bitrise/react2angular": "^5.0.0",
     "@bitrise/steplib-search": "^2.3.0",
     "@chakra-ui/react": "^2.8.2",

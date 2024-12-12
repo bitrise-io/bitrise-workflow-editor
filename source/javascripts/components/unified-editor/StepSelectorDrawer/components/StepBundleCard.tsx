@@ -15,10 +15,12 @@ import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList
 type StepBundleCardProps = StepCardProps & {
   cvs: string;
   isCollapsable?: boolean;
+  isPreviewMode?: boolean;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const { cvs, isCollapsable, isDragging, isSortable, stepBundleId, stepIndex, uniqueId, workflowId } = props;
+  const { cvs, isCollapsable, isDragging, isPreviewMode, isSortable, stepBundleId, stepIndex, uniqueId, workflowId } =
+    props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
@@ -122,7 +124,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 {...sortable.attributes}
               />
             )}
-            <Box display="flex" flexGrow={1} alignItems="center" padding="6px 8px 6px 0px" gap="4" className="group">
+            <Box
+              display="flex"
+              flexGrow={1}
+              alignItems="center"
+              padding={isPreviewMode ? '6px 8px' : '6px 8px 6px 0px'}
+              gap="4"
+              className="group"
+            >
               {isCollapsable && (
                 <ControlButton
                   size="xs"
