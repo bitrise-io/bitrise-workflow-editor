@@ -25,7 +25,10 @@ export type StepActions = {
   onCloneStep?: (workflowId: string, stepIndex: number) => void;
   onDeleteStep?: (workflowId: string, stepIndex: number) => void;
   onAddStepToStepBundle?: (stepBundleId: string, stepIndex: number) => void;
+  onCloneStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
+  onDeleteStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
   onMoveStepInStepBundle?: (stepBundleId: string, stepIndex: number, targetIndex: number) => void;
+  onUpgradeStepInStepBundle?: (stepBundleId: string, stepIndex: number, version: string) => void;
 };
 
 export type SortableWorkflowItem = {

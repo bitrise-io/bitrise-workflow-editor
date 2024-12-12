@@ -195,7 +195,7 @@ function addStepToStepBundle(stepBundleId: string, cvs: string, to: number, yml:
   return copy;
 }
 
-function changeStepVersionInStepBundles(stepBundleId: string, stepIndex: number, version: string, yml: BitriseYml) {
+function changeStepVersionInStepBundle(stepBundleId: string, stepIndex: number, version: string, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
@@ -214,6 +214,21 @@ function changeStepVersionInStepBundles(stepBundleId: string, stepIndex: number,
   return copy;
 }
 
+function cloneStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const clonedIndex = stepIndex + 1;
+  const clonedStep = copy.step_bundles[stepBundleId].steps[stepIndex];
+  copy.step_bundles[stepBundleId].steps.splice(clonedIndex, 0, clonedStep);
+
+  return copy;
+}
+
 function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -227,20 +242,19 @@ function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleI
   return copy;
 }
 
-function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
+function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  // If the step bundle is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]) {
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
     return copy;
   }
 
-  // Remove step bundle from `step_bundles` section of the YML
-  delete copy.step_bundles[stepBundleId];
+  copy.step_bundles[stepBundleId].steps.splice(stepIndex, 1);
 
-  // Remove the whole `step_bundles` section in the YML if empty
-  if (shouldRemoveField(copy.step_bundles, yml.step_bundles)) {
-    delete copy.step_bundles;
+  // If the steps are empty, remove it
+  if (shouldRemoveField(copy.step_bundles[stepBundleId].steps, yml.step_bundles?.[stepBundleId]?.steps)) {
+    delete copy.step_bundles[stepBundleId].steps;
   }
 
   return copy;
@@ -287,6 +301,35 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
       }),
     );
   }
+
+  return copy;
+}
+
+function updateStepInStepBundle(
+  stepBundleId: string,
+  stepIndex: number,
+  newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const [cvs, stepYmlObject] = Object.entries(copy.step_bundles[stepBundleId].steps[stepIndex])[0];
+
+  mapValues(newValues, (value: string, key: never) => {
+    if (value === defaultValues[key] || shouldRemoveField(value, stepYmlObject[key])) {
+      delete stepYmlObject[key];
+    } else {
+      stepYmlObject[key] = value as never;
+    }
+  });
+
+  copy.step_bundles[stepBundleId].steps[stepIndex] = { [cvs]: stepYmlObject };
 
   return copy;
 }
@@ -1145,11 +1188,13 @@ export default {
   updateStepInputs,
   deleteStep,
   addStepToStepBundle,
-  changeStepVersionInStepBundles,
+  changeStepVersionInStepBundle,
+  cloneStepInStepBundle,
   createStepBundle,
+  deleteStepInStepBundle,
   moveStepInStepBundle,
-  deleteStepBundle,
   renameStepBundle,
+  updateStepInStepBundle,
   createWorkflow,
   renameWorkflow,
   updateWorkflow,

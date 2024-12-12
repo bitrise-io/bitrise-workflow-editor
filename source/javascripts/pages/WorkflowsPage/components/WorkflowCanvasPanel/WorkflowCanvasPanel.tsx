@@ -36,7 +36,10 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     cloneStep,
     deleteStep,
     upgradeStep,
+    cloneStepInStepBundle,
+    deleteStepInStepBundle,
     moveStepInStepBundle,
+    upgradeStepInStepBundle,
     setChainedWorkflows,
     removeChainedWorkflow,
   } = useBitriseYmlStore((s) => ({
@@ -44,7 +47,10 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     cloneStep: s.cloneStep,
     deleteStep: s.deleteStep,
     upgradeStep: s.changeStepVersion,
+    cloneStepInStepBundle: s.cloneStepInStepBundle,
+    deleteStepInStepBundle: s.deleteStepInStepBundle,
     moveStepInStepBundle: s.moveStepInStepBundle,
+    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
     setChainedWorkflows: s.setChainedWorkflows,
     removeChainedWorkflow: s.removeChainedWorkflow,
   }));
@@ -216,9 +222,45 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [deleteStep, selectedWorkflowId, selectedStepIndex, closeDialog, setStepIndex],
   );
 
+  const handleCloneStepInStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number) => {
+      cloneStepInStepBundle(stepBundleId, stepIndex);
+
+      // TODO: Adjust index if the selected step is cloned
+      // if (wfId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+      //   setStepIndex(selectedStepIndex + 1);
+      // }
+    },
+    [cloneStepInStepBundle],
+  );
+
+  const handleDeleteStepInStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number) => {
+      deleteStepInStepBundle(stepBundleId, stepIndex);
+
+      // TODO:
+      // Close the dialog if the selected step is deleted
+      // if (wfId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+      //   closeDialog();
+      // }
+
+      // Adjust index if a step is deleted before the selected step
+      // if (wfId === selectedWorkflowId && stepIndex < selectedStepIndex) {
+      //   setStepIndex(selectedStepIndex - 1);
+      // }
+    },
+    [deleteStepInStepBundle],
+  );
+
   const handleMoveStepInStepBundle = useCallback(
     (stepBundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
+
+      // TODO:
+      // Adjust index if the selected step is moved
+      // if (wfId === selectedWorkflowId && selectedStepIndex === stepIndex) {
+      //   setStepIndex(targetIndex);
+      // }
     },
     [moveStepInStepBundle],
   );
@@ -264,7 +306,10 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onSelectStep={openStepLikeDrawer}
           onAddStep={openStepSelectorDrawerFromWorkflow}
           onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}
+          onCloneStepInStepBundle={handleCloneStepInStepBundle}
+          onDeleteStepInStepBundle={handleDeleteStepInStepBundle}
           onMoveStepInStepBundle={handleMoveStepInStepBundle}
+          onUpgradeStepInStepBundle={upgradeStepInStepBundle}
         />
       </Box>
     </Box>

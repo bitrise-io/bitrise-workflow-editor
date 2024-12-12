@@ -86,11 +86,18 @@ type BitriseYmlStoreState = {
 
   // Step Bundle related actions
   addStepToStepBundle: (stepBundleId: string, cvs: string, to: number) => void;
-  changeStepVersionInStepBundles: (stepBundleId: string, stepIndex: number, version: string) => void;
+  changeStepVersionInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => void;
+  cloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
   createStepBundle: (stepBundleId: string, baseStepBundleId?: string) => void;
+  deleteStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
   moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
   renameStepBundle: (stepBundleId: string, newStepBundleId: string) => void;
-  deleteStepBundle: (stepBundleId: string) => void;
+  updateStepInStepBundle: (
+    stepBundleId: string,
+    stepIndex: number,
+    newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+    defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  ) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -373,10 +380,10 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    changeStepVersionInStepBundles: (stepBundleId, stepIndex, version) => {
+    changeStepVersionInStepBundle: (stepBundleId, stepIndex, version) => {
       return set((state) => {
         return {
-          yml: BitriseYmlService.changeStepVersionInStepBundles(stepBundleId, stepIndex, version, state.yml),
+          yml: BitriseYmlService.changeStepVersionInStepBundle(stepBundleId, stepIndex, version, state.yml),
         };
       });
     },
@@ -387,10 +394,17 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    deleteStepBundle(stepBundleId) {
+    cloneStepInStepBundle(stepBundleId, stepIndex) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.deleteStepBundle(stepBundleId, state.yml),
+          yml: BitriseYmlService.cloneStepInStepBundle(stepBundleId, stepIndex, state.yml),
+        };
+      });
+    },
+    deleteStepInStepBundle(stepBundleId, stepIndex) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deleteStepInStepBundle(stepBundleId, stepIndex, state.yml),
         };
       });
     },
@@ -405,6 +419,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.renameStepBundle(stepBundleId, newStepBundleId, state.yml),
+        };
+      });
+    },
+    updateStepInStepBundle: (stepBundleId, stepIndex, newValues, defaultValues) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, defaultValues, state.yml),
         };
       });
     },

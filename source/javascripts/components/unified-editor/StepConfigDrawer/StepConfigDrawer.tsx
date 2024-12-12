@@ -24,9 +24,9 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 
 const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
   const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
-  const { changeStepVersion, changeStepVersionInStepBundles } = useBitriseYmlStore((s) => ({
+  const { changeStepVersion, changeStepVersionInStepBundle } = useBitriseYmlStore((s) => ({
     changeStepVersion: s.changeStepVersion,
-    changeStepVersionInStepBundles: s.changeStepVersionInStepBundles,
+    changeStepVersionInStepBundle: s.changeStepVersionInStepBundle,
   }));
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
@@ -78,7 +78,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                         textStyle="body/sm/regular"
                         onClick={() => {
                           if (stepBundleId) {
-                            changeStepVersionInStepBundles(stepBundleId, stepIndex, latestMajorVersion);
+                            changeStepVersionInStepBundle(stepBundleId, stepIndex, latestMajorVersion);
                           } else {
                             changeStepVersion(workflowId, stepIndex, latestMajorVersion);
                           }

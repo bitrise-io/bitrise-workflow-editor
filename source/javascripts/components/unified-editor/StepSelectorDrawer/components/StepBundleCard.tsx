@@ -157,8 +157,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             </Box>
           </Box>
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-            <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} />
+            <Box p="8" ref={containerRef}>
+              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} isPreviewMode={isPreviewMode} />
             </Box>
           </Collapse>
         </>
