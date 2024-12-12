@@ -10,11 +10,11 @@ import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store
 import DeletePipelineDialog from '../components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = {
-  closeDrawer: FloatingDrawerProps['onClose'];
+  onClose: FloatingDrawerProps['onClose'];
   pipelineId: string;
 };
 
-const PropertiesTab = ({ closeDrawer, pipelineId }: Props) => {
+const PropertiesTab = ({ onClose, pipelineId }: Props) => {
   const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { keys, onSelectPipeline } = usePipelineSelector();
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
@@ -47,10 +47,10 @@ const PropertiesTab = ({ closeDrawer, pipelineId }: Props) => {
 
   const onDeletePipeline = useCallback(
     (deletedId: string) => {
-      closeDrawer();
+      onClose();
       onSelectPipeline(keys.filter((key) => key !== deletedId)[0]);
     },
-    [keys, closeDrawer, onSelectPipeline],
+    [keys, onClose, onSelectPipeline],
   );
 
   return (

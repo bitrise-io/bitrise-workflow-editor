@@ -5,10 +5,9 @@ import Triggers from '@/components/unified-editor/Triggers/Triggers';
 const TriggersTab = () => {
   const workflow = useWorkflowConfigContext();
 
-  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled, yml } = useBitriseYmlStore((s) => ({
+  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore((s) => ({
     updateWorkflowTriggers: s.updateWorkflowTriggers,
     updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
-    yml: s.yml,
   }));
 
   if (!workflow) {
@@ -22,7 +21,6 @@ const TriggersTab = () => {
       triggers={workflow.userValues.triggers}
       updateTriggers={updateWorkflowTriggers}
       updateTriggersEnabled={updateWorkflowTriggersEnabled}
-      yml={yml}
     />
   );
 };

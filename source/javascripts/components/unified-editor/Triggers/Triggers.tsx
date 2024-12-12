@@ -17,8 +17,8 @@ import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
-import { BitriseYml } from '@/core/models/BitriseYml';
 
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
 
 import AddTrigger from './components/AddTrigger/AddTrigger';
@@ -117,11 +117,10 @@ type TriggersProps = {
   triggers: TargetBasedTriggers;
   updateTriggers: BitriseYmlStoreState['updateWorkflowTriggers'];
   updateTriggersEnabled: BitriseYmlStoreState['updateWorkflowTriggersEnabled'];
-  yml: BitriseYml;
 };
 
 const Triggers = (props: TriggersProps) => {
-  const { additionalTrackingData, id, triggers: triggersProp, updateTriggers, updateTriggersEnabled, yml } = props;
+  const { additionalTrackingData, id, triggers: triggersProp, updateTriggers, updateTriggersEnabled } = props;
 
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTriggerItem } | undefined>(
@@ -136,14 +135,17 @@ const Triggers = (props: TriggersProps) => {
 
   const triggers: TargetBasedTriggers = deepCloneSimpleObject(triggersProp || {});
 
-  const triggersInProject = getPipelineableTriggers(yml);
+  const { triggersInProject, numberOfLegacyTriggers } = useBitriseYmlStore(({ yml }) => ({
+    triggersInProject: getPipelineableTriggers(yml),
+    numberOfLegacyTriggers: yml.trigger_map?.length || 0,
+  }));
 
   const trackingData = {
     number_of_existing_target_based_triggers_on_target: triggersInProject.filter(
       ({ pipelineableId }) => pipelineableId === id,
     ).length,
     number_of_existing_target_based_triggers_in_project: triggersInProject.length,
-    number_of_existing_trigger_map_triggers_in_project: yml.trigger_map?.length || 0,
+    number_of_existing_trigger_map_triggers_in_project: numberOfLegacyTriggers,
     is_target_based_triggers_enabled_on_target: triggers.enabled !== false,
     ...additionalTrackingData,
   };

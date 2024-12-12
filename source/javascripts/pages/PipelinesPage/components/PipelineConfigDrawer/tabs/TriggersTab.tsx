@@ -6,20 +6,19 @@ type Props = {
 };
 
 const TriggersTab = ({ pipelineId }: Props) => {
-  const { updatePipelineTriggers, updatePipelineTriggersEnabled, yml } = useBitriseYmlStore((s) => ({
+  const { triggers, updatePipelineTriggers, updatePipelineTriggersEnabled } = useBitriseYmlStore((s) => ({
+    triggers: s.yml.pipelines?.[pipelineId].triggers,
     updatePipelineTriggers: s.updatePipelineTriggers,
     updatePipelineTriggersEnabled: s.updatePipelineTriggersEnabled,
-    yml: s.yml,
   }));
 
   return (
     <Triggers
       additionalTrackingData={{ tab_name: 'pipelines', pipeline_name: pipelineId }}
       id={pipelineId}
-      triggers={yml.pipelines?.[pipelineId].triggers}
+      triggers={triggers}
       updateTriggers={updatePipelineTriggers}
       updateTriggersEnabled={updatePipelineTriggersEnabled}
-      yml={yml}
     />
   );
 };

@@ -37,7 +37,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
           <FloatingDrawerBody>
             <TabPanels>
               <TabPanel>
-                <PropertiesTab closeDrawer={props.onClose} pipelineId={pipelineId} />
+                <PropertiesTab onClose={props.onClose} pipelineId={pipelineId} />
               </TabPanel>
               <TabPanel>
                 <TriggersTab pipelineId={pipelineId} />
