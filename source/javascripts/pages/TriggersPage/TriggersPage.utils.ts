@@ -1,8 +1,27 @@
+import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
 import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
-import { ConditionType, LegacyConditionType, TriggerItem, TriggerType } from './TriggersPage.types';
+import {
+  ConditionType,
+  TriggerItem,
+  TriggerType,
+  LegacyConditionType,
+} from '@/components/unified-editor/Triggers/Triggers.types';
 
-const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMapYml => {
+const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
+  if (type) {
+    return type;
+  }
+  if (triggerKeys.includes('push_branch')) {
+    return 'push';
+  }
+  if (triggerKeys.includes('tag')) {
+    return 'tag';
+  }
+  return 'pull_request';
+};
+
+export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMapYml => {
   const triggerMap: TriggerMapYml = Object.values(triggers)
     .flat()
     .map((trigger) => {
@@ -25,20 +44,7 @@ const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>):
   return triggerMap;
 };
 
-const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
-  if (type) {
-    return type;
-  }
-  if (triggerKeys.includes('push_branch')) {
-    return 'push';
-  }
-  if (triggerKeys.includes('tag')) {
-    return 'tag';
-  }
-  return 'pull_request';
-};
-
-const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<TriggerType, TriggerItem[]> => {
+export const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<TriggerType, TriggerItem[]> => {
   const triggers: Record<TriggerType, TriggerItem[]> = {
     pull_request: [],
     push: [],
@@ -86,4 +92,25 @@ const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<TriggerType
   return triggers;
 };
 
-export { convertItemsToTriggerMap, convertTriggerMapToItems, getSourceType };
+export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
+  let isUsed = false;
+  currentTriggers.forEach(({ conditions, id }) => {
+    const newConditions = newTrigger.conditions.map((c) => {
+      if (c.value === '') {
+        return {
+          ...c,
+          value: '*',
+        };
+      }
+      return c;
+    });
+    conditions.forEach((c) => {
+      newConditions.forEach((newC) => {
+        if (isEqual(c, newC) && id !== newTrigger.id) {
+          isUsed = true;
+        }
+      });
+    });
+  });
+  return isUsed;
+};

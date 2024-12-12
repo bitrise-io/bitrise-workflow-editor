@@ -1,57 +1,13 @@
-import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import { Condition, ConditionType, TriggerItem, TriggerType } from './TriggersPage.types';
-
-export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
-  let isUsed = false;
-  currentTriggers.forEach(({ conditions, id }) => {
-    const newConditions = newTrigger.conditions.map((c) => {
-      if (c.value === '') {
-        return {
-          ...c,
-          value: '*',
-        };
-      }
-      return c;
-    });
-    conditions.forEach((c) => {
-      newConditions.forEach((newC) => {
-        if (isEqual(c, newC) && id !== newTrigger.id) {
-          isUsed = true;
-        }
-      });
-    });
-  });
-  return isUsed;
-};
-
-type StringOrRegex =
-  | string
-  | {
-      regex: string;
-    };
-
-export type TargetBasedTriggerItem = {
-  branch?: StringOrRegex;
-  changed_files?: StringOrRegex;
-  commit_message?: StringOrRegex;
-  comment?: StringOrRegex;
-  draft_enabled?: boolean;
-  enabled?: boolean;
-  label?: StringOrRegex;
-  source_branch?: StringOrRegex;
-  target_branch?: StringOrRegex;
-  tag?: StringOrRegex;
-};
-
-export type TargetBasedTriggers = Record<TriggerType, TargetBasedTriggerItem[]> & { enabled?: boolean };
-
-export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
-  pipelineableId: string;
-  pipelineableType: 'pipeline' | 'workflow';
-  type: TriggerType;
-}
+import WorkflowService from '@/core/models/WorkflowService';
+import {
+  DecoratedPipelineableTriggerItem,
+  TriggerType,
+  TargetBasedTriggerItem,
+  Condition,
+  ConditionType,
+} from './Triggers.types';
 
 const looper = (
   pipelineableId: string,
@@ -88,7 +44,7 @@ export const getPipelineableTriggers = (yml: BitriseYml) => {
   }
   if (yml.workflows) {
     Object.entries(yml.workflows).forEach(([id, w]) => {
-      if (w.triggers) {
+      if (!WorkflowService.isUtilityWorkflow(id) && w.triggers) {
         pipelineableTriggers = pipelineableTriggers.concat(
           looper(id, 'workflow', 'pull_request', w.triggers.pull_request as TargetBasedTriggerItem[]),
           looper(id, 'workflow', 'push', w.triggers.push as TargetBasedTriggerItem[]),
