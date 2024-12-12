@@ -1,3 +1,4 @@
+import { BitriseYml } from '@/core/models/BitriseYml';
 import { WorkflowYmlObject } from './Workflow';
 
 const BITRISE_STEP_LIBRARY_URL = 'https://github.com/bitrise-io/bitrise-steplib.git';
@@ -68,10 +69,12 @@ type WithGroup = {
 type StepBundle = {
   cvs: string;
   id: string;
-  title: string;
-  icon: string;
+  title?: string;
+  icon?: string;
   userValues: StepBundleYmlObject;
 };
+
+type StepBundles = Required<BitriseYml>['step_bundles'];
 
 type StepLike = Step | WithGroup | StepBundle;
 
@@ -130,4 +133,5 @@ export {
   VariableOpts,
   Maintainer,
   LibraryType,
+  StepBundles,
 };

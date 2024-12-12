@@ -25,7 +25,16 @@ const StepListItem = (props: StepCardProps) => {
   const isStepBundle = StepService.isStepBundle(cvs, defaultStepLibrary);
 
   if (enableStepBundles && isStepBundle) {
-    return <StepBundleCard isCollapsable id={cvs.replace('bundle::', '')} />;
+    return (
+      <StepBundleCard
+        isCollapsable
+        cvs={cvs}
+        stepIndex={stepIndex}
+        stepBundleId={stepBundleId}
+        workflowId={workflowId}
+        {...rest}
+      />
+    );
   }
 
   return <StepCard stepIndex={stepIndex} stepBundleId={stepBundleId} workflowId={workflowId} {...rest} />;

@@ -180,6 +180,117 @@ function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bit
   return copy;
 }
 
+function addStepToStepBundle(stepBundleId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]) {
+    return copy;
+  }
+
+  const steps = copy.step_bundles[stepBundleId].steps ?? [];
+  steps.splice(to, 0, { [cvs]: {} });
+  copy.step_bundles[stepBundleId].steps = steps;
+
+  return copy;
+}
+
+function changeStepVersionInStepBundles(stepBundleId: string, stepIndex: number, version: string, yml: BitriseYml) {
+  const copy = deepCloneSimpleObject(yml);
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.step_bundles[stepBundleId].steps[stepIndex] = mapKeys(
+    copy.step_bundles[stepBundleId].steps[stepIndex],
+    (_, cvs) => {
+      return StepService.updateVersion(String(cvs), defaultStepLibrary, version);
+    },
+  );
+
+  return copy;
+}
+
+function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.step_bundles = {
+    ...copy.step_bundles,
+    ...{
+      [stepBundleId]: baseStepBundleId ? (copy.step_bundles?.[baseStepBundleId] ?? {}) : {},
+    },
+  };
+
+  return copy;
+}
+
+function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]) {
+    return copy;
+  }
+
+  // Remove step bundle from `step_bundles` section of the YML
+  delete copy.step_bundles[stepBundleId];
+
+  // Remove the whole `step_bundles` section in the YML if empty
+  if (shouldRemoveField(copy.step_bundles, yml.step_bundles)) {
+    delete copy.step_bundles;
+  }
+
+  return copy;
+}
+
+function moveStepInStepBundle(stepBundleId: string, stepIndex: number, to: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.step_bundles[stepBundleId].steps.splice(to, 0, copy.step_bundles[stepBundleId].steps.splice(stepIndex, 1)[0]);
+
+  return copy;
+}
+
+function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.step_bundles) {
+    copy.step_bundles = Object.fromEntries(
+      Object.entries(copy.step_bundles).map(([id, stepBundle]) => {
+        return [id === stepBundleId ? newStepBundleId : id, stepBundle];
+      }),
+    );
+  }
+
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).map(([workflowId, workflow]) => {
+        let renamedSteps = workflow.steps;
+        if (workflow.steps) {
+          renamedSteps = workflow.steps.map((step: any) => {
+            const [stepId, stepDetails] = Object.entries(step)[0];
+            if (stepId === `bundle::${stepBundleId}`) {
+              return { [`bundle::${newStepBundleId}`]: stepDetails };
+            }
+            return step;
+          });
+        }
+        return [workflowId, { ...workflow, steps: renamedSteps }];
+      }),
+    );
+  }
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1033,6 +1144,12 @@ export default {
   changeStepVersion,
   updateStepInputs,
   deleteStep,
+  addStepToStepBundle,
+  changeStepVersionInStepBundles,
+  createStepBundle,
+  moveStepInStepBundle,
+  deleteStepBundle,
+  renameStepBundle,
   createWorkflow,
   renameWorkflow,
   updateWorkflow,

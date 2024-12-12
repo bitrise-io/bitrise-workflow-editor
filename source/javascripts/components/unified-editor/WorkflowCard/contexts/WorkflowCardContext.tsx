@@ -78,7 +78,17 @@ const useStepActions = (): StepActions => {
   }
 
   return useMemo(
-    () => pick(methods, ['onAddStep', 'onSelectStep', 'onMoveStep', 'onUpgradeStep', 'onCloneStep', 'onDeleteStep']),
+    () =>
+      pick(methods, [
+        'onAddStep',
+        'onSelectStep',
+        'onMoveStep',
+        'onUpgradeStep',
+        'onCloneStep',
+        'onDeleteStep',
+        'onAddStepToStepBundle',
+        'onMoveStepInStepBundle',
+      ]),
     [methods],
   );
 };

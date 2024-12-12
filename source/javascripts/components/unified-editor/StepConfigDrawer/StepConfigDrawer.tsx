@@ -17,13 +17,17 @@ import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
+  stepBundleId?: string;
   workflowId: string;
   stepIndex: number;
 };
 
-const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>) => {
-  const { workflowId, stepIndex, data } = useStepDrawerContext();
-  const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
+const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
+  const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
+  const { changeStepVersion, changeStepVersionInStepBundles } = useBitriseYmlStore((s) => ({
+    changeStepVersion: s.changeStepVersion,
+    changeStepVersionInStepBundles: s.changeStepVersionInStepBundles,
+  }));
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
@@ -72,7 +76,13 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
                       <Text
                         cursor="pointer"
                         textStyle="body/sm/regular"
-                        onClick={() => changeStepVersion(workflowId, stepIndex, latestMajorVersion)}
+                        onClick={() => {
+                          if (stepBundleId) {
+                            changeStepVersionInStepBundles(stepBundleId, stepIndex, latestMajorVersion);
+                          } else {
+                            changeStepVersion(workflowId, stepIndex, latestMajorVersion);
+                          }
+                        }}
                       >
                         Latest version: {latestVersion}
                       </Text>
@@ -110,9 +120,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
   );
 };
 
-const StepConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, ...props }: Props) => {
   return (
-    <StepConfigDrawerProvider workflowId={workflowId} stepIndex={stepIndex}>
+    <StepConfigDrawerProvider workflowId={workflowId} stepBundleId={stepBundleId} stepIndex={stepIndex}>
       <StepConfigDrawerContent {...props} />
     </StepConfigDrawerProvider>
   );
