@@ -13,8 +13,6 @@ const EDITOR_OPTIONS = {
   contextmenu: false,
   minimap: { enabled: false },
   padding: { top: 16, bottom: 16 },
-  suggestOnTriggerCharacters: true,
-  quickSuggestions: false,
 };
 
 type Props = {
