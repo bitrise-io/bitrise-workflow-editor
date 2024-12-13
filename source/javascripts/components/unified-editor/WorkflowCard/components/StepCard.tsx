@@ -73,6 +73,7 @@ export type StepCardProps = {
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
+  isPreviewMode?: boolean;
   showSecondary?: boolean;
 };
 
@@ -82,6 +83,7 @@ const StepCard = ({
   stepIndex,
   isSortable,
   isDragging,
+  isPreviewMode,
   showSecondary = true,
   stepBundleId,
 }: StepCardProps) => {
@@ -152,6 +154,10 @@ const StepCard = ({
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
 
+    if (!isPreviewMode) {
+      return { ...common, _hover: { borderColor: 'border/hover', cursor: 'pointer' } };
+    }
+
     if (isPlaceholder) {
       return {
         ...common,
@@ -170,13 +176,12 @@ const StepCard = ({
     if (isButton) {
       return {
         ...common,
-        _hover: { borderColor: 'border/hover' },
         ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
       } as CardProps;
     }
 
     return common;
-  }, [isPlaceholder, isHighlighted, isButton, isDragging]);
+  }, [isDragging, isPreviewMode, isPlaceholder, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {

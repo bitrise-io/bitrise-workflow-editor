@@ -87,6 +87,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     handleDeleteStep,
     handleUpgradeStep,
     handleAddStepToStepBundle,
+    handleCloneStepInStepBundle,
     handleDeleteStepInStepBundle,
     handleMoveStepInStepBundle,
     handleUpgradeStepInStepBundle,
@@ -344,6 +345,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         onDeleteStep={handleDeleteStep}
         onUpgradeStep={handleUpgradeStep}
         onAddStepToStepBundle={handleAddStepToStepBundle}
+        onCloneStepInStepBundle={handleCloneStepInStepBundle}
         onDeleteStepInStepBundle={handleDeleteStepInStepBundle}
         onMoveStepInStepBundle={handleMoveStepInStepBundle}
         onUpgradeStepInStepBundle={handleUpgradeStepInStepBundle}

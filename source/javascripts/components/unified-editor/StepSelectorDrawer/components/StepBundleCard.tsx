@@ -118,7 +118,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             {isSortable && (
               <DragHandle
                 withGroupHover
-                borderLeftRadius="4"
                 ref={sortable.setActivatorNodeRef}
                 {...sortable.listeners}
                 {...sortable.attributes}
