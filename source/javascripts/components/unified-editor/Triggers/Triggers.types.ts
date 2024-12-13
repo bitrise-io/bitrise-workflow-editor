@@ -1,3 +1,5 @@
+import { WorkflowYmlObject } from '@/core/models/Workflow';
+
 export type LegacyTagConditionType = 'tag';
 
 export type TagConditionType = 'name';
@@ -52,4 +54,31 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   }[];
   isDraftPr?: boolean;
   isActive: boolean;
+}
+
+type StringOrRegex =
+  | string
+  | {
+      regex: string;
+    };
+
+export type TargetBasedTriggerItem = {
+  branch?: StringOrRegex;
+  changed_files?: StringOrRegex;
+  commit_message?: StringOrRegex;
+  comment?: StringOrRegex;
+  draft_enabled?: boolean;
+  enabled?: boolean;
+  label?: StringOrRegex;
+  source_branch?: StringOrRegex;
+  target_branch?: StringOrRegex;
+  tag?: StringOrRegex;
+};
+
+export type TargetBasedTriggers = WorkflowYmlObject['triggers'];
+
+export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
+  pipelineableId: string;
+  pipelineableType: 'pipeline' | 'workflow';
+  type: TriggerType;
 }

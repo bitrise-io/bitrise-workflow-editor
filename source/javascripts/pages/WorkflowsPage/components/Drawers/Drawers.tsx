@@ -28,6 +28,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setWorkflowId,
     unmountDialog,
     isDialogMounted,
+    parentWorkflowId,
   } = useWorkflowsPageStore();
 
   const { addStep, addStepToStepBundle, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
@@ -153,6 +154,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           size="lg"
           context="workflow"
           workflowId={workflowId}
+          parentWorkflowId={parentWorkflowId}
           onRename={handleRenameWorkflow}
           isOpen={isDialogOpen(WorkflowsPageDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}

@@ -2,7 +2,6 @@ import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy } from 'es
 import { isEmpty, isNumber } from 'es-toolkit/compat';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
-import { TargetBasedTriggers } from '@/pages/TriggersPage/components/TriggersPage/TriggersPage.utils';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
@@ -940,11 +939,52 @@ function updateWorkflowTriggersEnabled(workflowId: string, isEnabled: boolean, y
   }
 
   if (isEnabled === true) {
-    delete (copy.workflows[workflowId].triggers as TargetBasedTriggers).enabled;
+    if (copy.workflows[workflowId].triggers) {
+      delete copy.workflows[workflowId].triggers.enabled;
+    }
   } else {
     copy.workflows[workflowId].triggers = {
       enabled: false,
       ...(copy.workflows[workflowId].triggers || {}),
+    };
+  }
+
+  return copy;
+}
+
+function updatePipelineTriggers(
+  pipelineID: string,
+  triggers: PipelineYmlObject['triggers'],
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the pipeline is missing in the YML just return the YML
+  if (!copy.pipelines?.[pipelineID]) {
+    return copy;
+  }
+
+  copy.pipelines[pipelineID].triggers = triggers;
+
+  return copy;
+}
+
+function updatePipelineTriggersEnabled(pipelineId: string, isEnabled: boolean, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the pipeline is missing in the YML just return the YML
+  if (!copy.pipelines?.[pipelineId]) {
+    return copy;
+  }
+
+  if (isEnabled === true) {
+    if (copy.pipelines[pipelineId].triggers) {
+      delete copy.pipelines[pipelineId].triggers.enabled;
+    }
+  } else {
+    copy.pipelines[pipelineId].triggers = {
+      enabled: false,
+      ...(copy.pipelines[pipelineId].triggers || {}),
     };
   }
 
@@ -1221,4 +1261,6 @@ export default {
   updateWorkflowEnvVars,
   updateWorkflowTriggers,
   updateWorkflowTriggersEnabled,
+  updatePipelineTriggers,
+  updatePipelineTriggersEnabled,
 };

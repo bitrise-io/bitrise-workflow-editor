@@ -10,6 +10,7 @@ import WorkflowConfigProvider from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
+import TriggersTab from './tabs/TriggersTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
@@ -25,7 +26,7 @@ const WorkflowConfigDrawerContent = ({ context, parentWorkflowId, onRename, ...p
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
-            <WorkflowConfigHeader context={context} variant="drawer" />
+            <WorkflowConfigHeader context={context} variant="drawer" parentWorkflowId={parentWorkflowId} />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
             <TabPanels>
@@ -34,6 +35,9 @@ const WorkflowConfigDrawerContent = ({ context, parentWorkflowId, onRename, ...p
               </TabPanel>
               <TabPanel>
                 <PropertiesTab variant="drawer" onRename={onRename} />
+              </TabPanel>
+              <TabPanel>
+                <TriggersTab />
               </TabPanel>
             </TabPanels>
           </FloatingDrawerBody>

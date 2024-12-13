@@ -272,6 +272,20 @@ const BitriseYmlSchema = {
           type: 'object',
         },
         triggers: {
+          properties: {
+            enabled: {
+              type: 'boolean',
+            },
+            pull_request: {
+              type: 'array',
+            },
+            push: {
+              type: 'array',
+            },
+            tag: {
+              type: 'array',
+            },
+          },
           type: 'object',
         },
       },
@@ -643,6 +657,9 @@ const BitriseYmlSchema = {
         },
         triggers: {
           properties: {
+            enabled: {
+              type: 'boolean',
+            },
             pull_request: {
               type: 'array',
             },
