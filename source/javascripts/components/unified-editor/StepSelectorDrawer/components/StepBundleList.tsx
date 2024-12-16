@@ -1,38 +1,35 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
-import { useModalContext } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { SearchFormValues, SelectStepHandlerFn } from '../StepSelectorDrawer.types';
+import useSearch from '../hooks/useSearch';
+import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
 import SelectableStepBundleCard from './SelectableStepBundleCard';
 
 type StepBundleListProps = {
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepBundleList = (props: StepBundleListProps) => {
-  const { onSelectStep } = props;
-  const { yml } = useBitriseYmlStore((s) => ({ yml: s.yml }));
-  const { onClose } = useModalContext();
+const StepBundleList = ({ onSelectStep }: StepBundleListProps) => {
+  const bundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
+  const filterStepBundles = useSearch((s) => s.searchStepBundle);
+  const setSearchStepBundle = useSearch((s) => s.setSearchStepBundle);
 
-  const { reset, watch } = useFormContext<SearchFormValues>();
-  const { filterStepBundles } = watch();
-
-  const stepBundlesLength = Object.keys(yml.step_bundles || {}).length;
-
-  const filteredItems = Object.keys(yml.step_bundles || {}).filter((id) => {
-    const lowerCaseFilterString = filterStepBundles?.toLowerCase();
+  const filteredItems = bundleIds.filter((id) => {
+    const lowerCaseFilterString = filterStepBundles.toLowerCase();
     if (typeof id === 'string' && id.toLowerCase().includes(lowerCaseFilterString || '')) {
       return true;
     }
     return false;
   });
 
-  const handleClick = (id: string) => {
-    onSelectStep(`bundle::${id}`);
-    onClose();
+  const reset = () => {
+    setSearchStepBundle('');
   };
 
-  if (stepBundlesLength === 0) {
+  const handleClick = (id: string) => {
+    onSelectStep(`bundle::${id}`);
+  };
+
+  if (bundleIds.length === 0) {
     return (
       <EmptyState
         iconName="Steps"
@@ -53,13 +50,12 @@ const StepBundleList = (props: StepBundleListProps) => {
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((id) => <SelectableStepBundleCard id={id} onClick={() => handleClick(id)} key={id} />)
+    filteredItems.map((id) => <SelectableStepBundleCard key={id} id={id} onClick={() => handleClick(id)} />)
   ) : (
     <EmptyState
       iconName="Magnifier"
       title="No Step bundles are matching your filter"
       description="Modify your filters to get results."
-      marginBlockStart="16"
     >
       <Button variant="secondary" onClick={() => reset()}>
         Clear filters

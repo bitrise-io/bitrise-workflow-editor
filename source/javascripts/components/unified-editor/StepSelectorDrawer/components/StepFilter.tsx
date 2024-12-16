@@ -1,50 +1,36 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Box, BoxProps, SearchInput, SelectableTag, SelectableTagGroup } from '@bitrise/bitkit';
-import { Controller } from 'react-hook-form';
 
 import { useAlgoliaSteps } from '@/hooks/useAlgolia';
 import StepService from '@/core/models/StepService';
-import { SearchFormValues } from '../StepSelectorDrawer.types';
-import { formValueToArray } from '../StepSelectorDrawer.utils';
+import useSearch from '../hooks/useSearch';
 
-const StepFilter = (props: BoxProps) => {
+const StepFilterCategories = memo(() => {
   const { data: steps = [] } = useAlgoliaSteps();
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
 
+  const value = useSearch((s) => s.searchStepCategories);
+  const onChange = useSearch((s) => s.setSearchStepCategories);
+
+  return (
+    <SelectableTagGroup rowGap="16" columnGap="8" display="flex" flexWrap="wrap" value={value} onChange={onChange}>
+      {categories.map((category) => (
+        <SelectableTag key={category} value={category}>
+          {category}
+        </SelectableTag>
+      ))}
+    </SelectableTagGroup>
+  );
+});
+
+const StepFilter = (props: BoxProps) => {
+  const value = useSearch((s) => s.searchStep);
+  const onChange = useSearch((s) => s.setSearchStep);
+
   return (
     <Box display="flex" flexDir="column" gap="16" {...props}>
-      <Controller<SearchFormValues>
-        name="searchSteps"
-        render={({ field: { ref, onChange, ...rest } }) => (
-          <SearchInput
-            autoFocus
-            inputRef={ref}
-            placeholder="Filter by name or description..."
-            onChange={(value) => onChange({ target: { value } })}
-            {...rest}
-          />
-        )}
-      />
-      <Controller<SearchFormValues>
-        name="categories"
-        render={({ field: { ref, value, ...rest } }) => (
-          <SelectableTagGroup
-            display="flex"
-            flexWrap="wrap"
-            columnGap="8"
-            rowGap="16"
-            mb={24}
-            value={formValueToArray(value || '')}
-            {...rest}
-          >
-            {categories.map((category) => (
-              <SelectableTag key={category} value={category}>
-                {category}
-              </SelectableTag>
-            ))}
-          </SelectableTagGroup>
-        )}
-      />
+      <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
+      <StepFilterCategories />
     </Box>
   );
 };

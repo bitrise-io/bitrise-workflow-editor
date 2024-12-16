@@ -23,7 +23,6 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           padding="8px 12px"
           textAlign="left"
           _hover={{ borderColor: 'border/hover' }}
-          marginBlockStart="16"
           onClick={() => onClick(id)}
         >
           <Text textStyle="body/lg/semibold" marginBlockEnd="4">

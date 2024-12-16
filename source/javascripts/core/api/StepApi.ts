@@ -310,6 +310,7 @@ async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable
 export { AlgoliaStepResponse, AlgoliaStepInputResponse, StepInfo, StepApiResult };
 
 export default {
+  getAlgoliaClients,
   getAlgoliaSteps,
   getAlgoliaStepByCvs,
   getAlgoliaStepInputsByCvs,

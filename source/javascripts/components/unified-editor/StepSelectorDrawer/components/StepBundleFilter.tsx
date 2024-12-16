@@ -1,22 +1,13 @@
 import { BoxProps, SearchInput } from '@bitrise/bitkit';
-import { Controller } from 'react-hook-form';
-import { SearchFormValues } from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.types';
+import useSearch from '../hooks/useSearch';
 
-const StepBundleFilter = (props: BoxProps) => {
-  return (
-    <Controller<SearchFormValues>
-      name="filterStepBundles"
-      render={({ field: { ref, onChange, ...rest } }) => (
-        <SearchInput
-          inputRef={ref}
-          placeholder="Filter by name..."
-          {...rest}
-          {...props}
-          onChange={(value) => onChange({ target: { value } })}
-        />
-      )}
-    />
-  );
+type Props = BoxProps;
+
+const StepBundleFilter = (props: Props) => {
+  const value = useSearch((s) => s.searchStepBundle);
+  const onChange = useSearch((s) => s.setSearchStepBundle);
+
+  return <SearchInput autoFocus placeholder="Filter by name..." {...props} value={value} onChange={onChange} />;
 };
 
 export default StepBundleFilter;
