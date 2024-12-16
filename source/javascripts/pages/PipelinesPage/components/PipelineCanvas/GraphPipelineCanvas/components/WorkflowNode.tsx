@@ -78,7 +78,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     onResize: ({ height }) => updateNode(id, { height }),
   });
 
-  const basedOn = 'basedOn' in data ? data.basedOn : undefined;
+  const uses = 'uses' in data ? data.uses : undefined;
 
   const {
     handleAddStep,
@@ -169,7 +169,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       }
     }
 
-    if (basedOn) {
+    if (uses) {
       return {
         handleRemoveWorkflow: (deletedWorkflowId: string) => {
           deleteElements({ nodes: [{ id: deletedWorkflowId }] });
@@ -301,8 +301,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
     };
   }, [
+    uses,
     isGraphPipelinesEnabled,
-    basedOn,
     upgradeStep,
     upgradeStepInStepBundle,
     workflows,
@@ -353,7 +353,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       <WorkflowCard
         id={id}
         isCollapsable
-        basedOn={basedOn}
+        uses={uses}
         containerProps={containerProps}
         selectedStepIndex={selectedStepIndex}
         selectedWorkflowId={selectedWorkflowId}

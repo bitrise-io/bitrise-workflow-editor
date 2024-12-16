@@ -14,13 +14,13 @@ import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
 type ContentProps = {
   id: string;
-  basedOn?: string;
+  uses?: string;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
-const WorkflowCardContent = memo(({ id, basedOn, isCollapsable, containerProps }: ContentProps) => {
-  const workflowId = basedOn || id;
+const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: ContentProps) => {
+  const workflowId = uses || id;
 
   const containerRef = useRef(null);
   const workflow = useWorkflow(workflowId);
@@ -74,10 +74,10 @@ const WorkflowCardContent = memo(({ id, basedOn, isCollapsable, containerProps }
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <Text textStyle="body/md/semibold" hasEllipsis>
-            {basedOn ? id : workflow.userValues.title || id}
+            {uses ? id : workflow.userValues.title || id}
           </Text>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {basedOn ? `Based on ${basedOn}` : stack.name || 'Unknown stack'}
+            {uses ? `Uses ${uses}` : stack.name || 'Unknown stack'}
           </Text>
         </Box>
 
@@ -148,7 +148,7 @@ type Props = ContentProps & WorkflowActions & StepActions & Selection;
 
 const WorkflowCard = ({
   id,
-  basedOn,
+  uses,
   isCollapsable,
   containerProps,
   selectedWorkflowId = '',
@@ -160,7 +160,7 @@ const WorkflowCard = ({
     selectedStepIndex={selectedStepIndex}
     {...actions}
   >
-    <WorkflowCardContent id={id} basedOn={basedOn} isCollapsable={isCollapsable} containerProps={containerProps} />
+    <WorkflowCardContent id={id} uses={uses} isCollapsable={isCollapsable} containerProps={containerProps} />
   </WorkflowCardContextProvider>
 );
 
