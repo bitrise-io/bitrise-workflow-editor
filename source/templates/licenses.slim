@@ -10,6 +10,6 @@
 					h4
 						strong.workflow-id[ng-bind="workflow.id"]
 						span == data[:strings][:stack][:workflow_id_postfix]
-					select[no-placeholder="" ng-model-options="{getterSetter: true, updateOn: 'change'}" ng-options="item as item.name for item in licenses track by item.id" ng-model="licenseCtrl.workflowLicenseFactory(workflow)" ]
+					select.mak[no-placeholder="" ng-model-options="{getterSetter: true, updateOn: 'change'}" ng-options="item as item.name for item in licenses track by item.id" ng-model="licenseCtrl.workflowLicenseFactory(workflow)" ]
 			div[ng-if="licenses.length == 0"]
 				a.rebo.purple ng-href="{{ licensePoolsUrl }}" Add license pool

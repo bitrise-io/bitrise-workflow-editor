@@ -4,8 +4,6 @@
 // Major layouts
 
 @import "_index.scss.erb";
-@import "_tab-workflows.scss.erb";
-@import "_tab-secrets.scss.erb";
 @import "_tab-env_vars.scss.erb";
 @import "_tab-stack.scss.erb";
 @import "_tab-licenses.scss.erb";
@@ -15,11 +13,8 @@
 @import "_rebo";
 @import "_cardo";
 @import "_popup.scss.erb";
-@import "_popover.scss.erb";
 @import "_notification-progress-indicator.scss.erb";
-@import "_file_uploader";
 @import "_order-by-drag";
-@import "_clear-value";
 
 @import "~monaco-editor/min/vs/editor/editor.main.css";
 
@@ -211,61 +206,6 @@ input[type="submit"] {
         left: 5px;
       }
     }
-  }
-}
-
-.eye-checkbox {
-  $transition_duration: $def-transition_duration;
-
-  z-index: $zindex-checkbox;
-  position: relative;
-  @include size(32px, 26px);
-  @include border-radius($def-radius);
-  overflow: hidden;
-
-  input[type="checkbox"] {
-    @include size(100%);
-    @include appearance(none);
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .checkbox-svg-wrapper {
-    z-index: -1;
-    @include position(absolute, 0, 0);
-    @include size(100%);
-    opacity: 0.6;
-
-    span.eye,
-    span.crossed-eye {
-      @include position(absolute, 50%, null, null, 50%);
-      @include transform(translateX(-50%) translateY(-50%));
-      @include transition(opacity $transition_duration);
-
-      svg {
-        display: block;
-        @include size(22px, 14px);
-        fill: $def-mediumdarkgrey;
-      }
-    }
-  }
-
-  input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
-    span.eye {
-      display: none;
-    }
-  }
-
-  input[type="checkbox"]:checked + .checkbox-svg-wrapper {
-    span.crossed-eye {
-      display: none;
-    }
-  }
-
-  input[type="checkbox"]:hover + .checkbox-svg-wrapper,
-  input[type="checkbox"]:focus + .checkbox-svg-wrapper {
-    opacity: 1;
   }
 }
 
