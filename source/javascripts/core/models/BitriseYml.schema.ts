@@ -303,7 +303,7 @@ const BitriseYmlSchema = {
     },
     GraphPipelineWorkflowModel: {
       properties: {
-        based_on: {
+        uses: {
           type: 'string',
         },
         depends_on: {
