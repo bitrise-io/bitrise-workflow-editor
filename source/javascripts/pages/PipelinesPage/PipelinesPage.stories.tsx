@@ -123,7 +123,7 @@ const withWorkflowOverrideYml = () => {
 
   if (yml.pipelines?.['graph-pipeline']?.workflows) {
     yml.pipelines['graph-pipeline'].workflows.override = {
-      based_on: 'wf3',
+      uses: 'wf3',
       depends_on: ['wf1'],
     };
   }
