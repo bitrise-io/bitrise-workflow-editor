@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
-import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import { StepCardProps } from '@/components/unified-editor/WorkflowCard/components/StepCard';
 import { LibraryType } from '@/core/models/Step';
 import DragHandle from '@/components/DragHandle/DragHandle';
@@ -25,6 +25,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
+  const { isSelected } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
 
@@ -51,6 +52,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     ),
   };
 
+  const isHighlighted = workflowId && isSelected(workflowId, stepIndex);
   const isPlaceholder = sortable.isDragging;
 
   const cardProps = useMemo(() => {
@@ -74,8 +76,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       } satisfies CardProps;
     }
 
-    return common;
-  }, [isDragging, isPlaceholder]);
+    return { ...common, ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}) };
+  }, [isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
     if (!workflowId || isDragging || (!onDeleteStep && !onSelectStep)) {
@@ -90,7 +92,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             aria-label="Settings"
             size="xs"
             onClick={() => {
-              onSelectStep(stepIndex, LibraryType.BUNDLE, workflowId);
+              onSelectStep({ stepIndex, type: LibraryType.BUNDLE, wfId: workflowId });
             }}
           />
         )}

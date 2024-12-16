@@ -19,7 +19,7 @@ export type WorkflowActions = {
 
 export type StepActions = {
   onAddStep?: (workflowId: string, stepIndex: number) => void;
-  onSelectStep?: (stepIndex: number, libraryType: LibraryType, stepBundleId?: string, workflowId?: string) => void;
+  onSelectStep?: (props: { stepIndex: number; type: LibraryType; stepBundleId?: string; wfId?: string }) => void;
   onMoveStep?: (workflowId: string, stepIndex: number, targetIndex: number) => void;
   onUpgradeStep?: (workflowId: string, stepIndex: number, version: string) => void;
   onCloneStep?: (workflowId: string, stepIndex: number) => void;

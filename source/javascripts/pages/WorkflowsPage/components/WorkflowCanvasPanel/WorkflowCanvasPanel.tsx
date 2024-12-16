@@ -79,8 +79,18 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   }, [hasUnsavedChanges, workflowId]);
 
   const openStepLikeDrawer = useCallback(
-    (stepIndex: number, libraryType: LibraryType, stepBundleId?: string, wfId?: string) => {
-      switch (libraryType) {
+    ({
+      stepIndex,
+      type,
+      stepBundleId,
+      wfId,
+    }: {
+      stepIndex: number;
+      type: LibraryType;
+      stepBundleId?: string;
+      wfId?: string;
+    }) => {
+      switch (type) {
         case LibraryType.WITH:
           openDialog({
             type: WorkflowsPageDialogType.WITH_GROUP,

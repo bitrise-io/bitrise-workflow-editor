@@ -83,7 +83,6 @@ const StepCard = ({
   stepIndex,
   isSortable,
   isDragging,
-  isPreviewMode,
   showSecondary = true,
   stepBundleId,
 }: StepCardProps) => {
@@ -143,8 +142,9 @@ const StepCard = ({
     onUpgradeStep &&
     VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
 
-  const handleClick = isButton ? () => onSelectStep?.(stepIndex, library, stepBundleId, workflowId) : undefined;
-
+  const handleClick = isButton
+    ? () => onSelectStep?.({ stepIndex, type: library, stepBundleId, wfId: workflowId })
+    : undefined;
   const cardProps = useMemo(() => {
     const common: CardProps = {
       display: 'flex',
@@ -169,19 +169,16 @@ const StepCard = ({
       } satisfies CardProps;
     }
 
-    if (!isPreviewMode) {
-      return { ...common, _hover: { borderColor: 'border/hover', cursor: 'pointer' } };
-    }
-
     if (isButton) {
       return {
         ...common,
         ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
-      } as CardProps;
+        _hover: { borderColor: 'border/hover' },
+      };
     }
 
     return common;
-  }, [isDragging, isPreviewMode, isPlaceholder, isButton, isHighlighted]);
+  }, [isDragging, isPlaceholder, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {

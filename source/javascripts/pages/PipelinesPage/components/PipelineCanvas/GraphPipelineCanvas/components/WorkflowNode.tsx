@@ -186,13 +186,23 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           workflowId,
           stepIndex,
         })(),
-      handleSelectStep: (stepIndex: number, libraryType: LibraryType, stepBundleId?: string, workflowId?: string) => {
-        switch (libraryType) {
+      handleSelectStep: ({
+        stepIndex,
+        type,
+        stepBundleId,
+        wfId,
+      }: {
+        stepIndex: number;
+        type: LibraryType;
+        stepBundleId?: string;
+        wfId?: string;
+      }) => {
+        switch (type) {
           case LibraryType.BUNDLE:
             openDialog({
               type: PipelinesPageDialogType.STEP_BUNDLE,
               pipelineId: selectedPipeline,
-              workflowId,
+              workflowId: wfId,
               stepIndex,
             })();
             break;
@@ -200,7 +210,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             openDialog({
               type: PipelinesPageDialogType.STEP_CONFIG,
               pipelineId: selectedPipeline,
-              workflowId,
+              workflowId: wfId,
               stepIndex,
               stepBundleId,
             })();
