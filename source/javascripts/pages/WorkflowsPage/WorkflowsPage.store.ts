@@ -105,6 +105,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
 
       return {
         stepIndex: -1,
+        stepBundleId: '',
         workflowId: '',
         parentWorkflowId: '',
         nextDialog: undefined,

@@ -90,7 +90,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             aria-label="Settings"
             size="xs"
             onClick={() => {
-              onSelectStep(workflowId, stepIndex, LibraryType.BUNDLE);
+              onSelectStep(stepIndex, LibraryType.BUNDLE, workflowId);
             }}
           />
         )}

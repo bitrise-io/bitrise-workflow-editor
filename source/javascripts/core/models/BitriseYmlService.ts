@@ -333,6 +333,69 @@ function updateStepInStepBundle(
   return copy;
 }
 
+function updateStepInputsInStepBundle(
+  stepBundleId: string,
+  stepIndex: number,
+  newInputs: StepInputVariable[],
+  defaultInputs: StepInputVariable[],
+  yml: BitriseYml,
+) {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the step bundle or step is missing in the YML just return the YML
+  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const [, stepYmlObject] = Object.entries(copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex])[0] as [
+    string,
+    StepYmlObject,
+  ];
+
+  defaultInputs.forEach((input) => {
+    if (!stepYmlObject.inputs) {
+      stepYmlObject.inputs = [];
+    }
+
+    const [key, defaultValue] = Object.entries(omit(input, ['opts']))[0];
+    const newValue = newInputs.find((i) => Object.keys(i).includes(key))?.[key];
+    const inputIndexInYml = stepYmlObject.inputs.findIndex((i) => Object.keys(i).includes(key));
+    const isInputExistsInTheYml = inputIndexInYml > -1;
+
+    if (isInputExistsInTheYml) {
+      const valueInYml = stepYmlObject.inputs[inputIndexInYml][key];
+
+      if (valueInYml === null && !String(newValue)) {
+        return;
+      }
+
+      const inputObject = StepService.toYmlInput(
+        key,
+        newValue,
+        defaultValue,
+        stepYmlObject.inputs[inputIndexInYml].opts,
+      );
+
+      if (inputObject) {
+        stepYmlObject.inputs[inputIndexInYml] = inputObject;
+      } else {
+        stepYmlObject.inputs.splice(inputIndexInYml, 1);
+      }
+    } else {
+      const inputObject = StepService.toYmlInput(key, newValue, defaultValue);
+      if (inputObject) {
+        stepYmlObject.inputs.push(inputObject);
+      }
+    }
+  });
+
+  if (isEmpty(stepYmlObject.inputs)) {
+    delete stepYmlObject.inputs;
+  }
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1235,6 +1298,7 @@ export default {
   moveStepInStepBundle,
   renameStepBundle,
   updateStepInStepBundle,
+  updateStepInputsInStepBundle,
   createWorkflow,
   renameWorkflow,
   updateWorkflow,

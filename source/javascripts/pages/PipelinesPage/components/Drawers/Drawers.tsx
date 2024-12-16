@@ -156,6 +156,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelinesPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           workflowId={workflowId}
+          stepBundleId={stepBundleId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}

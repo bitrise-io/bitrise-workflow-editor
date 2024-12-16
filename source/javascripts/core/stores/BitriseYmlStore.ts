@@ -98,6 +98,12 @@ type BitriseYmlStoreState = {
     newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
     defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
   ) => void;
+  updateStepInputsInStepBundle: (
+    stepBundleId: string,
+    stepIndex: number,
+    inputs: StepInputVariable[],
+    defaultInputs: StepInputVariable[],
+  ) => void;
   updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
 };
@@ -428,6 +434,19 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, defaultValues, state.yml),
+        };
+      });
+    },
+    updateStepInputsInStepBundle: (stepBundleId, stepIndex, inputs, defaultInputs) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepInputsInStepBundle(
+            stepBundleId,
+            stepIndex,
+            inputs,
+            defaultInputs,
+            state.yml,
+          ),
         };
       });
     },

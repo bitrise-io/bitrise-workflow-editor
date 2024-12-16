@@ -137,13 +137,13 @@ const StepCard = ({
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
-  const isButton = !!onSelectStep && !!workflowId;
+  const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
     onUpgradeStep &&
     VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
 
-  const handleClick = isButton ? () => onSelectStep?.(workflowId, stepIndex, library) : undefined;
+  const handleClick = isButton ? () => onSelectStep?.(stepIndex, library, stepBundleId, workflowId) : undefined;
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
@@ -153,10 +153,6 @@ const StepCard = ({
       className: 'group',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
-
-    if (!isPreviewMode) {
-      return { ...common, _hover: { borderColor: 'border/hover', cursor: 'pointer' } };
-    }
 
     if (isPlaceholder) {
       return {
@@ -171,6 +167,10 @@ const StepCard = ({
         borderColor: 'border/strong',
         backgroundColor: 'background/secondary',
       } satisfies CardProps;
+    }
+
+    if (!isPreviewMode) {
+      return { ...common, _hover: { borderColor: 'border/hover', cursor: 'pointer' } };
     }
 
     if (isButton) {
