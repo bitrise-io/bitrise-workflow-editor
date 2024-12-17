@@ -88,7 +88,6 @@ type BitriseYmlStoreState = {
   addStepToStepBundle: (stepBundleId: string, cvs: string, to: number) => void;
   changeStepVersionInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => void;
   cloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
-  createStepBundle: (stepBundleId: string, baseStepBundleId?: string) => void;
   deleteStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
   moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
   renameStepBundle: (stepBundleId: string, newStepBundleId: string) => void;
@@ -392,13 +391,6 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.changeStepVersionInStepBundle(stepBundleId, stepIndex, version, state.yml),
-        };
-      });
-    },
-    createStepBundle(stepBundleId, baseStepBundleId) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.createStepBundle(stepBundleId, state.yml, baseStepBundleId),
         };
       });
     },
