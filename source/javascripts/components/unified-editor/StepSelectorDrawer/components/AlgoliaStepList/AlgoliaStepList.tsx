@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box } from '@bitrise/bitkit';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Box, Text } from '@bitrise/bitkit';
 import { useResizeObserver } from 'usehooks-ts';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
+import { capitalize, startCase } from 'es-toolkit';
 import { SelectStepHandlerFn } from '../../StepSelectorDrawer.types';
 
 import useSearchAlgoliaSteps from './hooks/useSearchAlgoliaSteps';
-import { findScrollContainer } from './AlgoliaStepList.utils';
+import { createVirtualizedItems, findScrollContainer } from './AlgoliaStepList.utils';
 import AlgoliaStepItem from './components/AlgoliaStepItem';
 
 type Props = {
@@ -15,9 +16,10 @@ type Props = {
 };
 
 const AlgoliaStepList = ({ enabledSteps: _, onSelectStep }: Props) => {
-  const [lanes, setLanes] = useState(1);
   const ref = useRef<HTMLDivElement>(null);
+  const [columns, setColumns] = useState(1);
   const { data: steps = [] } = useSearchAlgoliaSteps();
+  const rows = useMemo(() => createVirtualizedItems(steps, columns), [steps, columns]);
 
   const {
     measure,
@@ -25,48 +27,70 @@ const AlgoliaStepList = ({ enabledSteps: _, onSelectStep }: Props) => {
     getVirtualItems,
     options: { gap },
   } = useVirtualizer({
-    lanes,
     gap: 16,
-    count: steps.length,
-    estimateSize: useCallback(() => 98, []),
-    getScrollElement: useCallback(() => findScrollContainer(ref.current), [ref]),
+    count: rows.length,
+    getScrollElement: () => findScrollContainer(ref.current),
+    estimateSize: (index: number) => {
+      const item = rows[index];
+
+      if (typeof item === 'string') {
+        return 24;
+      }
+
+      return 98;
+    },
   });
 
   useEffect(() => {
     measure();
-  }, [lanes, measure]);
+  }, [columns, measure]);
 
   useResizeObserver({
     ref,
-    onResize: ({ width }) => setLanes((width ?? 0) > 600 ? 2 : 1),
+    onResize: ({ width }) => setColumns((width ?? 0) > 600 ? 2 : 1),
   });
 
   return (
     <Box ref={ref} height={getTotalSize()} position="relative">
-      {getVirtualItems().map(({ key, index, start, size, lane }) => {
-        const step = steps[index];
+      {getVirtualItems().map(({ key, index, start, size }) => {
+        const item = rows[index];
 
-        const { version } = step;
-        const { title, description } = step.step;
-        const logo = step.step.asset_urls?.['icon.svg'];
-
-        const left = lane === 0 ? 0 : `calc(50% + ${gap / 2}px)`;
-        const width = lanes > 1 ? `calc(50% - ${gap / 2}px)` : '100%';
+        if (typeof item === 'string') {
+          return (
+            <Text key={key} top={start} height={size} position="absolute" textStyle="heading/h4">
+              {capitalize(startCase(item))}
+            </Text>
+          );
+        }
 
         return (
-          <AlgoliaStepItem
+          <Box
+            gap={gap}
             key={key}
             top={start}
-            left={left}
-            logo={logo}
-            title={title}
-            width={width}
+            width="100%"
             height={size}
-            version={version}
+            display="grid"
             position="absolute"
-            description={description}
-            onClick={() => onSelectStep(step.cvs)}
-          />
+            gridTemplateColumns={`repeat(${columns}, 1fr)`}
+          >
+            {item.map((step) => {
+              const { version, cvs } = step;
+              const { title, description } = step.step;
+              const logo = step.step.asset_urls?.['icon.svg'];
+
+              return (
+                <AlgoliaStepItem
+                  key={cvs}
+                  logo={logo}
+                  title={title}
+                  version={version}
+                  description={description}
+                  onClick={() => onSelectStep(cvs)}
+                />
+              );
+            })}
+          </Box>
         );
       })}
     </Box>

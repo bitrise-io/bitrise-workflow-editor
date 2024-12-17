@@ -1,5 +1,4 @@
 import { AlgoliaStepResponse } from '@/core/api/StepApi';
-import {} from 'es-toolkit';
 
 export function findScrollContainer(element?: HTMLElement | null) {
   if (!element) {
@@ -18,8 +17,8 @@ export function findScrollContainer(element?: HTMLElement | null) {
   return document.documentElement;
 }
 
-export function createVirtualizedItems(steps: AlgoliaStepResponse[]) {
-  const result: (string | AlgoliaStepResponse)[] = [];
+export function createVirtualizedItems(steps: AlgoliaStepResponse[], columns: number) {
+  const result: Array<string | AlgoliaStepResponse[]> = [];
   const categoryMap = new Map<string, AlgoliaStepResponse[]>();
 
   steps.forEach((step) => {
@@ -28,8 +27,11 @@ export function createVirtualizedItems(steps: AlgoliaStepResponse[]) {
     });
   });
 
-  categoryMap.forEach((stps, category) => {
-    result.push(category, ...stps);
+  categoryMap.forEach((stepsInCategory, category) => {
+    result.push(category);
+    while (stepsInCategory.length) {
+      result.push([...stepsInCategory.splice(0, columns)]);
+    }
   });
 
   return result;
