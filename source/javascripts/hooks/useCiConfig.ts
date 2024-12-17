@@ -10,7 +10,6 @@ const useGetCiConfigQuery = (props: GetQueryProps) => {
 
   return useQuery<BitriseYml, ClientError>({
     enabled,
-    retry: false,
     queryKey: [BitriseYmlApi.getBitriseYmlPath({ projectSlug }), readFromRepo],
     queryFn: ({ signal }) => BitriseYmlApi.getBitriseYml({ projectSlug, readFromRepo, signal }),
     staleTime: Infinity,
