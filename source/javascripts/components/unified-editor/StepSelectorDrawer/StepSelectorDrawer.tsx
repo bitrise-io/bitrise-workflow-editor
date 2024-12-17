@@ -56,7 +56,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, showS
             <FloatingDrawerHeader>
               <Box display="flex" gap="12">
                 <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                  {showStepBundles ? 'Add Step or Step bundle' : 'Add step'}
+                  {enableStepBundles ? 'Add Step or Step bundle' : 'Add step'}
                 </Text>
                 {showStepLimit && (
                   <Tag size="sm">
