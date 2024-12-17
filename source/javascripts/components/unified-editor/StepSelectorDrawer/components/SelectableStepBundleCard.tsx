@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
-import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
-import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { WorkflowCardContextProvider } from '../../WorkflowCard/contexts/WorkflowCardContext';
+import StepBundleCard from './StepBundleCard';
 
 type SelectableStepBundleCardProps = {
   id: string;

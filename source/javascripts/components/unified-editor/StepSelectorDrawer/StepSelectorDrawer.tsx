@@ -2,8 +2,6 @@ import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, 
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
-import StepBundleFilter from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleFilter';
-import StepBundleList from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleList';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -12,6 +10,8 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
+import StepBundleFilter from './components/StepBundleFilter';
+import StepBundleList from './components/StepBundleList';
 import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';

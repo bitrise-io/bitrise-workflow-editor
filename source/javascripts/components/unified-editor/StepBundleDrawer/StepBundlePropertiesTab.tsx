@@ -1,7 +1,7 @@
 import EditableInput from '@/components/EditableInput/EditableInput';
-import useRenameStepBundle from '@/components/unified-editor/StepBundleDrawer/hooks/useRenameStepBundle';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import useRenameStepBundle from './hooks/useRenameStepBundle';
 
 type StepBundlesPropertiesTabProps = {
   stepBundleId: string;

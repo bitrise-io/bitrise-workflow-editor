@@ -4,12 +4,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
-import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import { StepCardProps } from '@/components/unified-editor/WorkflowCard/components/StepCard';
 import { LibraryType } from '@/core/models/Step';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import { SortableStepItem } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
-import useReactFlowZoom from '@/components/unified-editor/WorkflowCard/hooks/useReactFlowZoom';
+import { StepCardProps } from '../../WorkflowCard/components/StepCard';
+import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
+import useReactFlowZoom from '../../WorkflowCard/hooks/useReactFlowZoom';
+import { useSelection, useStepActions } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 
 type StepBundleCardProps = StepCardProps & {

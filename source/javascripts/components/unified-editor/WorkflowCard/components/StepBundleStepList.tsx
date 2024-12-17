@@ -7,11 +7,10 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import AddStepButton from '@/components/unified-editor/WorkflowCard/components/AddStepButton';
-import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { useStepActions } from '../contexts/WorkflowCardContext';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
-
+import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 import ScaledDragOverlay from './ScaledDragOverlay';
 

@@ -9,11 +9,11 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useNavigation from '@/hooks/useNavigation';
+import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
