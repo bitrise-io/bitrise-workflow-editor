@@ -51,29 +51,33 @@ const LicensesPageContent = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {Object.keys(workflows).map((wfId) => (
-              <Tr key={wfId}>
-                <Td>{wfId}</Td>
-                <Td>
-                  <Select
-                    placeholder="Select an option"
-                    onChange={(e) => {
-                      updateWorkflowMeta(wfId || '', {
-                        license_pool_id: e.target.value,
-                      });
-                    }}
-                    size="md"
-                    value={(workflows[wfId].meta?.['bitrise.io']?.license_pool_id as any) || ''}
-                  >
-                    {licensePools.map((pool) => (
-                      <option key={pool.id} value={pool.id}>
-                        {pool.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Td>
-              </Tr>
-            ))}
+            {Object.keys(workflows).map((wfId) => {
+              const value = (workflows[wfId].meta?.['bitrise.io']?.license_pool_id as any) || '';
+              return (
+                <Tr key={wfId}>
+                  <Td>{wfId}</Td>
+                  <Td>
+                    <Select
+                      placeholder={!value ? 'No license pool selected' : undefined}
+                      onChange={(e) => {
+                        updateWorkflowMeta(wfId || '', {
+                          license_pool_id: e.target.value,
+                        });
+                      }}
+                      size="md"
+                      value={value}
+                    >
+                      {!!value && <option value="">No license pool selected</option>}
+                      {licensePools.map((pool) => (
+                        <option key={pool.id} value={pool.id}>
+                          {pool.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Td>
+                </Tr>
+              );
+            })}
           </Tbody>
         </Table>
       )}

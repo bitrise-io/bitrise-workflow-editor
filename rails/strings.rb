@@ -658,13 +658,6 @@ def strings
         learn_more_about: "Learn more about Machine types »",
         invalid_set_in_bitrise_yml_meta: "Invalid machine type set in bitrise.yml meta"
       },
-      licenses: {
-        lead: "You can run your builds on Bitrise machines relying on license pools. For more info, visit the <a href='https://devcenter.bitrise.io/en/getting-started/unity-on-bitrise.html' target='_blank'>DevCenter.</a>",
-        card: {
-          header_title: 'Workflow-specific license pools',
-          header_description: 'Your workflow-specific builds will run utilizing the selected pool.'
-        }
-      },
       yml: {
         title_editor: "bitrise.yml editor",
         title: "bitrise.yml",

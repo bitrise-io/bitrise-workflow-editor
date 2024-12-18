@@ -853,7 +853,6 @@ function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitri
     if (newValues.license_pool_id !== undefined) {
       copyBitriseIoMeta.license_pool_id = newValues.license_pool_id;
     }
-    console.log(copyBitriseIoMeta);
     copy.workflows[workflowId].meta['bitrise.io'] = copyBitriseIoMeta;
   } else {
     copy.workflows[workflowId].meta = {
