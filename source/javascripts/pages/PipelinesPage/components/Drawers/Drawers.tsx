@@ -133,7 +133,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
         <StepBundleDrawer
-          size="lg"
+          size="md"
           workflowId={workflowId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}

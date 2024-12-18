@@ -115,7 +115,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
             <ControlButton size={buttonSize} aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
           </ButtonGroup>
         ) : (
-          <ControlButton m="4" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
+          <ControlButton m="8" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
         )
       }
     />
