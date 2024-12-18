@@ -104,7 +104,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
       rightAddonPlacement="inside"
       rightAddon={
         editable.isEditing ? (
-          <ButtonGroup justifyContent="center" spacing="0" m="4">
+          <ButtonGroup justifyContent="center" spacing="0" m="8">
             <ControlButton
               size={buttonSize}
               iconName="Check"
