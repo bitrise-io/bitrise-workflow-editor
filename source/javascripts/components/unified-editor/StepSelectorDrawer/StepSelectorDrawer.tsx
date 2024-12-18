@@ -22,7 +22,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   showStepBundles: boolean;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onCloseComplete, ...props }: Props) => {
   const resetSearch = useSearch((s) => s.reset);
 
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
