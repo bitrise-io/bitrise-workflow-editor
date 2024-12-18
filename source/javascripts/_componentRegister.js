@@ -14,6 +14,7 @@ import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import {
   PipelinesPage,
   SecretsPage,
+  StepBundlesPage,
   TriggersPage,
   WorkflowsPage,
   YmlPage,
@@ -39,6 +40,7 @@ angular
   )
   .component("rPipelinesPage", register(PipelinesPage, ["yml", "onChange"]))
   .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]))
+  .component("rStepBundlesPage", register(StepBundlesPage, ["yml", "onChange"]))
   .component("rYmlPage", register(YmlPage, ["ciConfigYml", "isEditorLoading", "onConfigSourceChangeSaved", "onEditorChange", "ymlSettings"]));
 
 // Components
