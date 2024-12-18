@@ -2990,6 +2990,829 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
+
+  describe('addStepToStepBundle', () => {
+    it('should add step to a given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ script: {} }, { 'apk-info@1.4.6': {} }, { clone: {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.addStepToStepBundle('bundle1', 'apk-info@1.4.6', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when step bundle does not exists', () => {
+      it('should return the original YML', () => {
+        const sourceYmlAndExpectedYml: BitriseYml = {
+          format_version: '',
+          step_bundles: {
+            bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+          },
+        };
+
+        const actualYml = BitriseYmlService.addStepToStepBundle(
+          'bundle2',
+          'apk-info@1.4.6',
+          1,
+          sourceYmlAndExpectedYml,
+        );
+
+        expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
+      });
+    });
+
+    describe('when the given index too high', () => {
+      it('should put the step to the end of the list', () => {
+        const sourceYml: BitriseYml = {
+          format_version: '',
+          step_bundles: {
+            bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+          },
+        };
+
+        const expectedYml: BitriseYml = {
+          format_version: '',
+          step_bundles: {
+            bundle1: {
+              steps: [{ script: {} }, { clone: {} }, { deploy: {} }, { 'apk-info@1.4.6': {} }],
+            },
+          },
+        };
+
+        const actualYml = BitriseYmlService.addStepToStepBundle('bundle1', 'apk-info@1.4.6', 10, sourceYml);
+
+        expect(actualYml).toMatchBitriseYml(expectedYml);
+      });
+    });
+
+    describe('when the given index too low', () => {
+      it('should put the step to the start of the list', () => {
+        const sourceYml: BitriseYml = {
+          format_version: '',
+          step_bundles: {
+            bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+          },
+        };
+
+        const expectedYml: BitriseYml = {
+          format_version: '',
+          step_bundles: {
+            bundle1: {
+              steps: [{ 'apk-info@1.4.6': {} }, { script: {} }, { clone: {} }, { deploy: {} }],
+            },
+          },
+        };
+
+        const actualYml = BitriseYmlService.addStepToStepBundle('bundle1', 'apk-info@1.4.6', -5, sourceYml);
+
+        expect(actualYml).toMatchBitriseYml(expectedYml);
+      });
+    });
+  });
+
+  describe('changeStepVersionInStepBundle', () => {
+    it('should upgrade the step version at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@1.0.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@2.1.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersionInStepBundle('bundle1', 1, '2.1.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should append version if the step does not have one', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ script: {} }, { 'clone@2.0.0': {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersionInStepBundle('bundle1', 1, '2.0.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove the step version if empty string is given', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@1.0.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'script@1.0.0': {} }, { clone: {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersionInStepBundle('bundle1', 1, '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the step bundle or step does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersionInStepBundle('bundle2', 1, '2.0.0', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
+  describe('cloneStepInStepBundle', () => {
+    it('should clone a step to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ script: {} }, { clone: {} }, { clone: {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStepInStepBundle('bundle1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if step bundle is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStepInStepBundle('bundle2', 1, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if step on is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStepInStepBundle('bundle1', 5, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
+  describe('deleteStepInStepBundle', () => {
+    it('should delete the step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the step bundle does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle2', 1, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the step does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 3, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should remove the steps property if it becomes empty after deletion', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 0, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('moveStepInStepBundle', () => {
+    it('should move step to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ deploy: {} }, { script: {} }, { clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveStepInStepBundle('bundle1', 2, 0, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if step bundle does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveStepInStepBundle('bundle2', 2, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if stepIndex is out of range', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveStepInStepBundle('bundle1', 3, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should move the step to the bound if destination is out of range', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ clone: {} }, { deploy: {} }, { script: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveStepInStepBundle('bundle1', 0, 4, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('renameStepBundle', () => {
+    it('should rename an existing step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ step1: {} }, { step2: {} }] },
+          bundle2: { steps: [{ step3: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ step1: {} }, { step2: {} }] },
+          bundle3: { steps: [{ step3: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.renameStepBundle('bundle2', 'bundle3', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when step bundle does not exist', () => {
+      it('should return the original yml', () => {
+        const sourceAndExpectedYml: BitriseYml = {
+          format_version: '',
+          step_bundles: {
+            bundle1: { steps: [{ step1: {} }, { step2: {} }] },
+          },
+        };
+
+        const actualYml = BitriseYmlService.renameStepBundle('bundle2', 'bundle3', sourceAndExpectedYml);
+
+        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      });
+    });
+  });
+
+  describe('updateStepInStepBundle', () => {
+    it('should update the step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'old title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'new title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: 'new title' }, {}, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete the property if the new value is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'old title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'step-id@1.0.0': { source_code_url: 'https://source.code' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: '' }, {}, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete the property if it is the default value', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'default title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'step-id@1.0.0': { source_code_url: 'https://source.code' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInStepBundle(
+        'bundle1',
+        0,
+        { title: 'default title' },
+        { title: 'default title' },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the step bundle or step does not exist', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'step-id@1.0.0': { title: 'old title' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle2', 0, { title: 'new title' }, {}, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceYml);
+    });
+  });
+
+  describe('updateStepInputsInStepBundle', () => {
+    it('should update the inputs of the step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ other: 'value' }, { contents: 'echo "Hello, World!"' }],
+                },
+              },
+              { test: {} },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }],
+                },
+              },
+              { test: {} },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }],
+        [{ contents: '' }, { other: '' }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should write a boolean value correctly', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: {} }, { test: {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: false }] } }, { test: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ is_debug: 'false' }],
+        [{ is_debug: true }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should write a number value correctly', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: {} }, { test: {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: { inputs: [{ count: 123 }] } }, { test: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ count: '123' }],
+        [{ count: 0 }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should write a string value correctly', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: {} }, { test: {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: { inputs: [{ script_path: '/path/to/script' }] } }, { test: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ script_path: '/path/to/script' }],
+        [{ script_path: '' }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should not overwrite input opts', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ contents: '{{.isCI}}', opts: { is_template: false } }],
+                },
+              },
+              { test: {} },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [
+          {
+            contents: '{{.isCI}}',
+            opts: { is_template: true },
+          },
+        ],
+        [{ contents: '' }],
+        sourceAndExpectedYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should delete the input if the value is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ script_path: '/path/to/script' }, { is_debug: true }],
+                },
+              },
+              { test: {} },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: true }] } }, { test: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ script_path: '' }, { is_debug: true }],
+        [{ script_path: 'default/script/path' }, { is_debug: false }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete the input if the value is the default value', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ contents: 'echo "Hello, Bitrise!' }, { is_debug: true }],
+                },
+              },
+              { test: {} },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: true }] } }, { test: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ contents: 'echo "Hello, World!"' }, { is_debug: true }],
+        [{ contents: 'echo "Hello, World!"' }, { is_debug: false }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete the inputs field if empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: true }] } }, { test: {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            steps: [{ clone: {} }, { script: {} }, { test: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
+        'bundle1',
+        1,
+        [{ is_debug: false }],
+        [{ is_debug: false }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the step bundle or step does not exist', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle('wf1', 3, [], [], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
 });
 
 declare module 'expect' {

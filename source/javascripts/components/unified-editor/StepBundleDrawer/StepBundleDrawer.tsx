@@ -9,7 +9,11 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import StepBundleService from '@/core/models/StepBundleService';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useNavigation from '@/hooks/useNavigation';
+import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
@@ -17,11 +21,14 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 };
 
 const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
-  const { replace } = useNavigation();
   const { data } = useStep({ workflowId, stepIndex });
   const defaultStepLibrary = useDefaultStepLibrary();
+  const stepBundleId = data?.title;
+  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
+  const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
+  const { replace } = useNavigation();
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
 
-  const title = data?.title;
   const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
 
   if (!isStepBundle || !data) {
@@ -34,22 +41,31 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">
-            {title}
+            {enableStepBundles ? stepBundleId : `Step bundle: ${stepBundleId}`}
           </Text>
+          {enableStepBundles && (
+            <Text color="text/secondary" textStyle="body/md/regular">
+              {usedInWorkflowsText}
+            </Text>
+          )}
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
-          <Notification
-            action={{
-              label: 'Go to YAML page',
-              onClick: () => replace('/yml'),
-            }}
-            status="info"
-          >
-            <Text textStyle="comp/notification/title">Edit step bundle configuration</Text>
-            <Text textStyle="comp/notification/message">
-              View more details or edit step bundle configuration in the Configuration YAML page.
-            </Text>
-          </Notification>
+          {enableStepBundles ? (
+            <StepBundlePropertiesTab stepBundleId={stepBundleId} />
+          ) : (
+            <Notification
+              action={{
+                label: 'Go to YAML page',
+                onClick: () => replace('/yml'),
+              }}
+              status="info"
+            >
+              <Text textStyle="comp/notification/title">Edit step bundle configuration</Text>
+              <Text textStyle="comp/notification/message">
+                View more details or edit step bundle configuration in the Configuration YAML page.
+              </Text>
+            </Notification>
+          )}
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>

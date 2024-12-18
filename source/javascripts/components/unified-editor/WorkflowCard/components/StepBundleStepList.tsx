@@ -1,30 +1,34 @@
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
-import { Box, EmptyState } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { Box, Button, EmptyState } from '@bitrise/bitkit';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
+import { useStepActions } from '../contexts/WorkflowCardContext';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
-
+import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = StepActions & {
   stepBundleId: string;
+  isPreviewMode?: boolean;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
+const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) => {
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
+
+  const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -35,7 +39,7 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
   }, [stepBundleId, steps]);
 
   const isEmpty = !steps.length;
-  const isSortable = false; // TODO: Boolean(onMoveStep);
+  const isSortable = Boolean(onMoveStepInStepBundle);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
   const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
@@ -54,16 +58,14 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
         setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
 
-        // TODO: Move steps inside the step_bundles section of the YML instead of the workflows section
-        //
-        // setTimeout(() => {
-        //   onMoveStep?.(workflowId, currentActiveIndex, currentOverIndex);
-        // }, defaultDropAnimation.duration);
+        setTimeout(() => {
+          onMoveStepInStepBundle?.(stepBundleId, currentActiveIndex, currentOverIndex);
+        }, defaultDropAnimation.duration);
       }
 
       setActiveItem(undefined);
     },
-    [sortableItems],
+    [onMoveStepInStepBundle, sortableItems, stepBundleId],
   );
 
   const handleDragCancel = useCallback(() => {
@@ -77,22 +79,48 @@ const StepBundleStepList = ({ stepBundleId, ...actions }: Props) => {
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" gap="8">
+      <Box display="flex" flexDir="column" mt={-8} gap={isPreviewMode ? '8' : '0'}>
         {sortableItems.map((item) => {
-          // TODO: Add the AddStepButton components, but they add steps to the step_bundles section of the YML instead of the workflows section
+          const isLast = item.stepIndex === sortableItems.length - 1;
           return (
             <Fragment key={item.stepIndex}>
-              <StepCard {...item} isSortable={isSortable} {...actions} />
+              {onAddStepToStepBundle && (
+                <AddStepButton
+                  onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)}
+                  showStepBundles={false}
+                />
+              )}
+              <StepCard {...item} isSortable={isSortable} isPreviewMode={isPreviewMode} {...actions} />
+              {isLast && onAddStepToStepBundle && <AddStepButton mb={-8} showStepBundles={false} />}
             </Fragment>
           );
         })}
       </Box>
     );
-  }, [actions, isSortable, sortableItems]);
+  }, [actions, isPreviewMode, isSortable, onAddStepToStepBundle, sortableItems, stepBundleId]);
 
   if (isEmpty) {
-    // TODO: Add the AddStep button component, but add step to the step_bundles section of the YML instead of the workflows section
-    return <EmptyState paddingY="16" paddingX="16" iconName="Steps" title="Empty Workflow" />;
+    return (
+      <EmptyState
+        paddingY="16"
+        paddingX="16"
+        iconName="Steps"
+        title="Empty Step bundle"
+        description={onAddStepToStepBundle ? 'Add Steps from the library.' : undefined}
+      >
+        {onAddStepToStepBundle && (
+          <Button
+            size="md"
+            variant="secondary"
+            alignSelf="stretch"
+            leftIconName="PlusCircle"
+            onClick={() => onAddStepToStepBundle(stepBundleId, 0)}
+          >
+            Add Step
+          </Button>
+        )}
+      </EmptyState>
+    );
   }
 
   if (!isSortable) {
