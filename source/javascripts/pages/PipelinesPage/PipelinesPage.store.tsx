@@ -4,6 +4,7 @@ export enum PipelinesPageDialogType {
   NONE,
   START_BUILD,
   STEP_CONFIG,
+  STEP_BUNDLE,
   STEP_SELECTOR,
   CHAIN_WORKFLOW,
   PIPELINE_CONFIG,
@@ -15,6 +16,7 @@ export enum PipelinesPageDialogType {
 type State = {
   stepIndex: number;
   pipelineId: string;
+  stepBundleId: string;
   workflowId: string;
   parentWorkflowId: string;
   openedDialogType: PipelinesPageDialogType;
@@ -26,6 +28,7 @@ type DialogParams = {
   type: PipelinesPageDialogType;
   stepIndex?: number;
   pipelineId?: string;
+  stepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
 };
@@ -44,6 +47,7 @@ type Action = {
 export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   stepIndex: -1,
   pipelineId: '',
+  stepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
   openedDialogType: PipelinesPageDialogType.NONE,
@@ -63,7 +67,14 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       stepIndex,
     }));
   },
-  openDialog: ({ type, pipelineId = '', workflowId = '', parentWorkflowId = '', stepIndex = -1 }) => {
+  openDialog: ({
+    type,
+    pipelineId = '',
+    stepBundleId = '',
+    workflowId = '',
+    parentWorkflowId = '',
+    stepIndex = -1,
+  }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== PipelinesPageDialogType.NONE) {
@@ -74,6 +85,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
               type,
               stepIndex,
               pipelineId,
+              stepBundleId,
               workflowId,
               parentWorkflowId,
             },
@@ -82,6 +94,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
 
         return {
           pipelineId,
+          stepBundleId,
           workflowId,
           stepIndex,
           parentWorkflowId,
@@ -106,6 +119,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       return {
         stepIndex: -1,
         pipelineId: '',
+        stepBundleId: '',
         workflowId: '',
         parentWorkflowId: '',
         nextDialog: undefined,

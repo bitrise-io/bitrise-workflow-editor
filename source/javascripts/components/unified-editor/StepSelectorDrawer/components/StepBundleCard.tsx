@@ -1,53 +1,169 @@
-import { useRef } from 'react';
-import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { useMemo, useRef } from 'react';
+import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
+import { LibraryType } from '@/core/models/Step';
+import DragHandle from '@/components/DragHandle/DragHandle';
+import { StepCardProps } from '../../WorkflowCard/components/StepCard';
+import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
+import useReactFlowZoom from '../../WorkflowCard/hooks/useReactFlowZoom';
+import { useSelection, useStepActions } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 
-type StepBundleCardProps = StepActions & {
-  id: string;
+type StepBundleCardProps = StepCardProps & {
+  cvs: string;
   isCollapsable?: boolean;
-  containerProps?: CardProps;
+  isPreviewMode?: boolean;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const { id, isCollapsable, containerProps } = props;
+  const { cvs, isCollapsable, isDragging, isPreviewMode, isSortable, stepBundleId, stepIndex, uniqueId, workflowId } =
+    props;
+
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
-  const dependants = useDependantWorkflows({ stepBundleId: id });
+  const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
+  const { isSelected } = useSelection();
+  const { onDeleteStep, onSelectStep } = useStepActions();
+  const zoom = useReactFlowZoom();
+
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
-  return (
-    <Card borderRadius="8" variant="elevated" minW={0} {...containerProps}>
-      <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
-        {isCollapsable && (
+  const sortable = useSortable({
+    id: uniqueId,
+    disabled: !isSortable,
+    data: {
+      uniqueId,
+      stepIndex,
+      workflowId,
+      stepBundleId,
+    } satisfies SortableStepItem,
+  });
+
+  const style = {
+    transition: sortable.transition,
+    transform: CSS.Transform.toString(
+      sortable.transform && {
+        ...sortable.transform,
+        y: sortable.transform.y / zoom,
+      },
+    ),
+  };
+
+  const isHighlighted = workflowId && isSelected(workflowId, stepIndex);
+  const isPlaceholder = sortable.isDragging;
+
+  const cardProps = useMemo(() => {
+    const common: CardProps = {
+      borderRadius: '4',
+      variant: 'outline',
+      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+    };
+
+    if (isPlaceholder) {
+      return {
+        ...common,
+        height: 50,
+        border: '1px dashed',
+        alignItems: 'center',
+        color: 'text/secondary',
+        justifyContent: 'center',
+        textStyle: 'body/sm/regular',
+        borderColor: 'border/strong',
+        backgroundColor: 'background/secondary',
+      } satisfies CardProps;
+    }
+
+    return { ...common, ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}) };
+  }, [isDragging, isHighlighted, isPlaceholder]);
+
+  const buttonGroup = useMemo(() => {
+    if (!workflowId || isDragging || (!onDeleteStep && !onSelectStep)) {
+      return null;
+    }
+
+    return (
+      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
+        {onSelectStep && (
           <ControlButton
+            iconName="Settings"
+            aria-label="Settings"
             size="xs"
-            tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-            className="nopan"
-            onClick={onToggle}
-            iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-            aria-label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
-            tooltipProps={{
-              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`,
+            onClick={() => {
+              onSelectStep({ stepIndex, type: LibraryType.BUNDLE, wfId: workflowId });
             }}
           />
         )}
-        <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <Text textStyle="body/md/semibold" hasEllipsis>
-            {id}
-          </Text>
-          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {usedInWorkflowsText}
-          </Text>
-        </Box>
-      </Box>
-      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-        <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-          <StepBundleStepList stepBundleId={id} />
-        </Box>
-      </Collapse>
+        {onDeleteStep && (
+          <ControlButton
+            iconName="Trash"
+            aria-label="Remove Step bundle"
+            size="xs"
+            isDanger
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteStep(workflowId, stepIndex);
+            }}
+          />
+        )}
+      </ButtonGroup>
+    );
+  }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
+
+  return (
+    <Card {...cardProps} minW={0} style={style} ref={sortable.setNodeRef}>
+      {!isPlaceholder && (
+        <>
+          <Box display="flex">
+            {isSortable && (
+              <DragHandle
+                withGroupHover
+                ref={sortable.setActivatorNodeRef}
+                {...sortable.listeners}
+                {...sortable.attributes}
+              />
+            )}
+            <Box
+              display="flex"
+              flexGrow={1}
+              alignItems="center"
+              padding={isPreviewMode ? '6px 8px' : '6px 8px 6px 0px'}
+              gap="4"
+              className="group"
+            >
+              {isCollapsable && (
+                <ControlButton
+                  size="xs"
+                  tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+                  className="nopan"
+                  onClick={onToggle}
+                  iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+                  aria-label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
+                  tooltipProps={{
+                    'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`,
+                  }}
+                />
+              )}
+              <Box display="flex" flexDir="column" flex="1">
+                <Text textStyle="body/md/semibold" hasEllipsis>
+                  {cvs.replace('bundle::', '')}
+                </Text>
+                <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                  {usedInWorkflowsText}
+                </Text>
+              </Box>
+              {buttonGroup}
+            </Box>
+          </Box>
+          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+            <Box p="8" ref={containerRef}>
+              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} isPreviewMode={isPreviewMode} />
+            </Box>
+          </Collapse>
+        </>
+      )}
     </Card>
   );
 };

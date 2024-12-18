@@ -73,6 +73,7 @@ export type StepCardProps = {
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
+  isPreviewMode?: boolean;
   showSecondary?: boolean;
 };
 
@@ -88,7 +89,15 @@ const StepCard = ({
   const zoom = useReactFlowZoom();
   const { isSelected } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { onUpgradeStep, onSelectStep, onCloneStep, onDeleteStep } = useStepActions();
+  const {
+    onCloneStep,
+    onCloneStepInStepBundle,
+    onDeleteStep,
+    onDeleteStepInStepBundle,
+    onSelectStep,
+    onUpgradeStep,
+    onUpgradeStepInStepBundle,
+  } = useStepActions();
 
   const {
     error,
@@ -127,14 +136,15 @@ const StepCard = ({
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
-  const isButton = !!onSelectStep && !!workflowId;
+  const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
     onUpgradeStep &&
     VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
 
-  const handleClick = isButton ? () => onSelectStep?.(workflowId, stepIndex, library) : undefined;
-
+  const handleClick = isButton
+    ? () => onSelectStep?.({ stepIndex, type: library, stepBundleId, wfId: workflowId })
+    : undefined;
   const cardProps = useMemo(() => {
     const common: CardProps = {
       display: 'flex',
@@ -162,22 +172,22 @@ const StepCard = ({
     if (isButton) {
       return {
         ...common,
-        _hover: { borderColor: 'border/hover' },
         ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
-      } as CardProps;
+        _hover: { borderColor: 'border/hover' },
+      };
     }
 
     return common;
-  }, [isPlaceholder, isHighlighted, isButton, isDragging]);
+  }, [isDragging, isPlaceholder, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
-    if (!workflowId || isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
+    if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
       return null;
     }
 
     return (
       <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-        {isUpgradable && (
+        {isUpgradable && onUpgradeStepInStepBundle && (
           <ControlButton
             size="xs"
             display="none"
@@ -188,11 +198,16 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              onUpgradeStep(workflowId, stepIndex, latestMajor);
+              if (workflowId) {
+                onUpgradeStep(workflowId, stepIndex, latestMajor);
+              }
+              if (stepBundleId) {
+                onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
+              }
             }}
           />
         )}
-        {onCloneStep && (
+        {onCloneStep && onCloneStepInStepBundle && (
           <ControlButton
             size="xs"
             display="none"
@@ -202,11 +217,16 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              onCloneStep(workflowId, stepIndex);
+              if (workflowId) {
+                onCloneStep(workflowId, stepIndex);
+              }
+              if (stepBundleId) {
+                onCloneStepInStepBundle(stepBundleId, stepIndex);
+              }
             }}
           />
         )}
-        {onDeleteStep && (
+        {onDeleteStep && onDeleteStepInStepBundle && (
           <ControlButton
             isDanger
             size="xs"
@@ -217,13 +237,31 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteStep(workflowId, stepIndex);
+              if (workflowId) {
+                onDeleteStep(workflowId, stepIndex);
+              }
+              if (stepBundleId) {
+                onDeleteStepInStepBundle(stepBundleId, stepIndex);
+              }
             }}
           />
         )}
       </ButtonGroup>
     );
-  }, [isDragging, isUpgradable, latestMajor, onCloneStep, onDeleteStep, onUpgradeStep, stepIndex, workflowId]);
+  }, [
+    isDragging,
+    isUpgradable,
+    latestMajor,
+    onCloneStep,
+    onCloneStepInStepBundle,
+    onDeleteStep,
+    onDeleteStepInStepBundle,
+    onUpgradeStep,
+    onUpgradeStepInStepBundle,
+    stepBundleId,
+    stepIndex,
+    workflowId,
+  ]);
 
   return (
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>

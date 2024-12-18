@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
-import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
-import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { WorkflowCardContextProvider } from '../../WorkflowCard/contexts/WorkflowCardContext';
+import StepBundleCard from './StepBundleCard';
 
 type SelectableStepBundleCardProps = {
   id: string;
@@ -11,8 +12,14 @@ type SelectableStepBundleCardProps = {
 
 const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   const { id, onClick } = props;
-  const dependants = useDependantWorkflows({ stepBundleId: id });
+  const [isPreviewMode, setIsPreviewMode] = useState(true);
+  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${id}` });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
+
+  const handleClick = () => {
+    onClick(id);
+    setIsPreviewMode(false);
+  };
 
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
@@ -23,7 +30,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           padding="8px 12px"
           textAlign="left"
           _hover={{ borderColor: 'border/hover' }}
-          onClick={() => onClick(id)}
+          onClick={handleClick}
         >
           <Text textStyle="body/lg/semibold" marginBlockEnd="4">
             {id}
@@ -35,7 +42,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
       </PopoverTrigger>
       <PopoverContent width={320}>
         <WorkflowCardContextProvider>
-          <StepBundleCard id={id} />
+          <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${id}`} isPreviewMode={isPreviewMode} />
         </WorkflowCardContextProvider>
       </PopoverContent>
     </Popover>

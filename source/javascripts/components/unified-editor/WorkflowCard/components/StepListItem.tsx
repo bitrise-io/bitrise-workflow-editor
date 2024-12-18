@@ -1,10 +1,10 @@
 import { memo } from 'react';
 
-import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import StepService from '@/core/models/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import StepBundleCard from '../../StepSelectorDrawer/components/StepBundleCard';
 
 import StepCard, { StepCardProps } from './StepCard';
 
@@ -25,7 +25,16 @@ const StepListItem = (props: StepCardProps) => {
   const isStepBundle = StepService.isStepBundle(cvs, defaultStepLibrary);
 
   if (enableStepBundles && isStepBundle) {
-    return <StepBundleCard isCollapsable id={cvs.replace('bundle::', '')} />;
+    return (
+      <StepBundleCard
+        isCollapsable
+        cvs={cvs}
+        stepIndex={stepIndex}
+        stepBundleId={stepBundleId}
+        workflowId={workflowId}
+        {...rest}
+      />
+    );
   }
 
   return <StepCard stepIndex={stepIndex} stepBundleId={stepBundleId} workflowId={workflowId} {...rest} />;

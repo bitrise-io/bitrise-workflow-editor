@@ -3,6 +3,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ChainWorkflowDrawer,
   StartBuildDialog,
+  StepBundleDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
@@ -20,6 +21,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
   const {
     pipelineId,
+    stepBundleId,
     workflowId,
     stepIndex,
     parentWorkflowId,
@@ -31,27 +33,36 @@ const Drawers = ({ children }: PropsWithChildren) => {
     isDialogMounted,
   } = usePipelinesPageStore();
 
-  const { addStep, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } = useBitriseYmlStore(
-    (s) => ({
+  const { addStep, addStepToStepBundle, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } =
+    useBitriseYmlStore((s) => ({
       addStep: s.addStep,
+      addStepToStepBundle: s.addStepToStepBundle,
       createPipeline: s.createPipeline,
       getUniqueStepIds: s.getUniqueStepIds,
       addChainedWorkflow: s.addChainedWorkflow,
       addWorkflowToPipeline: s.addWorkflowToPipeline,
-    }),
-  );
+    }));
 
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
       addStep(workflowId, cvs, stepIndex);
-    } else {
+    } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
       openDialog({
         type: PipelinesPageDialogType.STEP_CONFIG,
         pipelineId,
         workflowId,
+        stepIndex,
+      })();
+    } else {
+      addStepToStepBundle(stepBundleId, cvs, stepIndex);
+      openDialog({
+        type: PipelinesPageDialogType.STEP_CONFIG,
+        pipelineId,
+        workflowId,
+        stepBundleId,
         stepIndex,
       })();
     }
@@ -120,6 +131,17 @@ const Drawers = ({ children }: PropsWithChildren) => {
         />
       )}
 
+      {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
+        <StepBundleDrawer
+          size="md"
+          workflowId={workflowId}
+          stepIndex={stepIndex}
+          isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+        />
+      )}
+
       {isDialogMounted(PipelinesPageDialogType.STEP_SELECTOR) && (
         <StepSelectorDrawer
           enabledSteps={new Set(getUniqueStepIds())}
@@ -127,12 +149,14 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
+          showStepBundles={!stepBundleId}
         />
       )}
 
       {isDialogMounted(PipelinesPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           workflowId={workflowId}
+          stepBundleId={stepBundleId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}

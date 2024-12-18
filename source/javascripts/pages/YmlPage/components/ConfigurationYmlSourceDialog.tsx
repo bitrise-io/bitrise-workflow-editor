@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -11,7 +11,6 @@ import {
   List,
   ListItem,
   Notification,
-  NotificationProps,
   Radio,
   RadioGroup,
   Text,
@@ -19,49 +18,18 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
-import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
-import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
 import DateFormatter from '@/utils/dateFormatter';
 import { segmentTrack } from '@/utils/segmentTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-
-const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
-  let action: NotificationProps['action'];
-  let content: ReactNode = message;
-  if (status === 404) {
-    content =
-      "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.";
-  } else if (message && message.includes('Split configuration requires an Enterprise plan')) {
-    content = (
-      <>
-        <Text fontWeight="bold">Split configuration requires an Enterprise plan</Text>
-        Contact our customer support if you'd like to try it out.
-      </>
-    );
-    action = {
-      href: 'https://bitrise.io/contact',
-      label: 'Contact us',
-      target: '_blank',
-    };
-  } else if (message) {
-    content = message;
-  } else {
-    content = 'Unknown error';
-  }
-
-  return (
-    <Notification marginBlockStart="24" status="error" action={action}>
-      {content}
-    </Notification>
-  );
-};
+import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
+import { useGetCiConfigMutation, usePostCiConfigMutation } from '@/hooks/useCiConfig';
+import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
+import { BitriseYml } from '@/core/models/BitriseYml';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   initialUsesRepositoryYml: boolean;
-  appSlug: string;
+  projectSlug: string;
   onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
   defaultBranch: string;
   gitRepoSlug: string;
@@ -77,38 +45,76 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     isOpen,
     onClose,
     initialUsesRepositoryYml,
-    appSlug,
+    projectSlug,
     onConfigSourceChangeSaved,
     lastModified,
     initialYmlRootPath,
     ciConfigYml,
   } = props;
 
-  const {
-    getAppConfigFromRepoStatus,
-    getAppConfigFromRepoFailed,
-    getAppConfigFromRepoLoading,
-    getAppConfigFromRepo,
-    getAppConfigFromRepoReset,
-    appConfigFromRepo,
-  } = useGetAppConfigFromRepoCallback(appSlug);
-
-  const { postAppConfig, postAppConfigStatus, postAppConfigLoading, postAppConfigFailed } = usePostAppConfigCallback(
-    appSlug,
-    BitriseYmlApi.toYml(appConfigFromRepo),
-  );
+  const ciConfigFromRepo = useRef<BitriseYml>();
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
   const [ymlRootPath, setYmlRootPath] = useState(initialYmlRootPath || '');
 
+  const onSuccess = () => {
+    onClose();
+    toast({
+      title: 'Source succesfully changed',
+      description: usesRepositoryYml
+        ? `From now you can manage your Configuration YAML in the project's git repository.`
+        : 'From now you can manage your Configuration YAML on bitrise.io.',
+      status: 'success',
+      isClosable: true,
+    });
+    onConfigSourceChangeSaved(usesRepositoryYml, ymlRootPath);
+    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
+      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
+    });
+  };
+
   const {
-    updatePipelineConfigStatus,
-    updatePipelineConfigLoading,
-    updatePipelineConfig,
-    updatePipelineConfigReset,
-    updatePipelineConfigFailed,
-  } = useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml, ymlRootPath);
+    error: postCiConfigError,
+    isPending: isPostCiConfigPending,
+    mutate: postCiConfigMutate,
+  } = usePostCiConfigMutation({
+    onSuccess,
+  });
+
+  const {
+    error: putCiConfigSettingsError,
+    isPending: isPutCiConfigSettingsPending,
+    mutate: putCiConfigSettingsMutate,
+  } = usePutCiConfigSettingsMutation({
+    onSuccess: () => {
+      if (!usesRepositoryYml && configurationSource === 'git' && ciConfigFromRepo.current) {
+        postCiConfigMutate({
+          model: ciConfigFromRepo.current,
+          projectSlug,
+        });
+      } else {
+        onSuccess();
+      }
+    },
+  });
+
+  const {
+    error: getCiConfigError,
+    isPending: isGetCiConfigPending,
+    mutate: getCiConfigMutate,
+  } = useGetCiConfigMutation({
+    onSuccess: (data) => {
+      ciConfigFromRepo.current = data;
+      putCiConfigSettingsMutate({
+        model: {
+          usesRepositoryYml,
+          ymlRootPath,
+        },
+        projectSlug,
+      });
+    },
+  });
 
   const toast = useToast();
 
@@ -123,7 +129,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   }
 
   const onValidateAndSave = () => {
-    const eventProps: any = {
+    const eventProps: Record<string, string> = {
       yml_source: usesRepositoryYml ? 'bitrise' : 'git',
     };
     if (!usesRepositoryYml) {
@@ -131,60 +137,27 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     }
     segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
     if (usesRepositoryYml === true) {
-      updatePipelineConfig();
+      putCiConfigSettingsMutate({
+        model: {
+          usesRepositoryYml,
+          ymlRootPath,
+        },
+        projectSlug,
+      });
     } else {
       if (configurationSource === 'git') {
-        getAppConfigFromRepo();
+        getCiConfigMutate({ projectSlug, readFromRepo: true });
       }
       if (configurationSource === 'bitrise') {
-        updatePipelineConfig();
+        putCiConfigSettingsMutate({
+          model: {
+            usesRepositoryYml,
+            ymlRootPath,
+          },
+          projectSlug,
+        });
       }
     }
-  };
-
-  useEffect(() => {
-    if (getAppConfigFromRepoStatus === 200) {
-      updatePipelineConfig();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getAppConfigFromRepoStatus]);
-
-  useEffect(() => {
-    if (updatePipelineConfigStatus === 200) {
-      if (!usesRepositoryYml && configurationSource === 'git') {
-        postAppConfig();
-      } else {
-        onSuccess();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updatePipelineConfigStatus]);
-
-  useEffect(() => {
-    if (postAppConfigStatus === 200) {
-      onSuccess();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postAppConfigStatus]);
-
-  const onSuccess = () => {
-    onCloseDialog();
-    toast({
-      title: ' Source succesfully changed',
-      description: 'From now you can manage your Configuration YAML on bitrise.io.',
-      status: 'success',
-      isClosable: true,
-    });
-    onConfigSourceChangeSaved(usesRepositoryYml, ymlRootPath);
-    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
-      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
-    });
-  };
-
-  const onCloseDialog = () => {
-    getAppConfigFromRepoReset();
-    updatePipelineConfigReset();
-    onClose();
   };
 
   let lastModifiedFormatted;
@@ -193,7 +166,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     lastModifiedFormatted = DateFormatter.getFormattedDate(date);
   }
 
-  const isDialogDisabled = getAppConfigFromRepoLoading || updatePipelineConfigLoading || postAppConfigLoading;
+  const isDialogDisabled = isGetCiConfigPending || isPutCiConfigSettingsPending || isPostCiConfigPending;
 
   const onCopyClick = () => {
     toast({
@@ -217,7 +190,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
+    <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
       <DialogBody>
         <Text textStyle="body/md/semibold" marginBlockEnd="12">
           Source
@@ -225,8 +198,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         <RadioGroup
           onChange={(value: 'bitrise' | 'git') => {
             setUsesRepositoryYml(value === 'git');
-            getAppConfigFromRepoReset();
-            updatePipelineConfigReset();
           }}
           value={usesRepositoryYml ? 'git' : 'bitrise'}
           isDisabled={isDialogDisabled}
@@ -292,8 +263,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             <RadioGroup
               onChange={(value: 'bitrise' | 'git') => {
                 setConfigurationSource(value);
-                getAppConfigFromRepoReset();
-                updatePipelineConfigReset();
               }}
               value={configurationSource}
               isDisabled={isDialogDisabled}
@@ -417,26 +386,19 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             </List>
           </>
         )}
-        {getAppConfigFromRepoLoading && (
+        {isGetCiConfigPending && (
           <Notification status="progress" marginBlockStart="24">
             Looking for a configuration file in the app’s repository.
           </Notification>
         )}
-        {getAppConfigFromRepoFailed && (
-          <ErrorNotification status={getAppConfigFromRepoStatus} message={getAppConfigFromRepoFailed?.error_msg} />
+        {!!getCiConfigError?.response && <YmlDialogErrorNotification response={getCiConfigError.response} />}
+        {!!putCiConfigSettingsError?.response && (
+          <YmlDialogErrorNotification response={putCiConfigSettingsError.response} />
         )}
-        {postAppConfigFailed && (
-          <ErrorNotification status={postAppConfigStatus} message={postAppConfigFailed?.error_msg} />
-        )}
-        {updatePipelineConfigStatus && updatePipelineConfigStatus !== 200 && (
-          <ErrorNotification
-            status={updatePipelineConfigStatus}
-            message={updatePipelineConfigFailed?.error_msg || 'Unknown error'}
-          />
-        )}
+        {!!postCiConfigError?.response && <YmlDialogErrorNotification response={postCiConfigError.response} />}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onCloseDialog}>
+        <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
         <Tooltip label={toolTip} isDisabled={isSourceSelected}>

@@ -23,19 +23,32 @@ type StepVersionProps = {
   selectableVersions?: ReturnType<typeof StepService.getSelectableVersions>;
 };
 const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
-  const { data, workflowId, stepIndex } = useStepDrawerContext();
+  const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
 
   const changeStepVersionInYml = useBitriseYmlStore((s) => s.changeStepVersion);
   const debouncedChangeStepVersionInYml = useDebounceCallback(changeStepVersionInYml, 250);
 
+  const changeStepVersionInStepBundle = useBitriseYmlStore((s) => s.changeStepVersionInStepBundle);
+  const debouncedChangeStepVersionInStepBundle = useDebounceCallback(changeStepVersionInYml, 250);
+
   const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
 
     if (variant === 'select') {
-      changeStepVersionInYml(workflowId, stepIndex, e.target.value);
+      if (workflowId) {
+        changeStepVersionInYml(workflowId, stepIndex, e.target.value);
+      }
+      if (stepBundleId) {
+        changeStepVersionInStepBundle(stepBundleId, stepIndex, e.target.value);
+      }
     } else {
-      debouncedChangeStepVersionInYml(workflowId, stepIndex, e.target.value);
+      if (workflowId) {
+        debouncedChangeStepVersionInYml(workflowId, stepIndex, e.target.value);
+      }
+      if (stepBundleId) {
+        debouncedChangeStepVersionInStepBundle(stepBundleId, stepIndex, e.target.value);
+      }
     }
   };
 
@@ -76,11 +89,16 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
-  const { workflowId, stepIndex, data, isLoading } = useStepDrawerContext();
+  const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
   const [name, setName] = useState(data?.mergedValues?.title);
 
   const updateStep = useDebounceCallback(
     useBitriseYmlStore((s) => s.updateStep),
+    250,
+  );
+
+  const updateStepInStepBundle = useDebounceCallback(
+    useBitriseYmlStore((s) => s.updateStepInStepBundle),
     250,
   );
 
@@ -91,7 +109,12 @@ const PropertiesTab = () => {
 
   const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setName(e.currentTarget.value);
-    updateStep(workflowId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
+    if (workflowId) {
+      updateStep(workflowId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
+    }
+    if (stepBundleId) {
+      updateStepInStepBundle(stepBundleId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
+    }
   };
 
   return (

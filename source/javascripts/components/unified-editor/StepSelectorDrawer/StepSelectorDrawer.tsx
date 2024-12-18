@@ -19,6 +19,7 @@ import AlgoliaStepList from './components/AlgoliaStepList/AlgoliaStepList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
+  showStepBundles: boolean;
 };
 
 const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
@@ -28,7 +29,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
     tabIds: ['step', 'stepBundle'],
   });
 
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;

@@ -10,7 +10,6 @@ import { useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 
-import StepCard from './StepCard';
 import StepListItem from './StepListItem';
 import AddStepButton from './AddStepButton';
 import ScaledDragOverlay from './ScaledDragOverlay';
@@ -83,10 +82,12 @@ const WorkflowStepList = ({ workflowId }: Props) => {
 
           return (
             <Fragment key={item.stepIndex}>
-              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
+              {onAddStep && (
+                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} showStepBundles />
+              )}
               <StepListItem {...item} isSortable={isSortable} />
               {isLast && onAddStep && (
-                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
+                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} showStepBundles />
               )}
             </Fragment>
           );
@@ -135,7 +136,7 @@ const WorkflowStepList = ({ workflowId }: Props) => {
       <SortableContext strategy={verticalListSortingStrategy} items={getSortableItemUniqueIds(sortableItems)}>
         {content}
       </SortableContext>
-      <ScaledDragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</ScaledDragOverlay>
+      <ScaledDragOverlay>{activeItem && <StepListItem {...activeItem} isDragging isSortable />}</ScaledDragOverlay>
     </DndContext>
   );
 };

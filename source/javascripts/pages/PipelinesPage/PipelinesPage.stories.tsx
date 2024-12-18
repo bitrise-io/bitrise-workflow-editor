@@ -123,7 +123,7 @@ const withWorkflowOverrideYml = () => {
 
   if (yml.pipelines?.['graph-pipeline']?.workflows) {
     yml.pipelines['graph-pipeline'].workflows.override = {
-      based_on: 'wf3',
+      uses: 'wf3',
       depends_on: ['wf1'],
     };
   }
@@ -134,5 +134,19 @@ const withWorkflowOverrideYml = () => {
 export const WithWorkflowOverride: Story = {
   args: {
     yml: withWorkflowOverrideYml(),
+  },
+};
+
+export const WithStepBundlesUI: Story = {
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: {
+          user: {},
+          account: { 'enable-wfe-step-bundles-ui': true, 'enable-dag-pipelines': true },
+        },
+      };
+    }
   },
 };
