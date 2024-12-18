@@ -136,3 +136,17 @@ export const WithWorkflowOverride: Story = {
     yml: withWorkflowOverrideYml(),
   },
 };
+
+export const WithStepBundlesUI: Story = {
+  beforeEach: () => {
+    if (window.parent.globalProps) {
+      window.parent.globalProps = {
+        ...window.parent.globalProps,
+        featureFlags: {
+          user: {},
+          account: { 'enable-wfe-step-bundles-ui': true, 'enable-dag-pipelines': true },
+        },
+      };
+    }
+  },
+};
