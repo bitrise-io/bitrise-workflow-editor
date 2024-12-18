@@ -13,7 +13,7 @@ import {safeDigest} from "@/services/react-compat";
 				viewModel.yml = appService.appConfig;
 			};
 
-			viewModel.onChangeYml = (yml) => {
+			viewModel.onChange = (yml) => {
 				appService.appConfig = yml;
 				safeDigest($rootScope);
 			}
