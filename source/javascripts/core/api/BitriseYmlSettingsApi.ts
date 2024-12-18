@@ -2,7 +2,7 @@ import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import Client from './client';
 
 // DTOs
-type BitriseYmlSettingsResponse = {
+export type BitriseYmlSettingsResponse = {
   last_modified: string;
   lines: number;
   split: boolean;

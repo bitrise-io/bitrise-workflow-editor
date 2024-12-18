@@ -5,7 +5,7 @@ import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import { useCiConfigMutation } from '@/hooks/useGetCIConfig';
+import { useGetCiConfigMutation } from '@/hooks/useCiConfig';
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type UpdateConfigurationDialogProps = {
@@ -20,7 +20,7 @@ type UpdateConfigurationDialogProps = {
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
-  const { error, isPending, mutate, reset } = useCiConfigMutation();
+  const { error, isPending, mutate, reset } = useGetCiConfigMutation();
 
   const ciConfig = getDataToSave();
 

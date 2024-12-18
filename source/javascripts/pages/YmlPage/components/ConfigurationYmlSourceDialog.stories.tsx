@@ -12,7 +12,7 @@ export default {
   component: ConfigurationYmlSourceDialog,
   args: {
     isOpen: true,
-    appSlug: '1c75ec44-ef64-4da0-8ab8-339f512eecc8',
+    projectSlug: '1c75ec44-ef64-4da0-8ab8-339f512eecc8',
     onClose: () => {},
     defaultBranch: 'main',
     gitRepoSlug: 'VoyagerGitRepo',
