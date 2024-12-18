@@ -630,7 +630,7 @@ function updatePipelineWorkflowConditionRunIfExpression(
   return copy;
 }
 
-function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
+function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitrise.io'], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow is missing in the YML just return the YML
@@ -640,13 +640,21 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
 
   if (copy.workflows[workflowId].meta?.['bitrise.io']) {
     const copyBitriseIoMeta = copy.workflows[workflowId].meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
-    copyBitriseIoMeta.stack = stack;
-    copyBitriseIoMeta.machine_type_id = machineTypeId;
+    if (newValues.stack !== undefined) {
+      copyBitriseIoMeta.stack = newValues.stack;
+    }
+    if (newValues.machine_type_id !== undefined) {
+      copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
+    }
+    if (newValues.license_pool_id !== undefined) {
+      copyBitriseIoMeta.license_pool_id = newValues.license_pool_id;
+    }
+    console.log(copyBitriseIoMeta);
     copy.workflows[workflowId].meta['bitrise.io'] = copyBitriseIoMeta;
   } else {
     copy.workflows[workflowId].meta = {
       ...copy.workflows[workflowId].meta,
-      'bitrise.io': { stack, machine_type_id: machineTypeId },
+      'bitrise.io': newValues,
     };
   }
 
@@ -661,6 +669,10 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
     delete newMeta?.['bitrise.io']?.machine_type_id;
   }
 
+  if (shouldRemoveField(newMeta?.['bitrise.io']?.license_pool_id, ymlMeta?.['bitrise.io']?.license_pool_id)) {
+    delete newMeta?.['bitrise.io']?.license_pool_id;
+  }
+
   if (shouldRemoveField(newMeta?.['bitrise.io'], ymlMeta?.['bitrise.io'])) {
     delete newMeta?.['bitrise.io'];
   }
@@ -670,6 +682,12 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   }
 
   return copy;
+  /* function shouldRemoveField<T>(modified: T, original: T) {
+  const modifiedIsEmpty = !isBoolean(modified) && !isNumber(modified) && !isNull(modified) && isEmpty(modified);
+  const originalIsEmpty = !isBoolean(original) && !isNumber(original) && !isNull(original) && isEmpty(original);
+
+  return modifiedIsEmpty && (!originalIsEmpty || original === undefined);
+} */
 }
 
 function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
@@ -1064,6 +1082,43 @@ function deletePipelineFromTriggerMap(pipelineId: string, triggerMap: TriggerMap
   return triggerMap.filter((trigger) => trigger.pipeline !== pipelineId);
 }
 
+function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (copy.workflows[workflowId].meta?.['bitrise.io']) {
+    const copyBitriseIoMeta = copy.workflows[workflowId].meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
+    copyBitriseIoMeta.license_pool_id = licensePoolId;
+    copy.workflows[workflowId].meta['bitrise.io'] = copyBitriseIoMeta;
+  } else {
+    copy.workflows[workflowId].meta = {
+      ...copy.workflows[workflowId].meta,
+      'bitrise.io': { license_pool_id: licensePoolId },
+    };
+  }
+
+  const newMeta = copy.workflows[workflowId].meta as Meta | undefined;
+  const ymlMeta = yml.workflows?.[workflowId]?.meta as Meta | undefined;
+
+  if (shouldRemoveField(newMeta?.['bitrise.io']?.license_pool_id, ymlMeta?.['bitrise.io']?.license_pool_id)) {
+    delete newMeta?.['bitrise.io']?.license_pool_id;
+  }
+
+  if (shouldRemoveField(newMeta?.['bitrise.io'], ymlMeta?.['bitrise.io'])) {
+    delete newMeta?.['bitrise.io'];
+  }
+
+  if (shouldRemoveField(copy.workflows[workflowId].meta, yml.workflows?.[workflowId]?.meta)) {
+    delete copy.workflows[workflowId].meta;
+  }
+
+  return copy;
+}
+
 export default {
   addStep,
   moveStep,
@@ -1093,7 +1148,7 @@ export default {
   updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updatePipelineWorkflowConditionShouldAlwaysRun,
   updatePipelineWorkflowConditionRunIfExpression,
-  updateStackAndMachine,
+  updateWorkflowMeta,
   updateTriggerMap,
   appendWorkflowEnvVar,
   updateWorkflowEnvVars,
@@ -1101,4 +1156,5 @@ export default {
   updateWorkflowTriggersEnabled,
   updatePipelineTriggers,
   updatePipelineTriggersEnabled,
+  updateLicensePoolId,
 };

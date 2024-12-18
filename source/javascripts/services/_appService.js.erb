@@ -612,25 +612,6 @@
         return $q.when();
       };
 
-      appService.getPublicApiToken = function () {
-        if (appService.publicApi) {
-          return $q.when();
-        }
-
-        if (
-          requestService.mode === "website"
-        ) {
-          return requestService.getPublicApiToken()
-            .then(function (data) {
-              appService.publicApi = data;
-            }).catch(() => {
-              appService.publicApi = null;
-            });
-        }
-        appService.publicApi = null;
-        return $q.when();
-      };
-
       appService.getWithBlockImage = function (containerId) {
         if (containerId && appService.appConfig.containers) {
           return appService.appConfig.containers[containerId]?.image || '';

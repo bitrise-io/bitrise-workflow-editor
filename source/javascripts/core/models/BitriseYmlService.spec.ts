@@ -2305,7 +2305,7 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('updateStackAndMachine', () => {
+  describe('updateWorkflowMeta', () => {
     it('should add stack and machine definition to a given workflow', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
@@ -2329,7 +2329,11 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', 'my-stack', 'my-machine', sourceYml);
+      const actualYml = BitriseYmlService.updateWorkflowMeta(
+        'wf1',
+        { stack: 'my-stack', machine_type_id: 'my-machine' },
+        sourceYml,
+      );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -2342,8 +2346,8 @@ describe('BitriseYmlService', () => {
             steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             meta: {
               'bitrise.io': {
-                stack: 'my-stack',
-                machine_type_id: 'my-old-machine',
+                stack: 'my-old-stack',
+                machine_type_id: 'my-machine',
               },
             },
           },
@@ -2364,7 +2368,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', 'my-machine', sourceYml);
+      const actualYml = BitriseYmlService.updateWorkflowMeta('wf1', { stack: '' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -2377,7 +2381,7 @@ describe('BitriseYmlService', () => {
             steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             meta: {
               'bitrise.io': {
-                stack: 'my-old-stack',
+                stack: 'my-stack',
                 machine_type_id: 'my-old-machine',
               },
             },
@@ -2399,12 +2403,12 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', 'my-stack', '', sourceYml);
+      const actualYml = BitriseYmlService.updateWorkflowMeta('wf1', { machine_type_id: '' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should remove bitrise.io section if both stack and workflow config is empty', () => {
+    it('should remove license pool id definition if it is empty', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
@@ -2412,8 +2416,43 @@ describe('BitriseYmlService', () => {
             steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             meta: {
               'bitrise.io': {
+                license_pool_id: 'my-old-pool',
                 stack: 'my-stack',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowMeta('wf1', { license_pool_id: '' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove bitrise.io section if every config is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
                 machine_type_id: 'my-old-machine',
+                stack: 'my-old-stack',
               },
             },
           },
@@ -2429,7 +2468,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', '', sourceYml);
+      const actualYml = BitriseYmlService.updateWorkflowMeta('wf1', { machine_type_id: '', stack: '' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

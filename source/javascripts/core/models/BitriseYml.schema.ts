@@ -653,6 +653,11 @@ const BitriseYmlSchema = {
               additionalProperties: true,
             },
           },
+          properties: {
+            'bitrise.io': {
+              type: 'object',
+            },
+          },
           type: 'object',
         },
         triggers: {

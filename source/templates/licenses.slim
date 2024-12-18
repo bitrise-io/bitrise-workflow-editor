@@ -1,15 +1,5 @@
-.tab-licenses.menu-content-padding[ng-controller="LicensesController as licenseCtrl" ng-init="licenseCtrl.init()"]
-	p.lead == data[:strings][:licenses][:lead]
-	section.cardo.license-settings.default
-		header
-        	h2 == data[:strings][:licenses][:card][:header_title]
-			p.header-description == data[:strings][:licenses][:card][:header_description]
-        article
-			div[ng-if="licenses.length > 1"]
-				section[ng-repeat="workflow in licenseCtrl.workflows"]
-					h4
-						strong.workflow-id[ng-bind="workflow.id"]
-						span == data[:strings][:stack][:workflow_id_postfix]
-					select.mak[no-placeholder="" ng-model-options="{getterSetter: true, updateOn: 'change'}" ng-options="item as item.name for item in licenses track by item.id" ng-model="licenseCtrl.workflowLicenseFactory(workflow)" ]
-			div[ng-if="licenses.length == 0"]
-				a.rebo.purple ng-href="{{ licensePoolsUrl }}" Add license pool
+.tab-licenses[ng-controller="LicensesController as licenseCtrl"]
+	r-triggers-page[
+		on-change="triggerlicenseCtrlsCtrl.onChangeYml"
+		yml="licenseCtrl.yml"
+	]
