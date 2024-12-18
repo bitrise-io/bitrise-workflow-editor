@@ -1,7 +1,7 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import { cloneDeep } from 'es-toolkit';
-import { StepInputVariable } from '@/core/models/Step';
+import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import StepInput from '../components/StepInput';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
@@ -18,15 +18,25 @@ function groupStepInputs(inputs?: StepInputVariable[]) {
 }
 
 const ConfigurationTab = () => {
-  const { data, workflowId, stepIndex } = useStepDrawerContext();
+  const { data, workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
 
   const updateStep = useDebounceCallback(
     useBitriseYmlStore((s) => s.updateStep),
     250,
   );
 
+  const updateStepInStepBundle = useDebounceCallback(
+    useBitriseYmlStore((s) => s.updateStepInStepBundle),
+    250,
+  );
+
   const updateStepInputs = useDebounceCallback(
     useBitriseYmlStore((s) => s.updateStepInputs),
+    250,
+  );
+
+  const updateStepInputsInStepBundle = useDebounceCallback(
+    useBitriseYmlStore((s) => s.updateStepInputsInStepBundle),
     250,
   );
 
@@ -41,8 +51,21 @@ const ConfigurationTab = () => {
         clone[index][name] = value;
       }
     });
+    if (workflowId) {
+      updateStepInputs(workflowId, stepIndex, clone, defaultValues.inputs ?? mergedValues.inputs ?? []);
+    }
+    if (stepBundleId) {
+      updateStepInputsInStepBundle(stepBundleId, stepIndex, clone, defaultValues.inputs ?? mergedValues.inputs ?? []);
+    }
+  };
 
-    updateStepInputs(workflowId, stepIndex, clone, defaultValues.inputs ?? mergedValues.inputs ?? []);
+  const onToggleChange = (newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => {
+    if (workflowId) {
+      updateStep(workflowId, stepIndex, newValues, defaultValues);
+    }
+    if (stepBundleId) {
+      updateStepInStepBundle(stepBundleId, stepIndex, newValues, defaultValues);
+    }
   };
 
   return (
@@ -52,9 +75,7 @@ const ConfigurationTab = () => {
           <Text flex="1">Run even if previous Step(s) failed</Text>
           <Toggle
             defaultChecked={mergedValues.is_always_run}
-            onChange={(e) =>
-              updateStep(workflowId, stepIndex, { is_always_run: e.currentTarget.checked }, defaultValues)
-            }
+            onChange={(e) => onToggleChange({ is_always_run: e.currentTarget.checked })}
           />
         </Box>
         <Divider my="24" />
@@ -62,9 +83,7 @@ const ConfigurationTab = () => {
           <Text flex="1">Continue build even if this Step fails</Text>
           <Toggle
             defaultChecked={mergedValues.is_skippable}
-            onChange={(e) =>
-              updateStep(workflowId, stepIndex, { is_skippable: e.currentTarget.checked }, defaultValues)
-            }
+            onChange={(e) => onToggleChange({ is_skippable: e.currentTarget.checked })}
           />
         </Box>
         <Divider my="24" />
@@ -72,7 +91,7 @@ const ConfigurationTab = () => {
           label="Additional run conditions"
           helperText="Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer to Env Vars and more, see the [docs for details](https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html)."
           defaultValue={mergedValues.run_if}
-          onChange={(changedValue) => updateStep(workflowId, stepIndex, { run_if: changedValue }, defaultValues)}
+          onChange={(changedValue) => onToggleChange({ run_if: changedValue })}
         />
       </ExpandableCard>
 

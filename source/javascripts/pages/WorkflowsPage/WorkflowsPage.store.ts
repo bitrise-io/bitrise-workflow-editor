@@ -14,6 +14,7 @@ export enum WorkflowsPageDialogType {
 
 type State = {
   stepIndex: number;
+  stepBundleId: string;
   workflowId: string;
   parentWorkflowId: string;
   openedDialogType: WorkflowsPageDialogType;
@@ -24,6 +25,7 @@ type State = {
 type DialogParams = {
   type: WorkflowsPageDialogType;
   stepIndex?: number;
+  stepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
 };
@@ -40,6 +42,7 @@ type Action = {
 
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   stepIndex: -1,
+  stepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
   openedDialogType: WorkflowsPageDialogType.NONE,
@@ -60,7 +63,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, workflowId = '', parentWorkflowId = '', stepIndex = -1 }) => {
+  openDialog: ({ type, workflowId = '', stepBundleId = '', parentWorkflowId = '', stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
@@ -70,6 +73,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
             _nextDialog: {
               type,
               stepIndex,
+              stepBundleId,
               workflowId,
               parentWorkflowId,
             },
@@ -78,6 +82,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
 
         return {
           stepIndex,
+          stepBundleId,
           workflowId,
           parentWorkflowId,
           _nextDialog: undefined,
@@ -100,6 +105,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
 
       return {
         stepIndex: -1,
+        stepBundleId: '',
         workflowId: '',
         parentWorkflowId: '',
         nextDialog: undefined,

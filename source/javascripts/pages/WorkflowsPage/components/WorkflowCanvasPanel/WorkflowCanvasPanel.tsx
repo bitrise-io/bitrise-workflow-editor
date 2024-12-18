@@ -23,6 +23,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const selectedWorkflowId = useWorkflowsPageStore((s) => s.workflowId);
+  const selectedStepBundleId = useWorkflowsPageStore((s) => s.stepBundleId);
   const selectedStepIndex = useWorkflowsPageStore((s) => s.stepIndex);
   const setStepIndex = useWorkflowsPageStore((s) => s.setStepIndex);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
@@ -31,15 +32,29 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
-  const { moveStep, cloneStep, deleteStep, upgradeStep, setChainedWorkflows, removeChainedWorkflow } =
-    useBitriseYmlStore((s) => ({
-      moveStep: s.moveStep,
-      cloneStep: s.cloneStep,
-      deleteStep: s.deleteStep,
-      upgradeStep: s.changeStepVersion,
-      setChainedWorkflows: s.setChainedWorkflows,
-      removeChainedWorkflow: s.removeChainedWorkflow,
-    }));
+  const {
+    moveStep,
+    cloneStep,
+    deleteStep,
+    upgradeStep,
+    cloneStepInStepBundle,
+    deleteStepInStepBundle,
+    moveStepInStepBundle,
+    upgradeStepInStepBundle,
+    setChainedWorkflows,
+    removeChainedWorkflow,
+  } = useBitriseYmlStore((s) => ({
+    moveStep: s.moveStep,
+    cloneStep: s.cloneStep,
+    deleteStep: s.deleteStep,
+    upgradeStep: s.changeStepVersion,
+    cloneStepInStepBundle: s.cloneStepInStepBundle,
+    deleteStepInStepBundle: s.deleteStepInStepBundle,
+    moveStepInStepBundle: s.moveStepInStepBundle,
+    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
+    setChainedWorkflows: s.setChainedWorkflows,
+    removeChainedWorkflow: s.removeChainedWorkflow,
+  }));
 
   useEffect(() => {
     const listener = (event: CustomEvent<boolean>) => {
@@ -64,8 +79,18 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   }, [hasUnsavedChanges, workflowId]);
 
   const openStepLikeDrawer = useCallback(
-    (wfId: string, stepIndex: number, libraryType: LibraryType) => {
-      switch (libraryType) {
+    ({
+      stepIndex,
+      type,
+      stepBundleId,
+      wfId,
+    }: {
+      stepIndex: number;
+      type: LibraryType;
+      stepBundleId?: string;
+      wfId?: string;
+    }) => {
+      switch (type) {
         case LibraryType.WITH:
           openDialog({
             type: WorkflowsPageDialogType.WITH_GROUP,
@@ -84,6 +109,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           openDialog({
             type: WorkflowsPageDialogType.STEP_CONFIG,
             workflowId: wfId,
+            stepBundleId,
             stepIndex,
           })();
           break;
@@ -145,11 +171,22 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [closeDialog, removeChainedWorkflow, selectedWorkflowId, workflows],
   );
 
-  const openStepSelectorDrawer = useCallback(
+  const openStepSelectorDrawerFromWorkflow = useCallback(
     (wfId: string, stepIndex: number) => {
       openDialog({
         type: WorkflowsPageDialogType.STEP_SELECTOR,
         workflowId: wfId,
+        stepIndex,
+      })();
+    },
+    [openDialog],
+  );
+
+  const openStepSelectorDrawerFromStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number) => {
+      openDialog({
+        type: WorkflowsPageDialogType.STEP_SELECTOR,
+        stepBundleId,
         stepIndex,
       })();
     },
@@ -197,6 +234,47 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [deleteStep, selectedWorkflowId, selectedStepIndex, closeDialog, setStepIndex],
   );
 
+  const handleCloneStepInStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number) => {
+      cloneStepInStepBundle(stepBundleId, stepIndex);
+
+      // Adjust index if the selected step is cloned
+      if (stepBundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
+        setStepIndex(selectedStepIndex + 1);
+      }
+    },
+    [cloneStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+  );
+
+  const handleDeleteStepInStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number) => {
+      deleteStepInStepBundle(stepBundleId, stepIndex);
+
+      // Close the dialog if the selected step is deleted
+      if (stepBundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
+        closeDialog();
+      }
+
+      // Adjust index if a step is deleted before the selected step
+      if (stepBundleId === selectedStepBundleId && stepIndex < selectedStepIndex) {
+        setStepIndex(selectedStepIndex - 1);
+      }
+    },
+    [closeDialog, deleteStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+  );
+
+  const handleMoveStepInStepBundle = useCallback(
+    (stepBundleId: string, stepIndex: number, targetIndex: number) => {
+      moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
+
+      // Adjust index if the selected step is moved
+      if (stepBundleId === selectedStepBundleId && selectedStepIndex === stepIndex) {
+        setStepIndex(targetIndex);
+      }
+    },
+    [moveStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+  );
+
   return (
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
@@ -236,7 +314,12 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onDeleteStep={handleDeleteStep}
           onUpgradeStep={upgradeStep}
           onSelectStep={openStepLikeDrawer}
-          onAddStep={openStepSelectorDrawer}
+          onAddStep={openStepSelectorDrawerFromWorkflow}
+          onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}
+          onCloneStepInStepBundle={handleCloneStepInStepBundle}
+          onDeleteStepInStepBundle={handleDeleteStepInStepBundle}
+          onMoveStepInStepBundle={handleMoveStepInStepBundle}
+          onUpgradeStepInStepBundle={upgradeStepInStepBundle}
         />
       </Box>
     </Box>

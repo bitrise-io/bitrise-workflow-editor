@@ -83,6 +83,26 @@ type BitriseYmlStoreState = {
   updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
   updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
   updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
+
+  // Step Bundle related actions
+  addStepToStepBundle: (stepBundleId: string, cvs: string, to: number) => void;
+  changeStepVersionInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => void;
+  cloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
+  deleteStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
+  moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
+  renameStepBundle: (stepBundleId: string, newStepBundleId: string) => void;
+  updateStepInStepBundle: (
+    stepBundleId: string,
+    stepIndex: number,
+    newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+    defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  ) => void;
+  updateStepInputsInStepBundle: (
+    stepBundleId: string,
+    stepIndex: number,
+    inputs: StepInputVariable[],
+    defaultInputs: StepInputVariable[],
+  ) => void;
   updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
 };
@@ -358,6 +378,70 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
+
+    // Step Bundle related actions
+    addStepToStepBundle(stepBundleId, cvs, to) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.addStepToStepBundle(stepBundleId, cvs, to, state.yml),
+        };
+      });
+    },
+    changeStepVersionInStepBundle: (stepBundleId, stepIndex, version) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.changeStepVersionInStepBundle(stepBundleId, stepIndex, version, state.yml),
+        };
+      });
+    },
+    cloneStepInStepBundle(stepBundleId, stepIndex) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.cloneStepInStepBundle(stepBundleId, stepIndex, state.yml),
+        };
+      });
+    },
+    deleteStepInStepBundle(stepBundleId, stepIndex) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deleteStepInStepBundle(stepBundleId, stepIndex, state.yml),
+        };
+      });
+    },
+    moveStepInStepBundle(stepBundleId, stepIndex, to) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.moveStepInStepBundle(stepBundleId, stepIndex, to, state.yml),
+        };
+      });
+    },
+    renameStepBundle(stepBundleId, newStepBundleId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.renameStepBundle(stepBundleId, newStepBundleId, state.yml),
+        };
+      });
+    },
+    updateStepInStepBundle: (stepBundleId, stepIndex, newValues, defaultValues) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, defaultValues, state.yml),
+        };
+      });
+    },
+    updateStepInputsInStepBundle: (stepBundleId, stepIndex, inputs, defaultInputs) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepInputsInStepBundle(
+            stepBundleId,
+            stepIndex,
+            inputs,
+            defaultInputs,
+            state.yml,
+          ),
+        };
+      });
+    },
     updatePipelineTriggers(pipelineId, triggers) {
       return set((state) => {
         return {
@@ -366,11 +450,9 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       });
     },
     updatePipelineTriggersEnabled(pipelineId, isEnabled) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
-        };
-      });
+      return set((state) => ({
+        yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
+      }));
     },
   }));
 }

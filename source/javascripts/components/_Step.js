@@ -37,7 +37,7 @@
 
       Step.prototype.displayName = function () {
         if (this.isStepBundle()) {
-          return "Step bundle: " + this.cvs.replace("bundle::", "");
+          return this.cvs.replace("bundle::", "");
         }
         if (this.isWithBlock()) {
           return "With group";

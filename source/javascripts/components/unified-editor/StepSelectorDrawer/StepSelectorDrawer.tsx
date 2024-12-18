@@ -2,8 +2,6 @@ import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, 
 
 import { FormProvider, useForm } from 'react-hook-form';
 import WindowUtils from '@/core/utils/WindowUtils';
-import StepBundleFilter from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleFilter';
-import StepBundleList from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleList';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -12,6 +10,8 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
+import StepBundleFilter from './components/StepBundleFilter';
+import StepBundleList from './components/StepBundleList';
 import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
@@ -19,11 +19,12 @@ import StepList from './components/StepList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
+  showStepBundles: boolean;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
-  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
-    tabIds: ['step', 'stepBundle'],
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, showStepBundles, ...props }: Props) => {
+  const { tabId, tabIndex, setTabIndex } = useTabs<'steps' | 'stepBundles'>({
+    tabIds: ['steps', 'stepBundles'],
   });
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -33,7 +34,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
     },
   });
 
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -55,7 +56,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
             <FloatingDrawerHeader>
               <Box display="flex" gap="12">
                 <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                  Add Step
+                  {enableStepBundles ? 'Add Step or Step bundle' : 'Add step'}
                 </Text>
                 {showStepLimit && (
                   <Tag size="sm">
@@ -65,8 +66,8 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
               </Box>
               {enableStepBundles && (
                 <TabList>
-                  <Tab>Step</Tab>
-                  <Tab>Step bundle</Tab>
+                  <Tab>Steps</Tab>
+                  <Tab>Step bundles</Tab>
                 </TabList>
               )}
               {stepLimitReached && (
@@ -88,12 +89,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   current plan. To add more Steps, upgrade your plan.
                 </Notification>
               )}
-              {tabId === 'step' && <StepFilter mt={16} />}
-              {tabId === 'stepBundle' && <StepBundleFilter marginBlockStart={16} />}
+              {tabId === 'steps' && <StepFilter mt={16} />}
+              {tabId === 'stepBundles' && <StepBundleFilter marginBlockStart={16} />}
             </FloatingDrawerHeader>
             <FloatingDrawerBody>
-              <TabPanels height={tabId === 'step' ? '100%' : undefined}>
-                <TabPanel height={tabId === 'step' ? '100%' : undefined}>
+              <TabPanels height={tabId === 'steps' ? '100%' : undefined}>
+                <TabPanel height={tabId === 'steps' ? '100%' : undefined}>
                   <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                 </TabPanel>
                 <TabPanel>
