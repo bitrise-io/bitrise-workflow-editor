@@ -10,16 +10,15 @@ import {
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
-import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import useSelectedStepBundle from '@/pages/StepBundlesPage/useSelectedStepBundle';
 
 const StepBundlesSelector = () => {
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
-  // TODO: Get the selected stepbundle id
-  const [{ id: selectedStepBundleId }, setSelectedWorkflow] = useSelectedWorkflow();
+  const [{ id: selectedStepBundleId }, setSelectedStepBundle] = useSelectedStepBundle();
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
@@ -51,7 +50,7 @@ const StepBundlesSelector = () => {
       minWidth="0"
       value={selectedStepBundleId}
       formLabel={selectedStepBundleId ?? 'Select a Step bundle'}
-      onChange={({ target: { value } }) => setSelectedWorkflow(value)}
+      onChange={({ target: { value } }) => setSelectedStepBundle(value)}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
     >
       {stepBundleIds.map((id) => (
