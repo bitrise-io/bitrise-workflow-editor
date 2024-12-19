@@ -228,6 +228,19 @@ function cloneStepInStepBundle(stepBundleId: string, stepIndex: number, yml: Bit
   return copy;
 }
 
+function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.workflows = {
+    ...copy.step_bundles,
+    ...{
+      [stepBundleId]: baseStepBundleId ? (copy.step_bundles?.[baseStepBundleId] ?? {}) : {},
+    },
+  };
+
+  return copy;
+}
+
 function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1328,6 +1341,7 @@ export default {
   addStepToStepBundle,
   changeStepVersionInStepBundle,
   cloneStepInStepBundle,
+  createStepBundle,
   deleteStepInStepBundle,
   moveStepInStepBundle,
   renameStepBundle,

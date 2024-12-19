@@ -16,12 +16,12 @@ type StepBundleCardProps = StepCardProps & {
   cvs: string;
   isCollapsable?: boolean;
   isPreviewMode?: boolean;
+  selectedStepBundleId?: string;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
   const { cvs, isCollapsable, isDragging, isPreviewMode, isSortable, stepBundleId, stepIndex, uniqueId, workflowId } =
     props;
-
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });

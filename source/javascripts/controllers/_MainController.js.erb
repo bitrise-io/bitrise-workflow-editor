@@ -57,6 +57,13 @@ import { segmentTrack } from "@/utils/segmentTracking";
           cssClass: "pipelines"
         },
         {
+          id: "step_bundles",
+          title: "Step bundles",
+          path: "step_bundles",
+          possibleURLParameterKeys: ["tab"],
+          cssClass: "step_bundles"
+        },
+        {
           id: "secrets",
           title: "<%= data[:strings][:main][:menus][:secrets] %>",
           path: "<%= data[:routes][:endpoints][:secrets] %>",
@@ -200,6 +207,11 @@ import { segmentTrack } from "@/utils/segmentTracking";
 
               $q.all(loadPromises).then(resolve, reject);
 
+              break;
+            case "step_bundles":
+              var loadPromises = [appService.getAppConfig()];
+              $q.all(loadPromises).then(resolve, reject);
+  
               break;
             case "env-vars":
               var loadPromises = [appService.getAppConfig()];
