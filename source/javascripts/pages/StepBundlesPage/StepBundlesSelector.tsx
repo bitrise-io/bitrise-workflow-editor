@@ -9,35 +9,35 @@ import {
   EmptyState,
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
-import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import useSelectedStepBundle from '@/pages/StepBundlesPage/useSelectedStepBundle';
+import useSelectedStepBundle from '@/pages/StepBundlesPage/hooks/useSelectedStepBundle';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 
 const StepBundlesSelector = () => {
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
   const dropdownRef = useRef<HTMLButtonElement>(null);
-  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
+  const openDialog = useStepBundlesPageStore((s) => s.openDialog);
   const [{ id: selectedStepBundleId }, setSelectedStepBundle] = useSelectedStepBundle();
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
-  const runnableStepBundles = useMemo(() => {
+  const filteredStepBundles = useMemo(() => {
     return stepBundleIds.filter((stepBundleName) =>
       stepBundleName.toLowerCase().includes(debouncedSearch.toLowerCase()),
     );
   }, [debouncedSearch, stepBundleIds]);
 
-  const hasNoSearchResults = debouncedSearch && runnableStepBundles.length === 0;
+  const hasNoSearchResults = debouncedSearch && filteredStepBundles.length === 0;
 
   const onSearchChange = (value: string) => {
     setSearch(value);
     setDebouncedSearch(value);
   };
 
-  const onCreateWorkflow = () => {
-    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
+  const onCreateStepBundle = () => {
+    openDialog({ type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE })();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 
@@ -50,7 +50,9 @@ const StepBundlesSelector = () => {
       minWidth="0"
       value={selectedStepBundleId}
       formLabel={selectedStepBundleId ?? 'Select a Step bundle'}
-      onChange={({ target: { value } }) => setSelectedStepBundle(value)}
+      onChange={({ target: { value } }) => {
+        setSelectedStepBundle(value);
+      }}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
     >
       {stepBundleIds.map((id) => (
@@ -89,7 +91,7 @@ const StepBundlesSelector = () => {
           variant="secondary"
           leftIconName="PlusCircle"
           justifyContent="flex-start"
-          onClick={onCreateWorkflow}
+          onClick={onCreateStepBundle}
         >
           Create Step bundle
         </Button>
