@@ -1,7 +1,7 @@
-import { Text } from '@bitrise/bitkit';
+import StepBundlesSelector from '@/pages/StepBundlesPage/StepBundlesSelector';
 
 const StepBundlesPage = () => {
-  return <Text>Step bundles</Text>;
+  return <StepBundlesSelector />;
 };
 
 export default StepBundlesPage;
