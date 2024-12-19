@@ -55,7 +55,7 @@ const StepBundlesSelector = () => {
       }}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
     >
-      {stepBundleIds.map((id) => (
+      {filteredStepBundles.map((id) => (
         <DropdownOption key={id} value={id}>
           {id}
         </DropdownOption>

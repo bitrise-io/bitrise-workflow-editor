@@ -1,10 +1,10 @@
 import { useDeferredValue } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import StepBundlesSelector from '@/pages/StepBundlesPage/StepBundlesSelector';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import StepBundlesSelector from '@/pages/StepBundlesPage/components/StepBundlesSelector';
 
 const StepBundlesCanvasPanel = () => {
   const selectedStepBundleId = useStepBundlesPageStore((s) => s.stepBundleId);
