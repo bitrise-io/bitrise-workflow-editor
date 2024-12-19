@@ -885,12 +885,6 @@ function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitri
   }
 
   return copy;
-  /* function shouldRemoveField<T>(modified: T, original: T) {
-  const modifiedIsEmpty = !isBoolean(modified) && !isNumber(modified) && !isNull(modified) && isEmpty(modified);
-  const originalIsEmpty = !isBoolean(original) && !isNumber(original) && !isNull(original) && isEmpty(original);
-
-  return modifiedIsEmpty && (!originalIsEmpty || original === undefined);
-} */
 }
 
 function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
