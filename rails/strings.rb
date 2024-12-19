@@ -658,13 +658,6 @@ def strings
         learn_more_about: "Learn more about Machine types »",
         invalid_set_in_bitrise_yml_meta: "Invalid machine type set in bitrise.yml meta"
       },
-      licenses: {
-        lead: "You can run your builds on Bitrise machines relying on license pools. For more info, visit the <a href='https://devcenter.bitrise.io/en/getting-started/unity-on-bitrise.html' target='_blank'>DevCenter.</a>",
-        card: {
-          header_title: 'Workflow-specific license pools',
-          header_description: 'Your workflow-specific builds will run utilizing the selected pool.'
-        }
-      },
       yml: {
         title_editor: "bitrise.yml editor",
         title: "bitrise.yml",
@@ -1063,7 +1056,6 @@ def strings
         apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json",
         workflows_and_pipelines: "/app/<app_slug>/workflows-and-pipelines",
         get_org_beta_tags: "/organization/<org_slug>/beta_tags",
-        user_auth_tokens: "/me/profile/security/user_auth_tokens",
         app_setting_code_signing: "/app/<app_slug>/settings/code-signing"
 
       },
