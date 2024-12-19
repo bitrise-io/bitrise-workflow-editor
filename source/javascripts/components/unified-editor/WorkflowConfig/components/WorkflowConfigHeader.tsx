@@ -15,7 +15,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
   const dependants = useDependantWorkflows({ workflowId: id });
 
   const showSubTitle = context === 'workflow';
-  const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id);
+  const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
 
   return (
     <>
