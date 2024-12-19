@@ -30,7 +30,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
 const StackAndMachineCard = () => {
   const workflow = useWorkflowConfigContext();
   const { data, isLoading } = useStacksAndMachines();
-  const updateStackAndMachine = useBitriseYmlStore((s) => s.updateStackAndMachine);
+  const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
   const {
     selectedStack,
@@ -69,7 +69,9 @@ const StackAndMachineCard = () => {
           isLoading={isLoading}
           value={selectedStack.id}
           errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
-          onChange={(e) => updateStackAndMachine(workflow?.id || '', e.target.value, selectedMachineType.id)}
+          onChange={(e) =>
+            updateWorkflowMeta(workflow?.id || '', { stack: e.target.value, machine_type_id: selectedMachineType.id })
+          }
         >
           {availableStackOptions.map(({ value, label }) => (
             <option key={value} value={value}>
@@ -84,7 +86,9 @@ const StackAndMachineCard = () => {
           value={selectedMachineType.id}
           isDisabled={isMachineTypeSelectionDisabled}
           errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
-          onChange={(e) => updateStackAndMachine(workflow?.id || '', selectedStack.id, e.target.value)}
+          onChange={(e) =>
+            updateWorkflowMeta(workflow?.id || '', { stack: selectedStack.id, machine_type_id: e.target.value })
+          }
         >
           {availableMachineTypeOptions.map(({ value, label }) => (
             <option key={value} value={value}>

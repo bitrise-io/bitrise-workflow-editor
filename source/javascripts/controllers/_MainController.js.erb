@@ -255,7 +255,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
               );
               break;
             case "licenses":
-              var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
+              var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig()];
 
               var loadPromise = $q.all(loadPromises);
 
