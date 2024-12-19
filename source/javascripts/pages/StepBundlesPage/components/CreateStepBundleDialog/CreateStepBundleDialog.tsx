@@ -23,7 +23,7 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
   return (
     <CreateEntityDialog
       baseEntityIds={stepBundleIds}
-      entityName="Workflow"
+      entityName="Step bundle"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
       onCreateEntity={onCreateStepBundle}
