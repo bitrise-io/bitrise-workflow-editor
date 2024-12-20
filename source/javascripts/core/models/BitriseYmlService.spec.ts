@@ -3218,6 +3218,44 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('createStepBundle', () => {
+    it('should create an empty step bundle if base step bundle is missing', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: { bundle1: {} },
+      };
+
+      const actualYml = BitriseYmlService.createStepBundle('bundle1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should create a step bundle based on an other step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ 'script@1': {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ 'script@1': {} }] },
+          bundle2: { steps: [{ 'script@1': {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.createStepBundle('bundle2', sourceYml, 'bundle1');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('deleteStepInStepBundle', () => {
     it('should delete the step at the given index', () => {
       const sourceYml: BitriseYml = {

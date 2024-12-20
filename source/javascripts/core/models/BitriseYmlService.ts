@@ -231,7 +231,7 @@ function cloneStepInStepBundle(stepBundleId: string, stepIndex: number, yml: Bit
 function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  copy.workflows = {
+  copy.step_bundles = {
     ...copy.step_bundles,
     ...{
       [stepBundleId]: baseStepBundleId ? (copy.step_bundles?.[baseStepBundleId] ?? {}) : {},
