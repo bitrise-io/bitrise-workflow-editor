@@ -3256,6 +3256,31 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('deleteStepBundle', () => {
+    it('should remove a step bundle in the whole yml completely', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {},
+          bundle2: {},
+          bundle3: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle2: {},
+          bundle3: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStepBundle('bundle1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('deleteStepInStepBundle', () => {
     it('should delete the step at the given index', () => {
       const sourceYml: BitriseYml = {
