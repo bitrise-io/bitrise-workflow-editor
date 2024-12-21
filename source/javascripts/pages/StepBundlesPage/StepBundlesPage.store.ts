@@ -6,6 +6,7 @@ export enum StepBundlesPageDialogType {
   STEP_CONFIG,
   STEP_SELECTOR,
   CREATE_STEP_BUNDLE,
+  STEP_BUNDLE_CONFIG,
 }
 
 type DialogParams = {

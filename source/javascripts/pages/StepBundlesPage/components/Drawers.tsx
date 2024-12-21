@@ -3,6 +3,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundleDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import CreateStepBundleDialog from '@/pages/StepBundlesPage/components/CreateStepBundleDialog/CreateStepBundleDialog';
+import StepBundlesConfigPanel from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfigPanel';
 
 const Drawers = ({ children }: PropsWithChildren) => {
   // const [, setSearchParams] = useSearchParams();
@@ -29,10 +30,10 @@ const Drawers = ({ children }: PropsWithChildren) => {
   };
 
   // TODO: This function will be needed for the step bundle config drawer
-  //   const handleRenameStepBundle = (newStepBundleId: string) => {
-  //     setStepBundleId(newStepBundleId);
-  //     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
-  //   };
+  // const handleRenameStepBundle = (newStepBundleId: string) => {
+  //   setStepBundleId(newStepBundleId);
+  //   setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
+  // };
 
   return (
     <>
@@ -81,6 +82,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
       )}
 
       {/* TODO: isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG */}
+      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG) && (
+        <StepBundlesConfigPanel
+          stepBundleId={stepBundleId}
+          // onRename={handleRenameStepBundle}
+          // isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG)}
+          // onClose={closeDialog}
+          // onCloseComplete={unmountDialog}
+        />
+      )}
     </>
   );
 };

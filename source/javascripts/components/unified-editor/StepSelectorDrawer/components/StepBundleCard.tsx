@@ -16,7 +16,6 @@ type StepBundleCardProps = StepCardProps & {
   cvs: string;
   isCollapsable?: boolean;
   isPreviewMode?: boolean;
-  selectedStepBundleId?: string;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {

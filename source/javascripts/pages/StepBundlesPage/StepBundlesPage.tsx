@@ -35,7 +35,7 @@ const StepBundlesPageContent = () => {
 
   return (
     <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
-      <StepBundlesCanvasPanel />
+      <StepBundlesCanvasPanel stepBundleId={selectedStepBundleId} />
       <StepBundlesConfigPanel stepBundleId={selectedStepBundleId} />
     </Box>
   );
