@@ -3,16 +3,20 @@ import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
 import useSearchParams from '@/hooks/useSearchParams';
 import { StepBundlesConfigTab } from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.types';
 import useSelectedStepBundle from '@/pages/StepBundlesPage/hooks/useSelectedStepBundle';
-import PropertiesTab from '@/components/unified-editor/WorkflowConfig/tabs/PropertiesTab';
-import ConfigurationTab from '@/components/unified-editor/WorkflowConfig/tabs/ConfigurationTab';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
-import WorkflowConfigHeader from '@/components/unified-editor/WorkflowConfig/components/WorkflowConfigHeader';
 import StepBundlesConfigProvider from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
+import StepBundlesPropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
+import StepBundlesConfigurationTab from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfigurationTab';
+import StepBundlesConfigHeader from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfigHeader';
 
 const TAB_IDS = [StepBundlesConfigTab.CONFIGURATION, StepBundlesConfigTab.PROPERTIES];
 
-const StepBundlesConfigPanelContent = () => {
+type ConfigPanelContentProps = {
+  stepBundleId: string;
+};
+
+const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps) => {
   const [, setSelectedStepBundle] = useSelectedStepBundle();
   const stepBundles = useStepBundles();
   const { setTabIndex, tabIndex } = useTabs<StepBundlesConfigTab>({
@@ -36,7 +40,7 @@ const StepBundlesConfigPanelContent = () => {
 
   const closeDialog = useStepBundlesPageStore((s) => s.closeDialog);
   const onDelete = (deletedId: string) => {
-    setSelectedStepBundle(Object.keys(stepBundles).find((stepBundleId) => stepBundleId !== deletedId));
+    setSelectedStepBundle(Object.keys(stepBundles).find((bundleId) => bundleId !== deletedId));
     closeDialog();
   };
 
@@ -49,13 +53,13 @@ const StepBundlesConfigPanelContent = () => {
       index={tabIndex}
       onChange={onTabChange}
     >
-      <WorkflowConfigHeader variant="panel" context="workflow" />
+      <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
       <TabPanels flex="1" minH="0">
         <TabPanel p="24" overflowY="auto" h="100%">
-          <ConfigurationTab context="workflow" />
+          <StepBundlesConfigurationTab parentStepBundleId={stepBundleId} />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
-          <PropertiesTab variant="panel" onRename={setSelectedStepBundle} onDelete={onDelete} />
+          <StepBundlesPropertiesTab stepBundleId={stepBundleId} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -69,7 +73,7 @@ type Props = {
 const StepBundlesConfigPanel = ({ stepBundleId }: Props) => {
   return (
     <StepBundlesConfigProvider stepBundleId={stepBundleId}>
-      <StepBundlesConfigPanelContent />
+      <StepBundlesConfigPanelContent stepBundleId={stepBundleId} />
     </StepBundlesConfigProvider>
   );
 };
