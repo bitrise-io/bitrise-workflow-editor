@@ -43,12 +43,13 @@ const StepBundlesPageContent = () => {
 
 type StepBundlesPageProps = {
   yml: BitriseYml;
+  onChange: (yml: BitriseYml) => void;
 };
 
 const StepBundlesPage = (props: StepBundlesPageProps) => {
-  const { yml } = props;
+  const { yml, onChange } = props;
   return (
-    <BitriseYmlProvider yml={yml}>
+    <BitriseYmlProvider yml={yml} onChange={onChange}>
       <StepBundlesPageContent />
       <Drawers />
     </BitriseYmlProvider>

@@ -466,6 +466,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
           case "workflows":
           case "env-vars":
           case "pipelines":
+          case "step_bundles":
           case "triggers":
             result = appService.appConfigHasUnsavedChanges();
             break;
@@ -603,6 +604,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
             switch (viewModel.currentMenu.id) {
               case "workflows":
               case "pipelines":
+              case "step_bundles":
               case "env-vars":
               case "triggers":
               case "licenses":
