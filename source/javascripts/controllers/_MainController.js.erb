@@ -721,6 +721,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
         switch (viewModel.currentMenu.id) {
           case "workflows":
           case "pipelines":
+          case "step_bundles":
           case "env-vars":
           case "triggers":
             appService.discardAppConfigChanges();
