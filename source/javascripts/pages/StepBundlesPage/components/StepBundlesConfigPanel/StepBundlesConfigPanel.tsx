@@ -6,9 +6,9 @@ import useSelectedStepBundle from '@/pages/StepBundlesPage/hooks/useSelectedStep
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import StepBundlesConfigProvider from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
-import StepBundlesPropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
 import StepBundlesConfigurationTab from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfigurationTab';
 import StepBundlesConfigHeader from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfigHeader';
+import StepBundlesPropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
 
 const TAB_IDS = [StepBundlesConfigTab.CONFIGURATION, StepBundlesConfigTab.PROPERTIES];
 
@@ -59,7 +59,7 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
           <StepBundlesConfigurationTab parentStepBundleId={stepBundleId} />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
-          <StepBundlesPropertiesTab stepBundleId={stepBundleId} />
+          <StepBundlesPropertiesTab stepBundleId={stepBundleId} onDelete={onDelete} />
         </TabPanel>
       </TabPanels>
     </Tabs>
