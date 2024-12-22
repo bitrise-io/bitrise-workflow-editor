@@ -7,33 +7,20 @@ import StepBundleService from '@/core/models/StepBundleService';
 import { LibraryType } from '@/core/models/Step';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
-import { SortableStepItem, StepActions } from '../../WorkflowCard/WorkflowCard.types';
+import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
 import useReactFlowZoom from '../../WorkflowCard/hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 
-type StepBundleCardProps = StepCardProps &
-  StepActions & {
-    cvs: string;
-    isCollapsable?: boolean;
-    isPreviewMode?: boolean;
-    onDeleteStepBundle?: (stepBundleId: string, stepIndex: number) => void;
-  };
+type StepBundleCardProps = StepCardProps & {
+  cvs: string;
+  isCollapsable?: boolean;
+  isPreviewMode?: boolean;
+};
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const {
-    cvs,
-    isCollapsable,
-    isDragging,
-    isPreviewMode,
-    isSortable,
-    onDeleteStepBundle,
-    stepBundleId,
-    stepIndex,
-    uniqueId,
-    workflowId,
-    ...rest
-  } = props;
+  const { cvs, isCollapsable, isDragging, isPreviewMode, isSortable, stepBundleId, stepIndex, uniqueId, workflowId } =
+    props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
@@ -64,14 +51,25 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     ),
   };
 
+  let cardPadding;
+  if (isCollapsable) {
+    if (!isPreviewMode) {
+      cardPadding = '6px 8px 6px 0px';
+    }
+  } else if (isPreviewMode) {
+    cardPadding = '6px 8px';
+  } else {
+    cardPadding = '4px 8px';
+  }
+
   const isHighlighted = workflowId && isSelected(workflowId, stepIndex);
   const isPlaceholder = sortable.isDragging;
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
-      borderRadius: '4',
       variant: 'outline',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+      ...(isCollapsable ? { borderRadius: '4' } : { borderRadius: '8' }),
     };
 
     if (isPlaceholder) {
@@ -89,10 +87,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     }
 
     return { ...common, ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}) };
-  }, [isDragging, isHighlighted, isPlaceholder]);
+  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
-    if (!stepBundleId || isDragging || (!onDeleteStepBundle && !onDeleteStep && !onSelectStep)) {
+    if (!workflowId || isDragging || (!onDeleteStep && !onSelectStep)) {
       return null;
     }
 
@@ -108,7 +106,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             }}
           />
         )}
-        {onDeleteStepBundle && (
+        {onDeleteStep && (
           <ControlButton
             iconName="Trash"
             aria-label="Remove Step bundle"
@@ -116,16 +114,13 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             isDanger
             onClick={(e) => {
               e.stopPropagation();
-              if (onDeleteStep && workflowId) {
-                onDeleteStep(workflowId, stepIndex);
-              }
-              onDeleteStepBundle(stepBundleId, stepIndex);
+              onDeleteStep(workflowId, stepIndex);
             }}
           />
         )}
       </ButtonGroup>
     );
-  }, [isDragging, onDeleteStep, onDeleteStepBundle, onSelectStep, stepBundleId, stepIndex, workflowId]);
+  }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
 
   return (
     <Card {...cardProps} minW={0} style={style} ref={sortable.setNodeRef}>
@@ -140,14 +135,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 {...sortable.attributes}
               />
             )}
-            <Box
-              display="flex"
-              flexGrow={1}
-              alignItems="center"
-              padding={isPreviewMode ? '6px 8px' : '6px 8px 6px 0px'}
-              gap="4"
-              className="group"
-            >
+            <Box display="flex" flexGrow={1} alignItems="center" padding={cardPadding} gap="4" className="group">
               {isCollapsable && (
                 <ControlButton
                   size="xs"
@@ -174,7 +162,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
             <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} isPreviewMode={isPreviewMode} {...rest} />
+              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} isPreviewMode={isPreviewMode} />
             </Box>
           </Collapse>
         </>

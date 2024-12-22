@@ -12,19 +12,13 @@ type Props = {
 };
 
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
-  const {
-    cloneStepInStepBundle,
-    deleteStepBundle,
-    deleteStepInStepBundle,
-    moveStepInStepBundle,
-    upgradeStepInStepBundle,
-  } = useBitriseYmlStore((s) => ({
-    cloneStepInStepBundle: s.cloneStepInStepBundle,
-    deleteStepBundle: s.deleteStepBundle,
-    deleteStepInStepBundle: s.deleteStepInStepBundle,
-    moveStepInStepBundle: s.moveStepInStepBundle,
-    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-  }));
+  const { cloneStepInStepBundle, deleteStepInStepBundle, moveStepInStepBundle, upgradeStepInStepBundle } =
+    useBitriseYmlStore((s) => ({
+      cloneStepInStepBundle: s.cloneStepInStepBundle,
+      deleteStepInStepBundle: s.deleteStepInStepBundle,
+      moveStepInStepBundle: s.moveStepInStepBundle,
+      upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
+    }));
 
   const openDialog = useStepBundlesPageStore((s) => s.openDialog);
   const closeDialog = useStepBundlesPageStore((s) => s.closeDialog);
@@ -41,23 +35,6 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       })();
     },
     [openDialog],
-  );
-
-  const handleDeleteStepBundle = useCallback(
-    (bundleId: string, stepIndex: number) => {
-      deleteStepBundle(bundleId);
-
-      // Close the dialog if the selected step bundle is deleted
-      if (bundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
-        closeDialog();
-      }
-
-      // Adjust index if a step bundle is deleted before the selected step bundle
-      if (bundleId === selectedStepBundleId && stepIndex < selectedStepIndex) {
-        setStepIndex(selectedStepIndex - 1);
-      }
-    },
-    [deleteStepBundle, selectedStepBundleId, selectedStepIndex, closeDialog, setStepIndex],
   );
 
   const handleCloneStep = useCallback(
@@ -115,18 +92,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           <StepBundlesSelector />
         </Box>
         <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
-          <WorkflowCardContextProvider>
-            <StepBundleCard
-              uniqueId=""
-              stepIndex={-1}
-              cvs={`bundle::${stepBundleId}`}
-              onAddStepToStepBundle={openStepSelectorDrawer}
-              onCloneStepInStepBundle={handleCloneStep}
-              onDeleteStepBundle={handleDeleteStepBundle}
-              onDeleteStepInStepBundle={handleDeleteStep}
-              onMoveStepInStepBundle={handleMoveStep}
-              onUpgradeStepInStepBundle={upgradeStepInStepBundle}
-            />
+          <WorkflowCardContextProvider
+            onAddStepToStepBundle={openStepSelectorDrawer}
+            onCloneStepInStepBundle={handleCloneStep}
+            onDeleteStepInStepBundle={handleDeleteStep}
+            onMoveStepInStepBundle={handleMoveStep}
+            onUpgradeStepInStepBundle={upgradeStepInStepBundle}
+          >
+            <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>
         </Box>
       </Box>
