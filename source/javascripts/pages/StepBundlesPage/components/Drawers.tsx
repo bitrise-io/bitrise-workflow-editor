@@ -46,7 +46,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onCreateStepBundle={createStepBundle}
         />
       )}
-      {/* TODO: Get workflowId */}
+
       {isDialogMounted(StepBundlesPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           size="lg"
@@ -58,7 +58,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onCloseComplete={unmountDialog}
         />
       )}
-      {/* TODO: Get workflowId */}
+
       {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE) && (
         <StepBundleDrawer
           size="lg"

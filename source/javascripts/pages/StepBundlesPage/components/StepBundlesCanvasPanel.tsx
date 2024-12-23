@@ -6,6 +6,7 @@ import { WorkflowCardContextProvider } from '@/components/unified-editor/Workflo
 import StepBundlesSelector from '@/pages/StepBundlesPage/components/StepBundlesSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { LibraryType } from '@/core/models/Step';
 
 type Props = {
   stepBundleId: string;
@@ -25,6 +26,25 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const selectedStepBundleId = useStepBundlesPageStore((s) => s.stepBundleId);
   const selectedStepIndex = useStepBundlesPageStore((s) => s.stepIndex);
   const setStepIndex = useStepBundlesPageStore((s) => s.setStepIndex);
+
+  const openStepLikeDrawer = useCallback(
+    ({
+      stepIndex,
+      stepBundleId: bundleId,
+    }: {
+      stepIndex: number;
+      type: LibraryType;
+      stepBundleId?: string;
+      wfId?: string;
+    }) => {
+      openDialog({
+        type: StepBundlesPageDialogType.STEP_CONFIG,
+        stepBundleId: bundleId,
+        stepIndex,
+      })();
+    },
+    [openDialog],
+  );
 
   const openStepSelectorDrawer = useCallback(
     (bundleId: string, stepIndex: number) => {
@@ -97,6 +117,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
             onCloneStepInStepBundle={handleCloneStep}
             onDeleteStepInStepBundle={handleDeleteStep}
             onMoveStepInStepBundle={handleMoveStep}
+            onSelectStep={openStepLikeDrawer}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
