@@ -7,7 +7,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import { useStepActions } from '../contexts/WorkflowCardContext';
+import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
@@ -27,7 +27,6 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
-
   const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
@@ -114,7 +113,9 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
             variant="secondary"
             alignSelf="stretch"
             leftIconName="PlusCircle"
-            onClick={() => onAddStepToStepBundle(stepBundleId, 0)}
+            onClick={() => {
+              onAddStepToStepBundle(stepBundleId, 0);
+            }}
           >
             Add Step
           </Button>
