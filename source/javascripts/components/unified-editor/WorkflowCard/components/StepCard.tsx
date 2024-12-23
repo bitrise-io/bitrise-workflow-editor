@@ -141,6 +141,8 @@ const StepCard = ({
   const isUpgradable =
     (onUpgradeStep || onUpgradeStepInStepBundle) &&
     VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
+  const isClonable = onCloneStep || onCloneStepInStepBundle;
+  const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
   const handleClick = isButton
     ? () => onSelectStep?.({ stepIndex, type: library, stepBundleId, wfId: workflowId })
@@ -181,11 +183,7 @@ const StepCard = ({
   }, [isDragging, isPlaceholder, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
-    if (
-      !(workflowId || stepBundleId) ||
-      isDragging ||
-      (!isUpgradable && !onCloneStep && !onCloneStepInStepBundle && !onDeleteStep && !onDeleteStepInStepBundle)
-    ) {
+    if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
       return null;
     }
 
@@ -211,7 +209,7 @@ const StepCard = ({
             }}
           />
         )}
-        {(onCloneStep || onCloneStepInStepBundle) && (
+        {isClonable && (
           <ControlButton
             size="xs"
             display="none"
@@ -230,7 +228,7 @@ const StepCard = ({
             }}
           />
         )}
-        {(onDeleteStep || onDeleteStepInStepBundle) && (
+        {isRemovable && (
           <ControlButton
             isDanger
             size="xs"
@@ -253,7 +251,9 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
+    isClonable,
     isDragging,
+    isRemovable,
     isUpgradable,
     latestMajor,
     onCloneStep,

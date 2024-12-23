@@ -6,7 +6,6 @@ import { WorkflowCardContextProvider } from '@/components/unified-editor/Workflo
 import StepBundlesSelector from '@/pages/StepBundlesPage/components/StepBundlesSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
-import { LibraryType } from '@/core/models/Step';
 
 type Props = {
   stepBundleId: string;
@@ -28,15 +27,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const setStepIndex = useStepBundlesPageStore((s) => s.setStepIndex);
 
   const openStepLikeDrawer = useCallback(
-    ({
-      stepIndex,
-      stepBundleId: bundleId,
-    }: {
-      stepIndex: number;
-      type: LibraryType;
-      stepBundleId?: string;
-      wfId?: string;
-    }) => {
+    ({ stepIndex, stepBundleId: bundleId }: { stepIndex: number; stepBundleId?: string }) => {
       openDialog({
         type: StepBundlesPageDialogType.STEP_CONFIG,
         stepBundleId: bundleId,
