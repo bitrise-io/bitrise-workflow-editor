@@ -252,6 +252,20 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   // Remove step bundle from `step_bundles` section of the YML
   delete copy.step_bundles[stepBundleId];
 
+  // Remove the selected step bundle from `workflows` section of the YML
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).map(([workflowId, workflow]) => {
+        const filteredSteps = workflow.steps?.filter((step) => {
+          const [stepId] = Object.keys(step);
+          return stepId !== `bundle::${stepBundleId}`;
+        });
+
+        return [workflowId, { ...workflow, steps: filteredSteps }];
+      }),
+    );
+  }
+
   // Remove the whole `step_bundles` section in the YML if empty
   if (shouldRemoveField(copy.step_bundles, yml.step_bundles)) {
     delete copy.step_bundles;
