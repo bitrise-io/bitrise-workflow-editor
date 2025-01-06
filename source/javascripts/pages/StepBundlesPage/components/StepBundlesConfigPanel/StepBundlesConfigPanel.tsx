@@ -3,7 +3,7 @@ import useSelectedStepBundle from '@/pages/StepBundlesPage/hooks/useSelectedStep
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import StepBundlesConfigProvider from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
-import StepBundlesPropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
+import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
 import StepBundlesConfigHeader from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfigHeader';
 
 type ConfigPanelContentProps = {
@@ -23,7 +23,7 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
     <Box borderLeft="1px solid" borderColor="border/regular">
       <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
       <Box padding="16px 24px">
-        <StepBundlesPropertiesTab stepBundleId={stepBundleId} onDelete={onDelete} />
+        <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={onDelete} />
       </Box>
     </Box>
   );

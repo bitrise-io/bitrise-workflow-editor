@@ -5,12 +5,12 @@ import { useStepBundles } from '@/hooks/useStepBundles';
 import DeleteStepBundleDialog from '@/pages/StepBundlesPage/components/DeleteStepBundleDialog/DeleteStepBundleDialog';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
 
-type StepBundlesPropertiesTabProps = {
+type StepBundlePropertiesTabProps = {
   stepBundleId: string;
   onDelete?: (id: string) => void;
 };
 
-const StepBundlesPropertiesTab = (props: StepBundlesPropertiesTabProps) => {
+const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   const { stepBundleId, onDelete } = props;
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
@@ -42,4 +42,4 @@ const StepBundlesPropertiesTab = (props: StepBundlesPropertiesTabProps) => {
   );
 };
 
-export default StepBundlesPropertiesTab;
+export default StepBundlePropertiesTab;
