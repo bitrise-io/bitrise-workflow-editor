@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useDeferredValue } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
@@ -25,6 +25,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const selectedStepBundleId = useStepBundlesPageStore((s) => s.stepBundleId);
   const selectedStepIndex = useStepBundlesPageStore((s) => s.stepIndex);
   const setStepIndex = useStepBundlesPageStore((s) => s.setStepIndex);
+  const deferredStepIndex = useDeferredValue(selectedStepIndex);
 
   const openStepLikeDrawer = useCallback(
     ({ stepIndex, stepBundleId: bundleId }: { stepIndex: number; stepBundleId?: string }) => {
@@ -118,6 +119,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
             onMoveStepInStepBundle={handleMoveStep}
             onSelectStep={openStepLikeDrawer}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
+            selectedStepIndex={deferredStepIndex}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>
