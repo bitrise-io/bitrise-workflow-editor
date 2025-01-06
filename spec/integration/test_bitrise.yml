@@ -379,6 +379,9 @@ workflows:
           inputs:
             - content: "#!/usr/bin/env bash"
       - xamarin-user-management: {}
+    meta:
+      bitrise.io:
+        license_pool_id: "pool-1"
   wf6:
     summary: this is a short summary
     description: I don't know what to write here

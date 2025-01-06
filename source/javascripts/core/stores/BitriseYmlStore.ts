@@ -58,7 +58,7 @@ type BitriseYmlStoreState = {
     chainedWorkflowId: string,
     chainedWorkflowIndex: number,
   ) => void;
-  updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
+  updateWorkflowMeta: (workflowId: string, newValues: Required<Meta>['bitrise.io']) => void;
   appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
   updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
 
@@ -105,6 +105,7 @@ type BitriseYmlStoreState = {
   ) => void;
   updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
+  updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -285,10 +286,10 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    updateStackAndMachine(workflowId, stack, machineTypeId) {
+    updateWorkflowMeta(workflowId, newValues) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.updateStackAndMachine(workflowId, stack, machineTypeId, state.yml),
+          yml: BitriseYmlService.updateWorkflowMeta(workflowId, newValues, state.yml),
         };
       });
     },
@@ -453,6 +454,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => ({
         yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
       }));
+    },
+    updateLicensePoolId(workflowId, licensePoolId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
+        };
+      });
     },
   }));
 }

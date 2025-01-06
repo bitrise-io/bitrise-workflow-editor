@@ -17,6 +17,7 @@ import {
   TriggersPage,
   WorkflowsPage,
   YmlPage,
+  LicensesPage,
 } from "./pages";
 
 function register(component, props, injects) {
@@ -39,7 +40,8 @@ angular
   )
   .component("rPipelinesPage", register(PipelinesPage, ["yml", "onChange"]))
   .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]))
-  .component("rYmlPage", register(YmlPage, ["ciConfigYml", "isEditorLoading", "onConfigSourceChangeSaved", "onEditorChange", "ymlSettings"]));
+  .component("rYmlPage", register(YmlPage, ["ciConfigYml", "isEditorLoading", "onConfigSourceChangeSaved", "onEditorChange", "ymlSettings"]))
+  .component("rLicensesPage", register(LicensesPage, ["yml", "onChange"]));
 
 // Components
 angular
