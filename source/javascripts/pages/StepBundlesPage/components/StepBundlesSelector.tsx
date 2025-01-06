@@ -10,7 +10,6 @@ import {
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import useSelectedStepBundle from '@/pages/StepBundlesPage/hooks/useSelectedStepBundle';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 
 const StepBundlesSelector = () => {
@@ -18,7 +17,8 @@ const StepBundlesSelector = () => {
   const stepBundleIds = Object.keys(stepBundles);
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const openDialog = useStepBundlesPageStore((s) => s.openDialog);
-  const [{ id: selectedStepBundleId }, setSelectedStepBundle] = useSelectedStepBundle();
+  const stepBundleId = useStepBundlesPageStore((s) => s.stepBundleId) || stepBundleIds[0];
+  const setStepBundleId = useStepBundlesPageStore((s) => s.setStepBundleId);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
@@ -47,10 +47,10 @@ const StepBundlesSelector = () => {
       ref={dropdownRef}
       dropdownMaxHeight="359px"
       minWidth="0"
-      value={selectedStepBundleId}
-      formLabel={selectedStepBundleId ?? 'Select a Step bundle'}
+      value={stepBundleId}
+      formLabel={stepBundleId ?? 'Select a Step bundle'}
       onChange={({ target: { value } }) => {
-        setSelectedStepBundle(value);
+        setStepBundleId(value || '');
       }}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
     >
