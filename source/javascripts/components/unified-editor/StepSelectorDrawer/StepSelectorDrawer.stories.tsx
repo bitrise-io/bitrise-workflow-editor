@@ -1,20 +1,93 @@
+import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { useDisclosure } from '@bitrise/bitkit';
+import { set } from 'es-toolkit/compat';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import StepSelectorDrawer from './StepSelectorDrawer';
 
+type Story = StoryObj<typeof StepSelectorDrawer>;
+
+const extendBeforeEach = (storyObj: Story, newBeforeEach: Story['beforeEach']) => {
+  let beforeEach: Story['beforeEach'] = [];
+  if (Array.isArray(storyObj.beforeEach)) {
+    beforeEach = [...storyObj.beforeEach];
+  } else if (storyObj.beforeEach) {
+    beforeEach = [storyObj.beforeEach];
+  }
+
+  if (newBeforeEach) {
+    beforeEach.push(...(Array.isArray(newBeforeEach) ? newBeforeEach : [newBeforeEach]));
+  }
+
+  return { ...storyObj, beforeEach };
+};
+
+const extendDecorators = (storyObj: Story, newDecorators: Story['decorators']) => {
+  let decorators: Story['decorators'] = [];
+  if (Array.isArray(storyObj.decorators)) {
+    decorators = [...storyObj.decorators];
+  } else if (storyObj.decorators) {
+    decorators = [storyObj.decorators];
+  }
+
+  if (newDecorators) {
+    decorators.push(...(Array.isArray(newDecorators) ? newDecorators : [newDecorators]));
+  }
+
+  return { ...storyObj, decorators };
+};
+
+const withStepBundleUI = (storyObj: Story) => {
+  set(storyObj, 'args.showStepBundles', true);
+  return extendBeforeEach(storyObj, () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-wfe-step-bundles-ui', true);
+  });
+};
+
+const withAlgoliaSearch = (storyObj: Story) => {
+  return extendBeforeEach(storyObj, () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-algolia-search-for-steps', true);
+  });
+};
+
+const withStepLimit = (storyObj: Story, limit = 3) => {
+  let copy = { ...storyObj };
+
+  set(copy, 'args.enabledSteps', new Set(['activate-ssh-key', 'deploy-to-bitrise-io']));
+
+  copy = extendBeforeEach(copy, () => {
+    set(window, 'parent.pageProps.limits.uniqueStepLimit', limit);
+  });
+
+  copy = extendDecorators(copy, (Story, { args }) => {
+    const [enabledSteps, setEnabledSteps] = useState(args.enabledSteps);
+
+    return (
+      <Story
+        args={{
+          ...args,
+          enabledSteps,
+          onSelectStep: (cvs) => {
+            args.onSelectStep(cvs);
+            setEnabledSteps((prev) => new Set([...Array.from(prev?.values() ?? []), cvs.split('@')[0]]));
+          },
+        }}
+      />
+    );
+  });
+
+  return copy;
+};
+
 export default {
   component: StepSelectorDrawer,
+  args: {
+    isOpen: true,
+  },
   argTypes: {
-    defaultIsOpen: { control: 'boolean', type: 'boolean' },
-    isOpen: { control: 'boolean', type: 'boolean' },
     onOpen: { type: 'function' },
     onClose: { type: 'function' },
-    onStepSelected: { type: 'function' },
-  },
-  args: {
-    defaultIsOpen: true,
+    onSelectStep: { type: 'function' },
   },
   decorators: [(Story) => withBitriseYml(TEST_BITRISE_YML, Story)],
   parameters: {
@@ -24,25 +97,9 @@ export default {
   },
 } as Meta<typeof StepSelectorDrawer>;
 
-export const Uncontrolled: StoryObj = {};
+export const Default: Story = {};
 
-export const Controlled: StoryObj = {
-  args: {
-    isOpen: true,
-  },
-  decorators: [
-    (Story) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { isOpen, onOpen, onClose } = useDisclosure({
-        defaultIsOpen: true,
-      });
-
-      return <Story isOpen={isOpen} onOpen={onOpen} onClose={onClose} />;
-    },
-  ],
-};
-
-export const Error: StoryObj = {
+export const Error: Story = {
   parameters: {
     msw: {
       handlers: [StepApiMocks.getAlgoliaSteps({ status: 'error' })],
@@ -50,19 +107,8 @@ export const Error: StoryObj = {
   },
 };
 
-export const EnabledFeatureFlag: StoryObj = {
-  args: {
-    isOpen: true,
-  },
-  beforeEach: () => {
-    if (window.parent.globalProps) {
-      window.parent.globalProps = {
-        ...window.parent.globalProps,
-        featureFlags: {
-          user: {},
-          account: { 'enable-wfe-step-bundles-ui': true },
-        },
-      };
-    }
-  },
-};
+export const WithStepLimit: Story = withStepLimit(Default);
+export const WithStepBundleUI: Story = withStepBundleUI(Default);
+export const WithAlgoliaSearch: Story = withAlgoliaSearch(Default);
+export const WithAlgoliaSearchAndStepLimit: Story = withAlgoliaSearch(withStepLimit(Default));
+export const WithAlgoliaSearchAndStepBundleUI: Story = withAlgoliaSearch(withStepBundleUI(Default));

@@ -1,21 +1,20 @@
-import { useDebounceValue } from 'usehooks-ts';
 import { useQuery } from '@tanstack/react-query';
 import StepApi, { AlgoliaStepResponse } from '@/core/api/StepApi';
-import useSearch from '../../../hooks/useSearch';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useDebouncedFilter from './useDebouncedFilter';
 
 const { stepsClient } = StepApi.getAlgoliaClients();
 
 const useSearchAlgoliaSteps = () => {
-  const search = useSearch((s) => s.searchStep);
-  const categories = useSearch((s) => s.searchStepCategories);
-  const [debouncedSearch] = useDebounceValue(search, 300);
+  const { search, categories } = useDebouncedFilter();
 
   return useQuery({
-    queryKey: ['search-algolia-steps', { debouncedSearch, categories }] as const,
+    queryKey: ['search-algolia-steps', { search, categories }] as const,
     queryFn: async () => {
-      const result = await stepsClient.search<AlgoliaStepResponse>(debouncedSearch, {
+      const result = await stepsClient.search<AlgoliaStepResponse>(search, {
         cacheable: true,
         hitsPerPage: 1000,
+        analytics: RuntimeUtils.isProduction(),
         facetFilters: [
           'is_latest:true',
           'is_deprecated:false',

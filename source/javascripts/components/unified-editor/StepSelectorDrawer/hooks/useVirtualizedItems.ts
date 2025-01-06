@@ -4,6 +4,7 @@ import { Step } from '@/core/models/Step';
 import { VirtualizedListItem } from '../StepSelectorDrawer.types';
 import { RowSizes } from '../StepSelectorDrawer.constants';
 import { createVirtualItemsGroup, getStepsByCategories } from '../StepSelectorDrawer.utils';
+import { findScrollContainer } from '../components/AlgoliaStepList/AlgoliaStepList.utils';
 
 type Props = {
   containerRef: RefObject<HTMLElement>;
@@ -80,7 +81,7 @@ const useVirtualizedItems = ({
   );
 
   const virtualizer = useVirtualizer({
-    getScrollElement: () => containerRef.current,
+    getScrollElement: () => findScrollContainer(containerRef.current),
     estimateSize: (idx) => RowSizes[items[idx].type],
     getItemKey,
     overscan: 3,

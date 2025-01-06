@@ -15,6 +15,7 @@ import StepBundleFilter from './components/StepBundleFilter';
 import StepFilter from './components/StepFilter';
 import StepBundleList from './components/StepBundleList';
 import AlgoliaStepList from './components/AlgoliaStepList/AlgoliaStepList';
+import StepList from './components/StepList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
@@ -30,6 +31,7 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
   });
 
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
+  const enableAlgoliaSearch = useFeatureFlag('enable-algolia-search-for-steps');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -92,7 +94,14 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
             <ReactFlowProvider>
               <TabPanels>
                 <TabPanel>
-                  <AlgoliaStepList enabledSteps={enabledSteps} onSelectStep={onSelectStep} />
+                  {enableAlgoliaSearch ? (
+                    <AlgoliaStepList
+                      enabledSteps={stepLimitReached ? enabledSteps : undefined}
+                      onSelectStep={onSelectStep}
+                    />
+                  ) : (
+                    <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
+                  )}
                 </TabPanel>
                 <TabPanel>
                   <StepBundleList onSelectStep={onSelectStep} />
