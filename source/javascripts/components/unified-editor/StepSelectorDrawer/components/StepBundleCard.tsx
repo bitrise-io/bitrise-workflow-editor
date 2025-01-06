@@ -123,7 +123,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
 
   return (
-    <Card {...cardProps} minW={0} style={style} ref={sortable.setNodeRef}>
+    <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>
       {!isPlaceholder && (
         <>
           <Box display="flex">

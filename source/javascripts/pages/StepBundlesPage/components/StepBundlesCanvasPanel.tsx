@@ -102,7 +102,15 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         >
           <StepBundlesSelector />
         </Box>
-        <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
+        <Box
+          display="flex"
+          flexDir="column"
+          flex="1"
+          alignItems="center"
+          overflowY="auto"
+          p="16"
+          bg="background/secondary"
+        >
           <WorkflowCardContextProvider
             onAddStepToStepBundle={openStepSelectorDrawer}
             onCloneStepInStepBundle={handleCloneStep}
