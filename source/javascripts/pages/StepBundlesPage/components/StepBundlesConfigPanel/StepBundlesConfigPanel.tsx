@@ -9,13 +9,18 @@ type ConfigPanelContentProps = {
 };
 
 const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps) => {
-  const closeDialog = useStepBundlesPageStore((s) => s.closeDialog);
+  const { closeDialog, setStepBundleId } = useStepBundlesPageStore();
+
+  const handleOnDelete = () => {
+    setStepBundleId('');
+    closeDialog();
+  };
 
   return (
     <Box borderLeft="1px solid" borderColor="border/regular">
       <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
       <Box padding="16px 24px">
-        <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={closeDialog} />
+        <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setStepBundleId} />
       </Box>
     </Box>
   );

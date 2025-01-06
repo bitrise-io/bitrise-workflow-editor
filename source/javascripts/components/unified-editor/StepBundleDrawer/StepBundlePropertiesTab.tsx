@@ -41,7 +41,12 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
           <Button leftIconName="Trash" variant="secondary" isDanger marginBlockStart="24" onClick={openDeleteDialog}>
             Delete Step bundle
           </Button>
-          <DeleteStepBundleDialog isOpen={isDeleteDialogOpen} onClose={closeDeleteDialog} stepBundleId={stepBundleId} />
+          <DeleteStepBundleDialog
+            isOpen={isDeleteDialogOpen}
+            onClose={closeDeleteDialog}
+            stepBundleId={stepBundleId}
+            onDeleteStepBundle={onDelete}
+          />
         </>
       )}
     </>

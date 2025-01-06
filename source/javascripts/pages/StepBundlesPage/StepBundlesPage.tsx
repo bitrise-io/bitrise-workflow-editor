@@ -10,12 +10,13 @@ import Drawers from './components/Drawers';
 import StepBundlesConfigPanel from './components/StepBundlesConfigPanel/StepBundlesConfigPanel';
 
 const StepBundlesPageContent = () => {
-  const openDialog = useStepBundlesPageStore((s) => s.openDialog);
-  const closeDialog = useStepBundlesPageStore((s) => s.closeDialog);
   const stepBundles = useStepBundles();
   const stepBundlesIds = Object.keys(stepBundles);
+  const { closeDialog, openDialog, stepBundleId } = useStepBundlesPageStore((s) => ({
+    ...s,
+    stepBundleId: s.stepBundleId || stepBundlesIds[0],
+  }));
   const hasStepBundles = stepBundlesIds.length > 0;
-  const stepBundleId = useStepBundlesPageStore((s) => s.stepBundleId) || stepBundlesIds[0];
 
   useEffect(() => {
     closeDialog();
