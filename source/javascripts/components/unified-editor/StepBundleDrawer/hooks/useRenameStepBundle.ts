@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const useRenameStepBundle = (selectedStepBundleId: string) => {
+const useRenameStepBundle = (selectedStepBundleId: string, onChange?: (newStepBundleId: string) => void) => {
   const { renameStepBundle } = useBitriseYmlStore((s) => ({
     renameStepBundle: s.renameStepBundle,
   }));
@@ -10,9 +10,10 @@ const useRenameStepBundle = (selectedStepBundleId: string) => {
     (newStepBundleId: string) => {
       if (selectedStepBundleId) {
         renameStepBundle(selectedStepBundleId, newStepBundleId);
+        onChange?.(newStepBundleId);
       }
     },
-    [renameStepBundle, selectedStepBundleId],
+    [onChange, renameStepBundle, selectedStepBundleId],
   );
 };
 

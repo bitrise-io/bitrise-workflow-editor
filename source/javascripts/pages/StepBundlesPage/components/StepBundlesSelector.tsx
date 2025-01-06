@@ -19,7 +19,6 @@ const StepBundlesSelector = () => {
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const openDialog = useStepBundlesPageStore((s) => s.openDialog);
   const [{ id: selectedStepBundleId }, setSelectedStepBundle] = useSelectedStepBundle();
-
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 

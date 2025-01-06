@@ -8,16 +8,17 @@ import useRenameStepBundle from './hooks/useRenameStepBundle';
 type StepBundlePropertiesTabProps = {
   stepBundleId: string;
   onDelete?: (id: string) => void;
+  onRename?: (name: string) => void;
 };
 
 const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
-  const { stepBundleId, onDelete } = props;
+  const { stepBundleId, onDelete, onRename } = props;
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
 
-  const handleNameChange = useRenameStepBundle(stepBundleId);
+  const handleNameChange = useRenameStepBundle(stepBundleId, onRename);
 
   return (
     <>
