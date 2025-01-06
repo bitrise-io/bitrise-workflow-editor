@@ -3,22 +3,27 @@ import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import DeleteStepBundleDialog from '@/pages/StepBundlesPage/components/DeleteStepBundleDialog/DeleteStepBundleDialog';
-import useRenameStepBundle from './hooks/useRenameStepBundle';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type StepBundlePropertiesTabProps = {
   stepBundleId: string;
   onDelete?: (id: string) => void;
-  onRename?: (name: string) => void;
+  onRename?: (newStepBundleId: string) => void;
 };
 
 const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   const { stepBundleId, onDelete, onRename } = props;
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
-
+  const { renameStepBundle } = useBitriseYmlStore((s) => ({
+    renameStepBundle: s.renameStepBundle,
+  }));
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
 
-  const handleNameChange = useRenameStepBundle(stepBundleId, onRename);
+  const handleNameChange = (newStepBundleId: string) => {
+    renameStepBundle(stepBundleId, newStepBundleId);
+    onRename?.(newStepBundleId);
+  };
 
   return (
     <>

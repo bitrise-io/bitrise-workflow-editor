@@ -92,7 +92,6 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
 
       return {
         stepIndex: -1,
-        stepBundleId: '',
         nextDialog: undefined,
         openedDialogType: StepBundlesPageDialogType.NONE,
         mountedDialogType: StepBundlesPageDialogType.NONE,

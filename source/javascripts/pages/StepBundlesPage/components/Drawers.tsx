@@ -5,8 +5,16 @@ import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/Step
 import CreateStepBundleDialog from '@/pages/StepBundlesPage/components/CreateStepBundleDialog/CreateStepBundleDialog';
 
 const Drawers = ({ children }: PropsWithChildren) => {
-  const { stepBundleId, stepIndex, openDialog, closeDialog, isDialogOpen, unmountDialog, isDialogMounted } =
-    useStepBundlesPageStore();
+  const {
+    stepBundleId,
+    stepIndex,
+    openDialog,
+    closeDialog,
+    isDialogOpen,
+    unmountDialog,
+    isDialogMounted,
+    setStepBundleId,
+  } = useStepBundlesPageStore();
 
   // Do we need getUniqueStepIds?
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
@@ -26,6 +34,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
     })();
   };
 
+  const handleCreateStepBundle = (newStepBundleId: string) => {
+    createStepBundle(newStepBundleId);
+    setStepBundleId(newStepBundleId);
+  };
+
   return (
     <>
       {children}
@@ -34,7 +47,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(StepBundlesPageDialogType.CREATE_STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreateStepBundle={createStepBundle}
+          onCreateStepBundle={handleCreateStepBundle}
         />
       )}
 
