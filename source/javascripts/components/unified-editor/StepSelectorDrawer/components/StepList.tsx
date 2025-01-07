@@ -1,18 +1,12 @@
 import { CSSProperties, useMemo, useRef } from 'react';
 import { Box, Button, EmptyState, Notification } from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
-import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 import useColumnCount from '../hooks/useColumnCount';
 import useVirtualizedItems from '../hooks/useVirtualizedItems';
-import { SearchFormValues, SelectStepHandlerFn } from '../StepSelectorDrawer.types';
+import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
 import useSearchSteps from '../hooks/useSearchSteps';
+import useSearch from '../hooks/useSearch';
 import SkeletonRows from './SkeletonRows';
 import VirtualizedRow from './VirtualizedRow';
-
-const InitialValues: SearchFormValues = {
-  searchSteps: '',
-  categories: [],
-};
 
 type Props = {
   enabledSteps?: Set<string>;
@@ -22,12 +16,21 @@ type Props = {
 const StepList = ({ enabledSteps, onSelectStep }: Props) => {
   const listRef = useRef<HTMLDivElement>(null);
   const columns = useColumnCount({ ref: listRef });
-  const { reset, watch } = useFormContext<SearchFormValues>();
-  const formValues = useDebouncedFormValues({
-    watch,
-    initialValues: InitialValues,
+
+  const reset = useSearch((s) => s.reset);
+  const searchStep = useSearch((s) => s.stepQuery);
+  const searchStepCategories = useSearch((s) => s.stepCategoryFilter);
+
+  const {
+    isError,
+    isLoading,
+    data: steps = [],
+    refetch: onRetry,
+  } = useSearchSteps({
+    categories: searchStepCategories,
+    searchSteps: searchStep,
   });
-  const { data: steps = [], isLoading, isError, refetch: onRetry } = useSearchSteps(formValues);
+
   const highlightedStepGroups = useMemo(
     () => (enabledSteps ? { 'Allowed steps': enabledSteps } : undefined),
     [enabledSteps],
@@ -39,8 +42,8 @@ const StepList = ({ enabledSteps, onSelectStep }: Props) => {
   } = useVirtualizedItems({
     containerRef: listRef,
     columns,
-    hideCategoryNames: Boolean(formValues.searchSteps),
-    selectedCategories: formValues.categories,
+    hideCategoryNames: Boolean(searchStep),
+    selectedCategories: searchStepCategories,
     steps,
     enabledSteps,
     highlightedStepGroups,
@@ -81,22 +84,20 @@ const StepList = ({ enabledSteps, onSelectStep }: Props) => {
   }
 
   return (
-    <Box ref={listRef} maxH="100%" overflow="auto">
-      <Box height={getTotalSize()} position="relative">
-        {getVirtualItems().map((virtualItem) => {
-          const { key, index, start } = virtualItem;
-          const item = items[index];
-          const style: CSSProperties = {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: `100%`,
-            transform: `translateY(${start}px)`,
-          };
+    <Box ref={listRef} height={getTotalSize()} position="relative">
+      {getVirtualItems().map((virtualItem) => {
+        const { key, index, start } = virtualItem;
+        const item = items[index];
+        const style: CSSProperties = {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: `100%`,
+          transform: `translateY(${start}px)`,
+        };
 
-          return <VirtualizedRow key={key} style={style} item={item} onSelectStep={onSelectStep} />;
-        })}
-      </Box>
+        return <VirtualizedRow key={key} style={style} item={item} onSelectStep={onSelectStep} />;
+      })}
     </Box>
   );
 };

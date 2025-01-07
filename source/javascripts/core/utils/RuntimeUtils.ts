@@ -1,3 +1,7 @@
+function isProduction() {
+  return process.env.NODE_ENV === 'prod';
+}
+
 function isWebsiteMode() {
   return process.env.MODE?.toLowerCase() === 'website';
 }
@@ -7,6 +11,7 @@ function isLocalMode() {
 }
 
 export default {
+  isProduction,
   isWebsiteMode,
   isLocalMode,
 };
