@@ -3,19 +3,19 @@ import { useEffect, useRef } from 'react';
 import { Box, Text } from '@bitrise/bitkit';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import { AlgoliaStepResponse } from '@/core/api/StepApi';
-
-import useCalculateColumns from '../hooks/useCalculateColumns';
-import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from '../AlgoliaStepList.const';
-import { findScrollContainer } from '../AlgoliaStepList.utils';
+import { AlgoliaStepResponse } from '@/core/api/AlgoliaApi';
 
 import useVirtualItems from '../hooks/useVirtualItems';
+import useCalculateColumns from '../hooks/useCalculateColumns';
+import { findScrollContainer } from '../AlgoliaStepList.utils';
+import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from '../AlgoliaStepList.const';
+
 import AlgoliaStepListItem from './AlgoliaStepListItem';
 
 type Props = {
   steps: AlgoliaStepResponse[];
   enabledSteps?: Set<string>;
-  onSelectStep: (cvs: string) => void;
+  onSelectStep: (cvs: string, objectId: string, position: number) => void;
 };
 
 const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
@@ -69,10 +69,11 @@ const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
             gridTemplateColumns={`repeat(${columns}, 1fr)`}
           >
             {item.map((step) => {
-              const { version, cvs, id } = step;
               const { title, description } = step.step;
-              const logo = step.step.asset_urls?.['icon.svg'];
+              const { version, cvs, id, objectID } = step;
+
               const maintainer = step.info?.maintainer;
+              const logo = step.step.asset_urls?.['icon.svg'];
               const isDisabled = enabledSteps && !enabledSteps.has(id);
 
               return (
@@ -82,9 +83,9 @@ const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
                   title={title}
                   version={version}
                   maintainer={maintainer}
-                  description={description}
                   isDisabled={isDisabled}
-                  onClick={() => onSelectStep(cvs)}
+                  description={description}
+                  onClick={() => onSelectStep(cvs, objectID, steps.findIndex((s) => s.objectID === objectID) + 1)}
                 />
               );
             })}

@@ -14,7 +14,8 @@ import {
   VariableOpts,
   WithGroupYmlObject,
 } from '@/core/models/Step';
-import type { StepApiResult, StepInfo } from '@/core/api/StepApi';
+import type { StepApiResult } from '@/core/api/StepApi';
+import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
 import VersionUtils from '@/core/utils/VersionUtils';
 import defaultIcon from '@/../images/step/icon-default.svg';
 
@@ -259,7 +260,12 @@ function resolveTitle(cvs: string, defaultStepLibrary: string, step?: Steps[numb
   return id.split('/').pop() || id;
 }
 
-function resolveIcon(cvs: string, defaultStepLibrary: string, step?: StepLikeYmlObject, info?: StepInfo): string {
+function resolveIcon(
+  cvs: string,
+  defaultStepLibrary: string,
+  step?: StepLikeYmlObject,
+  info?: AlgoliaStepInfo,
+): string {
   if (isWithGroup(cvs, defaultStepLibrary, step) || isStepBundle(cvs, defaultStepLibrary, step)) {
     return defaultIcon;
   }
