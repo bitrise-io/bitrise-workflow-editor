@@ -73,7 +73,6 @@ export type StepCardProps = {
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
-  isPreviewMode?: boolean;
   showSecondary?: boolean;
 };
 
