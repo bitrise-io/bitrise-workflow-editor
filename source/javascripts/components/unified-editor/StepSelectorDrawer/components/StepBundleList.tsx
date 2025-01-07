@@ -10,7 +10,7 @@ type StepBundleListProps = {
 
 const StepBundleList = ({ onSelectStep }: StepBundleListProps) => {
   const bundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
-  const filterStepBundles = useSearch((s) => s.searchStepBundle);
+  const filterStepBundles = useSearch((s) => s.stepBundleQuery);
   const setSearchStepBundle = useSearch((s) => s.setSearchStepBundle);
 
   const filteredItems = bundleIds.filter((id) => {

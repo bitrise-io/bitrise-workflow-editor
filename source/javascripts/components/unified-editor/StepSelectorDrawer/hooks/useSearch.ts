@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 
 type State = {
-  searchStep: string;
-  searchStepBundle: string;
-  searchStepCategories: string[];
+  stepQuery: string;
+  stepBundleQuery: string;
+  stepCategoryFilter: string[];
 };
 
 type Actions = {
@@ -14,13 +14,13 @@ type Actions = {
 };
 
 const useSearch = create<State & Actions>((set) => ({
-  searchStep: '',
-  searchStepBundle: '',
-  searchStepCategories: [],
-  setSearchStep: (searchStep: string) => set({ searchStep }),
-  setSearchStepBundle: (searchStepBundle: string) => set({ searchStepBundle }),
-  setSearchStepCategories: (searchStepCategories: string[]) => set({ searchStepCategories }),
-  reset: () => set({ searchStep: '', searchStepBundle: '', searchStepCategories: [] }),
+  stepQuery: '',
+  stepBundleQuery: '',
+  stepCategoryFilter: [],
+  setSearchStep: (stepQuery: string) => set({ stepQuery }),
+  setSearchStepBundle: (stepBundleQuery: string) => set({ stepBundleQuery }),
+  setSearchStepCategories: (stepCategoryFilter: string[]) => set({ stepCategoryFilter }),
+  reset: () => set({ stepQuery: '', stepBundleQuery: '', stepCategoryFilter: [] }),
 }));
 
 export default useSearch;

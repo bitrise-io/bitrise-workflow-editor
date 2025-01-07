@@ -18,8 +18,8 @@ const StepList = ({ enabledSteps, onSelectStep }: Props) => {
   const columns = useColumnCount({ ref: listRef });
 
   const reset = useSearch((s) => s.reset);
-  const searchStep = useSearch((s) => s.searchStep);
-  const searchStepCategories = useSearch((s) => s.searchStepCategories);
+  const searchStep = useSearch((s) => s.stepQuery);
+  const searchStepCategories = useSearch((s) => s.stepCategoryFilter);
 
   const {
     isError,

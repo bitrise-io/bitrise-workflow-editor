@@ -10,7 +10,7 @@ const StepFilterCategories = memo(() => {
   const { data: steps = [] } = useAlgoliaSteps();
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
 
-  const value = useSearch((s) => s.searchStepCategories);
+  const value = useSearch((s) => s.stepCategoryFilter);
   const onChange = useSearch((s) => s.setSearchStepCategories);
 
   return (
@@ -25,7 +25,7 @@ const StepFilterCategories = memo(() => {
 });
 
 const StepFilter = (props: BoxProps) => {
-  const value = useSearch((s) => s.searchStep);
+  const value = useSearch((s) => s.stepQuery);
   const onChange = useSearch((s) => s.setSearchStep);
 
   return (
