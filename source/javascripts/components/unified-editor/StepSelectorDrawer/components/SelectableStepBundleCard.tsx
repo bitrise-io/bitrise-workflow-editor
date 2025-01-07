@@ -31,7 +31,6 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           textAlign="left"
           _hover={{ borderColor: 'border/hover' }}
           onClick={handleClick}
-          marginBottom="12"
         >
           <Text textStyle="body/lg/semibold" marginBlockEnd="4">
             {id}

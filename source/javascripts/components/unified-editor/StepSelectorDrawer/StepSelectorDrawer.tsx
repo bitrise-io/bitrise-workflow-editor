@@ -103,7 +103,7 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
                     <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
                   )}
                 </TabPanel>
-                <TabPanel>
+                <TabPanel display="flex" flexDir="column" gap="12">
                   <StepBundleList onSelectStep={onSelectStep} />
                 </TabPanel>
               </TabPanels>

@@ -1,10 +1,9 @@
-import { PropsWithChildren } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundleDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import CreateStepBundleDialog from '@/pages/StepBundlesPage/components/CreateStepBundleDialog/CreateStepBundleDialog';
 
-const Drawers = ({ children }: PropsWithChildren) => {
+const Drawers = () => {
   const {
     stepBundleId,
     stepIndex,
@@ -16,7 +15,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setStepBundleId,
   } = useStepBundlesPageStore();
 
-  // Do we need getUniqueStepIds?
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
     addStepToStepBundle: s.addStepToStepBundle,
     createStepBundle: s.createStepBundle,
@@ -41,7 +39,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
   return (
     <>
-      {children}
       {isDialogMounted(StepBundlesPageDialogType.CREATE_STEP_BUNDLE) && (
         <CreateStepBundleDialog
           isOpen={isDialogOpen(StepBundlesPageDialogType.CREATE_STEP_BUNDLE)}

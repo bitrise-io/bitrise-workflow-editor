@@ -93,14 +93,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   return (
     <ReactFlowProvider>
       <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
-        <Box
-          p="12"
-          display="flex"
-          gap="12"
-          bg="background/primary"
-          borderBottom="1px solid"
-          borderColor="border/regular"
-        >
+        <Box p="12" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
           <StepBundlesSelector />
         </Box>
         <Box

@@ -12,15 +12,13 @@ const StepBundlesConfigHeader = ({ parentStepBundleId }: Props) => {
   const dependants = useDependantWorkflows({ workflowId: id });
 
   return (
-    <Box display="flex" justifyContent="space-between" padding="24px 24px 16px 24px">
-      <Box>
-        <Text as="h3" textStyle="heading/h3">
-          {parentStepBundleId}
-        </Text>
-        <Text textStyle="body/sm/regular" color="text/secondary">
-          {StepBundleService.getUsedByText(dependants.length)}
-        </Text>
-      </Box>
+    <Box padding="24px 24px 16px 24px">
+      <Text as="h3" textStyle="heading/h3">
+        {parentStepBundleId}
+      </Text>
+      <Text textStyle="body/sm/regular" color="text/secondary">
+        {StepBundleService.getUsedByText(dependants.length)}
+      </Text>
     </Box>
   );
 };
