@@ -78,7 +78,7 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" mt={-8} gap={isPreviewMode ? '8' : '0'}>
+      <Box display="flex" flexDir="column" gap="8">
         {sortableItems.map((item) => {
           const isLast = item.stepIndex === sortableItems.length - 1;
           return (
@@ -87,14 +87,15 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
                 <AddStepButton
                   onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)}
                   showStepBundles={false}
+                  my={isPreviewMode ? '0px' : '-8px'}
                 />
               )}
               <StepCard {...item} isSortable={isSortable} isPreviewMode={isPreviewMode} {...actions} />
               {isLast && onAddStepToStepBundle && (
                 <AddStepButton
-                  mb={-8}
                   onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex + 1)}
                   showStepBundles={false}
+                  my={isPreviewMode ? '0px' : '-8px'}
                 />
               )}
             </Fragment>
