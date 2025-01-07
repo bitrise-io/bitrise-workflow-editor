@@ -26,7 +26,9 @@ const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
   const { measure, getTotalSize, getVirtualItems } = useVirtualizer({
     gap: GAP,
     count: rows.length,
-    getScrollElement: () => findScrollContainer(ref.current),
+    getScrollElement: () => {
+      return findScrollContainer(ref.current);
+    },
     estimateSize: (index: number) => {
       const item = rows[index];
 

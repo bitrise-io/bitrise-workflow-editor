@@ -15,6 +15,7 @@ const useSearchAlgoliaSteps = () => {
         cacheable: true,
         hitsPerPage: 1000,
         analytics: RuntimeUtils.isProduction(),
+        clickAnalytics: RuntimeUtils.isProduction(),
         facetFilters: [
           'is_latest:true',
           'is_deprecated:false',
