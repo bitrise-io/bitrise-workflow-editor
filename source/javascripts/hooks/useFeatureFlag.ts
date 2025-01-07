@@ -2,6 +2,7 @@ const defaultValues = {
   'enable-dag-pipelines': false,
   'enable-wfe-pipeline-viewer': false,
   'enable-wfe-step-bundles-ui': false,
+  'enable-algolia-search-for-steps': false,
 };
 
 type FeatureFlags = typeof defaultValues;

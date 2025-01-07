@@ -1,8 +1,7 @@
-import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
-
-import { FormProvider, useForm } from 'react-hook-form';
-import WindowUtils from '@/core/utils/WindowUtils';
+import { Box, Tabs, Tag, Text, useTabs, Notification, TabList, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
+import { ReactFlowProvider } from '@xyflow/react';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import WindowUtils from '@/core/utils/WindowUtils';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -10,10 +9,12 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
+import { SelectStepHandlerFn } from './StepSelectorDrawer.types';
+import useSearch from './hooks/useSearch';
 import StepBundleFilter from './components/StepBundleFilter';
-import StepBundleList from './components/StepBundleList';
-import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
+import StepBundleList from './components/StepBundleList';
+import AlgoliaStepList from './components/AlgoliaStepList/AlgoliaStepList';
 import StepList from './components/StepList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
@@ -22,19 +23,15 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   showStepBundles: boolean;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, showStepBundles, ...props }: Props) => {
-  const { tabId, tabIndex, setTabIndex } = useTabs<'steps' | 'stepBundles'>({
-    tabIds: ['steps', 'stepBundles'],
-  });
-  const form = useForm<SearchFormValues>({
-    defaultValues: {
-      searchSteps: '',
-      filterStepBundles: '',
-      categories: [],
-    },
+const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onCloseComplete, ...props }: Props) => {
+  const resetSearch = useSearch((s) => s.reset);
+
+  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
+    tabIds: ['step', 'stepBundle'],
   });
 
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
+  const enableAlgoliaSearch = useFeatureFlag('enable-algolia-search-for-steps');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -42,69 +39,78 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, showS
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
   const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
-  const handleCloseCompete = () => {
-    form.reset();
+  const handleCloseComplete = () => {
+    resetSearch();
     onCloseComplete?.();
   };
 
   return (
-    <Tabs variant="line" index={tabIndex} onChange={setTabIndex}>
-      <FormProvider {...form}>
-        <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
-          <FloatingDrawerContent data-clarity-unmask="true">
-            <FloatingDrawerCloseButton />
-            <FloatingDrawerHeader>
-              <Box display="flex" gap="12">
-                <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                  {enableStepBundles ? 'Add Step or Step bundle' : 'Add step'}
-                </Text>
-                {showStepLimit && (
-                  <Tag size="sm">
-                    {uniqueStepCount}/{uniqueStepLimit} Steps used
-                  </Tag>
-                )}
-              </Box>
-              {enableStepBundles && (
-                <TabList>
-                  <Tab>Steps</Tab>
-                  <Tab>Step bundles</Tab>
+    <Tabs variant="line" index={tabIndex} onChange={setTabIndex} isLazy>
+      <FloatingDrawer onCloseComplete={handleCloseComplete} {...props}>
+        <FloatingDrawerContent data-clarity-unmask="true">
+          <FloatingDrawerCloseButton />
+          <FloatingDrawerHeader>
+            <Box display="flex" gap="12">
+              <Text as="h3" textStyle="heading/h3" fontWeight="bold">
+                Add Step
+              </Text>
+              {showStepLimit && (
+                <Tag size="sm">
+                  {uniqueStepCount}/{uniqueStepLimit} Steps used
+                </Tag>
+              )}
+            </Box>
+            {enableStepBundles && (
+              <Box position="relative" mt="8" mx="-24">
+                <TabList paddingX="8">
+                  <Tab>Step</Tab>
+                  <Tab>Step bundle</Tab>
                 </TabList>
-              )}
-              {stepLimitReached && (
-                <Notification
-                  mt={16}
-                  status="warning"
-                  alignSelf="flex-end"
-                  action={{
-                    label: 'Upgrade',
-                    href: upgradeLink,
-                    target: '_blank',
-                    rel: 'noreferrer noopener',
-                  }}
-                >
-                  <Text size="3" fontWeight="bold">
-                    You cannot add a new Step now
-                  </Text>
-                  Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in your
-                  current plan. To add more Steps, upgrade your plan.
-                </Notification>
-              )}
-              {tabId === 'steps' && <StepFilter mt={16} />}
-              {tabId === 'stepBundles' && <StepBundleFilter marginBlockStart={16} />}
-            </FloatingDrawerHeader>
-            <FloatingDrawerBody>
-              <TabPanels height={tabId === 'steps' ? '100%' : undefined}>
-                <TabPanel height={tabId === 'steps' ? '100%' : undefined}>
-                  <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
+              </Box>
+            )}
+            {stepLimitReached && (
+              <Notification
+                mt={16}
+                status="warning"
+                alignSelf="flex-end"
+                action={{
+                  label: 'Upgrade',
+                  href: upgradeLink,
+                  target: '_blank',
+                  rel: 'noreferrer noopener',
+                }}
+              >
+                <Text size="3" fontWeight="bold">
+                  You cannot add a new Step now
+                </Text>
+                Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in your
+                current plan. To add more Steps, upgrade your plan.
+              </Notification>
+            )}
+            {tabId === 'step' && <StepFilter mt="24" mb="12" />}
+            {tabId === 'stepBundle' && <StepBundleFilter mt="24" mb="12" />}
+          </FloatingDrawerHeader>
+          <FloatingDrawerBody pt="12">
+            <ReactFlowProvider>
+              <TabPanels>
+                <TabPanel>
+                  {enableAlgoliaSearch ? (
+                    <AlgoliaStepList
+                      enabledSteps={stepLimitReached ? enabledSteps : undefined}
+                      onSelectStep={onSelectStep}
+                    />
+                  ) : (
+                    <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
+                  )}
                 </TabPanel>
                 <TabPanel>
                   <StepBundleList onSelectStep={onSelectStep} />
                 </TabPanel>
               </TabPanels>
-            </FloatingDrawerBody>
-          </FloatingDrawerContent>
-        </FloatingDrawer>
-      </FormProvider>
+            </ReactFlowProvider>
+          </FloatingDrawerBody>
+        </FloatingDrawerContent>
+      </FloatingDrawer>
     </Tabs>
   );
 };

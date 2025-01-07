@@ -24,8 +24,7 @@ const useIsTruncated = (ref: RefObject<HTMLElement>) => {
         observer.unobserve(refCurrent);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref.current]);
+  }, [ref]);
 
   return isTruncated;
 };
