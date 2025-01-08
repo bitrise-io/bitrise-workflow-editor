@@ -1,6 +1,5 @@
 import { Box, Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import StepBundleService from '@/core/models/StepBundleService';
 
 type Props = {
@@ -8,8 +7,7 @@ type Props = {
 };
 
 const StepBundlesConfigHeader = ({ parentStepBundleId }: Props) => {
-  const { id = '' } = useWorkflowConfigContext() ?? {};
-  const dependants = useDependantWorkflows({ workflowId: id });
+  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${parentStepBundleId}` });
 
   return (
     <Box padding="24px 24px 16px 24px">
