@@ -1,3 +1,4 @@
+import AlgoliaApi from '@/core/api/AlgoliaApi';
 import { SelectStepHandlerFn } from '../../StepSelectorDrawer.types';
 
 import useSearchAlgoliaSteps from './hooks/useSearchAlgoliaSteps';
@@ -12,7 +13,8 @@ type Props = {
 };
 
 const AlgoliaStepList = ({ enabledSteps, onSelectStep }: Props) => {
-  const { data: steps = [], isFetching, isError, refetch } = useSearchAlgoliaSteps();
+  const { data, isFetching, isError, refetch } = useSearchAlgoliaSteps();
+  const steps = data?.hits ?? [];
 
   if (isFetching) {
     return <AlgoliaStepListLoadingState />;
@@ -26,7 +28,19 @@ const AlgoliaStepList = ({ enabledSteps, onSelectStep }: Props) => {
     return <AlgoliaStepListEmptyState />;
   }
 
-  return <AlgoliaStepListItems steps={steps} enabledSteps={enabledSteps} onSelectStep={onSelectStep} />;
+  return (
+    <AlgoliaStepListItems
+      steps={steps}
+      enabledSteps={enabledSteps}
+      onSelectStep={(cvs, algoliaObjectID, position) => {
+        onSelectStep(cvs);
+
+        if (data?.queryID) {
+          AlgoliaApi.trackStepSelected(data.queryID, algoliaObjectID, position);
+        }
+      }}
+    />
+  );
 };
 
 export default AlgoliaStepList;
