@@ -4,6 +4,10 @@ import { safeDigest } from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
 import { segmentTrack } from "@/utils/segmentTracking";
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+
+const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+
 
 (function () {
   "use strict";
@@ -56,13 +60,15 @@ import { segmentTrack } from "@/utils/segmentTracking";
           possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "pipelines"
         },
-        {
+        enableStepBundles == true
+        ? {
           id: "step_bundles",
           title: "Step bundles",
           path: "step_bundles",
           possibleURLParameterKeys: ["tab"],
           cssClass: "step_bundles"
-        },
+        }
+        : null,
         {
           id: "secrets",
           title: "<%= data[:strings][:main][:menus][:secrets] %>",
