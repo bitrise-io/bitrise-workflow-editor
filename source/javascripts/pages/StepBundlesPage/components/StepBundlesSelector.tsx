@@ -10,7 +10,7 @@ import {
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const StepBundlesSelector = () => {
   const stepBundles = useStepBundles();

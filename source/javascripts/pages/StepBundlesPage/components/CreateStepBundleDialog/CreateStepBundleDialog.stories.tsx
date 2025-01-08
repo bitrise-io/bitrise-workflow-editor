@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
-import CreateStepBundleDialog from '@/pages/StepBundlesPage/components/CreateStepBundleDialog/CreateStepBundleDialog';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+import CreateStepBundleDialog from './CreateStepBundleDialog';
 
 export default {
   component: CreateStepBundleDialog,

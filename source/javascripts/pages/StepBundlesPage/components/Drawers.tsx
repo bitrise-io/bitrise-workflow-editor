@@ -1,7 +1,7 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundleDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
-import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
-import CreateStepBundleDialog from '@/pages/StepBundlesPage/components/CreateStepBundleDialog/CreateStepBundleDialog';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
+import CreateStepBundleDialog from './CreateStepBundleDialog/CreateStepBundleDialog';
 
 const Drawers = () => {
   const {

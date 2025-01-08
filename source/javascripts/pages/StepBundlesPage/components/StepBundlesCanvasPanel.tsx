@@ -3,9 +3,9 @@ import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import StepBundlesSelector from '@/pages/StepBundlesPage/components/StepBundlesSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
+import StepBundlesSelector from './StepBundlesSelector';
 
 type Props = {
   stepBundleId: string;
