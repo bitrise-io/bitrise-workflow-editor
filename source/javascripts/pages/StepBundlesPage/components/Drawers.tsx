@@ -32,8 +32,8 @@ const Drawers = () => {
     })();
   };
 
-  const handleCreateStepBundle = (newStepBundleId: string) => {
-    createStepBundle(newStepBundleId);
+  const handleCreateStepBundle = (newStepBundleId: string, baseStepBundleId?: string) => {
+    createStepBundle(newStepBundleId, baseStepBundleId);
     setStepBundleId(newStepBundleId);
   };
 
