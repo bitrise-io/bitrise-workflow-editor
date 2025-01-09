@@ -3254,6 +3254,27 @@ describe('BitriseYmlService', () => {
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
+
+    it('should create an empty step bundle if the baseStepBundleId does not exist', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ 'script@1': {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ 'script@1': {} }] },
+          bundle2: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.createStepBundle('bundle2', sourceYml, 'nonExistingBundle');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
   });
 
   describe('deleteStepBundle', () => {
