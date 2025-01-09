@@ -12,7 +12,7 @@ const StepBundlesConfigProvider = ({ stepBundleId, children }: Props) => {
   return <Context.Provider value={stepBundle as StepBundle}>{children}</Context.Provider>;
 };
 
-export const useWorkflowConfigContext = () => {
+export const useStepBundleConfigContext = () => {
   return useContext<State>(Context);
 };
 

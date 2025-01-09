@@ -20,7 +20,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepIndex: number;
 };
 
-const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep({ workflowId, stepIndex });
   const defaultStepLibrary = useDefaultStepLibrary();
   const stepBundleId = data?.title;
@@ -72,4 +72,4 @@ const StepBundleDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
   );
 };
 
-export default StepBundleDrawer;
+export default StepBundleConfigDrawer;

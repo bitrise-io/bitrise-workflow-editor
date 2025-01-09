@@ -3,7 +3,6 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ChainWorkflowDrawer,
   StartBuildDialog,
-  StepBundleDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
@@ -11,6 +10,7 @@ import {
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
+import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfigDrawer/StepBundleConfigDrawer';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -132,7 +132,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       )}
 
       {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
-        <StepBundleDrawer
+        <StepBundleConfigDrawer
           size="md"
           workflowId={workflowId}
           stepIndex={stepIndex}

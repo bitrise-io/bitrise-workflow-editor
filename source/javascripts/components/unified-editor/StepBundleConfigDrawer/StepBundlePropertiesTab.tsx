@@ -1,4 +1,4 @@
-import { Button, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
@@ -26,7 +26,7 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   };
 
   return (
-    <>
+    <Box padding="16px 24px">
       <EditableInput
         isRequired
         name="name"
@@ -49,7 +49,7 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
           />
         </>
       )}
-    </>
+    </Box>
   );
 };
 

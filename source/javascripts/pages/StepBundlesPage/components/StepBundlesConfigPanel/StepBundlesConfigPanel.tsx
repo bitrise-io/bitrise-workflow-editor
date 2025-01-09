@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleDrawer/StepBundlePropertiesTab';
+import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleConfigDrawer/StepBundlePropertiesTab';
 import { useStepBundlesPageStore } from '../../StepBundlesPage.store';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 import StepBundlesConfigHeader from './StepBundlesConfigHeader';
@@ -19,9 +19,7 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
   return (
     <Box borderLeft="1px solid" borderColor="border/regular">
       <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
-      <Box padding="16px 24px">
-        <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setStepBundleId} />
-      </Box>
+      <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setStepBundleId} />
     </Box>
   );
 };

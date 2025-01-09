@@ -87,7 +87,7 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
                 <AddStepButton
                   onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)}
                   showStepBundles={false}
-                  my={isPreviewMode ? '0px' : '-8px'}
+                  my="-8px"
                 />
               )}
               <StepCard {...item} isSortable={isSortable} {...actions} />
@@ -95,7 +95,7 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
                 <AddStepButton
                   onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex + 1)}
                   showStepBundles={false}
-                  my={isPreviewMode ? '0px' : '-8px'}
+                  my="-8px"
                 />
               )}
             </Fragment>
@@ -103,7 +103,7 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
         })}
       </Box>
     );
-  }, [actions, isPreviewMode, isSortable, onAddStepToStepBundle, sortableItems, stepBundleId]);
+  }, [actions, isSortable, onAddStepToStepBundle, sortableItems, stepBundleId]);
 
   if (isEmpty) {
     return (

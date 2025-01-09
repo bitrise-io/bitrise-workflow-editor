@@ -1,5 +1,6 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StepBundleDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
+import { StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
+import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfigDrawer/StepBundleConfigDrawer';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import CreateStepBundleDialog from './CreateStepBundleDialog/CreateStepBundleDialog';
 
@@ -61,7 +62,7 @@ const Drawers = () => {
       )}
 
       {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE) && (
-        <StepBundleDrawer
+        <StepBundleConfigDrawer
           size="lg"
           workflowId=""
           stepIndex={stepIndex}
