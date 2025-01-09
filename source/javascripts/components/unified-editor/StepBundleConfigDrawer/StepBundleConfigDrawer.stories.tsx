@@ -1,10 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
-import StepBundleDrawer from './StepBundleDrawer';
+import StepBundleConfigDrawer from './StepBundleConfigDrawer';
 
 export default {
   title: 'javascripts/components/unified-editor/StepBundle',
-  component: StepBundleDrawer,
+  component: StepBundleConfigDrawer,
   args: {
     isOpen: true,
     workflowId: 'wf7',
@@ -14,6 +14,6 @@ export default {
     onClose: { type: 'function' },
   },
   decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
-} as Meta<typeof StepBundleDrawer>;
+} as Meta<typeof StepBundleConfigDrawer>;
 
-export const Drawer: StoryObj<typeof StepBundleDrawer> = {};
+export const Drawer: StoryObj<typeof StepBundleConfigDrawer> = {};

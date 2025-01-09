@@ -27,7 +27,6 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
   const steps = useBitriseYmlStore(({ yml }) => {
     return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => JSON.stringify(s));
   });
-
   const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
@@ -79,7 +78,7 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" mt={-8} gap={isPreviewMode ? '8' : '0'}>
+      <Box display="flex" flexDir="column" gap="8">
         {sortableItems.map((item) => {
           const isLast = item.stepIndex === sortableItems.length - 1;
           return (
@@ -88,16 +87,23 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
                 <AddStepButton
                   onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)}
                   showStepBundles={false}
+                  my="-8px"
                 />
               )}
-              <StepCard {...item} isSortable={isSortable} isPreviewMode={isPreviewMode} {...actions} />
-              {isLast && onAddStepToStepBundle && <AddStepButton mb={-8} showStepBundles={false} />}
+              <StepCard {...item} isSortable={isSortable} {...actions} />
+              {isLast && onAddStepToStepBundle && (
+                <AddStepButton
+                  onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex + 1)}
+                  showStepBundles={false}
+                  my="-8px"
+                />
+              )}
             </Fragment>
           );
         })}
       </Box>
     );
-  }, [actions, isPreviewMode, isSortable, onAddStepToStepBundle, sortableItems, stepBundleId]);
+  }, [actions, isSortable, onAddStepToStepBundle, sortableItems, stepBundleId]);
 
   if (isEmpty) {
     return (
@@ -114,7 +120,9 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
             variant="secondary"
             alignSelf="stretch"
             leftIconName="PlusCircle"
-            onClick={() => onAddStepToStepBundle(stepBundleId, 0)}
+            onClick={() => {
+              onAddStepToStepBundle(stepBundleId, 0);
+            }}
           >
             Add Step
           </Button>

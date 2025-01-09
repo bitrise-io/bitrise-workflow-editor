@@ -24,6 +24,7 @@ def strings
       main: {
         menus: {
           workflows: "Workflows",
+          step_bundles: "Step bundles",
           code_signing: "Code Signing & Files",
           secrets: "Secrets",
           env_vars: "Env Vars",
@@ -969,6 +970,7 @@ def strings
       endpoints: {
         workflows: "workflows",
         pipelines: "pipelines",
+        step_bundles: "step_bundles",
         code_signing: "code_signing",
         secrets: "secrets",
         env_vars: "env_vars",
@@ -980,6 +982,7 @@ def strings
       templates: {
         workflows: "templates/workflows.html",
         pipelines: "templates/pipelines.html",
+        step_bundles: "templates/step_bundles.html",
         code_signing: "templates/code_signing.html",
         secrets: "templates/secrets.html",
         env_vars: "templates/env_vars.html",

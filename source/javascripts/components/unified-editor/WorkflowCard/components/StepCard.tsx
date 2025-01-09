@@ -73,7 +73,6 @@ export type StepCardProps = {
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
-  isPreviewMode?: boolean;
   showSecondary?: boolean;
 };
 
@@ -139,8 +138,10 @@ const StepCard = ({
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
-    onUpgradeStep &&
+    (onUpgradeStep || onUpgradeStepInStepBundle) &&
     VersionUtils.hasVersionUpgrade(step?.resolvedInfo?.normalizedVersion, step?.resolvedInfo?.versions);
+  const isClonable = onCloneStep || onCloneStepInStepBundle;
+  const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
   const handleClick = isButton
     ? () => onSelectStep?.({ stepIndex, type: library, stepBundleId, wfId: workflowId })
@@ -181,13 +182,13 @@ const StepCard = ({
   }, [isDragging, isPlaceholder, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
-    if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !onCloneStep && !onDeleteStep)) {
+    if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
       return null;
     }
 
     return (
       <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-        {isUpgradable && onUpgradeStepInStepBundle && (
+        {isUpgradable && (
           <ControlButton
             size="xs"
             display="none"
@@ -198,16 +199,16 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              if (workflowId) {
+              if (workflowId && onUpgradeStep) {
                 onUpgradeStep(workflowId, stepIndex, latestMajor);
               }
-              if (stepBundleId) {
+              if (stepBundleId && onUpgradeStepInStepBundle) {
                 onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
               }
             }}
           />
         )}
-        {onCloneStep && onCloneStepInStepBundle && (
+        {isClonable && (
           <ControlButton
             size="xs"
             display="none"
@@ -217,16 +218,16 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              if (workflowId) {
+              if (workflowId && onCloneStep) {
                 onCloneStep(workflowId, stepIndex);
               }
-              if (stepBundleId) {
+              if (stepBundleId && onCloneStepInStepBundle) {
                 onCloneStepInStepBundle(stepBundleId, stepIndex);
               }
             }}
           />
         )}
-        {onDeleteStep && onDeleteStepInStepBundle && (
+        {isRemovable && (
           <ControlButton
             isDanger
             size="xs"
@@ -237,10 +238,10 @@ const StepCard = ({
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
-              if (workflowId) {
+              if (workflowId && onDeleteStep) {
                 onDeleteStep(workflowId, stepIndex);
               }
-              if (stepBundleId) {
+              if (stepBundleId && onDeleteStepInStepBundle) {
                 onDeleteStepInStepBundle(stepBundleId, stepIndex);
               }
             }}
@@ -249,7 +250,9 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
+    isClonable,
     isDragging,
+    isRemovable,
     isUpgradable,
     latestMajor,
     onCloneStep,
