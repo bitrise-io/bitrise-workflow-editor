@@ -2,7 +2,7 @@ import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import DeleteStepBundleDialog from '@/pages/StepBundlesPage/components/DeleteStepBundleDialog/DeleteStepBundleDialog';
+import DeleteStepBundleDialog from '@/components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type StepBundlePropertiesTabProps = {
