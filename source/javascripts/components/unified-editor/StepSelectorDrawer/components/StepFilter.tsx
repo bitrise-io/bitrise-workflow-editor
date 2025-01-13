@@ -2,12 +2,11 @@ import { memo, useCallback, useMemo } from 'react';
 import {
   Box,
   BoxProps,
-  Button,
-  ButtonGroup,
+  Divider,
+  Icon,
   SearchInput,
   SelectableTag,
   SelectableTagGroup,
-  Tooltip,
   TypeIconName,
 } from '@bitrise/bitkit';
 
@@ -17,100 +16,96 @@ import StepService from '@/core/models/StepService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearch from '../hooks/useSearch';
 
-const StepFilterCategories = memo(() => {
-  const { data: steps = [] } = useAlgoliaSteps();
-  const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
-
-  const value = useSearch((s) => s.stepCategoryFilter);
-  const onChange = useSearch((s) => s.setSearchStepCategories);
-
-  return (
-    <SelectableTagGroup rowGap="16" columnGap="8" display="flex" flexWrap="wrap" value={value} onChange={onChange}>
-      {categories.map((category) => (
-        <SelectableTag key={category} value={category}>
-          {capitalize(startCase(category))}
-        </SelectableTag>
-      ))}
-    </SelectableTagGroup>
-  );
-});
-
-type MaintainerOption = {
+const MAINTAINERS: Array<{
   key: 'bitrise' | 'verified' | 'community';
   icon: TypeIconName;
   label: string;
   tooltip: string;
-};
-
-const MAINTAINERS: MaintainerOption[] = [
+}> = [
   {
     key: 'bitrise',
     icon: 'BadgeBitrise',
     label: 'Official',
-    tooltip: 'Official Bitrise steps are maintained by the Bitrise team',
+    tooltip: 'Official Bitrise steps are maintained by the Bitrise',
   },
   {
     key: 'verified',
     icon: 'Badge3rdParty',
     label: 'Verified',
-    tooltip: 'Verified steps are maintained by 3rd parties, and are verified by Bitrise',
+    tooltip: 'Verified steps are maintained by 3rd parties, and verified by Bitrise',
   },
   {
     key: 'community',
-    icon: 'Dudes',
+    icon: 'Globe',
     label: 'Community',
-    tooltip: 'Community steps are maintained by the community and not are verified',
+    tooltip: 'Community steps are maintained by the community and are not verified',
   },
 ];
 
-const StepMaintainerFilter = memo(() => {
-  const value = useSearch((s) => s.stepMaintainerFilter);
-  const onChange = useSearch((s) => s.setSearchStepMaintainers);
+const StepFilterCategories = memo(() => {
+  const algoliaSearchEnabled = useFeatureFlag('enable-algolia-search-for-steps');
 
-  const toggleMaintainer = useCallback(
-    (maintainer: string) => {
-      if (value.includes(maintainer)) {
-        onChange([...value.filter((v) => v !== maintainer)]);
-      } else {
-        onChange([...value, maintainer]);
+  const { data: steps = [] } = useAlgoliaSteps();
+  const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
+
+  const selectedCategories = useSearch((s) => s.stepCategoryFilter);
+  const selectedMaintainers = useSearch((s) => s.stepMaintainerFilter);
+  const setSelectedCategories = useSearch((s) => s.setSearchStepCategories);
+  const setSelectedMaintainers = useSearch((s) => s.setSearchStepMaintainers);
+
+  const options = useMemo(
+    () => (algoliaSearchEnabled ? [...selectedCategories, ...selectedMaintainers] : selectedCategories),
+    [algoliaSearchEnabled, selectedCategories, selectedMaintainers],
+  );
+  const handleFilterChange = useCallback(
+    (values: string[]) => {
+      const cats = values.filter((v) => categories.some((c) => c === v));
+      const mans = values.filter((v) => MAINTAINERS.some((m) => m.key === v));
+
+      setSelectedCategories(cats);
+      if (algoliaSearchEnabled) {
+        setSelectedMaintainers(mans);
       }
     },
-    [value, onChange],
+    [algoliaSearchEnabled, categories, setSelectedCategories, setSelectedMaintainers],
   );
 
   return (
-    <ButtonGroup isAttached>
-      {MAINTAINERS.map(({ key, icon, label, tooltip }) => (
-        <Tooltip key={key} label={tooltip}>
-          <Button
-            key={key}
-            size="sm"
-            flexGrow={1}
-            variant="secondary"
-            leftIconName={icon}
-            isActive={value.includes(key)}
-            aria-label={tooltip}
-            onClick={() => toggleMaintainer(key)}
-          >
-            {label}
-          </Button>
-        </Tooltip>
-      ))}
-    </ButtonGroup>
+    <SelectableTagGroup value={options} onChange={handleFilterChange}>
+      <Box rowGap="16" columnGap="8" display="flex" flexWrap="wrap">
+        {categories.map((category) => (
+          <SelectableTag key={category} value={category}>
+            {capitalize(startCase(category))}
+          </SelectableTag>
+        ))}
+        {algoliaSearchEnabled && (
+          <>
+            <Divider orientation="vertical" height="auto" />
+            {MAINTAINERS.map(({ key, icon, label }) => (
+              <SelectableTag key={key} value={key}>
+                <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
+                {label}
+              </SelectableTag>
+            ))}
+          </>
+        )}
+      </Box>
+    </SelectableTagGroup>
   );
 });
 
 const StepFilter = (props: BoxProps) => {
-  const algoliaSearchEnabled = useFeatureFlag('enable-algolia-search-for-steps');
-
   const value = useSearch((s) => s.stepQuery);
   const onChange = useSearch((s) => s.setSearchStep);
 
   return (
     <Box display="flex" flexDir="column" gap="16" {...props}>
       <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
-      {algoliaSearchEnabled && <StepMaintainerFilter />}
-      <StepFilterCategories />
+      <Box display="flex" flexWrap="wrap" gap="16">
+        <StepFilterCategories />
+        {/* <Divider orientation="vertical" height="auto" display="inline-block" /> */}
+        {/* {algoliaSearchEnabled && <StepMaintainerFilter />} */}
+      </Box>
     </Box>
   );
 };
