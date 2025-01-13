@@ -8,7 +8,6 @@ import {
   DropdownSearch,
   EmptyState,
 } from '@bitrise/bitkit';
-import { useDebounceValue } from 'usehooks-ts';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
@@ -20,19 +19,15 @@ const StepBundlesSelector = () => {
   const stepBundleId = useStepBundlesPageStore((s) => s.stepBundleId) || stepBundleIds[0];
   const setStepBundleId = useStepBundlesPageStore((s) => s.setStepBundleId);
   const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
   const filteredStepBundles = useMemo(() => {
-    return stepBundleIds.filter((stepBundleName) =>
-      stepBundleName.toLowerCase().includes(debouncedSearch.toLowerCase()),
-    );
-  }, [debouncedSearch, stepBundleIds]);
+    return stepBundleIds.filter((stepBundleName) => stepBundleName.toLowerCase().includes(search.toLowerCase()));
+  }, [search, stepBundleIds]);
 
-  const hasNoSearchResults = debouncedSearch && filteredStepBundles.length === 0;
+  const hasNoSearchResults = search && filteredStepBundles.length === 0;
 
   const onSearchChange = (value: string) => {
     setSearch(value);
-    setDebouncedSearch(value);
   };
 
   const onCreateStepBundle = () => {
@@ -48,7 +43,6 @@ const StepBundlesSelector = () => {
       dropdownMaxHeight="359px"
       minWidth="0"
       value={stepBundleId}
-      formLabel={stepBundleId ?? 'Select a Step bundle'}
       onChange={({ target: { value } }) => {
         setStepBundleId(value || '');
       }}

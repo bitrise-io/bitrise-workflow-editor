@@ -9,7 +9,6 @@ import {
   DropdownSearch,
   EmptyState,
 } from '@bitrise/bitkit';
-import { useDebounceValue } from 'usehooks-ts';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -22,14 +21,13 @@ const WorkflowSelector = () => {
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
   const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
   const [utilityWorkflows, runnableWorkflows] = useMemo(() => {
     const utility: string[] = [];
     const runnable: string[] = [];
 
     workflowIds.forEach((workflowName) => {
-      if (workflowName.toLowerCase().includes(debouncedSearch.toLowerCase())) {
+      if (workflowName.toLowerCase().includes(search.toLowerCase())) {
         if (workflowName.startsWith('_')) {
           utility.push(workflowName);
         } else {
@@ -39,14 +37,13 @@ const WorkflowSelector = () => {
     });
 
     return [utility, runnable];
-  }, [debouncedSearch, workflowIds]);
+  }, [search, workflowIds]);
 
   const hasUtilityWorkflows = utilityWorkflows.length > 0;
-  const hasNoSearchResults = debouncedSearch && utilityWorkflows.length === 0 && runnableWorkflows.length === 0;
+  const hasNoSearchResults = search && utilityWorkflows.length === 0 && runnableWorkflows.length === 0;
 
   const onSearchChange = (value: string) => {
     setSearch(value);
-    setDebouncedSearch(value);
   };
 
   const onCreateWorkflow = () => {
@@ -62,7 +59,6 @@ const WorkflowSelector = () => {
       dropdownMaxHeight="359px"
       minWidth="0"
       value={selectedWorkflowId}
-      formLabel={selectedWorkflowId ?? 'Select a Workflow'}
       onChange={({ target: { value } }) => setSelectedWorkflow(value)}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
     >
