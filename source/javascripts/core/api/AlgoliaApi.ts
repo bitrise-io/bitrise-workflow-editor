@@ -52,12 +52,17 @@ aa('init', {
 });
 
 // Search Functions
-function searchSteps(query: string, categories: string[]) {
+function searchSteps(query: string, categories: string[], maintainers: string[]) {
   return stepsIndex.search<AlgoliaStepResponse>(query, {
     hitsPerPage: 1000,
     analytics: RuntimeUtils.isProduction(),
     clickAnalytics: RuntimeUtils.isProduction(),
-    facetFilters: ['is_latest:true', 'is_deprecated:false', categories.map((category) => `step.type_tags:${category}`)],
+    facetFilters: [
+      'is_latest:true',
+      'is_deprecated:false',
+      categories.map((category) => `step.type_tags:${category}`),
+      maintainers.map((maintainer) => `info.maintainer:${maintainer}`),
+    ],
   });
 }
 

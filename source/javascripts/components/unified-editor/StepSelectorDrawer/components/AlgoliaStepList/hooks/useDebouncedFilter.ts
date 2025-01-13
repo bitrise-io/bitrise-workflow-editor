@@ -6,9 +6,17 @@ import useSearch from '../../../hooks/useSearch';
 const useDebouncedFilter = () => {
   const search = useSearch((s) => s.stepQuery);
   const categories = useSearch((s) => s.stepCategoryFilter);
+  const maintainers = useSearch((s) => s.stepMaintainerFilter);
   const [debouncedSearch] = useDebounceValue(search, 300);
 
-  return useMemo(() => ({ search: debouncedSearch, categories }), [debouncedSearch, categories]);
+  return useMemo(
+    () => ({
+      search: debouncedSearch,
+      categories,
+      maintainers,
+    }),
+    [debouncedSearch, categories, maintainers],
+  );
 };
 
 export default useDebouncedFilter;
