@@ -61,14 +61,14 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
           cssClass: "pipelines"
         },
         enableStepBundles == true
-        ? {
-          id: "step_bundles",
-          title: "Step bundles",
-          path: "step_bundles",
-          possibleURLParameterKeys: ["tab"],
-          cssClass: "step_bundles"
-        }
-        : null,
+          ? {
+            id: "step_bundles",
+            title: "Step bundles",
+            path: "step_bundles",
+            possibleURLParameterKeys: ["tab"],
+            cssClass: "step_bundles"
+          }
+          : null,
         {
           id: "secrets",
           title: "<%= data[:strings][:main][:menus][:secrets] %>",
@@ -217,7 +217,7 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
             case "step_bundles":
               var loadPromises = [appService.getAppConfig()];
               $q.all(loadPromises).then(resolve, reject);
-  
+
               break;
             case "env-vars":
               var loadPromises = [appService.getAppConfig()];
@@ -596,57 +596,68 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
           source: source,
         });
 
-        if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
+        var isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+        if (isRepositorySavedYml) {
           viewModel.deferredUserSavedYmlToRepository = $q.defer();
-          viewModel.deferredUserSavedYmlToRepository.promise.finally(undefined, function (signal) {
-            if (signal === 'open-update-configuration-dialog') {
-              viewModel.isUpdateConfigurationDialogOpen = true;
-            }
-          });
+        } else {
+          viewModel.deferredConflictResolution = $q.defer();
         }
 
         var promise = $q.all([
           $q(function (resolve, reject) {
             switch (viewModel.currentMenu.id) {
-              case "workflows":
-              case "pipelines":
-              case "step_bundles":
-              case "env-vars":
-              case "triggers":
-              case "licenses":
-                viewModel.dataToSave = appService.appConfig;
-                return appService
-                  .saveAppConfig(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
-                  .then(function () {
-                    return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                      ? reloadAppConfig()
-                      : $q.when();
-                  })
-                  .then(resolve, reject);
               case "secrets":
                 resolve();
                 break;
-              case "stack":
+              default: // every other tab
                 viewModel.dataToSave = appService.appConfig;
-                var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
+                var saveFunction = appService.saveAppConfig;
+                var reloadFunction = reloadAppConfig;
 
-                return appService
-                  .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
+                if (viewModel.currentMenu.id === "stack") {
+                  saveFunction = appService.saveStackAndDockerImage;
+                  reloadFunction = reloadStack;
+                } else if (viewModel.currentMenu.id === "yml") {
+                  viewModel.dataToSave = appService.appConfigYML;
+                  saveFunction = appService.saveAppConfigYML;
+                  reloadFunction = reloadAppConfigYML;
+                }
+
+                var validationPromise = appService.validateAppConfig();
+
+                // YML is "saved" to the repository
+                if (isRepositorySavedYml) {
+                  return validationPromise
+                    .then(function () {
+                      viewModel.isUpdateConfigurationDialogOpen = true;
+                      return viewModel.deferredUserSavedYmlToRepository.promise;
+                    })
+                    .then(function () {
+                      // NOTE: this is a force reload,
+                      // WARN: This might drop all user changes if the user hasn't commit the changes yet!!!
+                      return reloadFunction();
+                    })
+                    .then(resolve, reject);
+                }
+
+                // YML is saved to Bitrise
+                return validationPromise
                   .then(function () {
-
-                    return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                      ? reloadStack()
-                      : $q.when();
+                    return appService.getRemoteAppConfig();
                   })
-                  .then(resolve, reject);
-              case "yml":
-                viewModel.appConfigYML = appService.appConfigYML;
-                return appService
-                  .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
                   .then(function () {
-                    return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                      ? reloadAppConfigYML()
-                      : $q.when();
+                    if (!appService.remoteAppConfigHasNewUpdates()) {
+                      viewModel.deferredConflictResolution.resolve();
+                      console.log("No conflict resolution needed");
+                    } else {
+                      viewModel.isConflictResolutionDialogOpen = true;
+                      viewModel.deferredConflictResolution.reject();
+                      console.log("Conflict resolution needed");
+                    }
+                    return viewModel.deferredConflictResolution.promise;
+                  })
+                  .then(function () {
+                    return saveFunction(viewModel.currentMenu.id);
                   })
                   .then(resolve, reject);
             }
