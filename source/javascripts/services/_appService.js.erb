@@ -204,8 +204,9 @@
         });
       };
 
-      appService.saveAppConfig = function (deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig) {
+      appService.validateAppConfig = function () {
         var variables = [];
+        // Remove empty app env vars
         if (appService.appConfig.app && appService.appConfig.app.envs) {
           var variablesWithoutKeyAndValue = _.filter(
             _.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
@@ -227,6 +228,8 @@
             })
           );
         }
+
+        // Remove empty workflow env vars
         if (appService.appConfig.workflows) {
           _.each(appService.appConfig.workflows, function (aWorkflowConfig) {
             var variablesWithoutKeyAndValue = _.filter(
@@ -251,6 +254,7 @@
           });
         }
 
+        // Populate the meta with the default machine type if necessary
         if (
           requestService.mode === "website" &&
           appService.appDetails.isMachineTypeSelectorAvailable &&
@@ -263,26 +267,24 @@
             appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
           }
 
-          if (!(appService.stack && appService.stack.isAgentPoolStack())) {
+          if (appService.stack && appService.stack.isAgentPoolStack()) {
+            delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+          } else {
             appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
               appService.defaultMachineType.id;
-          } else {
-            delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
           }
 
           appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
         }
 
 
-        return validateVariables(variables)
-          .then(function () {
-            deferredUserSavedYmlToRepository?.notify('open-update-configuration-dialog');
+        return validateVariables(variables);
+      }
 
-            return (
-              deferredUserSavedYmlToRepository?.promise ||
-              requestService.postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
-            );
-          })
+      appService.saveAppConfig = function (tabOpenDuringSave, requestConfig) {
+        then(function () {
+          return requestService.postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig);
+        })
           .then(function () {
             appService.savedAppConfig = angular.copy(appService.appConfig);
             appService.hasTriggers =
