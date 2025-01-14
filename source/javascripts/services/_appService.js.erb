@@ -76,35 +76,37 @@
         }
 
         return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          appService.appConfig = appConfig;
-          normalizeAppConfig();
-
+          appService.appConfig = normalizeAppConfig(appConfig);
           appService.savedAppConfig = angular.copy(appService.appConfig);
         });
       };
 
       appService.getRemoteAppConfig = function (requestConfig) {
         return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          appService.remoteAppConfig = appConfig;
+          appService.remoteAppConfig = normalizeAppConfig(appConfig);
         });
-
       }
 
       appService.appConfigHasUnsavedChanges = function () {
         return !angular.equals(appService.appConfig, appService.savedAppConfig);
       };
 
-      function normalizeAppConfig() {
-        var variableConfigs = [];
+      appService.remoteAppConfigHasNewUpdates = function () {
+        return !angular.equals(appService.savedAppConfig, appService.remoteAppConfig);
+      }
 
-        if (appService.appConfig.app && appService.appConfig.app.envs) {
-          variableConfigs = _.union(variableConfigs, appService.appConfig.app.envs);
+      function normalizeAppConfig(configToNormalize) {
+        var variableConfigs = [];
+        var config = angular.copy(configToNormalize);
+
+        if (config.app && config.app.envs) {
+          variableConfigs = _.union(variableConfigs, config.app.envs);
         }
 
-        if (appService.appConfig.workflows) {
-          _.each(appService.appConfig.workflows, function (aWorkflowConfig, aWorkflowID) {
+        if (config.workflows) {
+          _.each(config.workflows, function (aWorkflowConfig, aWorkflowID) {
             if (!aWorkflowConfig) {
-              appService.appConfig.workflows[aWorkflowID] = aWorkflowConfig = {};
+              config.workflows[aWorkflowID] = aWorkflowConfig = {};
             }
 
             variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
@@ -135,31 +137,33 @@
 
         _.each(variableConfigs, Variable.minimizeVariableConfig);
 
-        if (appService.appConfig.app) {
-          if (appService.appConfig.app.envs && appService.appConfig.app.envs.length == 0) {
-            delete appService.appConfig.app["envs"];
+        if (config.app) {
+          if (config.app.envs && config.app.envs.length == 0) {
+            delete config.app["envs"];
           }
 
-          if (angular.equals(appService.appConfig.app, {})) {
-            delete appService.appConfig["app"];
+          if (angular.equals(config.app, {})) {
+            delete config["app"];
           }
         }
 
-        if (appService.appConfig.trigger_map) {
-          appService.hasTriggers = appService.appConfig.trigger_map.length > 0;
+        if (config.trigger_map) {
+          appService.hasTriggers = config.trigger_map.length > 0;
           if (appService.hasTriggers) {
-            appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function (aTriggerConfig) {
+            config.trigger_map = _.sortBy(config.trigger_map, function (aTriggerConfig) {
               var trigger = new Trigger(aTriggerConfig);
               return _.indexOf(["push", "pull-request", "tag"], trigger.type());
             });
           } else {
-            delete appService.appConfig["trigger_map"];
+            delete config["trigger_map"];
           }
         }
 
-        if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {
-          delete appService.appConfig["workflows"];
+        if (config.workflows && angular.equals(config.workflows, {})) {
+          delete config["workflows"];
         }
+
+        return config;
       }
 
       function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
