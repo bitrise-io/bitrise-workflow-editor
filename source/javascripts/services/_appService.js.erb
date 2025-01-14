@@ -14,13 +14,18 @@
       MachineType
     ) {
       var appService = {
-        appDetails: undefined,
+        // JSON objects
         appConfig: undefined,
         savedAppConfig: undefined,
-        secrets: undefined,
-        savedSecrets: undefined,
+        remoteAppConfig: undefined,
+        // YML strings
         appConfigYML: undefined,
         savedAppConfigYML: undefined,
+        remoteAppConfigYML: undefined,
+
+        appDetails: undefined,
+        secrets: undefined,
+        savedSecrets: undefined,
         stack: undefined,
         savedStack: undefined,
         defaultMachineType: undefined,
@@ -77,6 +82,13 @@
           appService.savedAppConfig = angular.copy(appService.appConfig);
         });
       };
+
+      appService.getRemoteAppConfig = function (requestConfig) {
+        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
+          appService.remoteAppConfig = appConfig;
+        });
+
+      }
 
       appService.appConfigHasUnsavedChanges = function () {
         return !angular.equals(appService.appConfig, appService.savedAppConfig);
