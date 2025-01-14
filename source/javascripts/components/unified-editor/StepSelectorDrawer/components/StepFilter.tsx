@@ -103,8 +103,6 @@ const StepFilter = (props: BoxProps) => {
       <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
       <Box display="flex" flexWrap="wrap" gap="16">
         <StepFilterCategories />
-        {/* <Divider orientation="vertical" height="auto" display="inline-block" /> */}
-        {/* {algoliaSearchEnabled && <StepMaintainerFilter />} */}
       </Box>
     </Box>
   );
