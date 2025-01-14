@@ -33,7 +33,7 @@ export default meta;
 
 const StoryCompoent = (props: EntitySelectorProps) => {
   // eslint-disable-next-line react/destructuring-assignment
-  const [value, setValue] = useState<string | null>(props.entityIds[0]);
+  const [value, setValue] = useState<string | undefined>(props.entityIds[0]);
   return <EntitySelector {...props} onChange={setValue} value={value || undefined} />;
 };
 

@@ -1,119 +1,46 @@
-import { useMemo, useRef, useState } from 'react';
-import {
-  Box,
-  Button,
-  Dropdown,
-  DropdownGroup,
-  DropdownNoResultsFound,
-  DropdownOption,
-  DropdownSearch,
-  EmptyState,
-} from '@bitrise/bitkit';
+import { useMemo } from 'react';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
 
 const WorkflowSelector = () => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
-  const dropdownRef = useRef<HTMLButtonElement>(null);
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
-  const [search, setSearch] = useState('');
+  const onCreateWorkflow = () => {
+    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
+  };
 
   const [utilityWorkflows, runnableWorkflows] = useMemo(() => {
     const utility: string[] = [];
     const runnable: string[] = [];
 
     workflowIds.forEach((workflowName) => {
-      if (workflowName.toLowerCase().includes(search.toLowerCase())) {
-        if (workflowName.startsWith('_')) {
-          utility.push(workflowName);
-        } else {
-          runnable.push(workflowName);
-        }
+      if (workflowName.startsWith('_')) {
+        utility.push(workflowName);
+      } else {
+        runnable.push(workflowName);
       }
     });
 
     return [utility, runnable];
-  }, [search, workflowIds]);
-
-  const hasUtilityWorkflows = utilityWorkflows.length > 0;
-  const hasNoSearchResults = search && utilityWorkflows.length === 0 && runnableWorkflows.length === 0;
-
-  const onSearchChange = (value: string) => {
-    setSearch(value);
-  };
-
-  const onCreateWorkflow = () => {
-    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
-    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
-  };
+  }, [workflowIds]);
 
   return (
-    <Dropdown
-      flex="1"
-      size="md"
-      ref={dropdownRef}
-      dropdownMaxHeight="359px"
-      minWidth="0"
+    <EntitySelector
+      entityIds={runnableWorkflows}
+      entityName="Workflow"
+      onChange={setSelectedWorkflow}
+      onCreate={onCreateWorkflow}
+      secondaryEntities={{
+        label: 'utility workflows',
+        ids: utilityWorkflows,
+      }}
       value={selectedWorkflowId}
-      onChange={({ target: { value } }) => setSelectedWorkflow(value)}
-      search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
-    >
-      {runnableWorkflows.map((id) => (
-        <DropdownOption key={id} value={id}>
-          {id}
-        </DropdownOption>
-      ))}
-
-      {hasUtilityWorkflows && (
-        <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
-          {utilityWorkflows.map((id) => (
-            <DropdownOption key={id} value={id}>
-              {id}
-            </DropdownOption>
-          ))}
-        </DropdownGroup>
-      )}
-
-      {hasNoSearchResults && (
-        <DropdownNoResultsFound>
-          <EmptyState
-            iconName="Magnifier"
-            backgroundColor="background/primary"
-            title="No Workflows are matching your filter"
-            description="Modify your search to get results"
-          />
-        </DropdownNoResultsFound>
-      )}
-
-      <Box
-        w="100%"
-        mt="8"
-        py="12"
-        mb="-12"
-        bottom="-12"
-        position="sticky"
-        borderTop="1px solid"
-        borderColor="border/regular"
-        backgroundColor="background/primary"
-      >
-        <Button
-          w="100%"
-          border="none"
-          fontWeight="400"
-          borderRadius="0"
-          variant="secondary"
-          leftIconName="PlusCircle"
-          justifyContent="flex-start"
-          onClick={onCreateWorkflow}
-        >
-          Create Workflow
-        </Button>
-      </Box>
-    </Dropdown>
+    />
   );
 };
 

@@ -13,7 +13,7 @@ import {
 export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
   entityIds: string[];
   entityName?: string;
-  onChange: (selectedValue: string | null) => void;
+  onChange: (selectedValue: string | undefined) => void;
   onCreate?: () => void;
   secondaryEntities?: {
     label: string;
@@ -53,7 +53,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
       dropdownMaxHeight="359px"
       minWidth="0"
       value={value}
-      onChange={({ target: { value: selectedValue } }) => onChange(selectedValue)}
+      onChange={({ target: { value: selectedValue } }) => onChange(selectedValue || undefined)}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={setSearch} />}
     >
       {filteredIds.map((id) => (
@@ -61,7 +61,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
           {id}
         </DropdownOption>
       ))}
-      {!!secondaryEntities && filteredSecondaryIds.length && (
+      {!!secondaryEntities && filteredSecondaryIds.length > 0 && (
         <DropdownGroup label={secondaryEntities.label} labelProps={{ whiteSpace: 'nowrap' }}>
           {filteredSecondaryIds.map((id) => (
             <DropdownOption key={id} value={id}>
