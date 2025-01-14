@@ -25,7 +25,9 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
   const containerRef = useRef(null);
   const workflow = useWorkflow(workflowId);
   const { data: stacksAndMachines } = useStacksAndMachines();
-  const { isOpen, onOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const { isOpen, onOpen, onToggle } = useDisclosure({
+    defaultIsOpen: !isCollapsable,
+  });
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const { isSelected } = useSelection();
@@ -157,7 +159,7 @@ const WorkflowCard = ({
 }: Props) => (
   <WorkflowCardContextProvider
     selectedWorkflowId={selectedWorkflowId}
-    selectedStepIndex={selectedStepIndex}
+    selectedStepIndices={[selectedStepIndex]}
     {...actions}
   >
     <WorkflowCardContent id={id} uses={uses} isCollapsable={isCollapsable} containerProps={containerProps} />

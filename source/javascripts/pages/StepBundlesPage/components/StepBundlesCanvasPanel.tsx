@@ -106,13 +106,13 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           bg="background/secondary"
         >
           <WorkflowCardContextProvider
+            selectedStepIndices={[deferredStepIndex]}
             onAddStepToStepBundle={openStepSelectorDrawer}
             onCloneStepInStepBundle={handleCloneStep}
             onDeleteStepInStepBundle={handleDeleteStep}
             onMoveStepInStepBundle={handleMoveStep}
             onSelectStep={openStepLikeDrawer}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
-            selectedStepIndex={deferredStepIndex}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>

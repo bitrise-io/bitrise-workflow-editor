@@ -1,10 +1,12 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { pick } from 'es-toolkit';
 import { StepActions, WorkflowActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { LibraryType } from '@/core/models/Step';
 
 type State = {
   selectedWorkflowId: string;
-  selectedStepIndex: number;
+  selectedStepIndices: number[];
+  setSelectedStepIndices: (selectedStepIndices: number[]) => void;
 };
 type Actions = StepActions & WorkflowActions;
 type ContextState = Partial<State> & Actions;
@@ -14,17 +16,39 @@ const WorkflowCardContext = createContext<ContextState | undefined>(undefined);
 const WorkflowCardContextProvider = ({
   children,
   selectedWorkflowId = '',
-  selectedStepIndex = -1,
+  selectedStepIndices = [],
   ...methods
 }: PropsWithChildren<ContextState>) => {
+  const [indices, setIndices] = useState<number[]>([]);
+
+  useEffect(() => {
+    setIndices(selectedStepIndices.filter((index) => index >= 0));
+  }, [selectedStepIndices]);
+
+  const onSelectStep = useCallback<
+    (props: { stepIndex: number; type: LibraryType; stepBundleId?: string; wfId?: string }) => void
+  >(
+    ({ wfId, stepIndex, stepBundleId, type }) => {
+      if (indices.length === 0) {
+        setIndices([stepIndex]);
+        methods.onSelectStep?.({ wfId, stepIndex, stepBundleId, type });
+      } else {
+        setIndices((prev) => [...prev, stepIndex]);
+      }
+    },
+    [indices.length, methods],
+  );
+
   const state = useMemo(
     () => ({
       ...methods,
+      onSelectStep,
       selectedWorkflowId,
-      selectedStepIndex,
+      selectedStepIndices: indices,
     }),
-    [methods, selectedWorkflowId, selectedStepIndex],
+    [methods, onSelectStep, selectedWorkflowId, indices],
   );
+
   return <WorkflowCardContext.Provider value={state}>{children}</WorkflowCardContext.Provider>;
 };
 
@@ -35,12 +59,12 @@ function useSelection() {
     throw new Error('useSelection must be used within a WorkflowCardContextProvider');
   }
 
-  const selection = useMemo(() => pick(state, ['selectedWorkflowId', 'selectedStepIndex']), [state]);
+  const selection = useMemo(() => pick(state, ['selectedWorkflowId', 'selectedStepIndices']), [state]);
   return useMemo(
     () => ({
       ...selection,
       isSelected: (workflowId: string, stepIndex: number = -1) => {
-        return selection.selectedWorkflowId === workflowId && selection.selectedStepIndex === stepIndex;
+        return selection.selectedWorkflowId === workflowId && selection.selectedStepIndices?.includes(stepIndex);
       },
     }),
     [selection],
