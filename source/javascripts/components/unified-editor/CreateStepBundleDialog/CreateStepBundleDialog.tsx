@@ -2,6 +2,7 @@ import { DialogProps } from '@bitrise/bitkit';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 
 type Props = Omit<DialogProps, 'title'> & {
   onCreateStepBundle: (stepBundleId: string, baseStepBundleId?: string) => void;
@@ -10,8 +11,12 @@ type Props = Omit<DialogProps, 'title'> & {
 const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, ...props }: Props) => {
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
+  const [, setSelectedStepBundle] = useSelectedStepBundle();
 
-  const handleCloseComplete = () => {
+  const handleCloseComplete = (stepBundleId: string) => {
+    if (stepBundleId) {
+      setSelectedStepBundle(stepBundleId);
+    }
     onCloseComplete?.();
   };
 
