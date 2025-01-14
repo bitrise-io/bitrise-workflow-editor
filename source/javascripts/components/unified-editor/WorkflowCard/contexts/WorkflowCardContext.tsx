@@ -26,17 +26,28 @@ const WorkflowCardContextProvider = ({
   }, [selectedStepIndices]);
 
   const onSelectStep = useCallback<
-    (props: { stepIndex: number; type: LibraryType; stepBundleId?: string; wfId?: string }) => void
+    (props: {
+      isMultiple?: boolean;
+      stepIndex: number;
+      type: LibraryType;
+      stepBundleId?: string;
+      wfId?: string;
+    }) => void
   >(
-    ({ wfId, stepIndex, stepBundleId, type }) => {
-      if (indices.length === 0) {
-        setIndices([stepIndex]);
-        methods.onSelectStep?.({ wfId, stepIndex, stepBundleId, type });
+    ({ isMultiple, wfId, stepIndex, stepBundleId, type }) => {
+      if (isMultiple) {
+        setIndices((prev) => {
+          if (prev.includes(stepIndex)) {
+            return prev.filter((i) => i !== stepIndex);
+          }
+
+          return [...prev, stepIndex];
+        });
       } else {
-        setIndices((prev) => [...prev, stepIndex]);
+        methods.onSelectStep?.({ wfId, stepIndex, stepBundleId, type });
       }
     },
-    [indices.length, methods],
+    [methods],
   );
 
   const state = useMemo(
