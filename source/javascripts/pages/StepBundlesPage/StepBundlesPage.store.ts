@@ -24,7 +24,6 @@ type State = {
 };
 
 type Action = {
-  setStepBundleId: (stepBundleId?: string) => void;
   setStepIndex: (stepIndex?: number) => void;
   isDialogOpen: (type: StepBundlesPageDialogType) => boolean;
   isDialogMounted: (type: StepBundlesPageDialogType) => boolean;
@@ -38,11 +37,6 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   stepBundleId: '',
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
-  setStepBundleId: (stepBundleId = '') => {
-    return set(() => ({
-      stepBundleId,
-    }));
-  },
   setStepIndex: (stepIndex = -1) => {
     return set(() => ({
       stepIndex,
