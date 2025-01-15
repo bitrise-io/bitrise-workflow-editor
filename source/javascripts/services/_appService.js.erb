@@ -14,13 +14,18 @@
       MachineType
     ) {
       var appService = {
-        appDetails: undefined,
+        // JSON objects
         appConfig: undefined,
         savedAppConfig: undefined,
-        secrets: undefined,
-        savedSecrets: undefined,
+        remoteAppConfig: undefined,
+        // YML strings
         appConfigYML: undefined,
         savedAppConfigYML: undefined,
+        remoteAppConfigYML: undefined,
+
+        appDetails: undefined,
+        secrets: undefined,
+        savedSecrets: undefined,
         stack: undefined,
         savedStack: undefined,
         defaultMachineType: undefined,
@@ -71,28 +76,37 @@
         }
 
         return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          appService.appConfig = appConfig;
-          normalizeAppConfig();
-
+          appService.appConfig = normalizeAppConfig(appConfig);
           appService.savedAppConfig = angular.copy(appService.appConfig);
         });
       };
+
+      appService.getRemoteAppConfig = function (requestConfig) {
+        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
+          appService.remoteAppConfig = normalizeAppConfig(appConfig);
+        });
+      }
 
       appService.appConfigHasUnsavedChanges = function () {
         return !angular.equals(appService.appConfig, appService.savedAppConfig);
       };
 
-      function normalizeAppConfig() {
-        var variableConfigs = [];
+      appService.remoteAppConfigHasNewUpdates = function () {
+        return !angular.equals(appService.savedAppConfig, appService.remoteAppConfig);
+      }
 
-        if (appService.appConfig.app && appService.appConfig.app.envs) {
-          variableConfigs = _.union(variableConfigs, appService.appConfig.app.envs);
+      function normalizeAppConfig(configToNormalize) {
+        var variableConfigs = [];
+        var config = angular.copy(configToNormalize);
+
+        if (config.app && config.app.envs) {
+          variableConfigs = _.union(variableConfigs, config.app.envs);
         }
 
-        if (appService.appConfig.workflows) {
-          _.each(appService.appConfig.workflows, function (aWorkflowConfig, aWorkflowID) {
+        if (config.workflows) {
+          _.each(config.workflows, function (aWorkflowConfig, aWorkflowID) {
             if (!aWorkflowConfig) {
-              appService.appConfig.workflows[aWorkflowID] = aWorkflowConfig = {};
+              config.workflows[aWorkflowID] = aWorkflowConfig = {};
             }
 
             variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
@@ -123,31 +137,33 @@
 
         _.each(variableConfigs, Variable.minimizeVariableConfig);
 
-        if (appService.appConfig.app) {
-          if (appService.appConfig.app.envs && appService.appConfig.app.envs.length == 0) {
-            delete appService.appConfig.app["envs"];
+        if (config.app) {
+          if (config.app.envs && config.app.envs.length == 0) {
+            delete config.app["envs"];
           }
 
-          if (angular.equals(appService.appConfig.app, {})) {
-            delete appService.appConfig["app"];
+          if (angular.equals(config.app, {})) {
+            delete config["app"];
           }
         }
 
-        if (appService.appConfig.trigger_map) {
-          appService.hasTriggers = appService.appConfig.trigger_map.length > 0;
+        if (config.trigger_map) {
+          appService.hasTriggers = config.trigger_map.length > 0;
           if (appService.hasTriggers) {
-            appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function (aTriggerConfig) {
+            config.trigger_map = _.sortBy(config.trigger_map, function (aTriggerConfig) {
               var trigger = new Trigger(aTriggerConfig);
               return _.indexOf(["push", "pull-request", "tag"], trigger.type());
             });
           } else {
-            delete appService.appConfig["trigger_map"];
+            delete config["trigger_map"];
           }
         }
 
-        if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {
-          delete appService.appConfig["workflows"];
+        if (config.workflows && angular.equals(config.workflows, {})) {
+          delete config["workflows"];
         }
+
+        return config;
       }
 
       function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
@@ -188,8 +204,9 @@
         });
       };
 
-      appService.saveAppConfig = function (deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig) {
+      appService.validateAppConfig = function () {
         var variables = [];
+        // Remove empty app env vars
         if (appService.appConfig.app && appService.appConfig.app.envs) {
           var variablesWithoutKeyAndValue = _.filter(
             _.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
@@ -211,6 +228,8 @@
             })
           );
         }
+
+        // Remove empty workflow env vars
         if (appService.appConfig.workflows) {
           _.each(appService.appConfig.workflows, function (aWorkflowConfig) {
             var variablesWithoutKeyAndValue = _.filter(
@@ -235,6 +254,7 @@
           });
         }
 
+        // Populate the meta with the default machine type if necessary
         if (
           requestService.mode === "website" &&
           appService.appDetails.isMachineTypeSelectorAvailable &&
@@ -247,32 +267,30 @@
             appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
           }
 
-          if (!(appService.stack && appService.stack.isAgentPoolStack())) {
+          if (appService.stack && appService.stack.isAgentPoolStack()) {
+            delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+          } else {
             appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
               appService.defaultMachineType.id;
-          } else {
-            delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
           }
 
           appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
         }
 
 
-        return validateVariables(variables)
-          .then(function () {
-            deferredUserSavedYmlToRepository?.notify('open-update-configuration-dialog');
+        return validateVariables(variables);
+      }
 
-            return (
-              deferredUserSavedYmlToRepository?.promise ||
-              requestService.postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
-            );
-          })
+      appService.saveAppConfig = function (tabOpenDuringSave, requestConfig) {
+        return requestService
+          .postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
           .then(function () {
-            appService.savedAppConfig = angular.copy(appService.appConfig);
-            appService.hasTriggers =
-              appService.savedAppConfig.trigger_map && appService.savedAppConfig.trigger_map.length > 0;
+            appService.remoteAppConfig = undefined;
             appService.appConfigYML = undefined;
             appService.savedAppConfigYML = undefined;
+
+            appService.savedAppConfig = angular.copy(appService.appConfig);
+            appService.hasTriggers = Boolean(appService.savedAppConfig.trigger_map?.length);
           });
       };
 
@@ -367,17 +385,14 @@
         return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
       };
 
-      appService.saveAppConfigYML = function (deferredUserSavedYmlToRepository, requestConfig) {
-        deferredUserSavedYmlToRepository?.notify('open-update-yml-in-repository-dialog');
-
-        var promise =
-          deferredUserSavedYmlToRepository?.promise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
-
-        return promise.then(function (validationData) {
-          appService.appConfig = undefined;
-          appService.savedAppConfig = undefined;
-          appService.savedAppConfigYML = appService.appConfigYML;
-        });
+      appService.saveAppConfigYML = function (tabOpenDuringSave, requestConfig) {
+        return requestService
+          .postAppConfigYML(appService.appConfigYML, requestConfig)
+          .then(function (validationData) {
+            appService.appConfig = undefined;
+            appService.savedAppConfig = undefined;
+            appService.savedAppConfigYML = appService.appConfigYML;
+          });
       };
 
       appService.discardAppConfigYMLChanges = function () {
@@ -535,7 +550,7 @@
         );
       };
 
-      appService.saveStackAndDockerImage = function (deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig) {
+      appService.saveStackAndDockerImage = function (tabOpenDuringSave, requestConfig) {
         if (!appService.appConfig.meta) {
           appService.appConfig.meta = {};
         }
@@ -557,7 +572,7 @@
         }
 
         return appService
-          .saveAppConfig(deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig)
+          .saveAppConfig(tabOpenDuringSave, requestConfig)
           .then(function () {
             appService.savedStack = angular.copy(appService.stack);
             appService.savedDockerImage = appService.dockerImage;
