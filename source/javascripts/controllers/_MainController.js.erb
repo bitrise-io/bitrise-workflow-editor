@@ -640,21 +640,30 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
                     .then(resolve, reject);
                 }
 
+                var enableConflictResolution = launchDarklyService.variation("enable-wfe-config-conflict-resolution-ui");
+
                 // YML is saved to Bitrise
                 return validationPromise
                   .then(function () {
-                    return appService.getRemoteAppConfig();
-                  })
-                  .then(function () {
-                    if (!appService.remoteAppConfigHasNewUpdates()) {
-                      viewModel.deferredConflictResolution.resolve();
-                      console.log("No conflict resolution needed");
-                    } else {
-                      viewModel.isConflictResolutionDialogOpen = true;
-                      viewModel.deferredConflictResolution.reject();
-                      console.log("Conflict resolution needed");
+                    if (!enableConflictResolution) {
+                      return viewModel.deferredConflictResolution.resolve();
                     }
-                    return viewModel.deferredConflictResolution.promise;
+
+                    return appService
+                      .getRemoteAppConfig()
+                      .then(function () {
+                        // No conflicts
+                        if (!appService.remoteAppConfigHasNewUpdates()) {
+                          console.debug("No conflict resolution needed");
+                          viewModel.deferredConflictResolution.resolve();
+                          return viewModel.deferredConflictResolution.promise;
+                        }
+
+                        console.debug("Conflict resolution needed");
+                        viewModel.isConflictResolutionDialogOpen = true;
+                        viewModel.deferredConflictResolution.reject(new Error('Conflict resolution needed'));
+                        return viewModel.deferredConflictResolution.promise;
+                      });
                   })
                   .then(function () {
                     return saveFunction(viewModel.currentMenu.id);
