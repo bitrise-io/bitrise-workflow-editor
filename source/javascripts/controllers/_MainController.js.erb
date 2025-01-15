@@ -611,6 +611,7 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
                 break;
               default: // every other tab
                 viewModel.dataToSave = appService.appConfig;
+                var validationFunction = appService.validateAppConfig;
                 var saveFunction = appService.saveAppConfig;
                 var reloadFunction = reloadAppConfig;
 
@@ -619,15 +620,14 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
                   reloadFunction = reloadStack;
                 } else if (viewModel.currentMenu.id === "yml") {
                   viewModel.dataToSave = appService.appConfigYML;
+                  validationFunction = $q.resolve;
                   saveFunction = appService.saveAppConfigYML;
                   reloadFunction = reloadAppConfigYML;
                 }
 
-                var validationPromise = appService.validateAppConfig();
-
                 // YML is "saved" to the repository
                 if (isRepositorySavedYml) {
-                  return validationPromise
+                  return validationFunction()
                     .then(function () {
                       viewModel.isUpdateConfigurationDialogOpen = true;
                       return viewModel.deferredUserSavedYmlToRepository.promise;
@@ -643,7 +643,7 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
                 var enableConflictResolution = launchDarklyService.variation("enable-wfe-config-conflict-resolution-ui");
 
                 // YML is saved to Bitrise
-                return validationPromise
+                return validationFunction()
                   .then(function () {
                     if (!enableConflictResolution) {
                       return viewModel.deferredConflictResolution.resolve();
