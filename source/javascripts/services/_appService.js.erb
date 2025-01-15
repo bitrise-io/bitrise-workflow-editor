@@ -388,10 +388,12 @@
       appService.saveAppConfigYML = function (tabOpenDuringSave, requestConfig) {
         return requestService
           .postAppConfigYML(appService.appConfigYML, requestConfig)
-          .then(function (validationData) {
+          .then(function () {
+            appService.remoteAppConfig = undefined;
             appService.appConfig = undefined;
             appService.savedAppConfig = undefined;
-            appService.savedAppConfigYML = appService.appConfigYML;
+
+            appService.savedAppConfigYML = angular.copy(appService.appConfigYML);
           });
       };
 
