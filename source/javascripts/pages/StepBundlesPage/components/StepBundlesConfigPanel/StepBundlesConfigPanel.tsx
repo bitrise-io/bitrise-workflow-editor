@@ -1,5 +1,7 @@
 import { Box } from '@bitrise/bitkit';
 import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleConfigDrawer/StepBundlePropertiesTab';
+import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { useStepBundles } from '@/hooks/useStepBundles';
 import { useStepBundlesPageStore } from '../../StepBundlesPage.store';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 import StepBundlesConfigHeader from './StepBundlesConfigHeader';
@@ -9,17 +11,19 @@ type ConfigPanelContentProps = {
 };
 
 const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps) => {
-  const { closeDialog, setStepBundleId } = useStepBundlesPageStore();
+  const { closeDialog } = useStepBundlesPageStore();
+  const [, setSelectedStepBundle] = useSelectedStepBundle();
+  const stepBundles = useStepBundles();
 
-  const handleOnDelete = () => {
-    setStepBundleId('');
+  const handleOnDelete = (deletedId: string) => {
+    setSelectedStepBundle(Object.keys(stepBundles).find((bundleId) => bundleId !== deletedId));
     closeDialog();
   };
 
   return (
     <Box borderLeft="1px solid" borderColor="border/regular">
       <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
-      <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setStepBundleId} />
+      <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setSelectedStepBundle} />
     </Box>
   );
 };

@@ -12,7 +12,7 @@ const StepBundlesConfigHeader = ({ parentStepBundleId }: Props) => {
   return (
     <Box padding="24px 24px 16px 24px">
       <Text as="h3" textStyle="heading/h3">
-        {parentStepBundleId}
+        {parentStepBundleId || 'Step bundle'}
       </Text>
       <Text textStyle="body/sm/regular" color="text/secondary">
         {StepBundleService.getUsedByText(dependants.length)}

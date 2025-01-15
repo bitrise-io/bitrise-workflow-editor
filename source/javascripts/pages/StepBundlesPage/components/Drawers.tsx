@@ -5,16 +5,8 @@ import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundl
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 
 const Drawers = () => {
-  const {
-    stepBundleId,
-    stepIndex,
-    openDialog,
-    closeDialog,
-    isDialogOpen,
-    unmountDialog,
-    isDialogMounted,
-    setStepBundleId,
-  } = useStepBundlesPageStore();
+  const { stepBundleId, stepIndex, openDialog, closeDialog, isDialogOpen, unmountDialog, isDialogMounted } =
+    useStepBundlesPageStore();
 
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
     addStepToStepBundle: s.addStepToStepBundle,
@@ -35,7 +27,6 @@ const Drawers = () => {
 
   const handleCreateStepBundle = (newStepBundleId: string, baseStepBundleId?: string) => {
     createStepBundle(newStepBundleId, baseStepBundleId);
-    setStepBundleId(newStepBundleId);
   };
 
   return (
