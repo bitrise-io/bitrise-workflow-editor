@@ -40,8 +40,9 @@ const ConfigurationTab = () => {
     250,
   );
 
-  const mergedValues = data?.mergedValues ?? {};
+  const userValues = data?.userValues ?? {};
   const defaultValues = data?.defaultValues ?? {};
+  const mergedValues = data?.mergedValues ?? {};
 
   const onInputValueChange = (name: string, value?: string | null) => {
     const clone = cloneDeep(mergedValues.inputs ?? []);
@@ -95,8 +96,15 @@ const ConfigurationTab = () => {
         />
       </ExpandableCard>
 
-      {Object.entries(groupStepInputs(mergedValues.inputs) ?? {}).map(([title, inputs]) => (
-        <StepInputGroup key={title} stepId={data?.id} title={title} inputs={inputs} onChange={onInputValueChange} />
+      {Object.entries(groupStepInputs(defaultValues.inputs) ?? {}).map(([title, defaults]) => (
+        <StepInputGroup
+          key={title}
+          stepId={data?.id}
+          title={title}
+          defaults={defaults}
+          inputs={groupStepInputs(userValues.inputs)?.[title]}
+          onChange={onInputValueChange}
+        />
       ))}
     </Box>
   );

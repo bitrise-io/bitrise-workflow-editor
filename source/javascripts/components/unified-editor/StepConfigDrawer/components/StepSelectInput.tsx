@@ -31,6 +31,8 @@ const StepSelectInput = forwardRef(
       insertVariable(envVar.key);
     };
 
+    console.log('label', label, 'value:', value, 'defaultValue:', props.defaultValue);
+
     return (
       <Box display="flex" gap="8">
         <Dropdown
@@ -48,6 +50,7 @@ const StepSelectInput = forwardRef(
             onChange?.(e.target.value ?? '');
           }}
         >
+          {props.defaultValue && <DropdownOption value="">Default ({props.defaultValue})</DropdownOption>}
           {options.map((option) => {
             return (
               <DropdownOption key={option} value={option}>
