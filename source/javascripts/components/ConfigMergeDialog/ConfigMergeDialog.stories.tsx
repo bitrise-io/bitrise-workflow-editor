@@ -1,7 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import ConfigMergeDialog from './ConfigMergeDialog';
 import { baseYaml, remoteYaml, yourYaml } from './ConfigMergeDialog.mocks';
 
@@ -28,12 +27,12 @@ const meta: Meta<typeof ConfigMergeDialog> = {
     const { isOpen, onClose, onOpen } = useDisclosure({ defaultIsOpen, onClose: defaultOnClose });
 
     return (
-      <BitriseYmlProvider yml={TEST_BITRISE_YML}>
+      <>
         <Box display="flex" justifyContent="center" alignItems="center" height="90dvh">
           <Button onClick={onOpen}>Open dialog</Button>
         </Box>
         <ConfigMergeDialog {...args} isOpen={isOpen} onClose={onClose} />
-      </BitriseYmlProvider>
+      </>
     );
   },
 };
