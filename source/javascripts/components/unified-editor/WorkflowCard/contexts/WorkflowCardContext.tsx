@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
 import { pick } from 'es-toolkit';
 import { StepActions, WorkflowActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
@@ -21,9 +21,10 @@ const WorkflowCardContextProvider = ({
 }: PropsWithChildren<ContextState>) => {
   const [indices, setIndices] = useState<number[]>([]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     setIndices(selectedStepIndices.filter((index) => index >= 0));
   }, [selectedStepIndices]);
+  */
 
   const onSelectStep = useCallback<
     (props: {
@@ -44,6 +45,7 @@ const WorkflowCardContextProvider = ({
           return [...prev, stepIndex];
         });
       } else {
+        setIndices([stepIndex]);
         methods.onSelectStep?.({ wfId, stepIndex, stepBundleId, type });
       }
     },

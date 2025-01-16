@@ -145,7 +145,13 @@ const StepCard = ({
 
   const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
-        onSelectStep?.({ isMultiple: e.metaKey, stepIndex, type: library, stepBundleId, wfId: workflowId });
+        onSelectStep?.({
+          isMultiple: e.ctrlKey || e.metaKey,
+          stepIndex,
+          type: library,
+          stepBundleId,
+          wfId: workflowId,
+        });
       }
     : undefined;
   const cardProps = useMemo(() => {
