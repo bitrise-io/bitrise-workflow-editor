@@ -26,16 +26,11 @@ type Props = Omit<DialogProps, 'title'> & {
 
 const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
   automaticLayout: true,
-  foldingHighlight: false,
   roundedSelection: false,
   renderSideBySide: false,
   renderGutterMenu: false,
   renderWhitespace: 'all',
   ignoreTrimWhitespace: false,
-  enableSplitViewResizing: false,
-  experimental: {
-    useTrueInlineView: false,
-  },
   padding: {
     top: 16,
     bottom: 16,
@@ -100,15 +95,20 @@ function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   };
 }
 
+function disposeEditors() {
+  monaco.editor.getDiffEditors().forEach((editor) => editor.dispose());
+}
+
 const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, onSave, ...props }: Props) => {
-  const [{ finalYaml, decorations }, setMergeResult] = useState(mergeYamls(yourYaml, baseYaml, remoteYaml));
+  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml);
+  const [finalYaml, setFinalYaml] = useState(mergeResult.finalYaml);
 
   const handleMountOfResultEditor = useCallback(
     (editor: MonacoDiffEditor) => {
       const modifiedEditor = editor.getModifiedEditor();
 
       modifiedEditor.onDidChangeModelContent((e) => {
-        setMergeResult((prev) => ({ ...prev, finalYaml: modifiedEditor.getValue() }));
+        setFinalYaml(modifiedEditor.getValue());
 
         const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
           const { startLineNumber, endLineNumber } = c.range;
@@ -127,26 +127,24 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
         modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
       });
 
-      editor.createDecorationsCollection(decorations);
+      editor.createDecorationsCollection(mergeResult.decorations);
     },
-    [decorations],
+    [mergeResult.decorations],
   );
 
   useEffect(() => {
-    if (!isOpen) return;
-    setMergeResult(mergeYamls(yourYaml, baseYaml, remoteYaml));
+    if (isOpen) {
+      setFinalYaml(mergeYamls(yourYaml, baseYaml, remoteYaml).finalYaml);
+    }
   }, [isOpen, yourYaml, baseYaml, remoteYaml]);
 
   useEffect(() => {
-    if (isOpen) return;
-    monaco.editor.getDiffEditors().forEach((editor) => editor.dispose());
-  }, [isOpen]);
+    if (!isOpen) {
+      disposeEditors();
+    }
 
-  useEffect(() => {
-    return () => {
-      monaco.editor.getDiffEditors().forEach((editor) => editor.dispose());
-    };
-  }, []);
+    return disposeEditors;
+  }, [isOpen]);
 
   return (
     <>
