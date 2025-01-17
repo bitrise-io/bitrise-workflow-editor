@@ -358,43 +358,12 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: 'new title' }, {}, sourceYml);
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: 'new title' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
     it('should delete the property if the new value is empty', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            steps: [
-              {
-                'step-id@1.0.0': {
-                  title: 'old title',
-                  source_code_url: 'https://source.code',
-                },
-              },
-            ],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            steps: [{ 'step-id@1.0.0': { source_code_url: 'https://source.code' } }],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: '' }, {}, sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should delete the property if it is the default value', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
@@ -420,13 +389,45 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStep(
-        'wf1',
-        0,
-        { title: 'default title' },
-        { title: 'default title' },
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: '' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should keep the property if it did not change', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'default title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'default title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: 'default title' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -441,7 +442,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStep('wf2', 0, { title: 'new title' }, {}, sourceYml);
+      const actualYml = BitriseYmlService.updateStep('wf2', 0, { title: 'new title' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(sourceYml);
     });
@@ -585,7 +586,6 @@ describe('BitriseYmlService', () => {
         'wf1',
         1,
         [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }],
-        [{ contents: '' }, { other: '' }],
         sourceYml,
       );
 
@@ -611,13 +611,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputs(
-        'wf1',
-        1,
-        [{ is_debug: 'false' }],
-        [{ is_debug: true }],
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.updateStepInputs('wf1', 1, [{ is_debug: 'false' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -641,7 +635,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputs('wf1', 1, [{ count: '123' }], [{ count: 0 }], sourceYml);
+      const actualYml = BitriseYmlService.updateStepInputs('wf1', 1, [{ count: '123' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -665,13 +659,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputs(
-        'wf1',
-        1,
-        [{ script_path: '/path/to/script' }],
-        [{ script_path: '' }],
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.updateStepInputs('wf1', 1, [{ script_path: '/path/to/script' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -703,7 +691,6 @@ describe('BitriseYmlService', () => {
             opts: { is_template: true },
           },
         ],
-        [{ contents: '' }],
         sourceAndExpectedYml,
       );
 
@@ -740,15 +727,14 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputs(
         'wf1',
         1,
-        [{ script_path: '' }, { is_debug: true }],
-        [{ script_path: 'default/script/path' }, { is_debug: false }],
+        [{ script_path: '' }, { is_debug: 'true' }],
         sourceYml,
       );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should delete the input if the value is the default value', () => {
+    it('should keep the input if the value did not change', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
@@ -770,7 +756,15 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: true }] } }, { test: {} }],
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ contents: 'echo "Hello, Bitrise!' }, { is_debug: false }],
+                },
+              },
+              { test: {} },
+            ],
           },
         },
       };
@@ -778,8 +772,7 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputs(
         'wf1',
         1,
-        [{ contents: 'echo "Hello, World!"' }, { is_debug: true }],
-        [{ contents: 'echo "Hello, World!"' }, { is_debug: false }],
+        [{ contents: 'echo "Hello, Bitrise!' }, { is_debug: 'false' }],
         sourceYml,
       );
 
@@ -805,15 +798,11 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputs(
-        'wf1',
-        1,
-        [{ is_debug: false }],
-        [{ is_debug: false }],
-        sourceYml,
-      );
-
+      const actualYml = BitriseYmlService.updateStepInputs('wf1', 1, [{ is_debug: '' }], sourceYml);
       expect(actualYml).toMatchBitriseYml(expectedYml);
+
+      const actualYml2 = BitriseYmlService.updateStepInputs('wf1', 1, [], sourceYml);
+      expect(actualYml2).toMatchBitriseYml(expectedYml);
     });
 
     it('should return the original YML if the workflow or step does not exist', () => {
@@ -831,7 +820,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputs('wf1', 3, [], [], sourceYml);
+      const actualYml = BitriseYmlService.updateStepInputs('wf1', 3, [], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3545,7 +3534,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: 'new title' }, {}, sourceYml);
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: 'new title' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3576,12 +3565,12 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: '' }, {}, sourceYml);
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: '' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should delete the property if it is the default value', () => {
+    it('should keep the property if it did not changed', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         step_bundles: {
@@ -3602,18 +3591,19 @@ describe('BitriseYmlService', () => {
         format_version: '',
         step_bundles: {
           bundle1: {
-            steps: [{ 'step-id@1.0.0': { source_code_url: 'https://source.code' } }],
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'default title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
           },
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInStepBundle(
-        'bundle1',
-        0,
-        { title: 'default title' },
-        { title: 'default title' },
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle1', 0, { title: 'default title' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3628,7 +3618,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle2', 0, { title: 'new title' }, {}, sourceYml);
+      const actualYml = BitriseYmlService.updateStepInStepBundle('bundle2', 0, { title: 'new title' }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(sourceYml);
     });
@@ -3674,7 +3664,6 @@ describe('BitriseYmlService', () => {
         'bundle1',
         1,
         [{ other: 'value' }, { contents: 'echo "Hello, Bitrise!"' }],
-        [{ contents: '' }, { other: '' }],
         sourceYml,
       );
 
@@ -3704,7 +3693,6 @@ describe('BitriseYmlService', () => {
         'bundle1',
         1,
         [{ is_debug: 'false' }],
-        [{ is_debug: true }],
         sourceYml,
       );
 
@@ -3730,13 +3718,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
-        'bundle1',
-        1,
-        [{ count: '123' }],
-        [{ count: 0 }],
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle('bundle1', 1, [{ count: '123' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3764,7 +3746,6 @@ describe('BitriseYmlService', () => {
         'bundle1',
         1,
         [{ script_path: '/path/to/script' }],
-        [{ script_path: '' }],
         sourceYml,
       );
 
@@ -3798,7 +3779,6 @@ describe('BitriseYmlService', () => {
             opts: { is_template: true },
           },
         ],
-        [{ contents: '' }],
         sourceAndExpectedYml,
       );
 
@@ -3835,15 +3815,14 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
         'bundle1',
         1,
-        [{ script_path: '' }, { is_debug: true }],
-        [{ script_path: 'default/script/path' }, { is_debug: false }],
+        [{ script_path: '' }, { is_debug: 'true' }],
         sourceYml,
       );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should delete the input if the value is the default value', () => {
+    it('should keep the input if the value did not change', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         step_bundles: {
@@ -3865,7 +3844,15 @@ describe('BitriseYmlService', () => {
         format_version: '',
         step_bundles: {
           bundle1: {
-            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: true }] } }, { test: {} }],
+            steps: [
+              { clone: {} },
+              {
+                script: {
+                  inputs: [{ contents: 'echo "Hello, Bitrise!' }, { is_debug: false }],
+                },
+              },
+              { test: {} },
+            ],
           },
         },
       };
@@ -3873,8 +3860,7 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
         'bundle1',
         1,
-        [{ contents: 'echo "Hello, World!"' }, { is_debug: true }],
-        [{ contents: 'echo "Hello, World!"' }, { is_debug: false }],
+        [{ contents: 'echo "Hello, Bitrise!' }, { is_debug: 'false' }],
         sourceYml,
       );
 
@@ -3900,15 +3886,11 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputsInStepBundle(
-        'bundle1',
-        1,
-        [{ is_debug: false }],
-        [{ is_debug: false }],
-        sourceYml,
-      );
-
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle('bundle1', 1, [{ is_debug: '' }], sourceYml);
       expect(actualYml).toMatchBitriseYml(expectedYml);
+
+      const actualYml2 = BitriseYmlService.updateStepInputsInStepBundle('bundle1', 1, [], sourceYml);
+      expect(actualYml2).toMatchBitriseYml(expectedYml);
     });
 
     it('should return the original YML if the step bundle or step does not exist', () => {
@@ -3926,7 +3908,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepInputsInStepBundle('wf1', 3, [], [], sourceYml);
+      const actualYml = BitriseYmlService.updateStepInputsInStepBundle('wf1', 3, [], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
