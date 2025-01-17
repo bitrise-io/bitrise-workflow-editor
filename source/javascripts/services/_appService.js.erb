@@ -1,3 +1,5 @@
+import BitriseYmlApi from '../core/api/BitriseYmlApi';
+
 (function () {
   "use strict";
 
@@ -81,19 +83,9 @@
         });
       };
 
-      appService.getRemoteAppConfig = function (requestConfig) {
-        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          appService.remoteAppConfig = normalizeAppConfig(appConfig);
-        });
-      }
-
       appService.appConfigHasUnsavedChanges = function () {
         return !angular.equals(appService.appConfig, appService.savedAppConfig);
       };
-
-      appService.remoteAppConfigHasNewUpdates = function () {
-        return !angular.equals(appService.savedAppConfig, appService.remoteAppConfig);
-      }
 
       function normalizeAppConfig(configToNormalize) {
         var variableConfigs = [];
@@ -285,10 +277,6 @@
         return requestService
           .postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
           .then(function () {
-            appService.remoteAppConfig = undefined;
-            appService.appConfigYML = undefined;
-            appService.savedAppConfigYML = undefined;
-
             appService.savedAppConfig = angular.copy(appService.appConfig);
             appService.hasTriggers = Boolean(appService.savedAppConfig.trigger_map?.length);
           });
@@ -389,10 +377,6 @@
         return requestService
           .postAppConfigYML(appService.appConfigYML, requestConfig)
           .then(function () {
-            appService.remoteAppConfig = undefined;
-            appService.appConfig = undefined;
-            appService.savedAppConfig = undefined;
-
             appService.savedAppConfigYML = angular.copy(appService.appConfigYML);
           });
       };
@@ -642,6 +626,44 @@
         }
         return [];
       }
+
+      appService.detectRemoteAppConfigConflict = function (requestConfig) {
+        return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
+          appService.remoteAppConfig = normalizeAppConfig(remoteConfig);
+
+          return {
+            yourYaml: BitriseYmlApi.toYml(appService.appConfig),
+            baseYaml: BitriseYmlApi.toYml(appService.savedAppConfig),
+            remoteYaml: BitriseYmlApi.toYml(appService.remoteAppConfig),
+            hasConflict: !angular.equals(appService.remoteAppConfig, appService.savedAppConfig),
+          }
+        });
+      };
+
+      appService.detectRemoteAppConfigYMLConflict = function (requestConfig) {
+        return requestService.getAppConfigYML(requestConfig).then(function (remoteYaml) {
+          appService.remoteAppConfigYML = remoteYaml;
+
+          return {
+            yourYaml: appService.appConfigYML,
+            baseYaml: appService.savedAppConfigYML,
+            remoteYaml: remoteYaml,
+            hasConflict: remoteYaml !== appService.savedAppConfigYML,
+          }
+        });
+      };
+
+      appService.finalizeAppConfig = function (finalYaml) {
+        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
+        appService.savedAppConfig = angular.copy(appService.remoteAppConfig);
+        return appService.appConfig;
+      };
+
+      appService.finalizeAppConfigYML = function (finalYaml) {
+        appService.appConfigYML = finalYaml;
+        appService.savedAppConfigYML = appService.remoteAppConfigYML;
+        return appService.appConfigYML;
+      };
 
       return appService;
     });

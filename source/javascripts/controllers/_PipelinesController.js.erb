@@ -16,7 +16,10 @@ import { safeDigest } from "@/services/react-compat";
 
       $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function () {
         viewModel.yml = appService.appConfig;
-        safeDigest($rootScope);
+      }));
+
+      $scope.$on("$destroy", $rootScope.$on("MainController::conflictResolvedWithSuccess", function () {
+        viewModel.yml = appService.appConfig;
       }));
     });
 })();

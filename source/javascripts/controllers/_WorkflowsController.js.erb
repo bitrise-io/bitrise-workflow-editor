@@ -12,6 +12,10 @@ import { safeDigest } from "@/services/react-compat";
         viewModel.yml = appService.appConfig;
       }));
 
+      $scope.$on("$destroy", $rootScope.$on("MainController::conflictResolvedWithSuccess", () => {
+        viewModel.yml = appService.appConfig;
+      }));
+
       viewModel.init = () => {
         viewModel.yml = appService.appConfig;
       };

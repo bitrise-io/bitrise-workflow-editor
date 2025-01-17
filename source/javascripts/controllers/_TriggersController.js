@@ -1,11 +1,11 @@
-import {safeDigest} from "@/services/react-compat";
+import { safeDigest } from "@/services/react-compat";
 
-(function() {
+(function () {
 	"use strict";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.controller("TriggersController", function($rootScope, $scope, appService) {
+		.controller("TriggersController", function ($rootScope, $scope, appService) {
 			var viewModel = this;
 			viewModel.yml = null;
 
@@ -20,7 +20,15 @@ import {safeDigest} from "@/services/react-compat";
 
 			$scope.$on(
 				"$destroy",
-				$rootScope.$on("MainController::changesDiscarded", function() {
+				$rootScope.$on("MainController::changesDiscarded", function () {
+					safeDigest($scope);
+					viewModel.init();
+				})
+			);
+
+			$scope.$on(
+				"$destroy",
+				$rootScope.$on("MainController::conflictResolvedWithSuccess", function () {
 					safeDigest($scope);
 					viewModel.init();
 				})
