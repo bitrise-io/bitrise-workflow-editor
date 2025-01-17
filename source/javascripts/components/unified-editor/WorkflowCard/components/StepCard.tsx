@@ -9,17 +9,21 @@ import {
   Card,
   CardProps,
   ControlButton,
+  Divider,
   Icon,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Skeleton,
   SkeletonBox,
   Text,
+  Toggletip,
   Tooltip,
 } from '@bitrise/bitkit';
-
 import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import defaultIcon from '@/../images/step/icon-default.svg';
-
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/models/StepService';
 import { Step } from '@/core/models/Step';
@@ -187,46 +191,7 @@ const StepCard = ({
     }
 
     return (
-      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-        {isUpgradable && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="ArrowUp"
-            colorScheme="orange"
-            aria-label="Update Step"
-            tooltipProps={{ 'aria-label': 'Update Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onUpgradeStep) {
-                onUpgradeStep(workflowId, stepIndex, latestMajor);
-              }
-              if (stepBundleId && onUpgradeStepInStepBundle) {
-                onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
-              }
-            }}
-          />
-        )}
-        {isClonable && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="Duplicate"
-            aria-label="Clone Step"
-            tooltipProps={{ 'aria-label': 'Clone Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onCloneStep) {
-                onCloneStep(workflowId, stepIndex);
-              }
-              if (stepBundleId && onCloneStepInStepBundle) {
-                onCloneStepInStepBundle(stepBundleId, stepIndex);
-              }
-            }}
-          />
-        )}
+      <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
           <ControlButton
             isDanger
@@ -247,6 +212,68 @@ const StepCard = ({
             }}
           />
         )}
+        <Menu placement="bottom-end">
+          <MenuButton
+            as={ControlButton}
+            iconName="MoreVertical"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            size="xs"
+            display="none"
+            _groupHover={{ display: 'inline-flex' }}
+            _active={{ display: 'inline-flex' }}
+          />
+          <MenuList>
+            {isUpgradable && (
+              <MenuItem
+                leftIconName="ArrowUp"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (workflowId && onUpgradeStep) {
+                    onUpgradeStep(workflowId, stepIndex, latestMajor);
+                  }
+                  if (stepBundleId && onUpgradeStepInStepBundle) {
+                    onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
+                  }
+                }}
+              >
+                Update Step version
+              </MenuItem>
+            )}
+            <MenuItem leftIconName="Steps">New bundle with 1 Step</MenuItem>
+            <MenuItem
+              leftIconName="Duplicate"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (workflowId && onCloneStep) {
+                  onCloneStep(workflowId, stepIndex);
+                }
+                if (stepBundleId && onCloneStepInStepBundle) {
+                  onCloneStepInStepBundle(stepBundleId, stepIndex);
+                }
+              }}
+            >
+              Duplicate Step
+            </MenuItem>
+            <Divider my="8" />
+            <MenuItem
+              isDanger
+              leftIconName="Trash"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (workflowId && onDeleteStep) {
+                  onDeleteStep(workflowId, stepIndex);
+                }
+                if (stepBundleId && onDeleteStepInStepBundle) {
+                  onDeleteStepInStepBundle(stepBundleId, stepIndex);
+                }
+              }}
+            >
+              Delete Step
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </ButtonGroup>
     );
   }, [
@@ -267,68 +294,74 @@ const StepCard = ({
   ]);
 
   return (
-    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
-      {!isPlaceholder && (
-        <>
-          {isSortable && (
-            <DragHandle
-              withGroupHover
-              borderLeftRadius="4"
-              isDisabled={isLoading}
-              ref={sortable.setActivatorNodeRef}
-              {...sortable.listeners}
-              {...sortable.attributes}
-            />
-          )}
-
-          {isLoading ? (
-            <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
-              <SkeletonBox height="32" width="32" borderRadius="4" />
-              <Box display="flex" flexDir="column" gap="4">
-                <SkeletonBox height="14" width="150px" />
-                {showSecondary && <SkeletonBox height="14" width="75px" />}
-              </Box>
-            </Skeleton>
-          ) : (
-            <Box
-              p="4"
-              pl={isSortable ? 0 : 4}
-              gap="8"
-              flex="1"
-              minW={0}
-              display="flex"
-              onClick={handleClick}
-              role={isButton ? 'button' : 'div'}
-            >
-              <Avatar
-                size="32"
-                src={icon}
-                name={title}
-                variant="step"
-                outline="1px solid"
-                outlineColor="border/minimal"
-                backgroundColor="background/primary"
+    <Toggletip
+      label="To select multiple Steps, hold '⌘' or 'Ctrl' key."
+      learnMoreUrl="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
+      button={{ label: 'Got it' }}
+    >
+      <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
+        {!isPlaceholder && (
+          <>
+            {isSortable && (
+              <DragHandle
+                withGroupHover
+                borderLeftRadius="4"
+                isDisabled={isLoading}
+                ref={sortable.setActivatorNodeRef}
+                {...sortable.listeners}
+                {...sortable.attributes}
               />
+            )}
 
-              <Box minW={0} textAlign="left" flex="1">
-                <Text textStyle="body/sm/regular" hasEllipsis>
-                  {title}
-                </Text>
-                {showSecondary && (
-                  <StepSecondaryText
-                    isUpgradable={isUpgradable}
-                    errorText={error ? 'Failed to load Step' : undefined}
-                    resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                  />
-                )}
+            {isLoading ? (
+              <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
+                <SkeletonBox height="32" width="32" borderRadius="4" />
+                <Box display="flex" flexDir="column" gap="4">
+                  <SkeletonBox height="14" width="150px" />
+                  {showSecondary && <SkeletonBox height="14" width="75px" />}
+                </Box>
+              </Skeleton>
+            ) : (
+              <Box
+                p="4"
+                pl={isSortable ? 0 : 4}
+                gap="8"
+                flex="1"
+                minW={0}
+                display="flex"
+                onClick={handleClick}
+                role={isButton ? 'button' : 'div'}
+              >
+                <Avatar
+                  size="32"
+                  src={icon}
+                  name={title}
+                  variant="step"
+                  outline="1px solid"
+                  outlineColor="border/minimal"
+                  backgroundColor="background/primary"
+                />
+
+                <Box minW={0} textAlign="left" flex="1">
+                  <Text textStyle="body/sm/regular" hasEllipsis>
+                    {title}
+                  </Text>
+                  {showSecondary && (
+                    <StepSecondaryText
+                      isUpgradable={isUpgradable}
+                      errorText={error ? 'Failed to load Step' : undefined}
+                      resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                    />
+                  )}
+                </Box>
+
+                {buttonGroup}
               </Box>
-
-              {buttonGroup}
-            </Box>
-          )}
-        </>
-      )}
-    </Card>
+            )}
+          </>
+        )}
+      </Card>
+    </Toggletip>
   );
 };
 
