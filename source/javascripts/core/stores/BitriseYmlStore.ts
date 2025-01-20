@@ -431,7 +431,7 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    groupStepsToStepBundle(workflowId, stepBundleId, stepIndex, baseStepBundleId?) {
+    groupStepsToStepBundle(workflowId, stepBundleId, stepIndex) {
       return set((state) => {
         return {
           yml: BitriseYmlService.groupStepsToStepBundle(workflowId, stepBundleId, stepIndex, state.yml),
