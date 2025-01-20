@@ -292,6 +292,38 @@ function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: Bi
   return copy;
 }
 
+function groupStepsToStepBundle(
+  workflowId: string,
+  stepBundleId: string,
+  stepIndex: number,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  // Remove step from a workflow
+  const removedSteps: any = copy.workflows[workflowId].steps.splice(stepIndex, 1); /* as StepBundleYmlObject['steps'] */
+
+  // Create and add selected step to the step bundle
+  copy.step_bundles = {
+    ...copy.step_bundles,
+    ...{
+      [stepBundleId]: { steps: removedSteps },
+    },
+  };
+
+  // Push the created step bundle to the workflow, which contained the selected step / steps
+  const steps = copy.workflows[workflowId].steps ?? [];
+  steps.splice(stepIndex, 0, { [`bundle::${stepBundleId}`]: {} });
+  copy.workflows[workflowId].steps = steps;
+
+  return copy;
+}
+
 function moveStepInStepBundle(stepBundleId: string, stepIndex: number, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1377,6 +1409,7 @@ export default {
   createStepBundle,
   deleteStepBundle,
   deleteStepInStepBundle,
+  groupStepsToStepBundle,
   moveStepInStepBundle,
   renameStepBundle,
   updateStepInStepBundle,
