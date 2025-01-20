@@ -627,47 +627,47 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         return [];
       }
 
-      appService.detectRemoteAppConfigConflict = function (requestConfig) {
-        return $q.all([
-          BitriseYmlApi.formatYml(appService.appConfig),
-          requestService.getAppConfig(requestConfig),
-        ]).then(function ([yourFormattedConfig, remoteConfig]) {
+      appService.detectRemoteAppConfigChanges = function (requestConfig) {
+        return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
           appService.remoteAppConfig = normalizeAppConfig(remoteConfig);
 
+          const yourYaml = BitriseYmlApi.toYml(appService.appConfig);
+          const baseYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
+          const remoteYaml = BitriseYmlApi.toYml(appService.remoteAppConfig);
+
           return {
-            yourYaml: yourFormattedConfig,
-            baseYaml: BitriseYmlApi.toYml(appService.savedAppConfig),
-            remoteYaml: BitriseYmlApi.toYml(appService.remoteAppConfig),
-            hasConflict: !angular.equals(appService.remoteAppConfig, appService.savedAppConfig),
-          }
+            yourYaml,
+            baseYaml,
+            remoteYaml,
+            hasChanges: remoteYaml !== baseYaml,
+          };
         });
       };
 
-      appService.detectRemoteAppConfigYMLConflict = function (requestConfig) {
+      appService.detectRemoteAppConfigYMLChanges = function (requestConfig) {
         return requestService.getAppConfigYML(requestConfig).then(function (remoteYaml) {
           appService.remoteAppConfigYML = remoteYaml;
 
+          const yourYaml = appService.appConfigYML;
+          const baseYaml = appService.savedAppConfigYML;
+
           return {
-            yourYaml: appService.appConfigYML,
-            baseYaml: appService.savedAppConfigYML,
-            remoteYaml: remoteYaml,
-            hasConflict: remoteYaml !== appService.savedAppConfigYML,
-          }
+            yourYaml,
+            baseYaml,
+            remoteYaml,
+            hasChanges: remoteYaml !== baseYaml,
+          };
         });
       };
 
       appService.finalizeAppConfig = function (finalYaml) {
         appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
-        appService.appConfigYML = finalYaml;
         appService.savedAppConfig = angular.copy(appService.remoteAppConfig);
-        appService.savedAppConfigYML = BitriseYmlApi.fromYml(appService.remoteAppConfig);
         return appService.appConfig;
       };
 
       appService.finalizeAppConfigYML = function (finalYaml) {
-        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
         appService.appConfigYML = finalYaml;
-        appService.savedAppConfig = BitriseYmlApi.fromYml(appService.remoteAppConfigYML);
         appService.savedAppConfigYML = appService.remoteAppConfigYML;
         return appService.appConfigYML;
       };

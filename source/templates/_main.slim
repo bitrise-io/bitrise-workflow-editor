@@ -35,10 +35,10 @@ r-root-component
     ]
 
     r-config-merge-dialog[
+      is-open="mainCtrl.isConfigMergeDialogOpen"
       your-yaml="mainCtrl.yourYaml"
       base-yaml="mainCtrl.baseYaml"
       remote-yaml="mainCtrl.remoteYaml"
-      is-open="mainCtrl.isConfigMergeDialogOpen"
       on-close="mainCtrl.closeConfigMergeDialog"
       on-save="mainCtrl.saveConfigMergeDialogResult"
     ]

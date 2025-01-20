@@ -44,14 +44,16 @@ import { safeDigest } from "../services/react-compat";
           $rootScope.$on("MainController::changesDiscarded", function () {
             viewModel.ciConfigYml = undefined;
             safeDigest($scope);
-            viewModel.ciConfigYml = appService.appConfigYML;
+            viewModel.ciConfigYml = appService.savedAppConfigYML;
             safeDigest($scope);
           })
         );
 
         $scope.$on(
           "$destroy",
-          $rootScope.$on("MainController::conflictResolvedWithSuccess", function () {
+          $rootScope.$on("MainController::remoteChangesMergedWithSuccess", function () {
+            viewModel.ciConfigYml = undefined;
+            safeDigest($scope);
             viewModel.ciConfigYml = appService.appConfigYML;
             safeDigest($scope);
           })

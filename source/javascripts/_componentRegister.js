@@ -126,10 +126,10 @@ angular
     "rConfigMergeDialog",
     register(ConfigMergeDialog, [
       "isOpen",
-      "onSave",
-      "onClose",
       "yourYaml",
       "baseYaml",
       "remoteYaml",
+      "onSave",
+      "onClose",
     ]),
   );
