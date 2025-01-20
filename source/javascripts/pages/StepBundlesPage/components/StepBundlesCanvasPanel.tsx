@@ -57,9 +57,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       // Adjust index if the selected step is cloned
       if (bundleId === stepBundleId && stepIndex === selectedStepIndex) {
         setStepIndex(selectedStepIndex + 1);
+        setSelectedStepIndices([selectedStepIndex + 1]);
       }
     },
-    [cloneStepInStepBundle, stepBundleId, selectedStepIndex, setStepIndex],
+    [cloneStepInStepBundle, stepBundleId, selectedStepIndex, setStepIndex, setSelectedStepIndices],
   );
 
   const handleDeleteStep = useCallback(
@@ -86,9 +87,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       // Adjust index if the selected step is moved
       if (bundleId === stepBundleId && selectedStepIndex === stepIndex) {
         setStepIndex(targetIndex);
+        setSelectedStepIndices([targetIndex]);
       }
     },
-    [moveStepInStepBundle, stepBundleId, selectedStepIndex, setStepIndex],
+    [moveStepInStepBundle, stepBundleId, selectedStepIndex, setStepIndex, setSelectedStepIndices],
   );
 
   return (

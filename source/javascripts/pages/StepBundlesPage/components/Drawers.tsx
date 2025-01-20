@@ -9,7 +9,7 @@ type Props = {
 };
 
 const Drawers = ({ stepBundleId }: Props) => {
-  const { stepIndex, openDialog, closeDialog, isDialogOpen, unmountDialog, isDialogMounted } =
+  const { stepIndex, closeDialog, isDialogOpen, unmountDialog, isDialogMounted, setSelectedStepIndices } =
     useStepBundlesPageStore();
 
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
@@ -22,10 +22,7 @@ const Drawers = ({ stepBundleId }: Props) => {
 
   const handleAddStepToStepBundle = (cvs: string) => {
     addStepToStepBundle(stepBundleId, cvs, stepIndex);
-    openDialog({
-      type: StepBundlesPageDialogType.STEP_CONFIG,
-      stepIndex,
-    })();
+    setSelectedStepIndices([stepIndex]);
   };
 
   const handleCreateStepBundle = (newStepBundleId: string, baseStepBundleId?: string) => {

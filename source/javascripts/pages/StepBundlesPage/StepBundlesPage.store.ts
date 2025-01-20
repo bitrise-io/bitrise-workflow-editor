@@ -86,6 +86,16 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
+      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+        return {
+          stepIndex: -1,
+          selectedStepIndices: [],
+          nextDialog: undefined,
+          openedDialogType: StepBundlesPageDialogType.NONE,
+          mountedDialogType: StepBundlesPageDialogType.NONE,
+        };
+      }
+
       return {
         stepIndex: -1,
         nextDialog: undefined,
