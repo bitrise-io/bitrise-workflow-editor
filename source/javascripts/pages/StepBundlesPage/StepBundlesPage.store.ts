@@ -2,7 +2,6 @@ import { create } from 'zustand';
 
 export enum StepBundlesPageDialogType {
   NONE,
-  STEP_BUNDLE,
   STEP_CONFIG,
   STEP_SELECTOR,
   CREATE_STEP_BUNDLE,
@@ -12,12 +11,11 @@ export enum StepBundlesPageDialogType {
 type DialogParams = {
   type: StepBundlesPageDialogType;
   stepIndex?: number;
-  stepBundleId?: string;
 };
 
 type State = {
   stepIndex: number;
-  stepBundleId: string;
+  selectedStepIndices: number[];
   openedDialogType: StepBundlesPageDialogType;
   mountedDialogType: StepBundlesPageDialogType;
   _nextDialog?: Required<DialogParams>;
@@ -25,6 +23,7 @@ type State = {
 
 type Action = {
   setStepIndex: (stepIndex?: number) => void;
+  setSelectedStepIndices: (stepIndices?: number[]) => void;
   isDialogOpen: (type: StepBundlesPageDialogType) => boolean;
   isDialogMounted: (type: StepBundlesPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -34,12 +33,17 @@ type Action = {
 
 export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   stepIndex: -1,
-  stepBundleId: '',
+  selectedStepIndices: [],
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
   setStepIndex: (stepIndex = -1) => {
     return set(() => ({
       stepIndex,
+    }));
+  },
+  setSelectedStepIndices: (selectedStepIndices = []) => {
+    return set(() => ({
+      selectedStepIndices,
     }));
   },
   isDialogOpen: (type) => {
@@ -48,7 +52,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, stepBundleId = '', stepIndex = -1 }) => {
+  openDialog: ({ type, stepIndex = -1 }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== StepBundlesPageDialogType.NONE) {
@@ -58,14 +62,12 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
             _nextDialog: {
               type,
               stepIndex,
-              stepBundleId,
             },
           };
         }
 
         return {
           stepIndex,
-          stepBundleId,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,

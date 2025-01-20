@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useMemo } from 'react';
 import { pick } from 'es-toolkit';
 import { StepActions, WorkflowActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
@@ -17,15 +17,9 @@ const WorkflowCardContextProvider = ({
   children,
   selectedWorkflowId = '',
   selectedStepIndices = [],
+  setSelectedStepIndices,
   ...methods
 }: PropsWithChildren<ContextState>) => {
-  const [indices, setIndices] = useState<number[]>([]);
-
-  /* useEffect(() => {
-    setIndices(selectedStepIndices.filter((index) => index >= 0));
-  }, [selectedStepIndices]);
-  */
-
   const onSelectStep = useCallback<
     (props: {
       isMultiple?: boolean;
@@ -35,31 +29,29 @@ const WorkflowCardContextProvider = ({
       wfId?: string;
     }) => void
   >(
-    ({ isMultiple, wfId, stepIndex, stepBundleId, type }) => {
-      if (isMultiple) {
-        setIndices((prev) => {
-          if (prev.includes(stepIndex)) {
-            return prev.filter((i) => i !== stepIndex);
+    ({ isMultiple, stepIndex }) => {
+      if (setSelectedStepIndices) {
+        if (isMultiple) {
+          let newIndexes = [...selectedStepIndices, stepIndex];
+          if (selectedStepIndices.includes(stepIndex)) {
+            newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
           }
-
-          return [...prev, stepIndex];
-        });
-      } else {
-        setIndices([stepIndex]);
-        methods.onSelectStep?.({ wfId, stepIndex, stepBundleId, type });
+          setSelectedStepIndices(newIndexes);
+        } else {
+          setSelectedStepIndices([stepIndex]);
+        }
       }
     },
-    [methods],
+    [selectedStepIndices, setSelectedStepIndices],
   );
-
   const state = useMemo(
     () => ({
       ...methods,
       onSelectStep,
       selectedWorkflowId,
-      selectedStepIndices: indices,
+      selectedStepIndices,
     }),
-    [methods, onSelectStep, selectedWorkflowId, indices],
+    [methods, onSelectStep, selectedWorkflowId, selectedStepIndices],
   );
 
   return <WorkflowCardContext.Provider value={state}>{children}</WorkflowCardContext.Provider>;

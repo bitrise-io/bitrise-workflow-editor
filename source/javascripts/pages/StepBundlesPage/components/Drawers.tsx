@@ -4,8 +4,12 @@ import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 
-const Drawers = () => {
-  const { stepBundleId, stepIndex, openDialog, closeDialog, isDialogOpen, unmountDialog, isDialogMounted } =
+type Props = {
+  stepBundleId: string;
+};
+
+const Drawers = ({ stepBundleId }: Props) => {
+  const { stepIndex, openDialog, closeDialog, isDialogOpen, unmountDialog, isDialogMounted } =
     useStepBundlesPageStore();
 
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
@@ -20,7 +24,6 @@ const Drawers = () => {
     addStepToStepBundle(stepBundleId, cvs, stepIndex);
     openDialog({
       type: StepBundlesPageDialogType.STEP_CONFIG,
-      stepBundleId,
       stepIndex,
     })();
   };
@@ -52,12 +55,12 @@ const Drawers = () => {
         />
       )}
 
-      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE) && (
+      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG) && (
         <StepBundleConfigDrawer
           size="lg"
           workflowId=""
           stepIndex={stepIndex}
-          isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE)}
+          isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
@@ -71,7 +74,7 @@ const Drawers = () => {
           onClose={closeDialog}
           onSelectStep={handleAddStepToStepBundle}
           onCloseComplete={unmountDialog}
-          showStepBundles={!stepBundleId}
+          showStepBundles={false}
         />
       )}
     </>
