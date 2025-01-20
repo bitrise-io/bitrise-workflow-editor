@@ -628,11 +628,14 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
       }
 
       appService.detectRemoteAppConfigConflict = function (requestConfig) {
-        return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
+        return $q.all([
+          BitriseYmlApi.formatYml(appService.appConfig),
+          requestService.getAppConfig(requestConfig),
+        ]).then(function ([yourFormattedConfig, remoteConfig]) {
           appService.remoteAppConfig = normalizeAppConfig(remoteConfig);
 
           return {
-            yourYaml: BitriseYmlApi.toYml(appService.appConfig),
+            yourYaml: yourFormattedConfig,
             baseYaml: BitriseYmlApi.toYml(appService.savedAppConfig),
             remoteYaml: BitriseYmlApi.toYml(appService.remoteAppConfig),
             hasConflict: !angular.equals(appService.remoteAppConfig, appService.savedAppConfig),
@@ -655,12 +658,16 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
 
       appService.finalizeAppConfig = function (finalYaml) {
         appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
+        appService.appConfigYML = finalYaml;
         appService.savedAppConfig = angular.copy(appService.remoteAppConfig);
+        appService.savedAppConfigYML = BitriseYmlApi.fromYml(appService.remoteAppConfig);
         return appService.appConfig;
       };
 
       appService.finalizeAppConfigYML = function (finalYaml) {
+        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
         appService.appConfigYML = finalYaml;
+        appService.savedAppConfig = BitriseYmlApi.fromYml(appService.remoteAppConfigYML);
         appService.savedAppConfigYML = appService.remoteAppConfigYML;
         return appService.appConfigYML;
       };

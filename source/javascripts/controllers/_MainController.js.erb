@@ -7,7 +7,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
-const enabledConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
+const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
 
 (function () {
   "use strict";
@@ -23,7 +23,6 @@ const enabledConfigConflictResolution = useFeatureFlag('enable-wfe-config-confli
       requestService,
       appService,
       stringService,
-      dateService,
       Progress,
       Popup,
       Stack,
@@ -667,7 +666,7 @@ const enabledConfigConflictResolution = useFeatureFlag('enable-wfe-config-confli
           }
 
           return validateAppConfig().then(function () {
-            if (!enabledConfigConflictResolution) {
+            if (!enableConfigConflictResolution) {
               return viewModel.deferredConflictResolution.resolve();
             }
 
