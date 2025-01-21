@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
@@ -23,12 +23,6 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices } = useStepBundlesPageStore();
 
-  useEffect(() => {
-    if (selectedStepIndices.length !== 1) {
-      closeDialog();
-    }
-  }, [closeDialog, openDialog, selectedStepIndices]);
-
   const handleSelectStep = useCallback<
     (props: {
       isMultiple?: boolean;
@@ -44,16 +38,18 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         if (selectedStepIndices.includes(stepIndex)) {
           newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
         }
+        if (newIndexes.length !== 1) {
+          closeDialog();
+        }
         setSelectedStepIndices(newIndexes);
       } else {
-        setSelectedStepIndices();
         openDialog({
           type: StepBundlesPageDialogType.STEP_CONFIG,
           selectedStepIndices: [stepIndex],
         })();
       }
     },
-    [openDialog, selectedStepIndices, setSelectedStepIndices],
+    [closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices],
   );
 
   const openStepSelectorDrawer = useCallback(
@@ -83,10 +79,11 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
       // Close the dialog if the selected step is deleted
       if (stepIndex === selectedStepIndices[0]) {
+        setSelectedStepIndices([]);
         closeDialog();
       }
     },
-    [deleteStepInStepBundle, selectedStepIndices, closeDialog],
+    [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
 
   const handleMoveStep = useCallback(
