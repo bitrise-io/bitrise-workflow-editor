@@ -1,4 +1,10 @@
+import { PipelineYmlObject } from './Pipeline';
+
 const PIPELINE_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
+
+function isGraph(pipeline: PipelineYmlObject) {
+  return Boolean(pipeline.workflows);
+}
 
 function validateName(pipelineName: string, pipelineNames?: string[]) {
   if (!String(pipelineName).trim()) {
@@ -21,6 +27,7 @@ function sanitizeName(value: string) {
 }
 
 export default {
+  isGraph,
   validateName,
   sanitizeName,
 };
