@@ -95,7 +95,7 @@ async function formatYml(model: BitriseYml): Promise<string> {
     return response || '';
   }
 
-  return toJSON(model);
+  return toYml(model);
 }
 
 export default {
