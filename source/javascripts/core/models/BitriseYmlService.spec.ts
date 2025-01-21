@@ -3400,6 +3400,31 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('groupStepsToStepBundle', () => {
+    it('should add the selected step to step bundles and delete it workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { 'bundle::bundle1': {} }, { deploy: {} }] },
+        },
+        step_bundles: {
+          bundle1: { steps: [{ clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'bundle1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('moveStepInStepBundle', () => {
     it('should move step to the expected place', () => {
       const sourceYml: BitriseYml = {

@@ -28,6 +28,7 @@ import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/models/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -101,6 +102,12 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
   } = useStepActions();
+
+  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
+    groupStepsToStepBundle: s.groupStepsToStepBundle,
+  }));
+
+  const yml = useBitriseYmlStore((s) => s.yml);
 
   const {
     error,
@@ -190,6 +197,16 @@ const StepCard = ({
       return null;
     }
 
+    const generateRandomStepBundleId = () => {
+      const existingIds = Object.keys(yml.step_bundles || {});
+      for (let i = 0; ; i++) {
+        const potentialId = i === 0 ? `New_Step_bundle` : `New_Step_bundle_${i}`;
+        if (!existingIds.includes(potentialId)) {
+          return potentialId;
+        }
+      }
+    };
+
     return (
       <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
@@ -241,7 +258,15 @@ const StepCard = ({
                 Update Step version
               </MenuItem>
             )}
-            <MenuItem leftIconName="Steps">New bundle with 1 Step</MenuItem>
+            <MenuItem
+              leftIconName="Steps"
+              onClick={(e) => {
+                e.stopPropagation();
+                groupStepsToStepBundle(workflowId || '', generateRandomStepBundleId(), stepIndex);
+              }}
+            >
+              New bundle with 1 Step
+            </MenuItem>
             <MenuItem
               leftIconName="Duplicate"
               onClick={(e) => {
@@ -277,6 +302,7 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
+    groupStepsToStepBundle,
     isClonable,
     isDragging,
     isRemovable,
@@ -291,6 +317,7 @@ const StepCard = ({
     stepBundleId,
     stepIndex,
     workflowId,
+    yml.step_bundles,
   ]);
 
   return (
