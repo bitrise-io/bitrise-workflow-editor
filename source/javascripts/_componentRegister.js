@@ -1,16 +1,19 @@
 import { react2angular } from "@bitrise/react2angular";
 import { Checkbox, Icon } from "@bitrise/bitkit";
 
-import Header from "./components/Header";
-import InfoTooltip from "./components/InfoTooltip";
-import Navigation from "./components/Navigation";
-import Notification from "./components/Notification";
-import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
-import StepBadge from "./components/StepBadge";
-import Toggle from "./components/Toggle";
-import UpdateConfigurationDialog from "./components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog";
-import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
+
+import Header from "./components/Header";
+import Toggle from "./components/Toggle";
+import StepBadge from "./components/StepBadge";
+import Navigation from "./components/Navigation";
+import InfoTooltip from "./components/InfoTooltip";
+import Notification from "./components/Notification";
+import DiffEditorDialog from "./components/DiffEditor/DiffEditorDialog";
+import ConfigMergeDialog from "./components/ConfigMergeDialog/ConfigMergeDialog";
+import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
+import UpdateConfigurationDialog from "./components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog";
+
 import {
   PipelinesPage,
   SecretsPage,
@@ -118,4 +121,15 @@ angular
   .component(
     "rNavigation",
     register(Navigation, ["items", "activeItem", "onItemSelected"]),
+  )
+  .component(
+    "rConfigMergeDialog",
+    register(ConfigMergeDialog, [
+      "isOpen",
+      "yourYaml",
+      "baseYaml",
+      "remoteYaml",
+      "onSave",
+      "onClose",
+    ]),
   );

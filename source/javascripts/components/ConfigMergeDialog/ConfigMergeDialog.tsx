@@ -101,6 +101,8 @@ function disposeEditors() {
 
 const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, onSave, ...props }: Props) => {
   const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml);
+
+  const [isLoading, setIsLoading] = useState(false);
   const [finalYaml, setFinalYaml] = useState(mergeResult.finalYaml);
 
   const handleMountOfResultEditor = useCallback(
@@ -213,10 +215,17 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
         </DialogBody>
         <DialogFooter>
           <ButtonGroup spacing={16}>
-            <Button variant="secondary" onClick={onClose}>
+            <Button variant="secondary" isDisabled={isLoading} onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={() => onSave(finalYaml)}>
+            <Button
+              variant="primary"
+              isLoading={isLoading}
+              onClick={() => {
+                onSave(finalYaml);
+                setIsLoading(true);
+              }}
+            >
               Save results
             </Button>
           </ButtonGroup>

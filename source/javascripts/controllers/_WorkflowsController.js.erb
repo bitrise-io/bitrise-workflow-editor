@@ -8,13 +8,23 @@ import { safeDigest } from "@/services/react-compat";
     .controller("WorkflowsController", function ($scope, $rootScope, appService) {
       const viewModel = this;
 
-      $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", () => {
-        viewModel.yml = appService.appConfig;
-      }));
-
       viewModel.init = () => {
         viewModel.yml = appService.appConfig;
       };
+
+      $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", () => {
+        viewModel.yml = {};
+        safeDigest($scope);
+        viewModel.yml = appService.savedAppConfig;
+        safeDigest($scope);
+      }));
+
+      $scope.$on("$destroy", $rootScope.$on("MainController::remoteChangesMergedWithSuccess", () => {
+        viewModel.yml = {};
+        safeDigest($scope);
+        viewModel.yml = appService.appConfig;
+        safeDigest($scope);
+      }));
 
       viewModel.onChangeYml = (yml) => {
         appService.appConfig = yml;

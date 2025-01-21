@@ -6,7 +6,7 @@ import { safeDigest } from "../services/react-compat";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("YMLController", function($scope, $rootScope, $timeout, appService, requestService) {
+    .controller("YMLController", function ($scope, $rootScope, $timeout, appService, requestService) {
       var viewModel = this;
 
       viewModel.ciConfigYml = undefined;
@@ -28,10 +28,10 @@ import { safeDigest } from "../services/react-compat";
         }
 
         $scope.$watch(
-          function() {
+          function () {
             return appService.appConfigYML;
           },
-          function() {
+          function () {
             if (viewModel.isEditorLoading && appService.appConfigYML) {
               viewModel.ciConfigYml = appService.appConfigYML;
               viewModel.isEditorLoading = false;
@@ -44,6 +44,16 @@ import { safeDigest } from "../services/react-compat";
           $rootScope.$on("MainController::changesDiscarded", function () {
             viewModel.ciConfigYml = undefined;
             safeDigest($scope);
+            viewModel.ciConfigYml = appService.savedAppConfigYML;
+            safeDigest($scope);
+          })
+        );
+
+        $scope.$on(
+          "$destroy",
+          $rootScope.$on("MainController::remoteChangesMergedWithSuccess", function () {
+            viewModel.ciConfigYml = undefined;
+            safeDigest($scope);
             viewModel.ciConfigYml = appService.appConfigYML;
             safeDigest($scope);
           })
@@ -52,7 +62,7 @@ import { safeDigest } from "../services/react-compat";
         viewModel.onEditorChange = (value) => {
           appService.appConfigYML = value;
           safeDigest($rootScope);
-        };  
+        };
       }
 
       viewModel.onConfigSourceChangeSaved = function (usesRepositoryYml, ymlRootPath) {
