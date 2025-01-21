@@ -1165,7 +1165,11 @@ function renameWorkflowInUses(
 ): PipelineWorkflows {
   return mapValues(workflows, (workflow) => {
     const workflowCopy = deepCloneSimpleObject(workflow);
-    workflowCopy.uses = workflowCopy.uses === workflowId ? newWorkflowId : workflowCopy.uses;
+
+    if (workflowCopy.uses === workflowId) {
+      workflowCopy.uses = newWorkflowId;
+    }
+
     return workflowCopy;
   });
 }
