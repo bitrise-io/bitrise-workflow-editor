@@ -1,16 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogProps,
-  Icon,
-  Notification,
-  Text,
-} from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Text } from '@bitrise/bitkit';
 import * as monaco from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
 import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
@@ -141,7 +130,9 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
   }, [isOpen, yourYaml, baseYaml, remoteYaml]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setIsLoading(false);
+    } else {
       disposeEditors();
     }
 
@@ -154,15 +145,16 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
         size="full"
         isOpen={isOpen}
         onClose={onClose}
-        title="Save changes"
+        title="Review changes"
+        isClosable={!isLoading}
         minHeight={['100dvh', 'unset']}
         {...props}
       >
         <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
-          <Notification status="warning">
-            There are changes outside your current editing session that may conflict with your updates. Please review
-            the differences and resolve any conflicts to proceed.
-          </Notification>
+          <Text>
+            There are changes outside your current editing session. Please review the differences and resolve any
+            conflicts to proceed.
+          </Text>
           <Box display="flex" flex="1" gap="4">
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Your changes</Text>
