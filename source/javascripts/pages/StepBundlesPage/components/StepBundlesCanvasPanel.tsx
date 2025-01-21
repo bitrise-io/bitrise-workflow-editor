@@ -95,7 +95,6 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
       // Adjust index if the selected step is moved
       if (selectedStepIndices.includes(stepIndex)) {
-        // setStepIndex(targetIndex);
         setSelectedStepIndices([targetIndex]);
       }
     },
