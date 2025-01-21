@@ -34,6 +34,15 @@ r-root-component
       on-change="mainCtrl.saveDiffChanges"
     ]
 
+    r-config-merge-dialog[
+      is-open="mainCtrl.isConfigMergeDialogOpen"
+      your-yaml="mainCtrl.yourYaml"
+      base-yaml="mainCtrl.baseYaml"
+      remote-yaml="mainCtrl.remoteYaml"
+      on-close="mainCtrl.closeConfigMergeDialog"
+      on-save="mainCtrl.saveConfigMergeDialogResult"
+    ]
+
     main.main
       p.progress-indicator[progress-model="mainCtrl.menuProgress"]
       p.progress-indicator[progress-model="mainCtrl.loadDataProgress"]

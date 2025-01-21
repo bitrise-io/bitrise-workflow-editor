@@ -7,7 +7,7 @@ import { segmentTrack } from "@/utils/segmentTracking";
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
-
+const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
 
 (function () {
   "use strict";
@@ -23,7 +23,6 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
       requestService,
       appService,
       stringService,
-      dateService,
       Progress,
       Popup,
       Stack,
@@ -163,6 +162,22 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
           });
           Popup.showErrorPopup("Invalid YAML change", e.message);
         }
+      }
+
+      viewModel.yourYaml = "";
+      viewModel.baseYaml = "";
+      viewModel.remoteYaml = "";
+      viewModel.isConfigMergeDialogOpen = false;
+
+      viewModel.closeConfigMergeDialog = function () {
+        viewModel.isConfigMergeDialogOpen = false;
+        viewModel.deferredConflictResolution.reject();
+        safeDigest($rootScope);
+      }
+
+      viewModel.saveConfigMergeDialogResult = function (finalYaml) {
+        viewModel.deferredConflictResolution.resolve(finalYaml);
+        safeDigest($rootScope);
       }
 
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
@@ -568,8 +583,12 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
       }
 
       function updateLastWorkflowMetadata() {
-        const appSlug = appService.appDetails.slug;
         const dateToday = new Date().toString();
+        const appSlug = appService.appDetails?.slug;
+
+        if (!appSlug) {
+          return
+        }
 
         requestService.updateCurrentUserMetadata({
           "last_workflow_edited_date": dateToday,
@@ -591,10 +610,12 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 
         viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-        segmentTrack("Workflow Editor Save Button Clicked", {
-          tab_name: viewModel.currentMenu.id,
-          source: source,
-        });
+        if (source !== 'remote_config_change_resolution_dialog') {
+          segmentTrack("Workflow Editor Save Button Clicked", {
+            tab_name: viewModel.currentMenu.id,
+            source: source,
+          });
+        }
 
         var isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
         if (isRepositorySavedYml) {
@@ -603,89 +624,108 @@ const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
           viewModel.deferredConflictResolution = $q.defer();
         }
 
-        var promise = $q.all([
-          $q(function (resolve, reject) {
-            switch (viewModel.currentMenu.id) {
-              case "secrets":
-                resolve();
-                break;
-              default: // every other tab
-                viewModel.dataToSave = appService.appConfig;
-                var validationFunction = appService.validateAppConfig;
-                var saveFunction = appService.saveAppConfig;
-                var reloadFunction = reloadAppConfig;
+        var promise = $q(function (resolve, reject) {
+          if (viewModel.currentMenu.id === "secrets") {
+            return resolve();
+          }
 
-                if (viewModel.currentMenu.id === "stack") {
-                  saveFunction = appService.saveStackAndDockerImage;
-                  reloadFunction = reloadStack;
-                } else if (viewModel.currentMenu.id === "yml") {
-                  viewModel.dataToSave = appService.appConfigYML;
-                  validationFunction = $q.resolve;
-                  saveFunction = appService.saveAppConfigYML;
-                  reloadFunction = reloadAppConfigYML;
-                }
+          var reload = reloadAppConfig;
+          var saveAppConfig = appService.saveAppConfig;
+          var validateAppConfig = appService.validateAppConfig;
+          var finalizeAppConfig = appService.finalizeAppConfig;
+          var detectRemoteConfigChanges = appService.detectRemoteAppConfigChanges;
+          viewModel.dataToSave = appService.appConfig;
 
-                // YML is "saved" to the repository
-                if (isRepositorySavedYml) {
-                  return validationFunction()
-                    .then(function () {
-                      viewModel.isUpdateConfigurationDialogOpen = true;
-                      return viewModel.deferredUserSavedYmlToRepository.promise;
-                    })
-                    .then(function () {
-                      // NOTE: this is a force reload,
-                      // WARN: This might drop all user changes if the user hasn't commit the changes yet!!!
-                      return reloadFunction();
-                    })
-                    .then(resolve, reject);
-                }
+          if (viewModel.currentMenu.id === "yml") {
+            reload = reloadAppConfigYML;
+            saveAppConfig = appService.saveAppConfigYML;
+            validateAppConfig = $q.resolve;
+            finalizeAppConfig = appService.finalizeAppConfigYML;
+            detectRemoteConfigChanges = appService.detectRemoteAppConfigYMLChanges;
+            viewModel.dataToSave = appService.appConfigYML;
+          }
 
-                var enableConflictResolution = launchDarklyService.variation("enable-wfe-config-conflict-resolution-ui");
+          if (viewModel.currentMenu.id === "stack") {
+            reload = reloadStack;
+            saveAppConfig = appService.saveStackAndDockerImage;
+          }
 
-                // YML is saved to Bitrise
-                return validationFunction()
-                  .then(function () {
-                    if (!enableConflictResolution) {
-                      return viewModel.deferredConflictResolution.resolve();
-                    }
+          if (isRepositorySavedYml) {
+            return validateAppConfig()
+              .then(function () {
+                viewModel.isUpdateConfigurationDialogOpen = true;
+                return viewModel.deferredUserSavedYmlToRepository.promise;
+              })
+              .then(function () {
+                // NOTE: this is a force reload,
+                // WARN: This might drop all user changes if the user hasn't commit the changes yet!!!
+                return reload();
+              })
+              .then(resolve, reject);
+          }
 
-                    return appService
-                      .getRemoteAppConfig()
-                      .then(function () {
-                        // No conflicts
-                        if (!appService.remoteAppConfigHasNewUpdates()) {
-                          console.debug("No conflict resolution needed");
-                          viewModel.deferredConflictResolution.resolve();
-                          return viewModel.deferredConflictResolution.promise;
-                        }
-
-                        console.debug("Conflict resolution needed");
-                        viewModel.isConflictResolutionDialogOpen = true;
-                        viewModel.deferredConflictResolution.reject(new Error('Conflict resolution needed'));
-                        return viewModel.deferredConflictResolution.promise;
-                      });
-                  })
-                  .then(function () {
-                    return saveFunction(viewModel.currentMenu.id);
-                  })
-                  .then(resolve, reject);
+          return validateAppConfig().then(function () {
+            if (!enableConfigConflictResolution) {
+              return viewModel.deferredConflictResolution.resolve();
             }
-          }),
-          $timeout(function () {
-          }, dateService.defaultSaveDelayDurationInMilliseconds)
-        ]).then(
+
+            return detectRemoteConfigChanges().then(function ({ hasChanges, yourYaml, baseYaml, remoteYaml }) {
+              if (!hasChanges) {
+                return viewModel.deferredConflictResolution.resolve();
+              }
+
+              viewModel.yourYaml = yourYaml;
+              viewModel.baseYaml = baseYaml;
+              viewModel.remoteYaml = remoteYaml;
+              viewModel.isConfigMergeDialogOpen = true;
+              safeDigest($rootScope);
+
+              return viewModel.deferredConflictResolution.promise;
+            }).then(function (finalYaml) {
+              if (!finalYaml) {
+                return;
+              }
+
+              viewModel.dataToSave = finalizeAppConfig(finalYaml);
+
+              return viewModel.save({
+                shouldReturnPromise: true,
+                source: 'remote_config_change_resolution_dialog',
+              });
+            });
+          }).then(function () {
+            return saveAppConfig(viewModel.currentMenu.id);
+          }).then(resolve, reject);
+        }).then(
           function () {
+            viewModel.isConfigMergeDialogOpen = false;
+            safeDigest($rootScope);
+
+            if (source !== 'remote_config_change_resolution_dialog') {
+              return $q.resolve();
+            }
+
+            // NOTE: Force reload the app config after the remote config changes are merged
+            return $q.all([
+              appService.getAppConfig(true),
+              appService.getAppConfigYML(true),
+            ]).then(function () {
+              $rootScope.$emit("MainController::remoteChangesMergedWithSuccess");
+            });
+          },
+          function (error) {
+            return $q.reject(error);
+          }
+        ).then(
+          function () {
+            updateLastWorkflowMetadata();
             viewModel.saveProgress.reset();
             $rootScope.$emit("MainController::savedFinishedWithSuccess");
-            updateLastWorkflowMetadata();
           },
           function (error) {
             viewModel.saveProgress.reset();
+            segmentTrack('Workflow Editor Invalid Yml Popup Shown', { tab_name: viewModel.currentMenu.id, source: 'save' });
             $rootScope.$emit("MainController::savedFinishedWithError");
-            segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-              tab_name: viewModel.currentMenu.id,
-              source: 'save'
-            });
             Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
             if (shouldReturnPromise) {
