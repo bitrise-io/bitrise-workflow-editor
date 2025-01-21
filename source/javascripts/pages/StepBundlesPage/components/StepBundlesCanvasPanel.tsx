@@ -66,9 +66,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     (bundleId: string, stepIndex: number) => {
       cloneStepInStepBundle(bundleId, stepIndex);
 
-      if (stepIndex === selectedStepIndices[0]) {
-        setSelectedStepIndices([stepIndex + 1]);
-      }
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i >= stepIndex) {
+            return i + 1;
+          }
+          return i;
+        }),
+      );
     },
     [cloneStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
@@ -78,7 +83,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       deleteStepInStepBundle(bundleId, stepIndex);
 
       // Close the dialog if the selected step is deleted
-      if (stepIndex === selectedStepIndices[0]) {
+      if (selectedStepIndices.includes(stepIndex)) {
         setSelectedStepIndices([]);
         closeDialog();
       }
@@ -90,10 +95,20 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     (bundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(bundleId, stepIndex, targetIndex);
 
-      // Adjust index if the selected step is moved
-      if (selectedStepIndices.includes(stepIndex)) {
-        setSelectedStepIndices([targetIndex]);
-      }
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i === stepIndex) {
+            return targetIndex;
+          }
+          if (stepIndex < targetIndex && i > stepIndex && i <= targetIndex) {
+            return i - 1;
+          }
+          if (stepIndex > targetIndex && i < stepIndex && i >= targetIndex) {
+            return i + 1;
+          }
+          return i;
+        }),
+      );
     },
     [moveStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
