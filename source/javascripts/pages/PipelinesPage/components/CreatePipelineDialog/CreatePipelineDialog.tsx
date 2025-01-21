@@ -10,7 +10,9 @@ type Props = Omit<DialogProps, 'title'> & {
 
 const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...props }: Props) => {
   const graphPipelineIds = useBitriseYmlStore(({ yml }) => {
-    const graphPipelineEntries = Object.entries(yml.pipelines ?? {}).filter(([, { workflows }]) => Boolean(workflows));
+    const pipelineEntries = Object.entries(yml.pipelines ?? {});
+    const graphPipelineEntries = pipelineEntries.filter(([, pipeline]) => PipelineService.isGraph(pipeline));
+
     return graphPipelineEntries.map(([id]) => id);
   });
 
