@@ -141,7 +141,9 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
   }, [isOpen, yourYaml, baseYaml, remoteYaml]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setIsLoading(false);
+    } else {
       disposeEditors();
     }
 
@@ -155,6 +157,7 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
         isOpen={isOpen}
         onClose={onClose}
         title="Save changes"
+        isClosable={!isLoading}
         minHeight={['100dvh', 'unset']}
         {...props}
       >
