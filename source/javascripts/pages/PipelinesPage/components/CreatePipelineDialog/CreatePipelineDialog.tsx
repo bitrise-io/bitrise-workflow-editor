@@ -1,6 +1,7 @@
 import { DialogProps } from '@bitrise/bitkit';
 import PipelineService from '@/core/models/PipelineService';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = Omit<DialogProps, 'title'> & {
@@ -8,6 +9,11 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...props }: Props) => {
+  const graphPipelineIds = useBitriseYmlStore(({ yml }) => {
+    const graphPipelineEntries = Object.entries(yml.pipelines ?? {}).filter(([, { workflows }]) => Boolean(workflows));
+    return graphPipelineEntries.map(([id]) => id);
+  });
+
   const { keys: pipelineIds, onSelectPipeline: setSelectedPipeline } = usePipelineSelector();
 
   const handleCloseComplete = (pipelineId: string) => {
@@ -19,7 +25,7 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
 
   return (
     <CreateEntityDialog
-      baseEntityIds={pipelineIds}
+      baseEntityIds={graphPipelineIds}
       entityName="Pipeline"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
