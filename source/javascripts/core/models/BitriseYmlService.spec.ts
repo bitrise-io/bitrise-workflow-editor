@@ -200,6 +200,8 @@ describe('BitriseYmlService', () => {
             workflows: {
               wf1: { depends_on: ['wf2'] },
               wf2: {},
+              variant1: { uses: 'wf1' },
+              variant2: { uses: 'wf2' },
             },
           },
           pl1: { stages: [{ st1: {} }] },
@@ -223,6 +225,8 @@ describe('BitriseYmlService', () => {
             workflows: {
               wf1: { depends_on: ['wf3'] },
               wf3: {},
+              variant1: { uses: 'wf1' },
+              variant2: { uses: 'wf3' },
             },
           },
           pl1: { stages: [{ st1: {} }] },
