@@ -1,6 +1,5 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
-import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfigDrawer/StepBundleConfigDrawer';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 
@@ -9,7 +8,7 @@ type Props = {
 };
 
 const Drawers = ({ stepBundleId }: Props) => {
-  const { stepIndex, closeDialog, isDialogOpen, unmountDialog, isDialogMounted, setSelectedStepIndices } =
+  const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices } =
     useStepBundlesPageStore();
 
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
@@ -21,8 +20,11 @@ const Drawers = ({ stepBundleId }: Props) => {
   const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStepToStepBundle = (cvs: string) => {
-    addStepToStepBundle(stepBundleId, cvs, stepIndex);
-    setSelectedStepIndices([stepIndex]);
+    addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
+    openDialog({
+      type: StepBundlesPageDialogType.STEP_CONFIG,
+      selectedStepIndices,
+    })();
   };
 
   const handleCreateStepBundle = (newStepBundleId: string, baseStepBundleId?: string) => {
@@ -45,19 +47,8 @@ const Drawers = ({ stepBundleId }: Props) => {
           size="lg"
           stepBundleId={stepBundleId}
           workflowId=""
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_CONFIG)}
-          onClose={closeDialog}
-          onCloseComplete={unmountDialog}
-        />
-      )}
-
-      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG) && (
-        <StepBundleConfigDrawer
-          size="lg"
-          workflowId=""
-          stepIndex={stepIndex}
-          isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
