@@ -1158,6 +1158,24 @@ function renameWorkflowInDependsOn(
   });
 }
 
+function renameWorkflowInUses(
+  workflowId: string,
+  newWorkflowId: string,
+  workflows: PipelineWorkflows,
+): PipelineWorkflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.uses = workflowCopy.uses === workflowId ? newWorkflowId : workflowCopy.uses;
+
+    if (shouldRemoveField(workflowCopy.uses, workflow.uses)) {
+      delete workflowCopy.uses;
+    }
+
+    return workflowCopy;
+  });
+}
+
 function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
   return mapValues(workflows, (workflow) => {
     const workflowCopy = deepCloneSimpleObject(workflow);
@@ -1244,6 +1262,7 @@ function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pi
       }),
     );
 
+    pipelineCopy.workflows = renameWorkflowInUses(workflowId, newWorkflowId, pipelineCopy.workflows);
     pipelineCopy.workflows = renameWorkflowInDependsOn(workflowId, newWorkflowId, pipelineCopy.workflows);
 
     if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
