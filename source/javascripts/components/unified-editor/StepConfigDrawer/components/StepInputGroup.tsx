@@ -33,6 +33,7 @@ const StepInputGroup = ({ title, stepId, defaults = [], inputs = [], onChange }:
             {useCodeEditor && (
               <StepCodeEditor
                 value={value}
+                defaultValue={defaultValue}
                 label={opts?.title}
                 onChange={(changedValue) => onChange?.(name, changedValue ?? null)}
               />
