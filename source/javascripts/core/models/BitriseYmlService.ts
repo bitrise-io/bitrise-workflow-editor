@@ -297,19 +297,14 @@ function groupStepsToStepBundle(
     const { isStep } = StepService;
     const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
     const cvs = Object.keys(step)[0];
-    return isStep(cvs, defaultStepLibrary);
-  }) as StepYmlObject[];
-
-  // Convert removedSteps to the expected format
-  const formattedSteps = removedSteps.map((step) => ({
-    [step.title || '']: step,
-  }));
+    return { [cvs]: isStep(cvs, defaultStepLibrary) };
+  }) as { [x: string]: StepYmlObject }[];
 
   // Create and add selected step to the step bundle
   copy.step_bundles = {
     ...copy.step_bundles,
     ...{
-      [stepBundleId]: { steps: formattedSteps },
+      [stepBundleId]: { steps: removedSteps },
     },
   };
 
