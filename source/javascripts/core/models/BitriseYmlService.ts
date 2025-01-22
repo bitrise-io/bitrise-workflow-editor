@@ -1,5 +1,5 @@
-import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy } from 'es-toolkit';
-import { isEmpty, isNumber } from 'es-toolkit/compat';
+import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } from 'es-toolkit';
+import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import { EnvVarYml } from './EnvVar';
@@ -1087,8 +1087,8 @@ function omitEmpty<T>(o: Record<string, T>) {
   return omitBy(o, isEmpty) as Record<string, T>;
 }
 
-function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
-  return omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k)) as Record<string, T>;
+function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, propKeys: string[]) {
+  return omitBy(o, (v, k) => isEmpty(v) && !propKeys.includes(k)) as Record<string, T>;
 }
 
 function shouldRemoveField<T>(modified: T, original: T) {
@@ -1186,6 +1186,16 @@ function deleteWorkflowFromDependsOn(workflowId: string, workflows: PipelineWork
   });
 }
 
+function deleteWorkflowVariants(workflowId: string, workflows: PipelineWorkflows = {}): PipelineWorkflows {
+  const variantKeys = keys(pickBy(workflows, (workflow) => Boolean(workflow?.uses?.includes(workflowId))));
+  let result = omit(workflows, variantKeys);
+  variantKeys.forEach((key) => {
+    result = deleteWorkflowFromDependsOn(key, result);
+  });
+
+  return result;
+}
+
 function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: StagesYml): StagesYml {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
@@ -1272,6 +1282,8 @@ function deleteWorkflowFromPipelines(
     delete pipelineCopy.workflows?.[workflowId];
 
     pipelineCopy.workflows = deleteWorkflowFromDependsOn(workflowId, pipelineCopy.workflows);
+
+    pipelineCopy.workflows = deleteWorkflowVariants(workflowId, pipelineCopy.workflows);
 
     if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
       delete pipelineCopy.workflows;
