@@ -57,7 +57,6 @@ function updateStep(
   workflowId: string,
   stepIndex: number,
   newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
-  defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -70,7 +69,7 @@ function updateStep(
   const [cvs, stepYmlObject] = Object.entries(copy.workflows[workflowId].steps[stepIndex])[0];
 
   mapValues(newValues, (value: string, key: never) => {
-    if (value === defaultValues[key] || shouldRemoveField(value, stepYmlObject[key])) {
+    if (shouldRemoveField(value, stepYmlObject[key])) {
       delete stepYmlObject[key];
     } else {
       stepYmlObject[key] = value as never;
@@ -98,13 +97,7 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
   return copy;
 }
 
-function updateStepInputs(
-  workflowId: string,
-  stepIndex: number,
-  newInputs: StepInputVariable[],
-  defaultInputs: StepInputVariable[],
-  yml: BitriseYml,
-) {
+function updateStepInputs(workflowId: string, stepIndex: number, newInputs: StepInputVariable[], yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
@@ -117,29 +110,23 @@ function updateStepInputs(
     StepYmlObject,
   ];
 
-  defaultInputs.forEach((input) => {
+  newInputs.forEach((input) => {
     if (!stepYmlObject.inputs) {
       stepYmlObject.inputs = [];
     }
 
-    const [key, defaultValue] = Object.entries(omit(input, ['opts']))[0];
-    const newValue = newInputs.find((i) => Object.keys(i).includes(key))?.[key];
+    const [key, value] = Object.entries(omit(input, ['opts']))[0];
     const inputIndexInYml = stepYmlObject.inputs.findIndex((i) => Object.keys(i).includes(key));
     const isInputExistsInTheYml = inputIndexInYml > -1;
 
     if (isInputExistsInTheYml) {
       const valueInYml = stepYmlObject.inputs[inputIndexInYml][key];
 
-      if (valueInYml === null && !String(newValue)) {
+      if (valueInYml === null && !String(value)) {
         return;
       }
 
-      const inputObject = StepService.toYmlInput(
-        key,
-        newValue,
-        defaultValue,
-        stepYmlObject.inputs[inputIndexInYml].opts,
-      );
+      const inputObject = StepService.toYmlInput(key, value, stepYmlObject.inputs[inputIndexInYml].opts);
 
       if (inputObject) {
         stepYmlObject.inputs[inputIndexInYml] = inputObject;
@@ -147,14 +134,14 @@ function updateStepInputs(
         stepYmlObject.inputs.splice(inputIndexInYml, 1);
       }
     } else {
-      const inputObject = StepService.toYmlInput(key, newValue, defaultValue);
+      const inputObject = StepService.toYmlInput(key, value);
       if (inputObject) {
         stepYmlObject.inputs.push(inputObject);
       }
     }
   });
 
-  if (isEmpty(stepYmlObject.inputs)) {
+  if (isEmpty(newInputs) || isEmpty(stepYmlObject.inputs)) {
     delete stepYmlObject.inputs;
   }
 
@@ -383,7 +370,6 @@ function updateStepInStepBundle(
   stepBundleId: string,
   stepIndex: number,
   newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
-  defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -396,7 +382,7 @@ function updateStepInStepBundle(
   const [cvs, stepYmlObject] = Object.entries(copy.step_bundles[stepBundleId].steps[stepIndex])[0];
 
   mapValues(newValues, (value: string, key: never) => {
-    if (value === defaultValues[key] || shouldRemoveField(value, stepYmlObject[key])) {
+    if (shouldRemoveField(value, stepYmlObject[key])) {
       delete stepYmlObject[key];
     } else {
       stepYmlObject[key] = value as never;
@@ -412,7 +398,6 @@ function updateStepInputsInStepBundle(
   stepBundleId: string,
   stepIndex: number,
   newInputs: StepInputVariable[],
-  defaultInputs: StepInputVariable[],
   yml: BitriseYml,
 ) {
   const copy = deepCloneSimpleObject(yml);
@@ -427,29 +412,23 @@ function updateStepInputsInStepBundle(
     StepYmlObject,
   ];
 
-  defaultInputs.forEach((input) => {
+  newInputs.forEach((input) => {
     if (!stepYmlObject.inputs) {
       stepYmlObject.inputs = [];
     }
 
-    const [key, defaultValue] = Object.entries(omit(input, ['opts']))[0];
-    const newValue = newInputs.find((i) => Object.keys(i).includes(key))?.[key];
+    const [key, value] = Object.entries(omit(input, ['opts']))[0];
     const inputIndexInYml = stepYmlObject.inputs.findIndex((i) => Object.keys(i).includes(key));
     const isInputExistsInTheYml = inputIndexInYml > -1;
 
     if (isInputExistsInTheYml) {
       const valueInYml = stepYmlObject.inputs[inputIndexInYml][key];
 
-      if (valueInYml === null && !String(newValue)) {
+      if (valueInYml === null && !String(value)) {
         return;
       }
 
-      const inputObject = StepService.toYmlInput(
-        key,
-        newValue,
-        defaultValue,
-        stepYmlObject.inputs[inputIndexInYml].opts,
-      );
+      const inputObject = StepService.toYmlInput(key, value, stepYmlObject.inputs[inputIndexInYml].opts);
 
       if (inputObject) {
         stepYmlObject.inputs[inputIndexInYml] = inputObject;
@@ -457,14 +436,14 @@ function updateStepInputsInStepBundle(
         stepYmlObject.inputs.splice(inputIndexInYml, 1);
       }
     } else {
-      const inputObject = StepService.toYmlInput(key, newValue, defaultValue);
+      const inputObject = StepService.toYmlInput(key, value);
       if (inputObject) {
         stepYmlObject.inputs.push(inputObject);
       }
     }
   });
 
-  if (isEmpty(stepYmlObject.inputs)) {
+  if (isEmpty(newInputs) || isEmpty(stepYmlObject.inputs)) {
     delete stepYmlObject.inputs;
   }
 

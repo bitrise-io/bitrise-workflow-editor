@@ -66,18 +66,8 @@ type BitriseYmlStoreState = {
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   cloneStep: (workflowId: string, stepIndex: number) => void;
-  updateStep: (
-    workflowId: string,
-    stepIndex: number,
-    newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
-    defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
-  ) => void;
-  updateStepInputs: (
-    workflowId: string,
-    stepIndex: number,
-    inputs: StepInputVariable[],
-    defaultInputs: StepInputVariable[],
-  ) => void;
+  updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => void;
+  updateStepInputs: (workflowId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, stepIndex: number) => void;
   updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
@@ -103,14 +93,8 @@ type BitriseYmlStoreState = {
     stepBundleId: string,
     stepIndex: number,
     newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
-    defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
   ) => void;
-  updateStepInputsInStepBundle: (
-    stepBundleId: string,
-    stepIndex: number,
-    inputs: StepInputVariable[],
-    defaultInputs: StepInputVariable[],
-  ) => void;
+  updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
   updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
   updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
@@ -338,17 +322,17 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    updateStep: (workflowId, stepIndex, newValues, defaultValues) => {
+    updateStep: (workflowId, stepIndex, newValues) => {
       return set((state) => {
         return {
-          yml: BitriseYmlService.updateStep(workflowId, stepIndex, newValues, defaultValues, state.yml),
+          yml: BitriseYmlService.updateStep(workflowId, stepIndex, newValues, state.yml),
         };
       });
     },
-    updateStepInputs: (workflowId, stepIndex, inputs, defaultInputs) => {
+    updateStepInputs: (workflowId, stepIndex, inputs) => {
       return set((state) => {
         return {
-          yml: BitriseYmlService.updateStepInputs(workflowId, stepIndex, inputs, defaultInputs, state.yml),
+          yml: BitriseYmlService.updateStepInputs(workflowId, stepIndex, inputs, state.yml),
         };
       });
     },
@@ -452,23 +436,17 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    updateStepInStepBundle: (stepBundleId, stepIndex, newValues, defaultValues) => {
+    updateStepInStepBundle: (stepBundleId, stepIndex, newValues) => {
       return set((state) => {
         return {
-          yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, defaultValues, state.yml),
+          yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, state.yml),
         };
       });
     },
-    updateStepInputsInStepBundle: (stepBundleId, stepIndex, inputs, defaultInputs) => {
+    updateStepInputsInStepBundle: (stepBundleId, stepIndex, inputs) => {
       return set((state) => {
         return {
-          yml: BitriseYmlService.updateStepInputsInStepBundle(
-            stepBundleId,
-            stepIndex,
-            inputs,
-            defaultInputs,
-            state.yml,
-          ),
+          yml: BitriseYmlService.updateStepInputsInStepBundle(stepBundleId, stepIndex, inputs, state.yml),
         };
       });
     },
