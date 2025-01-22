@@ -964,7 +964,11 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
 function updateTriggerMap(newTriggerMap: TriggerMapYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  copy.trigger_map = newTriggerMap;
+  if (newTriggerMap.length) {
+    copy.trigger_map = newTriggerMap;
+  } else {
+    delete copy.trigger_map;
+  }
 
   return copy;
 }
