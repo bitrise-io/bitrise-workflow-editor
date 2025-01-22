@@ -60,12 +60,6 @@ const ConfigurationTab = () => {
       clone.push({ [name]: value });
     }
 
-    (defaultValues.inputs ?? []).forEach(({ opts, ...input }, index) => {
-      if (Object.keys(input).includes(name)) {
-        clone[index][name] = value;
-      }
-    });
-
     if (workflowId) {
       updateStepInputs(workflowId, stepIndex, clone);
     }
