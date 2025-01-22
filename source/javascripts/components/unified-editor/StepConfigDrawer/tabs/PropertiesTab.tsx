@@ -110,10 +110,12 @@ const PropertiesTab = () => {
   const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setName(e.currentTarget.value);
     if (workflowId) {
-      updateStep(workflowId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
+      updateStep(workflowId, stepIndex, { title: e.currentTarget.value });
     }
     if (stepBundleId) {
-      updateStepInStepBundle(stepBundleId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
+      updateStepInStepBundle(stepBundleId, stepIndex, {
+        title: e.currentTarget.value,
+      });
     }
   };
 

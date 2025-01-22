@@ -40,31 +40,40 @@ const ConfigurationTab = () => {
     250,
   );
 
-  const mergedValues = data?.mergedValues ?? {};
+  const userValues = data?.userValues ?? {};
   const defaultValues = data?.defaultValues ?? {};
+  const mergedValues = data?.mergedValues ?? {};
 
   const onInputValueChange = (name: string, value?: string | null) => {
-    const clone = cloneDeep(mergedValues.inputs ?? []);
+    const clone = cloneDeep(userValues.inputs ?? []);
+    const isNameValid = defaultValues.inputs?.some((input) => Object.keys(input).includes(name));
+    const changeIndex = clone.findIndex((input) => Object.keys(input).includes(name));
 
-    clone.forEach(({ opts, ...input }, index) => {
-      if (Object.keys(input).includes(name)) {
-        clone[index][name] = value;
-      }
-    });
+    // Trying to write a non-existing input
+    if (!isNameValid) {
+      return;
+    }
+
+    if (changeIndex !== -1) {
+      clone[changeIndex][name] = value;
+    } else {
+      clone.push({ [name]: value });
+    }
+
     if (workflowId) {
-      updateStepInputs(workflowId, stepIndex, clone, defaultValues.inputs ?? mergedValues.inputs ?? []);
+      updateStepInputs(workflowId, stepIndex, clone);
     }
     if (stepBundleId) {
-      updateStepInputsInStepBundle(stepBundleId, stepIndex, clone, defaultValues.inputs ?? mergedValues.inputs ?? []);
+      updateStepInputsInStepBundle(stepBundleId, stepIndex, clone);
     }
   };
 
   const onToggleChange = (newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => {
     if (workflowId) {
-      updateStep(workflowId, stepIndex, newValues, defaultValues);
+      updateStep(workflowId, stepIndex, newValues);
     }
     if (stepBundleId) {
-      updateStepInStepBundle(stepBundleId, stepIndex, newValues, defaultValues);
+      updateStepInStepBundle(stepBundleId, stepIndex, newValues);
     }
   };
 
@@ -95,8 +104,15 @@ const ConfigurationTab = () => {
         />
       </ExpandableCard>
 
-      {Object.entries(groupStepInputs(mergedValues.inputs) ?? {}).map(([title, inputs]) => (
-        <StepInputGroup key={title} stepId={data?.id} title={title} inputs={inputs} onChange={onInputValueChange} />
+      {Object.entries(groupStepInputs(defaultValues.inputs) ?? {}).map(([title, defaults]) => (
+        <StepInputGroup
+          key={title}
+          stepId={data?.id}
+          title={title}
+          defaults={defaults}
+          inputs={groupStepInputs(userValues.inputs)?.[title]}
+          onChange={onInputValueChange}
+        />
       ))}
     </Box>
   );

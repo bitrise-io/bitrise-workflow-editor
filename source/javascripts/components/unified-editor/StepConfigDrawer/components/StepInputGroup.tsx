@@ -9,16 +9,19 @@ import StepSelectInput from './StepSelectInput';
 type Props = {
   title?: string;
   stepId?: string;
+  defaults?: StepInputVariable[];
   inputs?: StepInputVariable[];
   onChange?: (name: string, value: string | null) => void;
 };
 
-const StepInputGroup = ({ title, stepId, inputs, onChange }: Props) => {
+const StepInputGroup = ({ title, stepId, defaults = [], inputs = [], onChange }: Props) => {
   const content = (
     <>
-      {inputs?.map(({ opts, ...input }, index) => {
-        const name = Object.keys(input)[0];
-        const value = String(input[name] ?? '');
+      {defaults?.map(({ opts, ...defaultInput }, index) => {
+        const name = Object.keys(defaultInput)[0];
+        const defaultValue = String(defaultInput[name] ?? '');
+        const value = String(inputs.find((d) => Object.keys(d)[0] === name)?.[name] ?? '');
+
         const helper = { summary: opts?.summary, details: opts?.description };
         const isSelectInput = opts?.value_options && opts.value_options.length > 0;
         const useCodeEditor = stepId === 'script' && name === 'content';
@@ -39,7 +42,8 @@ const StepInputGroup = ({ title, stepId, inputs, onChange }: Props) => {
               <StepSelectInput
                 helper={helper}
                 label={opts?.title}
-                defaultValue={value}
+                value={value}
+                defaultValue={defaultValue}
                 isSensitive={opts?.is_sensitive}
                 options={opts?.value_options ?? []}
                 isDisabled={opts?.is_dont_change_value}
@@ -51,7 +55,8 @@ const StepInputGroup = ({ title, stepId, inputs, onChange }: Props) => {
               <StepInput
                 helper={helper}
                 label={opts?.title}
-                defaultValue={value}
+                value={value}
+                defaultValue={defaultValue}
                 isRequired={opts?.is_required}
                 isSensitive={opts?.is_sensitive}
                 isDisabled={opts?.is_dont_change_value}

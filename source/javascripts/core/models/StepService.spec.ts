@@ -1047,54 +1047,43 @@ describe('StepService', () => {
 
   describe('toYmlInput', () => {
     it('should return undefined if the new value is empty', () => {
-      const result = StepService.toYmlInput('is_debug', '', false);
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined if the new value is the same as the default value', () => {
-      let result = StepService.toYmlInput('is_debug', true, true);
-      expect(result).toBeUndefined();
-
-      result = StepService.toYmlInput('is_debug', 1, 1);
-      expect(result).toBeUndefined();
-
-      result = StepService.toYmlInput('is_debug', 'yes', 'yes');
+      const result = StepService.toYmlInput('is_debug', '');
       expect(result).toBeUndefined();
     });
 
     it('should return a boolean input if the new value is a boolean string', () => {
-      let result = StepService.toYmlInput('is_debug', 'true', false);
+      let result = StepService.toYmlInput('is_debug', 'true');
       expect(result).toEqual({ is_debug: true });
 
-      result = StepService.toYmlInput('is_debug', 'false', false);
+      result = StepService.toYmlInput('is_debug', 'false');
       expect(result).toEqual({ is_debug: false });
     });
 
     it('should return a number input if the new value is a numeric string', () => {
-      let result = StepService.toYmlInput('timeout', '0', 10);
+      let result = StepService.toYmlInput('timeout', '0');
       expect(result).toEqual({ timeout: 0 });
 
-      result = StepService.toYmlInput('timeout', '1', 10);
+      result = StepService.toYmlInput('timeout', '1');
       expect(result).toEqual({ timeout: 1 });
 
-      result = StepService.toYmlInput('timeout', '30', 10);
+      result = StepService.toYmlInput('timeout', '30');
       expect(result).toEqual({ timeout: 30 });
     });
 
     it('should return a string input if the new value is a non-numeric, non-boolean string', () => {
-      const result = StepService.toYmlInput('name', 'new_name', 'old_name');
+      const result = StepService.toYmlInput('name', 'new_name');
       expect(result).toEqual({ name: 'new_name' });
     });
 
     it('should include opts if provided and not empty', () => {
       const opts = { is_required: true };
-      const result = StepService.toYmlInput('name', 'new_name', 'old_name', opts);
+      const result = StepService.toYmlInput('name', 'new_name', opts);
       expect(result).toEqual({ name: 'new_name', opts });
     });
 
     it('should not include opts if provided and empty', () => {
       const opts = {};
-      const result = StepService.toYmlInput('name', 'new_name', 'old_name', opts);
+      const result = StepService.toYmlInput('name', 'new_name', opts);
       expect(result).toEqual({ name: 'new_name' });
     });
   });

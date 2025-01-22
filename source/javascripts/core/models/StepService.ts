@@ -370,23 +370,18 @@ function calculateChange(
   };
 }
 
-function toYmlInput(
-  name: string,
-  newValue: unknown,
-  defaultValue: unknown,
-  opts?: VariableOpts,
-): StepInputVariable | undefined {
-  if (!newValue || newValue === defaultValue) {
+function toYmlInput(name: string, newValue: unknown, opts?: VariableOpts): StepInputVariable | undefined {
+  if (!newValue) {
     return undefined;
   }
 
   const result = { [name]: newValue, ...(!isEmpty(opts) ? { opts } : {}) };
 
-  if (typeof defaultValue === 'boolean' && ['true', 'false'].includes(String(newValue))) {
+  if (['true', 'false'].includes(String(newValue))) {
     return { ...result, [name]: String(newValue) === 'true' };
   }
 
-  if (typeof defaultValue === 'number' && !Number.isNaN(Number(newValue))) {
+  if (!Number.isNaN(Number(newValue))) {
     return { ...result, [name]: Number(newValue) };
   }
 

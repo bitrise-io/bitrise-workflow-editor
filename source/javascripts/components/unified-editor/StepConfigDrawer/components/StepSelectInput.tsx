@@ -48,6 +48,7 @@ const StepSelectInput = forwardRef(
             onChange?.(e.target.value ?? '');
           }}
         >
+          {props.defaultValue && <DropdownOption value="">Default ({props.defaultValue})</DropdownOption>}
           {options.map((option) => {
             return (
               <DropdownOption key={option} value={option}>
