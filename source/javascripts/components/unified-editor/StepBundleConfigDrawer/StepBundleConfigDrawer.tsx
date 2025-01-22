@@ -13,14 +13,16 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useNavigation from '@/hooks/useNavigation';
+import StepBundlesConfigProvider from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
+  stepBundleId: string;
   stepIndex: number;
 };
 
-const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const StepBundleConfigDrawerContent = ({ workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep({ workflowId, stepIndex });
   const defaultStepLibrary = useDefaultStepLibrary();
   const stepBundleId = data?.title;
@@ -51,7 +53,7 @@ const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {enableStepBundles ? (
-            <StepBundlePropertiesTab stepBundleId={stepBundleId} />
+            <StepBundlePropertiesTab />
           ) : (
             <Notification
               action={{
@@ -69,6 +71,14 @@ const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>
+  );
+};
+
+const StepBundleConfigDrawer = ({ stepBundleId, ...props }: Props) => {
+  return (
+    <StepBundlesConfigProvider stepBundleId={stepBundleId}>
+      <StepBundleConfigDrawerContent stepBundleId={stepBundleId} {...props} />
+    </StepBundlesConfigProvider>
   );
 };
 

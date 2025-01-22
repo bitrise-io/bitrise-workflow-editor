@@ -260,8 +260,9 @@ const StepCard = ({
               onClick={(e) => {
                 e.stopPropagation();
                 if (onGroupStepsToStepBundle && onSelectStep) {
-                  onSelectStep({ stepIndex, type: LibraryType.BUNDLE, wfId: workflowId });
-                  onGroupStepsToStepBundle(workflowId || '', generateRandomStepBundleId(), stepIndex);
+                  const generatedId = generateRandomStepBundleId();
+                  onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
+                  onSelectStep({ stepIndex, type: LibraryType.BUNDLE, stepBundleId: generatedId, wfId: workflowId });
                 }
               }}
             >

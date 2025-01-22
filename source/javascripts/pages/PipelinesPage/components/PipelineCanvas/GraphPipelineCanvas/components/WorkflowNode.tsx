@@ -206,6 +206,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               type: PipelinesPageDialogType.STEP_BUNDLE,
               pipelineId: selectedPipeline,
               workflowId: wfId,
+              stepBundleId,
               stepIndex,
             })();
             break;

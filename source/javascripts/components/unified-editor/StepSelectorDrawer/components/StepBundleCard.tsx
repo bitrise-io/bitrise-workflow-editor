@@ -19,17 +19,7 @@ type StepBundleCardProps = StepCardProps & {
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const {
-    cvs,
-    isCollapsable,
-    isDragging,
-    isPreviewMode = false,
-    isSortable,
-    stepBundleId,
-    stepIndex,
-    uniqueId,
-    workflowId,
-  } = props;
+  const { cvs, isCollapsable, isDragging, isPreviewMode = false, isSortable, stepIndex, uniqueId, workflowId } = props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
@@ -46,7 +36,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       uniqueId,
       stepIndex,
       workflowId,
-      stepBundleId,
     } satisfies SortableStepItem,
   });
 
@@ -109,7 +98,12 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             aria-label="Settings"
             size="xs"
             onClick={() => {
-              onSelectStep({ stepIndex, type: LibraryType.BUNDLE, wfId: workflowId });
+              onSelectStep({
+                stepIndex,
+                type: LibraryType.BUNDLE,
+                stepBundleId: cvs.replace('bundle::', ''),
+                wfId: workflowId,
+              });
             }}
           />
         )}
@@ -127,7 +121,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
         )}
       </ButtonGroup>
     );
-  }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
+  }, [cvs, isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
 
   return (
     <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>

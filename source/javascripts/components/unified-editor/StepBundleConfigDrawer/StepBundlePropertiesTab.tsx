@@ -4,15 +4,16 @@ import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import DeleteStepBundleDialog from '@/components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog';
 import useRenameStepBundle from '@/components/unified-editor/StepBundleConfigDrawer/hooks/useRenameStepBundle';
+import { useStepBundleConfigContext } from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
 
 type StepBundlePropertiesTabProps = {
-  stepBundleId: string;
   onDelete?: (id: string) => void;
   onRename?: (newStepBundleId: string) => void;
 };
 
 const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
-  const { stepBundleId, onDelete, onRename } = props;
+  const { onDelete, onRename } = props;
+  const stepBundle = useStepBundleConfigContext();
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
@@ -25,9 +26,9 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
         isRequired
         name="name"
         label="Name"
-        value={stepBundleId}
+        value={stepBundle?.id}
         sanitize={StepBundleService.sanitizeName}
-        validate={(v) => StepBundleService.validateName(v, stepBundleId, stepBundleIds)}
+        validate={(v) => StepBundleService.validateName(v, stepBundle?.id || '', stepBundleIds)}
         onCommit={handleNameChange}
       />
       {!!onDelete && (
@@ -38,7 +39,7 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
           <DeleteStepBundleDialog
             isOpen={isDeleteDialogOpen}
             onClose={closeDeleteDialog}
-            stepBundleId={stepBundleId}
+            stepBundleId={stepBundle?.id || ''}
             onDeleteStepBundle={onDelete}
           />
         </>

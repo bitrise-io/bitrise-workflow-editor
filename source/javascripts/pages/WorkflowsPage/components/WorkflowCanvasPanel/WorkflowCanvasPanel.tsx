@@ -104,6 +104,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           openDialog({
             type: WorkflowsPageDialogType.STEP_BUNDLE,
             workflowId: wfId,
+            stepBundleId,
             stepIndex,
           })();
           break;

@@ -56,6 +56,7 @@ const Drawers = () => {
         <StepBundleConfigDrawer
           size="lg"
           workflowId=""
+          stepBundleId={stepBundleId}
           stepIndex={stepIndex}
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
