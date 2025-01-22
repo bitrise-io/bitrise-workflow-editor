@@ -968,10 +968,16 @@ describe('BitriseYmlService', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
-          graph: {
+          graph1: {
             workflows: {
-              wf1: {},
+              wf1_variant: { uses: 'wf1' },
+              wf1_variant_dependant: { depends_on: ['wf1_variant'] },
               wf2: { depends_on: ['wf1'] },
+            },
+          },
+          graph2: {
+            workflows: {
+              wf1_variant: {},
             },
           },
           pl1: {
@@ -994,6 +1000,7 @@ describe('BitriseYmlService', () => {
         },
         workflows: {
           wf1: {},
+          wf1_variant_dependant: {},
           wf2: { before_run: ['wf1'], after_run: ['wf1'] },
           wf3: { before_run: ['wf1', 'wf2'], after_run: ['wf1', 'wf2'] },
         },
@@ -1003,9 +1010,15 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
-          graph: {
+          graph1: {
             workflows: {
+              wf1_variant_dependant: {},
               wf2: {},
+            },
+          },
+          graph2: {
+            workflows: {
+              wf1_variant: {},
             },
           },
           pl2: {
@@ -1019,6 +1032,7 @@ describe('BitriseYmlService', () => {
           st2: { workflows: [{ wf2: {} }] },
         },
         workflows: {
+          wf1_variant_dependant: {},
           wf2: {},
           wf3: { before_run: ['wf2'], after_run: ['wf2'] },
         },
