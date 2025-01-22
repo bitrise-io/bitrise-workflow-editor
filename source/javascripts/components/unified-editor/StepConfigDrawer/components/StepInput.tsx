@@ -13,7 +13,6 @@ import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 
 type Props = Omit<AutoGrowableInputProps, 'helperText' | 'onChange'> & {
   helperText?: string;
-  isClearable?: boolean;
   isSensitive?: boolean;
   helper?: { summary?: string; details?: string };
   onChange?: (value: string) => void;
@@ -29,11 +28,13 @@ function validationErrorIfRequired(value: string, isRequired?: boolean) {
 }
 
 const StepInput = forwardRef(
-  ({ isClearable, isSensitive, isDisabled, helperText, helper, onChange, ...props }: Props, ref) => {
+  ({ isSensitive, isDisabled, helperText, helper, defaultValue: propDefaultValue, onChange, ...props }: Props, ref) => {
     const { workflowId } = useStepDrawerContext();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
     const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
-    const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
+    const [value, setValue] = useState(String(props.value ?? ''));
+    const defaultValue = String(propDefaultValue ?? '');
+    const isRequired = defaultValue && !value ? false : props.isRequired;
 
     const { mutate: createSecret } = useUpsertSecret({
       appSlug: WindowUtils.appSlug() ?? '',
@@ -76,10 +77,11 @@ const StepInput = forwardRef(
         value={value}
         onBlur={handleBlur}
         fontFamily="monospace"
+        isRequired={isRequired}
         isDisabled={isSensitive || isDisabled}
         badge={isSensitive ? <SensitiveBadge /> : undefined}
-        placeholder={isSensitive ? 'Add secret' : 'Enter value'}
-        errorText={validationErrorIfRequired(value, props.isRequired)}
+        placeholder={defaultValue || (isSensitive ? 'Add secret' : 'Enter value')}
+        errorText={validationErrorIfRequired(value, isRequired)}
         helperText={<StepHelperText {...(helper ?? { summary: helperText })} />}
         onChange={(e) => {
           setValue(e.currentTarget.value);
@@ -88,13 +90,19 @@ const StepInput = forwardRef(
       >
         {!isDisabled && (
           <ButtonGroup size="sm" spacing="4" top="4" right="4" position="absolute">
-            {isClearable && (
+            {!!value && !isSensitive && (
               <IconButton
                 size="sm"
                 variant="tertiary"
-                aria-label="Clear"
-                iconName="Cross"
-                tooltipProps={{ 'aria-label': 'Clear' }}
+                iconName={defaultValue ? 'Refresh' : 'Cross'}
+                aria-label={defaultValue ? 'Reset to default' : 'Clear'}
+                tooltipProps={{
+                  'aria-label': defaultValue ? 'Reset to default' : 'Clear',
+                }}
+                onClick={() => {
+                  setValue('');
+                  onChange?.('');
+                }}
               />
             )}
             {isSensitive && (
