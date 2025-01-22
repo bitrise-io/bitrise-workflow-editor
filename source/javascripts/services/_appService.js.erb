@@ -127,6 +127,36 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           });
         }
 
+        _.each(config.step_bundles, function (aStepBundleConfig, aStepBundleID) {
+          if (!aStepBundleConfig) {
+            config.workflows[aStepBundleID] = aStepBundleConfig = {};
+          }
+
+          variableConfigs = _.union(variableConfigs, aStepBundleConfig.envs);
+
+          if (aStepBundleConfig.steps !== undefined && _.isEmpty(aStepBundleConfig.steps)) {
+            delete aStepBundleConfig["steps"];
+          }
+
+          _.each(aStepBundleConfig.steps, function (aWrappedUserStepConfig) {
+            var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+            if (!aWrappedUserStepConfig[stepCVS]) {
+              aWrappedUserStepConfig[stepCVS] = {};
+            }
+            var stepConfig = aWrappedUserStepConfig[stepCVS];
+
+            if (stepConfig.source && _.isEmpty(stepConfig.source)) {
+              delete stepConfig["source"];
+            }
+
+            if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
+              delete stepConfig["deps"];
+            }
+
+            variableConfigs = _.union(variableConfigs, stepConfig.inputs);
+          });
+        });
+
         _.each(variableConfigs, Variable.minimizeVariableConfig);
 
         if (config.app) {
