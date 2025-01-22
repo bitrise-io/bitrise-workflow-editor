@@ -297,7 +297,7 @@ function groupStepsToStepBundle(
     const { isStep } = StepService;
     const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
     const cvs = Object.keys(step)[0];
-    return { [cvs]: isStep(cvs, defaultStepLibrary) };
+    return isStep(cvs, defaultStepLibrary);
   }) as { [x: string]: StepYmlObject }[];
 
   // Create and add selected step to the step bundle
