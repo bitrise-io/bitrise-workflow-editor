@@ -1,37 +1,52 @@
 import { safeDigest } from "@/services/react-compat";
 
 (function () {
-	"use strict";
+  "use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.controller("TriggersController", function ($rootScope, $scope, appService) {
-			var viewModel = this;
-			viewModel.yml = null;
+  angular
+    .module("BitriseWorkflowEditor")
+    .controller(
+      "TriggersController",
+      function ($rootScope, $scope, appService) {
+        var viewModel = this;
+        viewModel.yml = null;
 
-			viewModel.init = function () {
-				viewModel.yml = appService.appConfig;
-			};
+        viewModel.init = function () {
+          viewModel.yml = appService.appConfig;
+        };
 
-			viewModel.onChangeYml = (yml) => {
-				appService.appConfig = yml;
-				safeDigest($rootScope);
-			}
+        viewModel.onChangeYml = (yml) => {
+          appService.appConfig = yml;
+          safeDigest($rootScope);
+        };
 
-			$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", () => {
-				viewModel.yml = {};
-				safeDigest($scope);
-				viewModel.yml = appService.savedAppConfig;
-				safeDigest($scope);
-			}));
+        function replaceAndReloadYml(newYml) {
+          viewModel.yml = {};
+          safeDigest($scope);
+          viewModel.yml = newYml;
+          safeDigest($scope);
+        }
 
-			$scope.$on("$destroy", $rootScope.$on("MainController::remoteChangesMergedWithSuccess", () => {
-				viewModel.yml = {};
-				safeDigest($scope);
-				viewModel.yml = appService.appConfig;
-				safeDigest($scope);
-			}));
+        $scope.$on(
+          "$destroy",
+          $rootScope.$on("MainController::discardChanges", () => {
+            replaceAndReloadYml(appService.savedAppConfig);
+          }),
+        );
 
-			viewModel.init();
-		});
+        $scope.$on(
+          "$destroy",
+          $rootScope.$on(
+            "MainController::saveSuccess",
+            (_event, { forceReload, menu }) => {
+              const shouldReload = forceReload || menu !== "triggers";
+
+              if (shouldReload) {
+                replaceAndReloadYml(appService.appConfig);
+              }
+            },
+          ),
+        );
+      },
+    );
 })();
