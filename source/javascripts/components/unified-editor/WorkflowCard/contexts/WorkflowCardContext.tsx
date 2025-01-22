@@ -89,6 +89,7 @@ const useStepActions = (): StepActions => {
         'onAddStepToStepBundle',
         'onCloneStepInStepBundle',
         'onDeleteStepInStepBundle',
+        'onGroupStepsToStepBundle',
         'onMoveStepInStepBundle',
         'onUpgradeStepInStepBundle',
       ]),

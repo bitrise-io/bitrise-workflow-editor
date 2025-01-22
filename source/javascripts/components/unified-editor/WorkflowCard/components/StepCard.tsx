@@ -26,7 +26,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/models/StepService';
-import { Step } from '@/core/models/Step';
+import { LibraryType, Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
@@ -98,14 +98,11 @@ const StepCard = ({
     onCloneStepInStepBundle,
     onDeleteStep,
     onDeleteStepInStepBundle,
+    onGroupStepsToStepBundle,
     onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
   } = useStepActions();
-
-  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-  }));
 
   const yml = useBitriseYmlStore((s) => s.yml);
 
@@ -262,7 +259,10 @@ const StepCard = ({
               leftIconName="Steps"
               onClick={(e) => {
                 e.stopPropagation();
-                groupStepsToStepBundle(workflowId || '', generateRandomStepBundleId(), stepIndex);
+                if (onGroupStepsToStepBundle && onSelectStep) {
+                  onSelectStep({ stepIndex, type: LibraryType.BUNDLE, wfId: workflowId });
+                  onGroupStepsToStepBundle(workflowId || '', generateRandomStepBundleId(), stepIndex);
+                }
               }}
             >
               New bundle with 1 Step
@@ -302,7 +302,6 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
-    groupStepsToStepBundle,
     isClonable,
     isDragging,
     isRemovable,
@@ -312,6 +311,8 @@ const StepCard = ({
     onCloneStepInStepBundle,
     onDeleteStep,
     onDeleteStepInStepBundle,
+    onGroupStepsToStepBundle,
+    onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
     stepBundleId,

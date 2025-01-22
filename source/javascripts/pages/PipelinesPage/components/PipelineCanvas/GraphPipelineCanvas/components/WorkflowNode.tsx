@@ -56,6 +56,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     upgradeStep,
     cloneStepInStepBundle,
     deleteStepInStepBundle,
+    groupStepsToStepBundle,
     moveStepInStepBundle,
     upgradeStepInStepBundle,
     setChainedWorkflows,
@@ -67,6 +68,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     upgradeStep: s.changeStepVersion,
     cloneStepInStepBundle: s.cloneStepInStepBundle,
     deleteStepInStepBundle: s.deleteStepInStepBundle,
+    groupStepsToStepBundle: s.groupStepsToStepBundle,
     moveStepInStepBundle: s.moveStepInStepBundle,
     upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
     setChainedWorkflows: s.setChainedWorkflows,
@@ -90,6 +92,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     handleAddStepToStepBundle,
     handleCloneStepInStepBundle,
     handleDeleteStepInStepBundle,
+    handleGroupStepsToStepBundle,
     handleMoveStepInStepBundle,
     handleUpgradeStepInStepBundle,
     handleEditWorkflow,
@@ -266,6 +269,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'remove',
         });
       },
+      handleGroupStepsToStepBundle: (workflowId: string, stepBundleId: string, stepIndex: number) => {
+        groupStepsToStepBundle(workflowId, stepBundleId, stepIndex);
+      },
       handleMoveStepInStepBundle: (stepBundleId: string, stepIndex: number, targetIndex: number) => {
         moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
         handleStepActionDialogChange({
@@ -311,8 +317,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
     };
   }, [
-    uses,
     isGraphPipelinesEnabled,
+    uses,
     upgradeStep,
     upgradeStepInStepBundle,
     workflows,
@@ -329,6 +335,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteStep,
     cloneStepInStepBundle,
     deleteStepInStepBundle,
+    groupStepsToStepBundle,
     moveStepInStepBundle,
     setChainedWorkflows,
     removeChainedWorkflow,
@@ -376,6 +383,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         onAddStepToStepBundle={handleAddStepToStepBundle}
         onCloneStepInStepBundle={handleCloneStepInStepBundle}
         onDeleteStepInStepBundle={handleDeleteStepInStepBundle}
+        onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
         onMoveStepInStepBundle={handleMoveStepInStepBundle}
         onUpgradeStepInStepBundle={handleUpgradeStepInStepBundle}
         onCreateWorkflow={undefined}

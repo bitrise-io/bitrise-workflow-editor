@@ -39,6 +39,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     upgradeStep,
     cloneStepInStepBundle,
     deleteStepInStepBundle,
+    groupStepsToStepBundle,
     moveStepInStepBundle,
     upgradeStepInStepBundle,
     setChainedWorkflows,
@@ -50,6 +51,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     upgradeStep: s.changeStepVersion,
     cloneStepInStepBundle: s.cloneStepInStepBundle,
     deleteStepInStepBundle: s.deleteStepInStepBundle,
+    groupStepsToStepBundle: s.groupStepsToStepBundle,
     moveStepInStepBundle: s.moveStepInStepBundle,
     upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
     setChainedWorkflows: s.setChainedWorkflows,
@@ -263,6 +265,13 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [closeDialog, deleteStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
   );
 
+  const handleGroupStepsToStepBundle = useCallback(
+    (wfId: string, stepBundleId: string, stepIndex: number) => {
+      groupStepsToStepBundle(wfId, stepBundleId, stepIndex);
+    },
+    [groupStepsToStepBundle],
+  );
+
   const handleMoveStepInStepBundle = useCallback(
     (stepBundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
@@ -318,6 +327,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}
           onCloneStepInStepBundle={handleCloneStepInStepBundle}
           onDeleteStepInStepBundle={handleDeleteStepInStepBundle}
+          onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
           onMoveStepInStepBundle={handleMoveStepInStepBundle}
           onUpgradeStepInStepBundle={upgradeStepInStepBundle}
         />

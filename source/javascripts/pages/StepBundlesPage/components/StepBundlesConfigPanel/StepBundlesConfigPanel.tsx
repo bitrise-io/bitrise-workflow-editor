@@ -23,7 +23,13 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
   return (
     <Box borderLeft="1px solid" borderColor="border/regular">
       <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
-      <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setSelectedStepBundle} />
+      <Box padding="16px 24px">
+        <StepBundlePropertiesTab
+          stepBundleId={stepBundleId}
+          onDelete={handleOnDelete}
+          onRename={setSelectedStepBundle}
+        />
+      </Box>
     </Box>
   );
 };
