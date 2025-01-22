@@ -4,7 +4,6 @@ import { ReactFlowProvider } from '@xyflow/react';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { LibraryType } from '@/core/models/Step';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 
@@ -23,15 +22,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices } = useStepBundlesPageStore();
 
-  const handleSelectStep = useCallback<
-    (props: {
-      isMultiple?: boolean;
-      stepIndex: number;
-      type: LibraryType;
-      stepBundleId?: string;
-      wfId?: string;
-    }) => void
-  >(
+  const handleSelectStep = useCallback<(props: { isMultiple?: boolean; stepIndex: number }) => void>(
     ({ isMultiple, stepIndex }) => {
       if (isMultiple) {
         let newIndexes = [...selectedStepIndices, stepIndex];
@@ -66,6 +57,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     (bundleId: string, stepIndex: number) => {
       cloneStepInStepBundle(bundleId, stepIndex);
 
+      // Adjust index of the selected steps
       setSelectedStepIndices(
         selectedStepIndices.map((i) => {
           if (i >= stepIndex) {
@@ -84,9 +76,17 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
       // Close the dialog if the selected step is deleted
       if (selectedStepIndices.includes(stepIndex)) {
-        setSelectedStepIndices([]);
         closeDialog();
       }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i >= stepIndex) {
+            return i - 1;
+          }
+          return i;
+        }),
+      );
     },
     [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
@@ -95,6 +95,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     (bundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(bundleId, stepIndex, targetIndex);
 
+      // Adjust index of the selected steps
       setSelectedStepIndices(
         selectedStepIndices.map((i) => {
           if (i === stepIndex) {

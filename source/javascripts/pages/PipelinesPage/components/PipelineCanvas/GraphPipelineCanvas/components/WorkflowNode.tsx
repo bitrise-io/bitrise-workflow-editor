@@ -41,9 +41,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
-  const setStepIndex = usePipelinesPageStore((s) => s.setStepIndex);
-  const selectedStepIndex = usePipelinesPageStore((s) => s.stepIndex);
+  const selectedStepIndices = usePipelinesPageStore((s) => s.selectedStepIndices);
+  const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedStepBundleId = usePipelinesPageStore((s) => s.stepBundleId);
+  const setSelectedStepBundleId = usePipelinesPageStore((s) => s.setStepBundleId);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
@@ -129,40 +130,56 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     }) {
       switch (action) {
         case 'move': {
-          // Adjust index if the selected step is moved
-          if (
-            (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) &&
-            selectedStepIndex === stepIndex
-          ) {
-            setStepIndex(targetIndex);
+          // Adjust index of the selected steps
+          if (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) {
+            if (targetIndex !== undefined) {
+              setSelectedStepIndices(
+                selectedStepIndices.map((i) => {
+                  if (i === stepIndex) {
+                    return targetIndex;
+                  }
+                  if (stepIndex < targetIndex && i > stepIndex && i <= targetIndex) {
+                    return i - 1;
+                  }
+                  if (stepIndex > targetIndex && i < stepIndex && i >= targetIndex) {
+                    return i + 1;
+                  }
+                  return i;
+                }),
+              );
+            }
           }
           break;
         }
         case 'clone': {
-          // Adjust index if the selected step is cloned
-          if (
-            (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) &&
-            stepIndex === selectedStepIndex
-          ) {
-            setStepIndex(selectedStepIndex + 1);
+          // Adjust index of the selected steps
+          if (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) {
+            setSelectedStepIndices(
+              selectedStepIndices.map((i) => {
+                if (i >= stepIndex) {
+                  return i + 1;
+                }
+                return i;
+              }),
+            );
           }
           break;
         }
         case 'remove': {
           // Close the dialog if the selected step is deleted
-          if (
-            (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) &&
-            stepIndex === selectedStepIndex
-          ) {
-            closeDialog();
-          }
-
-          // Adjust index if a step is deleted before the selected step
-          if (
-            (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) &&
-            stepIndex < selectedStepIndex
-          ) {
-            setStepIndex(selectedStepIndex - 1);
+          if (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) {
+            if (selectedStepIndices.includes(stepIndex)) {
+              closeDialog();
+            }
+            // Adjust index of the selected steps
+            setSelectedStepIndices(
+              selectedStepIndices.map((i) => {
+                if (i >= stepIndex) {
+                  return i - 1;
+                }
+                return i;
+              }),
+            );
           }
           break;
         }
@@ -184,37 +201,50 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
           workflowId,
-          stepIndex,
+          selectedStepIndices: [stepIndex],
         })(),
       handleSelectStep: ({
         stepIndex,
         type,
         stepBundleId,
         wfId,
+        isMultiple,
       }: {
         stepIndex: number;
         type: LibraryType;
         stepBundleId?: string;
         wfId?: string;
+        isMultiple?: boolean;
       }) => {
-        switch (type) {
-          case LibraryType.BUNDLE:
-            openDialog({
-              type: PipelinesPageDialogType.STEP_BUNDLE,
-              pipelineId: selectedPipeline,
-              workflowId: wfId,
-              stepIndex,
-            })();
-            break;
-          default:
-            openDialog({
-              type: PipelinesPageDialogType.STEP_CONFIG,
-              pipelineId: selectedPipeline,
-              workflowId: wfId,
-              stepIndex,
-              stepBundleId,
-            })();
-            break;
+        if (isMultiple) {
+          let newIndexes = [...selectedStepIndices, stepIndex];
+          if (selectedStepIndices.includes(stepIndex)) {
+            newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+          }
+          if (newIndexes.length !== 1) {
+            closeDialog();
+          }
+          setSelectedStepIndices(newIndexes);
+        } else {
+          switch (type) {
+            case LibraryType.BUNDLE:
+              openDialog({
+                type: PipelinesPageDialogType.STEP_BUNDLE,
+                pipelineId: selectedPipeline,
+                workflowId: wfId,
+                selectedStepIndices: [stepIndex],
+              })();
+              break;
+            default:
+              openDialog({
+                type: PipelinesPageDialogType.STEP_CONFIG,
+                pipelineId: selectedPipeline,
+                workflowId: wfId,
+                selectedStepIndices: [stepIndex],
+                stepBundleId,
+              })();
+              break;
+          }
         }
       },
       handleUpgradeStep: upgradeStep,
@@ -248,10 +278,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
           stepBundleId,
-          stepIndex,
+          selectedStepIndices: [stepIndex],
         })(),
       handleCloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
         cloneStepInStepBundle(stepBundleId, stepIndex);
+        setSelectedStepBundleId(stepBundleId);
         handleStepActionDialogChange({
           stepBundleId,
           stepIndex,
@@ -260,6 +291,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
       handleDeleteStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
         deleteStepInStepBundle(stepBundleId, stepIndex);
+        setSelectedStepBundleId(stepBundleId);
         handleStepActionDialogChange({
           stepBundleId,
           stepIndex,
@@ -268,6 +300,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
       handleMoveStepInStepBundle: (stepBundleId: string, stepIndex: number, targetIndex: number) => {
         moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
+        setSelectedStepBundleId(stepBundleId);
         handleStepActionDialogChange({
           stepBundleId,
           stepIndex,
@@ -311,16 +344,16 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
     };
   }, [
-    uses,
     isGraphPipelinesEnabled,
+    uses,
     upgradeStep,
     upgradeStepInStepBundle,
     workflows,
     selectedWorkflowId,
     closeDialog,
+    setSelectedStepIndices,
+    selectedStepIndices,
     selectedStepBundleId,
-    selectedStepIndex,
-    setStepIndex,
     deleteElements,
     openDialog,
     selectedPipeline,
@@ -332,6 +365,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     moveStepInStepBundle,
     setChainedWorkflows,
     removeChainedWorkflow,
+    setSelectedStepBundleId,
   ]);
 
   const containerProps = useMemo(
@@ -365,7 +399,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         isCollapsable
         uses={uses}
         containerProps={containerProps}
-        selectedStepIndex={selectedStepIndex}
+        selectedStepIndices={selectedStepIndices}
         selectedWorkflowId={selectedWorkflowId}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}

@@ -29,7 +29,6 @@ type Action = {
 };
 
 export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
-  stepIndex: -1,
   selectedStepIndices: [],
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,

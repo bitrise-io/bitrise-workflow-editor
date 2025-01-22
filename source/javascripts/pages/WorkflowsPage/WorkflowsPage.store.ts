@@ -13,7 +13,7 @@ export enum WorkflowsPageDialogType {
 }
 
 type State = {
-  stepIndex: number;
+  selectedStepIndices: number[];
   stepBundleId: string;
   workflowId: string;
   parentWorkflowId: string;
@@ -24,7 +24,7 @@ type State = {
 
 type DialogParams = {
   type: WorkflowsPageDialogType;
-  stepIndex?: number;
+  selectedStepIndices?: number[];
   stepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
@@ -32,7 +32,7 @@ type DialogParams = {
 
 type Action = {
   setWorkflowId: (workflowId?: string) => void;
-  setStepIndex: (stepIndex?: number) => void;
+  setSelectedStepIndices: (stepIndices?: number[]) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
   isDialogMounted: (type: WorkflowsPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -41,7 +41,7 @@ type Action = {
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
-  stepIndex: -1,
+  selectedStepIndices: [],
   stepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
@@ -52,9 +52,9 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
       workflowId,
     }));
   },
-  setStepIndex: (stepIndex = -1) => {
+  setSelectedStepIndices: (selectedStepIndices = []) => {
     return set(() => ({
-      stepIndex,
+      selectedStepIndices,
     }));
   },
   isDialogOpen: (type) => {
@@ -63,7 +63,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, workflowId = '', stepBundleId = '', parentWorkflowId = '', stepIndex = -1 }) => {
+  openDialog: ({ type, workflowId = '', stepBundleId = '', parentWorkflowId = '', selectedStepIndices = [] }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
@@ -72,7 +72,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
           return {
             _nextDialog: {
               type,
-              stepIndex,
+              selectedStepIndices,
               stepBundleId,
               workflowId,
               parentWorkflowId,
@@ -81,7 +81,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         }
 
         return {
-          stepIndex,
+          selectedStepIndices,
           stepBundleId,
           workflowId,
           parentWorkflowId,
@@ -103,11 +103,19 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
+      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+        return {
+          selectedStepIndices: [],
+          stepBundleId: '',
+          workflowId: '',
+          parentWorkflowId: '',
+          nextDialog: undefined,
+          openedDialogType: WorkflowsPageDialogType.NONE,
+          mountedDialogType: WorkflowsPageDialogType.NONE,
+        };
+      }
+
       return {
-        stepIndex: -1,
-        stepBundleId: '',
-        workflowId: '',
-        parentWorkflowId: '',
         nextDialog: undefined,
         openedDialogType: WorkflowsPageDialogType.NONE,
         mountedDialogType: WorkflowsPageDialogType.NONE,

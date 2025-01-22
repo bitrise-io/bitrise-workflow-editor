@@ -21,7 +21,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const {
     workflowId,
     stepBundleId,
-    stepIndex,
+    selectedStepIndices,
     openDialog,
     closeDialog,
     isDialogOpen,
@@ -47,20 +47,18 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvs, stepIndex);
+      addStep(workflowId, cvs, selectedStepIndices[0]);
     } else if (workflowId) {
-      addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
+      addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
       openDialog({
         type: WorkflowsPageDialogType.STEP_CONFIG,
         workflowId,
-        stepIndex,
       })();
     } else {
-      addStepToStepBundle(stepBundleId, cvs, stepIndex);
+      addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
       openDialog({
         type: WorkflowsPageDialogType.STEP_CONFIG,
         stepBundleId,
-        stepIndex,
       })();
     }
   };
@@ -108,7 +106,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           size="lg"
           stepBundleId={stepBundleId}
           workflowId={workflowId}
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
@@ -119,7 +117,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <WithGroupDrawer
           size="lg"
           workflowId={workflowId}
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(WorkflowsPageDialogType.WITH_GROUP)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
@@ -130,7 +128,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <StepBundleConfigDrawer
           size="lg"
           workflowId={workflowId}
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}

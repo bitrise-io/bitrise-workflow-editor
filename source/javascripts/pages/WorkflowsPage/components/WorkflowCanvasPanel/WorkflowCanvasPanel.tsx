@@ -21,13 +21,13 @@ const containerProps: CardProps = {
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
+
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const selectedWorkflowId = useWorkflowsPageStore((s) => s.workflowId);
-  const selectedStepBundleId = useWorkflowsPageStore((s) => s.stepBundleId);
-  const selectedStepIndex = useWorkflowsPageStore((s) => s.stepIndex);
-  const setStepIndex = useWorkflowsPageStore((s) => s.setStepIndex);
+  const selectedStepIndices = useWorkflowsPageStore((s) => s.selectedStepIndices);
+  const setSelectedStepIndices = useWorkflowsPageStore((s) => s.setSelectedStepIndices);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
-  const deferredStepIndex = useDeferredValue(selectedStepIndex);
+
   const deferredWorkflowId = useDeferredValue(selectedWorkflowId);
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
@@ -78,44 +78,46 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     return 'Run Workflow';
   }, [hasUnsavedChanges, workflowId]);
 
-  const openStepLikeDrawer = useCallback(
-    ({
-      stepIndex,
-      type,
-      stepBundleId,
-      wfId,
-    }: {
+  const handleSelectStep = useCallback<
+    (props: {
+      isMultiple?: boolean;
       stepIndex: number;
       type: LibraryType;
       stepBundleId?: string;
       wfId?: string;
-    }) => {
-      switch (type) {
-        case LibraryType.WITH:
-          openDialog({
-            type: WorkflowsPageDialogType.WITH_GROUP,
-            workflowId: wfId,
-            stepIndex,
-          })();
-          break;
-        case LibraryType.BUNDLE:
-          openDialog({
-            type: WorkflowsPageDialogType.STEP_BUNDLE,
-            workflowId: wfId,
-            stepIndex,
-          })();
-          break;
-        default:
-          openDialog({
-            type: WorkflowsPageDialogType.STEP_CONFIG,
-            workflowId: wfId,
-            stepBundleId,
-            stepIndex,
-          })();
-          break;
+    }) => void
+  >(
+    ({ isMultiple, stepIndex, type, wfId, stepBundleId }) => {
+      if (isMultiple) {
+        let newIndexes = [...selectedStepIndices, stepIndex];
+        if (selectedStepIndices.includes(stepIndex)) {
+          newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+        }
+        if (newIndexes.length !== 1) {
+          closeDialog();
+        }
+        setSelectedStepIndices(newIndexes);
+      } else {
+        switch (type) {
+          case LibraryType.WITH:
+            openDialog({
+              type: WorkflowsPageDialogType.WITH_GROUP,
+              workflowId: wfId,
+              selectedStepIndices: [stepIndex],
+            })();
+            break;
+          default:
+            openDialog({
+              type: WorkflowsPageDialogType.STEP_CONFIG,
+              workflowId: wfId,
+              stepBundleId,
+              selectedStepIndices: [stepIndex],
+            })();
+            break;
+        }
       }
     },
-    [openDialog],
+    [closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices],
   );
 
   const openRunWorkflowDialog = useCallback(
@@ -176,7 +178,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       openDialog({
         type: WorkflowsPageDialogType.STEP_SELECTOR,
         workflowId: wfId,
-        stepIndex,
+        selectedStepIndices: [stepIndex],
       })();
     },
     [openDialog],
@@ -187,7 +189,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       openDialog({
         type: WorkflowsPageDialogType.STEP_SELECTOR,
         stepBundleId,
-        stepIndex,
+        selectedStepIndices: [stepIndex],
       })();
     },
     [openDialog],
@@ -197,24 +199,40 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     (wfId: string, stepIndex: number, targetIndex: number) => {
       moveStep(wfId, stepIndex, targetIndex);
 
-      // Adjust index if the selected step is moved
-      if (wfId === selectedWorkflowId && selectedStepIndex === stepIndex) {
-        setStepIndex(targetIndex);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i === stepIndex) {
+            return targetIndex;
+          }
+          if (stepIndex < targetIndex && i > stepIndex && i <= targetIndex) {
+            return i - 1;
+          }
+          if (stepIndex > targetIndex && i < stepIndex && i >= targetIndex) {
+            return i + 1;
+          }
+          return i;
+        }),
+      );
     },
-    [moveStep, selectedStepIndex, selectedWorkflowId, setStepIndex],
+    [moveStep, selectedStepIndices, setSelectedStepIndices],
   );
 
   const handleCloneStep = useCallback(
     (wfId: string, stepIndex: number) => {
       cloneStep(wfId, stepIndex);
 
-      // Adjust index if the selected step is cloned
-      if (wfId === selectedWorkflowId && stepIndex === selectedStepIndex) {
-        setStepIndex(selectedStepIndex + 1);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i >= stepIndex) {
+            return i + 1;
+          }
+          return i;
+        }),
+      );
     },
-    [cloneStep, selectedStepIndex, selectedWorkflowId, setStepIndex],
+    [cloneStep, selectedStepIndices, setSelectedStepIndices],
   );
 
   const handleDeleteStep = useCallback(
@@ -222,28 +240,37 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       deleteStep(wfId, stepIndex);
 
       // Close the dialog if the selected step is deleted
-      if (wfId === selectedWorkflowId && stepIndex === selectedStepIndex) {
+      if (selectedStepIndices.includes(stepIndex)) {
         closeDialog();
       }
 
-      // Adjust index if a step is deleted before the selected step
-      if (wfId === selectedWorkflowId && stepIndex < selectedStepIndex) {
-        setStepIndex(selectedStepIndex - 1);
-      }
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i >= stepIndex) {
+            return i - 1;
+          }
+          return i;
+        }),
+      );
     },
-    [deleteStep, selectedWorkflowId, selectedStepIndex, closeDialog, setStepIndex],
+    [deleteStep, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
 
   const handleCloneStepInStepBundle = useCallback(
     (stepBundleId: string, stepIndex: number) => {
       cloneStepInStepBundle(stepBundleId, stepIndex);
 
-      // Adjust index if the selected step is cloned
-      if (stepBundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
-        setStepIndex(selectedStepIndex + 1);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i >= stepIndex) {
+            return i + 1;
+          }
+          return i;
+        }),
+      );
     },
-    [cloneStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+    [cloneStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
 
   const handleDeleteStepInStepBundle = useCallback(
@@ -251,28 +278,42 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       deleteStepInStepBundle(stepBundleId, stepIndex);
 
       // Close the dialog if the selected step is deleted
-      if (stepBundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
+      if (selectedStepIndices.includes(stepIndex)) {
         closeDialog();
       }
-
-      // Adjust index if a step is deleted before the selected step
-      if (stepBundleId === selectedStepBundleId && stepIndex < selectedStepIndex) {
-        setStepIndex(selectedStepIndex - 1);
-      }
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i >= stepIndex) {
+            return i - 1;
+          }
+          return i;
+        }),
+      );
     },
-    [closeDialog, deleteStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+    [closeDialog, deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
 
   const handleMoveStepInStepBundle = useCallback(
     (stepBundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
 
-      // Adjust index if the selected step is moved
-      if (stepBundleId === selectedStepBundleId && selectedStepIndex === stepIndex) {
-        setStepIndex(targetIndex);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(
+        selectedStepIndices.map((i) => {
+          if (i === stepIndex) {
+            return targetIndex;
+          }
+          if (stepIndex < targetIndex && i > stepIndex && i <= targetIndex) {
+            return i - 1;
+          }
+          if (stepIndex > targetIndex && i < stepIndex && i >= targetIndex) {
+            return i + 1;
+          }
+          return i;
+        }),
+      );
     },
-    [moveStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+    [moveStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
 
   return (
@@ -298,7 +339,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           id={workflowId}
           isCollapsable={false}
           containerProps={containerProps} // Selection
-          selectedStepIndex={deferredStepIndex}
+          selectedStepIndices={selectedStepIndices}
           selectedWorkflowId={deferredWorkflowId}
           // Workflow actions
           onEditWorkflow={undefined}
@@ -313,7 +354,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onCloneStep={handleCloneStep}
           onDeleteStep={handleDeleteStep}
           onUpgradeStep={upgradeStep}
-          onSelectStep={openStepLikeDrawer}
+          onSelectStep={handleSelectStep}
           onAddStep={openStepSelectorDrawerFromWorkflow}
           onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}
           onCloneStepInStepBundle={handleCloneStepInStepBundle}
