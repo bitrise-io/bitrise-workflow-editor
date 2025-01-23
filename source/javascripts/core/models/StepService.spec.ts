@@ -1051,6 +1051,11 @@ describe('StepService', () => {
       expect(result).toBeUndefined();
     });
 
+    it('should return undefined if the new value is only whitespaces', () => {
+      const result = StepService.toYmlInput('is_debug', '   ');
+      expect(result).toBeUndefined();
+    });
+
     it('should return a boolean input if the new value is a boolean string', () => {
       let result = StepService.toYmlInput('is_debug', 'true');
       expect(result).toEqual({ is_debug: true });
