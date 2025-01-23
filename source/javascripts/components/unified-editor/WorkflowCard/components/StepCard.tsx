@@ -221,7 +221,7 @@ const StepCard = ({
 
     const isValidStep = step !== undefined && !stepBundleId && isStep(step.cvs, library);
 
-    return (
+    return isValidStep ? (
       <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
           <ControlButton
@@ -243,7 +243,7 @@ const StepCard = ({
             }}
           />
         )}
-        <Menu placement="bottom-end">
+        <Menu placement="bottom-end" size="md">
           <MenuButton
             as={ControlButton}
             iconName="MoreVertical"
@@ -272,26 +272,24 @@ const StepCard = ({
                 Update Step version
               </MenuItem>
             )}
-            {!!isValidStep && (
-              <MenuItem
-                leftIconName="Steps"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onGroupStepsToStepBundle && onSelectStep) {
-                    const generatedId = generateRandomStepBundleId();
-                    onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
-                    onSelectStep({
-                      stepIndex,
-                      type: LibraryType.BUNDLE,
-                      stepBundleId: generatedId,
-                      wfId: workflowId,
-                    });
-                  }
-                }}
-              >
-                New bundle with 1 Step
-              </MenuItem>
-            )}
+            <MenuItem
+              leftIconName="Steps"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onGroupStepsToStepBundle && onSelectStep) {
+                  const generatedId = generateRandomStepBundleId();
+                  onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
+                  onSelectStep({
+                    stepIndex,
+                    type: LibraryType.BUNDLE,
+                    stepBundleId: generatedId,
+                    wfId: workflowId,
+                  });
+                }
+              }}
+            >
+              New bundle with 1 Step
+            </MenuItem>
             <MenuItem
               leftIconName="Duplicate"
               onClick={(e) => {
@@ -324,6 +322,68 @@ const StepCard = ({
             </MenuItem>
           </MenuList>
         </Menu>
+      </ButtonGroup>
+    ) : (
+      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
+        {isUpgradable && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="ArrowUp"
+            colorScheme="orange"
+            aria-label="Update Step"
+            tooltipProps={{ 'aria-label': 'Update Step' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (workflowId && onUpgradeStep) {
+                onUpgradeStep(workflowId, stepIndex, latestMajor);
+              }
+              if (stepBundleId && onUpgradeStepInStepBundle) {
+                onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
+              }
+            }}
+          />
+        )}
+        {isClonable && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="Duplicate"
+            aria-label="Clone Step"
+            tooltipProps={{ 'aria-label': 'Clone Step' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (workflowId && onCloneStep) {
+                onCloneStep(workflowId, stepIndex);
+              }
+              if (stepBundleId && onCloneStepInStepBundle) {
+                onCloneStepInStepBundle(stepBundleId, stepIndex);
+              }
+            }}
+          />
+        )}
+        {isRemovable && (
+          <ControlButton
+            isDanger
+            size="xs"
+            display="none"
+            iconName="Trash"
+            aria-label="Remove Step"
+            tooltipProps={{ 'aria-label': 'Remove Step' }}
+            _groupHover={{ display: 'inline-flex' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (workflowId && onDeleteStep) {
+                onDeleteStep(workflowId, stepIndex);
+              }
+              if (stepBundleId && onDeleteStepInStepBundle) {
+                onDeleteStepInStepBundle(stepBundleId, stepIndex);
+              }
+            }}
+          />
+        )}
       </ButtonGroup>
     );
   }, [
