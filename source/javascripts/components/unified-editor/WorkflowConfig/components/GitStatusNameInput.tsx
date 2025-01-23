@@ -59,7 +59,11 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         helperText={
           <>
             {'Allowed characters: A-Za-z,.():/-_0-9 []|<> '}
-            <Link isExternal href="https://devcenter.bitrise.io" colorScheme="purple">
+            <Link
+              isExternal
+              href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/reporting-the-build-status-to-your-git-hosting-provider.html#custom-status-reports"
+              colorScheme="purple"
+            >
               Learn more
             </Link>
           </>

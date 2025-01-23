@@ -629,7 +629,10 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             return resolve();
           }
 
-          var reload = reloadAppConfig;
+          var reload = () => $q.all([
+            appService.getAppConfig(true),
+            appService.getAppConfigYML(true)
+          ]);
           var saveAppConfig = appService.saveAppConfig;
           var validateAppConfig = appService.validateAppConfig;
           var finalizeAppConfig = appService.finalizeAppConfig;
@@ -637,7 +640,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           viewModel.dataToSave = appService.appConfig;
 
           if (viewModel.currentMenu.id === "yml") {
-            reload = reloadAppConfigYML;
             saveAppConfig = appService.saveAppConfigYML;
             validateAppConfig = $q.resolve;
             finalizeAppConfig = appService.finalizeAppConfigYML;
@@ -658,60 +660,57 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               })
               .then(function () {
                 // NOTE: this is a force reload,
-                // WARN: This might drop all user changes if the user hasn't commit the changes yet!!!
+                // WARN: This will drop all user changes if the user hasn't commit the changes yet!!!
                 return reload();
               })
               .then(resolve, reject);
           }
 
-          return validateAppConfig().then(function () {
-            if (!enableConfigConflictResolution) {
-              return viewModel.deferredConflictResolution.resolve();
-            }
-
-            return detectRemoteConfigChanges().then(function ({ hasChanges, yourYaml, baseYaml, remoteYaml }) {
-              if (!hasChanges) {
+          return validateAppConfig()
+            .then(function () {
+              if (!enableConfigConflictResolution) {
                 return viewModel.deferredConflictResolution.resolve();
               }
 
-              viewModel.yourYaml = yourYaml;
-              viewModel.baseYaml = baseYaml;
-              viewModel.remoteYaml = remoteYaml;
-              viewModel.isConfigMergeDialogOpen = true;
-              safeDigest($rootScope);
+              return detectRemoteConfigChanges()
+                .then(function ({ hasChanges, yourYaml, baseYaml, remoteYaml }) {
+                  if (!hasChanges) {
+                    return viewModel.deferredConflictResolution.resolve();
+                  }
 
-              return viewModel.deferredConflictResolution.promise;
-            }).then(function (finalYaml) {
-              if (!finalYaml) {
-                return;
-              }
+                  viewModel.yourYaml = yourYaml;
+                  viewModel.baseYaml = baseYaml;
+                  viewModel.remoteYaml = remoteYaml;
+                  viewModel.isConfigMergeDialogOpen = true;
+                  safeDigest($rootScope);
 
-              viewModel.dataToSave = finalizeAppConfig(finalYaml);
+                  return viewModel.deferredConflictResolution.promise;
+                })
+                .then(function (finalYaml) {
+                  if (!finalYaml) {
+                    return;
+                  }
 
-              return viewModel.save({
-                shouldReturnPromise: true,
-                source: 'remote_config_change_resolution_dialog',
-              });
-            });
-          }).then(function () {
-            return saveAppConfig(viewModel.currentMenu.id);
-          }).then(resolve, reject);
+                  viewModel.dataToSave = finalizeAppConfig(finalYaml);
+
+                  return viewModel.save({
+                    shouldReturnPromise: true,
+                    source: 'remote_config_change_resolution_dialog',
+                  });
+                });
+            }).then(function () {
+              return saveAppConfig(viewModel.currentMenu.id);
+            })
+            .then(function () {
+              return reload();
+            })
+            .then(resolve, reject);
         }).then(
           function () {
-            viewModel.isConfigMergeDialogOpen = false;
-            safeDigest($rootScope);
-
-            if (source !== 'remote_config_change_resolution_dialog') {
-              return $q.resolve();
+            if (viewModel.isConfigMergeDialogOpen) {
+              viewModel.isConfigMergeDialogOpen = false;
+              safeDigest($rootScope);
             }
-
-            // NOTE: Force reload the app config after the remote config changes are merged
-            return $q.all([
-              appService.getAppConfig(true),
-              appService.getAppConfigYML(true),
-            ]).then(function () {
-              $rootScope.$emit("MainController::remoteChangesMergedWithSuccess");
-            });
           },
           function (error) {
             return $q.reject(error);
@@ -720,12 +719,18 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           function () {
             updateLastWorkflowMetadata();
             viewModel.saveProgress.reset();
-            $rootScope.$emit("MainController::savedFinishedWithSuccess");
+            $rootScope.$emit("MainController::saveSuccess", {
+              menu: viewModel.currentMenu.id,
+              forceReload: source === 'remote_config_change_resolution_dialog'
+            });
           },
           function (error) {
             viewModel.saveProgress.reset();
-            segmentTrack('Workflow Editor Invalid Yml Popup Shown', { tab_name: viewModel.currentMenu.id, source: 'save' });
-            $rootScope.$emit("MainController::savedFinishedWithError");
+            segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+              tab_name: viewModel.currentMenu.id,
+              source: 'save'
+            });
+            $rootScope.$emit("MainController::saveError");
             Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
             if (shouldReturnPromise) {
@@ -810,7 +815,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             break;
         }
 
-        $rootScope.$emit("MainController::changesDiscarded");
+        $rootScope.$emit("MainController::discardChanges");
         safeDigest($scope);
       };
 

@@ -371,7 +371,7 @@ function calculateChange(
 }
 
 function toYmlInput(name: string, newValue: unknown, opts?: VariableOpts): StepInputVariable | undefined {
-  if (!newValue) {
+  if (!newValue || !String(newValue).trim()) {
     return undefined;
   }
 
