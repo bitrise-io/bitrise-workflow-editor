@@ -13,6 +13,11 @@ export enum PipelinesPageDialogType {
   WORKFLOW_SELECTOR,
 }
 
+export type SelectionParent = {
+  id: string;
+  type: 'stepBundle' | 'workflow';
+};
+
 type State = {
   selectedStepIndices: number[];
   pipelineId: string;
@@ -21,7 +26,8 @@ type State = {
   parentWorkflowId: string;
   openedDialogType: PipelinesPageDialogType;
   mountedDialogType: PipelinesPageDialogType;
-  _nextDialog?: Required<DialogParams>;
+  _nextDialog?: DialogParams;
+  selectionParent?: SelectionParent;
 };
 
 type DialogParams = {
@@ -31,6 +37,7 @@ type DialogParams = {
   stepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
+  selectionParent?: SelectionParent;
 };
 
 type Action = {
@@ -38,6 +45,7 @@ type Action = {
   setWorkflowId: (workflowId?: string) => void;
   setStepBundleId: (stepBundleId?: string) => void;
   setSelectedStepIndices: (stepIndices?: number[]) => void;
+  setSelectionParent: (selectionParent?: SelectionParent) => void;
   isDialogOpen: (type: PipelinesPageDialogType) => boolean;
   isDialogMounted: (type: PipelinesPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -73,6 +81,11 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       selectedStepIndices,
     }));
   },
+  setSelectionParent: (selectionParent?: SelectionParent) => {
+    return set(() => ({
+      selectionParent,
+    }));
+  },
   openDialog: ({
     type,
     pipelineId = '',
@@ -80,6 +93,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     workflowId = '',
     parentWorkflowId = '',
     selectedStepIndices = [],
+    selectionParent,
   }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
@@ -94,6 +108,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
               stepBundleId,
               workflowId,
               parentWorkflowId,
+              selectionParent,
             },
           };
         }
@@ -107,6 +122,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
+          selectionParent,
         };
       });
     };

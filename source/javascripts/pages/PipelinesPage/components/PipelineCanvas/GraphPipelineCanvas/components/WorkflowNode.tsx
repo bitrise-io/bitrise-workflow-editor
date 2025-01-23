@@ -13,7 +13,7 @@ import { LibraryType } from '@/core/models/Step';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
-import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import { PipelinesPageDialogType, SelectionParent, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -42,8 +42,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
   const selectedStepIndices = usePipelinesPageStore((s) => s.selectedStepIndices);
+  const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
+  const setSelectionParent = usePipelinesPageStore((s) => s.setSelectionParent);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
-  const selectedStepBundleId = usePipelinesPageStore((s) => s.stepBundleId);
   const setSelectedStepBundleId = usePipelinesPageStore((s) => s.setStepBundleId);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
@@ -131,8 +132,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       switch (action) {
         case 'move': {
           // Adjust index of the selected steps
-          if (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) {
-            if (targetIndex !== undefined) {
+          if (targetIndex !== undefined) {
+            if (
+              (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
+              (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
+            ) {
               setSelectedStepIndices(
                 selectedStepIndices.map((i) => {
                   if (i === stepIndex) {
@@ -153,7 +157,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         }
         case 'clone': {
           // Adjust index of the selected steps
-          if (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) {
+          if (
+            (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
+            (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
+          ) {
             setSelectedStepIndices(
               selectedStepIndices.map((i) => {
                 if (i >= stepIndex) {
@@ -167,7 +174,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         }
         case 'remove': {
           // Close the dialog if the selected step is deleted
-          if (workflowId === selectedWorkflowId || stepBundleId === selectedStepBundleId) {
+          if (
+            (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
+            (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
+          ) {
             if (selectedStepIndices.includes(stepIndex)) {
               closeDialog();
             }
@@ -216,6 +226,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         wfId?: string;
         isMultiple?: boolean;
       }) => {
+        const newSelectionParent: SelectionParent = {
+          id: stepBundleId || wfId || '',
+          type: stepBundleId ? 'stepBundle' : 'workflow',
+        };
         if (isMultiple) {
           let newIndexes = [...selectedStepIndices, stepIndex];
           if (selectedStepIndices.includes(stepIndex)) {
@@ -225,6 +239,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             closeDialog();
           }
           setSelectedStepIndices(newIndexes);
+          setSelectionParent(newSelectionParent);
         } else {
           switch (type) {
             case LibraryType.BUNDLE:
@@ -233,6 +248,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
                 pipelineId: selectedPipeline,
                 workflowId: wfId,
                 selectedStepIndices: [stepIndex],
+                selectionParent: newSelectionParent,
               })();
               break;
             default:
@@ -242,6 +258,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
                 workflowId: wfId,
                 selectedStepIndices: [stepIndex],
                 stepBundleId,
+                selectionParent: newSelectionParent,
               })();
               break;
           }
@@ -351,21 +368,23 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     workflows,
     selectedWorkflowId,
     closeDialog,
+    selectionParent?.id,
+    selectionParent?.type,
     setSelectedStepIndices,
     selectedStepIndices,
-    selectedStepBundleId,
     deleteElements,
     openDialog,
     selectedPipeline,
+    setSelectionParent,
     moveStep,
     cloneStep,
     deleteStep,
     cloneStepInStepBundle,
+    setSelectedStepBundleId,
     deleteStepInStepBundle,
     moveStepInStepBundle,
     setChainedWorkflows,
     removeChainedWorkflow,
-    setSelectedStepBundleId,
   ]);
 
   const containerProps = useMemo(
