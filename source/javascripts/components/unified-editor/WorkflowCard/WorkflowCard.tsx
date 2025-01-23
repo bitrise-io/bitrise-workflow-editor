@@ -143,7 +143,6 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
 });
 
 type Selection = {
-  selectedStepIndex?: number;
   selectedWorkflowId?: string;
   selectedStepIndices?: number[];
 };
@@ -155,7 +154,6 @@ const WorkflowCard = ({
   isCollapsable,
   containerProps,
   selectedWorkflowId = '',
-  selectedStepIndex = -1,
   selectedStepIndices = [],
   ...actions
 }: Props) => (
