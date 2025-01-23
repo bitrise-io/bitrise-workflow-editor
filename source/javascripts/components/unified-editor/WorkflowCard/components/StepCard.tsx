@@ -1,4 +1,4 @@
-import { memo, ReactNode, useMemo } from 'react';
+import { memo, ReactNode, useMemo, useState } from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
@@ -21,6 +21,7 @@ import {
   Toggletip,
   Tooltip,
 } from '@bitrise/bitkit';
+import { useLocalStorage } from 'usehooks-ts';
 import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -91,6 +92,8 @@ const StepCard = ({
   stepBundleId,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
+  const [isToggletipDismissedGlobally, setToggletipDismissedGlobally] = useLocalStorage('toggletipDismissed', false);
+  const [showToggletip, setShowToggletip] = useState(false);
   const { isSelected } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
   const {
@@ -151,9 +154,20 @@ const StepCard = ({
   const isClonable = onCloneStep || onCloneStepInStepBundle;
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
-  const handleClick = isButton
-    ? () => onSelectStep?.({ stepIndex, type: library, stepBundleId, wfId: workflowId })
-    : undefined;
+  const handleToggletipDismiss = () => {
+    setShowToggletip(false);
+    setToggletipDismissedGlobally(true);
+  };
+
+  const handleClick = () => {
+    if (!isToggletipDismissedGlobally) {
+      setShowToggletip(true);
+    }
+    if (isButton && onSelectStep) {
+      onSelectStep({ stepIndex, type: library, stepBundleId, wfId: workflowId });
+    }
+  };
+
   const cardProps = useMemo(() => {
     const common: CardProps = {
       display: 'flex',
@@ -326,7 +340,8 @@ const StepCard = ({
     <Toggletip
       label="To select multiple Steps, hold '⌘' or 'Ctrl' key."
       learnMoreUrl="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
-      button={{ label: 'Got it' }}
+      button={{ label: 'Got it', onClick: handleToggletipDismiss }}
+      isOpen={showToggletip && !isToggletipDismissedGlobally}
     >
       <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
         {!isPlaceholder && (
