@@ -147,7 +147,9 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
       <SortableContext strategy={verticalListSortingStrategy} items={getSortableItemUniqueIds(sortableItems)}>
         {content}
       </SortableContext>
-      <ScaledDragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</ScaledDragOverlay>
+      <ScaledDragOverlay>
+        {activeItem && <StepCard {...activeItem} stepBundleId={stepBundleId} isDragging isSortable />}
+      </ScaledDragOverlay>
     </DndContext>
   );
 };

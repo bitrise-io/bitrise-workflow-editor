@@ -144,6 +144,7 @@ const StepCard = ({
   const title = step?.title || step?.cvs || '';
   const isHighlighted = isSelected(workflowId || '', stepIndex);
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
+  const { isStep } = StepService;
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
   const isButton = !!onSelectStep;
@@ -218,6 +219,8 @@ const StepCard = ({
       }
     };
 
+    const isValidStep = step !== undefined && !stepBundleId && isStep(step.cvs, library);
+
     return (
       <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
@@ -269,19 +272,26 @@ const StepCard = ({
                 Update Step version
               </MenuItem>
             )}
-            <MenuItem
-              leftIconName="Steps"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onGroupStepsToStepBundle && onSelectStep) {
-                  const generatedId = generateRandomStepBundleId();
-                  onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
-                  onSelectStep({ stepIndex, type: LibraryType.BUNDLE, stepBundleId: generatedId, wfId: workflowId });
-                }
-              }}
-            >
-              New bundle with 1 Step
-            </MenuItem>
+            {!!isValidStep && (
+              <MenuItem
+                leftIconName="Steps"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onGroupStepsToStepBundle && onSelectStep) {
+                    const generatedId = generateRandomStepBundleId();
+                    onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
+                    onSelectStep({
+                      stepIndex,
+                      type: LibraryType.BUNDLE,
+                      stepBundleId: generatedId,
+                      wfId: workflowId,
+                    });
+                  }
+                }}
+              >
+                New bundle with 1 Step
+              </MenuItem>
+            )}
             <MenuItem
               leftIconName="Duplicate"
               onClick={(e) => {
@@ -320,8 +330,10 @@ const StepCard = ({
     isClonable,
     isDragging,
     isRemovable,
+    isStep,
     isUpgradable,
     latestMajor,
+    library,
     onCloneStep,
     onCloneStepInStepBundle,
     onDeleteStep,
@@ -330,6 +342,7 @@ const StepCard = ({
     onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
+    step,
     stepBundleId,
     stepIndex,
     workflowId,
