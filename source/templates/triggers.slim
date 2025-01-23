@@ -1,5 +1,5 @@
-.tab-triggers[ng-controller="TriggersController as triggersCtrl"]
-	r-triggers-page[
-		on-change="triggersCtrl.onChangeYml"
-		yml="triggersCtrl.yml"
-	]
+.tab-triggers[ng-controller="TriggersController as triggersCtrl" ng-init="triggersCtrl.init()"]
+  r-triggers-page[
+    on-change="triggersCtrl.onChangeYml"
+    yml="triggersCtrl.yml"
+  ]

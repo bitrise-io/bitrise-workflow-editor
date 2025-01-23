@@ -46,8 +46,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
         if (stack.type === 'osx') {
           result[stack.id] = _.groupBy(stackMachineTypes, 'chip');
-        }
-        else {
+        } else {
           result[stack.id] = _.groupBy(stackMachineTypes, 'tag');
         }
 
@@ -176,7 +175,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
       $scope.$on(
         "$destroy",
-        $rootScope.$on("MainController::changesDiscarded", function () {
+        $rootScope.$on("MainController::discardChanges", function () {
           configure();
         })
       );
