@@ -4,6 +4,7 @@ import { ReactFlowProvider } from '@xyflow/react';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 
@@ -58,14 +59,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       cloneStepInStepBundle(bundleId, stepIndex);
 
       // Adjust index of the selected steps
-      setSelectedStepIndices(
-        selectedStepIndices.map((i) => {
-          if (i >= stepIndex) {
-            return i + 1;
-          }
-          return i;
-        }),
-      );
+      setSelectedStepIndices(moveStepIndices('clone', selectedStepIndices, stepIndex));
     },
     [cloneStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
@@ -79,14 +73,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         closeDialog();
       }
       // Adjust index of the selected steps
-      setSelectedStepIndices(
-        selectedStepIndices.map((i) => {
-          if (i >= stepIndex) {
-            return i - 1;
-          }
-          return i;
-        }),
-      );
+      setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndex));
     },
     [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
@@ -96,20 +83,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       moveStepInStepBundle(bundleId, stepIndex, targetIndex);
 
       // Adjust index of the selected steps
-      setSelectedStepIndices(
-        selectedStepIndices.map((i) => {
-          if (i === stepIndex) {
-            return targetIndex;
-          }
-          if (stepIndex < targetIndex && i > stepIndex && i <= targetIndex) {
-            return i - 1;
-          }
-          if (stepIndex > targetIndex && i < stepIndex && i >= targetIndex) {
-            return i + 1;
-          }
-          return i;
-        }),
-      );
+      setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
     },
     [moveStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );

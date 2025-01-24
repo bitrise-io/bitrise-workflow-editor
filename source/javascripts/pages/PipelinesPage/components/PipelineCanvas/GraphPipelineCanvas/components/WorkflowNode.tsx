@@ -10,6 +10,7 @@ import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import { LibraryType } from '@/core/models/Step';
+import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
@@ -116,7 +117,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       }
     }
 
-    function handleStepActionDialogChange({
+    function handleStepActionChange({
       workflowId,
       stepBundleId,
       stepIndex,
@@ -137,20 +138,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
               (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
             ) {
-              setSelectedStepIndices(
-                selectedStepIndices.map((i) => {
-                  if (i === stepIndex) {
-                    return targetIndex;
-                  }
-                  if (stepIndex < targetIndex && i > stepIndex && i <= targetIndex) {
-                    return i - 1;
-                  }
-                  if (stepIndex > targetIndex && i < stepIndex && i >= targetIndex) {
-                    return i + 1;
-                  }
-                  return i;
-                }),
-              );
+              setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndex, targetIndex));
             }
           }
           break;
@@ -161,14 +149,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
             (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
           ) {
-            setSelectedStepIndices(
-              selectedStepIndices.map((i) => {
-                if (i >= stepIndex) {
-                  return i + 1;
-                }
-                return i;
-              }),
-            );
+            setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndex, targetIndex));
           }
           break;
         }
@@ -182,14 +163,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               closeDialog();
             }
             // Adjust index of the selected steps
-            setSelectedStepIndices(
-              selectedStepIndices.map((i) => {
-                if (i >= stepIndex) {
-                  return i - 1;
-                }
-                return i;
-              }),
-            );
+            setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndex, targetIndex));
           }
           break;
         }
@@ -212,6 +186,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           pipelineId: selectedPipeline,
           workflowId,
           selectedStepIndices: [stepIndex],
+          selectionParent: {
+            id: workflowId || '',
+            type: 'workflow',
+          },
         })(),
       handleSelectStep: ({
         stepIndex,
@@ -267,7 +245,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       handleUpgradeStep: upgradeStep,
       handleMoveStep: (workflowId: string, stepIndex: number, targetIndex: number) => {
         moveStep(workflowId, stepIndex, targetIndex);
-        handleStepActionDialogChange({
+        handleStepActionChange({
           workflowId,
           stepIndex,
           targetIndex,
@@ -276,7 +254,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
       handleCloneStep: (workflowId: string, stepIndex: number) => {
         cloneStep(workflowId, stepIndex);
-        handleStepActionDialogChange({
+        handleStepActionChange({
           workflowId,
           stepIndex,
           action: 'clone',
@@ -284,7 +262,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
       handleDeleteStep: (workflowId: string, stepIndex: number) => {
         deleteStep(workflowId, stepIndex);
-        handleStepActionDialogChange({
+        handleStepActionChange({
           workflowId,
           stepIndex,
           action: 'remove',
@@ -296,11 +274,15 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           pipelineId: selectedPipeline,
           stepBundleId,
           selectedStepIndices: [stepIndex],
+          selectionParent: {
+            id: stepBundleId || '',
+            type: 'stepBundle',
+          },
         })(),
       handleCloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
         cloneStepInStepBundle(stepBundleId, stepIndex);
         setSelectedStepBundleId(stepBundleId);
-        handleStepActionDialogChange({
+        handleStepActionChange({
           stepBundleId,
           stepIndex,
           action: 'clone',
@@ -309,7 +291,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       handleDeleteStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
         deleteStepInStepBundle(stepBundleId, stepIndex);
         setSelectedStepBundleId(stepBundleId);
-        handleStepActionDialogChange({
+        handleStepActionChange({
           stepBundleId,
           stepIndex,
           action: 'remove',
@@ -318,7 +300,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       handleMoveStepInStepBundle: (stepBundleId: string, stepIndex: number, targetIndex: number) => {
         moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
         setSelectedStepBundleId(stepBundleId);
-        handleStepActionDialogChange({
+        handleStepActionChange({
           stepBundleId,
           stepIndex,
           targetIndex,

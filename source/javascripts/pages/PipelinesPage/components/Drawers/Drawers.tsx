@@ -54,6 +54,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         type: PipelinesPageDialogType.STEP_CONFIG,
         pipelineId,
         workflowId,
+        selectedStepIndices,
       })();
     } else {
       addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
@@ -62,6 +63,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         pipelineId,
         workflowId,
         stepBundleId,
+        selectedStepIndices,
       })();
     }
   };
