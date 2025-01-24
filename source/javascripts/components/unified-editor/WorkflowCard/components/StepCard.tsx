@@ -34,6 +34,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
+import generateRandomEntityId from '../../utils/generateRandomEntityId';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -109,7 +110,7 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const yml = useBitriseYmlStore((s) => s.yml);
+  const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
   const {
     error,
@@ -211,16 +212,6 @@ const StepCard = ({
       return null;
     }
 
-    const generateRandomStepBundleId = () => {
-      const existingIds = Object.keys(yml.step_bundles || {});
-      for (let i = 0; ; i++) {
-        const potentialId = i === 0 ? `New_Step_bundle` : `New_Step_bundle_${i}`;
-        if (!existingIds.includes(potentialId)) {
-          return potentialId;
-        }
-      }
-    };
-
     const isValidStep = step !== undefined && !stepBundleId && isStep(step.cvs, library);
     return isValidStep && !!enableStepBundles ? (
       <ButtonGroup spacing="0" display="flex">
@@ -279,7 +270,7 @@ const StepCard = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   if (onGroupStepsToStepBundle && onSelectStep) {
-                    const generatedId = generateRandomStepBundleId();
+                    const generatedId = generateRandomEntityId(existingStepBundleIds, 'New_Step_bundle');
                     onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
                     onSelectStep({
                       stepIndex,
@@ -391,6 +382,7 @@ const StepCard = ({
     );
   }, [
     enableStepBundles,
+    existingStepBundleIds,
     isClonable,
     isDragging,
     isRemovable,
@@ -410,7 +402,6 @@ const StepCard = ({
     stepBundleId,
     stepIndex,
     workflowId,
-    yml.step_bundles,
   ]);
 
   return (
