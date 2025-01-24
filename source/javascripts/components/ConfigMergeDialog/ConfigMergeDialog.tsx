@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -260,4 +260,4 @@ const ConfigMergeDialog = ({
   );
 };
 
-export default memo(ConfigMergeDialog);
+export default ConfigMergeDialog;
