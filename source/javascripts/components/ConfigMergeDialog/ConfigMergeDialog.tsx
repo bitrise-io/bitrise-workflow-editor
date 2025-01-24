@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -21,6 +21,8 @@ type Props = Omit<DialogProps, 'title'> & {
   baseYaml: string;
   yourYaml: string;
   remoteYaml: string;
+  finalYaml?: string;
+  errorMessage?: string;
   onSave: (finalYaml: string) => void;
 };
 
@@ -45,11 +47,11 @@ const readOnlyDiffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = 
   readOnly: true,
 };
 
-function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
+function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string, finalYaml?: string) {
   const rows: string[] = [];
   const decorations: monaco.editor.IModelDeltaDecoration[] = [];
 
-  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, { stringSeparator: '\n' }).forEach((region) => {
+  diff3Merge<string>(finalYaml || yourYaml, baseYaml, remoteYaml, { stringSeparator: '\n' }).forEach((region) => {
     if (region.ok) {
       rows.push(...region.ok);
     } else if (region.conflict) {
@@ -99,18 +101,28 @@ function disposeEditors() {
   monaco.editor.getDiffEditors().forEach((editor) => editor.dispose());
 }
 
-const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, onSave, ...props }: Props) => {
-  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml);
+const ConfigMergeDialog = ({
+  isOpen,
+  baseYaml,
+  yourYaml,
+  finalYaml,
+  remoteYaml,
+  errorMessage,
+  onClose,
+  onSave,
+  ...props
+}: Props) => {
+  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml, finalYaml);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [finalYaml, setFinalYaml] = useState(mergeResult.finalYaml);
+  const finalYamlRef = useRef(mergeResult.finalYaml);
 
   const handleMountOfResultEditor = useCallback(
     (editor: MonacoDiffEditor) => {
       const modifiedEditor = editor.getModifiedEditor();
 
       modifiedEditor.onDidChangeModelContent((e) => {
-        setFinalYaml(modifiedEditor.getValue());
+        finalYamlRef.current = modifiedEditor.getValue();
 
         const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
           const { startLineNumber, endLineNumber } = c.range;
@@ -135,15 +147,7 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
   );
 
   useEffect(() => {
-    if (isOpen) {
-      setFinalYaml(mergeYamls(yourYaml, baseYaml, remoteYaml).finalYaml);
-    }
-  }, [isOpen, yourYaml, baseYaml, remoteYaml]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsLoading(false);
-    } else {
+    if (!isOpen) {
       disposeEditors();
     }
 
@@ -191,8 +195,8 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
                   theme="vs-dark"
                   language="yaml"
                   original={baseYaml}
-                  modified={finalYaml}
                   options={diffEditorOptions}
+                  modified={finalYamlRef.current}
                   onMount={handleMountOfResultEditor}
                 />
               </Box>
@@ -222,6 +226,12 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
               edit the results before saving.
             </Text>
           </Notification>
+          {errorMessage && (
+            <Notification status="error">
+              <Text textStyle="comp/notification/title">Error saving...</Text>
+              <Text>{errorMessage}</Text>
+            </Notification>
+          )}
         </DialogBody>
         <DialogFooter>
           <ButtonGroup spacing={16}>
@@ -232,7 +242,7 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
               variant="primary"
               isLoading={isLoading}
               onClick={() => {
-                onSave(finalYaml);
+                onSave(finalYamlRef.current);
                 setIsLoading(true);
               }}
             >
@@ -250,4 +260,4 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
   );
 };
 
-export default ConfigMergeDialog;
+export default memo(ConfigMergeDialog);

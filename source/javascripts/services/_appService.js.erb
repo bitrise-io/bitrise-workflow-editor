@@ -691,14 +691,14 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
       };
 
       appService.finalizeAppConfig = function (finalYaml) {
-        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
         appService.savedAppConfig = angular.copy(appService.remoteAppConfig);
+        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
         return appService.appConfig;
       };
 
       appService.finalizeAppConfigYML = function (finalYaml) {
-        appService.appConfigYML = finalYaml;
         appService.savedAppConfigYML = appService.remoteAppConfigYML;
+        appService.appConfigYML = finalYaml;
         return appService.appConfigYML;
       };
 
