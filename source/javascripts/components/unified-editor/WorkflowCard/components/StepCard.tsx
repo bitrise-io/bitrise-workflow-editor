@@ -235,6 +235,7 @@ const StepCard = ({
         )}
         <OverflowMenu
           placement="bottom-end"
+          size="md"
           buttonSize="xs"
           buttonProps={{
             'aria-label': 'More',
