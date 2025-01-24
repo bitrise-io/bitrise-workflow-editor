@@ -10,9 +10,9 @@ containers:
 app:
   envs:
   - ACCESS_KEY: "120"
-  - GITHUB_TOKEN: GITHUB_TOKEN_143
+  - GITHUB_TOKEN: GITHUB_TOKEN
     opts:
-      is_expand: true
+      is_expand: false
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
 - type: push
