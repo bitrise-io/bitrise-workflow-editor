@@ -558,13 +558,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         viewModel.deferredUserSavedYmlToRepository.resolve();
       };
 
-      function reloadAppConfig() {
-        viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-        return appService.getAppConfig(true).then(function () {
-          viewModel.loadDataProgress.reset();
-        });
-      }
-
       function reloadStack() {
         viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
         return appService
