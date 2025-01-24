@@ -10,13 +10,13 @@ containers:
 app:
   envs:
   - ACCESS_KEY: "120"
-  - GITHUB_TOKEN: GITHUB_TOKEN
+  - GITHUB_TOKEN: GITHUB_TOKEN_48
     opts:
       is_expand: false
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
 - type: push
-  workflow: wf1
+  workflow: wf2
   push_branch: master
 - type: push
   workflow: wf2

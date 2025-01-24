@@ -5,6 +5,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
 import { segmentTrack } from "@/utils/segmentTracking";
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { configMergeDialog } from "@/components/ConfigMergeDialog/ConfigMergeDialog.store";
 
 const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
@@ -164,22 +165,15 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         }
       }
 
-      viewModel.yourYaml = "";
-      viewModel.baseYaml = "";
-      viewModel.finalYaml = "";
-      viewModel.remoteYaml = "";
-      viewModel.configMergeError = undefined;
-      viewModel.isConfigMergeDialogOpen = false;
-
       viewModel.closeConfigMergeDialog = function () {
-        viewModel.configMergeError = undefined;
-        viewModel.isConfigMergeDialogOpen = false;
+        viewModel.saveProgress.reset();
         viewModel.deferredConflictResolution.reject();
+        configMergeDialog.setState(configMergeDialog.getInitialState());
       }
 
       viewModel.saveConfigMergeDialogResult = function (finalYaml) {
-        viewModel.configMergeError = undefined;
         viewModel.deferredConflictResolution.resolve(finalYaml);
+        configMergeDialog.setState({ isLoading: true });
       }
 
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
@@ -478,7 +472,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       });
 
       viewModel.hasUnsavedChanges = function () {
-
         if (!viewModel.currentMenu) {
           return undefined;
         }
@@ -598,7 +591,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           shouldReturnPromise = false;
         }
 
-        if (!viewModel.isConfigMergeDialogOpen) {
+        if (!configMergeDialog.getState().isOpen) {
           segmentTrack("Workflow Editor Save Button Clicked", {
             tab_name: viewModel.currentMenu.id,
             source: source,
@@ -632,7 +625,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           }
 
           if (error) {
-            viewModel.configMergeError = error.message;
+            configMergeDialog.setState({ isLoading: false, errorMessage: error.message });
             promise = viewModel.deferredConflictResolution.promise;
           } else {
             promise = detectRemoteAppConfigChanges().then(function ({ hasChanges, yourYaml, baseYaml, remoteYaml }) {
@@ -640,10 +633,13 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
                 return viewModel.deferredConflictResolution.resolve();
               }
 
-              viewModel.yourYaml = yourYaml;
-              viewModel.baseYaml = baseYaml;
-              viewModel.remoteYaml = remoteYaml;
-              viewModel.isConfigMergeDialogOpen = true;
+              configMergeDialog.setState({
+                isOpen: true,
+                isLoading: false,
+                yourYaml,
+                baseYaml,
+                remoteYaml,
+              });
 
               return viewModel.deferredConflictResolution.promise;
             })
@@ -654,7 +650,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               return;
             }
 
-            viewModel.finalYaml = finalYaml;
             viewModel.dataToSave = finalizeAppConfig(finalYaml);
 
             return mergeChanges();
@@ -690,20 +685,18 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           ]);
         }
 
-        var startSavingProcess = (status) => {
+        var startSavingProcess = (error) => {
           return validateConfig()
-            .then(() => mergeChanges(status))
+            .then(() => mergeChanges(error))
             .then(() => saveConfig())
             .then(() => reloadConfig())
             .then(() => {
               updateLastWorkflowMetadata();
 
               var forceReload = false;
-              if (viewModel.isConfigMergeDialogOpen) {
+              if (configMergeDialog.getState().isOpen) {
                 forceReload = true;
-                viewModel.finalYaml = "";
-                viewModel.configMergeError = undefined;
-                viewModel.isConfigMergeDialogOpen = false;
+                configMergeDialog.setState(configMergeDialog.getInitialState());
               }
 
               viewModel.saveProgress.reset();
@@ -719,7 +712,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
                   source: 'save'
                 });
 
-                if (viewModel.isConfigMergeDialogOpen) {
+                if (configMergeDialog.getState().isOpen) {
                   return startSavingProcess(error);
                 } else {
                   viewModel.saveProgress.reset();
