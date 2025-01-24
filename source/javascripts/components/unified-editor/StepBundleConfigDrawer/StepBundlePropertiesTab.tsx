@@ -4,7 +4,7 @@ import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import DeleteStepBundleDialog from '@/components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog';
 import useRenameStepBundle from '@/components/unified-editor/StepBundleConfigDrawer/hooks/useRenameStepBundle';
-import { useStepBundleConfigContext } from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
+import { useStepBundleConfigContext } from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfig.context';
 
 type StepBundlePropertiesTabProps = {
   onDelete?: (id: string) => void;

@@ -4,10 +4,10 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import StepBundlesConfigPanel from '../../components/unified-editor/StepBundlesConfig/StepBundlesConfigPanel';
 import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundlesPage.store';
 import Drawers from './components/Drawers';
-import StepBundlesConfigPanel from './components/StepBundlesConfigPanel/StepBundlesConfigPanel';
 
 const StepBundlesPageContent = () => {
   const stepBundles = useStepBundles();

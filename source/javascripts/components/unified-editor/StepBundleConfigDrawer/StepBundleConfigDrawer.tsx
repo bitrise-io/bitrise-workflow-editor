@@ -13,7 +13,7 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useNavigation from '@/hooks/useNavigation';
-import StepBundlesConfigProvider from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
+import StepBundlesConfigProvider from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfig.context';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {

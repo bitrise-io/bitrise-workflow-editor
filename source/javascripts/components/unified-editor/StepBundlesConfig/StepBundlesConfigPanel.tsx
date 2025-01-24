@@ -1,10 +1,10 @@
 import { Box } from '@bitrise/bitkit';
-import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleConfigDrawer/StepBundlePropertiesTab';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { useStepBundlesPageStore } from '../../StepBundlesPage.store';
-import StepBundlesConfigProvider from './StepBundlesConfig.context';
+import StepBundlePropertiesTab from '../StepBundleConfigDrawer/StepBundlePropertiesTab';
+import { useStepBundlesPageStore } from '../../../pages/StepBundlesPage/StepBundlesPage.store';
 import StepBundlesConfigHeader from './StepBundlesConfigHeader';
+import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type ConfigPanelContentProps = {
   stepBundleId: string;
