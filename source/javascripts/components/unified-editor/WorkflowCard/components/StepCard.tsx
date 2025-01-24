@@ -93,7 +93,7 @@ const StepCard = ({
   stepBundleId,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const [isToggletipDismissedGlobally, setToggletipDismissedGlobally] = useLocalStorage('toggletipDismissed', false);
   const [showToggletip, setShowToggletip] = useState(false);
   const { isSelected } = useSelection();
@@ -222,8 +222,7 @@ const StepCard = ({
     };
 
     const isValidStep = step !== undefined && !stepBundleId && isStep(step.cvs, library);
-
-    return isValidStep && enableStepBundles ? (
+    return isValidStep && !!enableStepBundles ? (
       <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
           <ControlButton
@@ -274,24 +273,26 @@ const StepCard = ({
                 Update Step version
               </MenuItem>
             )}
-            <MenuItem
-              leftIconName="Steps"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onGroupStepsToStepBundle && onSelectStep) {
-                  const generatedId = generateRandomStepBundleId();
-                  onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
-                  onSelectStep({
-                    stepIndex,
-                    type: LibraryType.BUNDLE,
-                    stepBundleId: generatedId,
-                    wfId: workflowId,
-                  });
-                }
-              }}
-            >
-              New bundle with 1 Step
-            </MenuItem>
+            {enableStepBundles && (
+              <MenuItem
+                leftIconName="Steps"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onGroupStepsToStepBundle && onSelectStep) {
+                    const generatedId = generateRandomStepBundleId();
+                    onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
+                    onSelectStep({
+                      stepIndex,
+                      type: LibraryType.BUNDLE,
+                      stepBundleId: generatedId,
+                      wfId: workflowId,
+                    });
+                  }
+                }}
+              >
+                New bundle with 1 Step
+              </MenuItem>
+            )}
             <MenuItem
               leftIconName="Duplicate"
               onClick={(e) => {
