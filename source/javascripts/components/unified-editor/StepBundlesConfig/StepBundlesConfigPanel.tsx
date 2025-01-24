@@ -1,8 +1,8 @@
 import { Box } from '@bitrise/bitkit';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import StepBundlePropertiesTab from '../StepBundleConfigDrawer/StepBundlePropertiesTab';
 import { useStepBundlesPageStore } from '../../../pages/StepBundlesPage/StepBundlesPage.store';
+import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigHeader from './StepBundlesConfigHeader';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 

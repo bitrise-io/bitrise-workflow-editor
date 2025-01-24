@@ -2,9 +2,9 @@ import { Button, useDisclosure } from '@bitrise/bitkit';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import DeleteStepBundleDialog from '@/components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog';
-import useRenameStepBundle from '@/components/unified-editor/StepBundleConfigDrawer/hooks/useRenameStepBundle';
-import { useStepBundleConfigContext } from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfig.context';
+import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
+import { useStepBundleConfigContext } from './StepBundlesConfig.context';
+import useRenameStepBundle from './hooks/useRenameStepBundle';
 
 type StepBundlePropertiesTabProps = {
   onDelete?: (id: string) => void;

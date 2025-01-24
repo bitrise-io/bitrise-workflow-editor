@@ -2,19 +2,19 @@ import { Notification, Text } from '@bitrise/bitkit';
 import useStep from '@/hooks/useStep';
 import StepService from '@/core/models/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import StepBundleService from '@/core/models/StepBundleService';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useNavigation from '@/hooks/useNavigation';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
-} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import useNavigation from '@/hooks/useNavigation';
-import StepBundlesConfigProvider from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfig.context';
+} from '../FloatingDrawer/FloatingDrawer';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
+import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
