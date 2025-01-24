@@ -114,6 +114,14 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
               selectionParent: newSelectionParent,
             })();
             break;
+          case LibraryType.BUNDLE:
+            openDialog({
+              type: WorkflowsPageDialogType.STEP_BUNDLE,
+              workflowId: wfId,
+              selectedStepIndices: [stepIndex],
+              selectionParent: newSelectionParent,
+            })();
+            break;
           default:
             openDialog({
               type: WorkflowsPageDialogType.STEP_CONFIG,
