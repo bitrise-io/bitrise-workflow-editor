@@ -11,10 +11,8 @@ import {
   ControlButton,
   Divider,
   Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
+  OverflowMenu,
+  OverflowMenuItem,
   Skeleton,
   SkeletonBox,
   Text,
@@ -235,87 +233,87 @@ const StepCard = ({
             }}
           />
         )}
-        <Menu placement="bottom-end" size="md">
-          <MenuButton
-            as={ControlButton}
-            iconName="MoreVertical"
+        <OverflowMenu
+          placement="bottom-end"
+          buttonSize="xs"
+          buttonProps={{
+            'aria-label': 'More',
+            iconName: 'MoreVertical',
+            onClick: (e) => {
+              e.stopPropagation();
+            },
+            display: 'none',
+            _groupHover: { display: 'inline-flex' },
+            _active: { display: 'inline-flex' },
+          }}
+        >
+          {isUpgradable && (
+            <OverflowMenuItem
+              leftIconName="ArrowUp"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (workflowId && onUpgradeStep) {
+                  onUpgradeStep(workflowId, stepIndex, latestMajor);
+                }
+                if (stepBundleId && onUpgradeStepInStepBundle) {
+                  onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
+                }
+              }}
+            >
+              Update Step version
+            </OverflowMenuItem>
+          )}
+          {enableStepBundles && (
+            <OverflowMenuItem
+              leftIconName="Steps"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onGroupStepsToStepBundle && onSelectStep) {
+                  const generatedId = generateRandomEntityId(existingStepBundleIds, 'New_Step_bundle');
+                  onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
+                  onSelectStep({
+                    stepIndex,
+                    type: LibraryType.BUNDLE,
+                    stepBundleId: generatedId,
+                    wfId: workflowId,
+                  });
+                }
+              }}
+            >
+              New bundle with 1 Step
+            </OverflowMenuItem>
+          )}
+          <OverflowMenuItem
+            leftIconName="Duplicate"
             onClick={(e) => {
               e.stopPropagation();
+              if (workflowId && onCloneStep) {
+                onCloneStep(workflowId, stepIndex);
+              }
+              if (stepBundleId && onCloneStepInStepBundle) {
+                onCloneStepInStepBundle(stepBundleId, stepIndex);
+              }
             }}
-            size="xs"
-            display="none"
-            _groupHover={{ display: 'inline-flex' }}
-            _active={{ display: 'inline-flex' }}
-          />
-          <MenuList>
-            {isUpgradable && (
-              <MenuItem
-                leftIconName="ArrowUp"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (workflowId && onUpgradeStep) {
-                    onUpgradeStep(workflowId, stepIndex, latestMajor);
-                  }
-                  if (stepBundleId && onUpgradeStepInStepBundle) {
-                    onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
-                  }
-                }}
-              >
-                Update Step version
-              </MenuItem>
-            )}
-            {enableStepBundles && (
-              <MenuItem
-                leftIconName="Steps"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onGroupStepsToStepBundle && onSelectStep) {
-                    const generatedId = generateRandomEntityId(existingStepBundleIds, 'New_Step_bundle');
-                    onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
-                    onSelectStep({
-                      stepIndex,
-                      type: LibraryType.BUNDLE,
-                      stepBundleId: generatedId,
-                      wfId: workflowId,
-                    });
-                  }
-                }}
-              >
-                New bundle with 1 Step
-              </MenuItem>
-            )}
-            <MenuItem
-              leftIconName="Duplicate"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (workflowId && onCloneStep) {
-                  onCloneStep(workflowId, stepIndex);
-                }
-                if (stepBundleId && onCloneStepInStepBundle) {
-                  onCloneStepInStepBundle(stepBundleId, stepIndex);
-                }
-              }}
-            >
-              Duplicate Step
-            </MenuItem>
-            <Divider my="8" />
-            <MenuItem
-              isDanger
-              leftIconName="Trash"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (workflowId && onDeleteStep) {
-                  onDeleteStep(workflowId, stepIndex);
-                }
-                if (stepBundleId && onDeleteStepInStepBundle) {
-                  onDeleteStepInStepBundle(stepBundleId, stepIndex);
-                }
-              }}
-            >
-              Delete Step
-            </MenuItem>
-          </MenuList>
-        </Menu>
+          >
+            Duplicate Step
+          </OverflowMenuItem>
+          <Divider my="8" />
+          <OverflowMenuItem
+            isDanger
+            leftIconName="Trash"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (workflowId && onDeleteStep) {
+                onDeleteStep(workflowId, stepIndex);
+              }
+              if (stepBundleId && onDeleteStepInStepBundle) {
+                onDeleteStepInStepBundle(stepBundleId, stepIndex);
+              }
+            }}
+          >
+            Delete Step
+          </OverflowMenuItem>
+        </OverflowMenu>
       </ButtonGroup>
     ) : (
       <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
