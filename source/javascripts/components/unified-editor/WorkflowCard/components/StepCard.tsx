@@ -30,6 +30,7 @@ import StepService from '@/core/models/StepService';
 import { LibraryType, Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -92,6 +93,7 @@ const StepCard = ({
   stepBundleId,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
   const [isToggletipDismissedGlobally, setToggletipDismissedGlobally] = useLocalStorage('toggletipDismissed', false);
   const [showToggletip, setShowToggletip] = useState(false);
   const { isSelected } = useSelection();
@@ -221,7 +223,7 @@ const StepCard = ({
 
     const isValidStep = step !== undefined && !stepBundleId && isStep(step.cvs, library);
 
-    return isValidStep ? (
+    return isValidStep && enableStepBundles ? (
       <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
           <ControlButton
@@ -387,6 +389,7 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
+    enableStepBundles,
     isClonable,
     isDragging,
     isRemovable,
