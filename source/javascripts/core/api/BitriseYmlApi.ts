@@ -91,13 +91,7 @@ async function formatYml(model: BitriseYml): Promise<string> {
     method: 'POST',
   });
 
-  // NOTE: The API returns a JSON object if the input is invalid
-  try {
-    JSON.parse(response);
-    return toYml(model);
-  } catch {
-    return response || '';
-  }
+  return response || toYml(model);
 }
 
 export default {

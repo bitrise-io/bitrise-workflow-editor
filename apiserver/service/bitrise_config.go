@@ -179,19 +179,10 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 
 	yaml.FutureLineWrap()
 
-	w.Header().Set("Content-Type", "text/yaml")
-	w.WriteHeader(200)
-
 	var bitriseDataModel = models.BitriseDataModel{}
 	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &bitriseDataModel); err != nil {
 		log.Errorf("Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
-		return
-	}
-
-	if err := bitriseDataModel.Normalize(); err != nil {
-		log.Errorf("Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
 		return
 	}
 
@@ -201,6 +192,9 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
 		return
 	}
+
+	w.Header().Set("Content-Type", "text/yaml")
+	w.WriteHeader(200)
 
 	if _, err := w.Write([]byte(formattedBitriseYML)); err != nil {
 		log.Errorf("Failed to write yml response, error: %s", err)

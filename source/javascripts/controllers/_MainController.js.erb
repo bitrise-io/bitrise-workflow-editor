@@ -177,7 +177,10 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           shouldReCheckRemoteChanges: true,
         });
 
-        configMergeDialog.setState({ isLoading: true });
+        configMergeDialog.setState({
+          isLoading: true,
+          errorMessage: "",
+        });
       }
 
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
@@ -586,7 +589,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         }
 
         function formatYaml(yaml) {
-          return BitriseYmlApi.formatYml(yaml).then((formattedYaml) => formattedYaml || yaml).catch(() => yaml);
+          return BitriseYmlApi.formatYml(yaml).then((formattedYaml) => formattedYaml).catch(() => yaml);
         }
 
         function handleConfigMerge(defaultYourYaml, defaultBaseYaml) {
