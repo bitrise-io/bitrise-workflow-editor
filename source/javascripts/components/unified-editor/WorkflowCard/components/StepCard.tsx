@@ -1,4 +1,4 @@
-import { memo, ReactNode, useMemo, useState } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
@@ -94,7 +94,6 @@ const StepCard = ({
   const zoom = useReactFlowZoom();
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const [isToggletipDismissedGlobally, setToggletipDismissedGlobally] = useLocalStorage('toggletipDismissed', false);
-  const [showToggletip, setShowToggletip] = useState(false);
   const { isSelected } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
   const {
@@ -157,14 +156,10 @@ const StepCard = ({
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
   const handleToggletipDismiss = () => {
-    setShowToggletip(false);
     setToggletipDismissedGlobally(true);
   };
 
   const handleClick = () => {
-    if (!isToggletipDismissedGlobally) {
-      setShowToggletip(true);
-    }
     if (isButton && onSelectStep) {
       onSelectStep({ stepIndex, type: library, stepBundleId, wfId: workflowId });
     }
@@ -408,7 +403,7 @@ const StepCard = ({
       label="To select multiple Steps, hold '⌘' or 'Ctrl' key."
       learnMoreUrl="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
       button={{ label: 'Got it', onClick: handleToggletipDismiss }}
-      isOpen={showToggletip && !isToggletipDismissedGlobally}
+      isOpen={isHighlighted && !isToggletipDismissedGlobally}
     >
       <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
         {!isPlaceholder && (
