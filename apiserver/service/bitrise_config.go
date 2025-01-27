@@ -152,3 +152,57 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
 }
+
+// PostFormatHandler ...
+func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		log.Errorf("Empty request body")
+		RespondWithJSONBadRequestErrorMessage(w, "Empty request body")
+		return
+	}
+
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Errorf("Failed to close request body, error: %s", err)
+		}
+	}()
+
+	type RequestModel struct {
+		BitriseYML string `json:"app_config_datastore_yaml"`
+	}
+	var reqObj RequestModel
+	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
+		log.Errorf("Failed to read JSON input, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to read JSON input, error: %s", err)
+		return
+	}
+
+	yaml.FutureLineWrap()
+
+	w.Header().Set("Content-Type", "text/yaml")
+	w.WriteHeader(200)
+
+	var bitriseDataModel = models.BitriseDataModel{}
+	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &bitriseDataModel); err != nil {
+		log.Errorf("Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	if err := bitriseDataModel.Normalize(); err != nil {
+		log.Errorf("Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	formattedBitriseYML, err := yaml.Marshal(bitriseDataModel)
+	if err != nil {
+		log.Errorf("Failed to serialize bitrise_yml as YAML, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
+		return
+	}
+
+	if _, err := w.Write([]byte(formattedBitriseYML)); err != nil {
+		log.Errorf("Failed to write yml response, error: %s", err)
+	}
+}
