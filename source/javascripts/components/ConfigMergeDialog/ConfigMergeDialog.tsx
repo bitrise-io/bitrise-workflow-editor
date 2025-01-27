@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Box,
   Button,
@@ -14,6 +14,7 @@ import {
 import * as monaco from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
 import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
+import { useShallow } from 'zustand/react/shallow';
 import { configMergeDialog, useConfigMergeDialog } from './ConfigMergeDialog.store';
 
 loader.config({ monaco });
@@ -43,11 +44,11 @@ const readOnlyDiffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = 
   readOnly: true,
 };
 
-function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string, finalYaml: string) {
+function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];
   const decorations: monaco.editor.IModelDeltaDecoration[] = [];
 
-  diff3Merge<string>(finalYaml || yourYaml, baseYaml, remoteYaml, { stringSeparator: '\n' }).forEach((region) => {
+  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, { stringSeparator: '\n' }).forEach((region) => {
     if (region.ok) {
       rows.push(...region.ok);
     } else if (region.conflict) {
@@ -97,34 +98,101 @@ function disposeEditors() {
   monaco.editor.getDiffEditors().forEach((editor) => editor.dispose());
 }
 
+const YourChangesEditor = () => {
+  const ref = useRef<MonacoDiffEditor | null>(null);
+
+  const { isOpen, baseYaml, yourYaml } = useConfigMergeDialog(
+    useShallow((s) => ({
+      isOpen: s.isOpen,
+      baseYaml: s.baseYaml,
+      yourYaml: s.yourYaml,
+    })),
+  );
+
+  useEffect(() => {
+    if (!isOpen || !baseYaml || !yourYaml) {
+      ref.current?.dispose();
+    }
+  }, [isOpen, baseYaml, yourYaml]);
+
+  if (!isOpen || !baseYaml || !yourYaml) {
+    return null;
+  }
+
+  return (
+    <DiffEditor
+      theme="vs-dark"
+      language="yaml"
+      original={baseYaml}
+      modified={yourYaml}
+      options={readOnlyDiffEditorOptions}
+      onMount={(editor) => {
+        ref.current = editor;
+      }}
+    />
+  );
+};
+
+const RemoteChangesEditor = () => {
+  const ref = useRef<MonacoDiffEditor | null>(null);
+
+  const { isOpen, baseYaml, remoteYaml } = useConfigMergeDialog(
+    useShallow((s) => ({
+      isOpen: s.isOpen,
+      baseYaml: s.baseYaml,
+      remoteYaml: s.remoteYaml,
+    })),
+  );
+
+  useEffect(() => {
+    if (!isOpen || !baseYaml || !remoteYaml) {
+      ref.current?.dispose();
+    }
+  }, [isOpen, baseYaml, remoteYaml]);
+
+  if (!isOpen || !baseYaml || !remoteYaml) {
+    return null;
+  }
+
+  return (
+    <DiffEditor
+      theme="vs-dark"
+      language="yaml"
+      original={baseYaml}
+      modified={remoteYaml}
+      options={readOnlyDiffEditorOptions}
+    />
+  );
+};
+
 const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
-  const { isOpen, isLoading, yourYaml, baseYaml, finalYaml, remoteYaml, errorMessage } = useConfigMergeDialog();
-  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml, finalYaml);
+  const { isOpen, isLoading, yourYaml, baseYaml, remoteYaml, errorMessage } = useConfigMergeDialog();
+  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml);
 
   const onMount = (editor: MonacoDiffEditor) => {
     const modifiedEditor = editor.getModifiedEditor();
 
-    modifiedEditor.onDidChangeModelContent((e) => {
+    modifiedEditor.onDidChangeModelContent(() => {
       configMergeDialog.setState({ finalYaml: modifiedEditor.getValue() });
 
-      const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
-        const { startLineNumber, endLineNumber } = c.range;
+      // const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
+      //   const { startLineNumber, endLineNumber } = c.range;
 
-        for (let i = startLineNumber; i <= endLineNumber; i++) {
-          modifiedEditor.getLineDecorations(i)?.forEach((d) => {
-            if (d.options.blockClassName === 'conflict') {
-              acc.add(d.id);
-            }
-          });
-        }
+      //   for (let i = startLineNumber; i <= endLineNumber; i++) {
+      //     modifiedEditor.getLineDecorations(i)?.forEach((d) => {
+      //       if (d.options.blockClassName === 'conflict') {
+      //         acc.add(d.id);
+      //       }
+      //     });
+      //   }
 
-        return acc;
-      }, new Set<string>([]));
+      //   return acc;
+      // }, new Set<string>([]));
 
-      modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
+      // modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
     });
 
-    editor.createDecorationsCollection(mergeResult.decorations);
+    // editor.createDecorationsCollection(mergeResult.decorations);
   };
 
   useEffect(() => {
@@ -155,15 +223,7 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Your changes</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-                {baseYaml && yourYaml && (
-                  <DiffEditor
-                    theme="vs-dark"
-                    language="yaml"
-                    original={baseYaml}
-                    modified={yourYaml}
-                    options={readOnlyDiffEditorOptions}
-                  />
-                )}
+                <YourChangesEditor />
               </Box>
             </Box>
 
@@ -174,16 +234,14 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Results</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
-                {baseYaml && mergeResult.finalYaml && (
-                  <DiffEditor
-                    theme="vs-dark"
-                    language="yaml"
-                    original={baseYaml}
-                    modified={mergeResult.finalYaml}
-                    options={diffEditorOptions}
-                    onMount={onMount}
-                  />
-                )}
+                <DiffEditor
+                  theme="vs-dark"
+                  language="yaml"
+                  original={baseYaml}
+                  modified={mergeResult.finalYaml}
+                  options={diffEditorOptions}
+                  onMount={onMount}
+                />
               </Box>
             </Box>
 
@@ -194,15 +252,7 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Remote changes</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-                {baseYaml && remoteYaml && (
-                  <DiffEditor
-                    theme="vs-dark"
-                    language="yaml"
-                    original={baseYaml}
-                    modified={remoteYaml}
-                    options={readOnlyDiffEditorOptions}
-                  />
-                )}
+                <RemoteChangesEditor />
               </Box>
             </Box>
           </Box>

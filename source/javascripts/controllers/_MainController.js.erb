@@ -172,7 +172,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       }
 
       viewModel.saveConfigMergeDialogResult = function (finalYaml) {
-        viewModel.deferredConflictResolution.resolve(finalYaml);
+        viewModel.deferredConflictResolution.resolve({ finalYaml, shouldReCheckRemoteChanges: true });
         configMergeDialog.setState({ isLoading: true });
       }
 
@@ -584,100 +584,71 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({ shouldReturnPromise, source = 'save_changes_button' }) {
-        var isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
+      viewModel.save = function ({ shouldReturnPromise = false, source = 'save_changes_button' }) {
+        const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
 
-        if (shouldReturnPromise === undefined) {
-          shouldReturnPromise = false;
+        function validateConfigIfNeeded() {
+          return !["secrets", "yml"].includes(viewModel.currentMenu.id)
+            ? appService.validateAppConfig()
+            : $q.resolve();
         }
 
-        if (!configMergeDialog.getState().isOpen) {
-          segmentTrack("Workflow Editor Save Button Clicked", {
-            tab_name: viewModel.currentMenu.id,
-            source: source,
-          });
-        }
-
-        viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
-
-        function validateConfig() {
-          if (viewModel.currentMenu.id === "secrets" || viewModel.currentMenu.id === "yml") {
+        function handleConfigMerge(defaultYourYaml, defaultBaseYaml) {
+          if (!enableConfigConflictResolution || isRepositorySavedYml) {
             return $q.resolve();
           }
 
-          return appService.validateAppConfig();
-        }
-
-        function mergeChanges(error) {
-          var promise = $q.resolve();
-          var finalizeAppConfig = appService.finalizeAppConfig;
-          var detectRemoteAppConfigChanges = appService.detectRemoteAppConfigChanges;
-
           viewModel.deferredConflictResolution = $q.defer();
 
-          if (!enableConfigConflictResolution || isRepositorySavedYml) {
-            return promise;
-          }
+          const isYmlFormat = viewModel.currentMenu.id === "yml";
+          const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : requestService.getNormalizedAppConfig;
 
-          if (viewModel.currentMenu.id === "yml") {
-            finalizeAppConfig = appService.finalizeAppConfigYML;
-            detectRemoteAppConfigChanges = appService.detectRemoteAppConfigYMLChanges;
-          }
+          return fetchRemoteConfig().then((remoteConfig) => {
+            const baseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
+            const yourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
+            const remoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
+            const hasChanges = baseYaml !== remoteYaml || (defaultBaseYaml && defaultBaseYaml !== remoteYaml);
 
-          if (error) {
-            configMergeDialog.setState({ isLoading: false, errorMessage: error.message });
-            promise = viewModel.deferredConflictResolution.promise;
-          } else {
-            promise = detectRemoteAppConfigChanges().then(function ({ hasChanges, yourYaml, baseYaml, remoteYaml }) {
-              if (!hasChanges) {
-                return viewModel.deferredConflictResolution.resolve();
-              }
-
-              configMergeDialog.setState({
-                isOpen: true,
-                isLoading: false,
-                yourYaml,
-                baseYaml,
-                remoteYaml,
-              });
-
-              return viewModel.deferredConflictResolution.promise;
-            })
-          }
-
-          return promise.then((finalYaml) => {
-            if (!finalYaml) {
-              return;
+            if (!hasChanges) {
+              return $q.resolve({ finalYaml: yourYaml, shouldReCheckRemoteChanges: false });
             }
 
-            viewModel.dataToSave = finalizeAppConfig(finalYaml);
+            configMergeDialog.setState({
+              yourYaml,
+              baseYaml,
+              remoteYaml,
+              isOpen: true,
+              isLoading: false,
+            });
 
-            return mergeChanges();
+            return viewModel.deferredConflictResolution.promise;
+          }).then(({ finalYaml, shouldReCheckRemoteChanges = true }) => {
+            if (!shouldReCheckRemoteChanges) {
+              return finalYaml;
+            }
+
+            return handleConfigMerge(finalYaml, configMergeDialog.getState().remoteYaml);
           });
         };
 
-        function saveConfig() {
+        function saveConfigBasedOnMenu() {
           if (isRepositorySavedYml) {
             viewModel.deferredUserSavedYmlToRepository = $q.defer();
             return viewModel.deferredUserSavedYmlToRepository.promise;
           }
 
-          switch (viewModel.currentMenu.id) {
-            case "yml":
-              return appService.saveAppConfigYML(viewModel.currentMenu.id);
-            case "stack":
-              return appService.saveStackAndDockerImage(viewModel.currentMenu.id);
-            case "secrets":
-              return $q.resolve();
-            default:
-              return appService.saveAppConfig(viewModel.currentMenu.id);
-          }
+          const saveActions = {
+            yml: () => appService.saveAppConfigYML(viewModel.currentMenu.id),
+            stack: () => appService.saveStackAndDockerImage(viewModel.currentMenu.id),
+            secrets: () => $q.resolve(),
+            default: () => appService.saveAppConfig(viewModel.currentMenu.id)
+          };
+
+          return (saveActions[viewModel.currentMenu.id] || saveActions.default)();
         };
 
-        function reloadConfig() {
-          if (viewModel.currentMenu.id === "stack") {
-            return reloadStack();
-          }
+        function reloadConfigurations() {
+          if (viewModel.currentMenu.id === "stack") return reloadStack();
 
           return $q.all([
             appService.getAppConfig(true),
@@ -685,50 +656,45 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           ]);
         }
 
-        var startSavingProcess = (error) => {
-          return validateConfig()
-            .then(() => mergeChanges(error))
-            .then(() => saveConfig())
-            .then(() => reloadConfig())
+        function startSavingProcess() {
+          if (!configMergeDialog.getState().isOpen) {
+            segmentTrack("Workflow Editor Save Button Clicked", { source, tab_name: viewModel.currentMenu.id });
+          }
+
+          viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+          return validateConfigIfNeeded()
+            .then(() => handleConfigMerge())
+            .then(() => saveConfigBasedOnMenu())
+            .then(() => reloadConfigurations())
             .then(() => {
               updateLastWorkflowMetadata();
+              const forceReload = configMergeDialog.getState().isOpen;
 
-              var forceReload = false;
-              if (configMergeDialog.getState().isOpen) {
-                forceReload = true;
+              if (forceReload) {
                 configMergeDialog.setState(configMergeDialog.getInitialState());
               }
 
               viewModel.saveProgress.reset();
-
-              $rootScope.$emit("MainController::saveSuccess", {
-                forceReload,
-                menu: viewModel.currentMenu.id,
-              });
+              $rootScope.$emit("MainController::saveSuccess", { forceReload, menu: viewModel.currentMenu.id });
             }).catch((error) => {
-              if (error) {
-                segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-                  tab_name: viewModel.currentMenu.id,
-                  source: 'save'
-                });
+              if (!error) return $q.resolve();
 
-                if (configMergeDialog.getState().isOpen) {
-                  return startSavingProcess(error);
-                } else {
-                  viewModel.saveProgress.reset();
-                  Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
-                }
+              segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: viewModel.currentMenu.id });
 
-                $rootScope.$emit("MainController::saveError");
+              if (configMergeDialog.getState().isOpen) {
+                return startSavingProcess();
               }
 
-              if (shouldReturnPromise) {
-                return $q.reject(error);
-              }
+              viewModel.saveProgress.reset();
+              $rootScope.$emit("MainController::saveError");
+              Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+
+              return shouldReturnPromise ? $q.reject(error) : $q.resolve();
             });
         }
 
-        var promise = startSavingProcess();
+        const promise = startSavingProcess();
         if (shouldReturnPromise) {
           return promise;
         }

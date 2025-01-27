@@ -657,50 +657,43 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         return [];
       }
 
-      appService.detectRemoteAppConfigChanges = function (requestConfig) {
-        return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
-          appService.remoteAppConfig = normalizeAppConfig(remoteConfig);
-
-          const yourYaml = BitriseYmlApi.toYml(appService.appConfig);
-          const baseYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
-          const remoteYaml = BitriseYmlApi.toYml(appService.remoteAppConfig);
-
-          return {
-            yourYaml,
-            baseYaml,
-            remoteYaml,
-            hasChanges: remoteYaml !== baseYaml,
-          };
+      appService.getNormalizedAppConfig = function (requestConfig) {
+        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
+          return normalizeAppConfig(appConfig);
         });
       };
+      // appService.detectRemoteAppConfigChanges = function (requestConfig) {
+      //   return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
+      //     const yourYaml = BitriseYmlApi.toYml(appService.appConfig);
+      //     const baseYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
+      //     const remoteYaml = BitriseYmlApi.toYml(normalizeAppConfig(remoteConfig));
 
-      appService.detectRemoteAppConfigYMLChanges = function (requestConfig) {
-        return requestService.getAppConfigYML(requestConfig).then(function (remoteYaml) {
-          appService.remoteAppConfigYML = remoteYaml;
+      //     return {
+      //       yourYaml,
+      //       baseYaml,
+      //       remoteYaml,
+      //       hasChanges: remoteYaml !== baseYaml,
+      //     };
+      //   });
+      // };
 
-          const yourYaml = appService.appConfigYML;
-          const baseYaml = appService.savedAppConfigYML;
+      // appService.detectRemoteAppConfigYMLChanges = function (requestConfig) {
+      //   return requestService.getAppConfigYML(requestConfig).then(function (remoteYaml) {
+      //     const yourYaml = appService.appConfigYML;
+      //     const baseYaml = appService.savedAppConfigYML;
 
-          return {
-            yourYaml,
-            baseYaml,
-            remoteYaml,
-            hasChanges: remoteYaml !== baseYaml,
-          };
-        });
-      };
+      //     return {
+      //       yourYaml,
+      //       baseYaml,
+      //       remoteYaml,
+      //       hasChanges: remoteYaml !== baseYaml,
+      //     };
+      //   });
+      // };
 
-      appService.finalizeAppConfig = function (finalYaml) {
-        appService.savedAppConfig = angular.copy(appService.remoteAppConfig);
-        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
-        return appService.appConfig;
-      };
-
-      appService.finalizeAppConfigYML = function (finalYaml) {
-        appService.savedAppConfigYML = appService.remoteAppConfigYML;
-        appService.appConfigYML = finalYaml;
-        return appService.appConfigYML;
-      };
+      // appService.saveFinalYaml = function (finalYaml, requestConfig) {
+      //   return requestService.postAppConfigYML(finalYaml, requestConfig);
+      // };
 
       return appService;
     });
