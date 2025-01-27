@@ -106,7 +106,7 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
     })),
   );
 
-  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml);
+  const { decorations, finalYaml } = mergeYamls(yourYaml, baseYaml, remoteYaml);
 
   const onMount = (editor: MonacoDiffEditor) => {
     const modifiedEditor = editor.getModifiedEditor();
@@ -131,14 +131,14 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
       modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
     });
 
-    editor.createDecorationsCollection(mergeResult.decorations);
+    editor.createDecorationsCollection(decorations);
   };
 
   useEffect(() => {
     if (isOpen) {
-      configMergeDialog.setState({ finalYaml: mergeResult.finalYaml });
+      configMergeDialog.setState({ finalYaml });
     }
-  }, [isOpen, mergeResult.finalYaml]);
+  }, [isOpen, finalYaml]);
 
   return (
     <>
@@ -181,11 +181,11 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
               <Text textStyle="body/md/semibold">Results</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
                 <DiffEditor
-                  key={mergeResult.finalYaml}
+                  key={finalYaml}
                   theme="vs-dark"
                   language="yaml"
                   original={baseYaml}
-                  modified={mergeResult.finalYaml}
+                  modified={finalYaml}
                   options={diffEditorOptions}
                   keepCurrentModifiedModel
                   keepCurrentOriginalModel
