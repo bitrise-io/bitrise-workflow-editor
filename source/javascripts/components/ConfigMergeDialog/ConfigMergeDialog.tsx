@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -132,6 +133,12 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
 
     editor.createDecorationsCollection(mergeResult.decorations);
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      configMergeDialog.setState({ finalYaml: mergeResult.finalYaml });
+    }
+  }, [isOpen, mergeResult.finalYaml]);
 
   return (
     <>
