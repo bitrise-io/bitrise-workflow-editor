@@ -29,10 +29,10 @@ import { LibraryType, Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import generateUniqueEntityId from '@/components/unified-editor/utils/generateUniqueEntityId';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
-import generateRandomEntityId from '../../utils/generateRandomEntityId';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -265,7 +265,7 @@ const StepCard = ({
               onClick={(e) => {
                 e.stopPropagation();
                 if (onGroupStepsToStepBundle && onSelectStep) {
-                  const generatedId = generateRandomEntityId(existingStepBundleIds, 'New_Step_bundle');
+                  const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
                   onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
                   onSelectStep({
                     stepIndex,
