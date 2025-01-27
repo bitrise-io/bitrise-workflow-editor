@@ -233,7 +233,7 @@ const StepCard = ({
           size="md"
           buttonSize="xs"
           buttonProps={{
-            'aria-label': 'More',
+            'aria-label': 'Show step actions',
             iconName: 'MoreVertical',
             onClick: (e) => {
               e.stopPropagation();
