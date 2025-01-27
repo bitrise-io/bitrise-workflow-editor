@@ -205,7 +205,7 @@ const StepCard = ({
       return null;
     }
 
-    const isValidStep = step !== undefined && !stepBundleId && isStep(step.cvs, library);
+    const isValidStep = step && !stepBundleId && isStep(step.cvs, library);
     return isValidStep && !!enableStepBundles ? (
       <ButtonGroup spacing="0" display="flex">
         {isRemovable && (
