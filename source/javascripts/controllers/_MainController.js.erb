@@ -171,8 +171,12 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         configMergeDialog.setState(configMergeDialog.getInitialState());
       }
 
-      viewModel.saveConfigMergeDialogResult = function (finalYaml) {
-        viewModel.deferredConflictResolution.resolve({ finalYaml, shouldReCheckRemoteChanges: true });
+      viewModel.saveConfigMergeDialogResult = function () {
+        viewModel.deferredConflictResolution.resolve({
+          finalYaml: configMergeDialog.getState().finalYaml,
+          shouldReCheckRemoteChanges: true,
+        });
+
         configMergeDialog.setState({ isLoading: true });
       }
 
@@ -551,18 +555,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         viewModel.deferredUserSavedYmlToRepository.resolve();
       };
 
-      function reloadStack() {
-        viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-        return appService
-          .getAppConfig(true)
-          .then(function () {
-            appService.getStackAndDockerImage(true);
-          })
-          .then(function () {
-            viewModel.loadDataProgress.reset();
-          });
-      }
-
       function updateLastWorkflowMetadata() {
         const dateToday = new Date().toString();
         const appSlug = appService.appDetails?.slug;
@@ -594,20 +586,21 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         }
 
         function handleConfigMerge(defaultYourYaml, defaultBaseYaml) {
+          const isYmlFormat = viewModel.currentMenu.id === "yml";
+
           if (!enableConfigConflictResolution || isRepositorySavedYml) {
-            return $q.resolve();
+            return $q.resolve(isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
           }
 
           viewModel.deferredConflictResolution = $q.defer();
 
-          const isYmlFormat = viewModel.currentMenu.id === "yml";
           const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : requestService.getNormalizedAppConfig;
 
           return fetchRemoteConfig().then((remoteConfig) => {
             const baseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
             const yourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
             const remoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
-            const hasChanges = baseYaml !== remoteYaml || (defaultBaseYaml && defaultBaseYaml !== remoteYaml);
+            const hasChanges = defaultBaseYaml ? defaultBaseYaml !== remoteYaml : baseYaml !== remoteYaml;
 
             if (!hasChanges) {
               return $q.resolve({ finalYaml: yourYaml, shouldReCheckRemoteChanges: false });
@@ -631,29 +624,33 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           });
         };
 
-        function saveConfigBasedOnMenu() {
+        function saveConfigBasedOnMenu(finalYaml) {
           if (isRepositorySavedYml) {
             viewModel.deferredUserSavedYmlToRepository = $q.defer();
             return viewModel.deferredUserSavedYmlToRepository.promise;
           }
 
           const saveActions = {
-            yml: () => appService.saveAppConfigYML(viewModel.currentMenu.id),
-            stack: () => appService.saveStackAndDockerImage(viewModel.currentMenu.id),
+            yml: () => appService.saveAppConfigYML(viewModel.currentMenu.id, finalYaml),
+            stack: () => appService.saveStackAndDockerImage(viewModel.currentMenu.id, BitriseYmlApi.fromYml(finalYaml)),
             secrets: () => $q.resolve(),
-            default: () => appService.saveAppConfig(viewModel.currentMenu.id)
+            default: () => appService.saveAppConfig(viewModel.currentMenu.id, BitriseYmlApi.fromYml(finalYaml)),
           };
 
           return (saveActions[viewModel.currentMenu.id] || saveActions.default)();
         };
 
         function reloadConfigurations() {
-          if (viewModel.currentMenu.id === "stack") return reloadStack();
-
           return $q.all([
             appService.getAppConfig(true),
-            appService.getAppConfigYML(true)
-          ]);
+            appService.getAppConfigYML(true),
+          ]).then(() => {
+            if (viewModel.currentMenu.id === "stack") {
+              return appService.getStackAndDockerImage(true);
+            }
+
+            return $q.resolve();
+          });
         }
 
         function startSavingProcess() {
@@ -665,7 +662,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
 
           return validateConfigIfNeeded()
             .then(() => handleConfigMerge())
-            .then(() => saveConfigBasedOnMenu())
+            .then((finalYaml) => saveConfigBasedOnMenu(finalYaml))
             .then(() => reloadConfigurations())
             .then(() => {
               updateLastWorkflowMetadata();
@@ -683,6 +680,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: viewModel.currentMenu.id });
 
               if (configMergeDialog.getState().isOpen) {
+                configMergeDialog.setState({ errorMessage: error.message });
                 return startSavingProcess();
               }
 
