@@ -748,6 +748,10 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
           }
 
+          if (configMergeDialog.getState().isOpen && !configMergeDialog.getState().isLoading) {
+            viewModel.saveConfigMergeDialogResult();
+          }
+
           return false;
         }
       });
