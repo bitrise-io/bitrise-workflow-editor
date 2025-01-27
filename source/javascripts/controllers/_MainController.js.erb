@@ -629,26 +629,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
 
               return viewModel.deferredConflictResolution.promise;
             });
-
-            // const baseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
-            // const yourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
-            // const remoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
-
-            // const hasChanges = defaultBaseYaml ? defaultBaseYaml !== remoteYaml : baseYaml !== remoteYaml;
-
-            // if (!hasChanges) {
-            //   return $q.resolve({ finalYaml: yourYaml, shouldReCheckRemoteChanges: false });
-            // }
-
-            // configMergeDialog.setState({
-            //   yourYaml,
-            //   baseYaml,
-            //   remoteYaml,
-            //   isOpen: true,
-            //   isLoading: false,
-            // });
-
-            // return viewModel.deferredConflictResolution.promise;
           }).then(({ finalYaml, shouldReCheckRemoteChanges = true }) => {
             if (!shouldReCheckRemoteChanges) {
               return finalYaml;

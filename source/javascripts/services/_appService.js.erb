@@ -657,38 +657,6 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           return normalizeAppConfig(appConfig);
         });
       };
-      // appService.detectRemoteAppConfigChanges = function (requestConfig) {
-      //   return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
-      //     const yourYaml = BitriseYmlApi.toYml(appService.appConfig);
-      //     const baseYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
-      //     const remoteYaml = BitriseYmlApi.toYml(normalizeAppConfig(remoteConfig));
-
-      //     return {
-      //       yourYaml,
-      //       baseYaml,
-      //       remoteYaml,
-      //       hasChanges: remoteYaml !== baseYaml,
-      //     };
-      //   });
-      // };
-
-      // appService.detectRemoteAppConfigYMLChanges = function (requestConfig) {
-      //   return requestService.getAppConfigYML(requestConfig).then(function (remoteYaml) {
-      //     const yourYaml = appService.appConfigYML;
-      //     const baseYaml = appService.savedAppConfigYML;
-
-      //     return {
-      //       yourYaml,
-      //       baseYaml,
-      //       remoteYaml,
-      //       hasChanges: remoteYaml !== baseYaml,
-      //     };
-      //   });
-      // };
-
-      // appService.saveFinalYaml = function (finalYaml, requestConfig) {
-      //   return requestService.postAppConfigYML(finalYaml, requestConfig);
-      // };
 
       return appService;
     });
