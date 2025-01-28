@@ -23,7 +23,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     pipelineId,
     stepBundleId,
     workflowId,
-    stepIndex,
+    selectedStepIndices,
     parentWorkflowId,
     openDialog,
     closeDialog,
@@ -47,23 +47,23 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvs, stepIndex);
+      addStep(workflowId, cvs, selectedStepIndices[0]);
     } else if (workflowId) {
-      addStep(workflowId, cvsWithLatestMajorVersion, stepIndex);
+      addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
       openDialog({
         type: PipelinesPageDialogType.STEP_CONFIG,
         pipelineId,
         workflowId,
-        stepIndex,
+        selectedStepIndices,
       })();
     } else {
-      addStepToStepBundle(stepBundleId, cvs, stepIndex);
+      addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
       openDialog({
         type: PipelinesPageDialogType.STEP_CONFIG,
         pipelineId,
         workflowId,
         stepBundleId,
-        stepIndex,
+        selectedStepIndices,
       })();
     }
   };
@@ -136,7 +136,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           size="md"
           workflowId={workflowId}
           stepBundleId={stepBundleId}
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
@@ -158,7 +158,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         <StepConfigDrawer
           workflowId={workflowId}
           stepBundleId={stepBundleId}
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}

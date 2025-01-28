@@ -1,4 +1,4 @@
-import { memo, ReactNode, useMemo } from 'react';
+import { memo, ReactNode, useMemo, MouseEvent } from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
@@ -159,11 +159,17 @@ const StepCard = ({
     setIsMultiSelectAccepted(true);
   };
 
-  const handleClick = () => {
-    if (isButton && onSelectStep) {
-      onSelectStep({ stepIndex, type: library, stepBundleId, wfId: workflowId });
-    }
-  };
+  const handleClick = isButton
+    ? (e: MouseEvent<HTMLDivElement>) => {
+        onSelectStep?.({
+          isMultiple: e.ctrlKey || e.metaKey,
+          stepIndex,
+          type: library,
+          stepBundleId,
+          wfId: workflowId,
+        });
+      }
+    : undefined;
 
   const cardProps = useMemo(() => {
     const common: CardProps = {

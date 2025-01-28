@@ -1,9 +1,10 @@
-import { useCallback, useDeferredValue } from 'react';
+import { useCallback } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 
@@ -20,30 +21,34 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
     }));
 
-  const openDialog = useStepBundlesPageStore((s) => s.openDialog);
-  const closeDialog = useStepBundlesPageStore((s) => s.closeDialog);
-  const selectedStepBundleId = useStepBundlesPageStore((s) => s.stepBundleId);
-  const selectedStepIndex = useStepBundlesPageStore((s) => s.stepIndex);
-  const setStepIndex = useStepBundlesPageStore((s) => s.setStepIndex);
-  const deferredStepIndex = useDeferredValue(selectedStepIndex);
+  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices } = useStepBundlesPageStore();
 
-  const openStepLikeDrawer = useCallback(
-    ({ stepIndex, stepBundleId: bundleId }: { stepIndex: number; stepBundleId?: string }) => {
-      openDialog({
-        type: StepBundlesPageDialogType.STEP_CONFIG,
-        stepBundleId: bundleId,
-        stepIndex,
-      })();
+  const handleSelectStep = useCallback<(props: { isMultiple?: boolean; stepIndex: number }) => void>(
+    ({ isMultiple, stepIndex }) => {
+      if (isMultiple) {
+        let newIndexes = [...selectedStepIndices, stepIndex];
+        if (selectedStepIndices.includes(stepIndex)) {
+          newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+        }
+        if (newIndexes.length !== 1) {
+          closeDialog();
+        }
+        setSelectedStepIndices(newIndexes);
+      } else {
+        openDialog({
+          type: StepBundlesPageDialogType.STEP_CONFIG,
+          selectedStepIndices: [stepIndex],
+        })();
+      }
     },
-    [openDialog],
+    [closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices],
   );
 
   const openStepSelectorDrawer = useCallback(
-    (bundleId: string, stepIndex: number) => {
+    (_bundleId: string, stepIndex: number) => {
       openDialog({
         type: StepBundlesPageDialogType.STEP_SELECTOR,
-        stepBundleId: bundleId,
-        stepIndex,
+        selectedStepIndices: [stepIndex],
       })();
     },
     [openDialog],
@@ -53,12 +58,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     (bundleId: string, stepIndex: number) => {
       cloneStepInStepBundle(bundleId, stepIndex);
 
-      // Adjust index if the selected step is cloned
-      if (bundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
-        setStepIndex(selectedStepIndex + 1);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(moveStepIndices('clone', selectedStepIndices, stepIndex));
     },
-    [cloneStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+    [cloneStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
 
   const handleDeleteStep = useCallback(
@@ -66,28 +69,23 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       deleteStepInStepBundle(bundleId, stepIndex);
 
       // Close the dialog if the selected step is deleted
-      if (bundleId === selectedStepBundleId && stepIndex === selectedStepIndex) {
+      if (selectedStepIndices.includes(stepIndex)) {
         closeDialog();
       }
-
-      // Adjust index if a step is deleted before the selected step
-      if (bundleId === selectedStepBundleId && stepIndex < selectedStepIndex) {
-        setStepIndex(selectedStepIndex - 1);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndex));
     },
-    [closeDialog, deleteStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+    [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
 
   const handleMoveStep = useCallback(
     (bundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(bundleId, stepIndex, targetIndex);
 
-      // Adjust index if the selected step is moved
-      if (bundleId === selectedStepBundleId && selectedStepIndex === stepIndex) {
-        setStepIndex(targetIndex);
-      }
+      // Adjust index of the selected steps
+      setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
     },
-    [moveStepInStepBundle, selectedStepBundleId, selectedStepIndex, setStepIndex],
+    [moveStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
 
   return (
@@ -110,9 +108,9 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
             onCloneStepInStepBundle={handleCloneStep}
             onDeleteStepInStepBundle={handleDeleteStep}
             onMoveStepInStepBundle={handleMoveStep}
-            onSelectStep={openStepLikeDrawer}
+            onSelectStep={handleSelectStep}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
-            selectedStepIndex={deferredStepIndex}
+            selectedStepIndices={selectedStepIndices}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>
