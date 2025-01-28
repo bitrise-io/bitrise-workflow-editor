@@ -30,6 +30,7 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import generateUniqueEntityId from '@/components/unified-editor/utils/generateUniqueEntityId';
+import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -108,6 +109,7 @@ const StepCard = ({
   } = useStepActions();
 
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
+  const setSelectedStepIndices = useWorkflowsPageStore((s) => s.setSelectedStepIndices);
 
   const {
     error,
@@ -243,6 +245,9 @@ const StepCard = ({
             iconName: 'MoreVertical',
             onClick: (e) => {
               e.stopPropagation();
+              if (selectedStepIndices?.length === 0) {
+                setSelectedStepIndices([stepIndex]);
+              }
             },
             display: 'none',
             _groupHover: { display: 'inline-flex' },
@@ -399,6 +404,7 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
     selectedStepIndices,
+    setSelectedStepIndices,
     step,
     stepBundleId,
     stepIndex,

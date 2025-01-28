@@ -318,7 +318,7 @@ function groupStepsToStepBundle(
 
   // Push the created step bundle to the workflow, which contained the selected step / steps
   const steps = copy.workflows[workflowId].steps ?? [];
-  steps.splice(sortedIndices[0], 0, { [`bundle::${stepBundleId}`]: {} });
+  steps.splice(sortedIndices.reverse()[0], 0, { [`bundle::${stepBundleId}`]: {} });
   copy.workflows[workflowId].steps = steps;
 
   return copy;
