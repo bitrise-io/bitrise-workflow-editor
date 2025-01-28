@@ -4,7 +4,7 @@ import { StepActions, WorkflowActions } from '@/components/unified-editor/Workfl
 
 type State = {
   selectedWorkflowId: string;
-  selectedStepIndex: number;
+  selectedStepIndices: number[];
 };
 type Actions = StepActions & WorkflowActions;
 type ContextState = Partial<State> & Actions;
@@ -14,17 +14,18 @@ const WorkflowCardContext = createContext<ContextState | undefined>(undefined);
 const WorkflowCardContextProvider = ({
   children,
   selectedWorkflowId = '',
-  selectedStepIndex = -1,
+  selectedStepIndices = [],
   ...methods
 }: PropsWithChildren<ContextState>) => {
   const state = useMemo(
     () => ({
       ...methods,
       selectedWorkflowId,
-      selectedStepIndex,
+      selectedStepIndices,
     }),
-    [methods, selectedWorkflowId, selectedStepIndex],
+    [methods, selectedWorkflowId, selectedStepIndices],
   );
+
   return <WorkflowCardContext.Provider value={state}>{children}</WorkflowCardContext.Provider>;
 };
 
@@ -35,12 +36,12 @@ function useSelection() {
     throw new Error('useSelection must be used within a WorkflowCardContextProvider');
   }
 
-  const selection = useMemo(() => pick(state, ['selectedWorkflowId', 'selectedStepIndex']), [state]);
+  const selection = useMemo(() => pick(state, ['selectedWorkflowId', 'selectedStepIndices']), [state]);
   return useMemo(
     () => ({
       ...selection,
       isSelected: (workflowId: string, stepIndex: number = -1) => {
-        return selection.selectedWorkflowId === workflowId && selection.selectedStepIndex === stepIndex;
+        return selection.selectedWorkflowId === workflowId && selection.selectedStepIndices?.includes(stepIndex);
       },
     }),
     [selection],

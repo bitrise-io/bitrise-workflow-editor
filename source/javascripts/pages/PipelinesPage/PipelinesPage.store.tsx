@@ -13,30 +13,39 @@ export enum PipelinesPageDialogType {
   WORKFLOW_SELECTOR,
 }
 
+export type SelectionParent = {
+  id: string;
+  type: 'stepBundle' | 'workflow';
+};
+
 type State = {
-  stepIndex: number;
+  selectedStepIndices: number[];
   pipelineId: string;
   stepBundleId: string;
   workflowId: string;
   parentWorkflowId: string;
   openedDialogType: PipelinesPageDialogType;
   mountedDialogType: PipelinesPageDialogType;
-  _nextDialog?: Required<DialogParams>;
+  _nextDialog?: DialogParams;
+  selectionParent?: SelectionParent;
 };
 
 type DialogParams = {
   type: PipelinesPageDialogType;
-  stepIndex?: number;
+  selectedStepIndices?: number[];
   pipelineId?: string;
   stepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
+  selectionParent?: SelectionParent;
 };
 
 type Action = {
   setPipelineId: (pipelineId?: string) => void;
   setWorkflowId: (workflowId?: string) => void;
-  setStepIndex: (stepIndex?: number) => void;
+  setStepBundleId: (stepBundleId?: string) => void;
+  setSelectedStepIndices: (stepIndices?: number[]) => void;
+  setSelectionParent: (selectionParent?: SelectionParent) => void;
   isDialogOpen: (type: PipelinesPageDialogType) => boolean;
   isDialogMounted: (type: PipelinesPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -45,7 +54,7 @@ type Action = {
 };
 
 export const usePipelinesPageStore = create<State & Action>((set, get) => ({
-  stepIndex: -1,
+  selectedStepIndices: [],
   pipelineId: '',
   stepBundleId: '',
   workflowId: '',
@@ -62,9 +71,19 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
       workflowId,
     }));
   },
-  setStepIndex: (stepIndex = -1) => {
+  setStepBundleId: (stepBundleId = '') => {
     return set(() => ({
-      stepIndex,
+      stepBundleId,
+    }));
+  },
+  setSelectedStepIndices: (selectedStepIndices = []) => {
+    return set(() => ({
+      selectedStepIndices,
+    }));
+  },
+  setSelectionParent: (selectionParent?: SelectionParent) => {
+    return set(() => ({
+      selectionParent,
     }));
   },
   openDialog: ({
@@ -73,7 +92,8 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     stepBundleId = '',
     workflowId = '',
     parentWorkflowId = '',
-    stepIndex = -1,
+    selectedStepIndices = [],
+    selectionParent,
   }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
@@ -83,11 +103,12 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
           return {
             _nextDialog: {
               type,
-              stepIndex,
+              selectedStepIndices,
               pipelineId,
               stepBundleId,
               workflowId,
               parentWorkflowId,
+              selectionParent,
             },
           };
         }
@@ -96,11 +117,12 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
           pipelineId,
           stepBundleId,
           workflowId,
-          stepIndex,
+          selectedStepIndices,
           parentWorkflowId,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
+          selectionParent,
         };
       });
     };
@@ -116,12 +138,20 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
+      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+        return {
+          selectedStepIndices: [],
+          pipelineId: '',
+          stepBundleId: '',
+          workflowId: '',
+          parentWorkflowId: '',
+          nextDialog: undefined,
+          openedDialogType: PipelinesPageDialogType.NONE,
+          mountedDialogType: PipelinesPageDialogType.NONE,
+        };
+      }
+
       return {
-        stepIndex: -1,
-        pipelineId: '',
-        stepBundleId: '',
-        workflowId: '',
-        parentWorkflowId: '',
         nextDialog: undefined,
         openedDialogType: PipelinesPageDialogType.NONE,
         mountedDialogType: PipelinesPageDialogType.NONE,

@@ -1,4 +1,4 @@
-import { memo, ReactNode, useMemo } from 'react';
+import { memo, ReactNode, useMemo, MouseEvent } from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
@@ -144,7 +144,15 @@ const StepCard = ({
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
   const handleClick = isButton
-    ? () => onSelectStep?.({ stepIndex, type: library, stepBundleId, wfId: workflowId })
+    ? (e: MouseEvent<HTMLDivElement>) => {
+        onSelectStep?.({
+          isMultiple: e.ctrlKey || e.metaKey,
+          stepIndex,
+          type: library,
+          stepBundleId,
+          wfId: workflowId,
+        });
+      }
     : undefined;
   const cardProps = useMemo(() => {
     const common: CardProps = {

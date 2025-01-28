@@ -1,11 +1,14 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
-import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfigDrawer/StepBundleConfigDrawer';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 
-const Drawers = () => {
-  const { stepBundleId, stepIndex, openDialog, closeDialog, isDialogOpen, unmountDialog, isDialogMounted } =
+type Props = {
+  stepBundleId: string;
+};
+
+const Drawers = ({ stepBundleId }: Props) => {
+  const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices } =
     useStepBundlesPageStore();
 
   const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
@@ -17,11 +20,10 @@ const Drawers = () => {
   const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStepToStepBundle = (cvs: string) => {
-    addStepToStepBundle(stepBundleId, cvs, stepIndex);
+    addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
     openDialog({
       type: StepBundlesPageDialogType.STEP_CONFIG,
-      stepBundleId,
-      stepIndex,
+      selectedStepIndices,
     })();
   };
 
@@ -45,19 +47,8 @@ const Drawers = () => {
           size="lg"
           stepBundleId={stepBundleId}
           workflowId=""
-          stepIndex={stepIndex}
+          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_CONFIG)}
-          onClose={closeDialog}
-          onCloseComplete={unmountDialog}
-        />
-      )}
-
-      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE) && (
-        <StepBundleConfigDrawer
-          size="lg"
-          workflowId=""
-          stepIndex={stepIndex}
-          isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
@@ -71,7 +62,7 @@ const Drawers = () => {
           onClose={closeDialog}
           onSelectStep={handleAddStepToStepBundle}
           onCloseComplete={unmountDialog}
-          showStepBundles={!stepBundleId}
+          showStepBundles={false}
         />
       )}
     </>

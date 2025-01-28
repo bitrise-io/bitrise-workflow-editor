@@ -2,29 +2,25 @@ import { create } from 'zustand';
 
 export enum StepBundlesPageDialogType {
   NONE,
-  STEP_BUNDLE,
+  CREATE_STEP_BUNDLE,
   STEP_CONFIG,
   STEP_SELECTOR,
-  CREATE_STEP_BUNDLE,
-  STEP_BUNDLE_CONFIG,
 }
 
 type DialogParams = {
   type: StepBundlesPageDialogType;
-  stepIndex?: number;
-  stepBundleId?: string;
+  selectedStepIndices?: number[];
 };
 
 type State = {
-  stepIndex: number;
-  stepBundleId: string;
+  selectedStepIndices: number[];
   openedDialogType: StepBundlesPageDialogType;
   mountedDialogType: StepBundlesPageDialogType;
   _nextDialog?: Required<DialogParams>;
 };
 
 type Action = {
-  setStepIndex: (stepIndex?: number) => void;
+  setSelectedStepIndices: (stepIndices?: number[]) => void;
   isDialogOpen: (type: StepBundlesPageDialogType) => boolean;
   isDialogMounted: (type: StepBundlesPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -33,13 +29,12 @@ type Action = {
 };
 
 export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
-  stepIndex: -1,
-  stepBundleId: '',
+  selectedStepIndices: [],
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
-  setStepIndex: (stepIndex = -1) => {
+  setSelectedStepIndices: (selectedStepIndices = []) => {
     return set(() => ({
-      stepIndex,
+      selectedStepIndices,
     }));
   },
   isDialogOpen: (type) => {
@@ -48,7 +43,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, stepBundleId = '', stepIndex = -1 }) => {
+  openDialog: ({ type, selectedStepIndices = [] }) => {
     return () => {
       return set(({ openedDialogType, closeDialog }) => {
         if (openedDialogType !== StepBundlesPageDialogType.NONE) {
@@ -57,15 +52,13 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
           return {
             _nextDialog: {
               type,
-              stepIndex,
-              stepBundleId,
+              selectedStepIndices,
             },
           };
         }
 
         return {
-          stepIndex,
-          stepBundleId,
+          selectedStepIndices,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
@@ -84,8 +77,16 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
+      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+        return {
+          selectedStepIndices: [],
+          nextDialog: undefined,
+          openedDialogType: StepBundlesPageDialogType.NONE,
+          mountedDialogType: StepBundlesPageDialogType.NONE,
+        };
+      }
+
       return {
-        stepIndex: -1,
         nextDialog: undefined,
         openedDialogType: StepBundlesPageDialogType.NONE,
         mountedDialogType: StepBundlesPageDialogType.NONE,
