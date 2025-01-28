@@ -111,7 +111,7 @@ const ConfigurationTab = () => {
           stepId={data?.id}
           title={title}
           defaults={defaults}
-          inputs={groupStepInputs(userValues.inputs)?.[title]}
+          inputs={userValues.inputs}
           onChange={onInputValueChange}
         />
       ))}
