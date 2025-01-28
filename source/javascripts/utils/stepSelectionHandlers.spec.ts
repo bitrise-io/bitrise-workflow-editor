@@ -26,12 +26,12 @@ describe('moveStepIndices', () => {
     expect(result).toEqual([0, 1]);
   });
 
-  test('cloen a selected', () => {
+  test('clone a selected', () => {
     const result = moveStepIndices('clone', [1], 1);
     expect(result).toEqual([2]);
   });
 
-  test('cloen a not selected', () => {
+  test('clone a not selected', () => {
     const result = moveStepIndices('clone', [1], 0);
     expect(result).toEqual([2]);
   });
