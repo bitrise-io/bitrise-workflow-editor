@@ -3408,7 +3408,7 @@ describe('BitriseYmlService', () => {
   });
 
   describe('groupStepsToStepBundle', () => {
-    it('should add the selected step to step bundles and delete it workflows', () => {
+    it('when a single step is selected, the selected step should be added to step bundles and removed from workflows', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
@@ -3419,14 +3419,60 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         workflows: {
-          wf1: { steps: [{ script: {} }, { 'bundle::bundle1': {} }, { deploy: {} }] },
+          wf1: { steps: [{ script: {} }, { 'bundle::step_bundle': {} }, { deploy: {} }] },
         },
         step_bundles: {
-          bundle1: { steps: [{ clone: {} }] },
+          step_bundle: { steps: [{ clone: {} }] },
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'bundle1', 1, sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when multiple consecutive steps are selected, the selected steps should be added to step bundles and removed from workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ 'bundle::step_bundle': {} }, { deploy: {} }] },
+        },
+        step_bundles: {
+          step_bundle: { steps: [{ script: {} }, { clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when multiple non-consecutive steps are selected, the selected steps should be added to step bundles and removed from workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ 'bundle::step_bundle': {} }, { clone: {} }] },
+        },
+        step_bundles: {
+          step_bundle: { steps: [{ script: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 2], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

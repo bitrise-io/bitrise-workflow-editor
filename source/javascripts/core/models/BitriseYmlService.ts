@@ -282,25 +282,33 @@ function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: Bi
 function groupStepsToStepBundle(
   workflowId: string,
   stepBundleId: string,
-  stepIndex: number,
+  selectedStepIndices: number[],
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.workflows || !copy.workflows?.[workflowId]?.steps) {
     return copy;
   }
 
-  // Remove step from a workflow and make sure that the removed step is not part of a with group or a step bundle
-  const removedSteps = copy.workflows[workflowId].steps.splice(stepIndex, 1).filter((step) => {
-    const { isStep } = StepService;
-    const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
-    const cvs = Object.keys(step)[0];
-    return isStep(cvs, defaultStepLibrary);
-  }) as { [x: string]: StepYmlObject }[];
+  // Remove step / steps from a workflow and make sure that the removed step / steps are not part of a with group or a step bundle
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  const removedSteps = sortedIndices
+    .map((stepIndex) => {
+      if (!copy.workflows) {
+        copy.workflows = {};
+      }
+      return copy.workflows[workflowId].steps?.splice(stepIndex, 1).filter((step) => {
+        const { isStep } = StepService;
+        const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+        const cvs = Object.keys(step)[0];
+        return isStep(cvs, defaultStepLibrary);
+      })[0] as { [x: string]: StepYmlObject };
+    })
+    .reverse();
 
-  // Create and add selected step to the step bundle
+  // Create and add selected step / steps to the step bundle
   copy.step_bundles = {
     ...copy.step_bundles,
     ...{
@@ -310,7 +318,7 @@ function groupStepsToStepBundle(
 
   // Push the created step bundle to the workflow, which contained the selected step / steps
   const steps = copy.workflows[workflowId].steps ?? [];
-  steps.splice(stepIndex, 0, { [`bundle::${stepBundleId}`]: {} });
+  steps.splice(sortedIndices[0], 0, { [`bundle::${stepBundleId}`]: {} });
   copy.workflows[workflowId].steps = steps;
 
   return copy;

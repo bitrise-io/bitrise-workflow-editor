@@ -301,8 +301,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'remove',
         });
       },
-      handleGroupStepsToStepBundle: (workflowId: string, stepBundleId: string, stepIndex: number) => {
-        groupStepsToStepBundle(workflowId, stepBundleId, stepIndex);
+      handleGroupStepsToStepBundle: (workflowId: string, stepBundleId: string) => {
+        groupStepsToStepBundle(workflowId, stepBundleId, selectedStepIndices);
       },
       handleMoveStepInStepBundle: (stepBundleId: string, stepIndex: number, targetIndex: number) => {
         moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);

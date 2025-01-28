@@ -84,7 +84,7 @@ type BitriseYmlStoreState = {
   groupStepsToStepBundle: (
     workflowId: string,
     stepBundleId: string,
-    stepIndex: number,
+    selectedStepIndices: number[],
     baseStepBundleId?: string,
   ) => void;
   moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
@@ -415,10 +415,10 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    groupStepsToStepBundle(workflowId, stepBundleId, stepIndex) {
+    groupStepsToStepBundle(workflowId, stepBundleId, selectedStepIndices) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.groupStepsToStepBundle(workflowId, stepBundleId, stepIndex, state.yml),
+          yml: BitriseYmlService.groupStepsToStepBundle(workflowId, stepBundleId, selectedStepIndices, state.yml),
         };
       });
     },

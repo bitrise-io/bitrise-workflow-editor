@@ -299,10 +299,10 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const handleGroupStepsToStepBundle = useCallback(
-    (wfId: string, stepBundleId: string, stepIndex: number) => {
-      groupStepsToStepBundle(wfId, stepBundleId, stepIndex);
+    (wfId: string, stepBundleId: string) => {
+      groupStepsToStepBundle(wfId, stepBundleId, selectedStepIndices);
     },
-    [groupStepsToStepBundle],
+    [groupStepsToStepBundle, selectedStepIndices],
   );
 
   const handleMoveStepInStepBundle = useCallback(

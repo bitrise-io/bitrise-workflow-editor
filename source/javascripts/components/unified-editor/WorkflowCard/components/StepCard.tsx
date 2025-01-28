@@ -93,8 +93,8 @@ const StepCard = ({
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
-  const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('toggletipDismissed', false);
-  const { isSelected } = useSelection();
+  const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
+  const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
   const {
     onCloneStep,
@@ -155,7 +155,7 @@ const StepCard = ({
   const isClonable = onCloneStep || onCloneStepInStepBundle;
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
-  const handleToggletipDismiss = () => {
+  const handleMultiSelectionAccepted = () => {
     setIsMultiSelectAccepted(true);
   };
 
@@ -270,9 +270,9 @@ const StepCard = ({
               leftIconName="Steps"
               onClick={(e) => {
                 e.stopPropagation();
-                if (onGroupStepsToStepBundle && onSelectStep) {
+                if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
                   const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-                  onGroupStepsToStepBundle(workflowId || '', generatedId, stepIndex);
+                  onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
                   onSelectStep({
                     stepIndex,
                     type: LibraryType.BUNDLE,
@@ -282,7 +282,7 @@ const StepCard = ({
                 }
               }}
             >
-              New bundle with 1 Step
+              New bundle with {selectedStepIndices?.length} Step
             </OverflowMenuItem>
           )}
           <OverflowMenuItem
@@ -398,6 +398,7 @@ const StepCard = ({
     onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
+    selectedStepIndices,
     step,
     stepBundleId,
     stepIndex,
@@ -408,7 +409,7 @@ const StepCard = ({
     <Toggletip
       label="To select multiple Steps, hold '⌘' or 'Ctrl' key."
       learnMoreUrl="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
-      button={{ label: 'Got it', onClick: handleToggletipDismiss }}
+      button={{ label: 'Got it', onClick: handleMultiSelectionAccepted }}
       isOpen={isHighlighted && !isMultiSelectAccepted}
     >
       <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
