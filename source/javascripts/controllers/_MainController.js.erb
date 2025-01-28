@@ -655,15 +655,23 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         };
 
         function reloadConfigurations() {
+          const isStackAndMachinesMenu = viewModel.currentMenu.id === "stack";
+
+          if (isStackAndMachinesMenu) {
+            viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+          }
+
           return $q.all([
             appService.getAppConfig(true),
             appService.getAppConfigYML(true),
           ]).then(() => {
-            if (viewModel.currentMenu.id === "stack") {
+            if (isStackAndMachinesMenu) {
               return appService.getStackAndDockerImage(true);
             }
 
             return $q.resolve();
+          }).finally(() => {
+            viewModel.loadDataProgress.reset();
           });
         }
 

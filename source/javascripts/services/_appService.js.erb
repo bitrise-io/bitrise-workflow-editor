@@ -569,15 +569,15 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         if (!appConfig.meta[BITRISE_META_KEY]) {
           appConfig.meta[BITRISE_META_KEY] = {};
         }
-        appConfig.meta[BITRISE_META_KEY].stack = stack.id;
-        if (dockerImage) {
-          appConfig.meta[BITRISE_META_KEY].docker_image = dockerImage;
+        appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
+        if (appService.dockerImage) {
+          appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
         } else {
           delete appConfig.meta[BITRISE_META_KEY].docker_image;
         }
 
-        if (rollbackVersion) {
-          appConfig.meta[BITRISE_META_KEY].stack_rollback_version = rollbackVersion;
+        if (appService.rollbackVersion) {
+          appConfig.meta[BITRISE_META_KEY].stack_rollback_version = appService.rollbackVersion;
         } else {
           delete appConfig.meta[BITRISE_META_KEY].stack_rollback_version;
         }

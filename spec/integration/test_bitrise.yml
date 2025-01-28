@@ -177,7 +177,14 @@ workflows:
       opts:
         is_expand: false
     steps:
-    - git-clone@8: {}
+    - gradle-runner@3:
+        inputs:
+        - gradle_file: ./gradle
+    - git-clone@8:
+        inputs:
+        - clone_depth: 5
+        - update_submodules: "no"
+        - merge_pr: "no"
     - script@1:
         inputs:
         - content: echo "Hello Bitrise!"
@@ -293,8 +300,7 @@ workflows:
     steps:
     - git::https://github.com/bitrise-steplib/steps-script:
         title: A script step referenced by git URL
-        summary: All non-overwritten attributes should be the step's default value
-          from step.yml in the step's repository.
+        summary: All non-overwritten attributes should be the step's default value from step.yml in the step's repository.
         inputs:
         - content: |
             #!/usr/bin/env bash
