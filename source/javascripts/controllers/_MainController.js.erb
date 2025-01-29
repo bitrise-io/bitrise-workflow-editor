@@ -642,6 +642,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           if (isRepositorySavedYml) {
             viewModel.isUpdateConfigurationDialogOpen = true;
             viewModel.deferredUserSavedYmlToRepository = $q.defer();
+            viewModel.dataToSave = viewModel.currentMenu.id === "yml" ? finalYaml : appService.appConfig;
             return viewModel.deferredUserSavedYmlToRepository.promise;
           }
 
@@ -688,17 +689,18 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             .then((finalYaml) => saveConfigBasedOnMenu(finalYaml))
             .then(() => reloadConfigurations())
             .then(() => {
+              const forceReload = configMergeDialog.getState().isOpen || isRepositorySavedYml;
+
               updateLastWorkflowMetadata();
-              const forceReload = configMergeDialog.getState().isOpen;
-
-              if (forceReload) {
-                configMergeDialog.setState(configMergeDialog.getInitialState());
-              }
-
               viewModel.saveProgress.reset();
+              configMergeDialog.setState(configMergeDialog.getInitialState());
+
               $rootScope.$emit("MainController::saveSuccess", { forceReload, menu: viewModel.currentMenu.id });
             }).catch((error) => {
-              if (!error) return $q.resolve();
+              if (!error) {
+                viewModel.saveProgress.reset();
+                return $q.resolve();
+              }
 
               segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: viewModel.currentMenu.id });
 
