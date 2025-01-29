@@ -32,9 +32,11 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject): PipelineYmlObject 
     return pipeline;
   }
 
-  // TODO: Implement conversion
+  const { stages, ...newPipeline } = pipeline;
 
-  return EMPTY_PIPELINE;
+  // TODO: Convert stages to workflows
+
+  return { ...newPipeline, workflows: {} };
 }
 
 export default {
