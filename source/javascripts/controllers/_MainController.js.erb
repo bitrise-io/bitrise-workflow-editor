@@ -187,6 +187,10 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           isLoading: true,
           errorMessage: "",
         });
+
+        segmentTrack("Workflow Editor Config Merge Popup Save Results Button Clicked", {
+          tab_name: viewModel.currentMenu.id
+        });
       }
 
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
