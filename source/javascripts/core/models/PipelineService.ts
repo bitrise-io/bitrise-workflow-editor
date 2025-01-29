@@ -53,12 +53,20 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml =
     // Add each workflow with dependencies if needed
     currentWorkflows.forEach((workflow) => {
       const [workflowName] = Object.keys(workflow);
+      const workflowObj = workflow[workflowName];
 
-      workflows[workflowName] = previousWorkflows.length
-        ? {
-            depends_on: previousWorkflows,
-          }
-        : {};
+      workflows[workflowName] = {
+        ...(previousWorkflows.length && { depends_on: previousWorkflows }),
+        ...(stage.abort_on_fail !== undefined && {
+          abort_on_fail: stage.abort_on_fail,
+        }),
+        ...(stage.should_always_run !== undefined && {
+          should_always_run: stage.should_always_run ? 'workflow' : 'off',
+        }),
+        ...(workflowObj.run_if && {
+          run_if: { expression: workflowObj.run_if },
+        }),
+      };
     });
 
     // Update previous workflows for next iteration
