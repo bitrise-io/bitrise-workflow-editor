@@ -1485,7 +1485,10 @@ describe('BitriseYmlService', () => {
             title: 'Stage Pipeline',
             stages: [{ st1: {} }],
           },
-          pl2: { workflows: {} },
+          pl2: {
+            title: 'Stage Pipeline',
+            workflows: {},
+          },
         },
         stages: {
           st1: { workflows: [{ wf1: {} }] },
