@@ -165,10 +165,16 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         }
       }
 
-      viewModel.closeConfigMergeDialog = function () {
+      viewModel.closeConfigMergeDialog = function (method) {
         viewModel.saveProgress.reset();
         viewModel.deferredConflictResolution.reject();
+
         configMergeDialog.setState(configMergeDialog.getInitialState());
+
+        segmentTrack("Workflow Editor Config Merge Popup Dismissed", {
+          tab_name: viewModel.currentMenu.id,
+          popup_step_dismiss_method: method,
+        });
       }
 
       viewModel.saveConfigMergeDialogResult = function () {

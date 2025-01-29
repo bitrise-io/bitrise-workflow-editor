@@ -19,8 +19,9 @@ import { configMergeDialog, useConfigMergeDialog } from './ConfigMergeDialog.sto
 
 loader.config({ monaco });
 
-type Props = Omit<DialogProps, 'title' | 'isOpen'> & {
+type Props = Omit<DialogProps, 'title' | 'isOpen' | 'onClose'> & {
   onSave: VoidFunction;
+  onClose: (method: 'close_button' | 'cancel_button') => void;
 };
 
 const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
@@ -145,10 +146,10 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
       <Dialog
         size="full"
         isOpen={isOpen}
-        onClose={onClose}
         title="Review changes"
         isClosable={!isLoading}
         minHeight={['100dvh', 'unset']}
+        onClose={() => onClose('close_button')}
         {...props}
       >
         <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
@@ -230,7 +231,7 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
         </DialogBody>
         <DialogFooter>
           <ButtonGroup spacing={16}>
-            <Button variant="secondary" isDisabled={isLoading} onClick={onClose}>
+            <Button variant="secondary" isDisabled={isLoading} onClick={() => onClose('cancel_button')}>
               Cancel
             </Button>
             <Button variant="primary" isLoading={isLoading} onClick={onSave}>
