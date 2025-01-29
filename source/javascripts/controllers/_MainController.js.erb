@@ -640,6 +640,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
 
         function saveConfigBasedOnMenu(finalYaml) {
           if (isRepositorySavedYml) {
+            viewModel.isUpdateConfigurationDialogOpen = true;
             viewModel.deferredUserSavedYmlToRepository = $q.defer();
             return viewModel.deferredUserSavedYmlToRepository.promise;
           }
