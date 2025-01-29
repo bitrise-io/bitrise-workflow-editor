@@ -288,7 +288,7 @@ function groupStepsToStepBundle(
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
-  if (selectedStepIndices.length === 0 || !copy.workflows || !copy.workflows?.[workflowId]?.steps) {
+  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
     return copy;
   }
 
@@ -296,10 +296,7 @@ function groupStepsToStepBundle(
   const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
   const removedSteps = sortedIndices
     .map((stepIndex) => {
-      if (!copy.workflows) {
-        copy.workflows = {};
-      }
-      return copy.workflows[workflowId].steps?.splice(stepIndex, 1).filter((step) => {
+      return copy.workflows?.[workflowId].steps?.splice(stepIndex, 1).filter((step) => {
         const { isStep } = StepService;
         const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
         const cvs = Object.keys(step)[0];
