@@ -616,7 +616,7 @@ function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: st
 
   copy.pipelines = {
     ...copy.pipelines,
-    [pipelineId]: PipelineService.convertToGraphPipeline(basePipeline), // NOTE: If the base pipeline is a graph pipeline, it will be returned as is
+    [pipelineId]: PipelineService.convertToGraphPipeline(basePipeline, yml.stages), // NOTE: If the base pipeline is a graph pipeline, it will be returned as is
   };
 
   return copy;
