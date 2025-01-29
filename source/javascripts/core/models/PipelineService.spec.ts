@@ -52,7 +52,14 @@ describe('PipelineService', () => {
 
     it('returns an empty pipeline if the input is a staged pipeline', () => {
       const pipeline: PipelineYmlObject = { stages: [] };
-      expect(PipelineService.convertToGraphPipeline(pipeline)).toBe(PipelineService.EMPTY_PIPELINE);
+      expect(PipelineService.convertToGraphPipeline(pipeline)).toEqual(PipelineService.EMPTY_PIPELINE);
+    });
+
+    it('copy pipeline properties to the new graph pipeline', () => {
+      const stagedPipeline: PipelineYmlObject = { title: 'Staged Pipeline', stages: [], triggers: { push: [] } };
+      const graphPipeline = PipelineService.convertToGraphPipeline(stagedPipeline);
+      const expectedPipeline: PipelineYmlObject = { title: 'Staged Pipeline', workflows: {}, triggers: { push: [] } };
+      expect(graphPipeline).toEqual(expectedPipeline);
     });
   });
 });
