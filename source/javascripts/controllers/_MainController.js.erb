@@ -619,6 +619,12 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
                 return $q.resolve({ finalYaml: yourYaml, shouldReCheckRemoteChanges: false });
               }
 
+              if (!configMergeDialog.getState().isOpen) {
+                segmentTrack('Workflow Editor Config Merge Popup Shown', {
+                  tab_name: viewModel.currentMenu.id,
+                });
+              }
+
               configMergeDialog.setState({
                 yourYaml,
                 baseYaml,
