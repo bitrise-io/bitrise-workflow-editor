@@ -48,6 +48,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
       addStep(workflowId, cvs, selectedStepIndices[0]);
+      openDialog({
+        type: WorkflowsPageDialogType.STEP_BUNDLE,
+        workflowId,
+        selectedStepIndices,
+      });
     } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
       openDialog({

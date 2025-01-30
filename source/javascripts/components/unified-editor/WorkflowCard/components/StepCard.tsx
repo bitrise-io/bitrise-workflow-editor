@@ -30,7 +30,6 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import generateUniqueEntityId from '@/components/unified-editor/utils/generateUniqueEntityId';
-import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -109,7 +108,6 @@ const StepCard = ({
   } = useStepActions();
 
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
-  const setSelectedStepIndices = useWorkflowsPageStore((s) => s.setSelectedStepIndices);
 
   const {
     error,
@@ -160,7 +158,6 @@ const StepCard = ({
   const handleMultiSelectionAccepted = () => {
     setIsMultiSelectAccepted(true);
   };
-
   const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
         onSelectStep?.({
@@ -245,9 +242,6 @@ const StepCard = ({
             iconName: 'MoreVertical',
             onClick: (e) => {
               e.stopPropagation();
-              if (selectedStepIndices?.length === 0) {
-                setSelectedStepIndices([stepIndex]);
-              }
             },
             display: 'none',
             _groupHover: { display: 'inline-flex' },
@@ -277,7 +271,11 @@ const StepCard = ({
                 e.stopPropagation();
                 if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
                   const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-                  onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
+                  if (isHighlighted) {
+                    onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
+                  } else {
+                    onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
+                  }
                   onSelectStep({
                     stepIndex,
                     type: LibraryType.BUNDLE,
@@ -287,7 +285,7 @@ const StepCard = ({
                 }
               }}
             >
-              New bundle with {selectedStepIndices?.length} Step
+              New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
             </OverflowMenuItem>
           )}
           <OverflowMenuItem
@@ -390,6 +388,7 @@ const StepCard = ({
     existingStepBundleIds,
     isClonable,
     isDragging,
+    isHighlighted,
     isRemovable,
     isStep,
     isUpgradable,
@@ -404,7 +403,6 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
     selectedStepIndices,
-    setSelectedStepIndices,
     step,
     stepBundleId,
     stepIndex,
