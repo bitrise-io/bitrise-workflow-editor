@@ -1440,7 +1440,7 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should create a pipeline based on an other pipeline', () => {
+    it('should create a pipeline based on an other graph pipeline', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
@@ -1453,6 +1453,58 @@ describe('BitriseYmlService', () => {
         pipelines: {
           pl1: { title: 'Pipeline Title', workflows: { wf1: {} } },
           pl2: { title: 'Pipeline Title', workflows: { wf1: {} } },
+        },
+      };
+
+      const actualYml = BitriseYmlService.createPipeline('pl2', sourceYml, 'pl1');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should create a pipeline based on a staged pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            title: 'Stage Pipeline',
+            stages: [{ st1: {} }, { st2: {} }],
+          },
+        },
+        stages: {
+          st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }, { wf3: {} }] },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+          wf3: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            title: 'Stage Pipeline',
+            stages: [{ st1: {} }, { st2: {} }],
+          },
+          pl2: {
+            title: 'Stage Pipeline',
+            workflows: {
+              wf1: {},
+              wf2: { depends_on: ['wf1'] },
+              wf3: { depends_on: ['wf1'] },
+            },
+          },
+        },
+        stages: {
+          st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }, { wf3: {} }] },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+          wf3: {},
         },
       };
 

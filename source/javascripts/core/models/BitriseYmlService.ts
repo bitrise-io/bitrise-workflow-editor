@@ -2,6 +2,7 @@ import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } 
 import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
+import PipelineService from '@/core/models/PipelineService';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
@@ -649,11 +650,15 @@ function removeChainedWorkflow(
 function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  const emptyGraphPipeline = { workflows: {} };
+  let basePipeline: PipelineYmlObject = PipelineService.EMPTY_PIPELINE;
+
+  if (basePipelineId && copy.pipelines?.[basePipelineId]) {
+    basePipeline = copy.pipelines[basePipelineId];
+  }
 
   copy.pipelines = {
     ...copy.pipelines,
-    [pipelineId]: basePipelineId ? (copy.pipelines?.[basePipelineId] ?? emptyGraphPipeline) : emptyGraphPipeline,
+    [pipelineId]: PipelineService.convertToGraphPipeline(basePipeline, yml.stages), // NOTE: If the base pipeline is a graph pipeline, it will be returned as is
   };
 
   return copy;
