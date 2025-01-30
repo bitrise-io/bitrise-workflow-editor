@@ -8,9 +8,11 @@ import {
   ButtonGroup,
   Card,
   CardProps,
+  ColorButton,
   ControlButton,
   Divider,
   Icon,
+  Link,
   OverflowMenu,
   OverflowMenuItem,
   Skeleton,
@@ -18,6 +20,7 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from '@chakra-ui/react';
 import { useLocalStorage } from 'usehooks-ts';
 import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
@@ -105,8 +108,6 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
   } = useStepActions();
-
-  console.log({ isMultiSelectAccepted, setIsMultiSelectAccepted });
 
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
@@ -427,41 +428,71 @@ const StepCard = ({
               </Box>
             </Skeleton>
           ) : (
-            <Box
-              p="4"
-              pl={isSortable ? 0 : 4}
-              gap="8"
-              flex="1"
-              minW={0}
-              display="flex"
-              onClick={handleClick}
-              role={isButton ? 'button' : 'div'}
-            >
-              <Avatar
-                size="32"
-                src={icon}
-                name={title}
-                variant="step"
-                outline="1px solid"
-                outlineColor="border/minimal"
-                backgroundColor="background/primary"
-              />
-
-              <Box minW={0} textAlign="left" flex="1">
-                <Text textStyle="body/sm/regular" hasEllipsis>
-                  {title}
-                </Text>
-                {showSecondary && (
-                  <StepSecondaryText
-                    isUpgradable={isUpgradable}
-                    errorText={error ? 'Failed to load Step' : undefined}
-                    resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+            <Popover isLazy isOpen={isHighlighted && selectedStepIndices.length === 1} placement="top">
+              <PopoverAnchor>
+                <Box
+                  p="4"
+                  pl={isSortable ? 0 : 4}
+                  gap="8"
+                  flex="1"
+                  minW={0}
+                  display="flex"
+                  onClick={handleClick}
+                  role={isButton ? 'button' : 'div'}
+                >
+                  <Avatar
+                    size="32"
+                    src={icon}
+                    name={title}
+                    variant="step"
+                    outline="1px solid"
+                    outlineColor="border/minimal"
+                    backgroundColor="background/primary"
                   />
-                )}
-              </Box>
 
-              {buttonGroup}
-            </Box>
+                  <Box minW={0} textAlign="left" flex="1">
+                    <Text textStyle="body/sm/regular" hasEllipsis>
+                      {title}
+                    </Text>
+                    {showSecondary && (
+                      <StepSecondaryText
+                        isUpgradable={isUpgradable}
+                        errorText={error ? 'Failed to load Step' : undefined}
+                        resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                      />
+                    )}
+                  </Box>
+
+                  {buttonGroup}
+                </Box>
+              </PopoverAnchor>
+              {!isMultiSelectAccepted && (
+                <PopoverContent
+                  background="neutral.10"
+                  color="neutral.100"
+                  sx={{
+                    '--popper-arrow-bg': '#201b22',
+                  }}
+                >
+                  <PopoverArrow />
+                  <PopoverBody color="neutral.100" padding="16" textStyle="body/md/regular">
+                    <Text marginBlockEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Link
+                        colorScheme="purple"
+                        href="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
+                        isExternal
+                      >
+                        Learn more
+                      </Link>
+                      <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
+                        Got it
+                      </ColorButton>
+                    </Box>
+                  </PopoverBody>
+                </PopoverContent>
+              )}
+            </Popover>
           )}
         </>
       )}
