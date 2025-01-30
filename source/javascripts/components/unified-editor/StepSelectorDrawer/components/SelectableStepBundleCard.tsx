@@ -41,7 +41,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
         </Card>
       </PopoverTrigger>
       <PopoverContent width={320}>
-        <WorkflowCardContextProvider>
+        <WorkflowCardContextProvider selectedStepIndices={[]}>
           <StepBundleCard
             uniqueId=""
             stepIndex={-1}

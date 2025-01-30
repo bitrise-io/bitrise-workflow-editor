@@ -299,11 +299,16 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const handleGroupStepsToStepBundle = useCallback(
-    (wfId: string, stepBundleId: string, stepIndices: number[]) => {
-      groupStepsToStepBundle(wfId, stepBundleId, stepIndices);
+    (wfId: string, newStepBundleId: string, stepIndices: number[]) => {
+      groupStepsToStepBundle(wfId, newStepBundleId, stepIndices);
       setSelectedStepIndices([Math.min(...stepIndices)]);
+      openDialog({
+        type: WorkflowsPageDialogType.STEP_BUNDLE,
+        workflowId: wfId,
+        selectedStepIndices: [Math.min(...stepIndices)],
+      })();
     },
-    [groupStepsToStepBundle, setSelectedStepIndices],
+    [groupStepsToStepBundle, openDialog, setSelectedStepIndices],
   );
 
   const handleMoveStepInStepBundle = useCallback(

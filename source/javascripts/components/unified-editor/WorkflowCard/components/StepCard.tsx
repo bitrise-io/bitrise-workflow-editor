@@ -25,7 +25,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/models/StepService';
-import { LibraryType, Step } from '@/core/models/Step';
+import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
@@ -248,7 +248,7 @@ const StepCard = ({
             _active: { display: 'inline-flex' },
           }}
         >
-          {isUpgradable && (
+          {isUpgradable && (selectedStepIndices.length === 1 || !isHighlighted) && (
             <OverflowMenuItem
               leftIconName="ArrowUp"
               onClick={(e) => {
@@ -276,32 +276,28 @@ const StepCard = ({
                   } else {
                     onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
                   }
-                  onSelectStep({
-                    stepIndex,
-                    type: LibraryType.BUNDLE,
-                    stepBundleId: generatedId,
-                    wfId: workflowId,
-                  });
                 }
               }}
             >
               New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
             </OverflowMenuItem>
           )}
-          <OverflowMenuItem
-            leftIconName="Duplicate"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onCloneStep) {
-                onCloneStep(workflowId, stepIndex);
-              }
-              if (stepBundleId && onCloneStepInStepBundle) {
-                onCloneStepInStepBundle(stepBundleId, stepIndex);
-              }
-            }}
-          >
-            Duplicate Step
-          </OverflowMenuItem>
+          {(selectedStepIndices.length === 1 || !isHighlighted) && (
+            <OverflowMenuItem
+              leftIconName="Duplicate"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (workflowId && onCloneStep) {
+                  onCloneStep(workflowId, stepIndex);
+                }
+                if (stepBundleId && onCloneStepInStepBundle) {
+                  onCloneStepInStepBundle(stepBundleId, stepIndex);
+                }
+              }}
+            >
+              Duplicate Step
+            </OverflowMenuItem>
+          )}
           <Divider my="8" />
           <OverflowMenuItem
             isDanger

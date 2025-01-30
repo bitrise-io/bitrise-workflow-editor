@@ -3,11 +3,11 @@ import { pick } from 'es-toolkit';
 import { StepActions, WorkflowActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 type State = {
-  selectedWorkflowId: string;
+  selectedWorkflowId?: string;
   selectedStepIndices: number[];
 };
 type Actions = StepActions & WorkflowActions;
-type ContextState = Partial<State> & Actions;
+type ContextState = State & Actions;
 
 const WorkflowCardContext = createContext<ContextState | undefined>(undefined);
 
@@ -41,7 +41,7 @@ function useSelection() {
     () => ({
       ...selection,
       isSelected: (workflowId: string, stepIndex: number = -1) => {
-        return selection.selectedWorkflowId === workflowId && selection.selectedStepIndices?.includes(stepIndex);
+        return selection.selectedWorkflowId === workflowId && selection.selectedStepIndices.includes(stepIndex);
       },
     }),
     [selection],
