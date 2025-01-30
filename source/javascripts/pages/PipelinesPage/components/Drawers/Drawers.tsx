@@ -31,6 +31,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     unmountDialog,
     setWorkflowId,
     isDialogMounted,
+    setStepBundleId,
   } = usePipelinesPageStore();
 
   const { addStep, addStepToStepBundle, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } =
@@ -48,6 +49,12 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
       addStep(workflowId, cvs, selectedStepIndices[0]);
+      openDialog({
+        type: PipelinesPageDialogType.STEP_BUNDLE,
+        workflowId,
+        stepBundleId: id,
+        selectedStepIndices,
+      })();
     } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
       openDialog({
@@ -76,6 +83,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const handleRenameWorkflow = (newWorkflowId: string) => {
     setWorkflowId(newWorkflowId);
     setSearchParams((p) => (p.workflow_id === workflowId ? { ...p, workflow_id: newWorkflowId } : p));
+  };
+
+  const handleRenameStepBundle = (newStepBundleId: string) => {
+    setStepBundleId(newStepBundleId);
+    setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
   return (
@@ -134,12 +146,11 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
         <StepBundleConfigDrawer
           size="md"
-          workflowId={workflowId}
           stepBundleId={stepBundleId}
-          stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
+          onRename={handleRenameStepBundle}
         />
       )}
 

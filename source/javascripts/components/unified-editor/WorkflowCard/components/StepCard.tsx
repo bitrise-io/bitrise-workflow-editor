@@ -16,7 +16,6 @@ import {
   Skeleton,
   SkeletonBox,
   Text,
-  Toggletip,
   Tooltip,
 } from '@bitrise/bitkit';
 import { useLocalStorage } from 'usehooks-ts';
@@ -107,6 +106,8 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
+  console.log({ isMultiSelectAccepted, setIsMultiSelectAccepted });
+
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
   const {
@@ -155,9 +156,6 @@ const StepCard = ({
   const isClonable = onCloneStep || onCloneStepInStepBundle;
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
-  const handleMultiSelectionAccepted = () => {
-    setIsMultiSelectAccepted(true);
-  };
   const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
         onSelectStep?.({
@@ -406,75 +404,68 @@ const StepCard = ({
   ]);
 
   return (
-    <Toggletip
-      label="To select multiple Steps, hold '⌘' or 'Ctrl' key."
-      learnMoreUrl="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
-      button={{ label: 'Got it', onClick: handleMultiSelectionAccepted }}
-      isOpen={isHighlighted && !isMultiSelectAccepted}
-    >
-      <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
-        {!isPlaceholder && (
-          <>
-            {isSortable && (
-              <DragHandle
-                withGroupHover
-                borderLeftRadius="4"
-                isDisabled={isLoading}
-                ref={sortable.setActivatorNodeRef}
-                {...sortable.listeners}
-                {...sortable.attributes}
-              />
-            )}
+    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
+      {!isPlaceholder && (
+        <>
+          {isSortable && (
+            <DragHandle
+              withGroupHover
+              borderLeftRadius="4"
+              isDisabled={isLoading}
+              ref={sortable.setActivatorNodeRef}
+              {...sortable.listeners}
+              {...sortable.attributes}
+            />
+          )}
 
-            {isLoading ? (
-              <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
-                <SkeletonBox height="32" width="32" borderRadius="4" />
-                <Box display="flex" flexDir="column" gap="4">
-                  <SkeletonBox height="14" width="150px" />
-                  {showSecondary && <SkeletonBox height="14" width="75px" />}
-                </Box>
-              </Skeleton>
-            ) : (
-              <Box
-                p="4"
-                pl={isSortable ? 0 : 4}
-                gap="8"
-                flex="1"
-                minW={0}
-                display="flex"
-                onClick={handleClick}
-                role={isButton ? 'button' : 'div'}
-              >
-                <Avatar
-                  size="32"
-                  src={icon}
-                  name={title}
-                  variant="step"
-                  outline="1px solid"
-                  outlineColor="border/minimal"
-                  backgroundColor="background/primary"
-                />
-
-                <Box minW={0} textAlign="left" flex="1">
-                  <Text textStyle="body/sm/regular" hasEllipsis>
-                    {title}
-                  </Text>
-                  {showSecondary && (
-                    <StepSecondaryText
-                      isUpgradable={isUpgradable}
-                      errorText={error ? 'Failed to load Step' : undefined}
-                      resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                    />
-                  )}
-                </Box>
-
-                {buttonGroup}
+          {isLoading ? (
+            <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
+              <SkeletonBox height="32" width="32" borderRadius="4" />
+              <Box display="flex" flexDir="column" gap="4">
+                <SkeletonBox height="14" width="150px" />
+                {showSecondary && <SkeletonBox height="14" width="75px" />}
               </Box>
-            )}
-          </>
-        )}
-      </Card>
-    </Toggletip>
+            </Skeleton>
+          ) : (
+            <Box
+              p="4"
+              pl={isSortable ? 0 : 4}
+              gap="8"
+              flex="1"
+              minW={0}
+              display="flex"
+              onClick={handleClick}
+              role={isButton ? 'button' : 'div'}
+            >
+              <Avatar
+                size="32"
+                src={icon}
+                name={title}
+                variant="step"
+                outline="1px solid"
+                outlineColor="border/minimal"
+                backgroundColor="background/primary"
+              />
+
+              <Box minW={0} textAlign="left" flex="1">
+                <Text textStyle="body/sm/regular" hasEllipsis>
+                  {title}
+                </Text>
+                {showSecondary && (
+                  <StepSecondaryText
+                    isUpgradable={isUpgradable}
+                    errorText={error ? 'Failed to load Step' : undefined}
+                    resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                  />
+                )}
+              </Box>
+
+              {buttonGroup}
+            </Box>
+          )}
+        </>
+      )}
+    </Card>
   );
 };
 

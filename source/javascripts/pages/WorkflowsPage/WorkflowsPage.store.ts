@@ -39,6 +39,7 @@ type DialogParams = {
 
 type Action = {
   setWorkflowId: (workflowId?: string) => void;
+  setStepBundleId: (stepBundleId?: string) => void;
   setSelectedStepIndices: (stepIndices?: number[]) => void;
   setSelectionParent: (selectionParent?: SelectionParent) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
@@ -59,6 +60,11 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   setWorkflowId: (workflowId = '') => {
     return set(() => ({
       workflowId,
+    }));
+  },
+  setStepBundleId: (stepBundleId = '') => {
+    return set(() => ({
+      stepBundleId,
     }));
   },
   setSelectedStepIndices: (selectedStepIndices = []) => {

@@ -233,7 +233,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
       }
     },
-    [moveStep, selectedStepIndices, selectionParent?.id, selectionParent?.type, setSelectedStepIndices],
+    [moveStep, selectedStepIndices, selectionParent, setSelectedStepIndices],
   );
 
   const handleCloneStep = useCallback(
@@ -305,6 +305,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       openDialog({
         type: WorkflowsPageDialogType.STEP_BUNDLE,
         workflowId: wfId,
+        stepBundleId: newStepBundleId,
         selectedStepIndices: [Math.min(...stepIndices)],
       })();
     },

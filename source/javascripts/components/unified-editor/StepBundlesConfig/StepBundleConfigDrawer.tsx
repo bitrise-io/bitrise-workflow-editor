@@ -1,7 +1,4 @@
 import { Notification, Text } from '@bitrise/bitkit';
-import useStep from '@/hooks/useStep';
-import StepService from '@/core/models/StepService';
-import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
@@ -17,25 +14,15 @@ import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  workflowId: string;
   stepBundleId: string;
-  stepIndex: number;
+  onRename: (name: string) => void;
 };
 
-const StepBundleConfigDrawerContent = ({ workflowId, stepIndex, ...props }: Props) => {
-  const { data } = useStep({ workflowId, stepIndex });
-  const defaultStepLibrary = useDefaultStepLibrary();
-  const stepBundleId = data?.title;
+const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, ...props }: Props) => {
   const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
   const { replace } = useNavigation();
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
-
-  const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
-
-  if (!isStepBundle || !data) {
-    return null;
-  }
 
   return (
     <FloatingDrawer {...props}>
@@ -53,7 +40,7 @@ const StepBundleConfigDrawerContent = ({ workflowId, stepIndex, ...props }: Prop
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {enableStepBundles ? (
-            <StepBundlePropertiesTab />
+            <StepBundlePropertiesTab onRename={onRename} />
           ) : (
             <Notification
               action={{

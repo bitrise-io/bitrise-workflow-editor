@@ -301,8 +301,15 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'remove',
         });
       },
-      handleGroupStepsToStepBundle: (workflowId: string, stepBundleId: string) => {
-        groupStepsToStepBundle(workflowId, stepBundleId, selectedStepIndices);
+      handleGroupStepsToStepBundle: (workflowId: string, newStepBundleId: string, stepIndices: number[]) => {
+        groupStepsToStepBundle(workflowId, newStepBundleId, stepIndices);
+        setSelectedStepIndices([Math.min(...stepIndices)]);
+        openDialog({
+          type: PipelinesPageDialogType.STEP_BUNDLE,
+          workflowId,
+          stepBundleId: newStepBundleId,
+          selectedStepIndices: [Math.min(...stepIndices)],
+        })();
       },
       handleMoveStepInStepBundle: (stepBundleId: string, stepIndex: number, targetIndex: number) => {
         moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
