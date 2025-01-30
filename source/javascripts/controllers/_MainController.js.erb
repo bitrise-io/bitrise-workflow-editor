@@ -65,7 +65,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             id: "step_bundles",
             title: "Step bundles",
             path: "step_bundles",
-            possibleURLParameterKeys: ["tab"],
+            possibleURLParameterKeys: ["pipeline", "workflow_id", "tab"],
             cssClass: "step_bundles"
           }
           : null,
@@ -193,7 +193,16 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         });
       }
 
-      $scope.$on("$locationChangeSuccess", function (event, next, current) {
+      $scope.$on("$locationChangeSuccess", function (_, newUrl, oldUrl) {
+        if (window !== window.parent) {
+          const oldHash = new URL(oldUrl).hash;
+          const newHash = new URL(newUrl).hash;
+
+          if (oldHash !== newHash) {
+            window.parent.location.hash = newHash;
+          }
+        }
+
         $timeout(function () {
           viewModel.changeMenuProgress.success();
         }, 0);
@@ -362,7 +371,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             return;
           }
 
-          var menuIDsByHandledSource = [["workflows", "pipelines", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
+          var menuIDsByHandledSource = [["workflows", "pipelines", "step_bundles", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
 
           if (
             _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
@@ -953,27 +962,6 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           }
         ).then(function () {
           selectInitialMenu();
-
-          // NOTE: this is a workaround for the hashchange sync issue between the iframe and the parent window
-          if (window !== window.parent) {
-            window.addEventListener('hashchange', (e) => {
-              const newHash = new URL(e.newURL).hash;
-              const oldHash = window.parent.location.hash;
-
-              if (oldHash !== newHash) {
-                window.parent.location.hash = newHash;
-              }
-            });
-
-            window.parent.addEventListener('hashchange', (e) => {
-              const newHash = new URL(e.newURL).hash;
-              const oldHash = window.location.hash;
-
-              if (oldHash !== newHash) {
-                window.location.hash = newHash;
-              }
-            });
-          }
         });
       };
 
@@ -1085,5 +1073,28 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           viewModel.menuSelected(menu, e.detail.params);
         }
       });
+
+      window.addEventListener('hashchange', (e) => {
+        const oldHash = new URL(e.oldURL).hash;
+        const newHash = new URL(e.newURL).hash;
+
+        if (oldHash !== newHash) {
+          const newMenuPath = newHash.replace('#!/', '')?.split('?')[0];
+          const newParams = Object.fromEntries(new URLSearchParams(new URL(e.newURL).search));
+          const newMenu = viewModel.menus.find(m => m.path === newMenuPath);
+          viewModel.menuSelected(newMenu, newParams);
+        }
+      });
+
+      if (window !== window.parent) {
+        window.parent.addEventListener('hashchange', (e) => {
+          const oldHash = new URL(e.oldURL).hash;
+          const newHash = new URL(e.newURL).hash;
+
+          if (oldHash !== newHash) {
+            window.location.hash = newHash;
+          }
+        });
+      }
     });
 })();
