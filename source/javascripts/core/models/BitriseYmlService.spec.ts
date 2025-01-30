@@ -1467,14 +1467,17 @@ describe('BitriseYmlService', () => {
         pipelines: {
           pl1: {
             title: 'Stage Pipeline',
-            stages: [{ st1: {} }],
+            stages: [{ st1: {} }, { st2: {} }],
           },
         },
         stages: {
           st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }, { wf3: {} }] },
         },
         workflows: {
           wf1: {},
+          wf2: {},
+          wf3: {},
         },
       };
 
@@ -1483,18 +1486,25 @@ describe('BitriseYmlService', () => {
         pipelines: {
           pl1: {
             title: 'Stage Pipeline',
-            stages: [{ st1: {} }],
+            stages: [{ st1: {} }, { st2: {} }],
           },
           pl2: {
             title: 'Stage Pipeline',
-            workflows: {},
+            workflows: {
+              wf1: {},
+              wf2: { depends_on: ['wf1'] },
+              wf3: { depends_on: ['wf1'] },
+            },
           },
         },
         stages: {
           st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }, { wf3: {} }] },
         },
         workflows: {
           wf1: {},
+          wf2: {},
+          wf3: {},
         },
       };
 
