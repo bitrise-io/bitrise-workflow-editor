@@ -68,14 +68,17 @@ describe('PipelineService', () => {
         st5: { workflows: [{ wf5: {} }] },
         st6: { workflows: [{ wf6: {} }] },
       };
-      expect(PipelineService.convertToGraphPipeline(pipeline, stages)).toEqual({
+
+      const expected: PipelineYmlObject = {
         workflows: {
           wf1: {},
           wf2: { depends_on: ['wf1'] },
           wf5: { depends_on: ['wf1'] },
           wf3: { depends_on: ['wf2', 'wf5'] },
         },
-      });
+      };
+
+      expect(PipelineService.convertToGraphPipeline(pipeline, stages)).toEqual(expected);
     });
 
     it('copy pipeline properties to the new graph pipeline', () => {
@@ -91,6 +94,54 @@ describe('PipelineService', () => {
         triggers: { push: [] },
       };
       expect(graphPipeline).toEqual(expectedPipeline);
+    });
+
+    it('copy the run_if, abort_on_fail, and should_always_run properties to the new graph pipeline', () => {
+      const pipeline: PipelineYmlObject = {
+        stages: [{ st1: {} }, { st2: {} }, { st3: {} }],
+      };
+      const stages: StagesYml = {
+        st1: {
+          abort_on_fail: true,
+          workflows: [{ wf1: { run_if: 'true' } }, { wf2: { run_if: 'false' } }, { wf3: {} }],
+        },
+        st2: {
+          should_always_run: true,
+          workflows: [{ wf4: {} }],
+        },
+        st3: {
+          abort_on_fail: false,
+          should_always_run: false,
+          workflows: [{ wf5: {} }],
+        },
+      };
+
+      const expected: PipelineYmlObject = {
+        workflows: {
+          wf1: {
+            abort_on_fail: true,
+            run_if: { expression: 'true' },
+          },
+          wf2: {
+            abort_on_fail: true,
+            run_if: { expression: 'false' },
+          },
+          wf3: {
+            abort_on_fail: true,
+          },
+          wf4: {
+            should_always_run: 'workflow',
+            depends_on: ['wf1', 'wf2', 'wf3'],
+          },
+          wf5: {
+            abort_on_fail: false,
+            should_always_run: 'off',
+            depends_on: ['wf4'],
+          },
+        },
+      };
+
+      expect(PipelineService.convertToGraphPipeline(pipeline, stages)).toEqual(expected);
     });
   });
 });
