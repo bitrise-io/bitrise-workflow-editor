@@ -253,7 +253,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       deleteStep(wfId, stepIndices);
 
       // Close the dialog if the selected step is deleted
-      if (stepIndices.map((stepIndex) => selectedStepIndices.includes(stepIndex))) {
+      if (stepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
         closeDialog();
       }
 

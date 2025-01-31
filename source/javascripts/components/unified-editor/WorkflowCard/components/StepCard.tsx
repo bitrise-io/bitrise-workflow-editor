@@ -224,7 +224,11 @@ const StepCard = ({
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, selectedStepIndices);
+                if (isHighlighted) {
+                  onDeleteStep(workflowId, selectedStepIndices);
+                } else {
+                  onDeleteStep(workflowId, [stepIndex]);
+                }
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
                 onDeleteStepInStepBundle(stepBundleId, stepIndex);
@@ -304,7 +308,11 @@ const StepCard = ({
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, selectedStepIndices);
+                if (isHighlighted) {
+                  onDeleteStep(workflowId, selectedStepIndices);
+                } else {
+                  onDeleteStep(workflowId, [stepIndex]);
+                }
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
                 onDeleteStepInStepBundle(stepBundleId, stepIndex);
