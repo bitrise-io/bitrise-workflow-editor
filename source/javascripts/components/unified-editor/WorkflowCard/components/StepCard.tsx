@@ -218,8 +218,8 @@ const StepCard = ({
             size="xs"
             display="none"
             iconName="Trash"
-            aria-label="Remove Step"
-            tooltipProps={{ 'aria-label': 'Remove Step' }}
+            aria-label={`Delete Step${selectedStepIndices.length > 1 ? 's' : ''}`}
+            tooltipProps={{ 'aria-label': 'Delete Step' }}
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
@@ -319,7 +319,7 @@ const StepCard = ({
               }
             }}
           >
-            Delete Step
+            Delete Step{selectedStepIndices?.length > 1 ? 's' : ''}
           </OverflowMenuItem>
         </OverflowMenu>
       </ButtonGroup>
@@ -370,8 +370,7 @@ const StepCard = ({
             size="xs"
             display="none"
             iconName="Trash"
-            aria-label="Remove Step"
-            tooltipProps={{ 'aria-label': 'Remove Step' }}
+            aria-label="Delete Step"
             _groupHover={{ display: 'inline-flex' }}
             onClick={(e) => {
               e.stopPropagation();
