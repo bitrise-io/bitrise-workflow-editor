@@ -78,6 +78,10 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml =
   return { ...newPipeline, workflows };
 }
 
+function getPipeline(id: string, yml: BitriseYml) {
+  return yml.pipelines?.[id];
+}
+
 function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
   const pipeline = yml.pipelines?.[pipelineId];
 
@@ -96,6 +100,7 @@ function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
 
 export default {
   isGraph,
+  getPipeline,
   validateName,
   sanitizeName,
   hasStepInside,
