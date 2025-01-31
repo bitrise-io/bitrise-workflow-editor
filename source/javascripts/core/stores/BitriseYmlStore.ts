@@ -69,7 +69,7 @@ type BitriseYmlStoreState = {
   updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => void;
   updateStepInputs: (workflowId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
-  deleteStep: (workflowId: string, stepIndex: number) => void;
+  deleteStep: (workflowId: string, selectedStepIndices: number[]) => void;
   updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
   updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
   updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
@@ -343,10 +343,10 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    deleteStep(workflowId, stepIndex) {
+    deleteStep(workflowId, selectedStepIndices) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.deleteStep(workflowId, stepIndex, state.yml),
+          yml: BitriseYmlService.deleteStep(workflowId, selectedStepIndices, state.yml),
         };
       });
     },

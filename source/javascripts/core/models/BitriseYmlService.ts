@@ -149,15 +149,19 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: Step
   return copy;
 }
 
-function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+function deleteStep(workflowId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
     return copy;
   }
 
-  copy.workflows[workflowId].steps.splice(stepIndex, 1);
+  // Remove selected step / steps
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  sortedIndices.forEach((stepIndex) => {
+    copy.workflows?.[workflowId].steps?.splice(stepIndex, 1);
+  });
 
   // If the steps are empty, remove it
   if (shouldRemoveField(copy.workflows[workflowId].steps, yml.workflows?.[workflowId]?.steps)) {

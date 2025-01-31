@@ -166,7 +166,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               closeDialog();
             }
             // Adjust index of the selected steps
-            setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndex, targetIndex));
+            setSelectedStepIndices([]);
           }
           break;
         }
@@ -264,11 +264,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'clone',
         });
       },
-      handleDeleteStep: (workflowId: string, stepIndex: number) => {
-        deleteStep(workflowId, stepIndex);
+      handleDeleteStep: (workflowId: string, stepIndices: number[]) => {
+        deleteStep(workflowId, stepIndices);
         handleStepActionChange({
           workflowId,
-          stepIndex,
+          stepIndex: 0,
           action: 'remove',
         });
       },

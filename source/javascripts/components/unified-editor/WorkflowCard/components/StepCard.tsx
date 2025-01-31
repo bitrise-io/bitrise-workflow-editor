@@ -224,7 +224,7 @@ const StepCard = ({
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, stepIndex);
+                onDeleteStep(workflowId, selectedStepIndices);
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
                 onDeleteStepInStepBundle(stepBundleId, stepIndex);
@@ -304,7 +304,7 @@ const StepCard = ({
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, stepIndex);
+                onDeleteStep(workflowId, selectedStepIndices);
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
                 onDeleteStepInStepBundle(stepBundleId, stepIndex);
@@ -368,7 +368,7 @@ const StepCard = ({
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, stepIndex);
+                onDeleteStep(workflowId, selectedStepIndices);
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
                 onDeleteStepInStepBundle(stepBundleId, stepIndex);

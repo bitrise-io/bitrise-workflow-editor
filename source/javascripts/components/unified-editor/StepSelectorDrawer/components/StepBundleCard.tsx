@@ -24,7 +24,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
-  const { isSelected } = useSelection();
+  const { isSelected, selectedStepIndices } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
@@ -115,13 +115,13 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             isDanger
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteStep(workflowId, stepIndex);
+              onDeleteStep(workflowId, selectedStepIndices);
             }}
           />
         )}
       </ButtonGroup>
     );
-  }, [cvs, isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
+  }, [cvs, isDragging, onDeleteStep, onSelectStep, selectedStepIndices, stepIndex, workflowId]);
 
   return (
     <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>

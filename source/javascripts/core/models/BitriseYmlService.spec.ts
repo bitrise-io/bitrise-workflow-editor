@@ -842,7 +842,27 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf1', 1, sourceYml);
+      const actualYml = BitriseYmlService.deleteStep('wf1', [1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete multiple step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStep('wf1', [1, 2], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -855,7 +875,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf2', 1, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStep('wf2', [1], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -868,7 +888,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf1', 3, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStep('wf1', [3], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -888,7 +908,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf1', 0, sourceYml);
+      const actualYml = BitriseYmlService.deleteStep('wf1', [0], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
