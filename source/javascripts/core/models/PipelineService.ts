@@ -78,8 +78,10 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml =
   return { ...newPipeline, workflows };
 }
 
-function hasStepInside(pipeline: PipelineYmlObject, stepId: string, yml: BitriseYml) {
-  if (!isGraph(pipeline)) {
+function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
+  const pipeline = yml.pipelines?.[pipelineId];
+
+  if (!pipeline || !isGraph(pipeline)) {
     return false;
   }
 
