@@ -1,12 +1,7 @@
-import { Context } from "@datadog/browser-core";
-import {
-  datadogLogs,
-  HandlerType,
-  Logger as DLogger,
-  StatusType,
-} from "@datadog/browser-logs";
-import { pick } from "underscore";
-import WindowUtils from "@/core/utils/WindowUtils";
+import { Context } from '@datadog/browser-core';
+import { datadogLogs, HandlerType, Logger as DLogger, StatusType } from '@datadog/browser-logs';
+import { pick } from 'underscore';
+import WindowUtils from '@/core/utils/WindowUtils';
 
 export interface Logger {
   debug(message: string, ctx?: Record<string, string>): void;
@@ -69,7 +64,7 @@ class DataDogLoggerService implements Logger {
       return;
     }
 
-    const message = `${error.message}\n${error.stack || "No stack"}`;
+    const message = `${error.message}\n${error.stack || 'No stack'}`;
     this.logger.error(message, ctx);
   };
 }
@@ -79,9 +74,9 @@ window.datadogLogs = datadogLogs;
 
 const getDefaultTags = (): Context => {
   const defaultTags = {
-    service: "workflow-editor",
+    service: 'workflow-editor',
     mode: window.mode,
-    appSlug: WindowUtils.appSlug() ?? "",
+    appSlug: WindowUtils.appSlug() ?? '',
   };
 
   const nullCheck = (val: string | null): boolean => !!val;

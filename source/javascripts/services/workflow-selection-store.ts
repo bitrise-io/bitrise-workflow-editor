@@ -1,5 +1,6 @@
-import { Step, Workflow } from "../models";
-import { WfChainWrapper } from "./workflows-selection-service";
+import { Step, Workflow } from '../models';
+// eslint-disable-next-line import/no-cycle
+import { WfChainWrapper } from './workflows-selection-service';
 
 type WorkflowSelectionState = {
   lastSelectedWorkflow?: Workflow;
@@ -12,9 +13,13 @@ export class WorkflowSelectionStore {
   private shouldStoreChanges = false;
 
   lastSelectedWorkflowID: string | null = null;
+
   lastEditedWorkflowID: string | null = null;
+
   lastEditedWorkflowIndex: number | null = null;
+
   lastSelectedStepCVS: string | null = null;
+
   lastSelectedStepIndex: number | null = null;
 
   applyState = ({
@@ -43,8 +48,7 @@ export class WorkflowSelectionStore {
     }
 
     if (lastEditedWorkflow && lastSelectedStep) {
-      this.lastSelectedStepIndex =
-        lastEditedWorkflow.steps.indexOf(lastSelectedStep);
+      this.lastSelectedStepIndex = lastEditedWorkflow.steps.indexOf(lastSelectedStep);
     }
   };
 

@@ -1,7 +1,7 @@
 {
   "allowJs": true,
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
   },
   "include": [
     ".eslintrc.js",

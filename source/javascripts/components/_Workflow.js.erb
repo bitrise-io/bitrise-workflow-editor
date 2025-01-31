@@ -1,10 +1,10 @@
-(function() {
-	"use strict";
+(function () {
 
-	angular.module("BitriseWorkflowEditor").factory("Workflow", function(stepSourceService, Step, Stack) {
-		var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
 
-		var Workflow = function(id, workflowConfig) {
+	angular.module("BitriseWorkflowEditor").factory("Workflow", function (stepSourceService, Step, Stack) {
+		const BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+
+		const Workflow = function (id, workflowConfig) {
 			this.id = id;
 			this.workflowConfig = workflowConfig;
 
@@ -12,10 +12,10 @@
 				return;
 			}
 
-			this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
-				var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
-				var step;
-				var userStepConfig = aWrappedUserStepConfig[stepCVS];
+			this.steps = _.map(workflowConfig.steps, function (aWrappedUserStepConfig) {
+				const stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+				let step;
+				const userStepConfig = aWrappedUserStepConfig[stepCVS];
 
 				try {
 					step = stepSourceService.stepFromCVS(stepCVS);
@@ -28,81 +28,81 @@
 			});
 		};
 
-		Workflow.isValidID = function(id) {
+		Workflow.isValidID = function (id) {
 			if (id === undefined) {
 				return undefined;
 			}
 
-			if (id.length == 0) {
+			if (id.length === 0) {
 				return false;
 			}
 
-			var validIDRegexp = new RegExp("^[A-Za-z0-9-_.]+$");
+			const validIDRegexp = /^[A-Za-z0-9-_.]+$/;
 
 			return validIDRegexp.test(id);
 		};
 
-		Workflow.prototype.beforeRunWorkflows = function(allWorkflows) {
-			return _.map(this.workflowConfig.before_run, function(aWorkflowID) {
+		Workflow.prototype.beforeRunWorkflows = function (allWorkflows) {
+			return _.map(this.workflowConfig.before_run, function (aWorkflowID) {
 				return _.find(allWorkflows, {
 					id: aWorkflowID
 				});
 			});
 		};
 
-		Workflow.prototype.afterRunWorkflows = function(allWorkflows) {
-			return _.map(this.workflowConfig.after_run, function(aWorkflowID) {
+		Workflow.prototype.afterRunWorkflows = function (allWorkflows) {
+			return _.map(this.workflowConfig.after_run, function (aWorkflowID) {
 				return _.find(allWorkflows, {
 					id: aWorkflowID
 				});
 			});
 		};
 
-		Workflow.prototype.workflowChain = function(allWorkflows) {
-			var workflows = [];
+		Workflow.prototype.workflowChain = function (allWorkflows) {
+			let workflows = [];
 
-			_.each(this.beforeRunWorkflows(allWorkflows), function(aWorkflow) {
+			_.each(this.beforeRunWorkflows(allWorkflows), function (aWorkflow) {
 				workflows = workflows.concat(aWorkflow.workflowChain(allWorkflows));
 			});
 
 			workflows.push(this);
 
-			_.each(this.afterRunWorkflows(allWorkflows), function(aWorkflow) {
+			_.each(this.afterRunWorkflows(allWorkflows), function (aWorkflow) {
 				workflows = workflows.concat(aWorkflow.workflowChain(allWorkflows));
 			});
 
 			return workflows;
 		};
 
-		Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow, allWorkflows) {
+		Workflow.prototype.isLoopSafeRunForWorkflow = function (workflow, allWorkflows) {
 			return !_.contains(this.workflowChain(allWorkflows), workflow);
 		};
 
-		Workflow.prototype.title = function(title) {
+		Workflow.prototype.title = function (title) {
 			if (title !== undefined) {
-				this.workflowConfig.title = title ? title : undefined;
+				this.workflowConfig.title = title || undefined;
 			}
 
 			return this.workflowConfig.title;
 		};
 
-		Workflow.prototype.description = function(description) {
+		Workflow.prototype.description = function (description) {
 			if (description !== undefined) {
-				this.workflowConfig.description = description ? description : undefined;
+				this.workflowConfig.description = description || undefined;
 			}
 
 			return this.workflowConfig.description;
 		};
 
-		Workflow.prototype.summary = function(summary) {
+		Workflow.prototype.summary = function (summary) {
 			if (summary !== undefined) {
-				this.workflowConfig.summary = summary ? summary : undefined;
+				this.workflowConfig.summary = summary || undefined;
 			}
 
 			return this.workflowConfig.summary;
 		};
 
-		Workflow.prototype.stack = function(stack, defaultMachineTypeForStack) {
+		Workflow.prototype.stack = function (stack, defaultMachineTypeForStack) {
 			if (stack !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
@@ -114,7 +114,7 @@
 				if (stack !== null) {
 					this.workflowConfig.meta[BITRISE_META_KEY].stack = stack.id;
 
-					if(stack.isAgentPoolStack()) {
+					if (stack.isAgentPoolStack()) {
 						delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
 					}
 
@@ -146,7 +146,7 @@
 			return Stack.getPotentiallyInvalidStack(this.workflowConfig.meta[BITRISE_META_KEY].stack);
 		};
 
-		Workflow.prototype.machineType = function(stackType, machineType, machineTypes) {
+		Workflow.prototype.machineType = function (stackType, machineType, machineTypes) {
 			if (machineType !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
@@ -181,36 +181,36 @@
 
 			return _.find(machineTypes, {
 				id: this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id,
-				stackType: stackType
+				stackType
 			});
 		};
 
-		Workflow.prototype.setRollbackVersion = function(isPaying, accountSlug, machineTypes) {
-				var stack = this.stack();
-				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+		Workflow.prototype.setRollbackVersion = function (isPaying, accountSlug, machineTypes) {
+			const stack = this.stack();
+			const machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
 
-				if (!this.workflowConfig.meta) {
-					this.workflowConfig.meta = {};
-				}
-				if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
-					this.workflowConfig.meta[BITRISE_META_KEY] = {};
-				}
+			if (!this.workflowConfig.meta) {
+				this.workflowConfig.meta = {};
+			}
+			if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
+				this.workflowConfig.meta[BITRISE_META_KEY] = {};
+			}
 
-				this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
+			this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
 		}
 
-		Workflow.prototype.removeRollbackVersion = function() {
-				if (!this.workflowConfig.meta) {
-					this.workflowConfig.meta = {};
-				}
-				if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
-					this.workflowConfig.meta[BITRISE_META_KEY] = {};
-				}
+		Workflow.prototype.removeRollbackVersion = function () {
+			if (!this.workflowConfig.meta) {
+				this.workflowConfig.meta = {};
+			}
+			if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
+				this.workflowConfig.meta[BITRISE_META_KEY] = {};
+			}
 
-				delete this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version;
+			delete this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version;
 		}
 
-		Workflow.prototype.getRollbackVersion = function() {
+		Workflow.prototype.getRollbackVersion = function () {
 			return (
 				this.workflowConfig.meta &&
 				this.workflowConfig.meta[BITRISE_META_KEY] &&
@@ -218,22 +218,22 @@
 			);
 		}
 
-		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function(machineTypes, isPaying, accountSlug) {
-				var stack = this.stack();
+		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function (machineTypes, isPaying, accountSlug) {
+			const stack = this.stack();
 
-				if (!stack) {
-					return false;
-				}
+			if (!stack) {
+				return false;
+			}
 
-				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+			const machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
 
-				var rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
-				var rollbackVersionInYml = this.getRollbackVersion();
+			const rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
+			const rollbackVersionInYml = this.getRollbackVersion();
 
-				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+			return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
 		}
 
-		Workflow.prototype.licensePoolId = function(licensePoolId) {
+		Workflow.prototype.licensePoolId = function (licensePoolId) {
 			if (licensePoolId !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
@@ -267,7 +267,7 @@
 			return this.workflowConfig.meta[BITRISE_META_KEY].license_pool_id;
 		};
 
-		Workflow.prototype.envs = function(envs) {
+		Workflow.prototype.envs = function (envs) {
 			if (envs !== undefined) {
 				if (Array.isArray(envs) && envs.length > 0) {
 					this.workflowConfig.envs = envs;
