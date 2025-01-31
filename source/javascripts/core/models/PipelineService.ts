@@ -1,6 +1,9 @@
 import { omit } from 'es-toolkit';
 import { StagesYml } from '@/core/models/Stage';
 import { PipelineWorkflows, PipelineYmlObject } from './Pipeline';
+import { BitriseYml } from './BitriseYml';
+import StepService from './StepService';
+import { BITRISE_STEP_LIBRARY_URL } from './Step';
 
 const PIPELINE_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 const EMPTY_PIPELINE = { workflows: {} } as PipelineYmlObject;
@@ -39,7 +42,6 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml =
   }
 
   const newPipeline = omit(pipeline, ['stages', 'workflows']);
-
   const workflows: PipelineWorkflows = {};
   let previousWorkflows: string[] = [];
 
@@ -76,10 +78,25 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml =
   return { ...newPipeline, workflows };
 }
 
+function hasStepInside(pipeline: PipelineYmlObject, stepId: string, yml: BitriseYml) {
+  if (!isGraph(pipeline)) {
+    return false;
+  }
+
+  return Object.entries(pipeline.workflows ?? {}).some(([workflowId, workflow]) => {
+    return yml.workflows?.[workflow.uses || workflowId]?.steps?.some((stepYmlObject) => {
+      const cvs = Object.keys(stepYmlObject)[0];
+      const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL);
+      return id === stepId;
+    });
+  });
+}
+
 export default {
   isGraph,
   validateName,
   sanitizeName,
+  hasStepInside,
   convertToGraphPipeline,
   EMPTY_PIPELINE,
 };
