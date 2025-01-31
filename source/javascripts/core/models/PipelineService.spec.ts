@@ -1,3 +1,4 @@
+import { BitriseYml } from './BitriseYml';
 import { PipelineYmlObject } from './Pipeline';
 import PipelineService from './PipelineService';
 import { StagesYml } from './Stage';
@@ -142,6 +143,50 @@ describe('PipelineService', () => {
       };
 
       expect(PipelineService.convertToGraphPipeline(pipeline, stages)).toEqual(expected);
+    });
+  });
+
+  describe('hasStepInside', () => {
+    it('returns false if the pipeline does not exist', () => {
+      const yml: BitriseYml = { format_version: '' };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+
+    it('returns false if the pipeline is not a graph pipeline', () => {
+      const yml: BitriseYml = { format_version: '', pipelines: { pl1: {} } };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+
+    it('returns true if pipeline contains the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pl1: { workflows: { wf1: {} } } },
+        workflows: { wf1: { steps: [{ 'pull-intermediate-files@1': {} }] } },
+      };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(true);
+    });
+
+    it('returns false if the pipeline NOT contains the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pl1: { workflows: { wf1: {} } } },
+        workflows: { wf1: { steps: [{ 'script@1': {} }] } },
+      };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+
+    it('returns false if another pipeline contains the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pl1: { workflows: { wf1: {} } }, pl2: { workflows: { wf2: {} } } },
+        workflows: { wf1: { steps: [{ 'script@1': {} }] }, wf2: { steps: [{ 'pull-intermediate-file@1': {} }] } },
+      };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
     });
   });
 });
