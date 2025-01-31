@@ -203,7 +203,6 @@ const StepCard = ({
 
     return common;
   }, [isDragging, isPlaceholder, isButton, isHighlighted]);
-  console.log('stepIndicesLength', selectedStepIndices.length);
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
       return null;
@@ -305,7 +304,11 @@ const StepCard = ({
               Duplicate Step
             </OverflowMenuItem>
           )}
-          {isUpgradable || isClonable || enableStepBundles ? <Divider my="8" /> : ''}
+          {(isUpgradable || isClonable) && (!isHighlighted || selectedStepIndices.length === 1) ? (
+            <Divider my="8" />
+          ) : (
+            ''
+          )}
           <OverflowMenuItem
             isDanger
             leftIconName="Trash"
