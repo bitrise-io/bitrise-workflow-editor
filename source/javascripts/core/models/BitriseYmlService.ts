@@ -266,15 +266,19 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   return copy;
 }
 
-function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.step_bundles?.[stepBundleId]?.steps) {
     return copy;
   }
 
-  copy.step_bundles[stepBundleId].steps.splice(stepIndex, 1);
+  // Remove selected step / steps
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  sortedIndices.forEach((stepIndex) => {
+    copy.step_bundles?.[stepBundleId].steps?.splice(stepIndex, 1);
+  });
 
   // If the steps are empty, remove it
   if (shouldRemoveField(copy.step_bundles[stepBundleId].steps, yml.step_bundles?.[stepBundleId]?.steps)) {

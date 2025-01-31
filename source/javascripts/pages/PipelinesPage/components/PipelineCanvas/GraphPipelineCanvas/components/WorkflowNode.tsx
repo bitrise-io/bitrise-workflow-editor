@@ -302,14 +302,18 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'clone',
         });
       },
-      handleDeleteStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
-        deleteStepInStepBundle(stepBundleId, stepIndex);
+      handleDeleteStepInStepBundle: (stepBundleId: string, stepIndices: number[]) => {
+        deleteStepInStepBundle(stepBundleId, stepIndices);
         setSelectedStepBundleId(stepBundleId);
-        handleStepActionChange({
-          stepBundleId,
-          stepIndex,
-          action: 'remove',
-        });
+        if (stepIndices.length === 1) {
+          handleStepActionChange({
+            stepBundleId,
+            stepIndex: stepIndices[0],
+            action: 'remove',
+          });
+        } else {
+          setSelectedStepIndices([]);
+        }
       },
       handleGroupStepsToStepBundle: (workflowId: string, newStepBundleId: string, stepIndices: number[]) => {
         groupStepsToStepBundle(workflowId, newStepBundleId, stepIndices);

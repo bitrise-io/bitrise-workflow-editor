@@ -277,15 +277,15 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const handleDeleteStepInStepBundle = useCallback(
-    (stepBundleId: string, stepIndex: number) => {
-      deleteStepInStepBundle(stepBundleId, stepIndex);
+    (stepBundleId: string, stepIndices: number[]) => {
+      deleteStepInStepBundle(stepBundleId, stepIndices);
 
       // Close the dialog if the selected step is deleted
-      if (selectedStepIndices.includes(stepIndex)) {
+      if (stepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
         closeDialog();
       }
       if (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle') {
-        setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndex));
+        setSelectedStepIndices([]);
       }
     },
     [

@@ -3427,7 +3427,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 1, sourceYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', [1], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3440,7 +3440,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle2', 1, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle2', [1], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -3453,7 +3453,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 3, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', [3], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -3473,7 +3473,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 0, sourceYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', [0], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

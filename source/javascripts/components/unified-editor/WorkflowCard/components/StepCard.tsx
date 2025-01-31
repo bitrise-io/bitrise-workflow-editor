@@ -203,16 +203,16 @@ const StepCard = ({
 
     return common;
   }, [isDragging, isPlaceholder, isButton, isHighlighted]);
-
+  console.log('stepIndicesLength', selectedStepIndices.length);
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
       return null;
     }
 
-    const isValidStep = step && !stepBundleId && isStep(step.cvs, library);
+    const isValidStep = step && isStep(step.cvs, library);
     return isValidStep && !!enableStepBundles ? (
       <ButtonGroup spacing="0" display="flex">
-        {isRemovable && (
+        {/* {isRemovable && (
           <ControlButton
             isDanger
             size="xs"
@@ -231,11 +231,15 @@ const StepCard = ({
                 }
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
-                onDeleteStepInStepBundle(stepBundleId, stepIndex);
+                if (isHighlighted) {
+                  onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
+                } else {
+                  onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+                }
               }
             }}
           />
-        )}
+        )} */}
         <OverflowMenu
           placement="bottom-end"
           size="md"
@@ -267,7 +271,7 @@ const StepCard = ({
               Update Step version
             </OverflowMenuItem>
           )}
-          {enableStepBundles && (
+          {enableStepBundles && !stepBundleId && (
             <OverflowMenuItem
               leftIconName="Steps"
               onClick={(e) => {
@@ -301,7 +305,7 @@ const StepCard = ({
               Duplicate Step
             </OverflowMenuItem>
           )}
-          <Divider my="8" />
+          {isUpgradable || isClonable || enableStepBundles ? <Divider my="8" /> : ''}
           <OverflowMenuItem
             isDanger
             leftIconName="Trash"
@@ -315,7 +319,11 @@ const StepCard = ({
                 }
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
-                onDeleteStepInStepBundle(stepBundleId, stepIndex);
+                if (isHighlighted) {
+                  onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
+                } else {
+                  onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+                }
               }
             }}
           >
@@ -364,7 +372,7 @@ const StepCard = ({
             }}
           />
         )}
-        {isRemovable && (
+        {/* {isRemovable && (
           <ControlButton
             isDanger
             size="xs"
@@ -375,14 +383,22 @@ const StepCard = ({
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, selectedStepIndices);
+                if (isHighlighted) {
+                  onDeleteStep(workflowId, selectedStepIndices);
+                } else {
+                  onDeleteStep(workflowId, [stepIndex]);
+                }
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
-                onDeleteStepInStepBundle(stepBundleId, stepIndex);
+                if (isHighlighted) {
+                  onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
+                } else {
+                  onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+                }
               }
             }}
           />
-        )}
+        )} */}
       </ButtonGroup>
     );
   }, [

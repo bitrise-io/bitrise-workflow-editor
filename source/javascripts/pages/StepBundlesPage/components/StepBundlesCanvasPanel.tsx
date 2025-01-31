@@ -65,15 +65,15 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   );
 
   const handleDeleteStep = useCallback(
-    (bundleId: string, stepIndex: number) => {
-      deleteStepInStepBundle(bundleId, stepIndex);
+    (bundleId: string, stepIndices: number[]) => {
+      deleteStepInStepBundle(bundleId, stepIndices);
 
       // Close the dialog if the selected step is deleted
-      if (selectedStepIndices.includes(stepIndex)) {
+      if (selectedStepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
         closeDialog();
       }
       // Adjust index of the selected steps
-      setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndex));
+      setSelectedStepIndices([]);
     },
     [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
