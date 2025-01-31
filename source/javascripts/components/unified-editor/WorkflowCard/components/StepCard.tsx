@@ -211,34 +211,6 @@ const StepCard = ({
     const isValidStep = step && isStep(step.cvs, library);
     return isValidStep && !!enableStepBundles ? (
       <ButtonGroup spacing="0" display="flex">
-        {/* {isRemovable && (
-          <ControlButton
-            isDanger
-            size="xs"
-            display="none"
-            iconName="Trash"
-            aria-label={`Delete Step${selectedStepIndices.length > 1 ? 's' : ''}`}
-            tooltipProps={{ 'aria-label': 'Delete Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onDeleteStep) {
-                if (isHighlighted) {
-                  onDeleteStep(workflowId, selectedStepIndices);
-                } else {
-                  onDeleteStep(workflowId, [stepIndex]);
-                }
-              }
-              if (stepBundleId && onDeleteStepInStepBundle) {
-                if (isHighlighted) {
-                  onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
-                } else {
-                  onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
-                }
-              }
-            }}
-          />
-        )} */}
         <OverflowMenu
           placement="bottom-end"
           size="md"
@@ -286,6 +258,7 @@ const StepCard = ({
               }}
             >
               New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
+              {selectedStepIndices?.length > 1 ? 's' : ''}
             </OverflowMenuItem>
           )}
           {(selectedStepIndices.length === 1 || !isHighlighted) && (
@@ -375,33 +348,6 @@ const StepCard = ({
             }}
           />
         )}
-        {/* {isRemovable && (
-          <ControlButton
-            isDanger
-            size="xs"
-            display="none"
-            iconName="Trash"
-            aria-label="Delete Step"
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onDeleteStep) {
-                if (isHighlighted) {
-                  onDeleteStep(workflowId, selectedStepIndices);
-                } else {
-                  onDeleteStep(workflowId, [stepIndex]);
-                }
-              }
-              if (stepBundleId && onDeleteStepInStepBundle) {
-                if (isHighlighted) {
-                  onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
-                } else {
-                  onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
-                }
-              }
-            }}
-          />
-        )} */}
       </ButtonGroup>
     );
   }, [
