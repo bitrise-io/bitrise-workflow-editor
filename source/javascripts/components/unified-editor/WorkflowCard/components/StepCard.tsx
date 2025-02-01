@@ -9,7 +9,6 @@ import {
   Card,
   CardProps,
   ColorButton,
-  ControlButton,
   Divider,
   Icon,
   Link,
@@ -149,6 +148,7 @@ const StepCard = ({
   const { isStep } = StepService;
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
+  const isSimpleStep = step && !stepBundleId && isStep(step.cvs, library);
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
@@ -208,8 +208,7 @@ const StepCard = ({
       return null;
     }
 
-    const isValidStep = step && isStep(step.cvs, library);
-    return isValidStep && !!enableStepBundles ? (
+    return (
       <ButtonGroup spacing="0" display="flex">
         <OverflowMenu
           placement="bottom-end"
@@ -242,7 +241,7 @@ const StepCard = ({
               Update Step version
             </OverflowMenuItem>
           )}
-          {enableStepBundles && !stepBundleId && (
+          {enableStepBundles && isSimpleStep && (
             <OverflowMenuItem
               leftIconName="Steps"
               onClick={(e) => {
@@ -277,7 +276,8 @@ const StepCard = ({
               Duplicate Step
             </OverflowMenuItem>
           )}
-          {(isUpgradable || isClonable) && (!isHighlighted || selectedStepIndices.length === 1) ? (
+          {(enableStepBundles && isSimpleStep) ||
+          ((isUpgradable || isClonable) && (!isHighlighted || selectedStepIndices.length === 1)) ? (
             <Divider my="8" />
           ) : (
             ''
@@ -307,48 +307,6 @@ const StepCard = ({
           </OverflowMenuItem>
         </OverflowMenu>
       </ButtonGroup>
-    ) : (
-      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-        {isUpgradable && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="ArrowUp"
-            colorScheme="orange"
-            aria-label="Update Step"
-            tooltipProps={{ 'aria-label': 'Update Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onUpgradeStep) {
-                onUpgradeStep(workflowId, stepIndex, latestMajor);
-              }
-              if (stepBundleId && onUpgradeStepInStepBundle) {
-                onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
-              }
-            }}
-          />
-        )}
-        {isClonable && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="Duplicate"
-            aria-label="Clone Step"
-            tooltipProps={{ 'aria-label': 'Clone Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onCloneStep) {
-                onCloneStep(workflowId, stepIndex);
-              }
-              if (stepBundleId && onCloneStepInStepBundle) {
-                onCloneStepInStepBundle(stepBundleId, stepIndex);
-              }
-            }}
-          />
-        )}
-      </ButtonGroup>
     );
   }, [
     enableStepBundles,
@@ -357,10 +315,9 @@ const StepCard = ({
     isDragging,
     isHighlighted,
     isRemovable,
-    isStep,
     isUpgradable,
+    isSimpleStep,
     latestMajor,
-    library,
     onCloneStep,
     onCloneStepInStepBundle,
     onDeleteStep,
@@ -370,7 +327,6 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
     selectedStepIndices,
-    step,
     stepBundleId,
     stepIndex,
     workflowId,
