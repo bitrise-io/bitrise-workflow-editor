@@ -203,10 +203,98 @@ const StepCard = ({
 
     return common;
   }, [isDragging, isPlaceholder, isButton, isHighlighted]);
+
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
       return null;
     }
+
+    const menuItems = [];
+    if (isUpgradable && (selectedStepIndices.length === 1 || !isHighlighted)) {
+      menuItems.push(
+        <OverflowMenuItem
+          leftIconName="ArrowUp"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (workflowId && onUpgradeStep) {
+              onUpgradeStep(workflowId, stepIndex, latestMajor);
+            }
+            if (stepBundleId && onUpgradeStepInStepBundle) {
+              onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
+            }
+          }}
+        >
+          Update Step version
+        </OverflowMenuItem>,
+      );
+    }
+    if (enableStepBundles && isSimpleStep) {
+      menuItems.push(
+        <OverflowMenuItem
+          leftIconName="Steps"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
+              const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
+              if (isHighlighted) {
+                onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
+              } else {
+                onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
+              }
+            }
+          }}
+        >
+          New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
+          {selectedStepIndices?.length > 1 ? 's' : ''}
+        </OverflowMenuItem>,
+      );
+    }
+    if (selectedStepIndices.length === 1 || !isHighlighted) {
+      menuItems.push(
+        <OverflowMenuItem
+          leftIconName="Duplicate"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (workflowId && onCloneStep) {
+              onCloneStep(workflowId, stepIndex);
+            }
+            if (stepBundleId && onCloneStepInStepBundle) {
+              onCloneStepInStepBundle(stepBundleId, stepIndex);
+            }
+          }}
+        >
+          Duplicate Step
+        </OverflowMenuItem>,
+      );
+    }
+    if (menuItems.length > 0) {
+      menuItems.push(<Divider my="8" />);
+    }
+    menuItems.push(
+      <OverflowMenuItem
+        isDanger
+        leftIconName="Trash"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (workflowId && onDeleteStep) {
+            if (isHighlighted) {
+              onDeleteStep(workflowId, selectedStepIndices);
+            } else {
+              onDeleteStep(workflowId, [stepIndex]);
+            }
+          }
+          if (stepBundleId && onDeleteStepInStepBundle) {
+            if (isHighlighted) {
+              onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
+            } else {
+              onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+            }
+          }
+        }}
+      >
+        Delete Step{selectedStepIndices?.length > 1 ? 's' : ''}
+      </OverflowMenuItem>,
+    );
 
     return (
       <ButtonGroup spacing="0" display="flex">
@@ -225,86 +313,7 @@ const StepCard = ({
             _active: { display: 'inline-flex' },
           }}
         >
-          {isUpgradable && (selectedStepIndices.length === 1 || !isHighlighted) && (
-            <OverflowMenuItem
-              leftIconName="ArrowUp"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (workflowId && onUpgradeStep) {
-                  onUpgradeStep(workflowId, stepIndex, latestMajor);
-                }
-                if (stepBundleId && onUpgradeStepInStepBundle) {
-                  onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
-                }
-              }}
-            >
-              Update Step version
-            </OverflowMenuItem>
-          )}
-          {enableStepBundles && isSimpleStep && (
-            <OverflowMenuItem
-              leftIconName="Steps"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
-                  const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-                  if (isHighlighted) {
-                    onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
-                  } else {
-                    onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
-                  }
-                }
-              }}
-            >
-              New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
-              {selectedStepIndices?.length > 1 ? 's' : ''}
-            </OverflowMenuItem>
-          )}
-          {(selectedStepIndices.length === 1 || !isHighlighted) && (
-            <OverflowMenuItem
-              leftIconName="Duplicate"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (workflowId && onCloneStep) {
-                  onCloneStep(workflowId, stepIndex);
-                }
-                if (stepBundleId && onCloneStepInStepBundle) {
-                  onCloneStepInStepBundle(stepBundleId, stepIndex);
-                }
-              }}
-            >
-              Duplicate Step
-            </OverflowMenuItem>
-          )}
-          {(enableStepBundles && isSimpleStep) ||
-          ((isUpgradable || isClonable) && (!isHighlighted || selectedStepIndices.length === 1)) ? (
-            <Divider my="8" />
-          ) : (
-            ''
-          )}
-          <OverflowMenuItem
-            isDanger
-            leftIconName="Trash"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onDeleteStep) {
-                if (isHighlighted) {
-                  onDeleteStep(workflowId, selectedStepIndices);
-                } else {
-                  onDeleteStep(workflowId, [stepIndex]);
-                }
-              }
-              if (stepBundleId && onDeleteStepInStepBundle) {
-                if (isHighlighted) {
-                  onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
-                } else {
-                  onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
-                }
-              }
-            }}
-          >
-            Delete Step{selectedStepIndices?.length > 1 ? 's' : ''}
-          </OverflowMenuItem>
+          {...menuItems}
         </OverflowMenu>
       </ButtonGroup>
     );
