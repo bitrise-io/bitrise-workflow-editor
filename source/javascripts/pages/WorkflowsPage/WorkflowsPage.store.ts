@@ -42,6 +42,12 @@ type Action = {
   setStepBundleId: (stepBundleId?: string) => void;
   setSelectedStepIndices: (stepIndices?: number[]) => void;
   setSelectionParent: (selectionParent?: SelectionParent) => void;
+  setMultiSelectionData: (
+    workflowId: string,
+    stepBundleId: string,
+    selectedStepIndices: number[],
+    selectionParent: SelectionParent,
+  ) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
   isDialogMounted: (type: WorkflowsPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -74,6 +80,14 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   },
   setSelectionParent: (selectionParent?: SelectionParent) => {
     return set(() => ({
+      selectionParent,
+    }));
+  },
+  setMultiSelectionData: (workflowId, stepBundleId, selectedStepIndices, selectionParent) => {
+    set(() => ({
+      workflowId,
+      stepBundleId,
+      selectedStepIndices,
       selectionParent,
     }));
   },

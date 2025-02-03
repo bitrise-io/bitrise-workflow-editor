@@ -3,6 +3,7 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useNavigation from '@/hooks/useNavigation';
+import useStep from '@/hooks/useStep';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -16,13 +17,16 @@ import StepBundlesConfigProvider from './StepBundlesConfig.context';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepBundleId: string;
   onRename: (name: string) => void;
+  workflowId: string;
+  stepIndex: number;
 };
 
-const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, ...props }: Props) => {
+const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, workflowId, stepIndex, ...props }: Props) => {
   const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
   const { replace } = useNavigation();
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
+  const { data } = useStep({ workflowId, stepIndex });
 
   return (
     <FloatingDrawer {...props}>
@@ -30,7 +34,7 @@ const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, ...props }: Pro
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">
-            {enableStepBundles ? stepBundleId : `Step bundle: ${stepBundleId}`}
+            {enableStepBundles ? stepBundleId : `Step bundle: ${data?.title}`}
           </Text>
           {enableStepBundles && (
             <Text color="text/secondary" textStyle="body/md/regular">

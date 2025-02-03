@@ -1,5 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Box, CardProps, IconButton } from '@bitrise/bitkit';
+import { isEqual } from 'es-toolkit';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -23,13 +24,23 @@ const containerProps: CardProps = {
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
 
-  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
-  const selectedWorkflowId = useWorkflowsPageStore((s) => s.workflowId);
-  const selectedStepIndices = useWorkflowsPageStore((s) => s.selectedStepIndices);
-  const selectionParent = useWorkflowsPageStore((s) => s.selectionParent);
-  const setSelectionParent = useWorkflowsPageStore((s) => s.setSelectionParent);
-  const setSelectedStepIndices = useWorkflowsPageStore((s) => s.setSelectedStepIndices);
-  const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
+  const {
+    closeDialog,
+    openDialog,
+    selectedStepIndices,
+    selectedWorkflowId,
+    selectionParent,
+    setMultiSelectionData,
+    setSelectedStepIndices,
+  } = useWorkflowsPageStore((s) => ({
+    closeDialog: s.closeDialog,
+    openDialog: s.openDialog,
+    selectedStepIndices: s.selectedStepIndices,
+    selectedWorkflowId: s.workflowId,
+    selectionParent: s.selectionParent,
+    setMultiSelectionData: s.setMultiSelectionData,
+    setSelectedStepIndices: s.setSelectedStepIndices,
+  }));
 
   const deferredWorkflowId = useDeferredValue(selectedWorkflowId);
 
@@ -98,15 +109,17 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         type: stepBundleId ? 'stepBundle' : 'workflow',
       };
       if (isMultiple) {
-        let newIndexes = [...selectedStepIndices, stepIndex];
+        let newIndices = [...selectedStepIndices, stepIndex];
         if (selectedStepIndices.includes(stepIndex)) {
-          newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+          newIndices = selectedStepIndices.filter((i: number) => i !== stepIndex);
         }
-        if (newIndexes.length !== 1) {
+        if (newIndices.length !== 1) {
           closeDialog();
         }
-        setSelectedStepIndices(newIndexes);
-        setSelectionParent(newSelectionParent);
+        if (!isEqual(selectionParent, newSelectionParent)) {
+          newIndices = [stepIndex];
+        }
+        setMultiSelectionData(wfId || '', stepBundleId || '', newIndices, newSelectionParent);
       } else {
         switch (type) {
           case LibraryType.WITH:
@@ -138,7 +151,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         }
       }
     },
-    [closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, setSelectionParent],
+    [closeDialog, openDialog, selectedStepIndices, selectionParent, setMultiSelectionData],
   );
 
   const openRunWorkflowDialog = useCallback(

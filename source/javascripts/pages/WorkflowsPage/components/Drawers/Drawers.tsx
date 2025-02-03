@@ -146,6 +146,8 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onRename={handleRenameStepBundle}
+          workflowId={workflowId}
+          stepIndex={selectedStepIndices[0]}
         />
       )}
 
