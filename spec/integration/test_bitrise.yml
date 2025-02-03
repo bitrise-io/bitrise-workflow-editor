@@ -391,6 +391,7 @@ workflows:
         inputs:
         - content: '#!/usr/bin/env bash'
     - xamarin-user-management: {}
+    - pull-intermediate-files: {}
     meta:
       bitrise.io:
         license_pool_id: pool-1

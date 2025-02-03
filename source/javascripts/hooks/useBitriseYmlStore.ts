@@ -14,4 +14,14 @@ function useBitriseYmlStore<U = BitriseYmlStoreState>(selector?: (state: Bitrise
   return useStore(store, useShallow(selector || ((s) => s as U)));
 }
 
+export function useBitriseYmlStoreApi() {
+  const store = useContext(BitriseYmlContext);
+
+  if (!store) {
+    throw new Error('useRawBitriseYmlStore must be used within a BitriseYmlProvider');
+  }
+
+  return store;
+}
+
 export default useBitriseYmlStore;
