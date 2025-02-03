@@ -1,1 +1,1 @@
-window.strings = JSON.parse(`<%= data[:strings].to_json %>`);
+window.strings = JSON.parse(`<%= data[:strings].to_json %>`.replace(/\\'/g, "'").replace(/\\“/g, "“").replace(/\\”/g, "”"));
