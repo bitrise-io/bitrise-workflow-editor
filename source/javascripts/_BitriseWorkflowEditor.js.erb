@@ -91,8 +91,8 @@ window.mode = "<%= mode %>";
       BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
         $sceDelegateProvider.resourceUrlWhitelist([
           "self",
-          // Prevent CORS issues in local dev environment
-          "http://localhost:4000/**",
+          // Prevent CORS issues on staging, when WFE runs under a different host
+          "https://app.bitrise.io/**",
           "https://workflow-editor-cdn.bitrise.io/**"
         ]);
       });
