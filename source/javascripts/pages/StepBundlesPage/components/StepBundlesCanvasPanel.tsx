@@ -26,14 +26,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const handleSelectStep = useCallback<(props: { isMultiple?: boolean; stepIndex: number }) => void>(
     ({ isMultiple, stepIndex }) => {
       if (isMultiple) {
-        let newIndexes = [...selectedStepIndices, stepIndex];
+        let newIndices = [...selectedStepIndices, stepIndex];
         if (selectedStepIndices.includes(stepIndex)) {
-          newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+          newIndices = selectedStepIndices.filter((i: number) => i !== stepIndex);
         }
-        if (newIndexes.length !== 1) {
+        if (newIndices.length !== 1) {
           closeDialog();
         }
-        setSelectedStepIndices(newIndexes);
+        setSelectedStepIndices(newIndices);
       } else {
         openDialog({
           type: StepBundlesPageDialogType.STEP_CONFIG,

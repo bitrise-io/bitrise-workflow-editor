@@ -53,21 +53,18 @@ const Drawers = ({ children }: PropsWithChildren) => {
         type: WorkflowsPageDialogType.STEP_BUNDLE,
         workflowId,
         stepBundleId: id,
-        selectedStepIndices,
       })();
     } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
       openDialog({
         type: WorkflowsPageDialogType.STEP_CONFIG,
         workflowId,
-        selectedStepIndices,
       })();
     } else {
       addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
       openDialog({
         type: WorkflowsPageDialogType.STEP_CONFIG,
         stepBundleId,
-        selectedStepIndices,
       })();
     }
   };

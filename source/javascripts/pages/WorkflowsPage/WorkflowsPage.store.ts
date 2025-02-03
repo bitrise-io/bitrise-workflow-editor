@@ -42,12 +42,6 @@ type Action = {
   setStepBundleId: (stepBundleId?: string) => void;
   setSelectedStepIndices: (stepIndices?: number[]) => void;
   setSelectionParent: (selectionParent?: SelectionParent) => void;
-  setMultiSelectionData: (
-    workflowId: string,
-    stepBundleId: string,
-    selectedStepIndices: number[],
-    selectionParent: SelectionParent,
-  ) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
   isDialogMounted: (type: WorkflowsPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
@@ -83,14 +77,6 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
       selectionParent,
     }));
   },
-  setMultiSelectionData: (workflowId, stepBundleId, selectedStepIndices, selectionParent) => {
-    set(() => ({
-      workflowId,
-      stepBundleId,
-      selectedStepIndices,
-      selectionParent,
-    }));
-  },
   isDialogOpen: (type) => {
     return get().openedDialogType === type;
   },
@@ -102,35 +88,41 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
     workflowId = '',
     stepBundleId = '',
     parentWorkflowId = '',
-    selectedStepIndices = [],
+    selectedStepIndices,
     selectionParent,
   }) => {
     return () => {
-      return set(({ openedDialogType, closeDialog }) => {
+      return set((state) => {
+        const {
+          openedDialogType,
+          closeDialog,
+          selectionParent: stateSelectionParent,
+          selectedStepIndices: stateSelectedStepIndices,
+        } = state;
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
           closeDialog();
 
           return {
             _nextDialog: {
               type,
-              selectedStepIndices,
+              selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
               stepBundleId,
               workflowId,
               parentWorkflowId,
-              selectionParent,
+              selectionParent: selectionParent || stateSelectionParent,
             },
           };
         }
 
         return {
-          selectedStepIndices,
+          selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
           stepBundleId,
           workflowId,
           parentWorkflowId,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
-          selectionParent,
+          selectionParent: selectionParent || stateSelectionParent,
         };
       });
     };
@@ -141,12 +133,12 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
     }));
   },
   unmountDialog: () => {
-    return set(({ _nextDialog, openDialog }) => {
+    return set(({ _nextDialog, openDialog, selectedStepIndices }) => {
       if (_nextDialog) {
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
-      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+      if (selectedStepIndices.length === 1 && !_nextDialog) {
         return {
           selectedStepIndices: [],
           stepBundleId: '',

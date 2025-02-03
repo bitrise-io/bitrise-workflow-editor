@@ -24,23 +24,15 @@ const containerProps: CardProps = {
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
 
-  const {
-    closeDialog,
-    openDialog,
-    selectedStepIndices,
-    selectedWorkflowId,
-    selectionParent,
-    setMultiSelectionData,
-    setSelectedStepIndices,
-  } = useWorkflowsPageStore((s) => ({
-    closeDialog: s.closeDialog,
-    openDialog: s.openDialog,
-    selectedStepIndices: s.selectedStepIndices,
-    selectedWorkflowId: s.workflowId,
-    selectionParent: s.selectionParent,
-    setMultiSelectionData: s.setMultiSelectionData,
-    setSelectedStepIndices: s.setSelectedStepIndices,
-  }));
+  const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
+    useWorkflowsPageStore((s) => ({
+      closeDialog: s.closeDialog,
+      openDialog: s.openDialog,
+      selectedStepIndices: s.selectedStepIndices,
+      selectedWorkflowId: s.workflowId,
+      selectionParent: s.selectionParent,
+      setSelectedStepIndices: s.setSelectedStepIndices,
+    }));
 
   const deferredWorkflowId = useDeferredValue(selectedWorkflowId);
 
@@ -119,7 +111,12 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         if (!isEqual(selectionParent, newSelectionParent)) {
           newIndices = [stepIndex];
         }
-        setMultiSelectionData(wfId || '', stepBundleId || '', newIndices, newSelectionParent);
+        useWorkflowsPageStore.setState({
+          workflowId: wfId || '',
+          stepBundleId: stepBundleId || '',
+          selectedStepIndices: newIndices,
+          selectionParent: newSelectionParent,
+        });
       } else {
         switch (type) {
           case LibraryType.WITH:
@@ -151,7 +148,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         }
       }
     },
-    [closeDialog, openDialog, selectedStepIndices, selectionParent, setMultiSelectionData],
+    [closeDialog, openDialog, selectedStepIndices, selectionParent],
   );
 
   const openRunWorkflowDialog = useCallback(

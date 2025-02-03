@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 import { Box, CardProps } from '@bitrise/bitkit';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { useHover, useResizeObserver } from 'usehooks-ts';
+import { isEqual } from 'es-toolkit';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -141,7 +142,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           if (targetIndex !== undefined) {
             if (
               (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
-              (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
+              (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle')
             ) {
               setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndex, targetIndex));
             }
@@ -152,7 +153,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           // Adjust index of the selected steps
           if (
             (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
-            (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
+            (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle')
           ) {
             setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndex, targetIndex));
           }
@@ -162,7 +163,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           // Close the dialog if the selected step is deleted
           if (
             (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
-            (selectionParent?.id === stepBundleId && selectionParent?.type === stepBundleId)
+            (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle')
           ) {
             if (selectedStepIndices.includes(stepIndex)) {
               closeDialog();
@@ -218,15 +219,24 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           type: stepBundleId ? 'stepBundle' : 'workflow',
         };
         if (isMultiple) {
-          let newIndexes = [...selectedStepIndices, stepIndex];
+          let newIndices = [...selectedStepIndices, stepIndex];
           if (selectedStepIndices.includes(stepIndex)) {
-            newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+            newIndices = selectedStepIndices.filter((i: number) => i !== stepIndex);
           }
-          if (newIndexes.length !== 1) {
+          if (newIndices.length !== 1) {
             closeDialog();
           }
-          setSelectedStepIndices(newIndexes);
+          if (!isEqual(selectionParent, newSelectionParent)) {
+            newIndices = [stepIndex];
+          }
+          setSelectedStepIndices(newIndices);
           setSelectionParent(newSelectionParent);
+          usePipelinesPageStore.setState({
+            workflowId: wfId || '',
+            stepBundleId: stepBundleId || '',
+            selectedStepIndices: newIndices,
+            selectionParent: newSelectionParent,
+          });
         } else {
           switch (type) {
             case LibraryType.BUNDLE:
@@ -378,8 +388,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     workflows,
     selectedWorkflowId,
     closeDialog,
-    selectionParent?.id,
-    selectionParent?.type,
+    selectionParent,
     setSelectedStepIndices,
     selectedStepIndices,
     deleteElements,
