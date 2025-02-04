@@ -415,7 +415,10 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
-              resolve(response.data);
+              const version = response.headers('X-Bitrise-Config-Version');
+              const content = response.data;
+
+              resolve({ version, content });
             },
             function (response) {
               reject(
