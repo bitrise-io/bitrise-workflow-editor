@@ -15,18 +15,19 @@ import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  stepBundleId: string;
   onRename: (name: string) => void;
   workflowId: string;
   stepIndex: number;
 };
 
-const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, workflowId, stepIndex, ...props }: Props) => {
-  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
-  const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
-  const { replace } = useNavigation();
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
+const StepBundleConfigDrawer = ({ onRename, workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep({ workflowId, stepIndex });
+
+  const dependants = useDependantWorkflows({ stepBundleCvs: data?.cvs });
+  const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
+
+  const { replace } = useNavigation();
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 
   return (
     <FloatingDrawer {...props}>
@@ -34,7 +35,7 @@ const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, workflowId, ste
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">
-            {enableStepBundles ? stepBundleId : `Step bundle: ${data?.title}`}
+            {data?.title}
           </Text>
           {enableStepBundles && (
             <Text color="text/secondary" textStyle="body/md/regular">
@@ -44,7 +45,9 @@ const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, workflowId, ste
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {enableStepBundles ? (
-            <StepBundlePropertiesTab onRename={onRename} />
+            <StepBundlesConfigProvider stepBundleId={data?.id || ''}>
+              <StepBundlePropertiesTab onRename={onRename} />
+            </StepBundlesConfigProvider>
           ) : (
             <Notification
               action={{
@@ -62,14 +65,6 @@ const StepBundleConfigDrawerContent = ({ onRename, stepBundleId, workflowId, ste
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>
-  );
-};
-
-const StepBundleConfigDrawer = ({ stepBundleId, ...props }: Props) => {
-  return (
-    <StepBundlesConfigProvider stepBundleId={stepBundleId}>
-      <StepBundleConfigDrawerContent stepBundleId={stepBundleId} {...props} />
-    </StepBundlesConfigProvider>
   );
 };
 

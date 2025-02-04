@@ -144,6 +144,7 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
 
 type Selection = {
   selectedWorkflowId?: string;
+  selectedStepBundleId?: string;
   selectedStepIndices?: number[];
 };
 type Props = ContentProps & WorkflowActions & StepActions & Selection;
@@ -155,10 +156,12 @@ const WorkflowCard = ({
   containerProps,
   selectedWorkflowId = '',
   selectedStepIndices = [],
+  selectedStepBundleId,
   ...actions
 }: Props) => (
   <WorkflowCardContextProvider
     selectedWorkflowId={selectedWorkflowId}
+    selectedStepBundleId={selectedStepBundleId}
     selectedStepIndices={selectedStepIndices}
     {...actions}
   >

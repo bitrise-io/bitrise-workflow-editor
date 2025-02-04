@@ -138,7 +138,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(WorkflowsPageDialogType.STEP_BUNDLE) && (
         <StepBundleConfigDrawer
           size="lg"
-          stepBundleId={stepBundleId}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}

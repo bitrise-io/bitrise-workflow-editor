@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
@@ -12,13 +11,9 @@ import Drawers from './components/Drawers';
 const StepBundlesPageContent = () => {
   const stepBundles = useStepBundles();
   const stepBundlesIds = Object.keys(stepBundles);
-  const { closeDialog, openDialog } = useStepBundlesPageStore();
+  const { openDialog } = useStepBundlesPageStore();
   const [{ id: selectedStepBundleId }] = useSelectedStepBundle();
   const hasStepBundles = stepBundlesIds.length > 0;
-
-  useEffect(() => {
-    closeDialog();
-  }, [hasStepBundles, closeDialog]);
 
   const content = hasStepBundles ? (
     <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">

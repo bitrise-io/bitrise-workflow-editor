@@ -111,6 +111,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
             onSelectStep={handleSelectStep}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
             selectedStepIndices={selectedStepIndices}
+            selectedStepBundleId={stepBundleId}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>

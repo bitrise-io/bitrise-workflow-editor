@@ -45,10 +45,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
   const selectedStepIndices = usePipelinesPageStore((s) => s.selectedStepIndices);
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
-  const setSelectionParent = usePipelinesPageStore((s) => s.setSelectionParent);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const setSelectedStepBundleId = usePipelinesPageStore((s) => s.setStepBundleId);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
+  const selectedStepBundleId = usePipelinesPageStore((s) => s.stepBundleId);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
@@ -160,17 +160,17 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           break;
         }
         case 'remove': {
-          // Close the dialog if the selected step is deleted
           if (
             (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
             (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle')
           ) {
+            // Close the dialog if the selected step is deleted
             if (selectedStepIndices.includes(stepIndex)) {
               closeDialog();
             }
             // Adjust index of the selected steps
             if (stepIndices && stepIndices.length === 1) {
-              setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndices[0], targetIndex));
+              setSelectedStepIndices(moveStepIndices(action, selectedStepIndices, stepIndices[0]));
             } else {
               setSelectedStepIndices([]);
             }
@@ -229,8 +229,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           if (!isEqual(selectionParent, newSelectionParent)) {
             newIndices = [stepIndex];
           }
-          setSelectedStepIndices(newIndices);
-          setSelectionParent(newSelectionParent);
           usePipelinesPageStore.setState({
             workflowId: wfId || '',
             stepBundleId: stepBundleId || '',
@@ -282,15 +280,12 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
       handleDeleteStep: (workflowId: string, stepIndices: number[]) => {
         deleteStep(workflowId, stepIndices);
-        if (stepIndices.length === 1) {
-          handleStepActionChange({
-            workflowId,
-            stepIndex: stepIndices[0],
-            action: 'remove',
-          });
-        } else {
-          setSelectedStepIndices([]);
-        }
+        handleStepActionChange({
+          workflowId,
+          stepIndex: stepIndices[0],
+          stepIndices,
+          action: 'remove',
+        });
       },
       handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) =>
         openDialog({
@@ -394,7 +389,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
-    setSelectionParent,
     moveStep,
     cloneStep,
     deleteStep,
@@ -440,6 +434,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         containerProps={containerProps}
         selectedStepIndices={selectedStepIndices}
         selectedWorkflowId={selectedWorkflowId}
+        selectedStepBundleId={selectedStepBundleId}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}

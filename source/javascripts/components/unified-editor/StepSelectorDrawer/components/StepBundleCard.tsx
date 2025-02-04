@@ -24,7 +24,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
-  const { isSelected, selectedStepIndices } = useSelection();
+  const { isSelected } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
@@ -58,7 +58,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     cardPadding = '4px 8px';
   }
 
-  const isHighlighted = workflowId && isSelected(workflowId, stepIndex);
+  const isHighlighted = isSelected(workflowId, stepIndex);
   const isPlaceholder = sortable.isDragging;
 
   const cardProps = useMemo(() => {
@@ -101,7 +101,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               onSelectStep({
                 stepIndex,
                 type: LibraryType.BUNDLE,
-                stepBundleId: cvs.replace('bundle::', ''),
                 wfId: workflowId,
               });
             }}
@@ -115,13 +114,13 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             isDanger
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteStep(workflowId, selectedStepIndices);
+              onDeleteStep(workflowId, [stepIndex]);
             }}
           />
         )}
       </ButtonGroup>
     );
-  }, [cvs, isDragging, onDeleteStep, onSelectStep, selectedStepIndices, stepIndex, workflowId]);
+  }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
 
   return (
     <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>

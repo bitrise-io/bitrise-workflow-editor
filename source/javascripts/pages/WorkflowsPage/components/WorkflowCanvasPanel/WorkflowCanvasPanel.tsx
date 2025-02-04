@@ -24,15 +24,23 @@ const containerProps: CardProps = {
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
 
-  const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
-    useWorkflowsPageStore((s) => ({
-      closeDialog: s.closeDialog,
-      openDialog: s.openDialog,
-      selectedStepIndices: s.selectedStepIndices,
-      selectedWorkflowId: s.workflowId,
-      selectionParent: s.selectionParent,
-      setSelectedStepIndices: s.setSelectedStepIndices,
-    }));
+  const {
+    closeDialog,
+    openDialog,
+    selectedStepIndices,
+    selectedWorkflowId,
+    selectedStepBundleId,
+    selectionParent,
+    setSelectedStepIndices,
+  } = useWorkflowsPageStore((s) => ({
+    closeDialog: s.closeDialog,
+    openDialog: s.openDialog,
+    selectedStepIndices: s.selectedStepIndices,
+    selectedWorkflowId: s.workflowId,
+    selectedStepBundleId: s.stepBundleId,
+    selectionParent: s.selectionParent,
+    setSelectedStepIndices: s.setSelectedStepIndices,
+  }));
 
   const deferredWorkflowId = useDeferredValue(selectedWorkflowId);
 
@@ -262,16 +270,28 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     (wfId: string, stepIndices: number[]) => {
       deleteStep(wfId, stepIndices);
 
-      // Close the dialog if the selected step is deleted
-      if (stepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
+      if (selectedStepIndices.includes(stepIndices[0])) {
         closeDialog();
       }
-
-      if (selectionParent?.id === wfId && selectionParent?.type === 'workflow') {
-        setSelectedStepIndices([]);
+      // Close the dialog if the selected step is deleted
+      if (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') {
+        // Adjust index of the selected steps
+        if (stepIndices.length === 1) {
+          setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
+        } else {
+          setSelectedStepIndices([]);
+        }
       }
     },
-    [deleteStep, selectedStepIndices, selectionParent?.id, selectionParent?.type, closeDialog, setSelectedStepIndices],
+    [
+      deleteStep,
+      selectionParent?.id,
+      selectionParent?.type,
+      workflowId,
+      selectedStepIndices,
+      closeDialog,
+      setSelectedStepIndices,
+    ],
   );
 
   const handleCloneStepInStepBundle = useCallback(
@@ -355,6 +375,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
           id={workflowId}
+          selectedStepBundleId={selectedStepBundleId}
           isCollapsable={false}
           containerProps={containerProps} // Selection
           selectedStepIndices={selectedStepIndices}
