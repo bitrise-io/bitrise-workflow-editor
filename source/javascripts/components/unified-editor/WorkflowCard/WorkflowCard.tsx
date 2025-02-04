@@ -31,7 +31,7 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const { isSelected } = useSelection();
-  const isHighlighted = isSelected(id);
+  const isHighlighted = isSelected({ workflowId: id });
   const cardPros = useMemo(
     () => ({
       ...containerProps,

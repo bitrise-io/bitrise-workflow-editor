@@ -73,7 +73,11 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         closeDialog();
       }
       // Adjust index of the selected steps
-      setSelectedStepIndices([]);
+      if (selectedStepIndices.includes(stepIndices[0])) {
+        setSelectedStepIndices([]);
+      } else {
+        setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
+      }
     },
     [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );

@@ -143,7 +143,7 @@ const StepCard = ({
 
   const icon = step?.icon || defaultIcon;
   const title = step?.title || step?.cvs || '';
-  const isHighlighted = isSelected(workflowId || undefined, stepIndex, stepBundleId);
+  const isHighlighted = isSelected({ stepBundleId, stepIndex, workflowId });
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const { isStep } = StepService;
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';

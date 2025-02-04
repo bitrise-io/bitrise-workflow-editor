@@ -270,28 +270,20 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     (wfId: string, stepIndices: number[]) => {
       deleteStep(wfId, stepIndices);
 
-      if (selectedStepIndices.includes(stepIndices[0])) {
-        closeDialog();
-      }
-      // Close the dialog if the selected step is deleted
-      if (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') {
+      if (selectionParent?.id === wfId && selectionParent?.type === 'workflow') {
+        // Close the dialog if the selected step is deleted
+        if (selectedStepIndices.includes(stepIndices[0])) {
+          closeDialog();
+        }
         // Adjust index of the selected steps
-        if (stepIndices.length === 1) {
-          setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
-        } else {
+        if (selectedStepIndices.includes(stepIndices[0])) {
           setSelectedStepIndices([]);
+        } else {
+          setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
         }
       }
     },
-    [
-      deleteStep,
-      selectionParent?.id,
-      selectionParent?.type,
-      workflowId,
-      selectedStepIndices,
-      closeDialog,
-      setSelectedStepIndices,
-    ],
+    [deleteStep, selectionParent?.id, selectionParent?.type, selectedStepIndices, closeDialog, setSelectedStepIndices],
   );
 
   const handleCloneStepInStepBundle = useCallback(
@@ -310,12 +302,16 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     (stepBundleId: string, stepIndices: number[]) => {
       deleteStepInStepBundle(stepBundleId, stepIndices);
 
-      // Close the dialog if the selected step is deleted
-      if (stepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
-        closeDialog();
-      }
       if (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle') {
-        setSelectedStepIndices([]);
+        // Close the dialog if the selected step is deleted
+        if (stepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
+          closeDialog();
+        }
+        if (selectedStepIndices.includes(stepIndices[0])) {
+          setSelectedStepIndices([]);
+        } else {
+          setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
+        }
       }
     },
     [
@@ -377,7 +373,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           id={workflowId}
           selectedStepBundleId={selectedStepBundleId}
           isCollapsable={false}
-          containerProps={containerProps} // Selection
+          containerProps={containerProps}
+          // Selection
           selectedStepIndices={selectedStepIndices}
           selectedWorkflowId={deferredWorkflowId}
           // Workflow actions

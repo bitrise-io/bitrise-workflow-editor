@@ -46,7 +46,15 @@ function useSelection() {
   return useMemo(
     () => ({
       ...selection,
-      isSelected: (workflowId?: string, stepIndex: number = -1, stepBundleId: string = '') => {
+      isSelected: ({
+        stepBundleId,
+        stepIndex = -1,
+        workflowId,
+      }: {
+        stepBundleId?: string;
+        stepIndex?: number;
+        workflowId?: string;
+      }) => {
         return (
           ((typeof workflowId === 'string' && selection.selectedWorkflowId === workflowId) ||
             selection.selectedStepBundleId === stepBundleId) &&

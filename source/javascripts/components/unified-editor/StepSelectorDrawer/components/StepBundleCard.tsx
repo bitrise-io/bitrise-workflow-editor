@@ -58,7 +58,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     cardPadding = '4px 8px';
   }
 
-  const isHighlighted = isSelected(workflowId, stepIndex);
+  const isHighlighted = isSelected({ workflowId, stepIndex });
   const isPlaceholder = sortable.isDragging;
 
   const cardProps = useMemo(() => {
