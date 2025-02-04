@@ -43,22 +43,23 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, selectedStepIndices = [] }) => {
+  openDialog: ({ type, selectedStepIndices }) => {
     return () => {
-      return set(({ openedDialogType, closeDialog }) => {
+      return set((state) => {
+        const { openedDialogType, closeDialog } = state;
         if (openedDialogType !== StepBundlesPageDialogType.NONE) {
           closeDialog();
 
           return {
             _nextDialog: {
               type,
-              selectedStepIndices,
+              selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
             },
           };
         }
 
         return {
-          selectedStepIndices,
+          selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
@@ -72,12 +73,12 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
     }));
   },
   unmountDialog: () => {
-    return set(({ _nextDialog, openDialog }) => {
+    return set(({ _nextDialog, openDialog, selectedStepIndices }) => {
       if (_nextDialog) {
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
-      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+      if (selectedStepIndices.length === 1 && !_nextDialog) {
         return {
           selectedStepIndices: [],
           nextDialog: undefined,

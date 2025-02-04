@@ -1,10 +1,10 @@
 import { Box } from '@bitrise/bitkit';
-import StepBundlePropertiesTab from '@/components/unified-editor/StepBundleConfigDrawer/StepBundlePropertiesTab';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { useStepBundlesPageStore } from '../../StepBundlesPage.store';
-import StepBundlesConfigProvider from './StepBundlesConfig.context';
+import { useStepBundlesPageStore } from '../../../pages/StepBundlesPage/StepBundlesPage.store';
+import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigHeader from './StepBundlesConfigHeader';
+import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type ConfigPanelContentProps = {
   stepBundleId: string;
@@ -23,7 +23,9 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
   return (
     <Box borderLeft="1px solid" borderColor="border/regular">
       <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
-      <StepBundlePropertiesTab stepBundleId={stepBundleId} onDelete={handleOnDelete} onRename={setSelectedStepBundle} />
+      <Box padding="16px 24px">
+        <StepBundlePropertiesTab onDelete={handleOnDelete} onRename={setSelectedStepBundle} />
+      </Box>
     </Box>
   );
 };

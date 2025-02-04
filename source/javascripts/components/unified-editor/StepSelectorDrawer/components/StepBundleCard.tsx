@@ -19,17 +19,7 @@ type StepBundleCardProps = StepCardProps & {
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const {
-    cvs,
-    isCollapsable,
-    isDragging,
-    isPreviewMode = false,
-    isSortable,
-    stepBundleId,
-    stepIndex,
-    uniqueId,
-    workflowId,
-  } = props;
+  const { cvs, isCollapsable, isDragging, isPreviewMode = false, isSortable, stepIndex, uniqueId, workflowId } = props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
@@ -46,7 +36,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       uniqueId,
       stepIndex,
       workflowId,
-      stepBundleId,
     } satisfies SortableStepItem,
   });
 
@@ -69,7 +58,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     cardPadding = '4px 8px';
   }
 
-  const isHighlighted = workflowId && isSelected(workflowId, stepIndex);
+  const isHighlighted = isSelected({ workflowId, stepIndex });
   const isPlaceholder = sortable.isDragging;
 
   const cardProps = useMemo(() => {
@@ -109,7 +98,11 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             aria-label="Settings"
             size="xs"
             onClick={() => {
-              onSelectStep({ stepIndex, type: LibraryType.BUNDLE, wfId: workflowId });
+              onSelectStep({
+                stepIndex,
+                type: LibraryType.BUNDLE,
+                wfId: workflowId,
+              });
             }}
           />
         )}
@@ -121,7 +114,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             isDanger
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteStep(workflowId, stepIndex);
+              onDeleteStep(workflowId, [stepIndex]);
             }}
           />
         )}

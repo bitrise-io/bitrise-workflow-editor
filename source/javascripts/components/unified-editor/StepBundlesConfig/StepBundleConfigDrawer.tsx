@@ -1,39 +1,33 @@
 import { Notification, Text } from '@bitrise/bitkit';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import StepBundleService from '@/core/models/StepBundleService';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useNavigation from '@/hooks/useNavigation';
 import useStep from '@/hooks/useStep';
-import StepService from '@/core/models/StepService';
-import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
-} from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import useNavigation from '@/hooks/useNavigation';
+} from '../FloatingDrawer/FloatingDrawer';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
+import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
+  onRename: (name: string) => void;
   workflowId: string;
   stepIndex: number;
 };
 
-const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const StepBundleConfigDrawer = ({ onRename, workflowId, stepIndex, ...props }: Props) => {
   const { data } = useStep({ workflowId, stepIndex });
-  const defaultStepLibrary = useDefaultStepLibrary();
-  const stepBundleId = data?.title;
-  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${stepBundleId}` });
+
+  const dependants = useDependantWorkflows({ stepBundleCvs: data?.cvs });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
+
   const { replace } = useNavigation();
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && stepBundleId;
-
-  const isStepBundle = StepService.isStepBundle(data?.cvs || '', defaultStepLibrary, data?.userValues);
-
-  if (!isStepBundle || !data) {
-    return null;
-  }
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 
   return (
     <FloatingDrawer {...props}>
@@ -41,7 +35,7 @@ const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
           <Text as="h3" textStyle="heading/h3">
-            {enableStepBundles ? stepBundleId : `Step bundle: ${stepBundleId}`}
+            {data?.title}
           </Text>
           {enableStepBundles && (
             <Text color="text/secondary" textStyle="body/md/regular">
@@ -51,7 +45,9 @@ const StepBundleConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {enableStepBundles ? (
-            <StepBundlePropertiesTab stepBundleId={stepBundleId} />
+            <StepBundlesConfigProvider stepBundleId={data?.id || ''}>
+              <StepBundlePropertiesTab onRename={onRename} />
+            </StepBundlesConfigProvider>
           ) : (
             <Notification
               action={{

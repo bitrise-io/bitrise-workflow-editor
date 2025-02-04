@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useStepBundleConfigContext } from '@/pages/StepBundlesPage/components/StepBundlesConfigPanel/StepBundlesConfig.context';
+import { useStepBundleConfigContext } from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfig.context';
 
 const useRenameStepBundle = (onChange?: (newStepBundleId: string) => void) => {
   const selectedStepBundleId = useStepBundleConfigContext()?.id ?? '';

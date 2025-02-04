@@ -149,15 +149,19 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: Step
   return copy;
 }
 
-function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+function deleteStep(workflowId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
     return copy;
   }
 
-  copy.workflows[workflowId].steps.splice(stepIndex, 1);
+  // Remove selected step / steps
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  sortedIndices.forEach((stepIndex) => {
+    copy.workflows?.[workflowId].steps?.splice(stepIndex, 1);
+  });
 
   // If the steps are empty, remove it
   if (shouldRemoveField(copy.workflows[workflowId].steps, yml.workflows?.[workflowId]?.steps)) {
@@ -262,20 +266,66 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   return copy;
 }
 
-function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.step_bundles?.[stepBundleId]?.steps) {
     return copy;
   }
 
-  copy.step_bundles[stepBundleId].steps.splice(stepIndex, 1);
+  // Remove selected step / steps
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  sortedIndices.forEach((stepIndex) => {
+    copy.step_bundles?.[stepBundleId].steps?.splice(stepIndex, 1);
+  });
 
   // If the steps are empty, remove it
   if (shouldRemoveField(copy.step_bundles[stepBundleId].steps, yml.step_bundles?.[stepBundleId]?.steps)) {
     delete copy.step_bundles[stepBundleId].steps;
   }
+
+  return copy;
+}
+
+function groupStepsToStepBundle(
+  workflowId: string,
+  stepBundleId: string,
+  selectedStepIndices: number[],
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
+    return copy;
+  }
+
+  // Remove step / steps from a workflow and make sure that the removed step / steps are not part of a with group or a step bundle
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  const removedSteps = sortedIndices
+    .map((stepIndex) => {
+      return copy.workflows?.[workflowId].steps?.splice(stepIndex, 1).filter((step) => {
+        const { isStep } = StepService;
+        const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+        const cvs = Object.keys(step)[0];
+        return isStep(cvs, defaultStepLibrary);
+      })[0] as { [x: string]: StepYmlObject };
+    })
+    .reverse();
+
+  // Create and add selected step / steps to the step bundle
+  copy.step_bundles = {
+    ...copy.step_bundles,
+    ...{
+      [stepBundleId]: { steps: removedSteps },
+    },
+  };
+
+  // Push the created step bundle to the workflow, which contained the selected step / steps
+  const steps = copy.workflows[workflowId].steps ?? [];
+  steps.splice(sortedIndices.reverse()[0], 0, { [`bundle::${stepBundleId}`]: {} });
+  copy.workflows[workflowId].steps = steps;
 
   return copy;
 }
@@ -1390,6 +1440,7 @@ export default {
   createStepBundle,
   deleteStepBundle,
   deleteStepInStepBundle,
+  groupStepsToStepBundle,
   moveStepInStepBundle,
   renameStepBundle,
   updateStepInStepBundle,

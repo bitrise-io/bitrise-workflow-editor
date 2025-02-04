@@ -26,14 +26,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const handleSelectStep = useCallback<(props: { isMultiple?: boolean; stepIndex: number }) => void>(
     ({ isMultiple, stepIndex }) => {
       if (isMultiple) {
-        let newIndexes = [...selectedStepIndices, stepIndex];
+        let newIndices = [...selectedStepIndices, stepIndex];
         if (selectedStepIndices.includes(stepIndex)) {
-          newIndexes = selectedStepIndices.filter((i: number) => i !== stepIndex);
+          newIndices = selectedStepIndices.filter((i: number) => i !== stepIndex);
         }
-        if (newIndexes.length !== 1) {
+        if (newIndices.length !== 1) {
           closeDialog();
         }
-        setSelectedStepIndices(newIndexes);
+        setSelectedStepIndices(newIndices);
       } else {
         openDialog({
           type: StepBundlesPageDialogType.STEP_CONFIG,
@@ -65,15 +65,19 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   );
 
   const handleDeleteStep = useCallback(
-    (bundleId: string, stepIndex: number) => {
-      deleteStepInStepBundle(bundleId, stepIndex);
+    (bundleId: string, stepIndices: number[]) => {
+      deleteStepInStepBundle(bundleId, stepIndices);
 
       // Close the dialog if the selected step is deleted
-      if (selectedStepIndices.includes(stepIndex)) {
+      if (selectedStepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
         closeDialog();
       }
       // Adjust index of the selected steps
-      setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndex));
+      if (selectedStepIndices.includes(stepIndices[0])) {
+        setSelectedStepIndices([]);
+      } else {
+        setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
+      }
     },
     [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
   );
@@ -111,6 +115,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
             onSelectStep={handleSelectStep}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
             selectedStepIndices={selectedStepIndices}
+            selectionParent={{
+              id: stepBundleId,
+              type: 'stepBundle',
+            }}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>
