@@ -1,18 +1,16 @@
 import _ from "underscore";
-import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 import { safeDigest } from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
 import { segmentTrack } from "@/utils/segmentTracking";
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { configMergeDialog } from "@/components/ConfigMergeDialog/ConfigMergeDialog.store";
+import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
 
 (function () {
-  "use strict";
-
   angular
     .module("BitriseWorkflowEditor")
     .controller("MainController", function (
@@ -32,9 +30,9 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       launchDarklyService,
       Variable
     ) {
-      var viewModel = this;
+      const viewModel = this;
 
-      var originalOnbeforeunloadHandler = window.onbeforeunload;
+      const originalOnbeforeunloadHandler = window.onbeforeunload;
 
       $scope.appService = appService;
       $scope.requestService = requestService;
@@ -43,7 +41,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       viewModel.appConfigYML = undefined;
       viewModel.defaultBranch = "";
       viewModel.gitRepoSlug = "";
-      viewModel.appDetails;
+      viewModel.appDetails = undefined;
       viewModel.showSharedSecrets = false;
       viewModel.menus = _.compact([
         {
@@ -60,7 +58,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "pipelines"
         },
-        enableStepBundles == true
+        enableStepBundles === true
           ? {
             id: "step_bundles",
             title: "Step bundles",
@@ -90,7 +88,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           possibleURLParameterKeys: ["trigger_type", "pipeline", "workflow_id"],
           cssClass: "triggers"
         },
-        requestService.mode == "website"
+        requestService.mode === "website"
           ? {
             id: "stack",
             title: "<%= data[:strings][:main][:menus][:stack] %>",
@@ -99,7 +97,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             cssClass: "stack"
           }
           : null,
-        requestService.mode == "website"
+        requestService.mode === "website"
           ? {
             id: "licenses",
             title: "<%= data[:strings][:main][:menus][:licenses] %>",
@@ -118,7 +116,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         }
       ]);
       viewModel.menuProgress = new Progress();
-      viewModel.currentMenu;
+      viewModel.currentMenu = undefined;
       viewModel.tourIds = ["menu-nav", "workflow-main-toolbar", "steps-container"];
 
       viewModel.loadDataProgress = new Progress();
@@ -127,7 +125,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       viewModel.initAppProgress = new Progress();
 
       viewModel.shouldAllowYMLMenuWithoutDiscard = false;
-      viewModel.lastWorkflowEditedDate;
+      viewModel.lastWorkflowEditedDate = undefined;
 
       viewModel.isDiffEditorEnabled = false;
       viewModel.isDiffDialogOpen = false;
@@ -193,7 +191,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         });
       }
 
-      $scope.$on("$locationChangeSuccess", function (_, newUrl, oldUrl) {
+      $scope.$on("$locationChangeSuccess", function (__, newUrl, oldUrl) {
         if (window !== window.parent) {
           const oldHash = new URL(oldUrl).hash;
           const newHash = new URL(newUrl).hash;
@@ -209,8 +207,8 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       });
 
       function selectInitialMenu() {
-        var initialMenu = _.find(viewModel.menus, function (aMenu) {
-          return "/" + aMenu.path == $location.path();
+        let initialMenu = _.find(viewModel.menus, function (aMenu) {
+          return `/${aMenu.path}` === $location.path();
         });
         if (!initialMenu || !viewModel.isMenuEnabled(initialMenu)) {
           initialMenu = _.find(viewModel.menus, function (menu) {
@@ -226,8 +224,8 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
 
         $q(function (resolve, reject) {
           switch (viewModel.currentMenu.id) {
-            case "pipelines":
-              var loadPromises = [appService.getAppConfig()];
+            case "pipelines": {
+              const loadPromises = [appService.getAppConfig()];
 
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(appService.getPipelineConfig());
@@ -242,8 +240,9 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               }, reject);
 
               break;
-            case "workflows":
-              var loadPromises = [appService.getAppConfig()];
+            }
+            case "workflows": {
+              const loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(appService.getPipelineConfig());
               }
@@ -251,19 +250,21 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               $q.all(loadPromises).then(resolve, reject);
 
               break;
-            case "step_bundles":
-              var loadPromises = [appService.getAppConfig()];
+            }
+            case "step_bundles": {
+              const loadPromises = [appService.getAppConfig()];
               $q.all(loadPromises).then(resolve, reject);
 
               break;
-            case "env-vars":
-              var loadPromises = [appService.getAppConfig()];
+            }
+            case "env-vars": {
+              const loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(Stack.getAll());
                 loadPromises.push(appService.getPipelineConfig());
                 loadPromises.push(launchDarklyService.initialize());
               }
-              var loadPromise = $q.all(loadPromises);
+              let loadPromise = $q.all(loadPromises);
               if (requestService.isWebsiteMode()) {
                 loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
                   if (appService.appDetails.isMachineTypeSelectorAvailable) {
@@ -281,12 +282,13 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
                 }
               );
               break;
-            case "triggers":
-              var loadPromises = [appService.getAppConfig()];
+            }
+            case "triggers": {
+              const loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(appService.getPipelineConfig());
               }
-              var loadPromise = $q.all(loadPromises);
+              const loadPromise = $q.all(loadPromises);
 
               loadPromise.then(
                 function () {
@@ -297,10 +299,11 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
                 }
               );
               break;
-            case "licenses":
-              var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig()];
+            }
+            case "licenses": {
+              const loadPromises = [appService.getAppConfig(), appService.getPipelineConfig()];
 
-              var loadPromise = $q.all(loadPromises);
+              const loadPromise = $q.all(loadPromises);
 
               loadPromise.then(
                 function () {
@@ -312,6 +315,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               );
 
               break;
+            }
             case "secrets":
               resolve();
               break;
@@ -362,7 +366,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
 
         viewModel.menuProgress.start("Loading, wait a sec...");
 
-        var shouldCallLoadAfterMenuChange = true;
+        let shouldCallLoadAfterMenuChange = true;
 
         $q(function (resolve, reject) {
           if (!viewModel.currentMenu) {
@@ -371,12 +375,12 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             return;
           }
 
-          var menuIDsByHandledSource = [["workflows", "pipelines", "step_bundles", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
+          const menuIDsByHandledSource = [["workflows", "pipelines", "step_bundles", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
 
           if (
             _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
               return _.contains(menuIDsOfSource, viewModel.currentMenu.id);
-            }) ==
+            }) ===
             _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
               return _.contains(menuIDsOfSource, menu.id);
             })
@@ -437,8 +441,8 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
               });
             });
 
-            var isInitialSelection = !viewModel.currentMenu;
-            if (isInitialSelection && requestService.mode == "website") {
+            const isInitialSelection = !viewModel.currentMenu;
+            if (isInitialSelection && requestService.mode === "website") {
               history.pushState(
                 {
                   eventID: "backButtonPressedOnInitialWorkflowEditorPage"
@@ -448,11 +452,11 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             }
 
             viewModel.currentMenu = menu;
-            if ($location.path() != "/" + menu.path) {
+            if ($location.path() !== `/${menu.path}`) {
               if (params) {
-                $location.path("/" + menu.path).search(params).replace();
+                $location.path(`/${menu.path}`).search(params).replace();
               } else {
-                $location.path("/" + menu.path).replace();
+                $location.path(`/${menu.path}`).replace();
               }
             }
 
@@ -536,7 +540,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       };
 
       window.onload = function () {
-        if (requestService.mode == "cli") {
+        if (requestService.mode === "cli") {
           requestService.cancelAPIConnectionClose();
         }
       };
@@ -554,10 +558,10 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       };
 
       window.onpopstate = function (event) {
-        if (event.state && event.state.eventID == "backButtonPressedOnInitialWorkflowEditorPage") {
+        if (event.state && event.state.eventID === "backButtonPressedOnInitialWorkflowEditorPage") {
           window.location.replace();
 
-          return;
+
         }
       };
 
@@ -623,14 +627,14 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : appService.getNormalizedAppConfig;
 
           return fetchRemoteConfig().then((remoteConfig) => {
-            const _baseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
-            const _yourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
-            const _remoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
+            const unformattedBaseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
+            const unformattedYourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
+            const unformattedRemoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
 
             return Promise.all([
-              formatYaml(_baseYaml),
-              formatYaml(_yourYaml),
-              formatYaml(_remoteYaml),
+              formatYaml(unformattedBaseYaml),
+              formatYaml(unformattedYourYaml),
+              formatYaml(unformattedRemoteYaml),
             ]).then(([baseYaml, yourYaml, remoteYaml]) => {
               const hasChanges = defaultBaseYaml ? defaultBaseYaml !== remoteYaml : baseYaml !== remoteYaml;
 
@@ -777,7 +781,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       }
 
       $(document).on("keydown", function (event) {
-        if ((event.ctrlKey || event.metaKey) && event.which == 83) {
+        if ((event.ctrlKey || event.metaKey) && event.which === 83) {
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
@@ -817,6 +821,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
             appService.discardStackChanges();
             appService.discardDefaultMachineTypeChanges();
 
+            break;
           case "yml":
             appService.discardAppConfigYMLChanges();
 
@@ -828,7 +833,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       };
 
       viewModel.selectMenuByID = function (menuID) {
-        var selectedMenu = _.find(viewModel.menus, {
+        let selectedMenu = _.find(viewModel.menus, {
           id: menuID
         });
 
@@ -850,21 +855,19 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           return undefined;
         }
 
-        if (appService.appDetails.ownerData.type == "User") {
+        if (appService.appDetails.ownerData.type === "User") {
           if (appService.appDetails.isCurrentUserOwner) {
             return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?only_direct=true";
-          } else {
-            return (
-              "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?user_slug=" +
-              appService.appDetails.ownerData.slug
-            );
           }
+          return (
+            `<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?user_slug=${appService.appDetails.ownerData.slug}`
+          );
+
         }
 
-        if (appService.appDetails.ownerData.type == "Organization") {
+        if (appService.appDetails.ownerData.type === "Organization") {
           return (
-            "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?organization_slug=" +
-            appService.appDetails.ownerData.slug
+            `<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?organization_slug=${appService.appDetails.ownerData.slug}`
           );
         }
       };
@@ -933,19 +936,19 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           });
         }).then(
           function () {
-            if (requestService.mode == "website") {
+            if (requestService.mode === "website") {
               viewModel.defaultBranch = appService.appDetails.defaultBranch;
               viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
             }
-            if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
-              var stackMenu = _.find(viewModel.menus, {
+            if (requestService.mode === "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
+              const stackMenu = _.find(viewModel.menus, {
                 id: "stack"
               });
               stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
             }
 
-            if (requestService.mode == "website" && appService.appDetails.isCurrentUserIsOrgOwner) {
-              var licensesMenu = _.find(viewModel.menus, {
+            if (requestService.mode === "website" && appService.appDetails.isCurrentUserIsOrgOwner) {
+              const licensesMenu = _.find(viewModel.menus, {
                 id: "licenses"
               });
               licensesMenu.cssClass = "licenses";
@@ -966,7 +969,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
       };
 
       viewModel.shouldShowMenuBar = function () {
-        if (requestService.mode == "cli") {
+        if (requestService.mode === "cli") {
           return true;
         }
 
@@ -979,7 +982,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         }
 
         if (menu && menu.id === "stack") {
-          if (viewModel.loadDataProgress.statusMessage == "<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>") {
+          if (viewModel.loadDataProgress.statusMessage === "<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>") {
             return true;
           }
         }
@@ -1046,7 +1049,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
           const existingSecret = appService.secrets.find(s => s.scope() !== 'workspace' && s.key() === secret.key);
 
           if (!existingSecret) {
-            let newVariable = new Variable(
+            const newVariable = new Variable(
               {
                 "": ""
               },

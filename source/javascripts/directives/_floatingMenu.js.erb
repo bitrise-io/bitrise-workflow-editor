@@ -1,14 +1,14 @@
-(function() {
-	"use strict";
+(function () {
+
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.directive("floatingMenu", function($parse) {
+		.directive("floatingMenu", function ($parse) {
 			return {
 				restrict: "A",
-				link: function(scope, element, attrs) {
+				link(scope, element, attrs) {
 					function escapeKeyPressHandler(event) {
-						if (event.keyCode != 27) {
+						if (event.keyCode !== 27) {
 							return;
 						}
 
@@ -17,7 +17,7 @@
 
 					function clickHandler(event) {
 						if (
-							element == $(event.target) ||
+							element === $(event.target) ||
 							element.find($(event.target)).length > 0
 						) {
 							return;
@@ -32,10 +32,10 @@
 					}
 
 					scope.$watch(
-						function() {
+						function () {
 							return $parse(attrs.toggle)(scope);
 						},
-						function(value) {
+						function (value) {
 							if (value === undefined || !value) {
 								$(document).off("keyup", escapeKeyPressHandler);
 								$(document).off("click", clickHandler);
@@ -48,7 +48,7 @@
 						}
 					);
 
-					scope.$on("$destroy", function() {
+					scope.$on("$destroy", function () {
 						$(document).off("keyup", escapeKeyPressHandler);
 						$(document).off("click", clickHandler);
 					});

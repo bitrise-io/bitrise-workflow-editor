@@ -1,12 +1,12 @@
+import RuntimeUtils from "@/core/utils/RuntimeUtils";
+
 window.serviceVersion = "<%= ENV['wfe_version'] %>";
 window.datadogApiKey = "<%= data[:constants][:datadog][:apiKey] %>";
-window.isAnalyticsOn = <%= analytics? %>;
+window.isAnalyticsOn = "<%= analytics? %>" === "true";
 window.mode = "<%= mode %>";
 
 (function () {
-  "use strict";
-
-  var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
+  const BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
     "ngRoute",
     "ngSanitize",
     "ngAnimate",
@@ -16,7 +16,7 @@ window.mode = "<%= mode %>";
   ]);
 
   BitriseWorkflowEditor.config(function ($compileProvider, $qProvider) {
-    $compileProvider.debugInfoEnabled(<%= ENV['NODE_ENV'] == 'development' %>);
+    $compileProvider.debugInfoEnabled(!RuntimeUtils.isProduction());
     $qProvider.errorOnUnhandledRejections(false);
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
   });
@@ -86,25 +86,25 @@ window.mode = "<%= mode %>";
     }
   ]);
 
-  <% if mode == "website" %>
-  <% if prod? %>
-  BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
-    $sceDelegateProvider.resourceUrlWhitelist([
-      "self",
-      // Prevent CORS issues on staging, when WFE runs under a different host
-      "https://app.bitrise.io/**",
-      "https://workflow-editor-cdn.bitrise.io/**"
-    ]);
-  });
-  <% else %>
-  BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
-    $sceDelegateProvider.resourceUrlWhitelist([
-      "self",
-      // Prevent CORS issues in local dev environment
-      "http://localhost:4000/**",
-      "https://workflow-editor-cdn.bitrise.io/**"
-    ]);
-  });
-  <% end %>
-  <% end %>
+  if (RuntimeUtils.isWebsiteMode()) {
+    if (RuntimeUtils.isProduction()) {
+      BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
+        $sceDelegateProvider.resourceUrlWhitelist([
+          "self",
+          // Prevent CORS issues on staging, when WFE runs under a different host
+          "https://app.bitrise.io/**",
+          "https://workflow-editor-cdn.bitrise.io/**"
+        ]);
+      });
+    } else {
+      BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
+        $sceDelegateProvider.resourceUrlWhitelist([
+          "self",
+          // Prevent CORS issues in local dev environment
+          "http://localhost:4000/**",
+          "https://workflow-editor-cdn.bitrise.io/**"
+        ]);
+      });
+    }
+  }
 })();

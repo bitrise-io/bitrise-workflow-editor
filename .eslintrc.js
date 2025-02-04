@@ -1,8 +1,9 @@
 module.exports = {
   root: true,
   parserOptions: {
-    project: ['tsconfig.json', 'tsconfig.eslint.json'],
     tsconfigRootDir: __dirname,
+    extraFileExtensions: ['.js.erb'],
+    project: ['tsconfig.json', 'tsconfig.eslint.json'],
   },
   env: {
     node: true,
@@ -11,7 +12,9 @@ module.exports = {
   },
   globals: {
     _: false,
+    $: 'readonly',
     cy: false,
+    jQuery: 'readonly',
     inject: false,
     angular: false,
     Cypress: false,
@@ -84,11 +87,21 @@ module.exports = {
         '@typescript-eslint/no-non-null-assertion': 'off',
       },
     },
-
     {
       files: ['./tests/*.spec.ts'],
       rules: {
         'testing-library/prefer-screen-queries': 'off',
+      },
+    },
+    {
+      files: ['source/javascripts/**/*.js', 'source/javascripts/**/*.js.erb', 'source/javascripts/services/**/*.ts'],
+      rules: {
+        'func-names': 'off',
+        'no-multi-assign': 'off',
+        'no-param-reassign': 'off',
+        'class-methods-use-this': 'off',
+        'react-hooks/rules-of-hooks': 'off',
+        '@typescript-eslint/no-this-alias': 'off',
       },
     },
   ],

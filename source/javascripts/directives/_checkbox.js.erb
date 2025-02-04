@@ -1,8 +1,8 @@
 (function() {
-	"use strict";
+	
 
 	angular.module("BitriseWorkflowEditor").directive("checkbox", function() {
-		var inheritedAttributes = [
+		const inheritedAttributes = [
 			"ng-model",
 			"ng-model-options",
 			"ng-change",
@@ -15,11 +15,11 @@
 			replace: true,
 			transclude: false,
 			priority: 1000000,
-			template: function(tElement, tAttrs) {
-				var parentElement = angular.element("<div></div>");
+			template(tElement, tAttrs) {
+				const parentElement = angular.element("<div></div>");
 				$(parentElement).addClass("checkbox");
 
-				var inputCheckboxElement = angular.element(
+				const inputCheckboxElement = angular.element(
 					"<input type='checkbox'></input>"
 				);
 				_.each(inheritedAttributes, function(anAttribute) {
@@ -27,22 +27,22 @@
 				});
 				inputCheckboxElement.attr(
 					"id",
-					"{{" + tAttrs.checkboxIdExpression + "}}"
+					`{{${  tAttrs.checkboxIdExpression  }}}`
 				);
 
 				$(parentElement).append(inputCheckboxElement);
 
-				var checkboxSVGWrapperElement = angular.element("<div></div>");
+				const checkboxSVGWrapperElement = angular.element("<div></div>");
 				$(checkboxSVGWrapperElement).addClass("checkbox-svg-wrapper");
 				$(parentElement).append(checkboxSVGWrapperElement);
 
-				var checkElement = angular.element(
+				const checkElement = angular.element(
 					'<%= svg("check").split("\n").join("").split("\r").join("").split("\t").join("") %>'
 				);
 				$(checkElement).attr("check", "");
 				$(checkboxSVGWrapperElement).append(checkElement);
 
-				var crossElement = angular.element(
+				const crossElement = angular.element(
 					'<%= svg("cross").split("\n").join("").split("\r").join("").split("\t").join("") %>'
 				);
 				$(crossElement).attr("cross", "");
@@ -50,7 +50,7 @@
 
 				return parentElement.prop("outerHTML");
 			},
-			link: function(scope, element) {
+			link(scope, element) {
 				_.each(inheritedAttributes, function(anAttribute) {
 					$(element).removeAttr(anAttribute);
 				});

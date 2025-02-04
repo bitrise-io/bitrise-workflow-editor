@@ -1,77 +1,73 @@
-(function() {
-	"use strict";
-
+(function () {
 	angular
 		.module("BitriseWorkflowEditor")
-		.factory("ProvProfile", function($q, requestService) {
-			var capabilities = {
+		.factory("ProvProfile", function ($q, requestService) {
+			const capabilities = {
 				"com.apple.security.application-groups":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.security.application-groups'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.security.application-groups'],
 				"com.apple.developer.in-app-payments":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.in-app-payments'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.in-app-payments'],
 				"com.apple.developer.associated-domains":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.associated-domains'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.associated-domains'],
 				"com.apple.developer.healthkit":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.healthkit'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.healthkit'],
 				"com.apple.developer.homekit":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.homekit'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.homekit'],
 				"com.apple.developer.networking.HotspotConfiguration":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.HotspotConfiguration'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.HotspotConfiguration'],
 				"com.apple.InAppPurchase":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.InAppPurchase'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.InAppPurchase'],
 				"inter-app-audio":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['inter-app-audio'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['inter-app-audio'],
 				"com.apple.developer.networking.multipath":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.multipath'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.multipath'],
 				"com.apple.developer.networking.networkextension":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.networkextension'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.networkextension'],
 				"com.apple.developer.nfc.readersession.formats":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.nfc.readersession.formats'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.nfc.readersession.formats'],
 				"com.apple.developer.networking.vpn.api":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.vpn.api'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.vpn.api'],
 				"aps-environment":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['aps-environment'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['aps-environment'],
 				"com.apple.developer.siri":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.siri'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.siri'],
 				"com.apple.developer.pass-type-identifiers":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.pass-type-identifiers'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.pass-type-identifiers'],
 				"com.apple.external-accessory.wireless-configuration":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.external-accessory.wireless-configuration'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.external-accessory.wireless-configuration'],
 				"com.apple.developer.default-data-protection":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.default-data-protection'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.default-data-protection'],
 				"com.apple.developer.ubiquity-kvstore-identifier":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.ubiquity-kvstore-identifier'],
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.ubiquity-kvstore-identifier'],
 				"com.apple.developer.icloud-services":
-					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.icloud-services']
+					window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.icloud-services']
 			};
 
-			var ProvProfile = function() {
-				this.databaseID;
-				this.file;
-				this.isProcessed;
-				this.uploadFileName;
-				this.isExpose;
-				this.isProtected;
-				this.uuid;
-				this.expiresAt;
-				this.exportType;
-				this.teamName;
-				this.teamID;
-				this.bundleID;
-				this.developerCertificateIdentities;
-				this.provisionedDevices;
-				this.capabilityKeys;
+			const ProvProfile = function () {
+				this.databaseID = undefined;
+				this.file = undefined;
+				this.isProcessed = undefined;
+				this.uploadFileName = undefined;
+				this.isExpose = undefined;
+				this.isProtected = undefined;
+				this.uuid = undefined;
+				this.expiresAt = undefined;
+				this.exportType = undefined;
+				this.teamName = undefined;
+				this.teamID = undefined;
+				this.bundleID = undefined;
+				this.developerCertificateIdentities = undefined;
+				this.provisionedDevices = undefined;
+				this.capabilityKeys = undefined;
 			};
 
 			ProvProfile.provisionURLEnvVarKey = "BITRISE_PROVISION_URL";
 			ProvProfile.defaultProvisionURLEnvVarKey =
 				"BITRISE_DEFAULT_PROVISION_URL";
 
-			ProvProfile.prototype.displayName = function() {
+			ProvProfile.prototype.displayName = function () {
 				if (this.uploadFileName) {
-					var nameRegexp = new RegExp(
-						"^(.+).(?:mobileprovision|provisionprofile)$"
-					);
+					const nameRegexp = /^(.+)\.(?:mobileprovision|provisionprofile)$/;
 
 					if (
 						nameRegexp.test(this.uploadFileName) &&
@@ -88,7 +84,7 @@
 				return "<%= data[:strings][:code_signing][:prov_profile][:no_name_for_file] %>";
 			};
 
-			ProvProfile.prototype.fileSize = function() {
+			ProvProfile.prototype.fileSize = function () {
 				if (!this.file) {
 					return undefined;
 				}
@@ -102,7 +98,7 @@
 				}
 			};
 
-			ProvProfile.prototype.validationError = function() {
+			ProvProfile.prototype.validationError = function () {
 				if (
 					!_.contains(
 						["mobileprovision", "provisionprofile"],
@@ -115,14 +111,14 @@
 				}
 			};
 
-			ProvProfile.prototype.upload = function(requestConfig) {
+			ProvProfile.prototype.upload = function (requestConfig) {
 				if (this.validationError()) {
 					return $q.reject(this.validationError());
 				}
 
-				var self = this;
+				const self = this;
 
-				return $q(function(resolve, reject) {
+				return $q(function (resolve, reject) {
 					requestService
 						.postProvProfileCreate(
 							self.file.name,
@@ -130,23 +126,23 @@
 							requestConfig
 						)
 						.then(
-							function(data) {
-								var provProfileDatabaseID = data.databaseID;
-								var uploadURL = data.uploadURL;
+							function (data) {
+								const provProfileDatabaseID = data.databaseID;
+								const { uploadURL } = data;
 
 								requestService.uploadFileToStorage(uploadURL, self.file).then(
-									function() {
+									function () {
 										requestService
 											.finalizeProvProfileUpload(
 												provProfileDatabaseID,
 												true,
 												requestConfig
 											)
-											.then(resolve, function(error) {
+											.then(resolve, function (error) {
 												reject(error);
 											});
 									},
-									function(error) {
+									function (error) {
 										requestService
 											.finalizeProvProfileUpload(
 												provProfileDatabaseID,
@@ -154,39 +150,39 @@
 												requestConfig
 											)
 											.then(
-												function() {
+												function () {
 													reject(error);
 												},
-												function(finalizeProvProfileUploadError) {
+												function (finalizeProvProfileUploadError) {
 													reject(error);
 												}
 											);
 									}
 								);
 							},
-							function(error) {
+							function (error) {
 								reject(error);
 							}
 						);
 				});
 			};
 
-			ProvProfile.prototype.protect = function(requestConfig) {
-				var self = this;
+			ProvProfile.prototype.protect = function (requestConfig) {
+				const self = this;
 
 				return requestService
 					.protectProvProfile(this.databaseID, requestConfig)
-					.then(function() {
+					.then(function () {
 						self.isProtected = true;
 					});
 			};
 
-			ProvProfile.prototype.getDetails = function(requestConfig) {
-				var self = this;
+			ProvProfile.prototype.getDetails = function (requestConfig) {
+				const self = this;
 
 				return requestService
 					.getDetailsOfProvProfile(self.databaseID)
-					.then(function(data) {
+					.then(function (data) {
 						self.uuid = data.uuid;
 						self.expiresAt = data.expiresAt;
 						self.exportType = data.exportType;
@@ -195,7 +191,7 @@
 						self.bundleID = data.bundleID;
 						self.developerCertificateIdentities = _.map(
 							data.developerCertificateIdentities,
-							function(anIdentity) {
+							function (anIdentity) {
 								return {
 									commonName: anIdentity.commonName,
 									startDate: anIdentity.startDate,
@@ -206,7 +202,7 @@
 								};
 							}
 						);
-						self.provisionedDevices = _.map(data.provisionedDevices, function(
+						self.provisionedDevices = _.map(data.provisionedDevices, function (
 							aProvisionedDevice
 						) {
 							return {
@@ -217,15 +213,15 @@
 					});
 			};
 
-			ProvProfile.prototype.download = function() {
+			ProvProfile.prototype.download = function () {
 				return requestService.downloadProvProfile(this.databaseID);
 			};
 
-			ProvProfile.prototype.delete = function(requestConfig) {
+			ProvProfile.prototype.delete = function (requestConfig) {
 				return requestService.deleteProvProfile(this.databaseID, requestConfig);
 			};
 
-			ProvProfile.descriptionForCapabilityKey = function(key) {
+			ProvProfile.descriptionForCapabilityKey = function (key) {
 				return capabilities[key];
 			};
 

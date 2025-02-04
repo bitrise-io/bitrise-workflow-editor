@@ -1,4 +1,4 @@
-var colors = [
+const colors = [
 	"#68442c",
 	"#86d641",
 	"#a775db",
@@ -27,16 +27,16 @@ var colors = [
 
 angular
 	.module("BitriseWorkflowEditor")
-	.filter("backgroundImagePropertyValue", function() {
-		return function(url) {
-			return "url('" + url + "')";
+	.filter("backgroundImagePropertyValue", function () {
+		return function (url) {
+			return `url('${url}')`;
 		};
 	});
 
 angular
 	.module("BitriseWorkflowEditor")
-	.filter("projectTypeCSSClass", function() {
-		return function(projectType) {
+	.filter("projectTypeCSSClass", function () {
+		return function (projectType) {
 			switch (projectType) {
 				case "ios":
 					return "ios";
@@ -62,22 +62,22 @@ angular
 		};
 	});
 
-angular.module("BitriseWorkflowEditor").filter("appAvatarURL", function() {
-	return function(url) {
-		if (!url || typeof url != "string" || url.length == 0) {
+angular.module("BitriseWorkflowEditor").filter("appAvatarURL", function () {
+	return function (url) {
+		if (!url || typeof url !== "string" || url.length === 0) {
 			return "";
 		}
 
-		return "url('" + url + "')";
+		return `url('${url}')`;
 	};
 });
 
-angular.module("BitriseWorkflowEditor").filter("colorFromString", function() {
-	return function(string) {
-		var pseudoRandom = 0;
+angular.module("BitriseWorkflowEditor").filter("colorFromString", function () {
+	return function (string) {
+		let pseudoRandom = 0;
 
 		if (typeof string === 'string' && string.length > 0) {
-			for (var i = 0; i < string.length; i++) {
+			for (let i = 0; i < string.length; i++) {
 				pseudoRandom += string.charCodeAt(i);
 			}
 		}
@@ -88,15 +88,15 @@ angular.module("BitriseWorkflowEditor").filter("colorFromString", function() {
 
 angular
 	.module("BitriseWorkflowEditor")
-	.filter("shorthandFromString", function() {
-		return function(string) {
+	.filter("shorthandFromString", function () {
+		return function (string) {
 			if (string === null || string === undefined) {
 				return "??";
 			}
 
 			string = string.toString();
 
-			if (string.length == 0) {
+			if (string.length === 0) {
 				return "??";
 			}
 

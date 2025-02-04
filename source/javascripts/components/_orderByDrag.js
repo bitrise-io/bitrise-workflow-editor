@@ -1,157 +1,138 @@
-(function() {
-	"use strict";
+(function () {
+  angular.module('BitriseWorkflowEditor').directive('orderByDrag', function ($parse) {
+    return {
+      restrict: 'A',
+      link(scope, element, attrs) {
+        let draggableSelector = $parse(attrs.draggableSelector)(scope);
+        if (draggableSelector === undefined) {
+          draggableSelector = '*';
+        }
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.directive("orderByDrag", function($parse) {
-			return {
-				restrict: "A",
-				link: function(scope, element, attrs) {
-					var draggableSelector = $parse(attrs.draggableSelector)(scope);
-					if (draggableSelector === undefined) {
-						draggableSelector = "*";
-					}
+        let selectedElement;
+        let cursorPositionYOnLastStableOrder;
+        let isDragInProgress = false;
 
-					var selectedElement;
-					var cursorPositionYOnLastStableOrder;
-					var isDragInProgress = false;
+        function mousedownHandler(event) {
+          if (event.which !== 1) {
+            return;
+          }
 
-					function mousedownHandler(event) {
-						if (event.which != 1) {
-							return;
-						}
+          if (attrs.disableOrderOn && $parse(attrs.disableOrderOn)(scope)) {
+            return;
+          }
 
-						if (attrs.disableOrderOn && $parse(attrs.disableOrderOn)(scope)) {
-							return;
-						}
+          if (event.target.hasAttribute('skip-drag-order')) {
+            return;
+          }
 
-						if (event.target.hasAttribute("skip-drag-order")) {
-							return;
-						}
+          for (
+            selectedElement = event.target;
+            selectedElement && !_.contains($(element).children(draggableSelector), selectedElement);
+            selectedElement = selectedElement.parentNode
+          );
+          $(selectedElement).off('mousedown', mousedownHandler);
 
-						for (
-							selectedElement = event.target;
-							selectedElement &&
-							!_.contains(
-								$(element).children(draggableSelector),
-								selectedElement
-							);
-							selectedElement = selectedElement.parentNode
-						);
-						$(selectedElement).off("mousedown", mousedownHandler);
+          cursorPositionYOnLastStableOrder = event.pageY;
 
-						cursorPositionYOnLastStableOrder = event.pageY;
+          $(document).on('mousemove', mousemoveHandler);
+          $(document).on('mouseup', mouseupHandler);
+        }
 
-						$(document).on("mousemove", mousemoveHandler);
-						$(document).on("mouseup", mouseupHandler);
-					}
+        function mousemoveHandler(event) {
+          if (!isDragInProgress && $(selectedElement).is(draggableSelector)) {
+            $(element).addClass('drag-in-progress');
+            $(selectedElement).addClass('dragged-element');
+            isDragInProgress = true;
+          }
 
-					function mousemoveHandler(event) {
-						if (!isDragInProgress && $(selectedElement).is(draggableSelector)) {
-							$(element).addClass("drag-in-progress");
-							$(selectedElement).addClass("dragged-element");
-							isDragInProgress = true;
-						}
+          const moveOffsetY = event.pageY - cursorPositionYOnLastStableOrder;
 
-						var moveOffsetY = event.pageY - cursorPositionYOnLastStableOrder;
+          if (moveOffsetY > 0) {
+            const nextElement = $(selectedElement).next(draggableSelector);
+            if (nextElement.length === 0) {
+              $(selectedElement).css('top', `${0}px`);
 
-						if (moveOffsetY > 0) {
-							var nextElement = $(selectedElement).next(draggableSelector);
-							if (nextElement.length == 0) {
-								$(selectedElement).css("top", 0 + "px");
+              return;
+            }
 
-								return;
-							}
+            $(selectedElement).css('top', `${moveOffsetY}px`);
 
-							$(selectedElement).css("top", moveOffsetY + "px");
+            const offsetYBetweenSiblings = $(selectedElement).offset().top - $(nextElement).offset().top;
+            if (offsetYBetweenSiblings > 0) {
+              const index = $(element).children().index(selectedElement);
+              const models = $parse(attrs.models)(scope);
+              const model = models[index];
+              models.splice(index, 1);
+              if (_.last(models) === model) {
+                models.push(model);
+              } else {
+                models.splice(index + 1, 0, model);
+              }
+              $(selectedElement).insertAfter(nextElement);
+              $(selectedElement).css('top', `${offsetYBetweenSiblings}px`);
+              cursorPositionYOnLastStableOrder = event.pageY - offsetYBetweenSiblings;
 
-							var offsetYBetweenSiblings =
-								$(selectedElement).offset().top - $(nextElement).offset().top;
-							if (offsetYBetweenSiblings > 0) {
-								var index = $(element)
-									.children()
-									.index(selectedElement);
-								var models = $parse(attrs.models)(scope);
-								var model = models[index];
-								models.splice(index, 1);
-								if (_.last(models) == model) {
-									models.push(model);
-								} else {
-									models.splice(index + 1, 0, model);
-								}
-								$(selectedElement).insertAfter(nextElement);
-								$(selectedElement).css("top", offsetYBetweenSiblings + "px");
-								cursorPositionYOnLastStableOrder =
-									event.pageY - offsetYBetweenSiblings;
+              scope.$apply();
+            }
+          } else {
+            const previousElement = $(selectedElement).prev(draggableSelector);
+            if (previousElement.length === 0) {
+              $(selectedElement).css('top', `${0}px`);
 
-								scope.$apply();
-							}
-						} else {
-							var previousElement = $(selectedElement).prev(draggableSelector);
-							if (previousElement.length == 0) {
-								$(selectedElement).css("top", 0 + "px");
+              return;
+            }
 
-								return;
-							}
+            $(selectedElement).css('top', `${moveOffsetY}px`);
 
-							$(selectedElement).css("top", moveOffsetY + "px");
+            const offsetYBetweenSiblings = $(selectedElement).offset().top - $(previousElement).offset().top;
+            if (offsetYBetweenSiblings < 0) {
+              const index = $(element).children().index(selectedElement);
+              const models = $parse(attrs.models)(scope);
+              const model = models[index];
+              models.splice(index, 1);
+              if (_.first(models) === model) {
+                models.unshift(model);
+              } else {
+                models.splice(index - 1, 0, model);
+              }
+              $(selectedElement).insertBefore(previousElement);
+              $(selectedElement).css('top', `${offsetYBetweenSiblings}px`);
+              cursorPositionYOnLastStableOrder = event.pageY - offsetYBetweenSiblings;
 
-							var offsetYBetweenSiblings =
-								$(selectedElement).offset().top -
-								$(previousElement).offset().top;
-							if (offsetYBetweenSiblings < 0) {
-								var index = $(element)
-									.children()
-									.index(selectedElement);
-								var models = $parse(attrs.models)(scope);
-								var model = models[index];
-								models.splice(index, 1);
-								if (_.first(models) == model) {
-									models.unshift(model);
-								} else {
-									models.splice(index - 1, 0, model);
-								}
-								$(selectedElement).insertBefore(previousElement);
-								$(selectedElement).css("top", offsetYBetweenSiblings + "px");
-								cursorPositionYOnLastStableOrder =
-									event.pageY - offsetYBetweenSiblings;
+              scope.$apply();
+            }
+          }
+        }
 
-								scope.$apply();
-							}
-						}
-					}
+        function mouseupHandler(event) {
+          $(selectedElement).css('top', '');
 
-					function mouseupHandler(event) {
-						$(selectedElement).css("top", "");
+          $(element).removeClass('drag-in-progress');
+          $(selectedElement).removeClass('dragged-element');
 
-						$(element).removeClass("drag-in-progress");
-						$(selectedElement).removeClass("dragged-element");
+          $(document).off('mousemove', mousemoveHandler);
+          $(document).off('mouseup', mouseupHandler);
+          $(selectedElement).on('mousedown', mousedownHandler);
 
-						$(document).off("mousemove", mousemoveHandler);
-						$(document).off("mouseup", mouseupHandler);
-						$(selectedElement).on("mousedown", mousedownHandler);
+          isDragInProgress = false;
+          scope.$apply();
+        }
 
-						isDragInProgress = false;
-						scope.$apply();
-					}
+        scope.$watchCollection(attrs.models, function (newModels, oldModels) {
+          _.each($(element).children(draggableSelector), function (aChild) {
+            $(aChild).off('mousedown', mousedownHandler).on('mousedown', mousedownHandler);
+          });
 
-					scope.$watchCollection(attrs.models, function(newModels, oldModels) {
-						_.each($(element).children(draggableSelector), function(aChild) {
-							$(aChild)
-								.off("mousedown", mousedownHandler)
-								.on("mousedown", mousedownHandler);
-						});
+          if (attrs.modelsChangedCallback) {
+            $parse(attrs.modelsChangedCallback)(scope)(newModels, oldModels);
+          }
+        });
 
-						if (attrs.modelsChangedCallback) {
-							$parse(attrs.modelsChangedCallback)(scope)(newModels, oldModels);
-						}
-					});
-
-					scope.$on("$destroy", function() {
-						$(document).off("mousemove", mousemoveHandler);
-						$(document).off("mouseup", mouseupHandler);
-					});
-				}
-			};
-		});
+        scope.$on('$destroy', function () {
+          $(document).off('mousemove', mousemoveHandler);
+          $(document).off('mouseup', mouseupHandler);
+        });
+      },
+    };
+  });
 })();
