@@ -1,11 +1,14 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { pick } from 'es-toolkit';
-import { StepActions, WorkflowActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import {
+  SelectionParent,
+  StepActions,
+  WorkflowActions,
+} from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 type State = {
-  selectedWorkflowId?: string;
-  selectedStepBundleId?: string;
   selectedStepIndices: number[];
+  selectionParent?: SelectionParent;
 };
 type Actions = StepActions & WorkflowActions;
 type ContextState = State & Actions;
@@ -14,19 +17,17 @@ const WorkflowCardContext = createContext<ContextState | undefined>(undefined);
 
 const WorkflowCardContextProvider = ({
   children,
-  selectedWorkflowId = '',
-  selectedStepBundleId = '',
   selectedStepIndices = [],
+  selectionParent,
   ...methods
 }: PropsWithChildren<ContextState>) => {
   const state = useMemo(
     () => ({
       ...methods,
-      selectedWorkflowId,
-      selectedStepBundleId,
       selectedStepIndices,
+      selectionParent,
     }),
-    [methods, selectedWorkflowId, selectedStepBundleId, selectedStepIndices],
+    [methods, selectedStepIndices, selectionParent],
   );
 
   return <WorkflowCardContext.Provider value={state}>{children}</WorkflowCardContext.Provider>;
@@ -39,13 +40,9 @@ function useSelection() {
     throw new Error('useSelection must be used within a WorkflowCardContextProvider');
   }
 
-  const selection = useMemo(
-    () => pick(state, ['selectedWorkflowId', 'selectedStepBundleId', 'selectedStepIndices']),
-    [state],
-  );
   return useMemo(
     () => ({
-      ...selection,
+      selectedStepIndices: state.selectedStepIndices,
       isSelected: ({
         stepBundleId,
         stepIndex = -1,
@@ -55,14 +52,15 @@ function useSelection() {
         stepIndex?: number;
         workflowId?: string;
       }) => {
+        const type: SelectionParent['type'] = stepBundleId ? 'stepBundle' : 'workflow';
         return (
-          ((typeof workflowId === 'string' && selection.selectedWorkflowId === workflowId) ||
-            selection.selectedStepBundleId === stepBundleId) &&
-          selection.selectedStepIndices.includes(stepIndex)
+          ((typeof workflowId === 'string' && type === 'workflow' && state.selectionParent?.id === workflowId) ||
+            (type === 'stepBundle' && state.selectionParent?.id === stepBundleId)) &&
+          state.selectedStepIndices.includes(stepIndex)
         );
       },
     }),
-    [selection],
+    [state],
   );
 }
 

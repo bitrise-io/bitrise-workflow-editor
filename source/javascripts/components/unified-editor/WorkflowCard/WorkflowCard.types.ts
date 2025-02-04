@@ -52,3 +52,8 @@ export type SortableStepItem = {
   workflowId?: string;
   stepBundleId?: string;
 };
+
+export type SelectionParent = {
+  id: string;
+  type: 'stepBundle' | 'workflow';
+};

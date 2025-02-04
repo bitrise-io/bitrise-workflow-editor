@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
 import { WorkflowCard } from '@/components/unified-editor';
@@ -9,7 +9,8 @@ import { LibraryType } from '@/core/models/Step';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
-import { SelectionParent, useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
 type Props = {
@@ -24,25 +25,16 @@ const containerProps: CardProps = {
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
 
-  const {
-    closeDialog,
-    openDialog,
-    selectedStepIndices,
-    selectedWorkflowId,
-    selectedStepBundleId,
-    selectionParent,
-    setSelectedStepIndices,
-  } = useWorkflowsPageStore((s) => ({
-    closeDialog: s.closeDialog,
-    openDialog: s.openDialog,
-    selectedStepIndices: s.selectedStepIndices,
-    selectedWorkflowId: s.workflowId,
-    selectedStepBundleId: s.stepBundleId,
-    selectionParent: s.selectionParent,
-    setSelectedStepIndices: s.setSelectedStepIndices,
-  }));
-
-  const deferredWorkflowId = useDeferredValue(selectedWorkflowId);
+  const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
+    useWorkflowsPageStore((s) => ({
+      closeDialog: s.closeDialog,
+      openDialog: s.openDialog,
+      selectedStepIndices: s.selectedStepIndices,
+      selectedWorkflowId: s.workflowId,
+      selectedStepBundleId: s.stepBundleId,
+      selectionParent: s.selectionParent,
+      setSelectedStepIndices: s.setSelectedStepIndices,
+    }));
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
@@ -371,12 +363,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
           id={workflowId}
-          selectedStepBundleId={selectedStepBundleId}
           isCollapsable={false}
           containerProps={containerProps}
           // Selection
           selectedStepIndices={selectedStepIndices}
-          selectedWorkflowId={deferredWorkflowId}
+          selectionParent={selectionParent}
           // Workflow actions
           onEditWorkflow={undefined}
           onRemoveWorkflow={undefined}

@@ -12,10 +12,11 @@ import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import { LibraryType } from '@/core/models/Step';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
-import { PipelinesPageDialogType, SelectionParent, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -47,7 +48,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
-  const selectedStepBundleId = usePipelinesPageStore((s) => s.stepBundleId);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
@@ -139,7 +139,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         case 'move': {
           // Adjust index of the selected steps
           if (targetIndex !== undefined) {
-            console.log(selectionParent, stepBundleId);
             if (
               (selectionParent?.id === workflowId && selectionParent?.type === 'workflow') ||
               (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle')
@@ -428,8 +427,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         uses={uses}
         containerProps={containerProps}
         selectedStepIndices={selectedStepIndices}
-        selectedWorkflowId={selectedWorkflowId}
-        selectedStepBundleId={selectedStepBundleId}
+        selectionParent={selectionParent}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}

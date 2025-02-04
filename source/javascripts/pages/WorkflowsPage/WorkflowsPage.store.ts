@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 export enum WorkflowsPageDialogType {
   NONE,
@@ -11,11 +12,6 @@ export enum WorkflowsPageDialogType {
   CREATE_WORKFLOW,
   WORKFLOW_CONFIG,
 }
-
-export type SelectionParent = {
-  id: string;
-  type: 'stepBundle' | 'workflow';
-};
 
 type State = {
   selectedStepIndices: number[];
