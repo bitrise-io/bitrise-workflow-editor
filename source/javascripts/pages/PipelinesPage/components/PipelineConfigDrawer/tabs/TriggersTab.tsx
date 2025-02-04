@@ -7,7 +7,7 @@ type Props = {
 
 const TriggersTab = ({ pipelineId }: Props) => {
   const { triggers, updatePipelineTriggers, updatePipelineTriggersEnabled } = useBitriseYmlStore((s) => ({
-    triggers: s.yml.pipelines?.[pipelineId].triggers,
+    triggers: s.yml.pipelines?.[pipelineId]?.triggers,
     updatePipelineTriggers: s.updatePipelineTriggers,
     updatePipelineTriggersEnabled: s.updatePipelineTriggersEnabled,
   }));
