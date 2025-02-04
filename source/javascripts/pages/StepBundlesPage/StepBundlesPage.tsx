@@ -20,32 +20,31 @@ const StepBundlesPageContent = () => {
     closeDialog();
   }, [hasStepBundles, closeDialog]);
 
-  if (!hasStepBundles) {
-    return (
-      <EmptyState
-        iconName="Steps"
-        title="Your Step bundles will appear here"
-        description="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."
-        height="100%"
+  const content = hasStepBundles ? (
+    <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
+      <StepBundlesCanvasPanel stepBundleId={selectedStepBundleId} />
+      <StepBundlesConfigPanel stepBundleId={selectedStepBundleId} />
+    </Box>
+  ) : (
+    <EmptyState
+      iconName="Steps"
+      title="Your Step bundles will appear here"
+      description="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."
+      height="100%"
+    >
+      <Button
+        leftIconName="PlusCircle"
+        onClick={openDialog({
+          type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
+        })}
       >
-        <Button
-          leftIconName="PlusCircle"
-          onClick={openDialog({
-            type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
-          })}
-        >
-          Create Step bundle
-        </Button>
-      </EmptyState>
-    );
-  }
-
+        Create Step bundle
+      </Button>
+    </EmptyState>
+  );
   return (
     <>
-      <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
-        <StepBundlesCanvasPanel stepBundleId={selectedStepBundleId} />
-        <StepBundlesConfigPanel stepBundleId={selectedStepBundleId} />
-      </Box>
+      {content}
       <Drawers stepBundleId={selectedStepBundleId} />
     </>
   );

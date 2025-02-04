@@ -27,10 +27,6 @@ const Drawers = ({ stepBundleId }: Props) => {
     })();
   };
 
-  const handleCreateStepBundle = (newStepBundleId: string, baseStepBundleId?: string) => {
-    createStepBundle(newStepBundleId, baseStepBundleId);
-  };
-
   return (
     <>
       {isDialogMounted(StepBundlesPageDialogType.CREATE_STEP_BUNDLE) && (
@@ -38,7 +34,7 @@ const Drawers = ({ stepBundleId }: Props) => {
           isOpen={isDialogOpen(StepBundlesPageDialogType.CREATE_STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreateStepBundle={handleCreateStepBundle}
+          onCreateStepBundle={createStepBundle}
         />
       )}
 
