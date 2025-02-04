@@ -3,7 +3,6 @@ import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
 import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/TriggersTab';
 import useSearchParams from '@/hooks/useSearchParams';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import { useWorkflows } from '@/hooks/useWorkflows';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
@@ -15,18 +14,9 @@ const TAB_IDS = [WorkflowConfigTab.CONFIGURATION, WorkflowConfigTab.PROPERTIES, 
 
 const WorkflowConfigPanelContent = () => {
   const [, setSelectedWorkflow] = useSelectedWorkflow();
-  const workflows = useWorkflows();
-  const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({
-    tabIds: TAB_IDS,
-  });
-
   const [searchParams, setSearchParams] = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams.tab) {
-      setTabIndex(TAB_IDS.indexOf(searchParams.tab as WorkflowConfigTab));
-    }
-  }, [searchParams, setTabIndex]);
+  const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
+  const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({ tabIds: TAB_IDS });
 
   const onTabChange = (index: number) => {
     setSearchParams({
@@ -35,11 +25,11 @@ const WorkflowConfigPanelContent = () => {
     });
   };
 
-  const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
-  const onDelete = (deletedId: string) => {
-    setSelectedWorkflow(Object.keys(workflows).find((workflowId) => workflowId !== deletedId));
-    closeDialog();
-  };
+  useEffect(() => {
+    if (searchParams.tab) {
+      setTabIndex(TAB_IDS.indexOf(searchParams.tab as WorkflowConfigTab));
+    }
+  }, [searchParams, setTabIndex]);
 
   return (
     <Tabs
@@ -56,7 +46,7 @@ const WorkflowConfigPanelContent = () => {
           <ConfigurationTab context="workflow" />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
-          <PropertiesTab variant="panel" onRename={setSelectedWorkflow} onDelete={onDelete} />
+          <PropertiesTab variant="panel" onRename={setSelectedWorkflow} onDelete={closeDialog} />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
           <TriggersTab />
