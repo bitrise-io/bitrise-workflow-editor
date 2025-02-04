@@ -1,5 +1,5 @@
 (function () {
-  "use strict";
+
 
   angular
     .module("BitriseWorkflowEditor")
@@ -15,16 +15,16 @@
       Variable,
       Popup
     ) {
-      var viewModel = this;
+      const viewModel = this;
 
       $scope.appService = appService;
       $scope.Variable = Variable;
       $scope.requestService = requestService;
 
-      var mode;
-      var envVarsWatchers;
+      let mode;
+      let envVarsWatchers;
 
-      viewModel.envVarsBySource;
+      viewModel.envVarsBySource = undefined;
 
       $scope.$on(
         "$destroy",
@@ -80,8 +80,8 @@
           {
             type: "secrets",
             shouldShowInfoBox:
-              $cookies.get("should_show_secrets_info_box") == "true",
-            toggleInfoBoxVisibility: function () {
+              $cookies.get("should_show_secrets_info_box") === "true",
+            toggleInfoBoxVisibility() {
               this.shouldShowInfoBox = !this.shouldShowInfoBox;
               $cookies.put(
                 "should_show_secrets_info_box",
@@ -173,11 +173,11 @@
                   );
 
                   if (_.isEmpty(appService.appConfig.app.envs)) {
-                    delete appService.appConfig.app["envs"];
+                    delete appService.appConfig.app.envs;
                   }
 
                   if (_.isEmpty(appService.appConfig.app)) {
-                    delete appService.appConfig["app"];
+                    delete appService.appConfig.app;
                   }
 
                   break;
@@ -188,7 +188,7 @@
 
                   appService.appConfig.workflows[
                     newEnvVarsOfSource.workflowID
-                    ].envs = _.map(newEnvVarsOfSource.envVars, function (
+                  ].envs = _.map(newEnvVarsOfSource.envVars, function (
                     anEnvVar
                   ) {
                     return anEnvVar.userVariableConfig;
@@ -198,12 +198,12 @@
                     _.isEmpty(
                       appService.appConfig.workflows[
                         newEnvVarsOfSource.workflowID
-                        ].envs
+                      ].envs
                     )
                   ) {
                     delete appService.appConfig.workflows[
                       newEnvVarsOfSource.workflowID
-                      ]["envs"];
+                    ].envs;
                   }
 
                   break;
@@ -216,7 +216,7 @@
       }
 
       viewModel.addToEnvVars = function (envVars) {
-        var newEnvVar = new Variable(
+        const newEnvVar = new Variable(
           {
             "": ""
           },
@@ -231,13 +231,13 @@
       };
 
       viewModel.removeEnvVarFromEnvVars = function (envVar, envVars) {
-        var index = _.indexOf(envVars, envVar);
+        const index = _.indexOf(envVars, envVar);
 
         envVars.splice(index, 1);
       };
 
       viewModel.envVarValidationWarning = function (envVar, keyUniquenessScope) {
-        var errors = [];
+        const errors = [];
 
         if (!Variable.isValidKey(envVar.key(), keyUniquenessScope)) {
           errors.push(

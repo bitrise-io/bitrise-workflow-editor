@@ -1,8 +1,8 @@
-(function() {
-	"use strict";
+(function () {
 
-	angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
-		var Variable = function(
+
+	angular.module("BitriseWorkflowEditor").factory("Variable", function (Meta) {
+		const Variable = function (
 			userVariableConfig,
 			defaultVariableConfig,
 			isKeyChangeable,
@@ -25,7 +25,7 @@
 			this.customProperties = {};
 		};
 
-		Variable.defaultVariableConfig = function() {
+		Variable.defaultVariableConfig = function () {
 			return {
 				opts: {
 					is_expand: true,
@@ -39,13 +39,13 @@
 			};
 		};
 
-		Variable.prototype.configureMeta = function() {
-			var userMetaConfig = undefined;
+		Variable.prototype.configureMeta = function () {
+			let userMetaConfig;
 			if (this.userVariableConfig.opts && this.userVariableConfig.opts.meta) {
 				userMetaConfig = this.userVariableConfig.opts.meta;
 			}
 
-			var defaultMetaConfig = undefined;
+			let defaultMetaConfig;
 			if (
 				this.defaultVariableConfig &&
 				this.defaultVariableConfig.opts &&
@@ -57,24 +57,24 @@
 			this.meta = new Meta(userMetaConfig, defaultMetaConfig);
 		};
 
-		Variable.prototype.reconfigureMeta = function() {
+		Variable.prototype.reconfigureMeta = function () {
 			return this.configureMeta();
 		};
 
-		Variable.prototype.key = function(newKey) {
-			var keySourceVariableConfig = !_.isEmpty(
+		Variable.prototype.key = function (newKey) {
+			const keySourceVariableConfig = !_.isEmpty(
 				angular.copy(this.userVariableConfig)
 			)
 				? this.userVariableConfig
 				: this.defaultVariableConfig;
-			var oldKey = Variable.keyFromVariableConfig(keySourceVariableConfig);
+			const oldKey = Variable.keyFromVariableConfig(keySourceVariableConfig);
 
 			if (newKey === undefined) {
 				return oldKey;
 			}
 
 			if (newKey !== oldKey) {
-				var oldValue = keySourceVariableConfig[oldKey];
+				const oldValue = keySourceVariableConfig[oldKey];
 				this.userVariableConfig[newKey] = oldKey !== undefined ? oldValue : "";
 				if (oldKey !== undefined) {
 					delete this.userVariableConfig[oldKey];
@@ -84,16 +84,16 @@
 			return newKey;
 		};
 
-		Variable.isValidKey = function(key, keyUniquenessScope) {
+		Variable.isValidKey = function (key, keyUniquenessScope) {
 			if (key === undefined) {
 				return undefined;
 			}
 
-			if (key.length == 0) {
+			if (key.length === 0) {
 				return false;
 			}
 
-			var validKeyRegexp = new RegExp("^[a-zA-Z_]{1}[a-zA-Z0-9_]*$");
+			const validKeyRegexp = /^[a-zA-Z_]{1}[a-zA-Z0-9_]*$/;
 
 			if (!validKeyRegexp.test(key)) {
 				return false;
@@ -101,8 +101,8 @@
 
 			if (
 				keyUniquenessScope &&
-				_.filter(keyUniquenessScope, function(anotherVariable) {
-					return anotherVariable.key() == key;
+				_.filter(keyUniquenessScope, function (anotherVariable) {
+					return anotherVariable.key() === key;
 				}).length > 1
 			) {
 				return false;
@@ -111,7 +111,7 @@
 			return true;
 		};
 
-		Variable.isValidValue = function(value, shouldBeNotEmpty) {
+		Variable.isValidValue = function (value, shouldBeNotEmpty) {
 			if (value === undefined) {
 				return undefined;
 			}
@@ -119,7 +119,7 @@
 			if (
 				shouldBeNotEmpty &&
 				value !== null &&
-				value.match(new RegExp(/^(?:\s)*$/))
+				value.match(/^(?:\s)*$/)
 			) {
 				return false;
 			}
@@ -127,15 +127,15 @@
 			return true;
 		};
 
-		Variable.prototype.value = function(newValue) {
-			var key = this.key();
+		Variable.prototype.value = function (newValue) {
+			const key = this.key();
 
 			if (newValue === undefined) {
 				return this.userVariableConfig[key] !== undefined
 					? this.userVariableConfig[key]
 					: this.defaultVariableConfig[key];
 			}
-			
+
 			const hasDefaultConfig = Object.keys(this.defaultVariableConfig ?? {}).includes(key);
 			const typeOfDefaultValue = hasDefaultConfig ? typeof this.defaultVariableConfig[key] : 'undefined';
 
@@ -152,63 +152,63 @@
 			return this.userVariableConfig[key];
 		};
 
-		Variable.prototype.title = function(newValue) {
+		Variable.prototype.title = function (newValue) {
 			return optionGetterSetter(this, "title", newValue);
 		};
 
-		Variable.prototype.category = function(newValue) {
+		Variable.prototype.category = function (newValue) {
 			return optionGetterSetter(this, "category", newValue);
 		};
 
-		Variable.prototype.summary = function(newValue) {
+		Variable.prototype.summary = function (newValue) {
 			return optionGetterSetter(this, "summary", newValue);
 		};
 
-		Variable.prototype.description = function(newValue) {
+		Variable.prototype.description = function (newValue) {
 			return optionGetterSetter(this, "description", newValue);
 		};
 
-		Variable.prototype.longestDescription = function() {
+		Variable.prototype.longestDescription = function () {
 			return this.description() ? this.description() : this.summary();
 		};
 
-		Variable.prototype.isExpand = function(newValue) {
+		Variable.prototype.isExpand = function (newValue) {
 			return optionGetterSetter(this, "is_expand", newValue);
 		};
 
-		Variable.prototype.skipIfEmpty = function(newValue) {
+		Variable.prototype.skipIfEmpty = function (newValue) {
 			return optionGetterSetter(this, "skip_if_empty", newValue);
 		};
 
-		Variable.prototype.isRequired = function(newValue) {
+		Variable.prototype.isRequired = function (newValue) {
 			return optionGetterSetter(this, "is_required", newValue);
 		};
 
-		Variable.prototype.isSensitive = function(newValue) {
+		Variable.prototype.isSensitive = function (newValue) {
 			return optionGetterSetter(this, "is_sensitive", newValue);
 		};
 
-		Variable.prototype.isDontChangeValue = function(newValue) {
+		Variable.prototype.isDontChangeValue = function (newValue) {
 			return optionGetterSetter(this, "is_dont_change_value", newValue);
 		};
 
-		Variable.prototype.isTemplate = function(newValue) {
+		Variable.prototype.isTemplate = function (newValue) {
 			return optionGetterSetter(this, "is_template", newValue);
 		};
 
-		Variable.prototype.valueOptions = function(newValue) {
+		Variable.prototype.valueOptions = function (newValue) {
 			return optionGetterSetter(this, "value_options", newValue);
 		};
 
-		Variable.prototype.scope = function(newValue) {
+		Variable.prototype.scope = function (newValue) {
 			return optionGetterSetter(this, "scope", newValue);
 		};
 
-		Variable.keyFromVariableConfig = function(variableConfig) {
+		Variable.keyFromVariableConfig = function (variableConfig) {
 			return _.first(_.without(_.keys(angular.copy(variableConfig)), "opts"));
 		};
 
-		Variable.prototype.isExpose = function(isExpose) {
+		Variable.prototype.isExpose = function (isExpose) {
 			return metaGetterSetter(
 				this,
 				"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>",
@@ -217,7 +217,7 @@
 			);
 		};
 
-		Variable.prototype.isProtected = function(isProtected) {
+		Variable.prototype.isProtected = function (isProtected) {
 			return metaGetterSetter(
 				this,
 				"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>",
@@ -227,7 +227,7 @@
 		};
 
 		function metaGetterSetter(variable, metaBundleID, metaKey, metaValue) {
-			var isSetterMode = metaValue !== undefined;
+			const isSetterMode = metaValue !== undefined;
 
 			if (isSetterMode) {
 				if (!variable.userVariableConfig.opts) {
@@ -261,7 +261,7 @@
 		}
 
 		function optionGetterSetter(variable, optionKey, optionValue) {
-			var optionSource;
+			let optionSource;
 
 			if (
 				variable.userVariableConfig.opts &&
@@ -280,10 +280,10 @@
 				return optionSource ? optionSource[optionKey] : undefined;
 			}
 
-			var defaultKey = Variable.keyFromVariableConfig(
+			const defaultKey = Variable.keyFromVariableConfig(
 				variable.defaultVariableConfig
 			);
-			var defaultValue = variable.defaultVariableConfig
+			const defaultValue = variable.defaultVariableConfig
 				? variable.defaultVariableConfig[defaultKey]
 				: undefined;
 
@@ -313,16 +313,16 @@
 				}
 
 				if (_.isEmpty(angular.copy(variable.userVariableConfig.opts))) {
-					delete variable.userVariableConfig["opts"];
+					delete variable.userVariableConfig.opts;
 				}
 			}
 
 			return optionValue;
 		}
 
-		Variable.minimizeVariableConfig = function(variableConfig) {
+		Variable.minimizeVariableConfig = function (variableConfig) {
 			if (variableConfig.opts && _.isEmpty(angular.copy(variableConfig.opts))) {
-				delete variableConfig["opts"];
+				delete variableConfig.opts;
 			}
 
 			return variableConfig;
@@ -331,25 +331,25 @@
 		return Variable;
 	});
 
-	angular.module("BitriseWorkflowEditor").filter("prettifiedKey", function() {
-		return function(key) {
+	angular.module("BitriseWorkflowEditor").filter("prettifiedKey", function () {
+		return function (key) {
 			if (!key) {
 				return undefined;
 			}
 
-			return "$" + key;
+			return `$${key}`;
 		};
 	});
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.filter("prettifiedVariableKey", function($filter) {
-			return function(variable) {
+		.filter("prettifiedVariableKey", function ($filter) {
+			return function (variable) {
 				if (!variable) {
 					return undefined;
 				}
 
-				var key = variable.key();
+				const key = variable.key();
 
 				return $filter("prettifiedKey")(key);
 			};
@@ -357,13 +357,13 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.filter("variablesfilteredByKey", function(stringService) {
-			return function(variables, keyFilter) {
+		.filter("variablesfilteredByKey", function (stringService) {
+			return function (variables, keyFilter) {
 				if (!variables) {
 					return undefined;
 				}
 
-				return _.filter(variables, function(aVariable) {
+				return _.filter(variables, function (aVariable) {
 					return stringService.isStringMatchingTerm(aVariable.key(), keyFilter);
 				});
 			};

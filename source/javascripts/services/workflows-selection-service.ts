@@ -1,7 +1,8 @@
-import { flatten, isNull } from "underscore";
+import { flatten, isNull } from 'underscore';
 
-import { Step, Workflow } from "../models";
-import { WorkflowSelectionStore } from "./workflow-selection-store";
+import { Step, Workflow } from '../models';
+// eslint-disable-next-line import/no-cycle
+import { WorkflowSelectionStore } from './workflow-selection-store';
 
 export type WfChainWrapper = {
   workflow?: Workflow;
@@ -15,15 +16,8 @@ type WorkflowViewModel = {
   selectedWorkflow?: Workflow;
   workflows: Array<Workflow>;
   editedWorkflow?: Workflow;
-  editWorkflowAtIndex: (
-    arg0: number | null,
-    shouldTransformEditedWorkflowToReact?: boolean,
-  ) => void;
-  stepSelected: (
-    arg0: Step | undefined,
-    wfIndex: number | undefined,
-    scrollToStep: boolean,
-  ) => void;
+  editWorkflowAtIndex: (arg0: number | null, shouldTransformEditedWorkflowToReact?: boolean) => void;
+  stepSelected: (arg0: Step | undefined, wfIndex: number | undefined, scrollToStep: boolean) => void;
   deselectStep: () => void;
   selectedWorkflowChain: Array<WfChainWrapper>;
 };
@@ -32,27 +26,23 @@ type AngularLocationService = {
   search: () => { workflow_id: string };
 };
 
-const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper =>
-  Object.assign(
-    {
-      workflow: null,
-      isBeforeRunWorkflow: true,
-      isAfterRunWorkflow: false,
-      selectedWorkflowBeforeRunWorkflowIndex: -1,
-      selectedWorkflowAfterRunWorkflowIndex: -1,
-    },
-    wrapper,
-  );
+const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper => ({
+  workflow: undefined,
+  isBeforeRunWorkflow: true,
+  isAfterRunWorkflow: false,
+  selectedWorkflowBeforeRunWorkflowIndex: -1,
+  selectedWorkflowAfterRunWorkflowIndex: -1,
+  ...wrapper,
+});
 
 export class WorkflowsSelectionService {
   private store: WorkflowSelectionStore;
-  private location: AngularLocationService;
-  private static primaryWorkflowName = "primary";
 
-  constructor(
-    store: WorkflowSelectionStore,
-    locationService: AngularLocationService,
-  ) {
+  private location: AngularLocationService;
+
+  private static primaryWorkflowName = 'primary';
+
+  constructor(store: WorkflowSelectionStore, locationService: AngularLocationService) {
     this.store = store;
     this.location = locationService;
   }
@@ -62,11 +52,11 @@ export class WorkflowsSelectionService {
     list: Array<T> | null | undefined,
     checker: (arg0: T) => boolean,
   ): boolean => {
-    if (isNull(potentialIndex)) {
+    if (isNull(potentialIndex) || !Number.isInteger(potentialIndex)) {
       return false;
     }
 
-    const entity = list && list[potentialIndex!];
+    const entity = list && list[potentialIndex];
     return !!entity && checker(entity);
   };
 
@@ -82,10 +72,9 @@ export class WorkflowsSelectionService {
     let idIndex = 0;
 
     while (!selectedWf && idIndex < idsTotry.length) {
-      selectedWf = viewModel.workflows.find(
-        (item) => item.id === idsTotry[idIndex],
-      );
-      idIndex++;
+      const currentIndex = idIndex;
+      selectedWf = viewModel.workflows.find((item) => item.id === idsTotry[currentIndex]);
+      idIndex += 1;
     }
 
     return selectedWf || viewModel.workflows[0];
@@ -108,7 +97,7 @@ export class WorkflowsSelectionService {
       viewModel.editWorkflowAtIndex(this.store.lastEditedWorkflowIndex);
     }
 
-    const editedWorkflow = viewModel.editedWorkflow;
+    const { editedWorkflow } = viewModel;
 
     if (
       this.store.lastSelectedStepIndex !== null &&
@@ -119,20 +108,13 @@ export class WorkflowsSelectionService {
       )
     ) {
       const step = editedWorkflow?.steps[this.store.lastSelectedStepIndex];
-      const scrollToStep = !(
-        this.store.lastEditedWorkflowIndex === 0 &&
-        this.store.lastSelectedStepIndex === 0
-      );
+      const scrollToStep = !(this.store.lastEditedWorkflowIndex === 0 && this.store.lastSelectedStepIndex === 0);
 
       viewModel.stepSelected(step, undefined, scrollToStep);
     }
   };
 
-  rearrangeSelection = (
-    viewModel: WorkflowViewModel,
-    wf?: Workflow,
-    editedId?: string,
-  ): void => {
+  rearrangeSelection = (viewModel: WorkflowViewModel, wf?: Workflow, editedId?: string): void => {
     viewModel.selectedWorkflow = wf;
 
     // update selection chain
@@ -145,36 +127,23 @@ export class WorkflowsSelectionService {
       return;
     }
 
-    const constructWorkflowChain = (
-      wfs: Array<Workflow> = [],
-      before: boolean,
-    ): Array<WfChainWrapper> =>
+    const constructWorkflowChain = (wfs: Array<Workflow> = [], before: boolean = true): Array<WfChainWrapper> =>
       flatten(
         wfs.map((innerWf: Workflow, index: number) =>
-          innerWf
-            .workflowChain(viewModel.workflows)
-            .map((aWorkflow: Workflow) =>
-              wfChainWrapper({
-                workflow: aWorkflow,
-                isBeforeRunWorkflow: before,
-                isAfterRunWorkflow: !before,
-                selectedWorkflowBeforeRunWorkflowIndex:
-                  before && aWorkflow == innerWf ? index : -1,
-                selectedWorkflowAfterRunWorkflowIndex:
-                  !before && aWorkflow == innerWf ? index : -1,
-              }),
-            ),
+          innerWf.workflowChain(viewModel.workflows).map((aWorkflow: Workflow) =>
+            wfChainWrapper({
+              workflow: aWorkflow,
+              isBeforeRunWorkflow: before,
+              isAfterRunWorkflow: !before,
+              selectedWorkflowBeforeRunWorkflowIndex: before && aWorkflow === innerWf ? index : -1,
+              selectedWorkflowAfterRunWorkflowIndex: !before && aWorkflow === innerWf ? index : -1,
+            }),
+          ),
         ),
       );
 
-    const beforeWfs = constructWorkflowChain(
-      wf?.beforeRunWorkflows(viewModel.workflows),
-      true,
-    );
-    const afterWfs = constructWorkflowChain(
-      wf?.afterRunWorkflows(viewModel.workflows),
-      false,
-    );
+    const beforeWfs = constructWorkflowChain(wf?.beforeRunWorkflows(viewModel.workflows), true);
+    const afterWfs = constructWorkflowChain(wf?.afterRunWorkflows(viewModel.workflows), false);
 
     viewModel.selectedWorkflowChain.push(
       ...beforeWfs,
@@ -185,23 +154,14 @@ export class WorkflowsSelectionService {
     // save it to the store
     editedId = editedId || wf?.id;
 
-    let editedIndex = viewModel.selectedWorkflowChain.findIndex(
-      ({ workflow }) => workflow && workflow.id === editedId,
-    );
+    let editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow && workflow.id === editedId);
     if (editedIndex === -1) {
-      editedIndex = viewModel.selectedWorkflowChain.findIndex(
-        ({ workflow }) => workflow && workflow.id === wf?.id,
-      );
+      editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow && workflow.id === wf?.id);
     }
 
-    viewModel.editWorkflowAtIndex(
-      editedIndex,
-      viewModel.editedWorkflow?.id !== editedId,
-    );
+    viewModel.editWorkflowAtIndex(editedIndex, viewModel.editedWorkflow?.id !== editedId);
   };
 }
 
-export default (
-  store: WorkflowSelectionStore,
-  location: AngularLocationService,
-): WorkflowsSelectionService => new WorkflowsSelectionService(store, location);
+export default (store: WorkflowSelectionStore, location: AngularLocationService): WorkflowsSelectionService =>
+  new WorkflowsSelectionService(store, location);

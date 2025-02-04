@@ -1,20 +1,18 @@
-(function() {
-	"use strict";
-
+(function () {
 	angular
 		.module("BitriseWorkflowEditor")
-		.factory("GenericFile", function($q, $injector, requestService) {
-			var GenericFile = function(envVarPartialID) {
-				this.databaseID;
-				this.file;
+		.factory("GenericFile", function ($q, $injector, requestService) {
+			const GenericFile = function (envVarPartialID) {
+				this.databaseID = undefined;
+				this.file = undefined;
 				this.envVarPartialID = envVarPartialID;
-				this.isProcessed;
-				this.uploadFileName;
-				this.isExpose;
-				this.isProtected;
+				this.isProcessed = undefined;
+				this.uploadFileName = undefined;
+				this.isExpose = undefined;
+				this.isProtected = undefined;
 			};
 
-			GenericFile.prototype.displayName = function() {
+			GenericFile.prototype.displayName = function () {
 				if (this.uploadFileName) {
 					return this.uploadFileName;
 				}
@@ -26,11 +24,11 @@
 				return "<%= data[:strings][:code_signing][:generic_file][:no_name_for_file] %>";
 			};
 
-			GenericFile.prototype.updateFile = function(file) {
+			GenericFile.prototype.updateFile = function (file) {
 				this.file = file;
 			};
 
-			GenericFile.prototype.fileSize = function() {
+			GenericFile.prototype.fileSize = function () {
 				if (!this.file) {
 					return undefined;
 				}
@@ -44,22 +42,22 @@
 				}
 			};
 
-			GenericFile.prototype.validationError = function() {
-				if (this.envVarPartialID.length == 0) {
+			GenericFile.prototype.validationError = function () {
+				if (this.envVarPartialID.length === 0) {
 					return new Error(
 						"<%= data[:strings][:code_signing][:generic_file][:id_not_specified] %>"
 					);
 				}
 
-				var validCharactersRegexp = new RegExp("^([a-zA-Z0-9_]+)$");
+				const validCharactersRegexp = /^([a-zA-Z0-9_]+)$/;
 				if (!validCharactersRegexp.test(this.envVarPartialID)) {
 					return new Error(
 						"<%= data[:strings][:code_signing][:generic_file][:invalid_id_characters] %>"
 					);
 				}
 
-				var KeystoreFile = $injector.get("KeystoreFile");
-				if (this.envVarPartialID == KeystoreFile.downloadURLEnvVarPartialID) {
+				const KeystoreFile = $injector.get("KeystoreFile");
+				if (this.envVarPartialID === KeystoreFile.downloadURLEnvVarPartialID) {
 					return new Error(
 						"<%= data[:strings][:code_signing][:generic_file][:id_reserved_for_keystore] %>"
 					);
@@ -68,32 +66,32 @@
 				return null;
 			};
 
-			GenericFile.prototype.downloadURLEnvVarKey = function() {
-				if (this.envVarPartialID.length == 0) {
+			GenericFile.prototype.downloadURLEnvVarKey = function () {
+				if (this.envVarPartialID.length === 0) {
 					return null;
 				}
 
-				return "BITRISEIO_" + this.envVarPartialID + "_URL";
+				return `BITRISEIO_${this.envVarPartialID}_URL`;
 			};
 
-			GenericFile.prototype.protect = function(requestConfig) {
-				var self = this;
+			GenericFile.prototype.protect = function (requestConfig) {
+				const self = this;
 
 				return requestService
 					.protectGenericFile(this.databaseID, requestConfig)
-					.then(function() {
+					.then(function () {
 						self.isProtected = true;
 					});
 			};
 
-			GenericFile.prototype.upload = function(requestConfig) {
+			GenericFile.prototype.upload = function (requestConfig) {
 				if (this.validationError()) {
 					return $q.reject(this.validationError());
 				}
 
-				var self = this;
+				const self = this;
 
-				return $q(function(resolve, reject) {
+				return $q(function (resolve, reject) {
 					requestService
 						.postGenericFileCreate(
 							self.envVarPartialID,
@@ -102,23 +100,23 @@
 							requestConfig
 						)
 						.then(
-							function(data) {
-								var genericFileDatabaseID = data.databaseID;
-								var uploadURL = data.uploadURL;
+							function (data) {
+								const genericFileDatabaseID = data.databaseID;
+								const { uploadURL } = data;
 
 								requestService.uploadFileToStorage(uploadURL, self.file).then(
-									function() {
+									function () {
 										requestService
 											.finalizeGenericFileUpload(
 												genericFileDatabaseID,
 												true,
 												requestConfig
 											)
-											.then(resolve, function(error) {
+											.then(resolve, function (error) {
 												reject(error);
 											});
 									},
-									function(error) {
+									function (error) {
 										requestService
 											.finalizeGenericFileUpload(
 												genericFileDatabaseID,
@@ -126,28 +124,28 @@
 												requestConfig
 											)
 											.then(
-												function() {
+												function () {
 													reject(error);
 												},
-												function(finalizeGenericFileUploadError) {
+												function (finalizeGenericFileUploadError) {
 													reject(error);
 												}
 											);
 									}
 								);
 							},
-							function(error) {
+							function (error) {
 								reject(error);
 							}
 						);
 				});
 			};
 
-			GenericFile.prototype.download = function() {
+			GenericFile.prototype.download = function () {
 				return requestService.downloadGenericFile(this.databaseID);
 			};
 
-			GenericFile.prototype.delete = function(requestConfig) {
+			GenericFile.prototype.delete = function (requestConfig) {
 				return requestService.deleteGenericFile(this.databaseID, requestConfig);
 			};
 

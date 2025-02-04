@@ -1,5 +1,5 @@
 (function() {
-	"use strict";
+	
 
 	angular
 		.module("BitriseWorkflowEditor")
@@ -7,7 +7,7 @@
 			return {
 				restrict: "A",
 				require: "ngModel",
-				link: function(scope, element, attrs, ngModel) {
+				link(scope, element, attrs, ngModel) {
 					scope.$watch(
 						function() {
 							return ngModel.$modelValue;
