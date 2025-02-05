@@ -1,4 +1,4 @@
-import { omit } from 'es-toolkit';
+import { omit, uniq } from 'es-toolkit';
 import { StagesYml } from '@/core/models/Stage';
 import { PipelineWorkflows, PipelineYmlObject } from './Pipeline';
 import { BitriseYml } from './BitriseYml';
@@ -72,7 +72,7 @@ function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml =
     });
 
     // Update previous workflows for next iteration
-    previousWorkflows = currentWorkflows.map((workflow) => Object.keys(workflow)[0]);
+    previousWorkflows = uniq(currentWorkflows.map((workflow) => Object.keys(workflow)[0]));
   });
 
   return { ...newPipeline, workflows };

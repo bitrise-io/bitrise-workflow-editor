@@ -59,6 +59,10 @@ pipelines:
     - st3: {}
     - st2: {}
     - st1: {}
+  pl4:
+    stages:
+    - st4: {}
+    - st5: {}
 stages:
   st1:
     workflows:
@@ -75,6 +79,15 @@ stages:
     - wf4: {}
     - wf5: {}
     - wf6: {}
+  st4:
+    workflows:
+    - wf1: {}
+    - wf1: {}
+    - wf1: {}
+    - wf2: {}
+  st5:
+    workflows:
+    - wf3: {}
 workflows:
   custom-steplib-steps:
     steps:
