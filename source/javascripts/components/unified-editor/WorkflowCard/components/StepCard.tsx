@@ -11,7 +11,6 @@ import {
   ColorButton,
   Divider,
   Icon,
-  Link,
   OverflowMenu,
   OverflowMenuItem,
   Skeleton,
@@ -413,13 +412,6 @@ const StepCard = ({
                   <PopoverBody color="neutral.100" padding="16" textStyle="body/md/regular">
                     <Text marginBlockEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Link
-                        colorScheme="purple"
-                        href="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
-                        isExternal
-                      >
-                        Learn more
-                      </Link>
                       <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
                         Got it
                       </ColorButton>
