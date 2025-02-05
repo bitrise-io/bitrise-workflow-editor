@@ -8,7 +8,7 @@ import jsyaml from "js-yaml";
       const requestService = {
         mode: RequestService.mode,
         appSlug: RequestService.appSlug,
-        appConfigVersionHeaderName: 'X-Bitrise-Config-Version'
+        appConfigVersionHeaderName: RequestService.appConfigVersionHeaderName,
       };
 
       requestService.isWebsiteMode = function () {
