@@ -17,7 +17,7 @@ type Props = {
 
 const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   const workflow = useWorkflowConfigContext();
-  const handleNameChange = useRenameWorkflow(onRename);
+  const rename = useRenameWorkflow(onRename);
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
@@ -50,6 +50,12 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       debouncedUpdateWorkflow(workflow?.id || '', {
         status_report_name: newValue,
       });
+    }
+  };
+
+  const handleNameChange = (newValue: string) => {
+    if (newValue !== workflow?.id) {
+      rename(newValue);
     }
   };
 
