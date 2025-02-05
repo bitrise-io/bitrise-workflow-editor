@@ -8,22 +8,29 @@ import {
   ButtonGroup,
   Card,
   CardProps,
-  ControlButton,
+  ColorButton,
+  Divider,
   Icon,
+  Link,
+  OverflowMenu,
+  OverflowMenuItem,
   Skeleton,
   SkeletonBox,
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-
+import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from '@chakra-ui/react';
+import { useLocalStorage } from 'usehooks-ts';
 import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import defaultIcon from '@/../images/step/icon-default.svg';
-
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/models/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -86,17 +93,22 @@ const StepCard = ({
   stepBundleId,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
-  const { isSelected } = useSelection();
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+  const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
+  const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
   const {
     onCloneStep,
     onCloneStepInStepBundle,
     onDeleteStep,
     onDeleteStepInStepBundle,
+    onGroupStepsToStepBundle,
     onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
   } = useStepActions();
+
+  const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
   const {
     error,
@@ -131,10 +143,12 @@ const StepCard = ({
 
   const icon = step?.icon || defaultIcon;
   const title = step?.title || step?.cvs || '';
-  const isHighlighted = isSelected(workflowId || '', stepIndex);
+  const isHighlighted = isSelected({ stepBundleId, stepIndex, workflowId });
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
+  const { isStep } = StepService;
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
+  const isSimpleStep = step && !stepBundleId && isStep(step.cvs, library);
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
@@ -154,6 +168,7 @@ const StepCard = ({
         });
       }
     : undefined;
+
   const cardProps = useMemo(() => {
     const common: CardProps = {
       display: 'flex',
@@ -194,81 +209,134 @@ const StepCard = ({
       return null;
     }
 
+    const suffix = selectedStepIndices && selectedStepIndices.length > 1 ? 's' : '';
+    const menuItems = [];
+    if (isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+      menuItems.push(
+        <OverflowMenuItem
+          leftIconName="ArrowUp"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (workflowId && onUpgradeStep) {
+              onUpgradeStep(workflowId, stepIndex, latestMajor);
+            }
+            if (stepBundleId && onUpgradeStepInStepBundle) {
+              onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
+            }
+          }}
+        >
+          Update Step version
+        </OverflowMenuItem>,
+      );
+    }
+    if (enableStepBundles && isSimpleStep) {
+      menuItems.push(
+        <OverflowMenuItem
+          leftIconName="Steps"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
+              const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
+              if (isHighlighted) {
+                onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
+              } else {
+                onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
+              }
+            }
+          }}
+        >
+          New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
+          {suffix}
+        </OverflowMenuItem>,
+      );
+    }
+    if (selectedStepIndices?.length === 1 || !isHighlighted) {
+      menuItems.push(
+        <OverflowMenuItem
+          leftIconName="Duplicate"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (workflowId && onCloneStep) {
+              onCloneStep(workflowId, stepIndex);
+            }
+            if (stepBundleId && onCloneStepInStepBundle) {
+              onCloneStepInStepBundle(stepBundleId, stepIndex);
+            }
+          }}
+        >
+          Duplicate Step
+        </OverflowMenuItem>,
+      );
+    }
+    if (menuItems.length > 0) {
+      menuItems.push(<Divider my="8" />);
+    }
+    menuItems.push(
+      <OverflowMenuItem
+        isDanger
+        leftIconName="Trash"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (workflowId && onDeleteStep) {
+            if (isHighlighted && selectedStepIndices) {
+              onDeleteStep(workflowId, selectedStepIndices);
+            } else {
+              onDeleteStep(workflowId, [stepIndex]);
+            }
+          }
+          if (stepBundleId && onDeleteStepInStepBundle) {
+            if (isHighlighted && selectedStepIndices) {
+              onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
+            } else {
+              onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+            }
+          }
+        }}
+      >
+        Delete Step{suffix}
+      </OverflowMenuItem>,
+    );
+
     return (
-      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-        {isUpgradable && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="ArrowUp"
-            colorScheme="orange"
-            aria-label="Update Step"
-            tooltipProps={{ 'aria-label': 'Update Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
+      <ButtonGroup spacing="0" display="flex">
+        <OverflowMenu
+          placement="bottom-end"
+          size="md"
+          buttonSize="xs"
+          buttonProps={{
+            'aria-label': 'Show step actions',
+            iconName: 'MoreVertical',
+            onClick: (e) => {
               e.stopPropagation();
-              if (workflowId && onUpgradeStep) {
-                onUpgradeStep(workflowId, stepIndex, latestMajor);
-              }
-              if (stepBundleId && onUpgradeStepInStepBundle) {
-                onUpgradeStepInStepBundle(stepBundleId, stepIndex, latestMajor);
-              }
-            }}
-          />
-        )}
-        {isClonable && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="Duplicate"
-            aria-label="Clone Step"
-            tooltipProps={{ 'aria-label': 'Clone Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onCloneStep) {
-                onCloneStep(workflowId, stepIndex);
-              }
-              if (stepBundleId && onCloneStepInStepBundle) {
-                onCloneStepInStepBundle(stepBundleId, stepIndex);
-              }
-            }}
-          />
-        )}
-        {isRemovable && (
-          <ControlButton
-            isDanger
-            size="xs"
-            display="none"
-            iconName="Trash"
-            aria-label="Remove Step"
-            tooltipProps={{ 'aria-label': 'Remove Step' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, stepIndex);
-              }
-              if (stepBundleId && onDeleteStepInStepBundle) {
-                onDeleteStepInStepBundle(stepBundleId, stepIndex);
-              }
-            }}
-          />
-        )}
+            },
+            display: 'none',
+            _groupHover: { display: 'inline-flex' },
+            _active: { display: 'inline-flex' },
+          }}
+        >
+          {...menuItems}
+        </OverflowMenu>
       </ButtonGroup>
     );
   }, [
+    enableStepBundles,
+    existingStepBundleIds,
     isClonable,
     isDragging,
+    isHighlighted,
     isRemovable,
     isUpgradable,
+    isSimpleStep,
     latestMajor,
     onCloneStep,
     onCloneStepInStepBundle,
     onDeleteStep,
     onDeleteStepInStepBundle,
+    onGroupStepsToStepBundle,
+    onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
+    selectedStepIndices,
     stepBundleId,
     stepIndex,
     workflowId,
@@ -298,41 +366,71 @@ const StepCard = ({
               </Box>
             </Skeleton>
           ) : (
-            <Box
-              p="4"
-              pl={isSortable ? 0 : 4}
-              gap="8"
-              flex="1"
-              minW={0}
-              display="flex"
-              onClick={handleClick}
-              role={isButton ? 'button' : 'div'}
-            >
-              <Avatar
-                size="32"
-                src={icon}
-                name={title}
-                variant="step"
-                outline="1px solid"
-                outlineColor="border/minimal"
-                backgroundColor="background/primary"
-              />
-
-              <Box minW={0} textAlign="left" flex="1">
-                <Text textStyle="body/sm/regular" hasEllipsis>
-                  {title}
-                </Text>
-                {showSecondary && (
-                  <StepSecondaryText
-                    isUpgradable={isUpgradable}
-                    errorText={error ? 'Failed to load Step' : undefined}
-                    resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+            <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
+              <PopoverAnchor>
+                <Box
+                  p="4"
+                  pl={isSortable ? 0 : 4}
+                  gap="8"
+                  flex="1"
+                  minW={0}
+                  display="flex"
+                  onClick={handleClick}
+                  role={isButton ? 'button' : 'div'}
+                >
+                  <Avatar
+                    size="32"
+                    src={icon}
+                    name={title}
+                    variant="step"
+                    outline="1px solid"
+                    outlineColor="border/minimal"
+                    backgroundColor="background/primary"
                   />
-                )}
-              </Box>
 
-              {buttonGroup}
-            </Box>
+                  <Box minW={0} textAlign="left" flex="1">
+                    <Text textStyle="body/sm/regular" hasEllipsis>
+                      {title}
+                    </Text>
+                    {showSecondary && (
+                      <StepSecondaryText
+                        isUpgradable={isUpgradable}
+                        errorText={error ? 'Failed to load Step' : undefined}
+                        resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                      />
+                    )}
+                  </Box>
+
+                  {buttonGroup}
+                </Box>
+              </PopoverAnchor>
+              {!isMultiSelectAccepted && (
+                <PopoverContent
+                  background="neutral.10"
+                  color="neutral.100"
+                  sx={{
+                    '--popper-arrow-bg': '#201b22',
+                  }}
+                >
+                  <PopoverArrow />
+                  <PopoverBody color="neutral.100" padding="16" textStyle="body/md/regular">
+                    <Text marginBlockEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Link
+                        colorScheme="purple"
+                        href="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
+                        isExternal
+                      >
+                        Learn more
+                      </Link>
+                      <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
+                        Got it
+                      </ColorButton>
+                    </Box>
+                  </PopoverBody>
+                </PopoverContent>
+              )}
+            </Popover>
           )}
         </>
       )}

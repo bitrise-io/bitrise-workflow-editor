@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 export enum WorkflowsPageDialogType {
   NONE,
@@ -11,11 +12,6 @@ export enum WorkflowsPageDialogType {
   CREATE_WORKFLOW,
   WORKFLOW_CONFIG,
 }
-
-export type SelectionParent = {
-  id: string;
-  type: 'stepBundle' | 'workflow';
-};
 
 type State = {
   selectedStepIndices: number[];
@@ -39,6 +35,7 @@ type DialogParams = {
 
 type Action = {
   setWorkflowId: (workflowId?: string) => void;
+  setStepBundleId: (stepBundleId?: string) => void;
   setSelectedStepIndices: (stepIndices?: number[]) => void;
   setSelectionParent: (selectionParent?: SelectionParent) => void;
   isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
@@ -59,6 +56,11 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   setWorkflowId: (workflowId = '') => {
     return set(() => ({
       workflowId,
+    }));
+  },
+  setStepBundleId: (stepBundleId = '') => {
+    return set(() => ({
+      stepBundleId,
     }));
   },
   setSelectedStepIndices: (selectedStepIndices = []) => {
@@ -82,35 +84,41 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
     workflowId = '',
     stepBundleId = '',
     parentWorkflowId = '',
-    selectedStepIndices = [],
+    selectedStepIndices,
     selectionParent,
   }) => {
     return () => {
-      return set(({ openedDialogType, closeDialog }) => {
+      return set((state) => {
+        const {
+          openedDialogType,
+          closeDialog,
+          selectionParent: stateSelectionParent,
+          selectedStepIndices: stateSelectedStepIndices,
+        } = state;
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
           closeDialog();
 
           return {
             _nextDialog: {
               type,
-              selectedStepIndices,
+              selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
               stepBundleId,
               workflowId,
               parentWorkflowId,
-              selectionParent,
+              selectionParent: selectionParent || stateSelectionParent,
             },
           };
         }
 
         return {
-          selectedStepIndices,
+          selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
           stepBundleId,
           workflowId,
           parentWorkflowId,
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
-          selectionParent,
+          selectionParent: selectionParent || stateSelectionParent,
         };
       });
     };
@@ -121,12 +129,12 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
     }));
   },
   unmountDialog: () => {
-    return set(({ _nextDialog, openDialog }) => {
+    return set(({ _nextDialog, openDialog, selectedStepIndices }) => {
       if (_nextDialog) {
         requestAnimationFrame(() => openDialog(_nextDialog)());
       }
 
-      if (get().selectedStepIndices.length === 1 && !_nextDialog) {
+      if (selectedStepIndices.length === 1 && !_nextDialog) {
         return {
           selectedStepIndices: [],
           stepBundleId: '',

@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { usePipelinesPageStore } from '../../../../pages/PipelinesPage/PipelinesPage.store';
+import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import PipelineConditionsCard from './PipelineConditionsCard';
 
 export default {
