@@ -8,6 +8,7 @@ import jsyaml from "js-yaml";
       const requestService = {
         mode: RequestService.mode,
         appSlug: RequestService.appSlug,
+        appConfigVersionHeaderName: 'X-Bitrise-Config-Version'
       };
 
       requestService.isWebsiteMode = function () {
@@ -415,7 +416,7 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
-              const version = response.headers('X-Bitrise-Config-Version');
+              const version = response.headers(requestService.appConfigVersionHeaderName);
               const content = response.data;
 
               resolve({ version, content });

@@ -27,6 +27,8 @@ class RequestService {
 
   public appSlug = '';
 
+  public appConfigVersionHeaderName = 'X-Bitrise-Config-Version';
+
   private logger: Logger | undefined;
 
   constructor(logger: Logger) {
@@ -90,7 +92,7 @@ class RequestService {
     }
 
     const defaultError = window.strings.request_service.load_app_config.default_error;
-    const version = response.headers.get('X-Bitrise-Config-Version');
+    const version = response.headers.get(this.appConfigVersionHeaderName);
     const content = await this.convertResponseToText(response, defaultError);
 
     return { version, content };

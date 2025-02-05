@@ -1,7 +1,4 @@
-
 (function () {
-
-
   angular
     .module("BitriseWorkflowEditor")
     .service("appService", function (
@@ -306,8 +303,17 @@
       }
 
       appService.saveAppConfig = function (tabOpenDuringSave, appConfig) {
+        let requestConfig;
+        if (appService.savedAppConfigVersion) {
+          requestConfig = {
+            headers: {
+              [requestService.appConfigVersionHeaderName]: appService.savedAppConfigVersion
+            }
+          };
+        }
+
         return requestService
-          .postAppConfig(appConfig, tabOpenDuringSave)
+          .postAppConfig(appConfig, tabOpenDuringSave, requestConfig)
           .then(function () {
             appService.hasTriggers = Boolean(appConfig.trigger_map?.length);
           });
@@ -406,7 +412,16 @@
       };
 
       appService.saveAppConfigYML = function (tabOpenDuringSave, appConfigYML) {
-        return requestService.postAppConfigYML(appConfigYML);
+        let requestConfig;
+        if (appService.savedAppConfigYMLVersion) {
+          requestConfig = {
+            headers: {
+              [requestService.appConfigVersionHeaderName]: appService.savedAppConfigYMLVersion
+            }
+          };
+        }
+
+        return requestService.postAppConfigYML(appConfigYML, requestConfig);
       };
 
       appService.discardAppConfigYMLChanges = function () {
