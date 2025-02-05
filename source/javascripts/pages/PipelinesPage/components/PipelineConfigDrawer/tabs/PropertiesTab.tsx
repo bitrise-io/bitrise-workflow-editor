@@ -14,8 +14,8 @@ type Props = {
 };
 
 const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
-  const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { keys, onSelectPipeline } = usePipelineSelector();
+  const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 
   const { summary, description, updatePipeline } = useBitriseYmlStore((s) => ({
@@ -29,8 +29,10 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
   });
 
   const onNameChange = (value: string) => {
-    setPipelineId(value);
-    renamePipeline(value);
+    if (value !== pipelineId) {
+      setPipelineId(value);
+      renamePipeline(value);
+    }
   };
 
   const validateName = (value: string) => {
