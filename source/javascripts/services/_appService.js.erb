@@ -1,3 +1,7 @@
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+
+const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-config-version-header');
+
 (function () {
   angular
     .module("BitriseWorkflowEditor")
@@ -11,6 +15,7 @@
       Stack,
       MachineType
     ) {
+
       const appService = {
         // JSON objects
         appConfig: undefined,
@@ -304,7 +309,7 @@
 
       appService.saveAppConfig = function (tabOpenDuringSave, appConfig) {
         let requestConfig;
-        if (appService.savedAppConfigVersion) {
+        if (enableXBitriseConfigVersionHeader && appService.savedAppConfigVersion) {
           requestConfig = {
             headers: {
               [requestService.appConfigVersionHeaderName]: appService.savedAppConfigVersion
@@ -413,7 +418,7 @@
 
       appService.saveAppConfigYML = function (tabOpenDuringSave, appConfigYML) {
         let requestConfig;
-        if (appService.savedAppConfigYMLVersion) {
+        if (enableXBitriseConfigVersionHeader && appService.savedAppConfigYMLVersion) {
           requestConfig = {
             headers: {
               [requestService.appConfigVersionHeaderName]: appService.savedAppConfigYMLVersion
