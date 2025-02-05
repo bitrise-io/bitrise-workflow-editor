@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
+import { useShallow } from 'zustand/react/shallow';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -26,15 +27,17 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
 
   const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
-    useWorkflowsPageStore((s) => ({
-      closeDialog: s.closeDialog,
-      openDialog: s.openDialog,
-      selectedStepIndices: s.selectedStepIndices,
-      selectedWorkflowId: s.workflowId,
-      selectedStepBundleId: s.stepBundleId,
-      selectionParent: s.selectionParent,
-      setSelectedStepIndices: s.setSelectedStepIndices,
-    }));
+    useWorkflowsPageStore(
+      useShallow((s) => ({
+        closeDialog: s.closeDialog,
+        openDialog: s.openDialog,
+        selectedStepIndices: s.selectedStepIndices,
+        selectedWorkflowId: s.workflowId,
+        selectedStepBundleId: s.stepBundleId,
+        selectionParent: s.selectionParent,
+        setSelectedStepIndices: s.setSelectedStepIndices,
+      })),
+    );
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 

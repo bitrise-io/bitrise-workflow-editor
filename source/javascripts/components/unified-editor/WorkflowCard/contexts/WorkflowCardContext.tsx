@@ -7,7 +7,7 @@ import {
 } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 type State = {
-  selectedStepIndices: number[];
+  selectedStepIndices?: number[];
   selectionParent?: SelectionParent;
 };
 type Actions = StepActions & WorkflowActions;
@@ -53,11 +53,12 @@ function useSelection() {
         workflowId?: string;
       }) => {
         const type: SelectionParent['type'] = stepBundleId ? 'stepBundle' : 'workflow';
-        return (
-          ((typeof workflowId === 'string' && type === 'workflow' && state.selectionParent?.id === workflowId) ||
-            (type === 'stepBundle' && state.selectionParent?.id === stepBundleId)) &&
-          state.selectedStepIndices.includes(stepIndex)
-        );
+        const isWorkflowSelected =
+          typeof workflowId === 'string' && type === 'workflow' && state.selectionParent?.id === workflowId;
+        const isStepBundleSelected = type === 'stepBundle' && state.selectionParent?.id === stepBundleId;
+        const isStepIndexSelected = state.selectedStepIndices?.includes(stepIndex);
+
+        return (isWorkflowSelected || isStepBundleSelected) && isStepIndexSelected;
       },
     }),
     [state],

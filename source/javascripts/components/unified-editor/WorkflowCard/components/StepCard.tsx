@@ -209,8 +209,9 @@ const StepCard = ({
       return null;
     }
 
+    const suffix = selectedStepIndices && selectedStepIndices.length > 1 ? 's' : '';
     const menuItems = [];
-    if (isUpgradable && (selectedStepIndices.length === 1 || !isHighlighted)) {
+    if (isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
       menuItems.push(
         <OverflowMenuItem
           leftIconName="ArrowUp"
@@ -245,11 +246,11 @@ const StepCard = ({
           }}
         >
           New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
-          {selectedStepIndices?.length > 1 ? 's' : ''}
+          {suffix}
         </OverflowMenuItem>,
       );
     }
-    if (selectedStepIndices.length === 1 || !isHighlighted) {
+    if (selectedStepIndices?.length === 1 || !isHighlighted) {
       menuItems.push(
         <OverflowMenuItem
           leftIconName="Duplicate"
@@ -277,14 +278,14 @@ const StepCard = ({
         onClick={(e) => {
           e.stopPropagation();
           if (workflowId && onDeleteStep) {
-            if (isHighlighted) {
+            if (isHighlighted && selectedStepIndices) {
               onDeleteStep(workflowId, selectedStepIndices);
             } else {
               onDeleteStep(workflowId, [stepIndex]);
             }
           }
           if (stepBundleId && onDeleteStepInStepBundle) {
-            if (isHighlighted) {
+            if (isHighlighted && selectedStepIndices) {
               onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
             } else {
               onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
@@ -292,7 +293,7 @@ const StepCard = ({
           }
         }}
       >
-        Delete Step{selectedStepIndices?.length > 1 ? 's' : ''}
+        Delete Step{suffix}
       </OverflowMenuItem>,
     );
 
@@ -365,7 +366,7 @@ const StepCard = ({
               </Box>
             </Skeleton>
           ) : (
-            <Popover isLazy isOpen={isHighlighted && selectedStepIndices.length === 1} placement="top">
+            <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
               <PopoverAnchor>
                 <Box
                   p="4"

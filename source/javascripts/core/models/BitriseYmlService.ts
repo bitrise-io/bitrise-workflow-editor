@@ -297,7 +297,8 @@ function groupStepsToStepBundle(
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
-  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
+  const stepsInWorkflow = copy.workflows?.[workflowId]?.steps;
+  if (!selectedStepIndices.length || !stepsInWorkflow) {
     return copy;
   }
 
@@ -305,28 +306,22 @@ function groupStepsToStepBundle(
   const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
   const removedSteps = sortedIndices
     .map((stepIndex) => {
-      return copy.workflows?.[workflowId].steps?.splice(stepIndex, 1).filter((step) => {
-        const { isStep } = StepService;
-        const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
-        const cvs = Object.keys(step)[0];
-        return isStep(cvs, defaultStepLibrary);
-      })[0] as { [x: string]: StepYmlObject };
+      const removedStep = stepsInWorkflow.splice(stepIndex, 1)[0];
+      const cvs = Object.keys(removedStep)[0];
+      const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+      return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
     })
-    .reverse();
+    .filter(Boolean) as Array<{ [key: string]: StepYmlObject }>;
 
   // Create and add selected step / steps to the step bundle
   copy.step_bundles = {
     ...copy.step_bundles,
-    ...{
-      [stepBundleId]: { steps: removedSteps },
-    },
+    [stepBundleId]: { steps: removedSteps.reverse() },
   };
 
   // Push the created step bundle to the workflow, which contained the selected step / steps
-  const steps = copy.workflows[workflowId].steps ?? [];
-  steps.splice(sortedIndices.reverse()[0], 0, { [`bundle::${stepBundleId}`]: {} });
-  copy.workflows[workflowId].steps = steps;
-
+  const insertPosition = sortedIndices.reverse()[0];
+  stepsInWorkflow.splice(insertPosition, 0, { [`bundle::${stepBundleId}`]: {} });
   return copy;
 }
 
