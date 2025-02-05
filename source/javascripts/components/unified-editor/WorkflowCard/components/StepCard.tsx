@@ -29,7 +29,6 @@ import StepService from '@/core/models/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
@@ -93,7 +92,6 @@ const StepCard = ({
   stepBundleId,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -229,7 +227,7 @@ const StepCard = ({
         </OverflowMenuItem>,
       );
     }
-    if (enableStepBundles && isSimpleStep) {
+    if (isSimpleStep) {
       menuItems.push(
         <OverflowMenuItem
           leftIconName="Steps"
@@ -319,7 +317,6 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
-    enableStepBundles,
     existingStepBundleIds,
     isClonable,
     isDragging,
