@@ -30,7 +30,7 @@ import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import generateUniqueEntityId from '@/components/unified-editor/utils/generateUniqueEntityId';
+import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
