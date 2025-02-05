@@ -25,7 +25,7 @@ describe("RequestService", () => {
 					}, 0);
 				});
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
-				jasmine.Ajax.stubRequest(/.*/).andCallFunction(() => {});
+				jasmine.Ajax.stubRequest(/.*/).andCallFunction(() => { });
 
 				RequestService.getAppConfigYML(aborter)
 					.then(done.fail)
@@ -53,7 +53,23 @@ describe("RequestService", () => {
 
 					RequestService.getAppConfigYML()
 						.then((appConfig) => {
-							expect(appConfig).toBe("my-app-config");
+							expect(appConfig).toEqual({ version: null, content: "my-app-config" });
+							done();
+						})
+						.catch(done.fail);
+				});
+			});
+
+			describe("and response is successful with version header", () => {
+				it("resolves with app config and version", (done) => {
+					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
+						responseText: "my-app-config",
+						responseHeaders: { "X-Bitrise-Config-Version": "7a6s5dfvas6df" },
+					});
+
+					RequestService.getAppConfigYML()
+						.then((appConfig) => {
+							expect(appConfig).toEqual({ version: "7a6s5dfvas6df", content: "my-app-config" });
 							done();
 						})
 						.catch(done.fail);
@@ -136,7 +152,24 @@ describe("RequestService", () => {
 
 					RequestService.getAppConfigYML()
 						.then((appConfig) => {
-							expect(appConfig).toBe("my-app-config");
+							expect(appConfig).toEqual({ version: null, content: "my-app-config" });
+							done();
+						})
+						.catch(done.fail);
+				});
+			});
+
+			// NOTE: It is just a theoritical case, as the CLI mode does not have versioning
+			describe("and response is successful with version header", () => {
+				it("resolves with app config and version", (done) => {
+					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
+						responseText: "my-app-config",
+						responseHeaders: { "X-Bitrise-Config-Version": "7a6s5dfvas6df" },
+					});
+
+					RequestService.getAppConfigYML()
+						.then((appConfig) => {
+							expect(appConfig).toEqual({ version: "7a6s5dfvas6df", content: "my-app-config" });
 							done();
 						})
 						.catch(done.fail);
