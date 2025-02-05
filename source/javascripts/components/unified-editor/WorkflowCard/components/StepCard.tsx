@@ -411,7 +411,7 @@ const StepCard = ({
                   <PopoverArrow />
                   <PopoverBody color="neutral.100" padding="16" textStyle="body/md/regular">
                     <Text marginBlockEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box display="flex" justifyContent="flex-end">
                       <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
                         Got it
                       </ColorButton>
