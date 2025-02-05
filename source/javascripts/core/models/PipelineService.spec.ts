@@ -62,7 +62,7 @@ describe('PipelineService', () => {
         stages: [{ st1: {} }, { st2: {} }, { st3: {} }],
       };
       const stages: StagesYml = {
-        st1: { workflows: [{ wf1: {} }] },
+        st1: { workflows: [{ wf1: {} }, { wf1: {} }] },
         st2: { workflows: [{ wf2: {} }, { wf5: {} }] },
         st3: { workflows: [{ wf3: {} }] },
         st4: { workflows: [{ wf4: {} }] },
