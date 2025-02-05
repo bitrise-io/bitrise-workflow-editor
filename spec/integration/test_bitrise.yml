@@ -25,7 +25,7 @@ trigger_map:
   workflow: wf3
   pull_request_target_branch: '*'
 pipelines:
-  graph-pipeline-keke:
+  graph-pipeline:
     triggers:
       push:
       - branch: main
