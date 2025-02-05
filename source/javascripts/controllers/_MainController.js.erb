@@ -626,7 +626,7 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
 
           const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : appService.getNormalizedAppConfig;
 
-          return fetchRemoteConfig().then((remoteConfig) => {
+          return fetchRemoteConfig().then(({ content: remoteConfig }) => {
             const unformattedBaseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
             const unformattedYourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
             const unformattedRemoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);

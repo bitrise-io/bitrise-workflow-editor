@@ -18,10 +18,12 @@
         // JSON objects
         appConfig: undefined,
         savedAppConfig: undefined,
+        savedAppConfigVersion: undefined,
         remoteAppConfig: undefined,
         // YML strings
         appConfigYML: undefined,
         savedAppConfigYML: undefined,
+        savedAppConfigYMLVersion: undefined,
         remoteAppConfigYML: undefined,
 
         appDetails: undefined,
@@ -76,9 +78,10 @@
           return $q.when();
         }
 
-        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          appService.appConfig = normalizeAppConfig(appConfig);
+        return requestService.getAppConfig(requestConfig).then(function ({ version, content }) {
+          appService.appConfig = normalizeAppConfig(content);
           appService.savedAppConfig = angular.copy(appService.appConfig);
+          appService.savedAppConfigVersion = version;
         });
       };
 
@@ -382,9 +385,10 @@
         }
 
         return requestService.getAppConfigYML(requestConfig).then(
-          function (appConfigYML) {
-            appService.appConfigYML = appConfigYML;
-            appService.savedAppConfigYML = appConfigYML;
+          function ({ version, content }) {
+            appService.appConfigYML = content;
+            appService.savedAppConfigYML = content;
+            appService.savedAppConfigYMLVersion = version;
           },
           function (response) {
             if (response.bitriseYml) {
@@ -652,8 +656,11 @@
       }
 
       appService.getNormalizedAppConfig = function (requestConfig) {
-        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          return normalizeAppConfig(appConfig);
+        return requestService.getAppConfig(requestConfig).then(function ({ version, content }) {
+          return {
+            version,
+            content: normalizeAppConfig(content),
+          };
         });
       };
 

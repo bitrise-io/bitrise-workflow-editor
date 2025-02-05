@@ -45,7 +45,7 @@ class RequestService {
 
   public async getAppConfigYML(
     abortedPromise: Promise<undefined>,
-  ): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
+  ): Promise<{ version?: string; content: string } | Error | { bitrise_yml: string; error_message: Error }> {
     const websiteRequestURL = StringService.stringReplacedWithParameters(window.routes.website.yml_get, {
       app_slug: this.appSlug,
     });
@@ -89,7 +89,11 @@ class RequestService {
       throw error;
     }
 
-    return this.convertResponseToText(response, window.strings.request_service.load_app_config.default_error);
+    const defaultError = window.strings.request_service.load_app_config.default_error;
+    const version = response.headers.get('X-Bitrise-Config-Version');
+    const content = await this.convertResponseToText(response, defaultError);
+
+    return { version, content };
   }
 
   private modeFromEnvVars(): RequestServiceMode {
