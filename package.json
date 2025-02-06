@@ -96,6 +96,7 @@
     "react-dom": "^18.3.1",
     "react-error-boundary": "^5.0.0",
     "react-hook-form": "^7.53.1",
+    "remove-markdown": "^0.6.0",
     "search-insights": "^2.17.3",
     "semver": "^7.6.3",
     "showdown": "^2.1.0",

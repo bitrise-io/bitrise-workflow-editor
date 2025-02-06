@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Icon, Image, Text, Tooltip } from '@bitrise/bitkit';
 import { ColorProps } from '@chakra-ui/react';
 
+import removeMd from 'remove-markdown';
 import StepBadge from '@/components/StepBadge';
 import defaultStepIcon from '@/../images/step/icon-default.svg';
 import useIsTruncated from '@/hooks/useIsTruncated';
@@ -93,7 +94,7 @@ const DrawerStepCard = ({
         </Box>
       </Box>
       <Text textStyle="body/sm/regular" noOfLines={2} color={getColor('text/secondary')}>
-        {detail}
+        {removeMd(detail || '')}
       </Text>
       {!isDisabled && (
         <Icon
