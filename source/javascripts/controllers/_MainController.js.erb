@@ -9,6 +9,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
+const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-config-version-header');
 
 (function () {
   angular
@@ -602,7 +603,9 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function ({ shouldReturnPromise = false, source = 'save_changes_button' }) {
+      function saveWithXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) { }
+
+      function saveWithoutXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) {
         const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
 
         function validateConfigIfNeeded() {
@@ -750,7 +753,9 @@ const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflic
         if (shouldReturnPromise) {
           return promise;
         }
-      };
+      }
+
+      viewModel.save = enableXBitriseConfigVersionHeader ? saveWithXBitriseConfigVersionHeader : saveWithoutXBitriseConfigVersionHeader;
 
       viewModel.isSaveEnabled = function () {
         if (!viewModel.menuProgress.isIdle) {
