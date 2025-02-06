@@ -1,14 +1,12 @@
 import { memo } from 'react';
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 type Props = BoxProps & {
   showStepBundles: boolean;
 };
 
 const AddStepButton = ({ onClick, showStepBundles, ...props }: Props) => {
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
-  const tooltipLabel = enableStepBundles ? 'Add Step or Step bundle' : 'Add Step';
+  const tooltipLabel = showStepBundles ? 'Add Step or Step bundle' : 'Add Step';
 
   return (
     <Box h={8} cursor="pointer" position="relative" {...props} className="group">
