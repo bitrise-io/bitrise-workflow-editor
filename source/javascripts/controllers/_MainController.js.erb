@@ -603,7 +603,158 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         return viewModel.dataToSave;
       };
 
-      function saveWithXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) { }
+      function saveWithXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) {
+        const isYmlFormat = viewModel.currentMenu.id === "yml";
+        const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
+
+        function validateConfigIfNeeded() {
+          return !["secrets", "yml"].includes(viewModel.currentMenu.id)
+            ? appService.validateAppConfig()
+            : $q.resolve();
+        }
+
+        function formatYaml(yaml) {
+          return BitriseYmlApi.formatYml(yaml).then((formattedYaml) => formattedYaml).catch(() => yaml);
+        }
+
+        function saveConfigBasedOnMenu(finalYaml, version) {
+          if (isRepositorySavedYml) {
+            viewModel.isUpdateConfigurationDialogOpen = true;
+            viewModel.deferredUserSavedYmlToRepository = $q.defer();
+            viewModel.dataToSave = isYmlFormat ? appService.appConfigYML : appService.appConfig;
+            return viewModel.deferredUserSavedYmlToRepository.promise;
+          }
+
+          const saveActions = {
+            yml: () => {
+              const appConfigYML = finalYaml || appService.appConfigYML
+              return appService.saveAppConfigYML(viewModel.currentMenu.id, appConfigYML, version);
+            },
+            stack: () => {
+              const appConfig = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
+              return appService.saveStackAndDockerImage(viewModel.currentMenu.id, appConfig, version)
+            },
+            secrets: () => {
+              return $q.resolve();
+            },
+            default: () => {
+              const appConfig = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
+              return appService.saveAppConfig(viewModel.currentMenu.id, appConfig, version);
+            },
+          };
+
+          return (saveActions[viewModel.currentMenu.id] || saveActions.default)().catch((error) => {
+            const hasConflict = error && error.status === 409;
+
+            if (hasConflict) {
+              return handleConflictResolution();
+            }
+
+            return $q.reject(error);
+          });
+        }
+
+        function handleConflictResolution() {
+          viewModel.deferredConflictResolution = $q.defer();
+
+          const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : appService.getNormalizedAppConfig;
+
+          return fetchRemoteConfig().then(({ version: remoteVersion, content: remoteConfig }) => {
+            const unformattedBaseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
+            const unformattedYourYaml = isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig);
+            const unformattedRemoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
+
+            return Promise.all([
+              formatYaml(unformattedBaseYaml),
+              formatYaml(unformattedYourYaml),
+              formatYaml(unformattedRemoteYaml),
+            ]).then(([baseYaml, yourYaml, remoteYaml]) => {
+              if (!configMergeDialog.getState().isOpen) {
+                segmentTrack('Workflow Editor Config Merge Popup Shown', {
+                  tab_name: viewModel.currentMenu.id,
+                });
+              }
+
+              configMergeDialog.setState({
+                baseYaml,
+                yourYaml,
+                remoteYaml,
+                isOpen: true,
+                isLoading: false,
+              });
+
+              return viewModel.deferredConflictResolution.promise;
+            }).then(({ finalYaml }) => {
+              return saveConfigBasedOnMenu(finalYaml, remoteVersion);
+            });
+          })
+        }
+
+        function reloadConfigurations() {
+          const isStackAndMachinesMenu = viewModel.currentMenu.id === "stack";
+
+          if (isStackAndMachinesMenu) {
+            viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+          }
+
+          return $q.all([
+            appService.getAppConfig(true),
+            appService.getAppConfigYML(true),
+          ]).then(() => {
+            if (isStackAndMachinesMenu) {
+              return appService.getStackAndDockerImage(true);
+            }
+
+            return $q.resolve();
+          }).finally(() => {
+            viewModel.loadDataProgress.reset();
+          });
+        }
+
+        function startSavingProcess() {
+          if (!configMergeDialog.getState().isOpen) {
+            segmentTrack("Workflow Editor Save Button Clicked", { source, tab_name: viewModel.currentMenu.id });
+          }
+
+          viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+          return validateConfigIfNeeded()
+            .then(saveConfigBasedOnMenu)
+            .then(reloadConfigurations)
+            .then(() => {
+              const forceReload = configMergeDialog.getState().isOpen || isRepositorySavedYml;
+
+              updateLastWorkflowMetadata();
+              viewModel.saveProgress.reset();
+              configMergeDialog.setState(configMergeDialog.getInitialState());
+
+              $rootScope.$emit("MainController::saveSuccess", { forceReload, menu: viewModel.currentMenu.id });
+            }).catch((error) => {
+              if (!error) {
+                viewModel.saveProgress.reset();
+                return $q.resolve();
+              }
+
+              segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: viewModel.currentMenu.id });
+
+              if (configMergeDialog.getState().isOpen) {
+                configMergeDialog.setState({ errorMessage: error.message });
+                return startSavingProcess();
+              }
+
+              viewModel.saveProgress.reset();
+              $rootScope.$emit("MainController::saveError");
+              Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+
+              return shouldReturnPromise ? $q.reject(error) : $q.resolve();
+            });
+        }
+
+        const promise = startSavingProcess();
+        if (shouldReturnPromise) {
+          return promise;
+        }
+      }
 
       function saveWithoutXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) {
         const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
@@ -629,10 +780,10 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
           const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : appService.getNormalizedAppConfig;
 
-          return fetchRemoteConfig().then(({ content: remoteConfig }) => {
+          return fetchRemoteConfig().then(({ content }) => {
             const unformattedBaseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
             const unformattedYourYaml = defaultYourYaml || (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
-            const unformattedRemoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
+            const unformattedRemoteYaml = isYmlFormat ? content : BitriseYmlApi.toYml(content);
 
             return Promise.all([
               formatYaml(unformattedBaseYaml),
@@ -652,8 +803,8 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               }
 
               configMergeDialog.setState({
-                yourYaml,
                 baseYaml,
+                yourYaml,
                 remoteYaml,
                 isOpen: true,
                 isLoading: false,
@@ -753,7 +904,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         if (shouldReturnPromise) {
           return promise;
         }
-      }
+      };
 
       viewModel.save = enableXBitriseConfigVersionHeader ? saveWithXBitriseConfigVersionHeader : saveWithoutXBitriseConfigVersionHeader;
 
