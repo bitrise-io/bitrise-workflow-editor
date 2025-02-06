@@ -18,7 +18,13 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
 
-  const handleNameChange = useRenameStepBundle(onRename);
+  const rename = useRenameStepBundle(onRename);
+
+  const handleNameChange = (newValue: string) => {
+    if (newValue !== stepBundle?.id) {
+      rename(newValue);
+    }
+  };
 
   return (
     <>
