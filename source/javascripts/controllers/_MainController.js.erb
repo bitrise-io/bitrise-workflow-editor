@@ -7,7 +7,6 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { configMergeDialog } from "@/components/ConfigMergeDialog/ConfigMergeDialog.store";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
-const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
 const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-config-version-header');
 
@@ -59,15 +58,13 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "pipelines"
         },
-        enableStepBundles === true
-          ? {
-            id: "step_bundles",
-            title: "Step bundles",
-            path: "step_bundles",
-            possibleURLParameterKeys: ["pipeline", "workflow_id", "tab"],
-            cssClass: "step_bundles"
-          }
-          : null,
+        {
+          id: "step_bundles",
+          title: "Step bundles",
+          path: "step_bundles",
+          possibleURLParameterKeys: ["pipeline", "workflow_id", "tab"],
+          cssClass: "step_bundles"
+        },
         {
           id: "secrets",
           title: "<%= data[:strings][:main][:menus][:secrets] %>",
