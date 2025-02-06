@@ -409,13 +409,17 @@ const StepCard = ({
                   }}
                 >
                   <PopoverArrow />
-                  <PopoverBody color="neutral.100" padding="16" textStyle="body/md/regular">
-                    <Text marginBlockEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                    <Box display="flex" justifyContent="flex-end">
-                      <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
-                        Got it
-                      </ColorButton>
-                    </Box>
+                  <PopoverBody
+                    display="flex"
+                    alignItems="center"
+                    color="neutral.100"
+                    padding="16"
+                    textStyle="body/md/regular"
+                  >
+                    <Text paddingRight="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                    <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
+                      Got it
+                    </ColorButton>
                   </PopoverBody>
                 </PopoverContent>
               )}
