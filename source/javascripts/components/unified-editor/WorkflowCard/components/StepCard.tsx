@@ -11,7 +11,6 @@ import {
   ColorButton,
   Divider,
   Icon,
-  Link,
   OverflowMenu,
   OverflowMenuItem,
   Skeleton,
@@ -29,7 +28,6 @@ import StepService from '@/core/models/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
@@ -93,7 +91,6 @@ const StepCard = ({
   stepBundleId,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -229,7 +226,7 @@ const StepCard = ({
         </OverflowMenuItem>,
       );
     }
-    if (enableStepBundles && isSimpleStep) {
+    if (isSimpleStep) {
       menuItems.push(
         <OverflowMenuItem
           leftIconName="Steps"
@@ -319,7 +316,6 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
-    enableStepBundles,
     existingStepBundleIds,
     isClonable,
     isDragging,
@@ -413,20 +409,17 @@ const StepCard = ({
                   }}
                 >
                   <PopoverArrow />
-                  <PopoverBody color="neutral.100" padding="16" textStyle="body/md/regular">
-                    <Text marginBlockEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Link
-                        colorScheme="purple"
-                        href="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html#creating-a-step-bundle"
-                        isExternal
-                      >
-                        Learn more
-                      </Link>
-                      <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
-                        Got it
-                      </ColorButton>
-                    </Box>
+                  <PopoverBody
+                    display="flex"
+                    alignItems="center"
+                    color="neutral.100"
+                    padding="16"
+                    textStyle="body/md/regular"
+                  >
+                    <Text paddingRight="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                    <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
+                      Got it
+                    </ColorButton>
                   </PopoverBody>
                 </PopoverContent>
               )}
