@@ -9,7 +9,7 @@ import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
 import { PipelinesYml, PipelineWorkflows, PipelineYmlObject } from './Pipeline';
-import { BITRISE_STEP_LIBRARY_URL, StepInputVariable, StepYmlObject } from './Step';
+import { BITRISE_STEP_LIBRARY_URL, StepBundleYmlObject, StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -366,6 +366,22 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
       }),
     );
   }
+
+  return copy;
+}
+
+function updateStepBundle(stepBundleId: string, stepBundle: StepBundleYmlObject, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  mapValues(stepBundle, (value: string, key: never) => {
+    if (copy.step_bundles?.[stepBundleId]) {
+      if (value) {
+        copy.step_bundles[stepBundleId][key] = value as never;
+      } else if (shouldRemoveField(value, yml.step_bundles?.[stepBundleId]?.[key])) {
+        delete copy.step_bundles[stepBundleId][key];
+      }
+    }
+  });
 
   return copy;
 }
@@ -1438,6 +1454,7 @@ export default {
   groupStepsToStepBundle,
   moveStepInStepBundle,
   renameStepBundle,
+  updateStepBundle,
   updateStepInStepBundle,
   updateStepInputsInStepBundle,
   createWorkflow,
