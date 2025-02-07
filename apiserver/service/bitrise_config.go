@@ -2,8 +2,8 @@ package service
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -19,7 +19,7 @@ import (
 func AppendBitriseConfigVersionHeader(w http.ResponseWriter, contStr string) {
 	hash := sha256.Sum256([]byte(contStr))
 
-	w.Header().Set("X-Bitrise-Config-Version", fmt.Sprintf("%x", hash))
+	w.Header().Set("X-Bitrise-Config-Version", hex.EncodeToString(hash[:]))
 }
 
 // HasConfigVersionConflict ...
@@ -31,7 +31,7 @@ func HasConfigVersionConflict(r *http.Request, contStr string) bool {
 
 	hash := sha256.Sum256([]byte(contStr))
 
-	return receivedVersion != fmt.Sprintf("%x", hash)
+	return receivedVersion != hex.EncodeToString(hash[:])
 }
 
 // GetBitriseYMLHandler ...
