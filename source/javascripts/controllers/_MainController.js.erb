@@ -558,24 +558,16 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
       window.onpopstate = function (event) {
         if (event.state && event.state.eventID === "backButtonPressedOnInitialWorkflowEditorPage") {
           window.location.replace();
-
-
         }
       };
 
       viewModel.closeUpdateConfigurationDialog = function () {
-        $timeout(function () {
-          viewModel.isUpdateConfigurationDialogOpen = false;
-        }, 0);
-
+        viewModel.isUpdateConfigurationDialogOpen = false;
         viewModel.deferredUserSavedYmlToRepository.reject();
       };
 
       viewModel.onSaveToRepoComplete = function () {
-        $timeout(function () {
-          viewModel.closeUpdateConfigurationDialog();
-        }, 1500);
-
+        viewModel.isUpdateConfigurationDialogOpen = false;
         viewModel.deferredUserSavedYmlToRepository.resolve();
       };
 
@@ -587,13 +579,12 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           return
         }
 
-        requestService.updateCurrentUserMetadata({
+        return requestService.updateCurrentUserMetadata({
           "last_workflow_edited_date": dateToday,
           "last_workflow_edited_app": appSlug
-        })
-          .then(function () {
-            viewModel.lastWorkflowEditedDate = dateToday;
-          });
+        }).then(function () {
+          viewModel.lastWorkflowEditedDate = dateToday;
+        });
       }
 
       viewModel.getDataToSave = function () {
@@ -601,156 +592,191 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
       };
 
       function saveWithXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) {
+        let remoteConfig;
+        let remoteVersion;
+
         const isYmlFormat = viewModel.currentMenu.id === "yml";
+        const shouldValidate = !["secrets", "yml"].includes(viewModel.currentMenu.id);
         const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
 
-        function validateConfigIfNeeded() {
-          return !["secrets", "yml"].includes(viewModel.currentMenu.id)
-            ? appService.validateAppConfig()
-            : $q.resolve();
-        }
+        async function startSavingProcess() {
+          viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+          segmentTrack("Workflow Editor Save Button Clicked", { source, tab_name: viewModel.currentMenu.id });
 
-        function formatYaml(yaml) {
-          return BitriseYmlApi.formatYml(yaml).then((formattedYaml) => formattedYaml).catch(() => yaml);
-        }
-
-        function saveConfigBasedOnMenu(finalYaml, version) {
-          if (isRepositorySavedYml) {
-            viewModel.isUpdateConfigurationDialogOpen = true;
-            viewModel.deferredUserSavedYmlToRepository = $q.defer();
-            viewModel.dataToSave = isYmlFormat ? appService.appConfigYML : appService.appConfig;
-            return viewModel.deferredUserSavedYmlToRepository.promise;
+          if (shouldValidate) {
+            try {
+              await appService.validateAppConfig();
+            } catch (error) {
+              return showErrorPopup(error);
+            }
           }
 
+          if (isRepositorySavedYml) {
+            try {
+              const method = await showSaveRepositoryYmlDialog();
+              return await endSavingProcess(method);
+            } catch (error) {
+              return showErrorPopup(error);
+            }
+          }
+
+          try {
+            const method = await saveWithConflictResolution();
+            await endSavingProcess(method);
+          } catch (error) {
+            return showErrorPopup(error);
+          }
+        }
+
+        async function showErrorPopup(error) {
+          viewModel.saveProgress.reset();
+          $rootScope.$emit("MainController::saveError");
+          Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+          segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: viewModel.currentMenu.id });
+          safeDigest($scope);
+        }
+
+        /**
+         * @returns {Promise<'cancel' | 'save' | 'force-reload'>}
+         */
+        async function showSaveRepositoryYmlDialog() {
+          viewModel.isUpdateConfigurationDialogOpen = true;
+          viewModel.deferredUserSavedYmlToRepository = $q.defer();
+          viewModel.dataToSave = isYmlFormat ? appService.appConfigYML : appService.appConfig;
+
+          safeDigest($scope);
+
+          try {
+            await viewModel.deferredUserSavedYmlToRepository.promise;
+            return 'force-reload';
+          } catch {
+            // NOTE: User canceled the dialog, so just update the UI
+            return 'cancel';
+          }
+        }
+
+        /**
+         * @param {'cancel' | 'save' | 'force-reload'} mode
+         */
+        async function saveWithConflictResolution(finalYaml = '', mode = 'save') {
           const saveActions = {
             yml: () => {
-              const appConfigYML = finalYaml || appService.appConfigYML
-              return appService.saveAppConfigYML(viewModel.currentMenu.id, appConfigYML, version);
+              const data = finalYaml || appService.appConfigYML
+              return appService.saveAppConfigYML(viewModel.currentMenu.id, data, remoteVersion);
             },
             stack: () => {
-              const appConfig = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
-              return appService.saveStackAndDockerImage(viewModel.currentMenu.id, appConfig, version)
+              const data = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
+              return appService.saveStackAndDockerImage(viewModel.currentMenu.id, data, remoteVersion);
             },
             secrets: () => {
-              return $q.resolve();
+              return Promise.resolve();
             },
             default: () => {
-              const appConfig = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
-              return appService.saveAppConfig(viewModel.currentMenu.id, appConfig, version);
+              const data = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
+              return appService.saveAppConfig(viewModel.currentMenu.id, data, remoteVersion);
             },
           };
 
-          return (saveActions[viewModel.currentMenu.id] || saveActions.default)().catch((error) => {
-            const hasConflict = error && error.status === 409;
+          try {
+            await (saveActions[viewModel.currentMenu.id] || saveActions.default)();
+            return mode;
+          } catch (error) {
+            const hasConflict = error?.status === 409;
 
             if (hasConflict) {
-              return handleConflictResolution();
+              return showConfigMergeDialog(finalYaml);
             }
 
-            return $q.reject(error);
-          });
-        }
-
-        function handleConflictResolution() {
-          viewModel.deferredConflictResolution = $q.defer();
-
-          const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : appService.getNormalizedAppConfig;
-
-          return fetchRemoteConfig().then(({ version: remoteVersion, content: remoteConfig }) => {
-            const unformattedBaseYaml = isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig);
-            const unformattedYourYaml = isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig);
-            const unformattedRemoteYaml = isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig);
-
-            return Promise.all([
-              formatYaml(unformattedBaseYaml),
-              formatYaml(unformattedYourYaml),
-              formatYaml(unformattedRemoteYaml),
-            ]).then(([baseYaml, yourYaml, remoteYaml]) => {
-              if (!configMergeDialog.getState().isOpen) {
-                segmentTrack('Workflow Editor Config Merge Popup Shown', {
-                  tab_name: viewModel.currentMenu.id,
-                });
-              }
-
-              configMergeDialog.setState({
-                baseYaml,
-                yourYaml,
-                remoteYaml,
-                isOpen: true,
-                isLoading: false,
-              });
-
-              return viewModel.deferredConflictResolution.promise;
-            }).then(({ finalYaml }) => {
-              return saveConfigBasedOnMenu(finalYaml, remoteVersion);
-            });
-          })
-        }
-
-        function reloadConfigurations() {
-          const isStackAndMachinesMenu = viewModel.currentMenu.id === "stack";
-
-          if (isStackAndMachinesMenu) {
-            viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+            return Promise.reject(error);
           }
-
-          return $q.all([
-            appService.getAppConfig(true),
-            appService.getAppConfigYML(true),
-          ]).then(() => {
-            if (isStackAndMachinesMenu) {
-              return appService.getStackAndDockerImage(true);
-            }
-
-            return $q.resolve();
-          }).finally(() => {
-            viewModel.loadDataProgress.reset();
-          });
         }
 
-        function startSavingProcess() {
+        async function formatYaml(yaml) {
+          return BitriseYmlApi.formatYml(yaml).then((formattedYaml) => formattedYaml).catch(() => yaml);
+        }
+
+        /**
+         * @returns {Promise<'cancel' | 'save' | 'force-reload'>}
+         */
+        async function showConfigMergeDialog(previousFinalYaml = '', shouldReCheckRemoteChanges = true) {
           if (!configMergeDialog.getState().isOpen) {
-            segmentTrack("Workflow Editor Save Button Clicked", { source, tab_name: viewModel.currentMenu.id });
+            segmentTrack('Workflow Editor Config Merge Popup Shown', {
+              tab_name: viewModel.currentMenu.id,
+            });
           }
 
-          viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+          viewModel.deferredConflictResolution = $q.defer();
+          safeDigest($scope);
 
-          return validateConfigIfNeeded()
-            .then(saveConfigBasedOnMenu)
-            .then(reloadConfigurations)
-            .then(() => {
-              const forceReload = configMergeDialog.getState().isOpen || isRepositorySavedYml;
+          if (shouldReCheckRemoteChanges) {
+            ({ content: remoteConfig, version: remoteVersion } = isYmlFormat ? await requestService.getAppConfigYML() : await appService.getNormalizedAppConfig());
 
-              updateLastWorkflowMetadata();
-              viewModel.saveProgress.reset();
-              configMergeDialog.setState(configMergeDialog.getInitialState());
+            const [baseYaml, yourYaml, remoteYaml] = await Promise.all([
+              formatYaml(isYmlFormat ? appService.savedAppConfigYML : BitriseYmlApi.toYml(appService.savedAppConfig)),
+              previousFinalYaml || formatYaml(isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig)),
+              formatYaml(isYmlFormat ? remoteConfig : BitriseYmlApi.toYml(remoteConfig)),
+            ]);
 
-              $rootScope.$emit("MainController::saveSuccess", { forceReload, menu: viewModel.currentMenu.id });
-            }).catch((error) => {
-              if (!error) {
-                viewModel.saveProgress.reset();
-                return $q.resolve();
-              }
-
-              segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: viewModel.currentMenu.id });
-
-              if (configMergeDialog.getState().isOpen) {
-                configMergeDialog.setState({ errorMessage: error.message });
-                return startSavingProcess();
-              }
-
-              viewModel.saveProgress.reset();
-              $rootScope.$emit("MainController::saveError");
-              Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
-
-              return shouldReturnPromise ? $q.reject(error) : $q.resolve();
+            configMergeDialog.setState({
+              baseYaml,
+              yourYaml,
+              remoteYaml,
+              isOpen: true,
+              isLoading: false,
             });
+          }
+
+          let finalYaml;
+
+          try {
+            ({ finalYaml } = await viewModel.deferredConflictResolution.promise);
+            const mode = await saveWithConflictResolution(finalYaml, 'force-reload');
+            return mode;
+          } catch (error) {
+            if (!error) return 'cancel';
+            configMergeDialog.setState({ errorMessage: error.message, isLoading: false });
+            return showConfigMergeDialog(finalYaml, false);
+          }
         }
 
-        const promise = startSavingProcess();
-        if (shouldReturnPromise) {
-          return promise;
+        /**
+         * @param {'cancel' | 'save' | 'force-reload'} method
+         */
+        async function endSavingProcess(method) {
+          if (method !== 'cancel') {
+            const isStackAndMachinesMenu = viewModel.currentMenu.id === "stack";
+            if (isStackAndMachinesMenu) {
+              viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+            }
+
+            try {
+              await Promise.all([appService.getAppConfig(true), appService.getAppConfigYML(true)]);
+              if (isStackAndMachinesMenu) {
+                await appService.getStackAndDockerImage(true);
+              }
+            } finally {
+              viewModel.loadDataProgress.reset();
+            }
+
+            try {
+              await updateLastWorkflowMetadata();
+            } catch (error) {
+              logger.warn("Failed to update last workflow metadata", error);
+            }
+          }
+
+          viewModel.saveProgress.reset();
+          configMergeDialog.setState(configMergeDialog.getInitialState());
+          $rootScope.$emit("MainController::saveSuccess", { forceReload: method === 'force-reload', menu: viewModel.currentMenu.id });
+
+          safeDigest($scope);
         }
+
+        if (shouldReturnPromise) {
+          return startSavingProcess();
+        }
+
+        startSavingProcess();
       }
 
       function saveWithoutXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) {

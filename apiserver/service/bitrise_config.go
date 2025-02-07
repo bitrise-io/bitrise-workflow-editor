@@ -60,7 +60,9 @@ func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 // PostBitriseYMLHandler ...
 func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
-	if err == nil && HasConfigVersionConflict(r, contStr) {
+	if err != nil {
+		log.Warnf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
+	} else if HasConfigVersionConflict(r, contStr) {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
@@ -138,7 +140,9 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 // PostBitriseYMLFromJSONHandler ...
 func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
-	if err == nil && HasConfigVersionConflict(r, contStr) {
+	if err != nil {
+		log.Warnf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
+	} else if HasConfigVersionConflict(r, contStr) {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
