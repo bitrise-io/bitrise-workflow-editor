@@ -370,6 +370,15 @@ const BitriseYmlSchema = {
     },
     StepBundleModel: {
       properties: {
+        title: {
+          type: 'string',
+        },
+        summary: {
+          type: 'string',
+        },
+        description: {
+          type: 'string',
+        },
         envs: {
           $ref: '#/definitions/EnvModel',
         },
