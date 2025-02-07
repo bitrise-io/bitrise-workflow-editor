@@ -245,7 +245,10 @@ function getRawGitUrl(cvs: string, defaultStepLibrary: string, fallbackBranch: s
 
 function resolveTitle(cvs: string, defaultStepLibrary: string, step?: StepLikeYmlObject): string {
   if (isStepBundle(cvs, defaultStepLibrary, step)) {
-    return cvs.replace('bundle::', '');
+    if (step.title) {
+      return step.title;
+    }
+    cvs.replace('bundle::', '');
   }
   if (isWithGroup(cvs, defaultStepLibrary, step)) {
     return 'With group';
