@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
 
 import { StepInputVariable } from '@/core/models/Step';
+import StepVariableService from '@/core/models/StepVariableService';
 import StepCodeEditor from './StepCodeEditor';
 import StepInput from './StepInput';
 import StepSelectInput from './StepSelectInput';
@@ -18,9 +19,10 @@ const StepInputGroup = ({ title, stepId, defaults = [], inputs = [], onChange }:
   const content = (
     <>
       {defaults?.map(({ opts, ...defaultInput }, index) => {
-        const name = Object.keys(defaultInput)[0];
-        const defaultValue = String(defaultInput[name] ?? '');
-        const value = String(inputs.find((d) => Object.keys(d)[0] === name)?.[name] ?? '');
+        const name = StepVariableService.getName(defaultInput);
+        const input = StepVariableService.findInput(inputs, name);
+        const defaultValue = StepVariableService.getValue(defaultInput);
+        const value = input ? StepVariableService.getValue(input) : '';
 
         const helper = { summary: opts?.summary, details: opts?.description };
         const isSelectInput = opts?.value_options && opts.value_options.length > 0;
@@ -33,6 +35,7 @@ const StepInputGroup = ({ title, stepId, defaults = [], inputs = [], onChange }:
             {useCodeEditor && (
               <StepCodeEditor
                 value={value}
+                defaultValue={defaultValue}
                 label={opts?.title}
                 onChange={(changedValue) => onChange?.(name, changedValue ?? null)}
               />

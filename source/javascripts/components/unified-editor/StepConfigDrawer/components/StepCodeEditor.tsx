@@ -18,10 +18,11 @@ const EDITOR_OPTIONS = {
 type Props = {
   label?: string;
   value: string;
+  defaultValue?: string;
   onChange: (value: string | null) => void;
 };
 
-const StepCodeEditor = ({ label, value, onChange }: Props) => {
+const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
   const [monacoInstance, setMonaco] = useState<Monaco>();
   const [editorInstance, setEditor] = useState<editor.IStandaloneCodeEditor>();
 
@@ -55,10 +56,10 @@ const StepCodeEditor = ({ label, value, onChange }: Props) => {
       {label && <Label>{label}</Label>}
       <Editor
         theme="vs-dark"
-        defaultValue={value}
+        value={value || defaultValue}
         options={EDITOR_OPTIONS}
         defaultLanguage="shell"
-        onChange={(changedValue) => onChange(changedValue ?? null)}
+        onChange={(changedValue) => onChange(changedValue || null)}
         onMount={(edtr, mnco) => {
           setMonaco(mnco);
           setEditor(edtr);

@@ -1,5 +1,6 @@
 import { MouseEventHandler, useRef } from 'react';
 import { Avatar, Box, Card, CardProps, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import removeMd from 'remove-markdown';
 import { Maintainer } from '@/core/models/Step';
 import StepBadge from '@/components/StepBadge';
 import useIsTruncated from '@/hooks/useIsTruncated';
@@ -92,7 +93,7 @@ const AlgoliaStepListItem = ({
         )}
       </Box>
       <Text noOfLines={2} color="text/secondary" textStyle="body/sm/regular">
-        {description}
+        {removeMd(description || '')}
       </Text>
     </Card>
   );

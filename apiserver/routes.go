@@ -37,6 +37,8 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 	r.HandleFunc("/api/connection", wrapHandlerFunc(service.DeleteConnectionHandler)).Methods("DELETE")
 	r.HandleFunc("/api/connection", wrapHandlerFunc(service.PostConnectionHandler)).Methods("POST")
 
+	r.HandleFunc("/api/cli/format", wrapHandlerFunc(service.PostFormatHandler)).Methods("POST")
+
 	var assetServer http.Handler
 
 	// Anything else: pass to the frontend

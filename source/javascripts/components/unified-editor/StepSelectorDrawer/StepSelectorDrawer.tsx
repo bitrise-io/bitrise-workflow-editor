@@ -30,7 +30,6 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
     tabIds: ['step', 'stepBundle'],
   });
 
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui') && showStepBundles;
   const enableAlgoliaSearch = useFeatureFlag('enable-algolia-search-for-steps');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
@@ -60,7 +59,7 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
                 </Tag>
               )}
             </Box>
-            {enableStepBundles && (
+            {showStepBundles && (
               <Box position="relative" mt="8" mx="-24">
                 <TabList paddingX="8">
                   <Tab>Step</Tab>

@@ -1,16 +1,27 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Box, Button, ButtonGroup, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Text } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogProps,
+  Icon,
+  Notification,
+  Text,
+} from '@bitrise/bitkit';
 import * as monaco from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
 import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
+import { useShallow } from 'zustand/react/shallow';
+import { configMergeDialog, useConfigMergeDialog } from './ConfigMergeDialog.store';
 
 loader.config({ monaco });
 
-type Props = Omit<DialogProps, 'title'> & {
-  baseYaml: string;
-  yourYaml: string;
-  remoteYaml: string;
-  onSave: (finalYaml: string) => void;
+type Props = Omit<DialogProps, 'title' | 'isOpen' | 'onClose'> & {
+  onSave: VoidFunction;
+  onClose: (method: 'close_button' | 'cancel_button') => void;
 };
 
 const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
@@ -84,87 +95,81 @@ function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   };
 }
 
-function disposeEditors() {
-  monaco.editor.getDiffEditors().forEach((editor) => editor.dispose());
-}
-
-const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, onSave, ...props }: Props) => {
-  const mergeResult = mergeYamls(yourYaml, baseYaml, remoteYaml);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [finalYaml, setFinalYaml] = useState(mergeResult.finalYaml);
-
-  const handleMountOfResultEditor = useCallback(
-    (editor: MonacoDiffEditor) => {
-      const modifiedEditor = editor.getModifiedEditor();
-
-      modifiedEditor.onDidChangeModelContent((e) => {
-        setFinalYaml(modifiedEditor.getValue());
-
-        const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
-          const { startLineNumber, endLineNumber } = c.range;
-
-          for (let i = startLineNumber; i <= endLineNumber; i++) {
-            modifiedEditor.getLineDecorations(i)?.forEach((d) => {
-              if (d.options.blockClassName === 'conflict') {
-                acc.add(d.id);
-              }
-            });
-          }
-
-          return acc;
-        }, new Set<string>([]));
-
-        modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
-      });
-
-      editor.createDecorationsCollection(mergeResult.decorations);
-    },
-    [mergeResult.decorations],
+const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
+  const { isOpen, isLoading, yourYaml, baseYaml, remoteYaml, errorMessage } = useConfigMergeDialog(
+    useShallow((s) => ({
+      isOpen: s.isOpen,
+      isLoading: s.isLoading,
+      yourYaml: s.yourYaml,
+      baseYaml: s.baseYaml,
+      remoteYaml: s.remoteYaml,
+      errorMessage: s.errorMessage,
+    })),
   );
 
-  useEffect(() => {
-    if (isOpen) {
-      setFinalYaml(mergeYamls(yourYaml, baseYaml, remoteYaml).finalYaml);
-    }
-  }, [isOpen, yourYaml, baseYaml, remoteYaml]);
+  const { decorations, finalYaml } = mergeYamls(yourYaml, baseYaml, remoteYaml);
+
+  const onMount = (editor: MonacoDiffEditor) => {
+    const modifiedEditor = editor.getModifiedEditor();
+
+    modifiedEditor.onDidChangeModelContent((e) => {
+      configMergeDialog.setState({ finalYaml: modifiedEditor.getValue() });
+
+      const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
+        const { startLineNumber, endLineNumber } = c.range;
+
+        for (let i = startLineNumber; i <= endLineNumber; i++) {
+          modifiedEditor.getLineDecorations(i)?.forEach((d) => {
+            if (d.options.blockClassName === 'conflict') {
+              acc.add(d.id);
+            }
+          });
+        }
+
+        return acc;
+      }, new Set<string>([]));
+
+      modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
+    });
+
+    editor.createDecorationsCollection(decorations);
+  };
 
   useEffect(() => {
     if (isOpen) {
-      setIsLoading(false);
-    } else {
-      disposeEditors();
+      configMergeDialog.setState({ finalYaml });
     }
-
-    return disposeEditors;
-  }, [isOpen]);
+  }, [isOpen, finalYaml]);
 
   return (
     <>
       <Dialog
         size="full"
         isOpen={isOpen}
-        onClose={onClose}
         title="Review changes"
         isClosable={!isLoading}
         minHeight={['100dvh', 'unset']}
+        onClose={() => onClose('close_button')}
         {...props}
       >
         <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
           <Text>
-            There are changes outside your current editing session. Please review the differences and resolve any
-            conflicts to proceed.
+            There are changes outside your current editing session. Review the differences and resolve any conflicts to
+            proceed.
           </Text>
           <Box display="flex" flex="1" gap="4">
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Your changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
+              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
                 <DiffEditor
+                  key={yourYaml}
                   theme="vs-dark"
                   language="yaml"
                   original={baseYaml}
                   modified={yourYaml}
                   options={readOnlyDiffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
                 />
               </Box>
             </Box>
@@ -177,12 +182,15 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
               <Text textStyle="body/md/semibold">Results</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
                 <DiffEditor
+                  key={finalYaml}
                   theme="vs-dark"
                   language="yaml"
                   original={baseYaml}
                   modified={finalYaml}
                   options={diffEditorOptions}
-                  onMount={handleMountOfResultEditor}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
+                  onMount={onMount}
                 />
               </Box>
             </Box>
@@ -193,31 +201,40 @@ const ConfigMergeDialog = ({ isOpen, baseYaml, yourYaml, remoteYaml, onClose, on
 
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Remote changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
+              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
                 <DiffEditor
+                  key={remoteYaml}
                   theme="vs-dark"
                   language="yaml"
                   original={baseYaml}
                   modified={remoteYaml}
                   options={readOnlyDiffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
                 />
               </Box>
             </Box>
           </Box>
+          <Notification status="info">
+            <Text textStyle="comp/notification/title">Merge conflict auto-resolution</Text>
+            <Text>
+              In case of a conflict, remote changes will take priority over your local changes. To retain your changes,
+              edit the results before saving.
+            </Text>
+          </Notification>
+          {errorMessage && (
+            <Notification status="error">
+              <Text textStyle="comp/notification/title">Error saving...</Text>
+              <Text>{errorMessage}</Text>
+            </Notification>
+          )}
         </DialogBody>
         <DialogFooter>
           <ButtonGroup spacing={16}>
-            <Button variant="secondary" isDisabled={isLoading} onClick={onClose}>
+            <Button variant="secondary" isDisabled={isLoading} onClick={() => onClose('cancel_button')}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              isLoading={isLoading}
-              onClick={() => {
-                onSave(finalYaml);
-                setIsLoading(true);
-              }}
-            >
+            <Button variant="primary" isLoading={isLoading} onClick={onSave}>
               Save results
             </Button>
           </ButtonGroup>

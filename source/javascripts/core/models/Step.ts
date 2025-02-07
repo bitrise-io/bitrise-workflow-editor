@@ -36,7 +36,13 @@ type StepYmlObject = Omit<
   inputs?: StepInputVariable[];
   outputs?: StepOutputVariable[];
 };
-type StepBundleYmlObject = Extract<Steps[number][string], { steps: StepYmlObject[] }>;
+
+type StepBundles = Required<BitriseYml>['step_bundles'];
+type StepBundleYmlObject = Extract<Steps[number][string], { steps: StepYmlObject[] }> & {
+  title?: string;
+  description?: string;
+  summary?: string;
+};
 type WithGroupYmlObject = Extract<
   Steps[number][string],
   {
@@ -73,8 +79,6 @@ type StepBundle = {
   icon?: string;
   userValues: StepBundleYmlObject;
 };
-
-type StepBundles = Required<BitriseYml>['step_bundles'];
 
 type StepLike = Step | WithGroup | StepBundle;
 

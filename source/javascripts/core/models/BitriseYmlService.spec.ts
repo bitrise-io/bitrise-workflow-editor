@@ -842,7 +842,27 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf1', 1, sourceYml);
+      const actualYml = BitriseYmlService.deleteStep('wf1', [1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete multiple step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStep('wf1', [1, 2], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -855,7 +875,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf2', 1, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStep('wf2', [1], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -868,7 +888,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf1', 3, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStep('wf1', [3], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -888,7 +908,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStep('wf1', 0, sourceYml);
+      const actualYml = BitriseYmlService.deleteStep('wf1', [0], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -968,10 +988,16 @@ describe('BitriseYmlService', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
-          graph: {
+          graph1: {
             workflows: {
-              wf1: {},
+              wf1_variant: { uses: 'wf1' },
+              wf1_variant_dependant: { depends_on: ['wf1_variant'] },
               wf2: { depends_on: ['wf1'] },
+            },
+          },
+          graph2: {
+            workflows: {
+              wf1_variant: {},
             },
           },
           pl1: {
@@ -994,6 +1020,7 @@ describe('BitriseYmlService', () => {
         },
         workflows: {
           wf1: {},
+          wf1_variant_dependant: {},
           wf2: { before_run: ['wf1'], after_run: ['wf1'] },
           wf3: { before_run: ['wf1', 'wf2'], after_run: ['wf1', 'wf2'] },
         },
@@ -1003,9 +1030,15 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
-          graph: {
+          graph1: {
             workflows: {
+              wf1_variant_dependant: {},
               wf2: {},
+            },
+          },
+          graph2: {
+            workflows: {
+              wf1_variant: {},
             },
           },
           pl2: {
@@ -1019,6 +1052,7 @@ describe('BitriseYmlService', () => {
           st2: { workflows: [{ wf2: {} }] },
         },
         workflows: {
+          wf1_variant_dependant: {},
           wf2: {},
           wf3: { before_run: ['wf2'], after_run: ['wf2'] },
         },
@@ -1426,7 +1460,7 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should create a pipeline based on an other pipeline', () => {
+    it('should create a pipeline based on an other graph pipeline', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
@@ -1439,6 +1473,58 @@ describe('BitriseYmlService', () => {
         pipelines: {
           pl1: { title: 'Pipeline Title', workflows: { wf1: {} } },
           pl2: { title: 'Pipeline Title', workflows: { wf1: {} } },
+        },
+      };
+
+      const actualYml = BitriseYmlService.createPipeline('pl2', sourceYml, 'pl1');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should create a pipeline based on a staged pipeline', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            title: 'Stage Pipeline',
+            stages: [{ st1: {} }, { st2: {} }],
+          },
+        },
+        stages: {
+          st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }, { wf3: {} }] },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+          wf3: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            title: 'Stage Pipeline',
+            stages: [{ st1: {} }, { st2: {} }],
+          },
+          pl2: {
+            title: 'Stage Pipeline',
+            workflows: {
+              wf1: {},
+              wf2: { depends_on: ['wf1'] },
+              wf3: { depends_on: ['wf1'] },
+            },
+          },
+        },
+        stages: {
+          st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }, { wf3: {} }] },
+        },
+        workflows: {
+          wf1: {},
+          wf2: {},
+          wf3: {},
         },
       };
 
@@ -3341,7 +3427,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 1, sourceYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', [1], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3354,7 +3440,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle2', 1, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle2', [1], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -3367,7 +3453,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 3, sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', [3], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -3387,7 +3473,78 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', 0, sourceYml);
+      const actualYml = BitriseYmlService.deleteStepInStepBundle('bundle1', [0], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('groupStepsToStepBundle', () => {
+    it('when a single step is selected, the selected step should be added to step bundles and removed from workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { 'bundle::step_bundle': {} }, { deploy: {} }] },
+        },
+        step_bundles: {
+          step_bundle: { steps: [{ clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when multiple consecutive steps are selected, the selected steps should be added to step bundles and removed from workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ 'bundle::step_bundle': {} }, { deploy: {} }] },
+        },
+        step_bundles: {
+          step_bundle: { steps: [{ script: {} }, { clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when multiple non-consecutive steps are selected, the selected steps should be added to step bundles and removed from workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ 'bundle::step_bundle': {} }, { clone: {} }] },
+        },
+        step_bundles: {
+          step_bundle: { steps: [{ script: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 2], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

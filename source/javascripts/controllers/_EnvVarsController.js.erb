@@ -1,312 +1,312 @@
-(function() {
-	"use strict";
+(function () {
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.controller("EnvVarsController", function(
-			$scope,
-			$rootScope,
-			$q,
-			$cookies,
-			requestService,
-			stringService,
-			appService,
-			Progress,
-			Variable,
-			Popup
-		) {
-			var viewModel = this;
 
-			$scope.appService = appService;
-			$scope.Variable = Variable;
-			$scope.requestService = requestService;
+  angular
+    .module("BitriseWorkflowEditor")
+    .controller("EnvVarsController", function (
+      $scope,
+      $rootScope,
+      $q,
+      $cookies,
+      requestService,
+      stringService,
+      appService,
+      Progress,
+      Variable,
+      Popup
+    ) {
+      const viewModel = this;
 
-			var mode;
-			var envVarsWatchers;
+      $scope.appService = appService;
+      $scope.Variable = Variable;
+      $scope.requestService = requestService;
 
-			viewModel.envVarsBySource;
+      let mode;
+      let envVarsWatchers;
 
-			$scope.$on(
-				"$destroy",
-				$rootScope.$on("MainController::changesDiscarded", function() {
-					configure();
-				})
-			);
+      viewModel.envVarsBySource = undefined;
 
-			$scope.$on(
-				"$destroy",
-				$rootScope.$on("MainController::savedFinishedWithSuccess", function() {
-					configure();
-				})
-			);
+      $scope.$on(
+        "$destroy",
+        $rootScope.$on("MainController::discardChanges", function () {
+          configure();
+        })
+      );
 
-			$scope.$on(
-				"$destroy",
-				$rootScope.$on("MainController::savedFinishedWithError", function() {
-					configure();
-				})
-			);
+      $scope.$on(
+        "$destroy",
+        $rootScope.$on("MainController::saveSuccess", function () {
+          configure();
+        })
+      );
 
-			viewModel.configureWithMode = function(_mode) {
-				mode = _mode;
+      $scope.$on(
+        "$destroy",
+        $rootScope.$on("MainController::saveError", function () {
+          configure();
+        })
+      );
 
-				configure();
-			};
+      viewModel.configureWithMode = function (_mode) {
+        mode = _mode;
 
-			function configure() {
-				switch (mode) {
-					case "secrets":
-						configureWithSecrets();
+        configure();
+      };
 
-						break;
-					case "env-vars":
-						configureWithAppConfig();
+      function configure() {
+        switch (mode) {
+          case "secrets":
+            configureWithSecrets();
 
-						break;
-				}
+            break;
+          case "env-vars":
+            configureWithAppConfig();
 
-				_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
-					_.each(envVarsOfSource.envVars, function(anEnvVar) {
-						anEnvVar.customProperties.progress = new Progress();
-						anEnvVar.customProperties.isMenuVisible = false;
-					});
-				});
+            break;
+        }
 
-				configureEnvVarsWatchers();
-			}
+        _.each(viewModel.envVarsBySource, function (envVarsOfSource) {
+          _.each(envVarsOfSource.envVars, function (anEnvVar) {
+            anEnvVar.customProperties.progress = new Progress();
+            anEnvVar.customProperties.isMenuVisible = false;
+          });
+        });
 
-			function configureWithSecrets() {
-				viewModel.envVarsBySource = [
-					{
-						type: "secrets",
-						shouldShowInfoBox:
-							$cookies.get("should_show_secrets_info_box") == "true",
-						toggleInfoBoxVisibility: function() {
-							this.shouldShowInfoBox = !this.shouldShowInfoBox;
-							$cookies.put(
-								"should_show_secrets_info_box",
-								this.shouldShowInfoBox ? "true" : "false",
-								{
-									expires: new Date(
-										new Date().setFullYear(new Date().getFullYear() + 1)
-									)
-								}
-							);
-						},
-						envVars: appService.secrets
-					}
-				];
-			}
+        configureEnvVarsWatchers();
+      }
 
-			function configureWithAppConfig() {
-				viewModel.envVarsBySource = [];
+      function configureWithSecrets() {
+        viewModel.envVarsBySource = [
+          {
+            type: "secrets",
+            shouldShowInfoBox:
+              $cookies.get("should_show_secrets_info_box") === "true",
+            toggleInfoBoxVisibility() {
+              this.shouldShowInfoBox = !this.shouldShowInfoBox;
+              $cookies.put(
+                "should_show_secrets_info_box",
+                this.shouldShowInfoBox ? "true" : "false",
+                {
+                  expires: new Date(
+                    new Date().setFullYear(new Date().getFullYear() + 1)
+                  )
+                }
+              );
+            },
+            envVars: appService.secrets
+          }
+        ];
+      }
 
-				viewModel.envVarsBySource.push({
-					type: "app",
-					notification: "<%= data[:strings][:env_vars][:app][:notification] %>",
-					envVars: _.map(
-						appService.appConfig.app && appService.appConfig.app.envs
-							? appService.appConfig.app.envs
-							: [],
-						function(anAppEnvVarConfig) {
-							return new Variable(
-								anAppEnvVarConfig,
-								Variable.defaultVariableConfig()
-							);
-						}
-					)
-				});
+      function configureWithAppConfig() {
+        viewModel.envVarsBySource = [];
 
-				_.each(appService.appConfig.workflows, function(
-					aWorkflowConfig,
-					aWorkflowID
-				) {
-					viewModel.envVarsBySource.push({
-						type: "workflow",
-						workflowID: aWorkflowID,
-						notification: stringService.stringReplacedWithParameters(
-							"<%= data[:strings][:env_vars][:workflow][:notification] %>",
-							{
-								workflow_id: aWorkflowID
-							}
-						),
-						envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-							return new Variable(
-								anEnvVarConfig,
-								Variable.defaultVariableConfig()
-							);
-						})
-					});
-				});
-			}
+        viewModel.envVarsBySource.push({
+          type: "app",
+          notification: "<%= data[:strings][:env_vars][:app][:notification] %>",
+          envVars: _.map(
+            appService.appConfig.app && appService.appConfig.app.envs
+              ? appService.appConfig.app.envs
+              : [],
+            function (anAppEnvVarConfig) {
+              return new Variable(
+                anAppEnvVarConfig,
+                Variable.defaultVariableConfig()
+              );
+            }
+          )
+        });
 
-			function configureEnvVarsWatchers() {
-				if (envVarsWatchers) {
-					_.each(envVarsWatchers, function(anEnvVarsWatcher) {
-						anEnvVarsWatcher();
-					});
-				}
+        _.each(appService.appConfig.workflows, function (
+          aWorkflowConfig,
+          aWorkflowID
+        ) {
+          viewModel.envVarsBySource.push({
+            type: "workflow",
+            workflowID: aWorkflowID,
+            notification: stringService.stringReplacedWithParameters(
+              "<%= data[:strings][:env_vars][:workflow][:notification] %>",
+              {
+                workflow_id: aWorkflowID
+              }
+            ),
+            envVars: _.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
+              return new Variable(
+                anEnvVarConfig,
+                Variable.defaultVariableConfig()
+              );
+            })
+          });
+        });
+      }
 
-				envVarsWatchers = _.map(viewModel.envVarsBySource, function(
-					envVarsOfSource
-				) {
-					return $scope.$watch(
-						function() {
-							return envVarsOfSource;
-						},
-						function(newEnvVarsOfSource) {
-							switch (newEnvVarsOfSource.type) {
-								case "app":
-									if (!appService.appConfig) {
-										return;
-									}
+      function configureEnvVarsWatchers() {
+        if (envVarsWatchers) {
+          _.each(envVarsWatchers, function (anEnvVarsWatcher) {
+            anEnvVarsWatcher();
+          });
+        }
 
-									if (!appService.appConfig.app) {
-										appService.appConfig.app = {};
-									}
+        envVarsWatchers = _.map(viewModel.envVarsBySource, function (
+          envVarsOfSource
+        ) {
+          return $scope.$watch(
+            function () {
+              return envVarsOfSource;
+            },
+            function (newEnvVarsOfSource) {
+              switch (newEnvVarsOfSource.type) {
+                case "app":
+                  if (!appService.appConfig) {
+                    return;
+                  }
 
-									appService.appConfig.app.envs = _.map(
-										newEnvVarsOfSource.envVars,
-										function(anEnvVar) {
-											return anEnvVar.userVariableConfig;
-										}
-									);
+                  if (!appService.appConfig.app) {
+                    appService.appConfig.app = {};
+                  }
 
-									if (_.isEmpty(appService.appConfig.app.envs)) {
-										delete appService.appConfig.app["envs"];
-									}
+                  appService.appConfig.app.envs = _.map(
+                    newEnvVarsOfSource.envVars,
+                    function (anEnvVar) {
+                      return anEnvVar.userVariableConfig;
+                    }
+                  );
 
-									if (_.isEmpty(appService.appConfig.app)) {
-										delete appService.appConfig["app"];
-									}
+                  if (_.isEmpty(appService.appConfig.app.envs)) {
+                    delete appService.appConfig.app.envs;
+                  }
 
-									break;
-								case "workflow": {
-									if (!appService.appConfig) {
-										return;
-									}
+                  if (_.isEmpty(appService.appConfig.app)) {
+                    delete appService.appConfig.app;
+                  }
 
-									appService.appConfig.workflows[
-										newEnvVarsOfSource.workflowID
-									].envs = _.map(newEnvVarsOfSource.envVars, function(
-										anEnvVar
-									) {
-										return anEnvVar.userVariableConfig;
-									});
+                  break;
+                case "workflow": {
+                  if (!appService.appConfig) {
+                    return;
+                  }
 
-									if (
-										_.isEmpty(
-											appService.appConfig.workflows[
-												newEnvVarsOfSource.workflowID
-											].envs
-										)
-									) {
-										delete appService.appConfig.workflows[
-											newEnvVarsOfSource.workflowID
-										]["envs"];
-									}
+                  appService.appConfig.workflows[
+                    newEnvVarsOfSource.workflowID
+                  ].envs = _.map(newEnvVarsOfSource.envVars, function (
+                    anEnvVar
+                  ) {
+                    return anEnvVar.userVariableConfig;
+                  });
 
-									break;
-								}
-							}
-						},
-						true
-					);
-				});
-			}
+                  if (
+                    _.isEmpty(
+                      appService.appConfig.workflows[
+                        newEnvVarsOfSource.workflowID
+                      ].envs
+                    )
+                  ) {
+                    delete appService.appConfig.workflows[
+                      newEnvVarsOfSource.workflowID
+                    ].envs;
+                  }
 
-			viewModel.addToEnvVars = function(envVars) {
-				var newEnvVar = new Variable(
-					{
-						"": ""
-					},
-					Variable.defaultVariableConfig()
-				);
-				newEnvVar.isExpand(false);
+                  break;
+                }
+              }
+            },
+            true
+          );
+        });
+      }
 
-				newEnvVar.customProperties.progress = new Progress();
-				newEnvVar.customProperties.isMenuVisible = false;
+      viewModel.addToEnvVars = function (envVars) {
+        const newEnvVar = new Variable(
+          {
+            "": ""
+          },
+          Variable.defaultVariableConfig()
+        );
+        newEnvVar.isExpand(false);
 
-				envVars.push(newEnvVar);
-			};
+        newEnvVar.customProperties.progress = new Progress();
+        newEnvVar.customProperties.isMenuVisible = false;
 
-			viewModel.removeEnvVarFromEnvVars = function(envVar, envVars) {
-				var index = _.indexOf(envVars, envVar);
+        envVars.push(newEnvVar);
+      };
 
-				envVars.splice(index, 1);
-			};
+      viewModel.removeEnvVarFromEnvVars = function (envVar, envVars) {
+        const index = _.indexOf(envVars, envVar);
 
-			viewModel.envVarValidationWarning = function(envVar, keyUniquenessScope) {
-				var errors = [];
+        envVars.splice(index, 1);
+      };
 
-				if (!Variable.isValidKey(envVar.key(), keyUniquenessScope)) {
-					errors.push(
-						new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>")
-					);
+      viewModel.envVarValidationWarning = function (envVar, keyUniquenessScope) {
+        const errors = [];
 
-					if (keyUniquenessScope) {
-						errors.push(
-							new Error("<%= data[:strings][:env_vars][:should_be_unique] %>")
-						);
-					}
-				}
+        if (!Variable.isValidKey(envVar.key(), keyUniquenessScope)) {
+          errors.push(
+            new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>")
+          );
 
-				return errors.length > 0
-					? stringService.errorMessageFromErrors(errors)
-					: null;
-			};
+          if (keyUniquenessScope) {
+            errors.push(
+              new Error("<%= data[:strings][:env_vars][:should_be_unique] %>")
+            );
+          }
+        }
 
-			viewModel.valueVisibilityGetterSetterForEnvVar = function(secret) {
-				return function(shouldShowValue) {
-					if (shouldShowValue !== undefined) {
-						if (
-							shouldShowValue &&
-							!secret.customProperties.progress.isInProgress
-						) {
-							getSecretValue(secret);
-						}
+        return errors.length > 0
+          ? stringService.errorMessageFromErrors(errors)
+          : null;
+      };
 
-						secret.shouldShowValue = shouldShowValue;
-					}
+      viewModel.valueVisibilityGetterSetterForEnvVar = function (secret) {
+        return function (shouldShowValue) {
+          if (shouldShowValue !== undefined) {
+            if (
+              shouldShowValue &&
+              !secret.customProperties.progress.isInProgress
+            ) {
+              getSecretValue(secret);
+            }
 
-					return secret.shouldShowValue;
-				};
-			};
+            secret.shouldShowValue = shouldShowValue;
+          }
 
-			function getSecretValue(secret) {
-				secret.customProperties.progress.start(
-					"<%= data[:strings][:env_vars][:get_secret_env_value_progress][:in_progress] %>"
-				);
+          return secret.shouldShowValue;
+        };
+      };
 
-				appService.getSecretValue(secret).then(
-					function() {
-						secret.customProperties.progress.success();
-					},
-					function(error) {
-						secret.customProperties.progress.error(error);
-					}
-				);
-			}
+      function getSecretValue(secret) {
+        secret.customProperties.progress.start(
+          "<%= data[:strings][:env_vars][:get_secret_env_value_progress][:in_progress] %>"
+        );
 
-			viewModel.valueGetterSetterForEnvVar = function(envVar) {
-				return function(value) {
-					return envVar.value() !== null && envVar.shouldShowValue
-						? envVar.value(value)
-						: "******";
-				};
-			};
+        appService.getSecretValue(secret).then(
+          function () {
+            secret.customProperties.progress.success();
+          },
+          function (error) {
+            secret.customProperties.progress.error(error);
+          }
+        );
+      }
 
-			viewModel.makeEnvVarProtected = function(envVar) {
-				Popup.showConfirmPopup(
-					"<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_question] %>",
-					"<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_details] %>",
-					"<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_ok] %>",
-					"<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_cancel] %>"
-				).then(function() {
-					envVar.shouldShowValue = false;
-					envVar.isKeyChangeable = false;
-					envVar.isProtected(true);
-				});
-			};
-		});
+      viewModel.valueGetterSetterForEnvVar = function (envVar) {
+        return function (value) {
+          return envVar.value() !== null && envVar.shouldShowValue
+            ? envVar.value(value)
+            : "******";
+        };
+      };
+
+      viewModel.makeEnvVarProtected = function (envVar) {
+        Popup.showConfirmPopup(
+          "<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_question] %>",
+          "<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_details] %>",
+          "<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_ok] %>",
+          "<%= data[:strings][:env_vars][:secrets][:make_protected][:confirm_cancel] %>"
+        ).then(function () {
+          envVar.shouldShowValue = false;
+          envVar.isKeyChangeable = false;
+          envVar.isProtected(true);
+        });
+      };
+    });
 })();

@@ -1,8 +1,8 @@
-import BitriseYmlApi from '../core/api/BitriseYmlApi';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+
+const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-config-version-header');
 
 (function () {
-  "use strict";
-
   angular
     .module("BitriseWorkflowEditor")
     .service("appService", function (
@@ -15,14 +15,17 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
       Stack,
       MachineType
     ) {
-      var appService = {
+
+      const appService = {
         // JSON objects
         appConfig: undefined,
         savedAppConfig: undefined,
+        savedAppConfigVersion: undefined,
         remoteAppConfig: undefined,
         // YML strings
         appConfigYML: undefined,
         savedAppConfigYML: undefined,
+        savedAppConfigYMLVersion: undefined,
         remoteAppConfigYML: undefined,
 
         appDetails: undefined,
@@ -77,9 +80,10 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           return $q.when();
         }
 
-        return requestService.getAppConfig(requestConfig).then(function (appConfig) {
-          appService.appConfig = normalizeAppConfig(appConfig);
+        return requestService.getAppConfig(requestConfig).then(function ({ version, content }) {
+          appService.appConfig = normalizeAppConfig(content);
           appService.savedAppConfig = angular.copy(appService.appConfig);
+          appService.savedAppConfigVersion = version;
         });
       };
 
@@ -88,8 +92,8 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
       };
 
       function normalizeAppConfig(configToNormalize) {
-        var variableConfigs = [];
-        var config = angular.copy(configToNormalize);
+        let variableConfigs = [];
+        const config = angular.copy(configToNormalize);
 
         if (config.app && config.app.envs) {
           variableConfigs = _.union(variableConfigs, config.app.envs);
@@ -104,22 +108,22 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
             variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
             if (aWorkflowConfig.steps !== undefined && _.isEmpty(aWorkflowConfig.steps)) {
-              delete aWorkflowConfig["steps"];
+              delete aWorkflowConfig.steps;
             }
 
             _.each(aWorkflowConfig.steps, function (aWrappedUserStepConfig) {
-              var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+              const stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
               if (!aWrappedUserStepConfig[stepCVS]) {
                 aWrappedUserStepConfig[stepCVS] = {};
               }
-              var stepConfig = aWrappedUserStepConfig[stepCVS];
+              const stepConfig = aWrappedUserStepConfig[stepCVS];
 
               if (stepConfig.source && _.isEmpty(stepConfig.source)) {
-                delete stepConfig["source"];
+                delete stepConfig.source;
               }
 
               if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
-                delete stepConfig["deps"];
+                delete stepConfig.deps;
               }
 
               variableConfigs = _.union(variableConfigs, stepConfig.inputs);
@@ -135,22 +139,22 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           variableConfigs = _.union(variableConfigs, aStepBundleConfig.envs);
 
           if (aStepBundleConfig.steps !== undefined && _.isEmpty(aStepBundleConfig.steps)) {
-            delete aStepBundleConfig["steps"];
+            delete aStepBundleConfig.steps;
           }
 
           _.each(aStepBundleConfig.steps, function (aWrappedUserStepConfig) {
-            var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+            const stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
             if (!aWrappedUserStepConfig[stepCVS]) {
               aWrappedUserStepConfig[stepCVS] = {};
             }
-            var stepConfig = aWrappedUserStepConfig[stepCVS];
+            const stepConfig = aWrappedUserStepConfig[stepCVS];
 
             if (stepConfig.source && _.isEmpty(stepConfig.source)) {
-              delete stepConfig["source"];
+              delete stepConfig.source;
             }
 
             if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
-              delete stepConfig["deps"];
+              delete stepConfig.deps;
             }
 
             variableConfigs = _.union(variableConfigs, stepConfig.inputs);
@@ -160,12 +164,12 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         _.each(variableConfigs, Variable.minimizeVariableConfig);
 
         if (config.app) {
-          if (config.app.envs && config.app.envs.length == 0) {
-            delete config.app["envs"];
+          if (config.app.envs && config.app.envs.length === 0) {
+            delete config.app.envs;
           }
 
           if (angular.equals(config.app, {})) {
-            delete config["app"];
+            delete config.app;
           }
         }
 
@@ -173,16 +177,16 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           appService.hasTriggers = config.trigger_map.length > 0;
           if (appService.hasTriggers) {
             config.trigger_map = _.sortBy(config.trigger_map, function (aTriggerConfig) {
-              var trigger = new Trigger(aTriggerConfig);
+              const trigger = new Trigger(aTriggerConfig);
               return _.indexOf(["push", "pull-request", "tag"], trigger.type());
             });
           } else {
-            delete config["trigger_map"];
+            delete config.trigger_map;
           }
         }
 
         if (config.workflows && angular.equals(config.workflows, {})) {
-          delete config["workflows"];
+          delete config.workflows;
         }
 
         return config;
@@ -190,7 +194,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
 
       function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
         return $q(function (resolve, reject) {
-          var errors = [];
+          const errors = [];
 
           if (
             _.any(variables, function (aVariable) {
@@ -212,7 +216,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
             errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_value] %>"));
           }
 
-          if (errors.length == 0) {
+          if (errors.length === 0) {
             resolve();
           } else {
             reject(new Error(stringService.errorMessageFromErrors(errors)));
@@ -227,10 +231,10 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
       };
 
       appService.validateAppConfig = function () {
-        var variables = [];
+        let variables = [];
         // Remove empty app env vars
         if (appService.appConfig.app && appService.appConfig.app.envs) {
-          var variablesWithoutKeyAndValue = _.filter(
+          const variablesWithoutKeyAndValue = _.filter(
             _.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
               return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
             }),
@@ -240,7 +244,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           );
 
           _.each(variablesWithoutKeyAndValue, function (aVariable) {
-            var index = _.findIndex(appService.appConfig.app.envs, aVariable.userVariableConfig);
+            const index = _.findIndex(appService.appConfig.app.envs, aVariable.userVariableConfig);
             appService.appConfig.app.envs.splice(index, 1);
           });
 
@@ -254,7 +258,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         // Remove empty workflow env vars
         if (appService.appConfig.workflows) {
           _.each(appService.appConfig.workflows, function (aWorkflowConfig) {
-            var variablesWithoutKeyAndValue = _.filter(
+            const variablesWithoutKeyAndValue = _.filter(
               _.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
                 return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
               }),
@@ -264,7 +268,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
             );
 
             _.each(variablesWithoutKeyAndValue, function (aVariable) {
-              var index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
+              const index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
               aWorkflowConfig.envs.splice(index, 1);
             });
 
@@ -303,12 +307,20 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         return validateVariables(variables);
       }
 
-      appService.saveAppConfig = function (tabOpenDuringSave, requestConfig) {
+      appService.saveAppConfig = function (tabOpenDuringSave, appConfig) {
+        let requestConfig;
+        if (enableXBitriseConfigVersionHeader && appService.savedAppConfigVersion) {
+          requestConfig = {
+            headers: {
+              [requestService.appConfigVersionHeaderName]: appService.savedAppConfigVersion
+            }
+          };
+        }
+
         return requestService
-          .postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
+          .postAppConfig(appConfig, tabOpenDuringSave, requestConfig)
           .then(function () {
-            appService.savedAppConfig = angular.copy(appService.appConfig);
-            appService.hasTriggers = Boolean(appService.savedAppConfig.trigger_map?.length);
+            appService.hasTriggers = Boolean(appConfig.trigger_map?.length);
           });
       };
 
@@ -355,8 +367,8 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         return requestService.getSecretValue(secret, requestConfig).then(function (secretValue) {
           secret.value(secretValue);
 
-          var savedEnvVar = _.find(appService.savedSecrets, function (aSavedSecret) {
-            return aSavedSecret.key() == secret.key();
+          const savedEnvVar = _.find(appService.savedSecrets, function (aSavedSecret) {
+            return aSavedSecret.key() === secret.key();
           });
           savedEnvVar.value(secretValue);
         });
@@ -384,9 +396,10 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         }
 
         return requestService.getAppConfigYML(requestConfig).then(
-          function (appConfigYML) {
-            appService.appConfigYML = appConfigYML;
-            appService.savedAppConfigYML = appConfigYML;
+          function ({ version, content }) {
+            appService.appConfigYML = content;
+            appService.savedAppConfigYML = content;
+            appService.savedAppConfigYMLVersion = version;
           },
           function (response) {
             if (response.bitriseYml) {
@@ -403,12 +416,17 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
       };
 
-      appService.saveAppConfigYML = function (tabOpenDuringSave, requestConfig) {
-        return requestService
-          .postAppConfigYML(appService.appConfigYML, requestConfig)
-          .then(function () {
-            appService.savedAppConfigYML = angular.copy(appService.appConfigYML);
-          });
+      appService.saveAppConfigYML = function (tabOpenDuringSave, appConfigYML) {
+        let requestConfig;
+        if (enableXBitriseConfigVersionHeader && appService.savedAppConfigYMLVersion) {
+          requestConfig = {
+            headers: {
+              [requestService.appConfigVersionHeaderName]: appService.savedAppConfigYMLVersion
+            }
+          };
+        }
+
+        return requestService.postAppConfigYML(appConfigYML, requestConfig);
       };
 
       appService.discardAppConfigYMLChanges = function () {
@@ -420,13 +438,13 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           return $q.when();
         }
 
-        var metaMachineTypeID =
+        const metaMachineTypeID =
           appService.appConfig &&
           appService.appConfig.meta &&
           appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
           appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 
-        var defaultMachineTypeID = metaMachineTypeID || appService.appDetails.appMachineTypeIdWithoutDeprecatedMachineReplacement;
+        const defaultMachineTypeID = metaMachineTypeID || appService.appDetails.appMachineTypeIdWithoutDeprecatedMachineReplacement;
         appService.defaultMachineType = _.find(MachineType.all, {
           id: defaultMachineTypeID,
           stackType: appService.stack.type
@@ -459,8 +477,8 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           return $q.when();
         }
 
-        var stackID;
-        var dockerImage;
+        let stackID;
+        let dockerImage;
         if (
           appService.appConfig.meta &&
           appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
@@ -469,7 +487,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           dockerImage =
             appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
         }
-        var stackIDAndDockerImageFetchPromise =
+        const stackIDAndDockerImageFetchPromise =
           stackID && dockerImage
             ? $q.when()
             : requestService.getStackAndDockerImage(requestConfig).then(function (data) {
@@ -494,7 +512,7 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           appService.appConfig.meta &&
           appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
         ) {
-          var rollbackVersionFromBitriseYml = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
+          const rollbackVersionFromBitriseYml = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
           if (appService.getStackRollbackVersion() === rollbackVersionFromBitriseYml) {
             appService.rollbackVersion = rollbackVersionFromBitriseYml;
             appService.savedRollbackVersion = rollbackVersionFromBitriseYml;
@@ -517,9 +535,9 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
       }
 
       appService.getStackRollbackVersion = function (workflow) {
-        var stack = appService.stack;
-        var machineType = appService.defaultMachineType;
-        var isPaying = appService.isOwnerPaying();
+        let { stack } = appService;
+        let machineType = appService.defaultMachineType;
+        const isPaying = appService.isOwnerPaying();
 
         if (workflow) {
           stack = workflow.stack();
@@ -546,16 +564,16 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
           return undefined;
         }
 
-        if (appService.appDetails.projectTypeID == "other") {
+        if (appService.appDetails.projectTypeID === "other") {
           return [...Stack.all];
-        } else {
-          return _.filter(Stack.all, function (aStack) {
-            if (aStack.id.startsWith('agent-pool-')) {
-              return true;
-            }
-            return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
-          });
         }
+        return _.filter(Stack.all, function (aStack) {
+          if (aStack.id.startsWith('agent-pool-')) {
+            return true;
+          }
+          return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
+        });
+
 
       };
 
@@ -566,29 +584,29 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         );
       };
 
-      appService.saveStackAndDockerImage = function (tabOpenDuringSave, requestConfig) {
-        if (!appService.appConfig.meta) {
-          appService.appConfig.meta = {};
+      appService.saveStackAndDockerImage = function (tabOpenDuringSave, appConfig) {
+        if (!appConfig.meta) {
+          appConfig.meta = {};
         }
-        var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
-        if (!appService.appConfig.meta[BITRISE_META_KEY]) {
-          appService.appConfig.meta[BITRISE_META_KEY] = {};
+        const BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+        if (!appConfig.meta[BITRISE_META_KEY]) {
+          appConfig.meta[BITRISE_META_KEY] = {};
         }
-        appService.appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
+        appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
         if (appService.dockerImage) {
-          appService.appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
+          appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
         } else {
-          delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
+          delete appConfig.meta[BITRISE_META_KEY].docker_image;
         }
 
         if (appService.rollbackVersion) {
-          appService.appConfig.meta[BITRISE_META_KEY].stack_rollback_version = appService.rollbackVersion;
+          appConfig.meta[BITRISE_META_KEY].stack_rollback_version = appService.rollbackVersion;
         } else {
-          delete appService.appConfig.meta[BITRISE_META_KEY].stack_rollback_version;
+          delete appConfig.meta[BITRISE_META_KEY].stack_rollback_version;
         }
 
         return appService
-          .saveAppConfig(tabOpenDuringSave, requestConfig)
+          .saveAppConfig(tabOpenDuringSave, appConfig)
           .then(function () {
             appService.savedStack = angular.copy(appService.stack);
             appService.savedDockerImage = appService.dockerImage;
@@ -657,49 +675,13 @@ import BitriseYmlApi from '../core/api/BitriseYmlApi';
         return [];
       }
 
-      appService.detectRemoteAppConfigChanges = function (requestConfig) {
-        return requestService.getAppConfig(requestConfig).then(function (remoteConfig) {
-          appService.remoteAppConfig = normalizeAppConfig(remoteConfig);
-
-          const yourYaml = BitriseYmlApi.toYml(appService.appConfig);
-          const baseYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
-          const remoteYaml = BitriseYmlApi.toYml(appService.remoteAppConfig);
-
+      appService.getNormalizedAppConfig = function (requestConfig) {
+        return requestService.getAppConfig(requestConfig).then(function ({ version, content }) {
           return {
-            yourYaml,
-            baseYaml,
-            remoteYaml,
-            hasChanges: remoteYaml !== baseYaml,
+            version,
+            content: normalizeAppConfig(content),
           };
         });
-      };
-
-      appService.detectRemoteAppConfigYMLChanges = function (requestConfig) {
-        return requestService.getAppConfigYML(requestConfig).then(function (remoteYaml) {
-          appService.remoteAppConfigYML = remoteYaml;
-
-          const yourYaml = appService.appConfigYML;
-          const baseYaml = appService.savedAppConfigYML;
-
-          return {
-            yourYaml,
-            baseYaml,
-            remoteYaml,
-            hasChanges: remoteYaml !== baseYaml,
-          };
-        });
-      };
-
-      appService.finalizeAppConfig = function (finalYaml) {
-        appService.appConfig = BitriseYmlApi.fromYml(finalYaml);
-        appService.savedAppConfig = angular.copy(appService.remoteAppConfig);
-        return appService.appConfig;
-      };
-
-      appService.finalizeAppConfigYML = function (finalYaml) {
-        appService.appConfigYML = finalYaml;
-        appService.savedAppConfigYML = appService.remoteAppConfigYML;
-        return appService.appConfigYML;
       };
 
       return appService;

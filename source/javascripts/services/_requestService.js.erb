@@ -1,14 +1,14 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import jsyaml from "js-yaml";
 
 (function () {
-  "use strict";
-
   angular
     .module("BitriseWorkflowEditor")
     .service("requestService", function ($q, $injector, $http, RequestService, stringService, dateService, logger) {
-      var requestService = {
+      const requestService = {
         mode: RequestService.mode,
         appSlug: RequestService.appSlug,
+        appConfigVersionHeaderName: RequestService.appConfigVersionHeaderName,
       };
 
       requestService.isWebsiteMode = function () {
@@ -16,17 +16,17 @@ import jsyaml from "js-yaml";
       }
 
       function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
-        var status = response && response.status;
+        const status = response && response.status;
 
-        if (status == -1 || status == 408) {
-          return new Error(response.config.method.toUpperCase() + " " + response.config.url + " - Request aborted");
+        if (status === -1 || status === 408) {
+          return new Error(`${response.config.method.toUpperCase()} ${response.config.url} - Request aborted`);
         }
 
-        var messageTags = {
-          status: status
+        const messageTags = {
+          status
         };
 
-        var error = new Error(defaultErrorMessage);
+        const error = new Error(defaultErrorMessage);
 
         if (response && response.data) {
           if (response.data.error_msg) {
@@ -36,7 +36,7 @@ import jsyaml from "js-yaml";
           } else if (response.data.message) {
             error.message = response.data.message;
           } else if (response.data.errors) {
-            var errors;
+            let errors;
 
             if (angular.isArray(response.data.errors)) {
               if (angular.isString(response.data.errors[0])) {
@@ -45,10 +45,9 @@ import jsyaml from "js-yaml";
                 });
               } else {
                 errors = _.map(response.data.errors, function (anErrorMap) {
-                  var error = new Error(anErrorMap.message);
-                  error.name = anErrorMap.type;
-
-                  return error;
+                  const err = new Error(anErrorMap.message);
+                  err.name = anErrorMap.type;
+                  return err;
                 });
               }
             } else if (angular.isObject(response.data.errors)) {
@@ -62,7 +61,7 @@ import jsyaml from "js-yaml";
           }
         }
 
-        if (errorMessagePrefix && error.message != defaultErrorMessage) {
+        if (errorMessagePrefix && error.message !== defaultErrorMessage) {
           error.message = errorMessagePrefix += error.message;
         }
 
@@ -96,7 +95,7 @@ import jsyaml from "js-yaml";
       // Current User
 
       requestService.getCurrentUserMetadata = function (metadataKey, requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -132,14 +131,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.updateCurrentUserMetadata = function (metadataKeyValue, requestConfig) {
-        var requestURL;
-        var requestData;
+        let requestURL;
+        let requestData;
 
         switch (requestService.mode) {
           case "website":
             requestURL = "<%= webserver_path(data[:routes][:website][:current_user_metadata_put]) %>";
 
-            requestData = {...metadataKeyValue};
+            requestData = { ...metadataKeyValue };
 
             break;
           case "cli":
@@ -169,7 +168,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getOrgPlanData = function (orgSlug, requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -213,7 +212,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getOrgBetaTags = function (orgSlug, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:get_org_beta_tags]) %>",
           {
             org_slug: orgSlug
@@ -244,8 +243,8 @@ import jsyaml from "js-yaml";
 
       requestService.getAppDetails = function (requestConfig) {
         switch (requestService.mode) {
-          case "website":
-            var requestURL = stringService.stringReplacedWithParameters(
+          case "website": {
+            const requestURL = stringService.stringReplacedWithParameters(
               "<%= webserver_path(data[:routes][:website][:app_data_get]) %>",
               {
                 app_slug: requestService.appSlug
@@ -271,7 +270,7 @@ import jsyaml from "js-yaml";
                     ownerData: {
                       slug: response.data.owner_slug,
                       type: response.data.owner_type,
-                      name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name,
+                      name: response.data.owner_type === "User" ? response.data.owner_username : response.data.owner_name,
                       isPaying: response.data.owner_is_paying
                     },
                     buildData: {
@@ -293,6 +292,7 @@ import jsyaml from "js-yaml";
                 }
               );
             });
+          }
           case "cli": {
             return $q.reject(
               new Error(
@@ -304,8 +304,8 @@ import jsyaml from "js-yaml";
       };
 
       requestService.updateAppleCredentialUser = function (userSlug, requestConfig) {
-        var requestURL;
-        var requestData;
+        let requestURL;
+        let requestData;
 
         switch (requestService.mode) {
           case "website":
@@ -350,8 +350,8 @@ import jsyaml from "js-yaml";
       // App config
 
       requestService.postAppConfig = function (appConfig, tabOpenDuringSave, requestConfig) {
-        var requestURL;
-        var requestData;
+        let requestURL;
+        let requestData;
 
         switch (requestService.mode) {
           case "website":
@@ -395,7 +395,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getAppConfig = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -416,7 +416,10 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
-              resolve(response.data);
+              const version = response.headers(requestService.appConfigVersionHeaderName);
+              const content = response.data;
+
+              resolve({ version, content });
             },
             function (response) {
               reject(
@@ -434,8 +437,8 @@ import jsyaml from "js-yaml";
       // App config YML
 
       requestService.postAppConfigYML = function (appConfigYML, requestConfig) {
-        var requestURL;
-        var requestData;
+        let requestURL;
+        let requestData;
 
         switch (requestService.mode) {
           case "website":
@@ -466,7 +469,7 @@ import jsyaml from "js-yaml";
               resolve(response.data);
             },
             function (response) {
-              var error = new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>");
+              const error = new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>");
               if (response && response.data && response.data.error) {
                 error.message = response.data.error;
               }
@@ -491,8 +494,8 @@ import jsyaml from "js-yaml";
       // Secrets
 
       requestService.postSecrets = function (secrets, requestConfig) {
-        var requestURL;
-        var requestData;
+        let requestURL;
+        let requestData;
 
         switch (requestService.mode) {
           case "website":
@@ -541,7 +544,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getPipelineConfig = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -587,7 +590,7 @@ import jsyaml from "js-yaml";
       }
 
       requestService.getSecrets = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -624,7 +627,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getSecretValue = function (secret, requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -666,9 +669,9 @@ import jsyaml from "js-yaml";
       // Steps
 
       requestService.libraryFetch = function (libraryURLs, requestConfig) {
-        var requestMethod;
-        var requestURL;
-        var requestData;
+        let requestMethod;
+        let requestURL;
+        let requestData;
 
         if (libraryURLs) {
           requestData = {
@@ -693,13 +696,14 @@ import jsyaml from "js-yaml";
           $http[requestMethod](requestURL, requestData, requestConfig).then(
             function (response) {
               switch (requestService.mode) {
-                case "website":
-                  var libraryMap = {};
+                case "website": {
+                  const libraryMap = {};
                   libraryMap[response.data.steplib_source] = response.data;
 
                   resolve(libraryMap);
 
                   break;
+                }
                 case "cli":
                   resolve(response.data.library_map);
 
@@ -720,20 +724,18 @@ import jsyaml from "js-yaml";
       };
 
       requestService.stepConfigFetch = function (step, requestConfig) {
-        var requestURL = "<%= local_server_path(data[:routes][:local_server][:step_config_fetch]) %>";
-        var requestData = {};
+        const requestURL = "<%= local_server_path(data[:routes][:local_server][:step_config_fetch]) %>";
+        const requestData = {};
 
         if (step.localPath) {
           requestData.library = "path";
           requestData.id = step.localPath;
         } else if (step.gitURL) {
           switch (requestService.mode) {
-            case "website":
-              var stepYMLurl;
+            case "website": {
+              let stepYMLurl;
 
-              var githubGitURLRegexp = new RegExp(
-                "^(?:(?:http|https)://){0,1}(?:www.){0,1}(?:(?:github).com/)(.*?)(?:.git){0,1}$"
-              );
+              const githubGitURLRegexp = /^(?:(?:http|https):\/\/){0,1}(?:www.){0,1}(?:(?:github).com\/)(.*?)(?:.git){0,1}$/;
               if (githubGitURLRegexp.test(step.gitURL)) {
                 stepYMLurl = stringService.stringReplacedWithParameters(
                   "<%= data[:routes][:other][:github_step_yml_path] %>",
@@ -749,11 +751,11 @@ import jsyaml from "js-yaml";
                   $http.get(stepYMLurl, requestConfig).then(
                     function (response) {
                       try {
-                        var defaultStepConfig = jsyaml.load(response.data);
+                        const defaultStepConfig = jsyaml.load(response.data);
                         resolve(defaultStepConfig);
                       } catch (error) {
                         reject(
-                          new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>", {step_yml_url: stepYMLurl}))
+                          new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>", { step_yml_url: stepYMLurl }))
                         );
                       }
                     },
@@ -769,16 +771,14 @@ import jsyaml from "js-yaml";
                     }
                   );
                 });
-              } else {
-                return $q.reject(
-                  new Error(
-                    stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>", {step_yml_url: stepYMLurl})
-                  )
-                );
               }
-
-              break;
-            case "cli":
+              return $q.reject(
+                new Error(
+                  stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>", { step_yml_url: stepYMLurl })
+                )
+              );
+            }
+            case "cli": {
               let url = step.gitURL;
               const sshMatch = url.match(/^git@([^:]+):(.+)$/);
 
@@ -794,6 +794,7 @@ import jsyaml from "js-yaml";
               requestData.version = step.version;
 
               break;
+            }
           }
         } else {
           requestData.library = step.libraryURL;
@@ -821,7 +822,7 @@ import jsyaml from "js-yaml";
       // Variables
 
       requestService.getDefaultOutputs = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -860,7 +861,7 @@ import jsyaml from "js-yaml";
       // Machine Type
 
       requestService.getMachineTypeConfigs = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -881,19 +882,20 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
-              var machineTypeConfigs = _.each(response.data.available_machine_type_configs, function (
+              const machineTypeConfigs = _.each(response.data.available_machine_type_configs, function (
                 aStackSpecificMachineTypeConfigs,
                 aStackType
               ) {
-                var machineTypeSpecificConfig = {};
-                var stackSpecificMachineTypeConfigs = {};
-                return (stackSpecificMachineTypeConfigs[aStackType] = {
+                const machineTypeSpecificConfig = {};
+                const stackSpecificMachineTypeConfigs = {};
+
+                stackSpecificMachineTypeConfigs[aStackType] = {
                   defaultMachineType: aStackSpecificMachineTypeConfigs.default_machine_type,
                   machineTypes: _.map(aStackSpecificMachineTypeConfigs.machine_types, function (
                     aMachineTypeConfig,
                     aMachineType
                   ) {
-                    return (machineTypeSpecificConfig[aMachineType] = {
+                    machineTypeSpecificConfig[aMachineType] = {
                       name: aMachineTypeConfig.name,
                       cpuCount: aMachineTypeConfig.cpu_count,
                       cpuDescription: aMachineTypeConfig.cpu_description,
@@ -901,13 +903,17 @@ import jsyaml from "js-yaml";
                       creditPerMin: aMachineTypeConfig.credit_per_min,
                       isAvailable: aMachineTypeConfig.is_available,
                       note: aMachineTypeConfig.note
-                    });
+                    };
+
+                    return machineTypeSpecificConfig[aMachineType];
                   })
-                });
+                };
+
+                return stackSpecificMachineTypeConfigs[aStackType];
               });
 
               resolve({
-                machineTypeConfigs: machineTypeConfigs
+                machineTypeConfigs
               });
             },
             function (response) {
@@ -926,7 +932,7 @@ import jsyaml from "js-yaml";
       // Stacks
 
       requestService.getStackAndDockerImage = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -964,7 +970,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getStacks = function (requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -985,7 +991,7 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
-              var stackDatas = _.map(response.data.available_stacks, function (aStackData, stackID) {
+              const stackDatas = _.map(response.data.available_stacks, function (aStackData, stackID) {
                 return {
                   id: stackID,
                   name: aStackData.title,
@@ -995,12 +1001,12 @@ import jsyaml from "js-yaml";
                   descriptionURLGen2AppleSilicon: aStackData["description-link-gen2-applesilicon"],
                   preInstalledToolsLink: aStackData["pre-installed-tools-link"],
                   projectTypes: aStackData["project-types"],
-                  queueInfo: aStackData["queueInfo"],
-                  rollbackVersions: aStackData["rollback_version"],
+                  queueInfo: aStackData.queueInfo,
+                  rollbackVersions: aStackData.rollback_version,
                 };
               });
 
-              var projecTypeDatas = _.map(response.data.project_types_with_default_stacks, function (
+              const projecTypeDatas = _.map(response.data.project_types_with_default_stacks, function (
                 aProjectTypeData,
                 projectTypeID
               ) {
@@ -1011,7 +1017,7 @@ import jsyaml from "js-yaml";
               });
 
               resolve({
-                stackDatas: stackDatas,
+                stackDatas,
                 projectTypeDatas: projecTypeDatas
               });
             },
@@ -1031,7 +1037,7 @@ import jsyaml from "js-yaml";
       // Provisioning profiles
 
       requestService.getDetailsOfProvProfile = function (databaseID, requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -1077,7 +1083,7 @@ import jsyaml from "js-yaml";
                 capabilityKeys: _.keys(response.data.prov_profile_details.entitlements),
                 provisionedDevices: _.map(response.data.prov_profile_details.provisioned_devices, function (udid) {
                   return {
-                    udid: udid
+                    udid
                   };
                 })
               });
@@ -1096,14 +1102,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.postProvProfileCreate = function (fileName, fileSize, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:prov_profile_create]) %>",
           {
             app_slug: requestService.appSlug
           }
         );
 
-        var requestData = {
+        const requestData = {
           upload_file_name: fileName,
           upload_file_size: fileSize
         };
@@ -1130,14 +1136,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.finalizeProvProfileUpload = function (databaseID, isSuccess, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:prov_profile_finalize_upload]) %>",
           {
             prov_profile_id: databaseID
           }
         );
 
-        var requestData = {
+        const requestData = {
           success: isSuccess
         };
 
@@ -1160,7 +1166,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getProvProfiles = function (requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:prov_profiles_get]) %>",
           {
             app_slug: requestService.appSlug
@@ -1196,7 +1202,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.protectProvProfile = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:prov_profile_protect]) %>",
           {
             prov_profile_id: databaseID
@@ -1231,7 +1237,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.deleteProvProfile = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:prov_profile_delete]) %>",
           {
             prov_profile_id: databaseID
@@ -1259,7 +1265,7 @@ import jsyaml from "js-yaml";
       // Certificates
 
       requestService.getDetailsOfCertificate = function (certificateDatabaseID, certificatePassword, requestConfig) {
-        var requestURL;
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -1308,14 +1314,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.postCertificateCreate = function (fileName, fileSize, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:certificate_create]) %>",
           {
             app_slug: requestService.appSlug
           }
         );
 
-        var requestData = {
+        const requestData = {
           upload_file_name: fileName,
           upload_file_size: fileSize
         };
@@ -1342,14 +1348,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.finalizeCertificateUpload = function (databaseID, isSuccess, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:certificate_finalize_upload]) %>",
           {
             certificate_id: databaseID
           }
         );
 
-        var requestData = {
+        const requestData = {
           success: isSuccess
         };
 
@@ -1372,7 +1378,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getCertificates = function (requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:certificates_get]) %>",
           {
             app_slug: requestService.appSlug
@@ -1409,7 +1415,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.protectCertificate = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:certificate_protect]) %>",
           {
             certificate_id: databaseID
@@ -1444,14 +1450,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.putCertificatePasswordSave = function (databaseID, password, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:certificate_password_save]) %>",
           {
             certificate_id: databaseID
           }
         );
 
-        var requestData = {
+        const requestData = {
           certificate_password: password
         };
 
@@ -1474,7 +1480,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.deleteCertificate = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:certificate_delete]) %>",
           {
             certificate_id: databaseID
@@ -1502,14 +1508,14 @@ import jsyaml from "js-yaml";
       // Generic files
 
       requestService.postGenericFileCreate = function (envVarPartialID, fileName, fileSize, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_create]) %>",
           {
             app_slug: requestService.appSlug
           }
         );
 
-        var requestData = {
+        const requestData = {
           user_env_key: envVarPartialID,
           upload_file_name: fileName,
           upload_file_size: fileSize
@@ -1537,14 +1543,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.finalizeGenericFileUpload = function (databaseID, isSuccess, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_finalize_upload]) %>",
           {
             generic_file_id: databaseID
           }
         );
 
-        var requestData = {
+        const requestData = {
           success: isSuccess
         };
 
@@ -1567,7 +1573,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getGenericFiles = function (requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_files_get]) %>",
           {
             app_slug: requestService.appSlug
@@ -1577,12 +1583,12 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
-              var KeystoreFile = $injector.get("KeystoreFile");
+              const KeystoreFile = $injector.get("KeystoreFile");
 
               resolve(
                 _.map(
                   _.filter(response.data.project_file_storage_documents, function (aGenericFileData) {
-                    return aGenericFileData.user_env_key != KeystoreFile.downloadURLEnvVarPartialID;
+                    return aGenericFileData.user_env_key !== KeystoreFile.downloadURLEnvVarPartialID;
                   }),
                   function (aGenericFileData) {
                     return {
@@ -1611,7 +1617,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.protectGenericFile = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_protect]) %>",
           {
             generic_file_id: databaseID
@@ -1646,7 +1652,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.deleteGenericFile = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_delete]) %>",
           {
             generic_file_id: databaseID
@@ -1674,16 +1680,16 @@ import jsyaml from "js-yaml";
       // Android Keystore file
 
       requestService.postKeystoreFileCreate = function (fileName, fileSize, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_create]) %>",
           {
             app_slug: requestService.appSlug
           }
         );
 
-        var KeystoreFile = $injector.get("KeystoreFile");
+        const KeystoreFile = $injector.get("KeystoreFile");
 
-        var requestData = {
+        const requestData = {
           user_env_key: KeystoreFile.downloadURLEnvVarPartialID,
           upload_file_name: fileName,
           upload_file_size: fileSize
@@ -1711,14 +1717,14 @@ import jsyaml from "js-yaml";
       };
 
       requestService.finalizeKeystoreFileUpload = function (databaseID, isSuccess, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_finalize_upload]) %>",
           {
             generic_file_id: databaseID
           }
         );
 
-        var requestData = {
+        const requestData = {
           success: isSuccess
         };
 
@@ -1741,7 +1747,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getKeystoreFile = function (requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_files_get]) %>",
           {
             app_slug: requestService.appSlug
@@ -1752,14 +1758,14 @@ import jsyaml from "js-yaml";
           $http.get(requestURL, requestConfig).then(
             function (response) {
 
-              var KeystoreFile = $injector.get("KeystoreFile");
+              const KeystoreFile = $injector.get("KeystoreFile");
 
-              var keystoreFileData = _.filter(response.data.project_file_storage_documents, function (item) {
+              const keystoreFileData = _.filter(response.data.project_file_storage_documents, function (item) {
                 return item.user_env_key.startsWith(KeystoreFile.downloadURLEnvVarPartialID);
               });
 
-              var responseData = keystoreFileData.map(function (item) {
-                var itemData = null;
+              const responseData = keystoreFileData.map(function (item) {
+                let itemData = null;
                 itemData = {
                   databaseID: item.id,
                   isProcessed: item.processed,
@@ -1809,14 +1815,14 @@ import jsyaml from "js-yaml";
         privateKeyPassword,
         requestConfig
       ) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:keystore_file_metadata_save]) %>",
           {
             keystore_file_id: databaseID
           }
         );
 
-        var requestData = {
+        const requestData = {
           exposed_meta: {
             PASSWORD: password,
             ALIAS: alias,
@@ -1843,7 +1849,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.protectKeystoreFile = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_protect]) %>",
           {
             generic_file_id: databaseID
@@ -1869,7 +1875,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.deleteKeystoreFile = function (databaseID, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:generic_file_delete]) %>",
           {
             generic_file_id: databaseID
@@ -1916,7 +1922,7 @@ import jsyaml from "js-yaml";
       };
 
       requestService.getApp = function (appSlug, requestConfig) {
-        var requestURL = stringService.stringReplacedWithParameters(
+        const requestURL = stringService.stringReplacedWithParameters(
           "<%= webserver_path(data[:routes][:website][:app_path_get]) %>",
           {
             app_slug: appSlug
@@ -1932,8 +1938,8 @@ import jsyaml from "js-yaml";
         });
       };
 
-      requestService.startBuild = function ({branch, workflow, triggerToken, triggeredBy}, requestConfig) {
-        var requestURL;
+      requestService.startBuild = function ({ branch, workflow, triggerToken, triggeredBy }, requestConfig) {
+        let requestURL;
 
         switch (requestService.mode) {
           case "website":
@@ -1956,8 +1962,8 @@ import jsyaml from "js-yaml";
         return $q(function (resolve, reject) {
           $http.post(requestURL, {
             payload: {
-              hook_info: {type: "bitrise", build_trigger_token: triggerToken},
-              build_params: {branch: branch, workflow_id: workflow},
+              hook_info: { type: "bitrise", build_trigger_token: triggerToken },
+              build_params: { branch, workflow_id: workflow },
               triggered_by: `WFE - @${triggeredBy || "user"}`
             }
           }, requestConfig).then(

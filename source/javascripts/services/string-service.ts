@@ -1,111 +1,113 @@
-import * as _ from "underscore";
+import * as _ from 'underscore';
 
 class StringService {
-	private templateRegexp: RegExp;
+  private templateRegexp: RegExp;
 
-	constructor() {
-		this.templateRegexp = /<([a-zA-Z0-9\-_.]+)>/g;
-		_.templateSettings.interpolate = this.templateRegexp;
-	}
+  constructor() {
+    this.templateRegexp = /<([a-zA-Z0-9\-_.]+)>/g;
+    _.templateSettings.interpolate = this.templateRegexp;
+  }
 
-	private defaultTemplateDataFromString(string: string): any {
-		let match: RegExpExecArray | null;
-		const data: Record<string, string> = {};
-		while ((match = this.templateRegexp.exec(string))) {
-			data[match[1]] = match[0];
-		}
-		return data;
-	}
+  private defaultTemplateDataFromString(string: string): any {
+    const data: Record<string, string> = {};
+    let match = this.templateRegexp.exec(string);
+    while (match !== null) {
+      const [full, key] = match;
+      data[key] = full;
+      match = this.templateRegexp.exec(string);
+    }
+    return data;
+  }
 
-	stringReplacedWithParameters(string: string, parameters: any): string {
-		let resultString = "";
-		const compiled = _.template(string);
+  stringReplacedWithParameters(string: string, parameters: any): string {
+    let resultString = '';
+    const compiled = _.template(string);
 
-		try {
-			resultString = compiled(parameters);
-		} catch {
-			const defaultParams = this.defaultTemplateDataFromString(string);
-			resultString = compiled(_.defaults(parameters, defaultParams));
-		}
+    try {
+      resultString = compiled(parameters);
+    } catch {
+      const defaultParams = this.defaultTemplateDataFromString(string);
+      resultString = compiled(_.defaults(parameters, defaultParams));
+    }
 
-		return resultString;
-	}
+    return resultString;
+  }
 
-	joinedString = function (
-		strings: string[] | null | undefined,
-		separator: string,
-		shouldLeaveSpaceAfterSeparator?: boolean,
-	): string {
-		if (!strings) {
-			return "";
-		}
+  joinedString = function (
+    strings: string[] | null | undefined,
+    separator: string,
+    shouldLeaveSpaceAfterSeparator?: boolean,
+  ): string {
+    if (!strings) {
+      return '';
+    }
 
-		let joinedString = "";
+    let joinedString = '';
 
-		if (strings.length == 0) {
-			return joinedString;
-		}
+    if (strings.length === 0) {
+      return joinedString;
+    }
 
-		if (separator === null || separator === undefined) {
-			separator = "";
-		}
+    if (separator === null || separator === undefined) {
+      separator = '';
+    }
 
-		if (shouldLeaveSpaceAfterSeparator === undefined) {
-			shouldLeaveSpaceAfterSeparator = _.contains([",", ";"], separator);
-		}
+    if (shouldLeaveSpaceAfterSeparator === undefined) {
+      shouldLeaveSpaceAfterSeparator = _.contains([',', ';'], separator);
+    }
 
-		_.each(strings, function (aString, index) {
-			if (aString === null || aString === undefined) {
-				aString = "";
-			}
+    _.each(strings, function (aString, index) {
+      if (aString === null || aString === undefined) {
+        aString = '';
+      }
 
-			aString = aString.toString();
+      aString = aString.toString();
 
-			if (index > 0 && aString.length > 0) {
-				joinedString += separator;
+      if (index > 0 && aString.length > 0) {
+        joinedString += separator;
 
-				if (shouldLeaveSpaceAfterSeparator) {
-					joinedString += " ";
-				}
-			}
+        if (shouldLeaveSpaceAfterSeparator) {
+          joinedString += ' ';
+        }
+      }
 
-			joinedString += aString;
-		});
+      joinedString += aString;
+    });
 
-		return joinedString;
-	};
+    return joinedString;
+  };
 
-	capitalizedFirstLetter(string: string): string {
-		if (!string) {
-			return string;
-		}
+  capitalizedFirstLetter(string: string): string {
+    if (!string) {
+      return string;
+    }
 
-		return string[0].toUpperCase() + string.slice(1);
-	}
+    return string[0].toUpperCase() + string.slice(1);
+  }
 
-	isStringMatchingTerm(string: string, term: string): boolean | undefined {
-		if (string === undefined || term === undefined) {
-			return undefined;
-		}
+  isStringMatchingTerm(string: string, term: string): boolean | undefined {
+    if (string === undefined || term === undefined) {
+      return undefined;
+    }
 
-		if (term.length == 0) {
-			return true;
-		}
+    if (term.length === 0) {
+      return true;
+    }
 
-		return string.toLowerCase().indexOf(term.toLowerCase()) != -1;
-	}
+    return string.toLowerCase().indexOf(term.toLowerCase()) !== -1;
+  }
 
-	errorMessageFromErrors(errors: Error[]): string {
-		const errorMessages = _.map(errors, function (anError) {
-			return anError.message;
-		});
+  errorMessageFromErrors(errors: Error[]): string {
+    const errorMessages = _.map(errors, function (anError) {
+      return anError.message;
+    });
 
-		let errorMessage = this.joinedString(errorMessages, ",");
-		errorMessage = this.capitalizedFirstLetter(errorMessage);
-		errorMessage += ".";
+    let errorMessage = this.joinedString(errorMessages, ',');
+    errorMessage = this.capitalizedFirstLetter(errorMessage);
+    errorMessage += '.';
 
-		return errorMessage;
-	}
+    return errorMessage;
+  }
 }
 
 export default new StringService();

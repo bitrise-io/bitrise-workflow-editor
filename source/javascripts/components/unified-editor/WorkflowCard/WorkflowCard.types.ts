@@ -19,14 +19,21 @@ export type WorkflowActions = {
 
 export type StepActions = {
   onAddStep?: (workflowId: string, stepIndex: number) => void;
-  onSelectStep?: (props: { stepIndex: number; type: LibraryType; stepBundleId?: string; wfId?: string }) => void;
+  onSelectStep?: (props: {
+    isMultiple?: boolean;
+    stepIndex: number;
+    type: LibraryType;
+    stepBundleId?: string;
+    wfId?: string;
+  }) => void;
   onMoveStep?: (workflowId: string, stepIndex: number, targetIndex: number) => void;
   onUpgradeStep?: (workflowId: string, stepIndex: number, version: string) => void;
   onCloneStep?: (workflowId: string, stepIndex: number) => void;
-  onDeleteStep?: (workflowId: string, stepIndex: number) => void;
+  onDeleteStep?: (workflowId: string, stepIndices: number[]) => void;
   onAddStepToStepBundle?: (stepBundleId: string, stepIndex: number) => void;
   onCloneStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
-  onDeleteStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
+  onDeleteStepInStepBundle?: (stepBundleId: string, selectedStepIndices: number[]) => void;
+  onGroupStepsToStepBundle?: (workflowId: string, stepBundleId: string, selectedStepIndices: number[]) => void;
   onMoveStepInStepBundle?: (stepBundleId: string, stepIndex: number, targetIndex: number) => void;
   onUpgradeStepInStepBundle?: (stepBundleId: string, stepIndex: number, version: string) => void;
 };
@@ -44,4 +51,9 @@ export type SortableStepItem = {
   stepIndex: number;
   workflowId?: string;
   stepBundleId?: string;
+};
+
+export type SelectionParent = {
+  id: string;
+  type: 'stepBundle' | 'workflow';
 };

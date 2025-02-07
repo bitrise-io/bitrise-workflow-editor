@@ -739,7 +739,11 @@ describe('StepService', () => {
 
   describe('resolveTitle', () => {
     it('should return step bundle title for step bundle (bundle::)', () => {
-      expect(StepService.resolveTitle(STEP_BUNDLE, BITRISE_STEP_LIBRARY_URL)).toBe('my-bundle');
+      expect(
+        StepService.resolveTitle('bundle::my-bundle', BITRISE_STEP_LIBRARY_URL, {
+          title: 'My bundle',
+        }),
+      ).toBe('My bundle');
     });
 
     it('should return "With group" for with group (with)', () => {
@@ -1048,6 +1052,11 @@ describe('StepService', () => {
   describe('toYmlInput', () => {
     it('should return undefined if the new value is empty', () => {
       const result = StepService.toYmlInput('is_debug', '');
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if the new value is only whitespaces', () => {
+      const result = StepService.toYmlInput('is_debug', '   ');
       expect(result).toBeUndefined();
     });
 

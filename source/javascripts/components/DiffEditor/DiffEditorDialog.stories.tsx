@@ -1,7 +1,10 @@
 import { Box, Button, useDisclosure } from '@bitrise/bitkit';
+import { Meta, StoryObj } from '@storybook/react';
 import DiffEditorDialog from '@/components/DiffEditor/DiffEditorDialog';
 
-export default {
+type Story = StoryObj<typeof DiffEditorDialog>;
+
+const meta: Meta<typeof DiffEditorDialog> = {
   component: DiffEditorDialog,
   args: {
     originalText:
@@ -25,7 +28,7 @@ export default {
     modifiedText: { control: 'text' },
     onChange: { action: 'onChange' },
   },
-  render: (args: any) => {
+  render: (args) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -38,4 +41,6 @@ export default {
   },
 };
 
-export const Default = {};
+export default meta;
+
+export const Default: Story = {};

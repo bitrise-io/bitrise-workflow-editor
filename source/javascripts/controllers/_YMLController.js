@@ -1,13 +1,11 @@
-import "monaco-editor/esm/vs/editor/editor.api.js";
-import { safeDigest } from "../services/react-compat";
+import 'monaco-editor/esm/vs/editor/editor.api.js';
+import { safeDigest } from '../services/react-compat';
 
 (function () {
-  "use strict";
-
   angular
-    .module("BitriseWorkflowEditor")
-    .controller("YMLController", function ($scope, $rootScope, $timeout, appService, requestService) {
-      var viewModel = this;
+    .module('BitriseWorkflowEditor')
+    .controller('YMLController', function ($scope, $rootScope, $timeout, appService, requestService) {
+      const viewModel = this;
 
       viewModel.ciConfigYml = undefined;
       viewModel.isEditorLoading = true;
@@ -16,15 +14,14 @@ import { safeDigest } from "../services/react-compat";
       viewModel.init = function () {
         viewModel.isEditorLoading = true;
         if (requestService.isWebsiteMode()) {
-          const fetchPipelineConfig = appService.getPipelineConfig()
-            .then(function () {
-              viewModel.ciConfigYml = appService.appConfigYML;
+          const fetchPipelineConfig = appService.getPipelineConfig().then(function () {
+            viewModel.ciConfigYml = appService.appConfigYML;
 
-              viewModel.ymlSettings = appService.pipelineConfig;
+            viewModel.ymlSettings = appService.pipelineConfig;
 
-              viewModel.ymlSettings.isModularYamlSupported = appService.pipelineConfig.modularYamlSupported;
-              viewModel.ymlSettings.isYmlSplit = appService.pipelineConfig.split;
-            });
+            viewModel.ymlSettings.isModularYamlSupported = appService.pipelineConfig.modularYamlSupported;
+            viewModel.ymlSettings.isYmlSplit = appService.pipelineConfig.split;
+          });
         }
 
         $scope.$watch(
@@ -36,34 +33,39 @@ import { safeDigest } from "../services/react-compat";
               viewModel.ciConfigYml = appService.appConfigYML;
               viewModel.isEditorLoading = false;
             }
-          }
+          },
+        );
+
+        function replaceAndReloadYml(newYml) {
+          viewModel.ciConfigYml = {};
+          safeDigest($scope);
+          viewModel.ciConfigYml = newYml;
+          safeDigest($scope);
+        }
+
+        $scope.$on(
+          '$destroy',
+          $rootScope.$on('MainController::discardChanges', () => {
+            replaceAndReloadYml(appService.savedAppConfigYML);
+          }),
         );
 
         $scope.$on(
-          "$destroy",
-          $rootScope.$on("MainController::changesDiscarded", function () {
-            viewModel.ciConfigYml = undefined;
-            safeDigest($scope);
-            viewModel.ciConfigYml = appService.savedAppConfigYML;
-            safeDigest($scope);
-          })
-        );
+          '$destroy',
+          $rootScope.$on('MainController::saveSuccess', (_event, { forceReload, menu }) => {
+            const shouldReload = forceReload || menu !== 'yml';
 
-        $scope.$on(
-          "$destroy",
-          $rootScope.$on("MainController::remoteChangesMergedWithSuccess", function () {
-            viewModel.ciConfigYml = undefined;
-            safeDigest($scope);
-            viewModel.ciConfigYml = appService.appConfigYML;
-            safeDigest($scope);
-          })
+            if (shouldReload) {
+              replaceAndReloadYml(appService.appConfigYML);
+            }
+          }),
         );
 
         viewModel.onEditorChange = (value) => {
           appService.appConfigYML = value;
           safeDigest($rootScope);
         };
-      }
+      };
 
       viewModel.onConfigSourceChangeSaved = function (usesRepositoryYml, ymlRootPath) {
         viewModel.isEditorLoading = true;

@@ -1,14 +1,15 @@
-import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy } from 'es-toolkit';
-import { isEmpty, isNumber } from 'es-toolkit/compat';
+import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } from 'es-toolkit';
+import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
+import PipelineService from '@/core/models/PipelineService';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
 import { PipelinesYml, PipelineWorkflows, PipelineYmlObject } from './Pipeline';
-import { BITRISE_STEP_LIBRARY_URL, StepInputVariable, StepYmlObject } from './Step';
+import { BITRISE_STEP_LIBRARY_URL, StepBundleYmlObject, StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -148,15 +149,19 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: Step
   return copy;
 }
 
-function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+function deleteStep(workflowId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
     return copy;
   }
 
-  copy.workflows[workflowId].steps.splice(stepIndex, 1);
+  // Remove selected step / steps
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  sortedIndices.forEach((stepIndex) => {
+    copy.workflows?.[workflowId].steps?.splice(stepIndex, 1);
+  });
 
   // If the steps are empty, remove it
   if (shouldRemoveField(copy.workflows[workflowId].steps, yml.workflows?.[workflowId]?.steps)) {
@@ -261,21 +266,62 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   return copy;
 }
 
-function deleteStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
+  if (selectedStepIndices.length === 0 || !copy.step_bundles?.[stepBundleId]?.steps) {
     return copy;
   }
 
-  copy.step_bundles[stepBundleId].steps.splice(stepIndex, 1);
+  // Remove selected step / steps
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  sortedIndices.forEach((stepIndex) => {
+    copy.step_bundles?.[stepBundleId].steps?.splice(stepIndex, 1);
+  });
 
   // If the steps are empty, remove it
   if (shouldRemoveField(copy.step_bundles[stepBundleId].steps, yml.step_bundles?.[stepBundleId]?.steps)) {
     delete copy.step_bundles[stepBundleId].steps;
   }
 
+  return copy;
+}
+
+function groupStepsToStepBundle(
+  workflowId: string,
+  stepBundleId: string,
+  selectedStepIndices: number[],
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  const stepsInWorkflow = copy.workflows?.[workflowId]?.steps;
+  if (!selectedStepIndices.length || !stepsInWorkflow) {
+    return copy;
+  }
+
+  // Remove step / steps from a workflow and make sure that the removed step / steps are not part of a with group or a step bundle
+  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
+  const removedSteps = sortedIndices
+    .map((stepIndex) => {
+      const removedStep = stepsInWorkflow.splice(stepIndex, 1)[0];
+      const cvs = Object.keys(removedStep)[0];
+      const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+      return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
+    })
+    .filter(Boolean) as Array<{ [key: string]: StepYmlObject }>;
+
+  // Create and add selected step / steps to the step bundle
+  copy.step_bundles = {
+    ...copy.step_bundles,
+    [stepBundleId]: { steps: removedSteps.reverse() },
+  };
+
+  // Push the created step bundle to the workflow, which contained the selected step / steps
+  const insertPosition = sortedIndices.reverse()[0];
+  stepsInWorkflow.splice(insertPosition, 0, { [`bundle::${stepBundleId}`]: {} });
   return copy;
 }
 
@@ -320,6 +366,22 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
       }),
     );
   }
+
+  return copy;
+}
+
+function updateStepBundle(stepBundleId: string, stepBundle: StepBundleYmlObject, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  mapValues(stepBundle, (value: string, key: never) => {
+    if (copy.step_bundles?.[stepBundleId]) {
+      if (value) {
+        copy.step_bundles[stepBundleId][key] = value as never;
+      } else if (shouldRemoveField(value, yml.step_bundles?.[stepBundleId]?.[key])) {
+        delete copy.step_bundles[stepBundleId][key];
+      }
+    }
+  });
 
   return copy;
 }
@@ -607,11 +669,15 @@ function removeChainedWorkflow(
 function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  const emptyGraphPipeline = { workflows: {} };
+  let basePipeline: PipelineYmlObject = PipelineService.EMPTY_PIPELINE;
+
+  if (basePipelineId && copy.pipelines?.[basePipelineId]) {
+    basePipeline = copy.pipelines[basePipelineId];
+  }
 
   copy.pipelines = {
     ...copy.pipelines,
-    [pipelineId]: basePipelineId ? (copy.pipelines?.[basePipelineId] ?? emptyGraphPipeline) : emptyGraphPipeline,
+    [pipelineId]: PipelineService.convertToGraphPipeline(basePipeline, yml.stages), // NOTE: If the base pipeline is a graph pipeline, it will be returned as is
   };
 
   return copy;
@@ -1091,8 +1157,8 @@ function omitEmpty<T>(o: Record<string, T>) {
   return omitBy(o, isEmpty) as Record<string, T>;
 }
 
-function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
-  return omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k)) as Record<string, T>;
+function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, propKeys: string[]) {
+  return omitBy(o, (v, k) => isEmpty(v) && !propKeys.includes(k)) as Record<string, T>;
 }
 
 function shouldRemoveField<T>(modified: T, original: T) {
@@ -1190,6 +1256,16 @@ function deleteWorkflowFromDependsOn(workflowId: string, workflows: PipelineWork
   });
 }
 
+function deleteWorkflowVariants(workflowId: string, workflows: PipelineWorkflows = {}): PipelineWorkflows {
+  const variantKeys = keys(pickBy(workflows, (workflow) => Boolean(workflow?.uses?.includes(workflowId))));
+  let result = omit(workflows, variantKeys);
+  variantKeys.forEach((key) => {
+    result = deleteWorkflowFromDependsOn(key, result);
+  });
+
+  return result;
+}
+
 function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: StagesYml): StagesYml {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
@@ -1276,6 +1352,8 @@ function deleteWorkflowFromPipelines(
     delete pipelineCopy.workflows?.[workflowId];
 
     pipelineCopy.workflows = deleteWorkflowFromDependsOn(workflowId, pipelineCopy.workflows);
+
+    pipelineCopy.workflows = deleteWorkflowVariants(workflowId, pipelineCopy.workflows);
 
     if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
       delete pipelineCopy.workflows;
@@ -1377,8 +1455,10 @@ export default {
   createStepBundle,
   deleteStepBundle,
   deleteStepInStepBundle,
+  groupStepsToStepBundle,
   moveStepInStepBundle,
   renameStepBundle,
+  updateStepBundle,
   updateStepInStepBundle,
   updateStepInputsInStepBundle,
   createWorkflow,

@@ -8,7 +8,5 @@ cypress
 node_modules
 rails
 release
-source/javascripts/**/*.js
-source/javascripts/**/*.js.erb
-source/javascripts/services/**/*.ts
 **/*.spec.js
+source/javascripts/clarity.js

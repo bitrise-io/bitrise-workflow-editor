@@ -1,6 +1,7 @@
 import WindowUtils from "@/core/utils/WindowUtils";
+
 (function () {
-  "use strict";
+
 
   angular
     .module("BitriseWorkflowEditor")
@@ -16,15 +17,15 @@ import WindowUtils from "@/core/utils/WindowUtils";
       dateService,
       requestService
     ) {
-      var viewModel = this;
+      const viewModel = this;
 
-      viewModel.workflows;
+      viewModel.workflows = [];
       $scope.Stack = Stack;
       $scope.MachineType = MachineType;
       $scope.appService = appService;
       $scope.showMachineCreditCost = false;
       $scope.dateService = dateService;
-      viewModel.buildMachineDeprecationData;
+      viewModel.buildMachineDeprecationData = undefined;
       viewModel.defaultDockerImagesByStackIDs = {
         "linux-docker-android": "bitriseio/android-ndk:pinned",
         "linux-docker-android-20.04": "bitriseio/android-ndk-20.04:pinned",
@@ -34,10 +35,10 @@ import WindowUtils from "@/core/utils/WindowUtils";
         "gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
       };
 
-      var machineUpgradeAnnouncementUrl = 'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
+      const machineUpgradeAnnouncementUrl = 'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
 
       viewModel.stackMachineMap = appService.availableStacks().reduce(function (result, stack) {
-        var stackMachineTypes = _.filter(MachineType.all, function (machineType) {
+        const stackMachineTypes = _.filter(MachineType.all, function (machineType) {
           if (machineType.availableOnStacks) {
             return machineType.availableOnStacks.indexOf(stack.id) > -1;
           }
@@ -46,8 +47,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
         if (stack.type === 'osx') {
           result[stack.id] = _.groupBy(stackMachineTypes, 'chip');
-        }
-        else {
+        } else {
           result[stack.id] = _.groupBy(stackMachineTypes, 'tag');
         }
 
@@ -70,7 +70,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
       }
 
       viewModel.canShowWorkflowStackMachines = function (workflow) {
-        var stack = viewModel.stackGetterSetterForWorkflow(workflow, false)();
+        const stack = viewModel.stackGetterSetterForWorkflow(workflow, false)();
 
         if (stack && stack.isAgentPoolStack()) {
           return false;
@@ -102,15 +102,15 @@ import WindowUtils from "@/core/utils/WindowUtils";
       }
 
       viewModel.isRollbackVersionInBitriseYmlNoLongerAvailable = function () {
-        var isPaying = appService.isOwnerPaying();
-        var machineTypeId = appService.defaultMachineType.id;
+        const isPaying = appService.isOwnerPaying();
+        const machineTypeId = appService.defaultMachineType.id;
 
-        var isStackChanged = appService.savedStack.id !== appService.stack.id;
+        const isStackChanged = appService.savedStack.id !== appService.stack.id;
 
-        var rollbackVersion = appService.stack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying, appService.appDetails.ownerData.slug);
-        var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
+        const rollbackVersion = appService.stack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying, appService.appDetails.ownerData.slug);
+        const rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
 
-        var hasUnsavedChanges = appService.rollbackVersionHasUnsavedChanges() || appService.stackHasUnsavedChanges() || appService.defaultMachineTypeHasUnsavedChanges();
+        const hasUnsavedChanges = appService.rollbackVersionHasUnsavedChanges() || appService.stackHasUnsavedChanges() || appService.defaultMachineTypeHasUnsavedChanges();
 
         return !hasUnsavedChanges && rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
       }
@@ -120,21 +120,21 @@ import WindowUtils from "@/core/utils/WindowUtils";
       }
 
       viewModel.isCheckedRollbackVersionForWorkflow = function (listItemId) {
-        var workflow = _.find(viewModel.workflows, {
+        const workflow = _.find(viewModel.workflows, {
           id: listItemId
         });
 
-        var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying(), appService.appDetails.ownerData.slug);
+        const isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying(), appService.appDetails.ownerData.slug);
         return !!workflow.getRollbackVersion() && !isRollbackVersionInYmlNotAvailable;
       }
 
       viewModel.onChangeRollbackVersionForWorkflow = function (isChecked, listItemId) {
-        var workflow = _.find(viewModel.workflows, {
+        const workflow = _.find(viewModel.workflows, {
           id: listItemId
         });
 
         if (isChecked === true) {
-          var isPaying = appService.isOwnerPaying();
+          const isPaying = appService.isOwnerPaying();
 
           workflow.setRollbackVersion(isPaying, appService.appDetails.ownerData.slug, MachineType.all);
           $scope.$apply();
@@ -145,8 +145,8 @@ import WindowUtils from "@/core/utils/WindowUtils";
       }
 
       viewModel.isRollbackVersionInBitriseYmlNoLongerAvailableForWorkflow = function (workflow) {
-        var isPaying = appService.isOwnerPaying();
-        var machineTypeId = appService.defaultMachineType.id;
+        const isPaying = appService.isOwnerPaying();
+        const machineTypeId = appService.defaultMachineType.id;
 
         return workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, isPaying, appService.appDetails.ownerData.slug);
       }
@@ -163,7 +163,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
         });
 
         requestService.getApp(WindowUtils.appSlug()).then((response) => {
-          var gracePeriodDates = {};
+          const gracePeriodDates = {};
           if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started_at) {
             gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started_at);
           }
@@ -176,7 +176,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
       $scope.$on(
         "$destroy",
-        $rootScope.$on("MainController::changesDiscarded", function () {
+        $rootScope.$on("MainController::discardChanges", function () {
           configure();
         })
       );
@@ -198,17 +198,17 @@ import WindowUtils from "@/core/utils/WindowUtils";
         const currentDate = new Date();
         if (currentDate < startDate) {
           return {
-            message: "Upgrading to faster Pro Medium/Large/X Large, with no extra costs. Medium/Large/X Large machines will be deprecated and your Workflows will automatically run on Pro Medium/Large/X Large machines from the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
+            message: `Upgrading to faster Pro Medium/Large/X Large, with no extra costs. Medium/Large/X Large machines will be deprecated and your Workflows will automatically run on Pro Medium/Large/X Large machines from the ${dateService.toLocaleMonthDayDateString(startDate)}.`,
             linkUrl: machineUpgradeAnnouncementUrl,
             linkLabel: 'Read announcement.',
           }
-        } else if (currentDate >= startDate && currentDate <= endDate) {
+        } if (currentDate >= startDate && currentDate <= endDate) {
           return {
-            message: "Your Workflows were automatically switched to faster Pro Medium/Large/X Large, with no extra costs. To continue using the deprecated Medium/Large/X Large machines until the " + dateService.toLocaleMonthDayDateString(endDate) + ", opt to extend the transition period in the",
-            linkUrl: '/workspaces/' + appService.appDetails.ownerData.slug + '/settings/apps',
+            message: `Your Workflows were automatically switched to faster Pro Medium/Large/X Large, with no extra costs. To continue using the deprecated Medium/Large/X Large machines until the ${dateService.toLocaleMonthDayDateString(endDate)}, opt to extend the transition period in the`,
+            linkUrl: `/workspaces/${appService.appDetails.ownerData.slug}/settings/apps`,
             linkLabel: 'Workspace settings.',
           }
-        } else if (currentDate > endDate) {
+        } if (currentDate > endDate) {
           return {
             message: "Your Workflows are now running on faster Pro Medium/Large/X Large, with no extra costs. If you’d like to keep using the deprecated Medium/Large/X Large machines, reach out to support.",
             linkUrl: machineUpgradeAnnouncementUrl,
@@ -231,7 +231,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
       };
 
       viewModel.stackOptions = function () {
-        var stacks = appService.availableStacks().concat(Stack.invalidStacks);
+        const stacks = appService.availableStacks().concat(Stack.invalidStacks);
 
         return stacks;
       };
@@ -243,7 +243,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
           return;
         }
 
-        var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
+        const isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
 
         if (!isPreviousMachineTypeAvailable) {
           viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
@@ -263,10 +263,10 @@ import WindowUtils from "@/core/utils/WindowUtils";
             stack = appService.stack;
           }
 
-          var defaultMachineTypeForStack;
+          let defaultMachineTypeForStack;
           if (stack) {
-            var previousMachineType = viewModel.workflowMachineType(workflow);
-            var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(previousMachineType, stack);
+            const previousMachineType = viewModel.workflowMachineType(workflow);
+            const isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(previousMachineType, stack);
 
             if (isPreviousMachineTypeAvailable) {
               defaultMachineTypeForStack = previousMachineType;
@@ -302,13 +302,13 @@ import WindowUtils from "@/core/utils/WindowUtils";
           return;
         }
 
-        var stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
+        const stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
         workflow.machineType(stack.type, machineType, MachineType.all);
       };
 
       viewModel.workflowMachineType = function (workflow, shouldNormalize = true) {
-        var stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
-        var workflowMachineType = workflow.machineType(stack.type, undefined, MachineType.all);
+        const stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
+        const workflowMachineType = workflow.machineType(stack.type, undefined, MachineType.all);
 
         if (workflowMachineType || !shouldNormalize) {
           return workflowMachineType;

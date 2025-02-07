@@ -9,7 +9,7 @@ import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
 import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
 import WorkflowStepList from './components/WorkflowStepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
-import { StepActions, WorkflowActions } from './WorkflowCard.types';
+import { SelectionParent, StepActions, WorkflowActions } from './WorkflowCard.types';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
 type ContentProps = {
@@ -25,11 +25,13 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
   const containerRef = useRef(null);
   const workflow = useWorkflow(workflowId);
   const { data: stacksAndMachines } = useStacksAndMachines();
-  const { isOpen, onOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const { isOpen, onOpen, onToggle } = useDisclosure({
+    defaultIsOpen: !isCollapsable,
+  });
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const { isSelected } = useSelection();
-  const isHighlighted = isSelected(id);
+  const isHighlighted = isSelected({ workflowId: id });
   const cardPros = useMemo(
     () => ({
       ...containerProps,
@@ -141,8 +143,8 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
 });
 
 type Selection = {
-  selectedStepIndex?: number;
-  selectedWorkflowId?: string;
+  selectedStepIndices?: number[];
+  selectionParent?: SelectionParent;
 };
 type Props = ContentProps & WorkflowActions & StepActions & Selection;
 
@@ -151,15 +153,11 @@ const WorkflowCard = ({
   uses,
   isCollapsable,
   containerProps,
-  selectedWorkflowId = '',
-  selectedStepIndex = -1,
+  selectedStepIndices = [],
+  selectionParent,
   ...actions
 }: Props) => (
-  <WorkflowCardContextProvider
-    selectedWorkflowId={selectedWorkflowId}
-    selectedStepIndex={selectedStepIndex}
-    {...actions}
-  >
+  <WorkflowCardContextProvider selectedStepIndices={selectedStepIndices} selectionParent={selectionParent} {...actions}>
     <WorkflowCardContent id={id} uses={uses} isCollapsable={isCollapsable} containerProps={containerProps} />
   </WorkflowCardContextProvider>
 );

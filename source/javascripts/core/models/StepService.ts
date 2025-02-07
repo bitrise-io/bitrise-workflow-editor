@@ -243,9 +243,9 @@ function getRawGitUrl(cvs: string, defaultStepLibrary: string, fallbackBranch: s
   return `${url}/step.yml`;
 }
 
-function resolveTitle(cvs: string, defaultStepLibrary: string, step?: Steps[number][string]): string {
+function resolveTitle(cvs: string, defaultStepLibrary: string, step?: StepLikeYmlObject): string {
   if (isStepBundle(cvs, defaultStepLibrary, step)) {
-    return cvs.replace('bundle::', '');
+    return step.title || cvs.replace('bundle::', '');
   }
   if (isWithGroup(cvs, defaultStepLibrary, step)) {
     return 'With group';
@@ -371,7 +371,7 @@ function calculateChange(
 }
 
 function toYmlInput(name: string, newValue: unknown, opts?: VariableOpts): StepInputVariable | undefined {
-  if (!newValue) {
+  if (!newValue || !String(newValue).trim()) {
     return undefined;
   }
 

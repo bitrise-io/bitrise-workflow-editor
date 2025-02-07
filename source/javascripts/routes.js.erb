@@ -1,1 +1,1 @@
-window.routes = <%= data[:routes].to_json %>;
+window.routes = JSON.parse(`<%= data[:routes].to_json %>`);

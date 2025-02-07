@@ -60,7 +60,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     ),
   };
 
-  const isHighlighted = isSelected(id);
+  const isHighlighted = isSelected({ workflowId: id });
   const isPlaceholder = sortable.isDragging;
   const title = workflow?.userValues?.title || id;
 
