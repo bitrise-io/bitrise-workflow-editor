@@ -650,7 +650,6 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
             await viewModel.deferredUserSavedYmlToRepository.promise;
             return 'force-reload';
           } catch {
-            // NOTE: User canceled the dialog, so just update the UI
             return 'cancel';
           }
         }
@@ -706,7 +705,6 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           }
 
           viewModel.deferredConflictResolution = $q.defer();
-          safeDigest($scope);
 
           if (shouldReCheckRemoteChanges) {
             ({ content: remoteConfig, version: remoteVersion } = isYmlFormat ? await requestService.getAppConfigYML() : await appService.getNormalizedAppConfig());
