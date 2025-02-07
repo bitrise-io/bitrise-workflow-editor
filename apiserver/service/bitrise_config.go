@@ -2,8 +2,8 @@ package service
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -17,9 +17,9 @@ import (
 
 // AppendBitriseConfigVersionHeader ...
 func AppendBitriseConfigVersionHeader(w http.ResponseWriter, contStr string) {
-	h := sha256.New()
-	h.Write([]byte(contStr))
-	w.Header().Set("X-Bitrise-Config-Version", hex.EncodeToString(h.Sum(nil)))
+	hash := sha256.Sum256([]byte(contStr))
+
+	w.Header().Set("X-Bitrise-Config-Version", fmt.Sprintf("%x", hash))
 }
 
 // HasConfigVersionConflict ...
@@ -29,10 +29,9 @@ func HasConfigVersionConflict(r *http.Request, contStr string) bool {
 		return false
 	}
 
-	h := sha256.New()
-	h.Write([]byte(contStr))
+	hash := sha256.Sum256([]byte(contStr))
 
-	return receivedVersion != hex.EncodeToString(h.Sum(nil))
+	return receivedVersion != fmt.Sprintf("%x", hash)
 }
 
 // GetBitriseYMLHandler ...
@@ -215,7 +214,7 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 
 	yaml.FutureLineWrap()
 
-	var bitriseDataModel = models.BitriseDataModel{}
+	bitriseDataModel := models.BitriseDataModel{}
 	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &bitriseDataModel); err != nil {
 		log.Errorf("Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
