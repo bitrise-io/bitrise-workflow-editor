@@ -38,7 +38,11 @@ type StepYmlObject = Omit<
 };
 
 type StepBundles = Required<BitriseYml>['step_bundles'];
-type StepBundleYmlObject = StepBundles[string];
+type StepBundleYmlObject = Extract<Steps[number][string], { steps: StepYmlObject[] }> & {
+  title?: string;
+  description?: string;
+  summary?: string;
+};
 type WithGroupYmlObject = Extract<
   Steps[number][string],
   {

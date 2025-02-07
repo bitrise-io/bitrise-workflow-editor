@@ -5,6 +5,7 @@ import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/models/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { StepBundleYmlObject } from '@/core/models/Step';
 import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
 import { useStepBundleConfigContext } from './StepBundlesConfig.context';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
@@ -37,14 +38,14 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
 
   const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, summary: e.target.value }));
-    debouncedUpdateStepBundle(stepBundle?.id || '', { summary: e.target.value });
+    debouncedUpdateStepBundle(stepBundle?.id || '', { summary: e.target.value } as StepBundleYmlObject);
   };
 
   const handleDescriptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, description: e.target.value }));
     debouncedUpdateStepBundle(stepBundle?.id || '', {
       description: e.target.value,
-    });
+    } as StepBundleYmlObject);
   };
 
   return (
