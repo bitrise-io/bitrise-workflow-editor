@@ -3,7 +3,7 @@ import { BitriseYml, Meta } from '@/core/models/BitriseYml';
 import { PipelineYmlObject } from '@/core/models/Pipeline';
 import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/models/BitriseYmlService';
-import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
+import { StepBundleYmlObject, StepInputVariable, StepYmlObject } from '@/core/models/Step';
 import { EnvVar } from '../models/EnvVar';
 import EnvVarService from '../models/EnvVarService';
 import { TriggerMapYml } from '../models/TriggerMap';
@@ -89,6 +89,7 @@ type BitriseYmlStoreState = {
   ) => void;
   moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
   renameStepBundle: (stepBundleId: string, newStepBundleId: string) => void;
+  updateStepBundle: (stepBundleId: string, stepBundle: StepBundleYmlObject) => void;
   updateStepInStepBundle: (
     stepBundleId: string,
     stepIndex: number,
@@ -433,6 +434,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.renameStepBundle(stepBundleId, newStepBundleId, state.yml),
+        };
+      });
+    },
+    updateStepBundle: (stepBundleId, stepBundle) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepBundle(stepBundleId, stepBundle, state.yml),
         };
       });
     },
