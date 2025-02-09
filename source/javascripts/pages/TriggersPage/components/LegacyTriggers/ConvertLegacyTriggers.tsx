@@ -24,8 +24,8 @@ const converter = (legacy: TriggerItem): TargetBasedTriggerItem => {
   if (legacy.isActive === false) {
     targetBased.enabled = false;
   }
-  if (legacy.isDraftPr) {
-    targetBased.draft_enabled = true;
+  if (legacy.isDraftPr === false) {
+    targetBased.draft_enabled = false;
   }
   legacy.conditions.forEach((c) => {
     targetBased[CONDITION_TYPE_MAP[c.type as LegacyConditionType]] = c.isRegex
@@ -56,32 +56,18 @@ const ConvertLegacyTriggers = (props: Props) => {
       .forEach((trigger) => {
         const [targetType, targetId] = trigger.pipelineable.split('#');
         if (!mapped[targetType as 'pipeline' | 'workflow'][targetId]) {
+          const type: 'pipelines' | 'workflows' = `${targetType as 'pipeline' | 'workflow'}s`;
           mapped[targetType as 'pipeline' | 'workflow'][targetId] = {
-            pull_request: [],
-            push: [],
-            tag: [],
+            pull_request: (yml[type]?.[targetId].triggers?.pull_request as TargetBasedTriggerItem[]) || [],
+            push: (yml[type]?.[targetId].triggers?.push as TargetBasedTriggerItem[]) || [],
+            tag: (yml[type]?.[targetId].triggers?.tag as TargetBasedTriggerItem[]) || [],
           };
-        }
-        if (targetType === 'pipeline' && yml.pipelines?.[targetId]?.triggers) {
-          mapped.pipeline[targetId] = yml.pipelines?.[targetId]?.triggers as Record<
-            TriggerType,
-            TargetBasedTriggerItem[]
-          >;
-        }
-        if (targetType === 'workflow' && yml.workflows?.[targetId]?.triggers) {
-          mapped.workflow[targetId] = { ...yml.workflows?.[targetId]?.triggers } as Record<
-            TriggerType,
-            TargetBasedTriggerItem[]
-          >;
-        }
-        if (!mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]) {
-          mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source] = [];
         }
         mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source].push(converter(trigger));
       });
 
     Object.keys(mapped.pipeline).forEach((key) => {
-      updatePipelineTriggers(key, mapped.workflow[key]);
+      updatePipelineTriggers(key, mapped.pipeline[key]);
     });
 
     Object.keys(mapped.workflow).forEach((key) => {

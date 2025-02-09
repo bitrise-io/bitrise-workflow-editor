@@ -15,17 +15,30 @@ app:
       is_expand: false
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
+- type: pull_request
+  workflow: wf3
+  pull_request_comment: comment
+- type: pull_request
+  workflow: wf6
+  changed_files:
+    regex: file
+  draft_pull_request_enabled: false
+  pull_request_comment: comment
 - type: push
-  workflow: wf2
-  push_branch: master
+  enabled: false
+  workflow: wf1
   commit_message:
-    regex: asz
-  changed_files: weds
+    regex: commit
+  changed_files: file
+- type: push
+  pipeline: pl1
+  push_branch: push
+- type: tag
+  workflow: wf6
+  tag:
+    regex: .*
 pipelines:
   graph-pipeline:
-    triggers:
-      push:
-      - branch: main
     workflows:
       tmp:
         depends_on:
@@ -293,10 +306,6 @@ workflows:
   wf2:
     summary: Second workflow
     description: Second, but definitely not the last
-    triggers:
-      tag:
-      - name:
-          regex: '*'
     before_run:
     - wf1
     after_run:
@@ -409,10 +418,6 @@ workflows:
   wf6:
     summary: this is a short summary
     description: I don't know what to write here
-    triggers:
-      push:
-      - enabled: false
-        branch: main
     envs:
     - WF_NAME: wf6
       opts:
@@ -423,18 +428,6 @@ workflows:
   wf7:
     summary: Seventh workflow
     description: Last, but not least important workflow
-    triggers:
-      push:
-      - enabled: false
-        branch: main
-      pull_request:
-      - target_branch: main
-        comment: '[workflow: deploy]'
-      - commit_message:
-          regex: '.*\[workflow: deploy\].*'
-      tag:
-      - name:
-          regex: ^\d\.\d\.\d$
     steps:
     - script@1.1:
         title: Install Swiftlint 0.35
