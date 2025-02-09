@@ -88,10 +88,10 @@ const htmlExporter = {
 };
 
 const entry = {
-  vendor: './javascripts/vendor.js',
-  strings: './javascripts/strings.js.erb',
-  routes: './javascripts/routes.js.erb',
   main: './javascripts/index.js',
+  vendor: './javascripts/vendor.js',
+  routes: './javascripts/routes.js.erb',
+  strings: './javascripts/strings.js.erb',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
@@ -100,17 +100,16 @@ if (isDataDogRumEnabled) {
   entry.datadogrum = './javascripts/datadog-rum.js.erb';
 }
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
-  context: CODEBASE,
   entry,
+  context: CODEBASE,
   mode: isProd ? 'production' : 'development',
   output: {
     filename: 'javascripts/[name].js',
     path: OUTPUT_FOLDER,
     publicPath,
   },
-
-  /* --- Development --- */
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
     compress: true,
@@ -130,12 +129,9 @@ module.exports = {
       publicPath,
     },
   },
-
-  /* --- Performance --- */
   cache: {
     type: 'filesystem',
     buildDependencies: {
-      // This makes all dependencies of this file - build dependencies
       config: [__filename],
     },
   },
@@ -160,8 +156,6 @@ module.exports = {
     maxAssetSize: 40000000,
     maxEntrypointSize: 60000000,
   },
-
-  /* --- Rules --- */
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
@@ -170,9 +164,8 @@ module.exports = {
   },
   module: {
     rules: [
-      /* --- Javascript & TypeScript --- */
       {
-        test: /\.(stories|mswMocks?|mocks?|spec)\.tsx?$/i,
+        test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
       },
       {
@@ -180,75 +173,57 @@ module.exports = {
         use: railsTransformer('erb'),
       },
       {
-        test: /\.tsx?$/,
+        test: /\.tsx?$/i,
         use: {
-          loader: 'ts-loader',
+          loader: 'swc-loader',
           options: {
-            compilerOptions: {
-              sourceMap: !isProd,
+            jsc: {
+              parser: {
+                tsx: true,
+                decorators: true,
+                syntax: 'typescript',
+              },
+              transform: {
+                react: {
+                  runtime: 'automatic',
+                },
+              },
             },
           },
         },
-        exclude: /node_modules/,
       },
       {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            allowTsInNodeModules: true,
-            compilerOptions: {
-              sourceMap: !isProd,
-            },
-          },
-        },
-        include: /node_modules\/@bitrise\/bitkit/,
-      },
-
-      /* --- HTML & CSS --- */
-      {
-        test: /\.(slim)$/,
+        test: /\.(slim)$/i,
         use: [htmlExporter, railsTransformer('slim')],
       },
       {
         test: /\.css$/i,
-        include: path.join(__dirname, 'node_modules'),
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: path.resolve(__dirname, 'node_modules/normalize.css'),
-        use: 'null-loader',
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.s[ac]ss(\.erb)?$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
       },
-
-      /* --- Images --- */
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+        generator: {
+          outputPath: 'fonts',
+          publicPath: 'fonts/',
+          filename: '[name]-[hash][ext][query]',
+        },
+      },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
         type: 'asset/resource',
         generator: {
           outputPath: 'images',
+          publicPath: 'images/',
           filename: '[name]-[hash][ext][query]',
-          publicPath: `${publicPath}images/`,
-        },
-      },
-
-      /* --- Fonts --- */
-      {
-        test: /\.(eot|woff2?|ttf)$/i,
-        type: 'asset/resource',
-        generator: {
-          outputPath: 'fonts',
-          filename: '[name]-[hash][ext][query]',
-          publicPath: `${publicPath}fonts/`,
         },
       },
     ],
   },
-
-  /* --- Plugins --- */
   plugins: [
     new webpack.EnvironmentPlugin({
       MODE: MODE || 'WEBSITE',

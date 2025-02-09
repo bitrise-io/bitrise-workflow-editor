@@ -1,20 +1,10 @@
 import { ErrorInfo, ReactNode, useEffect } from 'react';
-import { theme } from '@bitrise/bitkit';
+import { Provider } from '@bitrise/bitkit';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import { ChakraProvider, mergeThemeOverride } from '@chakra-ui/react';
 
 import { datadogRum } from '@datadog/browser-rum';
 import createSharedContext from './createSharedContext';
 import withQueryClientProvider from './withQueryClientProvider';
-
-const wfeTheme = mergeThemeOverride(theme, {
-  styles: {
-    global: {
-      svg: { display: 'inline' },
-      select: { padding: '7px 32px 7px 12px' },
-    },
-  },
-});
 
 const PassThroughFallback = ({ resetErrorBoundary }: FallbackProps) => {
   useEffect(() => {
@@ -36,7 +26,7 @@ const logErrorToDataDog = (error: Error, info: ErrorInfo) => {
 const Root = ({ children }: { children: ReactNode }): JSX.Element => {
   return (
     <ErrorBoundary onError={logErrorToDataDog} FallbackComponent={PassThroughFallback}>
-      <ChakraProvider theme={wfeTheme}>{children}</ChakraProvider>
+      <Provider>{children}</Provider>
     </ErrorBoundary>
   );
 };
