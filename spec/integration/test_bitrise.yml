@@ -16,14 +16,11 @@ app:
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
 - type: push
-  workflow: wf1
-  push_branch: master
-- type: push
   workflow: wf2
-  push_branch: release
-- type: pull_request
-  workflow: wf3
-  pull_request_target_branch: '*'
+  push_branch: master
+  commit_message:
+    regex: asz
+  changed_files: weds
 pipelines:
   graph-pipeline:
     triggers:
@@ -313,7 +310,8 @@ workflows:
     steps:
     - git::https://github.com/bitrise-steplib/steps-script:
         title: A script step referenced by git URL
-        summary: All non-overwritten attributes should be the step's default value from step.yml in the step's repository.
+        summary: All non-overwritten attributes should be the step's default value
+          from step.yml in the step's repository.
         inputs:
         - content: |
             #!/usr/bin/env bash

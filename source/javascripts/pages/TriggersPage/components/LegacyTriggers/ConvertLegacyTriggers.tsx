@@ -1,6 +1,41 @@
-import { Button } from '@bitrise/bitkit';
-import { TargetBasedTriggerItem, TriggerItem, TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
+import { Notification } from '@bitrise/bitkit';
+import {
+  ConditionType,
+  LegacyConditionType,
+  TargetBasedTriggerItem,
+  TriggerItem,
+  TriggerType,
+} from '@/components/unified-editor/Triggers/Triggers.types';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+const CONDITION_TYPE_MAP: Record<LegacyConditionType, ConditionType> = {
+  pull_request_comment: 'comment',
+  push_branch: 'branch',
+  commit_message: 'commit_message',
+  changed_files: 'changed_files',
+  pull_request_source_branch: 'source_branch',
+  pull_request_target_branch: 'target_branch',
+  pull_request_label: 'label',
+  tag: 'name',
+};
+
+const converter = (legacy: TriggerItem): TargetBasedTriggerItem => {
+  const targetBased: TargetBasedTriggerItem = {};
+  if (legacy.isActive === false) {
+    targetBased.enabled = false;
+  }
+  if (legacy.isDraftPr) {
+    targetBased.draft_enabled = true;
+  }
+  legacy.conditions.forEach((c) => {
+    targetBased[CONDITION_TYPE_MAP[c.type as LegacyConditionType]] = c.isRegex
+      ? {
+          regex: c.value,
+        }
+      : c.value;
+  });
+  return targetBased;
+};
 
 type Props = {
   triggers: Record<TriggerType, TriggerItem[]>;
@@ -9,10 +44,10 @@ type Props = {
 const ConvertLegacyTriggers = (props: Props) => {
   const { triggers } = props;
 
-  const { updateTriggerMap, updateWorkflowTriggers, yml } = useBitriseYmlStore();
+  const { updateTriggerMap, updatePipelineTriggers, updateWorkflowTriggers, yml } = useBitriseYmlStore();
 
   const onClick = () => {
-    const mapped: Record<'pipeline' | 'workflow', Record<string, Record<TriggerType, TargetBasedTriggerItem> | any>> = {
+    const mapped: Record<'pipeline' | 'workflow', Record<string, Record<TriggerType, TargetBasedTriggerItem[]>>> = {
       pipeline: {},
       workflow: {},
     };
@@ -21,35 +56,52 @@ const ConvertLegacyTriggers = (props: Props) => {
       .forEach((trigger) => {
         const [targetType, targetId] = trigger.pipelineable.split('#');
         if (!mapped[targetType as 'pipeline' | 'workflow'][targetId]) {
-          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {};
+          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {
+            pull_request: [],
+            push: [],
+            tag: [],
+          };
         }
         if (targetType === 'pipeline' && yml.pipelines?.[targetId]?.triggers) {
-          mapped.pipeline[targetId] = yml.pipelines?.[targetId]?.triggers;
+          mapped.pipeline[targetId] = yml.pipelines?.[targetId]?.triggers as Record<
+            TriggerType,
+            TargetBasedTriggerItem[]
+          >;
         }
         if (targetType === 'workflow' && yml.workflows?.[targetId]?.triggers) {
-          mapped.workflow[targetId] = { ...yml.workflows?.[targetId]?.triggers };
+          mapped.workflow[targetId] = { ...yml.workflows?.[targetId]?.triggers } as Record<
+            TriggerType,
+            TargetBasedTriggerItem[]
+          >;
         }
         if (!mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]) {
           mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source] = [];
         }
-        mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source].push(trigger);
+        mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source].push(converter(trigger));
       });
 
-    console.log(mapped);
-    updateWorkflowTriggers('wf6', {
-      tag: [
-        {
-          name: '1',
-        } as TargetBasedTriggerItem,
-      ],
+    Object.keys(mapped.pipeline).forEach((key) => {
+      updatePipelineTriggers(key, mapped.workflow[key]);
     });
+
+    Object.keys(mapped.workflow).forEach((key) => {
+      updateWorkflowTriggers(key, mapped.workflow[key]);
+    });
+
     updateTriggerMap([]);
   };
 
   return (
-    <Button marginBlockStart="16" leftIconName="MagicWand" size="md" onClick={onClick}>
-      Convert all to target-based triggers
-    </Button>
+    <Notification
+      action={{
+        label: 'CONVERT!',
+        onClick,
+      }}
+      marginBlockStart="16"
+      status="info"
+    >
+      Convert legacy triggers to target-based
+    </Notification>
   );
 };
 
