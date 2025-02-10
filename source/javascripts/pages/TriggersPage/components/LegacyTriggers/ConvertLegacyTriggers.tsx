@@ -1,4 +1,4 @@
-import { Notification } from '@bitrise/bitkit';
+import { Notification, Text, useToast } from '@bitrise/bitkit';
 import {
   ConditionType,
   LegacyConditionType,
@@ -46,6 +46,8 @@ const ConvertLegacyTriggers = (props: Props) => {
 
   const { updateTriggerMap, updatePipelineTriggers, updateWorkflowTriggers, yml } = useBitriseYmlStore();
 
+  const toast = useToast();
+
   const onClick = () => {
     const mapped: Record<'pipeline' | 'workflow', Record<string, Record<TriggerType, TargetBasedTriggerItem[]>>> = {
       pipeline: {},
@@ -75,18 +77,27 @@ const ConvertLegacyTriggers = (props: Props) => {
     });
 
     updateTriggerMap([]);
+    toast({
+      isClosable: true,
+      status: 'success',
+      title: 'Successful convertion',
+      description: 'Triggers converted to target-based.',
+    });
   };
 
   return (
     <Notification
       action={{
-        label: 'CONVERT!',
+        label: 'Convert triggers',
         onClick,
       }}
       marginBlockStart="16"
       status="info"
     >
-      Convert legacy triggers to target-based
+      <Text as="h4" textStyle="comp/notification/title">
+        Convert legacy triggers to target-based
+      </Text>
+      Make sure to check the converted triggers before saving.
     </Notification>
   );
 };
