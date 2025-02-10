@@ -8,6 +8,10 @@ import {
 } from '@/components/unified-editor/Triggers/Triggers.types';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
+type Props = {
+  triggers: Record<TriggerType, TriggerItem[]>;
+};
+
 const CONDITION_TYPE_MAP: Record<LegacyConditionType, ConditionType> = {
   pull_request_comment: 'comment',
   push_branch: 'branch',
@@ -37,8 +41,9 @@ const converter = (legacy: TriggerItem): TargetBasedTriggerItem => {
   return targetBased;
 };
 
-type Props = {
-  triggers: Record<TriggerType, TriggerItem[]>;
+const isConvertSafe = (triggers: Props['triggers']): boolean => {
+  // If there is 1 or 0 item per type -> return true
+  return Object.values(triggers).every((type) => type.length < 2);
 };
 
 const ConvertLegacyTriggers = (props: Props) => {
@@ -48,24 +53,32 @@ const ConvertLegacyTriggers = (props: Props) => {
 
   const toast = useToast();
 
+  if (!isConvertSafe(triggers)) {
+    return null;
+  }
+
   const onClick = () => {
-    const mapped: Record<'pipeline' | 'workflow', Record<string, Record<TriggerType, TargetBasedTriggerItem[]>>> = {
+    const mapped: Record<
+      'pipeline' | 'workflow',
+      Record<string, Partial<Record<TriggerType, TargetBasedTriggerItem[]>>>
+    > = {
       pipeline: {},
       workflow: {},
     };
+
     Object.values(triggers)
       .flat()
       .forEach((trigger) => {
         const [targetType, targetId] = trigger.pipelineable.split('#');
         if (!mapped[targetType as 'pipeline' | 'workflow'][targetId]) {
-          const type: 'pipelines' | 'workflows' = `${targetType as 'pipeline' | 'workflow'}s`;
-          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {
-            pull_request: (yml[type]?.[targetId].triggers?.pull_request as TargetBasedTriggerItem[]) || [],
-            push: (yml[type]?.[targetId].triggers?.push as TargetBasedTriggerItem[]) || [],
-            tag: (yml[type]?.[targetId].triggers?.tag as TargetBasedTriggerItem[]) || [],
-          };
+          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {};
         }
-        mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source].push(converter(trigger));
+        if (!mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]) {
+          const type: 'pipelines' | 'workflows' = `${targetType as 'pipeline' | 'workflow'}s`;
+          mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source] =
+            (yml[type]?.[targetId].triggers?.[trigger.source] as TargetBasedTriggerItem[]) || [];
+        }
+        mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]?.push(converter(trigger));
       });
 
     Object.keys(mapped.pipeline).forEach((key) => {
