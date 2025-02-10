@@ -207,20 +207,20 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: 'asset/resource',
+        type: 'asset',
         generator: {
           filename: '[name]-[hash][ext][query]',
           outputPath: 'fonts',
-          publicPath: isWebsiteMode ? `${publicPath}fonts/` : 'fonts/',
+          publicPath: isWebsiteMode ? `${publicPath}fonts/` : '/fonts/',
         },
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        type: 'asset/resource',
+        type: 'asset',
         generator: {
           filename: '[name]-[hash][ext][query]',
           outputPath: 'images',
-          publicPath: `${publicPath}images/`,
+          publicPath: isWebsiteMode ? `${publicPath}images/` : '/images/',
         },
       },
     ],
