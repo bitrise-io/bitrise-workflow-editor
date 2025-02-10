@@ -82,12 +82,10 @@ const WorkflowStepList = ({ workflowId }: Props) => {
 
           return (
             <Fragment key={item.stepIndex}>
-              {onAddStep && (
-                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} showStepBundles />
-              )}
+              {onAddStep && <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex)} />}
               <StepListItem {...item} isSortable={isSortable} />
               {isLast && onAddStep && (
-                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} showStepBundles />
+                <AddStepButton my={-8} onClick={() => onAddStep(workflowId, item.stepIndex + 1)} />
               )}
             </Fragment>
           );

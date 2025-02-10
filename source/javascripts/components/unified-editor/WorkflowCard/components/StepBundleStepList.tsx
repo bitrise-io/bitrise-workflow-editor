@@ -84,19 +84,11 @@ const StepBundleStepList = ({ stepBundleId, isPreviewMode, ...actions }: Props) 
           return (
             <Fragment key={item.stepIndex}>
               {onAddStepToStepBundle && (
-                <AddStepButton
-                  onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)}
-                  showStepBundles={false}
-                  my="-8px"
-                />
+                <AddStepButton onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex)} my="-8px" />
               )}
               <StepCard {...item} isSortable={isSortable} {...actions} />
               {isLast && onAddStepToStepBundle && (
-                <AddStepButton
-                  onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex + 1)}
-                  showStepBundles={false}
-                  my="-8px"
-                />
+                <AddStepButton onClick={() => onAddStepToStepBundle(stepBundleId, item.stepIndex + 1)} my="-8px" />
               )}
             </Fragment>
           );

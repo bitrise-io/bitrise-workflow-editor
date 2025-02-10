@@ -58,7 +58,6 @@ const Drawers = ({ stepBundleId }: Props) => {
           onClose={closeDialog}
           onSelectStep={handleAddStepToStepBundle}
           onCloseComplete={unmountDialog}
-          showStepBundles={false}
         />
       )}
     </>
