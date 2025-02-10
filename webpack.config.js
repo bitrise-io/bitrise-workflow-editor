@@ -90,10 +90,10 @@ const htmlExporter = {
 };
 
 const entry = {
-  main: './javascripts/index.js',
   vendor: './javascripts/vendor.js',
-  routes: './javascripts/routes.js.erb',
   strings: './javascripts/strings.js.erb',
+  routes: './javascripts/routes.js.erb',
+  main: './javascripts/index.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
@@ -104,14 +104,16 @@ if (isDataDogRumEnabled) {
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
-  entry,
   context: CODEBASE,
+  entry,
   mode: isProd ? 'production' : 'development',
   output: {
     filename: 'javascripts/[name].js',
     path: OUTPUT_FOLDER,
     publicPath,
   },
+
+  /* --- Development --- */
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
     watchFiles: './source/**/*',
@@ -130,6 +132,8 @@ module.exports = {
       publicPath,
     },
   },
+
+  /* --- Performance --- */
   cache: {
     type: 'filesystem',
     buildDependencies: {
@@ -157,6 +161,8 @@ module.exports = {
     maxAssetSize: 40000000,
     maxEntrypointSize: 60000000,
   },
+
+  /* --- Rules --- */
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
@@ -165,6 +171,7 @@ module.exports = {
   },
   module: {
     rules: [
+      /* --- Javascript & TypeScript --- */
       {
         test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
@@ -193,6 +200,8 @@ module.exports = {
           },
         },
       },
+
+      /* --- HTML & CSS --- */
       {
         test: /\.(slim)$/i,
         use: [htmlExporter, railsTransformer('slim')],
@@ -205,15 +214,8 @@ module.exports = {
         test: /\.s[ac]ss(\.erb)?$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
       },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: 'asset',
-        generator: {
-          filename: '[name]-[hash][ext][query]',
-          outputPath: 'fonts',
-          publicPath: isWebsiteMode ? `${publicPath}fonts/` : '/fonts/',
-        },
-      },
+
+      /* --- Images --- */
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
         type: 'asset',
@@ -223,8 +225,21 @@ module.exports = {
           publicPath: isWebsiteMode ? `${publicPath}images/` : '/images/',
         },
       },
+
+      /* --- Fonts --- */
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset',
+        generator: {
+          filename: '[name]-[hash][ext][query]',
+          outputPath: 'fonts',
+          publicPath: isWebsiteMode ? `${publicPath}fonts/` : '/fonts/',
+        },
+      },
     ],
   },
+
+  /* --- Plugins --- */
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       typescript: {
