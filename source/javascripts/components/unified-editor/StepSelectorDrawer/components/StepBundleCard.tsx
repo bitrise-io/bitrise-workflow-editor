@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { useMemo, useRef } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
@@ -33,6 +34,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     id: uniqueId,
     disabled: !isSortable,
     data: {
+      cvs,
       uniqueId,
       stepIndex,
       workflowId,
@@ -162,7 +164,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
             <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} isPreviewMode={isPreviewMode} />
+              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} />
             </Box>
           </Collapse>
         </>

@@ -51,6 +51,7 @@ export type SortableStepItem = {
   stepIndex: number;
   workflowId?: string;
   stepBundleId?: string;
+  cvs: string;
 };
 
 export type SelectionParent = {
