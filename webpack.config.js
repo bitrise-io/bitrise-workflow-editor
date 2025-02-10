@@ -1,6 +1,5 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const webpack = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
@@ -208,27 +207,23 @@ module.exports = {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
         generator: {
-          outputPath: 'fonts',
-          publicPath: 'fonts/',
           filename: '[name]-[hash][ext][query]',
+          outputPath: 'fonts',
+          publicPath: isWebsiteMode ? `${publicPath}fonts/` : 'fonts/',
         },
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
         type: 'asset/resource',
         generator: {
-          outputPath: 'images',
-          publicPath: 'images/',
           filename: '[name]-[hash][ext][query]',
+          outputPath: 'images',
+          publicPath: `${publicPath}images/`,
         },
       },
     ],
   },
   plugins: [
-    new webpack.EnvironmentPlugin({
-      MODE: MODE || 'WEBSITE',
-      NODE_ENV: NODE_ENV || 'development',
-    }),
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /.js$|.css$/,
@@ -245,6 +240,8 @@ module.exports = {
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
     new DefinePlugin({
+      'process.env.MODE': JSON.stringify(MODE || 'WEBSITE'),
+      'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {
