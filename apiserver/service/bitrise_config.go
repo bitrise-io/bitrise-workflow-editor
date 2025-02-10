@@ -19,12 +19,12 @@ import (
 func AppendBitriseConfigVersionHeader(w http.ResponseWriter, contStr string) {
 	hash := sha256.Sum256([]byte(contStr))
 
-	w.Header().Set("X-Bitrise-Config-Version", hex.EncodeToString(hash[:]))
+	w.Header().Set("Bitrise-Config-Version", hex.EncodeToString(hash[:]))
 }
 
 // HasConfigVersionConflict ...
 func HasConfigVersionConflict(r *http.Request, contStr string) bool {
-	receivedVersion := r.Header.Get("X-Bitrise-Config-Version")
+	receivedVersion := r.Header.Get("Bitrise-Config-Version")
 	if receivedVersion == "" {
 		return false
 	}
