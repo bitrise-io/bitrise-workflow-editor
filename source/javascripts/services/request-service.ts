@@ -27,7 +27,7 @@ class RequestService {
 
   public appSlug = '';
 
-  public appConfigVersionHeaderName = 'X-Bitrise-Config-Version';
+  public appConfigVersionHeaderName = 'Bitrise-Config-Version';
 
   private logger: Logger | undefined;
 

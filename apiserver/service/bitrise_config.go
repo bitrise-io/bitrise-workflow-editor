@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 
@@ -12,6 +14,25 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 )
+
+// AppendBitriseConfigVersionHeader ...
+func AppendBitriseConfigVersionHeader(w http.ResponseWriter, contStr string) {
+	hash := sha256.Sum256([]byte(contStr))
+
+	w.Header().Set("Bitrise-Config-Version", hex.EncodeToString(hash[:]))
+}
+
+// HasConfigVersionConflict ...
+func HasConfigVersionConflict(r *http.Request, contStr string) bool {
+	receivedVersion := r.Header.Get("Bitrise-Config-Version")
+	if receivedVersion == "" {
+		return false
+	}
+
+	hash := sha256.Sum256([]byte(contStr))
+
+	return receivedVersion != hex.EncodeToString(hash[:])
+}
 
 // GetBitriseYMLHandler ...
 func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +49,7 @@ func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	AppendBitriseConfigVersionHeader(w, contStr)
 	w.Header().Set("Content-Type", "text/yaml")
 	w.WriteHeader(200)
 	if _, err := w.Write([]byte(contStr)); err != nil {
@@ -37,6 +59,14 @@ func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 
 // PostBitriseYMLHandler ...
 func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
+	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
+	if err != nil {
+		log.Warnf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
+	} else if HasConfigVersionConflict(r, contStr) {
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
 	if r.Body == nil {
 		log.Errorf("Empty request body")
 		RespondWithJSONBadRequestErrorMessage(w, "Empty request body")
@@ -103,11 +133,20 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	AppendBitriseConfigVersionHeader(w, contStr)
 	RespondWithJSON(w, 200, yamlContObj)
 }
 
 // PostBitriseYMLFromJSONHandler ...
 func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
+	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
+	if err != nil {
+		log.Warnf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
+	} else if HasConfigVersionConflict(r, contStr) {
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
 	if r.Body == nil {
 		log.Errorf("Empty request body")
 		RespondWithJSONBadRequestErrorMessage(w, "Empty request body")
@@ -179,7 +218,7 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 
 	yaml.FutureLineWrap()
 
-	var bitriseDataModel = models.BitriseDataModel{}
+	bitriseDataModel := models.BitriseDataModel{}
 	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &bitriseDataModel); err != nil {
 		log.Errorf("Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
