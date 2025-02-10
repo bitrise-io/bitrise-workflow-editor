@@ -25,12 +25,6 @@ trigger_map:
   draft_pull_request_enabled: false
   pull_request_comment: comment
 - type: push
-  enabled: false
-  workflow: wf1
-  commit_message:
-    regex: commit
-  changed_files: file
-- type: push
   pipeline: pl1
   push_branch: push
 - type: tag
@@ -371,6 +365,9 @@ workflows:
   wf3:
     summary: Third workflow
     description: The wf3 test workflow
+    triggers:
+      push:
+      - branch: edas
     before_run:
     - wf4
     after_run:

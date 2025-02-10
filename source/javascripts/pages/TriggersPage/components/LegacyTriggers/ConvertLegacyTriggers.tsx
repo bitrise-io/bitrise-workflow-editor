@@ -58,10 +58,7 @@ const ConvertLegacyTriggers = (props: Props) => {
   }
 
   const onClick = () => {
-    const mapped: Record<
-      'pipeline' | 'workflow',
-      Record<string, Partial<Record<TriggerType, TargetBasedTriggerItem[]>>>
-    > = {
+    const mapped: Record<'pipeline' | 'workflow', Record<string, Record<TriggerType, TargetBasedTriggerItem[]>>> = {
       pipeline: {},
       workflow: {},
     };
@@ -71,12 +68,12 @@ const ConvertLegacyTriggers = (props: Props) => {
       .forEach((trigger) => {
         const [targetType, targetId] = trigger.pipelineable.split('#');
         if (!mapped[targetType as 'pipeline' | 'workflow'][targetId]) {
-          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {};
-        }
-        if (!mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]) {
           const type: 'pipelines' | 'workflows' = `${targetType as 'pipeline' | 'workflow'}s`;
-          mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source] =
-            (yml[type]?.[targetId].triggers?.[trigger.source] as TargetBasedTriggerItem[]) || [];
+          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {
+            pull_request: (yml[type]?.[targetId].triggers?.pull_request as TargetBasedTriggerItem[]) || [],
+            push: (yml[type]?.[targetId].triggers?.push as TargetBasedTriggerItem[]) || [],
+            tag: (yml[type]?.[targetId].triggers?.tag as TargetBasedTriggerItem[]) || [],
+          };
         }
         mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]?.push(converter(trigger));
       });
