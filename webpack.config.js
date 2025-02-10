@@ -186,6 +186,7 @@ module.exports = {
           loader: 'swc-loader',
           options: {
             jsc: {
+              target: 'es5',
               parser: {
                 tsx: true,
                 decorators: true,
