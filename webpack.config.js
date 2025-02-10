@@ -185,6 +185,7 @@ module.exports = {
         use: {
           loader: 'swc-loader',
           options: {
+            sourceMaps: true,
             jsc: {
               target: 'es5',
               parser: {
