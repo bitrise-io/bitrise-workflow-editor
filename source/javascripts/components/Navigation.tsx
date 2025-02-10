@@ -52,7 +52,7 @@ const findItemIcon = (item: Item): TypeIconName | undefined => {
 };
 
 // NOTE: This is necessary because we can't set the data-e2e-tag prop of the SidebarItem.
-const NavigationItem = ({ e2e, ...props }: ComponentPropsWithoutRef<typeof SidebarItem> & { e2e: string }) => {
+const NavigationItem = ({ e2e, ...props }: ComponentPropsWithoutRef<typeof SidebarItem> & { e2e: number }) => {
   const ref = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
 
   useEffect(() => {
