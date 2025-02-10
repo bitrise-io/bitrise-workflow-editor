@@ -151,6 +151,7 @@
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-jasmine": "^4.2.2",
     "file-loader": "^6.2.0",
+    "fork-ts-checker-webpack-plugin": "^9.0.2",
     "glob": "^11.0.0",
     "husky": "^9.1.6",
     "identity-obj-proxy": "^3.0.0",

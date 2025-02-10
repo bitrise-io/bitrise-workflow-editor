@@ -1,11 +1,14 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
+const { ProvidePlugin, DefinePlugin } = require('webpack');
+
+const CopyPlugin = require('copy-webpack-plugin');
+const TerserPLugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const TerserPLugin = require('terser-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const { ProvidePlugin, DefinePlugin } = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 const { version } = require('./package.json');
 
 const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
@@ -111,7 +114,6 @@ module.exports = {
   },
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
-    compress: true,
     watchFiles: './source/**/*',
     port: DEV_SERVER_PORT || 4567,
     allowedHosts: ['host.docker.internal', 'localhost'],
@@ -224,6 +226,11 @@ module.exports = {
     ],
   },
   plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: path.join(__dirname, 'tsconfig.json'),
+      },
+    }),
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /.js$|.css$/,
