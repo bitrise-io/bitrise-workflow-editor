@@ -64,7 +64,7 @@ describe("RequestService", () => {
 				it("resolves with app config and version", (done) => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						responseText: "my-app-config",
-						responseHeaders: { "X-Bitrise-Config-Version": "7a6s5dfvas6df" },
+						responseHeaders: { "Bitrise-Config-Version": "7a6s5dfvas6df" },
 					});
 
 					RequestService.getAppConfigYML()
@@ -164,7 +164,7 @@ describe("RequestService", () => {
 				it("resolves with app config and version", (done) => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
 						responseText: "my-app-config",
-						responseHeaders: { "X-Bitrise-Config-Version": "7a6s5dfvas6df" },
+						responseHeaders: { "Bitrise-Config-Version": "7a6s5dfvas6df" },
 					});
 
 					RequestService.getAppConfigYML()
