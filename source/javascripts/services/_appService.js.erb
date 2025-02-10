@@ -307,12 +307,12 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         return validateVariables(variables);
       }
 
-      appService.saveAppConfig = function (tabOpenDuringSave, appConfig) {
+      appService.saveAppConfig = function (tabOpenDuringSave, appConfig, version) {
         let requestConfig;
-        if (enableXBitriseConfigVersionHeader && appService.savedAppConfigVersion) {
+        if (enableXBitriseConfigVersionHeader && (version || appService.savedAppConfigVersion)) {
           requestConfig = {
             headers: {
-              [requestService.appConfigVersionHeaderName]: appService.savedAppConfigVersion
+              [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigVersion
             }
           };
         }
@@ -416,12 +416,12 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
       };
 
-      appService.saveAppConfigYML = function (tabOpenDuringSave, appConfigYML) {
+      appService.saveAppConfigYML = function (tabOpenDuringSave, appConfigYML, version) {
         let requestConfig;
-        if (enableXBitriseConfigVersionHeader && appService.savedAppConfigYMLVersion) {
+        if (enableXBitriseConfigVersionHeader && (version || appService.savedAppConfigYMLVersion)) {
           requestConfig = {
             headers: {
-              [requestService.appConfigVersionHeaderName]: appService.savedAppConfigYMLVersion
+              [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigYMLVersion
             }
           };
         }
@@ -584,7 +584,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         );
       };
 
-      appService.saveStackAndDockerImage = function (tabOpenDuringSave, appConfig) {
+      appService.saveStackAndDockerImage = function (tabOpenDuringSave, appConfig, version) {
         if (!appConfig.meta) {
           appConfig.meta = {};
         }
@@ -606,7 +606,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         }
 
         return appService
-          .saveAppConfig(tabOpenDuringSave, appConfig)
+          .saveAppConfig(tabOpenDuringSave, appConfig, version)
           .then(function () {
             appService.savedStack = angular.copy(appService.stack);
             appService.savedDockerImage = appService.dockerImage;

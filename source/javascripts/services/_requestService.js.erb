@@ -27,6 +27,7 @@ import jsyaml from "js-yaml";
         };
 
         const error = new Error(defaultErrorMessage);
+        error.status = status;
 
         if (response && response.data) {
           if (response.data.error_msg) {
