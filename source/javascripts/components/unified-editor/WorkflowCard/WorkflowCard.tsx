@@ -1,9 +1,10 @@
-import { memo, useMemo, useRef } from 'react';
-import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { memo, PropsWithChildren, useMemo, useRef } from 'react';
+import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import useWorkflow from '@/hooks/useWorkflow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
 
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
 import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
@@ -15,11 +16,38 @@ import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 type ContentProps = {
   id: string;
   uses?: string;
+  parallel?: number;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
-const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: ContentProps) => {
+const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: number }>) => {
+  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
+  const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
+
+  if (!shouldDisplayAsParallelWorkflow) {
+    return (
+      <Text textStyle="body/md/semibold" hasEllipsis>
+        {children}
+      </Text>
+    );
+  }
+
+  return (
+    <Box display="flex" minW={0} maxW="100%" gap="4" alignItems="center">
+      <Text textStyle="body/md/semibold" hasEllipsis>
+        {children}
+      </Text>
+      <Tooltip shouldWrapChildren label={`${parallel} parallel copies`} aria-label={`${parallel} parallel copies`}>
+        <Text color="text/secondary" textStyle="comp/badge/sm" bg="sys/neutral/subtle" px="4" borderRadius="4">
+          {parallel}
+        </Text>
+      </Tooltip>
+    </Box>
+  );
+};
+
+const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, containerProps }: ContentProps) => {
   const workflowId = uses || id;
 
   const containerRef = useRef(null);
@@ -32,7 +60,7 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
 
   const { isSelected } = useSelection();
   const isHighlighted = isSelected({ workflowId: id });
-  const cardPros = useMemo(
+  const cardProps = useMemo(
     () => ({
       ...containerProps,
       ...(isHighlighted
@@ -58,7 +86,7 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
   });
 
   return (
-    <Card minW={0} borderRadius="8" variant="elevated" {...cardPros}>
+    <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton
@@ -75,53 +103,46 @@ const WorkflowCardContent = memo(({ id, uses, isCollapsable, containerProps }: C
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <Text textStyle="body/md/semibold" hasEllipsis>
-            {uses ? id : workflow.userValues.title || id}
-          </Text>
+          <WorkflowName parallel={parallel}>{uses ? id : workflow.userValues.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {uses ? `Uses ${uses}` : stack.name || 'Unknown stack'}
           </Text>
         </Box>
 
-        {onChainWorkflow && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="Link"
-            className="nopan"
-            aria-label="Chain Workflows"
-            tooltipProps={{ 'aria-label': 'Chain Workflows' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={() => {
-              onOpen();
-              onChainWorkflow(id);
-            }}
-          />
-        )}
-        {onEditWorkflow && (
-          <ControlButton
-            size="xs"
-            display="none"
-            iconName="Settings"
-            className="nopan"
-            aria-label="Edit Workflow"
-            tooltipProps={{ 'aria-label': 'Edit Workflow' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={() => onEditWorkflow(id)}
-          />
-        )}
-        {onRemoveWorkflow && (
-          <ControlButton
-            isDanger
-            size="xs"
-            display="none"
-            iconName="Trash"
-            className="nopan"
-            aria-label="Remove Workflow"
-            tooltipProps={{ 'aria-label': 'Remove Workflow' }}
-            _groupHover={{ display: 'inline-flex' }}
-            onClick={() => onRemoveWorkflow(id)}
-          />
+        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow) && (
+          <Box display="none" _groupHover={{ display: 'inline-flex' }}>
+            {onChainWorkflow && (
+              <ControlButton
+                size="xs"
+                iconName="Link"
+                aria-label="Chain Workflows"
+                tooltipProps={{ 'aria-label': 'Chain Workflows' }}
+                onClick={() => {
+                  onOpen();
+                  onChainWorkflow(id);
+                }}
+              />
+            )}
+            {onEditWorkflow && (
+              <ControlButton
+                size="xs"
+                iconName="Settings"
+                aria-label="Edit Workflow"
+                tooltipProps={{ 'aria-label': 'Edit Workflow' }}
+                onClick={() => onEditWorkflow(id)}
+              />
+            )}
+            {onRemoveWorkflow && (
+              <ControlButton
+                isDanger
+                size="xs"
+                iconName="Trash"
+                aria-label="Remove Workflow"
+                tooltipProps={{ 'aria-label': 'Remove Workflow' }}
+                onClick={() => onRemoveWorkflow(id)}
+              />
+            )}
+          </Box>
         )}
       </Box>
 
@@ -151,6 +172,7 @@ type Props = ContentProps & WorkflowActions & StepActions & Selection;
 const WorkflowCard = ({
   id,
   uses,
+  parallel,
   isCollapsable,
   containerProps,
   selectedStepIndices = [],
@@ -158,7 +180,13 @@ const WorkflowCard = ({
   ...actions
 }: Props) => (
   <WorkflowCardContextProvider selectedStepIndices={selectedStepIndices} selectionParent={selectionParent} {...actions}>
-    <WorkflowCardContent id={id} uses={uses} isCollapsable={isCollapsable} containerProps={containerProps} />
+    <WorkflowCardContent
+      id={id}
+      uses={uses}
+      parallel={parallel}
+      isCollapsable={isCollapsable}
+      containerProps={containerProps}
+    />
   </WorkflowCardContextProvider>
 );
 
