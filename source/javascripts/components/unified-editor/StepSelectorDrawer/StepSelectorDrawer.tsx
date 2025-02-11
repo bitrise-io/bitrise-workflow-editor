@@ -20,9 +20,10 @@ import StepList from './components/StepList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
+  showStepBundles: boolean;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onCloseComplete, ...props }: Props) => {
   const resetSearch = useSearch((s) => s.reset);
 
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
@@ -50,7 +51,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
           <FloatingDrawerHeader>
             <Box display="flex" gap="12">
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                Add Step or Step bundle
+                Add Step
               </Text>
               {showStepLimit && (
                 <Tag size="sm">
@@ -58,12 +59,14 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                 </Tag>
               )}
             </Box>
-            <Box position="relative" mt="8" mx="-24">
-              <TabList paddingX="8">
-                <Tab>Step</Tab>
-                <Tab>Step bundle</Tab>
-              </TabList>
-            </Box>
+            {showStepBundles && (
+              <Box position="relative" mt="8" mx="-24">
+                <TabList paddingX="8">
+                  <Tab>Step</Tab>
+                  <Tab>Step bundle</Tab>
+                </TabList>
+              </Box>
+            )}
             {stepLimitReached && (
               <Notification
                 mt={16}

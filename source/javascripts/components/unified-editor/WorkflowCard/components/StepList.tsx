@@ -89,6 +89,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
                   onClick={() => {
                     onAdd(id, item.stepIndex);
                   }}
+                  showStepBundles={false}
                 />
               )}
               <StepListItem {...item} isSortable={isSortable} />
@@ -98,6 +99,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
                   onClick={() => {
                     onAdd(id, item.stepIndex + 1);
                   }}
+                  showStepBundles={false}
                 />
               )}
             </Fragment>
