@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepList from '@/components/unified-editor/WorkflowCard/components/StepList';
-import { useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import { useStepActions } from '../contexts/WorkflowCardContext';
+import StepList from './StepList';
 
 type Props = {
   workflowId: string;
