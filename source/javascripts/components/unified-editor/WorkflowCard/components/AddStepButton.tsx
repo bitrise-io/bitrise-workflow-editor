@@ -1,13 +1,9 @@
 import { memo } from 'react';
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
 
-type Props = BoxProps & {
-  showStepBundles: boolean;
-};
+type Props = BoxProps;
 
-const AddStepButton = ({ onClick, showStepBundles, ...props }: Props) => {
-  const tooltipLabel = showStepBundles ? 'Add Step or Step bundle' : 'Add Step';
-
+const AddStepButton = ({ onClick, ...props }: Props) => {
   return (
     <Box h={8} cursor="pointer" position="relative" {...props} className="group">
       <Box
@@ -22,7 +18,7 @@ const AddStepButton = ({ onClick, showStepBundles, ...props }: Props) => {
           display: 'block',
         }}
       />
-      <Tooltip label={tooltipLabel} aria-label={tooltipLabel}>
+      <Tooltip label="Add Step or Step bundle" aria-label="Add Step or Step bundle">
         <Box
           w={20}
           h={20}
@@ -31,7 +27,7 @@ const AddStepButton = ({ onClick, showStepBundles, ...props }: Props) => {
           top="calc(50% - 10px)"
           left="calc(50% - 10px)"
           onClick={onClick}
-          aria-label="Add Step"
+          aria-label="Add Step or Step bundle"
           display="none"
           alignItems="center"
           justifyContent="center"

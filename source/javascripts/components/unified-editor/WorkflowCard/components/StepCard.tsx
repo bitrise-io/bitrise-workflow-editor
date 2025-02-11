@@ -79,6 +79,7 @@ export type StepCardProps = {
   isSortable?: boolean;
   isDragging?: boolean;
   showSecondary?: boolean;
+  cvs: string;
 };
 
 const StepCard = ({
@@ -89,6 +90,7 @@ const StepCard = ({
   isDragging,
   showSecondary = true,
   stepBundleId,
+  cvs,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
@@ -121,6 +123,7 @@ const StepCard = ({
     id: uniqueId,
     disabled: !isSortable,
     data: {
+      cvs,
       uniqueId,
       stepIndex,
       workflowId,
