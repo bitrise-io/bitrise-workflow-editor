@@ -15,18 +15,29 @@ import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList
 
 type StepBundleCardProps = StepCardProps & {
   cvs: string;
+  stepBundleId?: string;
   isCollapsable?: boolean;
   isPreviewMode?: boolean;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
-  const { cvs, isCollapsable, isDragging, isPreviewMode = false, isSortable, stepIndex, uniqueId, workflowId } = props;
+  const {
+    cvs,
+    isCollapsable,
+    isDragging,
+    isPreviewMode = false,
+    isSortable,
+    stepBundleId,
+    stepIndex,
+    uniqueId,
+    workflowId,
+  } = props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
   const { isSelected } = useSelection();
-  const { onDeleteStep, onSelectStep } = useStepActions();
+  const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
@@ -60,6 +71,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     cardPadding = '4px 8px';
   }
 
+  const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
   const isHighlighted = isSelected({ workflowId, stepIndex });
   const isPlaceholder = sortable.isDragging;
 
@@ -88,7 +100,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
-    if (!workflowId || isDragging || (!onDeleteStep && !onSelectStep)) {
+    if (isDragging || (!onDeleteStep && !onSelectStep)) {
       return null;
     }
 
@@ -108,7 +120,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             }}
           />
         )}
-        {onDeleteStep && (
+        {isRemovable && (
           <ControlButton
             iconName="Trash"
             aria-label="Remove Step bundle"
@@ -116,13 +128,27 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             isDanger
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteStep(workflowId, [stepIndex]);
+              if (workflowId && onDeleteStep) {
+                onDeleteStep(workflowId, [stepIndex]);
+              }
+              if (stepBundleId && onDeleteStepInStepBundle) {
+                onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+              }
             }}
           />
         )}
       </ButtonGroup>
     );
-  }, [isDragging, onDeleteStep, onSelectStep, stepIndex, workflowId]);
+  }, [
+    isDragging,
+    isRemovable,
+    onDeleteStep,
+    onDeleteStepInStepBundle,
+    onSelectStep,
+    stepBundleId,
+    stepIndex,
+    workflowId,
+  ]);
 
   return (
     <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>

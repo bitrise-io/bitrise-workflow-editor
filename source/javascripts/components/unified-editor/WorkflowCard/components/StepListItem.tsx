@@ -8,7 +8,7 @@ import StepBundleCard from '../../StepSelectorDrawer/components/StepBundleCard';
 import StepCard, { StepCardProps } from './StepCard';
 
 const StepListItem = (props: StepCardProps) => {
-  const { cvs, stepBundleId, stepIndex, workflowId = '', ...rest } = props;
+  const { cvs, stepIndex, workflowId = '', ...rest } = props;
 
   const defaultStepLibrary = useDefaultStepLibrary();
 
@@ -22,7 +22,7 @@ const StepListItem = (props: StepCardProps) => {
     return <StepBundleCard isCollapsable cvs={cvs} stepIndex={stepIndex} workflowId={workflowId} {...rest} />;
   }
 
-  return <StepCard cvs={cvs} stepIndex={stepIndex} stepBundleId={stepBundleId} workflowId={workflowId} {...rest} />;
+  return <StepCard cvs={cvs} stepIndex={stepIndex} workflowId={workflowId} {...rest} />;
 };
 
 export default memo(StepListItem);
