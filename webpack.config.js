@@ -1,12 +1,14 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const webpack = require('webpack');
+const { ProvidePlugin, DefinePlugin } = require('webpack');
+
+const CopyPlugin = require('copy-webpack-plugin');
+const TerserPLugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const TerserPLugin = require('terser-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const { ProvidePlugin, DefinePlugin } = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 const { version } = require('./package.json');
 
 const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
@@ -100,6 +102,7 @@ if (isDataDogRumEnabled) {
   entry.datadogrum = './javascripts/datadog-rum.js.erb';
 }
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
   context: CODEBASE,
   entry,
@@ -113,7 +116,6 @@ module.exports = {
   /* --- Development --- */
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
-    compress: true,
     watchFiles: './source/**/*',
     port: DEV_SERVER_PORT || 4567,
     allowedHosts: ['host.docker.internal', 'localhost'],
@@ -135,7 +137,6 @@ module.exports = {
   cache: {
     type: 'filesystem',
     buildDependencies: {
-      // This makes all dependencies of this file - build dependencies
       config: [__filename],
     },
   },
@@ -172,7 +173,7 @@ module.exports = {
     rules: [
       /* --- Javascript & TypeScript --- */
       {
-        test: /\.(stories|mswMocks?|mocks?|spec)\.tsx?$/i,
+        test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
       },
       {
@@ -180,44 +181,36 @@ module.exports = {
         use: railsTransformer('erb'),
       },
       {
-        test: /\.tsx?$/,
+        test: /\.tsx?$/i,
         use: {
-          loader: 'ts-loader',
+          loader: 'swc-loader',
           options: {
-            compilerOptions: {
-              sourceMap: !isProd,
+            sourceMaps: true,
+            jsc: {
+              target: 'es5',
+              parser: {
+                tsx: true,
+                decorators: true,
+                syntax: 'typescript',
+              },
+              transform: {
+                react: {
+                  runtime: 'automatic',
+                },
+              },
             },
           },
         },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            allowTsInNodeModules: true,
-            compilerOptions: {
-              sourceMap: !isProd,
-            },
-          },
-        },
-        include: /node_modules\/@bitrise\/bitkit/,
       },
 
       /* --- HTML & CSS --- */
       {
-        test: /\.(slim)$/,
+        test: /\.(slim)$/i,
         use: [htmlExporter, railsTransformer('slim')],
       },
       {
         test: /\.css$/i,
-        include: path.join(__dirname, 'node_modules'),
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: path.resolve(__dirname, 'node_modules/normalize.css'),
-        use: 'null-loader',
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.s[ac]ss(\.erb)?$/i,
@@ -227,22 +220,22 @@ module.exports = {
       /* --- Images --- */
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        type: 'asset/resource',
+        type: 'asset',
         generator: {
-          outputPath: 'images',
           filename: '[name]-[hash][ext][query]',
-          publicPath: `${publicPath}images/`,
+          outputPath: 'images',
+          publicPath: isWebsiteMode ? `${publicPath}images/` : '/images/',
         },
       },
 
       /* --- Fonts --- */
       {
-        test: /\.(eot|woff2?|ttf)$/i,
-        type: 'asset/resource',
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset',
         generator: {
-          outputPath: 'fonts',
           filename: '[name]-[hash][ext][query]',
-          publicPath: `${publicPath}fonts/`,
+          outputPath: 'fonts',
+          publicPath: isWebsiteMode ? `${publicPath}fonts/` : '/fonts/',
         },
       },
     ],
@@ -250,9 +243,10 @@ module.exports = {
 
   /* --- Plugins --- */
   plugins: [
-    new webpack.EnvironmentPlugin({
-      MODE: MODE || 'WEBSITE',
-      NODE_ENV: NODE_ENV || 'development',
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: path.join(__dirname, 'tsconfig.json'),
+      },
     }),
     new CompressionPlugin({
       algorithm: 'gzip',
@@ -270,6 +264,8 @@ module.exports = {
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
     new DefinePlugin({
+      'process.env.MODE': JSON.stringify(MODE || 'WEBSITE'),
+      'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {
