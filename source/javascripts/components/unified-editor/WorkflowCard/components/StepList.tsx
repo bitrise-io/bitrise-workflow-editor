@@ -116,8 +116,7 @@ const StepList = ({ showStepBundles, stepBundleId, steps, onAdd, onMove, workflo
         paddingY="16"
         paddingX="16"
         iconName="Steps"
-        // TODO: Setup title
-        title={onAdd ? 'Empty Workflow' : 'Empty Step bundle'}
+        title={onAdd && workflowId ? 'Empty Workflow' : 'Empty Step bundle'}
         description={onAdd ? 'Add Steps from the library.' : undefined}
       >
         {onAdd && (
@@ -130,7 +129,7 @@ const StepList = ({ showStepBundles, stepBundleId, steps, onAdd, onMove, workflo
               onAdd(id, 0);
             }}
           >
-            Add Step or Step bundle
+            Add Step
           </Button>
         )}
       </EmptyState>
