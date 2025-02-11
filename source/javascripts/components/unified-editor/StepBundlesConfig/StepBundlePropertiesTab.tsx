@@ -28,7 +28,7 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
     summary: stepBundle?.userValues.summary || '',
     description: stepBundle?.userValues.description || '',
   });
-  const rename = useRenameStepBundle(onRename);
+  const rename = useRenameStepBundle(stepBundle?.id, onRename);
 
   const handleNameChange = (newValue: string) => {
     if (newValue !== stepBundle?.id) {

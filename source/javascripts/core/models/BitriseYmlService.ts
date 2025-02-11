@@ -235,7 +235,6 @@ function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleI
 
 function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
-
   // If the step bundle is missing in the YML just return the YML
   if (!copy.step_bundles?.[stepBundleId]) {
     return copy;
@@ -252,10 +251,21 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
           const [stepId] = Object.keys(step);
           return stepId !== `bundle::${stepBundleId}`;
         });
-
         return [workflowId, { ...workflow, steps: filteredSteps }];
       }),
     );
+  }
+
+  if (copy.step_bundles) {
+    Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
+      const filteredSteps = bundle.steps?.filter((step) => {
+        const [stepId] = Object.keys(step);
+        return stepId !== `bundle::${stepBundleId}`;
+      });
+      if (copy.step_bundles?.[id]) {
+        copy.step_bundles[id].steps = filteredSteps;
+      }
+    });
   }
 
   // Remove the whole `step_bundles` section in the YML if empty
@@ -365,6 +375,21 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
         return [workflowId, { ...workflow, steps: renamedSteps }];
       }),
     );
+  }
+
+  if (copy.step_bundles) {
+    Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
+      const renamedSteps = bundle.steps?.map((step) => {
+        const [stepId, stepDetails] = Object.entries(step)[0];
+        if (stepId === `bundle::${stepBundleId}`) {
+          return { [`bundle::${newStepBundleId}`]: stepDetails };
+        }
+        return step;
+      });
+      if (copy.step_bundles?.[id]) {
+        copy.step_bundles[id].steps = renamedSteps;
+      }
+    });
   }
 
   return copy;

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 export enum StepBundlesPageDialogType {
   NONE,
   CREATE_STEP_BUNDLE,
+  STEP_BUNDLE,
   STEP_CONFIG,
   STEP_SELECTOR,
 }
@@ -10,13 +11,15 @@ export enum StepBundlesPageDialogType {
 type DialogParams = {
   type: StepBundlesPageDialogType;
   selectedStepIndices?: number[];
+  stepBundleId?: string;
 };
 
 type State = {
   selectedStepIndices: number[];
   openedDialogType: StepBundlesPageDialogType;
   mountedDialogType: StepBundlesPageDialogType;
-  _nextDialog?: Required<DialogParams>;
+  _nextDialog?: DialogParams;
+  stepBundleId?: string;
 };
 
 type Action = {
@@ -30,6 +33,7 @@ type Action = {
 
 export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   selectedStepIndices: [],
+  stepBundleId: '',
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
   setSelectedStepIndices: (selectedStepIndices = []) => {
@@ -43,7 +47,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, selectedStepIndices }) => {
+  openDialog: ({ type, selectedStepIndices, stepBundleId }) => {
     return () => {
       return set((state) => {
         const { openedDialogType, closeDialog } = state;
@@ -54,6 +58,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
             _nextDialog: {
               type,
               selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
+              stepBundleId,
             },
           };
         }
@@ -63,6 +68,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
           _nextDialog: undefined,
           openedDialogType: type,
           mountedDialogType: type,
+          stepBundleId,
         };
       });
     };

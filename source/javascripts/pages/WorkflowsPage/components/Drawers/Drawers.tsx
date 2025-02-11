@@ -25,7 +25,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     openDialog,
     closeDialog,
     isDialogOpen,
-    setStepBundleId,
     setWorkflowId,
     unmountDialog,
     isDialogMounted,
@@ -56,7 +55,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       openDialog({
         type: WorkflowsPageDialogType.STEP_BUNDLE,
         workflowId,
-        stepBundleId: id,
+        stepBundleId,
       })();
     } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
@@ -79,7 +78,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
   };
 
   const handleRenameStepBundle = (newStepBundleId: string) => {
-    setStepBundleId(newStepBundleId);
+    console.log(newStepBundleId);
     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
@@ -148,6 +147,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onRename={handleRenameStepBundle}
           workflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
+          stepBundleId={stepBundleId}
         />
       )}
 

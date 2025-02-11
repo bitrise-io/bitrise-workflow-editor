@@ -6,11 +6,11 @@ import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigHeader from './StepBundlesConfigHeader';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
-type ConfigPanelContentProps = {
-  stepBundleId: string;
+type Props = {
+  id: string;
 };
 
-const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps) => {
+const StepBundlesConfigPanelContent = ({ id }: Props) => {
   const { closeDialog } = useStepBundlesPageStore();
   const [, setSelectedStepBundle] = useSelectedStepBundle();
   const stepBundles = useStepBundles();
@@ -22,7 +22,7 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
 
   return (
     <Box borderLeft="1px solid" borderColor="border/regular">
-      <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
+      <StepBundlesConfigHeader id={id} />
       <Box padding="16px 24px">
         <StepBundlePropertiesTab onDelete={handleOnDelete} onRename={setSelectedStepBundle} />
       </Box>
@@ -30,14 +30,10 @@ const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps
   );
 };
 
-type Props = {
-  stepBundleId: string;
-};
-
-const StepBundlesConfigPanel = ({ stepBundleId }: Props) => {
+const StepBundlesConfigPanel = ({ id }: Props) => {
   return (
-    <StepBundlesConfigProvider stepBundleId={stepBundleId}>
-      <StepBundlesConfigPanelContent stepBundleId={stepBundleId} />
+    <StepBundlesConfigProvider id={id} stepIndex={-1}>
+      <StepBundlesConfigPanelContent id={id} />
     </StepBundlesConfigProvider>
   );
 };

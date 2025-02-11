@@ -1,5 +1,7 @@
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
+import { StepBundleConfigDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
+import StepService from '@/core/models/StepService';
+import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 
@@ -20,11 +22,19 @@ const Drawers = ({ stepBundleId }: Props) => {
   const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStepToStepBundle = (cvs: string) => {
+    const { library } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-    openDialog({
-      type: StepBundlesPageDialogType.STEP_CONFIG,
-      selectedStepIndices,
-    })();
+    if (library === LibraryType.BUNDLE) {
+      openDialog({
+        type: StepBundlesPageDialogType.STEP_BUNDLE,
+        stepBundleId,
+      })();
+    } else {
+      openDialog({
+        type: StepBundlesPageDialogType.STEP_CONFIG,
+        selectedStepIndices,
+      })();
+    }
   };
 
   return (
@@ -58,6 +68,19 @@ const Drawers = ({ stepBundleId }: Props) => {
           onClose={closeDialog}
           onSelectStep={handleAddStepToStepBundle}
           onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE) && (
+        <StepBundleConfigDrawer
+          size="lg"
+          isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onRename={console.log}
+          workflowId=""
+          stepIndex={selectedStepIndices[0]}
+          stepBundleId={stepBundleId}
         />
       )}
     </>

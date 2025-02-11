@@ -13,11 +13,15 @@ import StepBundlesConfigProvider, { useStepBundleConfigContext } from './StepBun
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   onRename: (name: string) => void;
-  workflowId: string;
+  stepBundleId?: string;
   stepIndex: number;
+  workflowId?: string;
 };
 
-const StepBundleConfigDrawer = ({ onRename, workflowId, stepIndex, ...props }: Props) => {
+const StepBundleConfigDrawerContent = ({
+  onRename,
+  ...props
+}: Omit<Props, 'stepBundleId' | 'stepIndex' | 'workflowId'>) => {
   const { cvs, id = '', userValues } = useStepBundleConfigContext() ?? {};
 
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
@@ -36,12 +40,18 @@ const StepBundleConfigDrawer = ({ onRename, workflowId, stepIndex, ...props }: P
           </Text>
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
-          <StepBundlesConfigProvider stepBundleId={id}>
-            <StepBundlePropertiesTab onRename={onRename} />
-          </StepBundlesConfigProvider>
+          <StepBundlePropertiesTab onRename={onRename} />
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>
+  );
+};
+
+const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, workflowId, ...props }: Props) => {
+  return (
+    <StepBundlesConfigProvider stepBundleId={stepBundleId} stepIndex={stepIndex} workflowId={workflowId}>
+      <StepBundleConfigDrawerContent {...props} />
+    </StepBundlesConfigProvider>
   );
 };
 

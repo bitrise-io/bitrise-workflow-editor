@@ -17,8 +17,8 @@ const StepBundlesPageContent = () => {
 
   const content = hasStepBundles ? (
     <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
-      <StepBundlesCanvasPanel stepBundleId={selectedStepBundleId} />
-      <StepBundlesConfigPanel stepBundleId={selectedStepBundleId} />
+      <StepBundlesCanvasPanel selectedStepBundleId={selectedStepBundleId} />
+      <StepBundlesConfigPanel id={selectedStepBundleId} />
     </Box>
   ) : (
     <EmptyState

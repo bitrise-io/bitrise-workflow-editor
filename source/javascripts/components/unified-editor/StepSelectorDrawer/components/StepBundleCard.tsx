@@ -72,7 +72,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }
 
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
-  const isHighlighted = isSelected({ workflowId, stepIndex });
+  const isHighlighted = isSelected({ workflowId, stepBundleId, stepIndex });
   const isPlaceholder = sortable.isDragging;
 
   const cardProps = useMemo(() => {
@@ -116,6 +116,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 stepIndex,
                 type: LibraryType.BUNDLE,
                 wfId: workflowId,
+                stepBundleId,
               });
             }}
           />

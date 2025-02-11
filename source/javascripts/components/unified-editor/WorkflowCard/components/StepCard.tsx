@@ -148,7 +148,7 @@ const StepCard = ({
   const { isStep } = StepService;
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
-  const isSimpleStep = step && !stepBundleId && isStep(step.cvs, library);
+  const isSimpleStep = step && isStep(step.cvs, library);
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
