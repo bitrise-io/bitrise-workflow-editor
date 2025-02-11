@@ -113,8 +113,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         paddingY="16"
         paddingX="16"
         iconName="Steps"
-        // TODO: Setup title
-        title={onAdd ? 'Empty Workflow' : 'Empty Step bundle'}
+        title={onAdd && workflowId ? 'Empty Workflow' : 'Empty Step bundle'}
         description={onAdd ? 'Add Steps from the library.' : undefined}
       >
         {onAdd && (
