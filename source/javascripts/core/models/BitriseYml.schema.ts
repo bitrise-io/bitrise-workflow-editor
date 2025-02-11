@@ -306,6 +306,9 @@ const BitriseYmlSchema = {
         uses: {
           type: 'string',
         },
+        parallel: {
+          type: 'number',
+        },
         depends_on: {
           items: {
             type: 'string',
