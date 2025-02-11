@@ -13,6 +13,7 @@ const usePipelineWorkflows = (): PipelineWorkflow[] => {
       return {
         id,
         uses: pipelineWorkflow.uses,
+        parallel: pipelineWorkflow.parallel,
         dependsOn: pipelineWorkflow.depends_on ?? [],
       } satisfies PipelineWorkflow;
     });
