@@ -3,20 +3,22 @@ import { Box, CardProps } from '@bitrise/bitkit';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { useHover, useResizeObserver } from 'usehooks-ts';
 import { isEqual } from 'es-toolkit';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { WorkflowCard } from '@/components/unified-editor';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
-import WorkflowService from '@/core/models/WorkflowService';
-import { useWorkflows } from '@/hooks/useWorkflows';
 import { LibraryType } from '@/core/models/Step';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { useWorkflows } from '@/hooks/useWorkflows';
+import { WorkflowCard } from '@/components/unified-editor';
+import WorkflowService from '@/core/models/WorkflowService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;

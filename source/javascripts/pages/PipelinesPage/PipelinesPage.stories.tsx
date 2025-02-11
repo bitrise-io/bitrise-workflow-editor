@@ -1,6 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { set } from 'es-toolkit/compat';
+import { Meta, StoryObj } from '@storybook/react';
+
 import PipelinesPage from './PipelinesPage';
 
 export default {

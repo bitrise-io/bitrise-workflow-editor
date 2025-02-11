@@ -2,16 +2,17 @@ import { memo, PropsWithChildren, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import useWorkflow from '@/hooks/useWorkflow';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
 
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
-import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
+
 import WorkflowStepList from './components/WorkflowStepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
-import { SelectionParent, StepActions, WorkflowActions } from './WorkflowCard.types';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
+import { SelectionParent, StepActions, WorkflowActions } from './WorkflowCard.types';
+import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
 
 type ContentProps = {
   id: string;
