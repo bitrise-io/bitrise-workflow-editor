@@ -7,7 +7,6 @@ type Props = BoxProps & {
 
 const AddStepButton = ({ onClick, showStepBundles, ...props }: Props) => {
   const tooltipLabel = showStepBundles ? 'Add Step or Step bundle' : 'Add Step';
-
   return (
     <Box h={8} cursor="pointer" position="relative" {...props} className="group">
       <Box
