@@ -1,17 +1,19 @@
 import '@xyflow/react/dist/style.css';
+
 import { useMemo } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+
 import WindowUtils from '@/core/utils/WindowUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 
 import Drawers from './components/Drawers/Drawers';
 import usePipelineSelector from './hooks/usePipelineSelector';
 import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
-import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.store';
 import UpgradePlanEmptyState from './components/EmptyStates/UpgradePlanEmptyState';
+import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.store';
 import StagePipelineEmptyState from './components/EmptyStates/StagePipelineEmptyState';
 import ReactivatePlanEmptyState from './components/EmptyStates/ReactivatePlanEmptyState';
 import CreateFirstGraphPipelineEmptyState from './components/EmptyStates/CreateFirstGraphPipelineEmptyState';
