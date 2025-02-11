@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
-import { cloneDeep } from 'es-toolkit';
+import { set } from 'es-toolkit/compat';
 import PipelinesPage from './PipelinesPage';
 
 export default {
@@ -27,24 +27,8 @@ export default {
   ],
   beforeEach: () => {
     process.env.MODE = 'cli';
-    if (window.parent.globalProps) {
-      window.parent.globalProps = {
-        ...window.parent.globalProps,
-        featureFlags: {
-          user: {},
-          account: { 'enable-dag-pipelines': true },
-        },
-      };
-    }
-
-    if (window.parent.pageProps) {
-      window.parent.pageProps = {
-        ...window.parent.pageProps,
-        limits: {
-          isPipelinesAvailable: true,
-        },
-      };
-    }
+    set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
+    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', true);
   },
 } as Meta<typeof PipelinesPage>;
 
@@ -52,15 +36,7 @@ type Story = StoryObj<typeof PipelinesPage>;
 
 export const ReadOnly: Story = {
   beforeEach: () => {
-    if (window.parent.globalProps) {
-      window.parent.globalProps = {
-        ...window.parent.globalProps,
-        featureFlags: {
-          user: {},
-          account: { 'enable-dag-pipelines': false },
-        },
-      };
-    }
+    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', false);
   },
 };
 
@@ -75,15 +51,7 @@ export const CreateFirstStagedPipeline: Story = {
     yml: { format_version: '2' },
   },
   beforeEach: () => {
-    if (window.parent.globalProps) {
-      window.parent.globalProps = {
-        ...window.parent.globalProps,
-        featureFlags: {
-          user: {},
-          account: { 'enable-dag-pipelines': false },
-        },
-      };
-    }
+    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', false);
   },
 };
 
@@ -92,61 +60,35 @@ export const UpgradePlan: Story = {
     yml: { format_version: '2' },
   },
   beforeEach: () => {
-    if (window.parent.pageProps) {
-      window.parent.pageProps = {
-        ...window.parent.pageProps,
-        limits: {
-          isPipelinesAvailable: false,
-        },
-      };
-    }
+    set(window, 'parent.pageProps.limits.isPipelinesAvailable', false);
   },
 };
 
 export const ReactivatePlan: Story = {
   beforeEach: () => {
-    if (window.parent.pageProps) {
-      window.parent.pageProps = {
-        ...window.parent.pageProps,
-        limits: {
-          isPipelinesAvailable: false,
-        },
-      };
-    }
+    set(window, 'parent.pageProps.limits.isPipelinesAvailable', false);
   },
 };
 
 export const GraphPipelineWithEditing: Story = {};
 
-const withWorkflowOverrideYml = () => {
-  const yml = cloneDeep(TEST_BITRISE_YML);
-
-  if (yml.pipelines?.['graph-pipeline']?.workflows) {
-    yml.pipelines['graph-pipeline'].workflows.override = {
-      uses: 'wf3',
-      depends_on: ['wf1'],
-    };
-  }
-
-  return yml;
-};
-
 export const WithWorkflowOverride: Story = {
   args: {
-    yml: withWorkflowOverrideYml(),
+    yml: set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
+      uses: 'wf3',
+      depends_on: ['wf1'],
+    }),
   },
 };
 
 export const WithStepBundlesUI: Story = {
   beforeEach: () => {
-    if (window.parent.globalProps) {
-      window.parent.globalProps = {
-        ...window.parent.globalProps,
-        featureFlags: {
-          user: {},
-          account: { 'enable-wfe-step-bundles-ui': true, 'enable-dag-pipelines': true },
-        },
-      };
-    }
+    set(window, 'parent.globalProps.featureFlags.account["enable-wfe-step-bundles-ui"]', true);
+  },
+};
+
+export const WithParallelWorkflow: Story = {
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account["enable-wfe-parallel-workflow"]', true);
   },
 };
