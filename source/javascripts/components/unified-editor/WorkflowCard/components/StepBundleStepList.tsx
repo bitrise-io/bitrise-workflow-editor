@@ -16,7 +16,13 @@ const StepBundleStepList = ({ stepBundleId }: Props) => {
   const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();
 
   return (
-    <StepList stepBundleId={stepBundleId} steps={steps} onAdd={onAddStepToStepBundle} onMove={onMoveStepInStepBundle} />
+    <StepList
+      stepBundleId={stepBundleId}
+      steps={steps}
+      onAdd={onAddStepToStepBundle}
+      onMove={onMoveStepInStepBundle}
+      showStepBundles={false}
+    />
   );
 };
 

@@ -14,7 +14,7 @@ const WorkflowStepList = ({ workflowId }: Props) => {
 
   const { onAddStep, onMoveStep } = useStepActions();
 
-  return <StepList workflowId={workflowId} onAdd={onAddStep} onMove={onMoveStep} steps={steps} />;
+  return <StepList workflowId={workflowId} onAdd={onAddStep} onMove={onMoveStep} steps={steps} showStepBundles />;
 };
 
 export default memo(WorkflowStepList);

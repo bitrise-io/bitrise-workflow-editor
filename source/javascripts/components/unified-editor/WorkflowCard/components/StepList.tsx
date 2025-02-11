@@ -14,6 +14,7 @@ import AddStepButton from './AddStepButton';
 import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = {
+  showStepBundles: boolean;
   stepBundleId?: string;
   steps: string[];
   onAdd?: (id: string, stepIndex: number) => void;
@@ -25,7 +26,7 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => {
+const StepList = ({ showStepBundles, stepBundleId, steps, onAdd, onMove, workflowId }: Props) => {
   const id = stepBundleId || workflowId || '';
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((cvs, stepIndex) => ({
@@ -89,7 +90,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
                   onClick={() => {
                     onAdd(id, item.stepIndex);
                   }}
-                  showStepBundles={false}
+                  showStepBundles={showStepBundles}
                 />
               )}
               <StepListItem {...item} isSortable={isSortable} />
@@ -99,7 +100,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
                   onClick={() => {
                     onAdd(id, item.stepIndex + 1);
                   }}
-                  showStepBundles={false}
+                  showStepBundles={showStepBundles}
                 />
               )}
             </Fragment>
@@ -107,7 +108,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         })}
       </Box>
     );
-  }, [id, isSortable, onAdd, sortableItems]);
+  }, [id, isSortable, onAdd, showStepBundles, sortableItems]);
 
   if (isEmpty) {
     return (
