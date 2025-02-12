@@ -155,7 +155,7 @@ const ParallelInput = () => {
       helperText={
         <DetailedHelperText
           summary="The number of copies of this Workflow that will be executed in parallel at runtime."
-          details="Example test splitting: Split your tests into `$BITRISE_IO_PARALLEL_TOTAL` parts, and in each parallel copies, run only the part matching `$BITRISE_IO_PARALLEL_INDEX`"
+          details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. EnvVars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
         />
       }
       onChange={handleChange}
