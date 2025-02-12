@@ -164,7 +164,15 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 {...sortable.attributes}
               />
             )}
-            <Box display="flex" flexGrow={1} alignItems="center" padding={cardPadding} gap="4" className="group">
+            <Box
+              display="flex"
+              flexGrow={1}
+              alignItems="center"
+              padding={cardPadding}
+              gap="4"
+              className="group"
+              minW={0}
+            >
               {isCollapsable && (
                 <ControlButton
                   size="xs"
@@ -178,7 +186,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   }}
                 />
               )}
-              <Box flex="1">
+              <Box flex="1" minW={0}>
                 <Text textStyle="body/md/semibold" hasEllipsis>
                   {cvs.replace('bundle::', '')}
                 </Text>
