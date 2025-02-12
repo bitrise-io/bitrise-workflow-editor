@@ -3498,7 +3498,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [1], sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [1], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3521,7 +3521,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 1], sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [0, 1], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3544,7 +3544,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 2], sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [0, 2], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

@@ -239,11 +239,8 @@ const StepCard = ({
             e.stopPropagation();
             if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
               const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-              if (isHighlighted) {
-                onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
-              } else {
-                onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
-              }
+              const indices = isHighlighted ? selectedStepIndices : [stepIndex];
+              onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
             }
           }}
         >

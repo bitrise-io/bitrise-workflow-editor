@@ -33,7 +33,12 @@ export type StepActions = {
   onAddStepToStepBundle?: (stepBundleId: string, stepIndex: number) => void;
   onCloneStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
   onDeleteStepInStepBundle?: (stepBundleId: string, selectedStepIndices: number[]) => void;
-  onGroupStepsToStepBundle?: (workflowId: string, stepBundleId: string, selectedStepIndices: number[]) => void;
+  onGroupStepsToStepBundle?: (
+    workflowId: string | undefined,
+    stepBundleId: string | undefined,
+    newStepBundleId: string,
+    selectedStepIndices: number[],
+  ) => void;
   onMoveStepInStepBundle?: (stepBundleId: string, stepIndex: number, targetIndex: number) => void;
   onUpgradeStepInStepBundle?: (stepBundleId: string, stepIndex: number, version: string) => void;
 };

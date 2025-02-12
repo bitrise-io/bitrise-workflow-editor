@@ -304,16 +304,23 @@ function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: numbe
 }
 
 function groupStepsToStepBundle(
-  workflowId: string,
-  stepBundleId: string,
+  workflowId: string | undefined,
+  stepBundleId: string | undefined,
+  newStepBundleId: string,
   selectedStepIndices: number[],
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  // If the workflow or step is missing in the YML just return the YML
-  const stepsInWorkflow = copy.workflows?.[workflowId]?.steps;
-  if (!selectedStepIndices.length || !stepsInWorkflow) {
+  // If there aren't any selected steps or steps are missing in the YML, just return the YML
+  let stepsInEntity;
+  if (workflowId) {
+    stepsInEntity = copy.workflows?.[workflowId]?.steps;
+  }
+  if (stepBundleId) {
+    stepsInEntity = copy.step_bundles?.[stepBundleId]?.steps;
+  }
+  if (!selectedStepIndices.length || !stepsInEntity) {
     return copy;
   }
 
@@ -321,7 +328,7 @@ function groupStepsToStepBundle(
   const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
   const removedSteps = sortedIndices
     .map((stepIndex) => {
-      const removedStep = stepsInWorkflow.splice(stepIndex, 1)[0];
+      const removedStep = stepsInEntity.splice(stepIndex, 1)[0];
       const cvs = Object.keys(removedStep)[0];
       const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
       return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
@@ -331,12 +338,12 @@ function groupStepsToStepBundle(
   // Create and add selected step / steps to the step bundle
   copy.step_bundles = {
     ...copy.step_bundles,
-    [stepBundleId]: { steps: removedSteps.reverse() },
+    [newStepBundleId]: { steps: removedSteps.reverse() },
   };
 
   // Push the created step bundle to the workflow, which contained the selected step / steps
   const insertPosition = sortedIndices.reverse()[0];
-  stepsInWorkflow.splice(insertPosition, 0, { [`bundle::${stepBundleId}`]: {} });
+  stepsInEntity.splice(insertPosition, 0, { [`bundle::${newStepBundleId}`]: {} });
   return copy;
 }
 
