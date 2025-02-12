@@ -208,6 +208,7 @@ type TriggersModel = {
 
 type GraphPipelineWorkflowModel = {
   uses?: string;
+  parallel?: number;
   depends_on?: string[];
   abort_on_fail?: boolean;
   should_always_run?: 'off' | 'workflow';
