@@ -33,9 +33,7 @@ type EnvironmentItemOptionsModel = {
   meta?: Record<string, unknown>;
 };
 
-type EnvironmentItemModel = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+type EnvironmentItemModel = Record<string, unknown> & {
   opts?: EnvironmentItemOptionsModel;
 };
 
@@ -43,7 +41,7 @@ type EnvModel = EnvironmentItemModel[];
 
 type StepBundleModel = {
   envs?: EnvModel;
-  steps?: Array<Record<string, StepModel>>;
+  steps?: Record<string, StepModel>[];
 };
 
 type StepBundleOverrideModel = {
@@ -62,7 +60,7 @@ type StageModel = {
   title?: string;
   summary?: string;
   description?: string;
-  workflows?: Array<Record<string, WorkflowStageConfigModel>>;
+  workflows?: Record<string, WorkflowStageConfigModel>[];
   abort_on_fail?: boolean;
   should_always_run?: boolean;
 };
@@ -144,7 +142,7 @@ type TriggerMapItemModel = {
 type WithModel = {
   container?: string;
   services?: string[];
-  steps: Array<Record<string, StepModel>>;
+  steps: Record<string, StepModel>[];
 };
 
 type Meta = {
@@ -170,9 +168,9 @@ type StepSourceModel = {
 };
 
 type DepsModel = {
-  brew?: Array<string | BrewDepModel>;
-  apt_get?: Array<string | AptGetDepModel>;
-  check_only?: Array<string | CheckOnlyDepModel>;
+  brew?: (string | BrewDepModel)[];
+  apt_get?: (string | AptGetDepModel)[];
+  check_only?: (string | CheckOnlyDepModel)[];
 };
 
 type BrewDepModel = {
@@ -195,7 +193,7 @@ type PipelineModel = {
   description?: string;
   triggers?: TriggersModel;
   status_report_name?: string;
-  stages?: Array<Record<string, StageModel>>;
+  stages?: Record<string, StageModel>[];
   workflows?: Record<string, GraphPipelineWorkflowModel>;
 };
 
