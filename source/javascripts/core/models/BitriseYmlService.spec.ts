@@ -2384,6 +2384,90 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('updatePipelineWorkflowParallel', () => {
+    it('should add parallel attribute if value is provided', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {
+                parallel: 3,
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', '3', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove parallel attribute if empty string is provided', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {
+                parallel: 3,
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original yml if the workflow is not found in pipeline', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+          pl2: {
+            workflows: {
+              wf2: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf2', '3', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('updateWorkflowMeta', () => {
     it('should add stack and machine definition to a given workflow', () => {
       const sourceYml: BitriseYml = {

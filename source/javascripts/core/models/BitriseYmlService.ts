@@ -925,6 +925,22 @@ function updatePipelineWorkflowConditionRunIfExpression(
   return copy;
 }
 
+function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, parallel: string, yml: BitriseYml) {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  if (!parallel) {
+    delete copy.pipelines[pipelineId].workflows[workflowId].parallel;
+  } else {
+    copy.pipelines[pipelineId].workflows[workflowId].parallel = parseInt(parallel, 10);
+  }
+
+  return copy;
+}
+
 function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitrise.io'], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1477,6 +1493,7 @@ export default {
   updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updatePipelineWorkflowConditionShouldAlwaysRun,
   updatePipelineWorkflowConditionRunIfExpression,
+  updatePipelineWorkflowParallel,
   updateWorkflowMeta,
   updateTriggerMap,
   appendWorkflowEnvVar,
