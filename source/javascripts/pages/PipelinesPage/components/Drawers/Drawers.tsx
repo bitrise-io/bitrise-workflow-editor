@@ -48,11 +48,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvs, selectedStepIndices[0]);
+      if (workflowId) {
+        addStep(workflowId, cvs, selectedStepIndices[0]);
+      } else {
+        addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
+      }
       openDialog({
         type: PipelinesPageDialogType.STEP_BUNDLE,
         workflowId,
-        stepBundleId: id,
+        stepBundleId,
         selectedStepIndices,
       })();
     } else if (workflowId) {
@@ -152,6 +156,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onRename={handleRenameStepBundle}
           workflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
+          stepBundleId={stepBundleId}
         />
       )}
 
