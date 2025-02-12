@@ -262,8 +262,13 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
         const [stepId] = Object.keys(step);
         return stepId !== `bundle::${stepBundleId}`;
       });
+      // Remove `steps` field if empty
       if (copy.step_bundles?.[id]) {
-        copy.step_bundles[id].steps = filteredSteps;
+        if (filteredSteps?.length) {
+          copy.step_bundles[id].steps = filteredSteps;
+        } else {
+          delete copy.step_bundles[id].steps;
+        }
       }
     });
   }
