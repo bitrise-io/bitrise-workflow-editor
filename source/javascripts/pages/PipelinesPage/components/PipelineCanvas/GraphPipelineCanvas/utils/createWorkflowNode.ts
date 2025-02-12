@@ -10,7 +10,10 @@ import { GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 function createWorkflowNode(workflow: PipelineWorkflow, actionable: boolean) {
   return {
     id: workflow.id,
-    data: { uses: workflow.uses },
+    data: {
+      uses: workflow.uses,
+      parallel: workflow.parallel,
+    },
     deletable: actionable,
     draggable: false,
     focusable: false,
