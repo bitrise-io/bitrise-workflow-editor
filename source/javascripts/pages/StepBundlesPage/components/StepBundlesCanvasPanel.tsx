@@ -6,14 +6,15 @@ import { WorkflowCardContextProvider } from '@/components/unified-editor/Workflo
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { LibraryType } from '@/core/models/Step';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 
 type Props = {
-  selectedStepBundleId: string;
+  stepBundleId: string;
 };
 
-const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
+const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const {
     cloneStepInStepBundle,
     deleteStepInStepBundle,
@@ -28,11 +29,22 @@ const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
     upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
   }));
 
-  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, stepBundleId } =
-    useStepBundlesPageStore();
+  const {
+    closeDialog,
+    openDialog,
+    selectedStepIndices,
+    setSelectedStepIndices,
+    stepBundleId: selectedStepBundleId,
+  } = useStepBundlesPageStore();
 
-  const handleSelectStep = useCallback<(props: { isMultiple?: boolean; stepIndex: number; type: LibraryType }) => void>(
-    ({ isMultiple, stepIndex, type }) => {
+  const handleSelectStep = useCallback<
+    (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
+  >(
+    ({ isMultiple, stepIndex, stepBundleId: bundleId = '', type }) => {
+      const newSelectionParent: SelectionParent = {
+        id: bundleId,
+        type: 'stepBundle',
+      };
       if (isMultiple) {
         let newIndices = [...selectedStepIndices, stepIndex];
         if (selectedStepIndices.includes(stepIndex)) {
@@ -46,11 +58,15 @@ const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
         openDialog({
           type: StepBundlesPageDialogType.STEP_BUNDLE,
           selectedStepIndices: [stepIndex],
+          selectionParent: newSelectionParent,
+          stepBundleId: bundleId,
         })();
       } else {
         openDialog({
           type: StepBundlesPageDialogType.STEP_CONFIG,
           selectedStepIndices: [stepIndex],
+          selectionParent: newSelectionParent,
+          stepBundleId: bundleId,
         })();
       }
     },
@@ -145,11 +161,11 @@ const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
             onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
             selectedStepIndices={selectedStepIndices}
             selectionParent={{
-              id: stepBundleId || selectedStepBundleId,
+              id: selectedStepBundleId || stepBundleId || '',
               type: 'stepBundle',
             }}
           >
-            <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${selectedStepBundleId}`} />
+            <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>
         </Box>
       </Box>

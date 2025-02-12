@@ -12,7 +12,7 @@ import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigProvider, { useStepBundleConfigContext } from './StepBundlesConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  onRename: (name: string) => void;
+  onRename?: (name: string) => void;
   stepBundleId?: string;
   stepIndex: number;
   workflowId?: string;

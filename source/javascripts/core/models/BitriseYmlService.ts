@@ -341,7 +341,7 @@ function groupStepsToStepBundle(
     [newStepBundleId]: { steps: removedSteps.reverse() },
   };
 
-  // Push the created step bundle to the workflow, which contained the selected step / steps
+  // Push the created step bundle to the workflow or step_bundle, which contained the selected step / steps
   const insertPosition = sortedIndices.reverse()[0];
   stepsInEntity.splice(insertPosition, 0, { [`bundle::${newStepBundleId}`]: {} });
   return copy;

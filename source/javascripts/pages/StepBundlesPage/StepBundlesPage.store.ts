@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 export enum StepBundlesPageDialogType {
   NONE,
@@ -13,6 +14,7 @@ type DialogParams = {
   selectedStepIndices?: number[];
   stepBundleId?: string;
   newStepBundleId?: string;
+  selectionParent?: SelectionParent;
 };
 
 type State = {
@@ -20,7 +22,8 @@ type State = {
   openedDialogType: StepBundlesPageDialogType;
   mountedDialogType: StepBundlesPageDialogType;
   _nextDialog?: DialogParams;
-  stepBundleId?: string;
+  stepBundleId: string;
+  selectionParent?: SelectionParent;
 };
 
 type Action = {
@@ -38,6 +41,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   newStepBundleId: '',
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
+  selectionParent: undefined,
   setSelectedStepIndices: (selectedStepIndices = []) => {
     return set(() => ({
       selectedStepIndices,
@@ -49,10 +53,10 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, selectedStepIndices, stepBundleId, newStepBundleId }) => {
+  openDialog: ({ type, selectedStepIndices, stepBundleId, newStepBundleId, selectionParent }) => {
     return () => {
       return set((state) => {
-        const { openedDialogType, closeDialog } = state;
+        const { openedDialogType, closeDialog, selectionParent: stateSelectionParent } = state;
         if (openedDialogType !== StepBundlesPageDialogType.NONE) {
           closeDialog();
 
@@ -62,6 +66,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
               selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
               stepBundleId,
               newStepBundleId,
+              selectionParent: stateSelectionParent || stateSelectionParent,
             },
           };
         }
@@ -73,6 +78,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
           mountedDialogType: type,
           stepBundleId,
           newStepBundleId,
+          selectionParent: selectionParent || stateSelectionParent,
         };
       });
     };
