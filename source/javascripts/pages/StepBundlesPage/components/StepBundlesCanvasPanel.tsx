@@ -14,13 +14,19 @@ type Props = {
 };
 
 const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
-  const { cloneStepInStepBundle, deleteStepInStepBundle, moveStepInStepBundle, upgradeStepInStepBundle } =
-    useBitriseYmlStore((s) => ({
-      cloneStepInStepBundle: s.cloneStepInStepBundle,
-      deleteStepInStepBundle: s.deleteStepInStepBundle,
-      moveStepInStepBundle: s.moveStepInStepBundle,
-      upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-    }));
+  const {
+    cloneStepInStepBundle,
+    deleteStepInStepBundle,
+    groupStepsToStepBundle,
+    moveStepInStepBundle,
+    upgradeStepInStepBundle,
+  } = useBitriseYmlStore((s) => ({
+    cloneStepInStepBundle: s.cloneStepInStepBundle,
+    deleteStepInStepBundle: s.deleteStepInStepBundle,
+    groupStepsToStepBundle: s.groupStepsToStepBundle,
+    moveStepInStepBundle: s.moveStepInStepBundle,
+    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
+  }));
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, stepBundleId } =
     useStepBundlesPageStore();
@@ -100,6 +106,20 @@ const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
     [moveStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
   );
 
+  const handleGroupStepsToStepBundle = useCallback(
+    (_workflowId: string | undefined, bundleId: string | undefined, newStepBundleId: string, stepIndices: number[]) => {
+      groupStepsToStepBundle(undefined, bundleId, newStepBundleId, stepIndices);
+      setSelectedStepIndices([Math.min(...stepIndices)]);
+      openDialog({
+        type: StepBundlesPageDialogType.STEP_BUNDLE,
+        stepBundleId: bundleId,
+        newStepBundleId,
+        selectedStepIndices: [Math.min(...stepIndices)],
+      })();
+    },
+    [groupStepsToStepBundle, openDialog, setSelectedStepIndices],
+  );
+
   return (
     <ReactFlowProvider>
       <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
@@ -122,6 +142,7 @@ const StepBundlesCanvasPanel = ({ selectedStepBundleId }: Props) => {
             onMoveStepInStepBundle={handleMoveStep}
             onSelectStep={handleSelectStep}
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
+            onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
             selectedStepIndices={selectedStepIndices}
             selectionParent={{
               id: stepBundleId || selectedStepBundleId,

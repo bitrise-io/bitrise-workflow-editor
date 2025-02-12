@@ -237,7 +237,7 @@ const StepCard = ({
           leftIconName="Steps"
           onClick={(e) => {
             e.stopPropagation();
-            if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
+            if (onGroupStepsToStepBundle && selectedStepIndices) {
               const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
               const indices = isHighlighted ? selectedStepIndices : [stepIndex];
               onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
@@ -333,7 +333,6 @@ const StepCard = ({
     onDeleteStep,
     onDeleteStepInStepBundle,
     onGroupStepsToStepBundle,
-    onSelectStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
     selectedStepIndices,

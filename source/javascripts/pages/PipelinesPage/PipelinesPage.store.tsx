@@ -31,6 +31,7 @@ type DialogParams = {
   selectedStepIndices?: number[];
   pipelineId?: string;
   stepBundleId?: string;
+  newStepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
   selectionParent?: SelectionParent;
@@ -53,6 +54,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   selectedStepIndices: [],
   pipelineId: '',
   stepBundleId: '',
+  newStepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
   openedDialogType: PipelinesPageDialogType.NONE,
@@ -86,6 +88,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     type,
     pipelineId = '',
     stepBundleId = '',
+    newStepBundleId = '',
     workflowId = '',
     parentWorkflowId = '',
     selectedStepIndices,
@@ -103,6 +106,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
               selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
               pipelineId,
               stepBundleId,
+              newStepBundleId,
               workflowId,
               parentWorkflowId,
               selectionParent: selectionParent || state.selectionParent,
@@ -113,6 +117,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
         return {
           pipelineId,
           stepBundleId,
+          newStepBundleId,
           workflowId,
           selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
           parentWorkflowId,
@@ -140,6 +145,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
           selectedStepIndices: [],
           pipelineId: '',
           stepBundleId: '',
+          newStepBundleId: '',
           workflowId: '',
           parentWorkflowId: '',
           nextDialog: undefined,

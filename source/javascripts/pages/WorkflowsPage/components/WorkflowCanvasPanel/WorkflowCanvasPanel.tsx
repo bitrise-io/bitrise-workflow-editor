@@ -323,12 +323,21 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     (wfId: string | undefined, stepBundleId: string | undefined, newStepBundleId: string, stepIndices: number[]) => {
       groupStepsToStepBundle(wfId, stepBundleId, newStepBundleId, stepIndices);
       setSelectedStepIndices([Math.min(...stepIndices)]);
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_BUNDLE,
-        workflowId: wfId,
-        stepBundleId: newStepBundleId,
-        selectedStepIndices: [Math.min(...stepIndices)],
-      })();
+      if (wfId) {
+        openDialog({
+          type: WorkflowsPageDialogType.STEP_BUNDLE,
+          workflowId: wfId,
+          stepBundleId: newStepBundleId,
+          selectedStepIndices: [Math.min(...stepIndices)],
+        })();
+      } else if (stepBundleId) {
+        openDialog({
+          type: WorkflowsPageDialogType.STEP_BUNDLE,
+          stepBundleId,
+          newStepBundleId,
+          selectedStepIndices: [Math.min(...stepIndices)],
+        })();
+      }
     },
     [groupStepsToStepBundle, openDialog, setSelectedStepIndices],
   );

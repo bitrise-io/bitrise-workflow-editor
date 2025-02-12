@@ -12,6 +12,7 @@ type DialogParams = {
   type: StepBundlesPageDialogType;
   selectedStepIndices?: number[];
   stepBundleId?: string;
+  newStepBundleId?: string;
 };
 
 type State = {
@@ -34,6 +35,7 @@ type Action = {
 export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   selectedStepIndices: [],
   stepBundleId: '',
+  newStepBundleId: '',
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
   setSelectedStepIndices: (selectedStepIndices = []) => {
@@ -47,7 +49,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   isDialogMounted: (type) => {
     return get().mountedDialogType === type;
   },
-  openDialog: ({ type, selectedStepIndices, stepBundleId }) => {
+  openDialog: ({ type, selectedStepIndices, stepBundleId, newStepBundleId }) => {
     return () => {
       return set((state) => {
         const { openedDialogType, closeDialog } = state;
@@ -59,6 +61,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
               type,
               selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
               stepBundleId,
+              newStepBundleId,
             },
           };
         }
@@ -69,6 +72,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
           openedDialogType: type,
           mountedDialogType: type,
           stepBundleId,
+          newStepBundleId,
         };
       });
     };

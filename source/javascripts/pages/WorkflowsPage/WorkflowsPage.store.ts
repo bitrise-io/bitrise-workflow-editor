@@ -29,6 +29,7 @@ type DialogParams = {
   type: WorkflowsPageDialogType;
   selectedStepIndices?: number[];
   stepBundleId?: string;
+  newStepBundleId?: string;
   parentStepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
@@ -50,6 +51,7 @@ type Action = {
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   selectedStepIndices: [],
   stepBundleId: '',
+  newStepBundleId: '',
   parentStepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
@@ -85,6 +87,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   openDialog: ({
     type,
     stepBundleId = '',
+    newStepBundleId = '',
     parentStepBundleId = '',
     workflowId = '',
     parentWorkflowId = '',
@@ -107,6 +110,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
               type,
               selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
               stepBundleId,
+              newStepBundleId,
               parentStepBundleId,
               workflowId,
               parentWorkflowId,
@@ -118,6 +122,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         return {
           selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
           stepBundleId,
+          newStepBundleId,
           parentStepBundleId,
           workflowId,
           parentWorkflowId,
@@ -144,6 +149,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         return {
           selectedStepIndices: [],
           stepBundleId: '',
+          newStepBundleId: '',
           parentStepBundleId: '',
           workflowId: '',
           parentWorkflowId: '',
