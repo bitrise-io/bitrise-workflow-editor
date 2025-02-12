@@ -100,7 +100,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
-    if (isDragging || (!onDeleteStep && !onSelectStep)) {
+    if ((!workflowId && !stepBundleId) || isDragging || (!onDeleteStep && !onSelectStep)) {
       return null;
     }
 
@@ -178,7 +178,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   }}
                 />
               )}
-              <Box display="flex" flexDir="column" flex="1">
+              <Box flex="1">
                 <Text textStyle="body/md/semibold" hasEllipsis>
                   {cvs.replace('bundle::', '')}
                 </Text>

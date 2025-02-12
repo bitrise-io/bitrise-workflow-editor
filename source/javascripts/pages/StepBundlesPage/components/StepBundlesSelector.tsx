@@ -7,23 +7,17 @@ const StepBundlesSelector = () => {
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
   const openDialog = useStepBundlesPageStore((s) => s.openDialog);
-  const closeDialog = useStepBundlesPageStore((s) => s.closeDialog);
   const [{ id: selectedStepBundleId }, setSelectedStepBundle] = useSelectedStepBundle();
 
   const onCreateStepBundle = () => {
     openDialog({ type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE })();
   };
 
-  const handleOnchange = (id: string = '') => {
-    setSelectedStepBundle(id);
-    closeDialog();
-  };
-
   return (
     <EntitySelector
       entityIds={stepBundleIds}
       entityName="Step bundle"
-      onChange={handleOnchange}
+      onChange={setSelectedStepBundle}
       onCreate={onCreateStepBundle}
       value={selectedStepBundleId}
     />

@@ -31,7 +31,6 @@ pipelines:
       - branch: main
     workflows:
       tmp:
-        parallel: 4
         depends_on:
         - wf1
       wf1: {}
@@ -48,6 +47,9 @@ pipelines:
       wf5:
         depends_on:
         - wf4
+      wf7:
+        depends_on:
+        - wf5
   pl1:
     stages:
     - st1: {}
@@ -460,6 +462,7 @@ workflows:
         - password: $PAT
         - host: github.com
     - xamarin-user-management: {}
+    - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: {}
     - bundle::install_deps: {}
     - with:
         container: ruby
@@ -485,3 +488,4 @@ step_bundles:
     steps:
     - activate-ssh-key@4.1.1: {}
     - open-vpn@0.1.2: {}
+  verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: {}
