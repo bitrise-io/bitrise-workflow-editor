@@ -245,6 +245,7 @@ module.exports = {
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       typescript: {
+        memoryLimit: 4096,
         configFile: path.join(__dirname, 'tsconfig.json'),
       },
     }),

@@ -3,26 +3,29 @@ import { Box, CardProps } from '@bitrise/bitkit';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { useHover, useResizeObserver } from 'usehooks-ts';
 import { isEqual } from 'es-toolkit';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { WorkflowCard } from '@/components/unified-editor';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
-import WorkflowService from '@/core/models/WorkflowService';
-import { useWorkflows } from '@/hooks/useWorkflows';
 import { LibraryType } from '@/core/models/Step';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { useWorkflows } from '@/hooks/useWorkflows';
+import { WorkflowCard } from '@/components/unified-editor';
+import WorkflowService from '@/core/models/WorkflowService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
 
 const defaultStyle = {
   variant: 'outline',
+  boxShadow: 'small',
 } satisfies CardProps;
 
 const hoveredStyle = {
@@ -35,6 +38,39 @@ const selectedStyle = {
   outlineColor: 'border/selected',
   outlineOffset: '-2px',
 } satisfies CardProps;
+
+const ParallelWorkflowIndicator = memo(() => {
+  return (
+    <>
+      <Box
+        h="24"
+        left="24"
+        right="24"
+        zIndex={-1}
+        bottom="-4"
+        borderRadius="8"
+        boxShadow="small"
+        position="absolute"
+        border="1px solid"
+        borderColor="border/regular"
+        backgroundColor="background/primary"
+      />
+      <Box
+        h="24"
+        left="32"
+        right="32"
+        zIndex={-2}
+        bottom="-8"
+        borderRadius="8"
+        boxShadow="small"
+        position="absolute"
+        border="1px solid"
+        borderColor="border/regular"
+        backgroundColor="background/primary"
+      />
+    </>
+  );
+});
 
 const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -49,6 +85,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
   const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
+  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
@@ -84,6 +121,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   });
 
   const uses = 'uses' in data ? data.uses : undefined;
+  const parallel = 'parallel' in data ? data.parallel : undefined;
+  const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
 
   const {
     handleAddStep,
@@ -425,6 +464,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         id={id}
         isCollapsable
         uses={uses}
+        parallel={parallel}
         containerProps={containerProps}
         selectedStepIndices={selectedStepIndices}
         selectionParent={selectionParent}
@@ -450,6 +490,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         onChainedWorkflowsUpdate={handleChainedWorkflowsUpdate}
       />
       <RightHandle />
+      {shouldDisplayAsParallelWorkflow && <ParallelWorkflowIndicator />}
     </Box>
   );
 };
