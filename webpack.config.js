@@ -132,6 +132,9 @@ module.exports = {
       publicPath,
     },
   },
+  watchOptions: {
+    ignored: ['node_modules', 'build', 'public'],
+  },
 
   /* --- Performance --- */
   cache: {
