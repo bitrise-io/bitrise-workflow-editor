@@ -478,7 +478,6 @@ step_bundles:
         title: GitHub (org) (https) step
         inputs:
         - lane: github1
-    - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: {}
     - activate-ssh-key: {}
     - git-clone@4.0.17:
         inputs:
@@ -488,7 +487,6 @@ step_bundles:
   test:
     steps:
     - activate-ssh-key@4.1.1: {}
-    - bundle::install_deps: {}
     - open-vpn@0.1.2: {}
   verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
     steps:

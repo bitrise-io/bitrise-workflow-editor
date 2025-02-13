@@ -7,6 +7,8 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { LibraryType } from '@/core/models/Step';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { useStepBundles } from '@/hooks/useStepBundles';
+import StepBundleService from '@/core/models/StepBundleService';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 
@@ -15,6 +17,8 @@ type Props = {
 };
 
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
+  const stepBundles = useStepBundles();
+
   const {
     cloneStepInStepBundle,
     deleteStepInStepBundle,
@@ -77,6 +81,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         type: StepBundlesPageDialogType.STEP_SELECTOR,
         selectedStepIndices: [stepIndex],
         stepBundleId: parentStepBundleId,
+        selectionParent: {
+          id: parentStepBundleId,
+          type: 'stepBundle',
+        },
       })();
     },
     [openDialog],
@@ -95,7 +103,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   );
 
   const handleDeleteStep = useCallback(
-    (bundleId: string, stepIndices: number[]) => {
+    (bundleId: string, stepIndices: number[], cvs?: string) => {
       deleteStepInStepBundle(bundleId, stepIndices);
 
       if (selectionParent?.id === bundleId) {
@@ -110,8 +118,27 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
         }
       }
+      if (cvs?.startsWith('bundle::')) {
+        const id = cvs.replace('bundle::', '');
+        if (selectionParent?.id === id) {
+          closeDialog();
+        }
+        if (
+          selectionParent?.id &&
+          StepBundleService.getStepBundleChain(stepBundles, id).includes(selectionParent?.id)
+        ) {
+          closeDialog();
+        }
+      }
     },
-    [deleteStepInStepBundle, selectionParent?.id, selectedStepIndices, closeDialog, setSelectedStepIndices],
+    [
+      deleteStepInStepBundle,
+      selectionParent?.id,
+      selectedStepIndices,
+      closeDialog,
+      setSelectedStepIndices,
+      stepBundles,
+    ],
   );
 
   const handleMoveStep = useCallback(
