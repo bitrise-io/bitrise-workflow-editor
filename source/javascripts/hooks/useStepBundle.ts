@@ -1,3 +1,4 @@
+import StepBundleService from '@/core/models/StepBundleService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const useStepBundle = (id: string) => {
@@ -8,7 +9,7 @@ const useStepBundle = (id: string) => {
       return undefined;
     }
 
-    return { cvs: `bundle::${id}`, id, userValues: stepBundle };
+    return { cvs: StepBundleService.idToCvs(id), id, userValues: stepBundle };
   });
 };
 

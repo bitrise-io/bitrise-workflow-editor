@@ -38,7 +38,7 @@ const StepBundleList = ({ onSelectStep, targetStepBundleId }: StepBundleListProp
   };
 
   const handleClick = (id: string) => {
-    onSelectStep(`bundle::${id}`);
+    onSelectStep(StepBundleService.idToCvs(id));
   };
 
   if (bundleIds.length === 0) {

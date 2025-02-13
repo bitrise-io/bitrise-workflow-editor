@@ -1,18 +1,32 @@
+import { uniq } from 'es-toolkit';
 import { Workflows } from '@/core/models/Workflow';
 import { StepBundles } from './Step';
 
-function getDependantWorkflows(workflows: Workflows, id: string) {
-  const workflowIdsWhereWorkflowIsUsed = new Set<string>();
-
+function getDirectDependants(workflows: Workflows, cvs: string) {
+  const directDependants: string[] = [];
   Object.entries(workflows ?? {}).forEach(([workflowId, workflow]) => {
-    workflow.steps?.forEach((workflowObj) => {
-      if (Object.keys(workflowObj)[0] === id) {
-        workflowIdsWhereWorkflowIsUsed.add(workflowId);
+    workflow.steps?.forEach((step) => {
+      if (Object.keys(step)[0] === cvs) {
+        directDependants.push(workflowId);
       }
     });
   });
 
-  return Array.from(workflowIdsWhereWorkflowIsUsed);
+  return directDependants;
+}
+
+function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: StepBundles) {
+  let directDependants: string[] = getDirectDependants(workflows, cvs);
+
+  const stepBundleChains = getStepBundleChains(stepBundles);
+
+  Object.values(stepBundleChains).forEach((chain) => {
+    chain.forEach((bundle) => {
+      directDependants = directDependants.concat(getDirectDependants(workflows, idToCvs(bundle)));
+    });
+  });
+
+  return uniq(directDependants);
 }
 
 function getUsedByText(count: number) {
@@ -50,13 +64,13 @@ function validateName(newStepBundleName: string, initStepBundleName: string, ste
 
 function getStepBundleChain(stepBundles: StepBundles, id: string) {
   let ids: string[] = [];
-  stepBundles[id].steps?.forEach((step) => {
+  stepBundles[id]?.steps?.forEach((step) => {
     const cvs = Object.keys(step)[0];
     if (cvs.startsWith('bundle::')) {
       ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', '')));
     }
   });
-  ids.push(id);
+  ids.unshift(id);
   return ids;
 }
 
@@ -69,6 +83,17 @@ function getStepBundleChains(stepBundles: StepBundles) {
   return stepBundleChains;
 }
 
+function cvsToId(cvs: string) {
+  return cvs.replace('bundle::', '');
+}
+
+function idToCvs(id: string) {
+  if (id.startsWith('bundle::')) {
+    return id;
+  }
+  return `bundle::${id}`;
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -76,4 +101,6 @@ export default {
   validateName,
   getStepBundleChains,
   getStepBundleChain,
+  cvsToId,
+  idToCvs,
 };

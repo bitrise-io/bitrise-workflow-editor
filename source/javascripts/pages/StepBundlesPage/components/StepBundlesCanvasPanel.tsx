@@ -119,7 +119,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         }
       }
       if (cvs?.startsWith('bundle::')) {
-        const id = cvs.replace('bundle::', '');
+        const id = StepBundleService.cvsToId(cvs);
         if (selectionParent?.id === id) {
           closeDialog();
         }

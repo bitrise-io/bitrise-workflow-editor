@@ -282,7 +282,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       }
 
       if (cvs?.startsWith('bundle::')) {
-        const id = cvs.replace('bundle::', '');
+        const id = StepBundleService.cvsToId(cvs);
         if (selectionParent?.id === id) {
           closeDialog();
         }
@@ -333,7 +333,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         }
       }
       if (cvs?.startsWith('bundle::')) {
-        const id = cvs.replace('bundle::', '');
+        const id = StepBundleService.cvsToId(cvs);
         if (selectionParent?.id === id) {
           closeDialog();
         }

@@ -221,7 +221,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             }
           }
           if (cvs?.startsWith('bundle::')) {
-            const bundleId = cvs.replace('bundle::', '');
+            const bundleId = StepBundleService.cvsToId(cvs);
             if (selectionParent?.id === bundleId) {
               closeDialog();
             }

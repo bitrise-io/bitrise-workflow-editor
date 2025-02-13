@@ -3,6 +3,7 @@ import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import PipelineService from '@/core/models/PipelineService';
+import StepBundleService from '@/core/models/StepBundleService';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
@@ -249,7 +250,7 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
       Object.entries(copy.workflows).map(([workflowId, workflow]) => {
         const filteredSteps = workflow.steps?.filter((step) => {
           const [stepId] = Object.keys(step);
-          return stepId !== `bundle::${stepBundleId}`;
+          return stepId !== StepBundleService.idToCvs(stepBundleId);
         });
         return [workflowId, { ...workflow, steps: filteredSteps }];
       }),
@@ -260,7 +261,7 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
     Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
       const filteredSteps = bundle.steps?.filter((step) => {
         const [stepId] = Object.keys(step);
-        return stepId !== `bundle::${stepBundleId}`;
+        return stepId !== StepBundleService.idToCvs(stepBundleId);
       });
       // Remove `steps` field if empty
       if (copy.step_bundles?.[id]) {
@@ -343,7 +344,7 @@ function groupStepsToStepBundle(
 
   // Push the created step bundle to the workflow or step_bundle, which contained the selected step / steps
   const insertPosition = sortedIndices.reverse()[0];
-  stepsInEntity.splice(insertPosition, 0, { [`bundle::${newStepBundleId}`]: {} });
+  stepsInEntity.splice(insertPosition, 0, { [StepBundleService.idToCvs(newStepBundleId)]: {} });
   return copy;
 }
 
@@ -378,8 +379,8 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
         if (workflow.steps) {
           renamedSteps = workflow.steps.map((step: any) => {
             const [stepId, stepDetails] = Object.entries(step)[0];
-            if (stepId === `bundle::${stepBundleId}`) {
-              return { [`bundle::${newStepBundleId}`]: stepDetails };
+            if (stepId === StepBundleService.idToCvs(stepBundleId)) {
+              return { [StepBundleService.idToCvs(newStepBundleId)]: stepDetails };
             }
             return step;
           });
@@ -393,8 +394,8 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
     Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
       const renamedSteps = bundle.steps?.map((step) => {
         const [stepId, stepDetails] = Object.entries(step)[0];
-        if (stepId === `bundle::${stepBundleId}`) {
-          return { [`bundle::${newStepBundleId}`]: stepDetails };
+        if (stepId === StepBundleService.idToCvs(stepBundleId)) {
+          return { [StepBundleService.idToCvs(newStepBundleId)]: stepDetails };
         }
         return step;
       });

@@ -189,7 +189,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               )}
               <Box flex="1" minW={0}>
                 <Text textStyle="body/md/semibold" hasEllipsis>
-                  {cvs.replace('bundle::', '')}
+                  {StepBundleService.cvsToId(cvs)}
                 </Text>
                 <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                   {usedInWorkflowsText}
@@ -200,7 +200,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
             <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={cvs.replace('bundle::', '')} />
+              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
             </Box>
           </Collapse>
         </>

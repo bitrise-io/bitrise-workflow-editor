@@ -1,23 +1,22 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/models/StepBundleService';
+import { useStepBundleConfigContext } from './StepBundlesConfig.context';
 
-type Props = {
-  id: string;
-};
+const StepBundlesConfigHeader = () => {
+  const { cvs, id, userValues } = useStepBundleConfigContext() ?? {};
 
-const StepBundlesConfigHeader = ({ id }: Props) => {
-  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${id}` });
+  const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 
   return (
-    <Box padding="24px 24px 16px 24px">
+    <>
       <Text as="h3" textStyle="heading/h3">
-        {id || 'Step bundle'}
+        {userValues?.title || id || 'Step bundle'}
       </Text>
       <Text textStyle="body/sm/regular" color="text/secondary">
-        {StepBundleService.getUsedByText(dependants.length)}
+        {StepBundleService.getUsedByText(dependants.length)} ({dependants.sort().join(', ')})
       </Text>
-    </Box>
+    </>
   );
 };
 
