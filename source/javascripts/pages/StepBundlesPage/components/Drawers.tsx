@@ -65,6 +65,7 @@ const Drawers = () => {
           onClose={closeDialog}
           onSelectStep={handleAddStepToStepBundle}
           onCloseComplete={unmountDialog}
+          targetStepBundleId={stepBundleId}
         />
       )}
 

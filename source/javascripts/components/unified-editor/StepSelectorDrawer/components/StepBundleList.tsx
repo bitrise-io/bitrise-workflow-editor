@@ -1,15 +1,25 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useStepBundles } from '@/hooks/useStepBundles';
+import StepBundleService from '@/core/models/StepBundleService';
 import useSearch from '../hooks/useSearch';
 import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
 import SelectableStepBundleCard from './SelectableStepBundleCard';
 
 type StepBundleListProps = {
   onSelectStep: SelectStepHandlerFn;
+  targetStepBundleId?: string;
 };
 
-const StepBundleList = ({ onSelectStep }: StepBundleListProps) => {
-  const bundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
+const StepBundleList = ({ onSelectStep, targetStepBundleId }: StepBundleListProps) => {
+  const stepBundles = useStepBundles();
+  const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
+  const bundleIds = Object.keys(stepBundles).filter((id) => {
+    if (targetStepBundleId) {
+      return !stepBundleChains[id].includes(targetStepBundleId);
+    }
+    return true;
+  });
+
   const filterStepBundles = useSearch((s) => s.stepBundleQuery);
   const setSearchStepBundle = useSearch((s) => s.setSearchStepBundle);
 

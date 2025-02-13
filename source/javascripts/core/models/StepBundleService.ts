@@ -1,4 +1,5 @@
 import { Workflows } from '@/core/models/Workflow';
+import { StepBundles } from './Step';
 
 function getDependantWorkflows(workflows: Workflows, id: string) {
   const workflowIdsWhereWorkflowIsUsed = new Set<string>();
@@ -47,4 +48,25 @@ function validateName(newStepBundleName: string, initStepBundleName: string, ste
   return true;
 }
 
-export default { getDependantWorkflows, getUsedByText, sanitizeName, validateName };
+function getChain(stepBundles: StepBundles, id: string) {
+  let ids: string[] = [];
+  stepBundles[id].steps?.forEach((step) => {
+    const cvs = Object.keys(step)[0];
+    if (cvs.startsWith('bundle::')) {
+      ids = ids.concat(getChain(stepBundles, cvs.replace('bundle::', '')));
+    }
+  });
+  ids.push(id);
+  return ids;
+}
+
+function getStepBundleChains(stepBundles: StepBundles) {
+  const stepBundleChains: Record<string, string[]> = {};
+  Object.keys(stepBundles).forEach((id) => {
+    stepBundleChains[id] = getChain(stepBundles, id);
+  });
+
+  return stepBundleChains;
+}
+
+export default { getDependantWorkflows, getUsedByText, sanitizeName, validateName, getStepBundleChains };

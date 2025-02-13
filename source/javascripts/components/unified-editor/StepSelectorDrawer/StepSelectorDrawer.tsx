@@ -20,9 +20,10 @@ import StepList from './components/StepList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
+  targetStepBundleId?: string;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targetStepBundleId, ...props }: Props) => {
   const resetSearch = useSearch((s) => s.reset);
 
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
@@ -100,7 +101,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                   )}
                 </TabPanel>
                 <TabPanel display="flex" flexDir="column" gap="12">
-                  <StepBundleList onSelectStep={onSelectStep} />
+                  <StepBundleList onSelectStep={onSelectStep} targetStepBundleId={targetStepBundleId} />
                 </TabPanel>
               </TabPanels>
             </ReactFlowProvider>
