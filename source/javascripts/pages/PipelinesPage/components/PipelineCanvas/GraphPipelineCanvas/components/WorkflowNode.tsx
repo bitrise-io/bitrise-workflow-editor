@@ -14,6 +14,8 @@ import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
+import StepBundleService from '@/core/models/StepBundleService';
+import { useStepBundles } from '@/hooks/useStepBundles';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
@@ -76,6 +78,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const hovered = useHover(ref);
   const workflows = useWorkflows();
+  const stepBundles = useStepBundles();
   const { selectedPipeline } = usePipelineSelector();
 
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
@@ -166,6 +169,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       stepIndices,
       targetIndex,
       action,
+      cvs,
     }: {
       workflowId?: string;
       stepBundleId?: string;
@@ -173,6 +177,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       stepIndices?: number[];
       targetIndex?: number;
       action: 'move' | 'clone' | 'remove';
+      cvs?: string;
     }) {
       switch (action) {
         case 'move': {
@@ -213,6 +218,18 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               setSelectedStepIndices(
                 moveStepIndices(action, selectedStepIndices, stepIndices ? stepIndices[0] : stepIndex),
               );
+            }
+          }
+          if (cvs?.startsWith('bundle::')) {
+            const bundleId = cvs.replace('bundle::', '');
+            if (selectionParent?.id === bundleId) {
+              closeDialog();
+            }
+            if (
+              selectionParent?.id &&
+              StepBundleService.getStepBundleChain(stepBundles, bundleId).includes(selectionParent?.id)
+            ) {
+              closeDialog();
             }
           }
           break;
@@ -318,13 +335,14 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'clone',
         });
       },
-      handleDeleteStep: (workflowId: string, stepIndices: number[]) => {
+      handleDeleteStep: (workflowId: string, stepIndices: number[], cvs?: string) => {
         deleteStep(workflowId, stepIndices);
         handleStepActionChange({
           workflowId,
           stepIndex: stepIndices[0],
           stepIndices,
           action: 'remove',
+          cvs,
         });
       },
       handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) =>
@@ -434,6 +452,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     selectionParent,
     setSelectedStepIndices,
     selectedStepIndices,
+    stepBundles,
     deleteElements,
     openDialog,
     selectedPipeline,
