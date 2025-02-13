@@ -78,7 +78,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
   };
 
   const handleRenameStepBundle = (newStepBundleId: string) => {
-    console.log(newStepBundleId);
     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
