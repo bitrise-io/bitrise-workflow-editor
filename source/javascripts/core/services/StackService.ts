@@ -1,4 +1,4 @@
-import { Stack, StackOption } from '@/core/models/Stack';
+import { Stack, StackOption } from '../models/Stack';
 
 function getOsOfStack(stack: Stack): string {
   return stack.id.split('-')[0];

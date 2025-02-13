@@ -1,17 +1,15 @@
-import { BitriseYml } from './BitriseYml';
-import { PipelineYmlObject } from './Pipeline';
+import { BitriseYml, PipelineModel, Stages } from '../models/BitriseYml';
 import PipelineService from './PipelineService';
-import { StagesYml } from './Stage';
 
 describe('PipelineService', () => {
   describe('isGraph', () => {
     it('returns true if the pipeline has workflows', () => {
-      const pipeline: PipelineYmlObject = { workflows: {} };
+      const pipeline: PipelineModel = { workflows: {} };
       expect(PipelineService.isGraph(pipeline)).toBe(true);
     });
 
     it('returns false if the pipeline does not have workflows', () => {
-      const pipeline: PipelineYmlObject = {};
+      const pipeline: PipelineModel = {};
       expect(PipelineService.isGraph(pipeline)).toBe(false);
     });
   });
@@ -48,20 +46,20 @@ describe('PipelineService', () => {
 
   describe('convertToGraphPipeline', () => {
     it('returns the same pipeline if it is already a graph pipeline', () => {
-      const pipeline: PipelineYmlObject = { workflows: {} };
+      const pipeline: PipelineModel = { workflows: {} };
       expect(PipelineService.convertToGraphPipeline(pipeline, {})).toBe(pipeline);
     });
 
     it('returns an empty graph pipeline if the input is an empty staged pipeline', () => {
-      const pipeline: PipelineYmlObject = { stages: [] };
+      const pipeline: PipelineModel = { stages: [] };
       expect(PipelineService.convertToGraphPipeline(pipeline, {})).toEqual(PipelineService.EMPTY_PIPELINE);
     });
 
     it('copy the workflows with dependencies set based on the stages', () => {
-      const pipeline: PipelineYmlObject = {
+      const pipeline: PipelineModel = {
         stages: [{ st1: {} }, { st2: {} }, { st3: {} }],
       };
-      const stages: StagesYml = {
+      const stages: Stages = {
         st1: { workflows: [{ wf1: {} }, { wf1: {} }] },
         st2: { workflows: [{ wf2: {} }, { wf5: {} }] },
         st3: { workflows: [{ wf3: {} }] },
@@ -70,7 +68,7 @@ describe('PipelineService', () => {
         st6: { workflows: [{ wf6: {} }] },
       };
 
-      const expected: PipelineYmlObject = {
+      const expected: PipelineModel = {
         workflows: {
           wf1: {},
           wf2: { depends_on: ['wf1'] },
@@ -83,13 +81,13 @@ describe('PipelineService', () => {
     });
 
     it('copy pipeline properties to the new graph pipeline', () => {
-      const stagedPipeline: PipelineYmlObject = {
+      const stagedPipeline: PipelineModel = {
         title: 'Staged Pipeline',
         stages: [],
         triggers: { push: [] },
       };
       const graphPipeline = PipelineService.convertToGraphPipeline(stagedPipeline, {});
-      const expectedPipeline: PipelineYmlObject = {
+      const expectedPipeline: PipelineModel = {
         title: 'Staged Pipeline',
         workflows: {},
         triggers: { push: [] },
@@ -98,10 +96,10 @@ describe('PipelineService', () => {
     });
 
     it('copy the run_if, abort_on_fail, and should_always_run properties to the new graph pipeline', () => {
-      const pipeline: PipelineYmlObject = {
+      const pipeline: PipelineModel = {
         stages: [{ st1: {} }, { st2: {} }, { st3: {} }],
       };
-      const stages: StagesYml = {
+      const stages: Stages = {
         st1: {
           abort_on_fail: true,
           workflows: [{ wf1: { run_if: 'true' } }, { wf2: { run_if: 'false' } }, { wf3: {} }],
@@ -117,7 +115,7 @@ describe('PipelineService', () => {
         },
       };
 
-      const expected: PipelineYmlObject = {
+      const expected: PipelineModel = {
         workflows: {
           wf1: {
             abort_on_fail: true,

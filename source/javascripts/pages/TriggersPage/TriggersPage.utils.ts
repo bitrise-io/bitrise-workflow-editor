@@ -1,12 +1,12 @@
 import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
-import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
 import {
   ConditionType,
   TriggerItem,
   TriggerType,
   LegacyConditionType,
 } from '@/components/unified-editor/Triggers/Triggers.types';
+import { TriggerMap, TriggerMapItemModel } from '@/core/models/BitriseYml';
 
 const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
   if (type) {
@@ -21,11 +21,11 @@ const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType =
   return 'pull_request';
 };
 
-export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMapYml => {
-  const triggerMap: TriggerMapYml = Object.values(triggers)
+export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMap => {
+  const triggerMap: TriggerMap = Object.values(triggers)
     .flat()
     .map((trigger) => {
-      const finalItem: TriggerYmlObject = {};
+      const finalItem: TriggerMapItemModel = {};
       trigger.conditions.forEach(({ isRegex, type, value }) => {
         finalItem[type as LegacyConditionType] = isRegex ? { regex: value } : value;
       });
@@ -44,7 +44,7 @@ export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerIt
   return triggerMap;
 };
 
-export const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<TriggerType, TriggerItem[]> => {
+export const convertTriggerMapToItems = (triggerMap: TriggerMap): Record<TriggerType, TriggerItem[]> => {
   const triggers: Record<TriggerType, TriggerItem[]> = {
     pull_request: [],
     push: [],
@@ -52,7 +52,7 @@ export const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<Trig
   };
 
   triggerMap.forEach((trigger) => {
-    const triggerKeys = Object.keys(trigger) as (keyof TriggerYmlObject)[];
+    const triggerKeys = Object.keys(trigger) as (keyof TriggerMapItemModel)[];
     const source = getSourceType(triggerKeys, trigger.type as TriggerType);
     const finalItem: TriggerItem = {
       conditions: [],

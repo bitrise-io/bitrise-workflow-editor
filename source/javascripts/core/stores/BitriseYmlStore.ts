@@ -1,12 +1,21 @@
 import { createStore, StoreApi } from 'zustand';
-import { BitriseYml, Meta } from '@/core/models/BitriseYml';
-import { PipelineYmlObject } from '@/core/models/Pipeline';
-import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
-import BitriseYmlService from '@/core/models/BitriseYmlService';
-import { StepBundleYmlObject, StepInputVariable, StepYmlObject } from '@/core/models/Step';
-import { EnvVar } from '../models/EnvVar';
-import EnvVarService from '../models/EnvVarService';
-import { TriggerMapYml } from '../models/TriggerMap';
+
+import {
+  Meta,
+  EnvModel,
+  StepModel,
+  BitriseYml,
+  TriggerMap,
+  PipelineModel,
+  TriggersModel,
+  WorkflowModel,
+  StepBundleModel,
+} from '@/core/models/BitriseYml';
+
+import { EnvVar } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/services/EnvVarService';
+import BitriseYmlService from '@/core/services/BitriseYmlService';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 
 type BitriseYmlStoreState = {
   yml: BitriseYml;
@@ -17,7 +26,7 @@ type BitriseYmlStoreState = {
   // Pipeline related actions
   createPipeline: (pipelineId: string, basePipelineId?: string) => void;
   renamePipeline: (pipelineId: string, newPipelineId: string) => void;
-  updatePipeline: (pipelineId: string, pipeline: PipelineYmlObject) => void;
+  updatePipeline: (pipelineId: string, pipeline: PipelineModel) => void;
   deletePipeline: (pipelineId: string) => void;
   deletePipelines: (pipelineIds: string[]) => void;
   addWorkflowToPipeline: (pipelineId: string, workflowId: string, parentWorkflowId?: string) => void;
@@ -39,7 +48,7 @@ type BitriseYmlStoreState = {
   // Workflow related actions
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
-  updateWorkflow: (workflowId: string, workflow: WorkflowYmlObject) => void;
+  updateWorkflow: (workflowId: string, workflow: WorkflowModel) => void;
   deleteWorkflow: (workflowId: string) => void;
   deleteWorkflows: (workflowIds: string[]) => void;
   setChainedWorkflows: (
@@ -66,12 +75,12 @@ type BitriseYmlStoreState = {
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   cloneStep: (workflowId: string, stepIndex: number) => void;
-  updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => void;
-  updateStepInputs: (workflowId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
+  updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepModel, 'inputs' | 'outputs'>) => void;
+  updateStepInputs: (workflowId: string, stepIndex: number, inputs: EnvModel) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, selectedStepIndices: number[]) => void;
-  updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
-  updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
+  updateTriggerMap: (newTriggerMap: TriggerMap) => void;
+  updateWorkflowTriggers: (workflowId: string, triggers: TriggersModel) => void;
   updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
 
   // Step Bundle related actions
@@ -89,14 +98,14 @@ type BitriseYmlStoreState = {
   ) => void;
   moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
   renameStepBundle: (stepBundleId: string, newStepBundleId: string) => void;
-  updateStepBundle: (stepBundleId: string, stepBundle: StepBundleYmlObject) => void;
+  updateStepBundle: (stepBundleId: string, stepBundle: StepBundleModel) => void;
   updateStepInStepBundle: (
     stepBundleId: string,
     stepIndex: number,
-    newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+    newValues: Omit<StepModel, 'inputs' | 'outputs'>,
   ) => void;
-  updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
-  updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
+  updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: EnvModel) => void;
+  updatePipelineTriggers: (pipelineId: string, triggers: TriggersModel) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
   updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
 };

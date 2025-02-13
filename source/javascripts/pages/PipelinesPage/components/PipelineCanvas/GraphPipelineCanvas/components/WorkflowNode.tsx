@@ -8,7 +8,7 @@ import { LibraryType } from '@/core/models/Step';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import { WorkflowCard } from '@/components/unified-editor';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';

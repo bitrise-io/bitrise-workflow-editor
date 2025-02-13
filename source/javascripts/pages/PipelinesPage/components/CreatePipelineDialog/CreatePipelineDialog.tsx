@@ -1,5 +1,5 @@
 import { DialogProps } from '@bitrise/bitkit';
-import PipelineService from '@/core/models/PipelineService';
+import PipelineService from '@/core/services/PipelineService';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
 import useBitriseYmlStore, { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
 import useFeatureFlag from '@/hooks/useFeatureFlag';

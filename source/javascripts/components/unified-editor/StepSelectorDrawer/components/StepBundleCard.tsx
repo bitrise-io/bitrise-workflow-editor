@@ -4,7 +4,7 @@ import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDi
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import { LibraryType } from '@/core/models/Step';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';

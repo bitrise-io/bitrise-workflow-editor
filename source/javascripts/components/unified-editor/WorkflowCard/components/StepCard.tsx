@@ -24,7 +24,7 @@ import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';

@@ -114,7 +114,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 type TriggersProps = {
   additionalTrackingData: Record<string, string>;
   id: string;
-  triggers: TargetBasedTriggers;
+  triggers?: TargetBasedTriggers;
   updateTriggers: BitriseYmlStoreState['updateWorkflowTriggers'];
   updateTriggersEnabled: BitriseYmlStoreState['updateWorkflowTriggersEnabled'];
 };

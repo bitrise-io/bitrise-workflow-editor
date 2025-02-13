@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
+
+import { omit } from 'es-toolkit';
+import { CSS } from '@dnd-kit/utilities';
+import { useDebounceCallback } from 'usehooks-ts';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { CSS } from '@dnd-kit/utilities';
-import { omit } from 'es-toolkit';
-import { useDebounceCallback } from 'usehooks-ts';
-import AutoGrowableInput from '@/components/AutoGrowableInput';
-import DragHandle from '@/components/DragHandle/DragHandle';
+import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
+
+import { EnvVar } from '@/core/models/EnvVar';
+import { EnvModel } from '@/core/models/BitriseYml';
+import EnvVarService from '@/core/services/EnvVarService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import EnvVarService from '@/core/models/EnvVarService';
-import { EnvVar, EnvVarYml } from '@/core/models/EnvVar';
+import DragHandle from '@/components/DragHandle/DragHandle';
+import AutoGrowableInput from '@/components/AutoGrowableInput';
+
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type SortableEnvVar = EnvVar & {
@@ -28,7 +32,7 @@ function countValidationErrors(envs: SortableEnvVar[]) {
   }, 0);
 }
 
-function mapYmlEnvVarsToSortableEnvVars(envs?: EnvVarYml[], workflowId?: string): SortableEnvVar[] {
+function mapYmlEnvVarsToSortableEnvVars(envs?: EnvModel, workflowId?: string): SortableEnvVar[] {
   return (envs ?? []).map((env) => {
     return {
       uniqueId: crypto.randomUUID(),

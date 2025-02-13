@@ -1,4 +1,4 @@
-type BitriseYmlSettings = {
+export type BitriseYmlSettings = {
   lastModified: string;
   lines: number;
   isYmlSplit: boolean;
@@ -6,5 +6,3 @@ type BitriseYmlSettings = {
   usesRepositoryYml: boolean;
   ymlRootPath: string;
 };
-
-export { BitriseYmlSettings };

@@ -1,13 +1,13 @@
-enum LicensePoolKind {
+export enum LicensePoolKind {
   UNITY = 'LICENSE_KIND_UNITY',
 }
 
-type License = {
+export type License = {
   id: string;
   value: string;
 };
 
-type LicensePool = {
+export type LicensePool = {
   createdAt: string;
   description?: string;
   envVarName: string;
@@ -17,5 +17,3 @@ type LicensePool = {
   modifiedAt: string;
   name: string;
 };
-
-export { License, LicensePool, LicensePoolKind };

@@ -1,14 +1,14 @@
 import { omit, uniq } from 'es-toolkit';
-import { StagesYml } from '@/core/models/Stage';
-import { PipelineWorkflows, PipelineYmlObject } from './Pipeline';
-import { BitriseYml } from './BitriseYml';
+
+import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
+import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
+
 import StepService from './StepService';
-import { BITRISE_STEP_LIBRARY_URL } from './Step';
 
 const PIPELINE_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
-const EMPTY_PIPELINE = { workflows: {} } as PipelineYmlObject;
+const EMPTY_PIPELINE = { workflows: {} } as PipelineModel;
 
-function isGraph(pipeline: PipelineYmlObject) {
+function isGraph(pipeline: PipelineModel) {
   return Boolean(pipeline.workflows);
 }
 
@@ -32,7 +32,7 @@ function sanitizeName(value: string) {
   return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
 }
 
-function convertToGraphPipeline(pipeline: PipelineYmlObject, stages: StagesYml = {}): PipelineYmlObject {
+function convertToGraphPipeline(pipeline: PipelineModel, stages: Stages = {}): PipelineModel {
   if (isGraph(pipeline)) {
     return pipeline;
   }

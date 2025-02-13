@@ -1,6 +1,4 @@
-import { Workflows } from '@/core/models/Workflow';
-import { PipelinesYml } from './Pipeline';
-import { StagesYml } from './Stage';
+import { Pipelines, Stages, Workflows } from '../models/BitriseYml';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -113,7 +111,7 @@ function getDependantWorkflows(workflows: Workflows, id: string): string[] {
   }, []);
 }
 
-function countInPipelines(id: string, pipelines?: PipelinesYml, stages?: StagesYml) {
+function countInPipelines(id: string, pipelines?: Pipelines, stages?: Stages) {
   const pipelineIdsWhereWorkflowIsUsed = new Set<string>();
 
   Object.entries(pipelines ?? {}).forEach(([pipelineId, pipeline]) => {

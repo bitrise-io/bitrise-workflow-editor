@@ -1,23 +1,26 @@
-import { compact, uniq } from 'es-toolkit';
-import { isEmpty } from 'es-toolkit/compat';
 import semver from 'semver';
+import { isEmpty } from 'es-toolkit/compat';
+import { compact, uniq } from 'es-toolkit';
+
+import defaultIcon from '@/../images/step/icon-default.svg';
+import type { StepApiResult } from '@/core/api/StepApi';
+import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
+import VersionUtils from '@/core/utils/VersionUtils';
+
 import {
   BITRISE_STEP_LIBRARY_SSH_URL,
   BITRISE_STEP_LIBRARY_URL,
   LibraryType,
   Step,
-  StepBundleYmlObject,
-  StepInputVariable,
   StepLikeYmlObject,
-  Steps,
-  StepYmlObject,
-  VariableOpts,
-  WithGroupYmlObject,
-} from '@/core/models/Step';
-import type { StepApiResult } from '@/core/api/StepApi';
-import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
-import VersionUtils from '@/core/utils/VersionUtils';
-import defaultIcon from '@/../images/step/icon-default.svg';
+} from '../models/Step';
+import {
+  EnvironmentItemModel,
+  EnvironmentItemOptionsModel,
+  StepBundleModel,
+  StepModel,
+  WithModel,
+} from '../models/BitriseYml';
 
 // https://devcenter.bitrise.io/en/references/steps-reference/step-reference-id-format.html
 // <step_lib_source>::<step-id>@<version>:
@@ -130,53 +133,37 @@ function updateVersion(cvs: string, defaultStepLibrary: string, version: string 
   return version ? `${id}@${denormalizedVersion}` : id;
 }
 
-function isStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
+function isStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library !== LibraryType.BUNDLE && library !== LibraryType.WITH;
 }
 
-function isBitriseLibraryStep(
-  cvs: string,
-  defaultStepLibrary: string,
-  _step?: Steps[number][string],
-): _step is StepYmlObject {
+function isBitriseLibraryStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.BITRISE;
 }
 
-function isCustomLibraryStep(
-  cvs: string,
-  defaultStepLibrary: string,
-  _step?: Steps[number][string],
-): _step is StepYmlObject {
+function isCustomLibraryStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.CUSTOM;
 }
 
-function isGitStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
+function isGitStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.GIT;
 }
 
-function isLocalStep(cvs: string, defaultStepLibrary: string, _step?: Steps[number][string]): _step is StepYmlObject {
+function isLocalStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.LOCAL;
 }
 
-function isStepBundle(
-  cvs: string,
-  defaultStepLibrary: string,
-  _step?: Steps[number][string],
-): _step is StepBundleYmlObject {
+function isStepBundle(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepBundleModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.BUNDLE;
 }
 
-function isWithGroup(
-  cvs: string,
-  defaultStepLibrary: string,
-  _step?: Steps[number][string],
-): _step is WithGroupYmlObject {
+function isWithGroup(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is WithModel {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.WITH;
 }
@@ -370,7 +357,11 @@ function calculateChange(
   };
 }
 
-function toYmlInput(name: string, newValue: unknown, opts?: VariableOpts): StepInputVariable | undefined {
+function toYmlInput(
+  name: string,
+  newValue: unknown,
+  opts?: EnvironmentItemOptionsModel,
+): EnvironmentItemModel | undefined {
   if (!newValue || !String(newValue).trim()) {
     return undefined;
   }

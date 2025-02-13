@@ -1,4 +1,4 @@
-import { Workflows } from './Workflow';
+import { Workflows } from '../models/BitriseYml';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
