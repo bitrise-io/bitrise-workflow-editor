@@ -7,23 +7,29 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
+type PipelineConditionInputProps = {
+  pipelineId: string;
+  workflowId: string;
+};
+
 const PipelineConditionsCard = () => {
   const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
+  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
 
   return (
     <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
-      <AbortOnFailToggle />
+      <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
 
       <Divider my="24" />
-      <AlwaysRunSelect />
+      <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
 
       <Divider my="24" />
-      <RunIfInput />
+      <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
 
       {enableParallelWorkflow && (
         <>
           <Divider my="24" />
-          <ParallelInput />
+          <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
         </>
       )}
     </ExpandableCard>
@@ -45,9 +51,7 @@ const ButtonContent = () => {
   );
 };
 
-const AbortOnFailToggle = () => {
-  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
-
+const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const isChecked = useBitriseYmlStore(
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
   );
@@ -71,9 +75,7 @@ const AbortOnFailToggle = () => {
   );
 };
 
-const AlwaysRunSelect = () => {
-  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
-
+const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const options = [
     {
       value: 'off',
@@ -112,9 +114,7 @@ const AlwaysRunSelect = () => {
   );
 };
 
-const RunIfInput = () => {
-  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
-
+const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const value = useBitriseYmlStore(
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
   );
@@ -138,8 +138,7 @@ const RunIfInput = () => {
   );
 };
 
-const ParallelInput = () => {
-  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
+const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
 
