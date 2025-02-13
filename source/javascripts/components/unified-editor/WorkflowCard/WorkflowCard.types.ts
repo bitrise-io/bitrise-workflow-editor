@@ -29,10 +29,10 @@ export type StepActions = {
   onMoveStep?: (workflowId: string, stepIndex: number, targetIndex: number) => void;
   onUpgradeStep?: (workflowId: string, stepIndex: number, version: string) => void;
   onCloneStep?: (workflowId: string, stepIndex: number) => void;
-  onDeleteStep?: (workflowId: string, stepIndices: number[]) => void;
+  onDeleteStep?: (workflowId: string, stepIndices: number[], cvs?: string) => void;
   onAddStepToStepBundle?: (stepBundleId: string, stepIndex: number) => void;
   onCloneStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
-  onDeleteStepInStepBundle?: (stepBundleId: string, selectedStepIndices: number[]) => void;
+  onDeleteStepInStepBundle?: (stepBundleId: string, selectedStepIndices: number[], cvs?: string) => void;
   onGroupStepsToStepBundle?: (
     workflowId: string | undefined,
     stepBundleId: string | undefined,

@@ -29,13 +29,8 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
   }));
 
-  const {
-    closeDialog,
-    openDialog,
-    selectedStepIndices,
-    setSelectedStepIndices,
-    stepBundleId: selectedStepBundleId,
-  } = useStepBundlesPageStore();
+  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
+    useStepBundlesPageStore();
 
   const handleSelectStep = useCallback<
     (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
@@ -53,7 +48,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         if (newIndices.length !== 1) {
           closeDialog();
         }
-        setSelectedStepIndices(newIndices);
+        useStepBundlesPageStore.setState({
+          selectedStepIndices: newIndices,
+          selectionParent: newSelectionParent,
+        });
       } else if (type === LibraryType.BUNDLE) {
         openDialog({
           type: StepBundlesPageDialogType.STEP_BUNDLE,
@@ -70,7 +68,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         })();
       }
     },
-    [closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices],
+    [closeDialog, openDialog, selectedStepIndices],
   );
 
   const openStepSelectorDrawer = useCallback(
@@ -88,38 +86,44 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     (bundleId: string, stepIndex: number) => {
       cloneStepInStepBundle(bundleId, stepIndex);
 
-      // Adjust index of the selected steps
-      setSelectedStepIndices(moveStepIndices('clone', selectedStepIndices, stepIndex));
+      if (selectionParent?.id === bundleId) {
+        // Adjust index of the selected steps
+        setSelectedStepIndices(moveStepIndices('clone', selectedStepIndices, stepIndex));
+      }
     },
-    [cloneStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
+    [cloneStepInStepBundle, selectedStepIndices, selectionParent?.id, setSelectedStepIndices],
   );
 
   const handleDeleteStep = useCallback(
     (bundleId: string, stepIndices: number[]) => {
       deleteStepInStepBundle(bundleId, stepIndices);
 
-      // Close the dialog if the selected step is deleted
-      if (selectedStepIndices.length === 1 && selectedStepIndices.includes(stepIndices[0])) {
-        closeDialog();
-      }
-      // Adjust index of the selected steps
-      if (selectedStepIndices.includes(stepIndices[0])) {
-        setSelectedStepIndices([]);
-      } else {
-        setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
+      if (selectionParent?.id === bundleId) {
+        // Close the dialog if the selected step is deleted
+        if (selectedStepIndices.includes(stepIndices[0])) {
+          closeDialog();
+        }
+        // Adjust index of the selected steps
+        if (selectedStepIndices.includes(stepIndices[0])) {
+          setSelectedStepIndices([]);
+        } else {
+          setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
+        }
       }
     },
-    [deleteStepInStepBundle, selectedStepIndices, setSelectedStepIndices, closeDialog],
+    [deleteStepInStepBundle, selectionParent?.id, selectedStepIndices, closeDialog, setSelectedStepIndices],
   );
 
   const handleMoveStep = useCallback(
     (bundleId: string, stepIndex: number, targetIndex: number) => {
       moveStepInStepBundle(bundleId, stepIndex, targetIndex);
 
-      // Adjust index of the selected steps
-      setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
+      if (selectionParent?.id === bundleId) {
+        // Adjust index of the selected steps
+        setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
+      }
     },
-    [moveStepInStepBundle, selectedStepIndices, setSelectedStepIndices],
+    [moveStepInStepBundle, selectedStepIndices, selectionParent?.id, setSelectedStepIndices],
   );
 
   const handleGroupStepsToStepBundle = useCallback(
@@ -160,10 +164,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
             onUpgradeStepInStepBundle={upgradeStepInStepBundle}
             onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
             selectedStepIndices={selectedStepIndices}
-            selectionParent={{
-              id: selectedStepBundleId || stepBundleId || '',
-              type: 'stepBundle',
-            }}
+            selectionParent={selectionParent}
           >
             <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
           </WorkflowCardContextProvider>

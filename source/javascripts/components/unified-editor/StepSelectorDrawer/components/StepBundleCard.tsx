@@ -130,10 +130,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, [stepIndex]);
+                onDeleteStep(workflowId, [stepIndex], cvs);
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
-                onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+                onDeleteStepInStepBundle(stepBundleId, [stepIndex], cvs);
               }
             }}
           />
@@ -141,6 +141,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       </ButtonGroup>
     );
   }, [
+    cvs,
     isDragging,
     isRemovable,
     onDeleteStep,

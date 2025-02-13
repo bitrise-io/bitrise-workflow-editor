@@ -11,6 +11,8 @@ import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { useStepBundles } from '@/hooks/useStepBundles';
+import StepBundleService from '@/core/models/StepBundleService';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
@@ -25,6 +27,7 @@ const containerProps: CardProps = {
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
+  const stepBundles = useStepBundles();
 
   const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
     useWorkflowsPageStore(
@@ -262,7 +265,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const handleDeleteStep = useCallback(
-    (wfId: string, stepIndices: number[]) => {
+    (wfId: string, stepIndices: number[], cvs?: string) => {
       deleteStep(wfId, stepIndices);
 
       if (selectionParent?.id === wfId && selectionParent?.type === 'workflow') {
@@ -277,8 +280,29 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
         }
       }
+
+      if (cvs?.startsWith('bundle::')) {
+        const id = cvs.replace('bundle::', '');
+        if (selectionParent?.id === id) {
+          closeDialog();
+        }
+        if (
+          selectionParent?.id &&
+          StepBundleService.getStepBundleChain(stepBundles, id).includes(selectionParent?.id)
+        ) {
+          closeDialog();
+        }
+      }
     },
-    [deleteStep, selectionParent?.id, selectionParent?.type, selectedStepIndices, closeDialog, setSelectedStepIndices],
+    [
+      deleteStep,
+      selectionParent?.id,
+      selectionParent?.type,
+      selectedStepIndices,
+      closeDialog,
+      setSelectedStepIndices,
+      stepBundles,
+    ],
   );
 
   const handleCloneStepInStepBundle = useCallback(
@@ -294,7 +318,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const handleDeleteStepInStepBundle = useCallback(
-    (stepBundleId: string, stepIndices: number[]) => {
+    (stepBundleId: string, stepIndices: number[], cvs?: string) => {
       deleteStepInStepBundle(stepBundleId, stepIndices);
 
       if (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle') {
@@ -308,6 +332,18 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
         }
       }
+      if (cvs?.startsWith('bundle::')) {
+        const id = cvs.replace('bundle::', '');
+        if (selectionParent?.id === id) {
+          closeDialog();
+        }
+        if (
+          selectionParent?.id &&
+          StepBundleService.getStepBundleChain(stepBundles, id).includes(selectionParent?.id)
+        ) {
+          closeDialog();
+        }
+      }
     },
     [
       closeDialog,
@@ -316,6 +352,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       selectionParent?.id,
       selectionParent?.type,
       setSelectedStepIndices,
+      stepBundles,
     ],
   );
 

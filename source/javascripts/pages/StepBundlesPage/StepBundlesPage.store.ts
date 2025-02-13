@@ -66,7 +66,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
               selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
               stepBundleId,
               newStepBundleId,
-              selectionParent: stateSelectionParent || stateSelectionParent,
+              selectionParent: selectionParent || stateSelectionParent,
             },
           };
         }

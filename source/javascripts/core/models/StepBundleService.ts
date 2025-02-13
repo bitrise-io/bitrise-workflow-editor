@@ -48,12 +48,12 @@ function validateName(newStepBundleName: string, initStepBundleName: string, ste
   return true;
 }
 
-function getChain(stepBundles: StepBundles, id: string) {
+function getStepBundleChain(stepBundles: StepBundles, id: string) {
   let ids: string[] = [];
   stepBundles[id].steps?.forEach((step) => {
     const cvs = Object.keys(step)[0];
     if (cvs.startsWith('bundle::')) {
-      ids = ids.concat(getChain(stepBundles, cvs.replace('bundle::', '')));
+      ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', '')));
     }
   });
   ids.push(id);
@@ -63,10 +63,17 @@ function getChain(stepBundles: StepBundles, id: string) {
 function getStepBundleChains(stepBundles: StepBundles) {
   const stepBundleChains: Record<string, string[]> = {};
   Object.keys(stepBundles).forEach((id) => {
-    stepBundleChains[id] = getChain(stepBundles, id);
+    stepBundleChains[id] = getStepBundleChain(stepBundles, id);
   });
 
   return stepBundleChains;
 }
 
-export default { getDependantWorkflows, getUsedByText, sanitizeName, validateName, getStepBundleChains };
+export default {
+  getDependantWorkflows,
+  getUsedByText,
+  sanitizeName,
+  validateName,
+  getStepBundleChains,
+  getStepBundleChain,
+};
