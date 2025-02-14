@@ -392,7 +392,7 @@
 								@include margin-x(0);
 
 								&:after {
-									content: "<%= data[:strings][:env_vars][:delete_env_var] %>";
+									content: "Delete";
 								}
 							}
 
