@@ -91,7 +91,6 @@ const htmlExporter = {
 
 const entry = {
   vendor: './javascripts/vendor.js',
-  strings: './javascripts/strings.js.erb',
   routes: './javascripts/routes.js',
   main: './javascripts/index.js',
 };
@@ -170,7 +169,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
+    extensions: ['.js', '.ts', '.tsx', '.css', '.scss'],
   },
   module: {
     rules: [
@@ -178,10 +177,6 @@ module.exports = {
       {
         test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
-      },
-      {
-        test: /\.erb$/i,
-        use: railsTransformer('erb'),
       },
       {
         test: /\.tsx?$/i,
@@ -216,8 +211,8 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.s[ac]ss(\.erb)?$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
+        test: /\.scss$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
 
       /* --- Images --- */

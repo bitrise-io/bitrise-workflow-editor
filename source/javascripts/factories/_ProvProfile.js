@@ -1,72 +1,25 @@
 (function () {
   angular.module('BitriseWorkflowEditor').factory('ProvProfile', function ($q, requestService) {
     const capabilities = {
-      'com.apple.security.application-groups':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.security.application-groups'
-        ],
-      'com.apple.developer.in-app-payments':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.in-app-payments'
-        ],
-      'com.apple.developer.associated-domains':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.associated-domains'
-        ],
-      'com.apple.developer.healthkit':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.healthkit'
-        ],
-      'com.apple.developer.homekit':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.homekit'],
-      'com.apple.developer.networking.HotspotConfiguration':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.networking.HotspotConfiguration'
-        ],
-      'com.apple.InAppPurchase':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.InAppPurchase'],
-      'inter-app-audio':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['inter-app-audio'],
-      'com.apple.developer.networking.multipath':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.networking.multipath'
-        ],
-      'com.apple.developer.networking.networkextension':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.networking.networkextension'
-        ],
-      'com.apple.developer.nfc.readersession.formats':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.nfc.readersession.formats'
-        ],
-      'com.apple.developer.networking.vpn.api':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.networking.vpn.api'
-        ],
-      'aps-environment':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['aps-environment'],
-      'com.apple.developer.siri':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.siri'],
-      'com.apple.developer.pass-type-identifiers':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.pass-type-identifiers'
-        ],
-      'com.apple.external-accessory.wireless-configuration':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.external-accessory.wireless-configuration'
-        ],
-      'com.apple.developer.default-data-protection':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.default-data-protection'
-        ],
-      'com.apple.developer.ubiquity-kvstore-identifier':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.ubiquity-kvstore-identifier'
-        ],
-      'com.apple.developer.icloud-services':
-        window.strings.code_signing.prov_profile.prov_profile_details_popup.capabilities[
-          'com.apple.developer.icloud-services'
-        ],
+      'com.apple.security.application-groups': 'App Groups',
+      'com.apple.developer.in-app-payments': 'Apple Pay',
+      'com.apple.developer.associated-domains': 'Associated Domains',
+      'com.apple.developer.healthkit': 'HealthKit',
+      'com.apple.developer.homekit': 'HomeKit',
+      'com.apple.developer.networking.HotspotConfiguration': 'Hotspot',
+      'com.apple.InAppPurchase': 'In-App Purchase',
+      'inter-app-audio': 'Inter-App Audio',
+      'com.apple.developer.networking.multipath': 'Multipath',
+      'com.apple.developer.networking.networkextension': 'Network Extensions',
+      'com.apple.developer.nfc.readersession.formats': 'NFC Tag Reading',
+      'com.apple.developer.networking.vpn.api': 'Personal VPN',
+      'aps-environment': 'Push Notifications',
+      'com.apple.developer.siri': 'SiriKit',
+      'com.apple.developer.pass-type-identifiers': 'Wallet',
+      'com.apple.external-accessory.wireless-configuration': 'Wireless Accessory Configuration',
+      'com.apple.developer.default-data-protection': 'Data Protection',
+      'com.apple.developer.ubiquity-kvstore-identifier': 'iCloud',
+      'com.apple.developer.icloud-services': 'iCloud',
     };
 
     const ProvProfile = function () {
