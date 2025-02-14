@@ -106,7 +106,8 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
           const existingNode = nds.find((n) => n.id === node.id);
 
           if (existingNode) {
-            return { ...existingNode, ...node };
+            existingNode.data = node.data;
+            return existingNode;
           }
 
           return node;
