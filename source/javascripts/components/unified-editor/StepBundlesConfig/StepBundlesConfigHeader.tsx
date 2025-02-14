@@ -14,7 +14,7 @@ const StepBundlesConfigHeader = () => {
         {userValues?.title || id || 'Step bundle'}
       </Text>
       <Text textStyle="body/sm/regular" color="text/secondary">
-        {StepBundleService.getUsedByText(dependants.length)} ({dependants.sort().join(', ')})
+        {StepBundleService.getUsedByText(dependants.length)}
       </Text>
     </>
   );
