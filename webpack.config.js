@@ -272,6 +272,7 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
       'process.env.WFE_VERSION': JSON.stringify(version),
       'process.env.ANALYTICS': JSON.stringify(process.env.ANALYTICS || 'false'),
+      'process.env.PUBLIC_URL_ROOT': JSON.stringify(process.env.PUBLIC_URL_ROOT || ''),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {
