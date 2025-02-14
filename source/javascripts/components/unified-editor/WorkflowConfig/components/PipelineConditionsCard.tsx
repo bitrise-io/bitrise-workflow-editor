@@ -1,13 +1,44 @@
 import { ChangeEventHandler } from 'react';
-import { Box, Divider, ExpandableCard, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+import { useShallow } from 'zustand/react/shallow';
+import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
-type ButtonContentProps = {
+type PipelineConditionInputProps = {
   pipelineId: string;
+  workflowId: string;
 };
 
-const ButtonContent = ({ pipelineId }: ButtonContentProps) => {
+const PipelineConditionsCard = () => {
+  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
+  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
+
+  return (
+    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
+      <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
+
+      {enableParallelWorkflow && (
+        <>
+          <Divider my="24" />
+          <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
+        </>
+      )}
+    </ExpandableCard>
+  );
+};
+
+const ButtonContent = () => {
+  const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
+
   return (
     <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minW={0}>
       <Box display="flex" flexDir="column" alignItems="flex-start" minW={0}>
@@ -20,93 +51,114 @@ const ButtonContent = ({ pipelineId }: ButtonContentProps) => {
   );
 };
 
-const shouldAlwaysRunOptions = [
-  {
-    value: 'off',
-    label: 'Off',
-    helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
-  },
-  {
-    value: 'workflow',
-    label: 'Workflow',
-    helperText: 'This Workflow will start if previous Workflows failed.',
-  },
-];
+const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
+  const isChecked = useBitriseYmlStore(
+    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
+  );
 
-const PipelineConditionsCard = () => {
-  const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
-  const workflowId = usePipelinesPageStore((s) => s.workflowId);
+  const updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled = useBitriseYmlStore(
+    (s) => s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
+  );
 
-  const {
-    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
-    updatePipelineWorkflowConditionShouldAlwaysRun,
-    updatePipelineWorkflowConditionRunIfExpression,
-    abortOnFailureEnabled,
-    shouldAlwaysRunValue,
-    runIfExpression,
-  } = useBitriseYmlStore((s) => ({
-    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled:
-      s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
-    updatePipelineWorkflowConditionShouldAlwaysRun: s.updatePipelineWorkflowConditionShouldAlwaysRun,
-    updatePipelineWorkflowConditionRunIfExpression: s.updatePipelineWorkflowConditionRunIfExpression,
-    abortOnFailureEnabled: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
-    shouldAlwaysRunValue: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off',
-    runIfExpression: s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
-  }));
-
-  const onAbortOnFailureToggleChange = () => {
-    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, !abortOnFailureEnabled);
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, e.target.checked);
   };
 
-  const shouldAlwaysRunHelperText = shouldAlwaysRunOptions.find(
-    (option) => option.value === shouldAlwaysRunValue,
-  )?.helperText;
-  const onShouldAlwaysRunChange = (value: string) => {
-    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, value);
+  return (
+    <Toggle
+      isChecked={isChecked}
+      variant="fixed"
+      label="Abort Pipeline on failure"
+      helperText="Running Workflows will shut down, future ones won’t start if this one fails."
+      onChange={handleChange}
+    />
+  );
+};
+
+const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
+  const options = [
+    {
+      value: 'off',
+      label: 'Off',
+      helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
+    },
+    {
+      value: 'workflow',
+      label: 'Workflow',
+      helperText: 'This Workflow will start if previous Workflows failed.',
+    },
+  ];
+
+  const value = useBitriseYmlStore(
+    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off',
+  );
+
+  const helperText = options.find((o) => o.value === value)?.helperText;
+
+  const updatePipelineWorkflowConditionShouldAlwaysRun = useBitriseYmlStore(
+    (s) => s.updatePipelineWorkflowConditionShouldAlwaysRun,
+  );
+
+  const handleChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
+    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, e.target.value);
   };
 
-  const onRunIfExpressionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+  return (
+    <Select isRequired label="Always run" value={value} helperText={helperText} onChange={handleChange}>
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </Select>
+  );
+};
+
+const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
+  const value = useBitriseYmlStore(
+    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
+  );
+
+  const updatePipelineWorkflowConditionRunIfExpression = useBitriseYmlStore(
+    (s) => s.updatePipelineWorkflowConditionRunIfExpression,
+  );
+
+  const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, e.target.value);
   };
 
   return (
-    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent pipelineId={pipelineId} />}>
-      <Box display="flex" flexDir="column" gap="24" />
+    <Textarea
+      value={value}
+      label="Additional running conditions"
+      placeholder="Enter any valid Go template"
+      helperText="Enter any valid Go template. The workflow will only be executed if this template evaluates to true. You can use our `getenv` and `enveq` functions for interacting with env vars."
+      onChange={handleChange}
+    />
+  );
+};
 
-      <Toggle
-        variant="fixed"
-        label="Abort Pipeline on failure"
-        helperText="Running Workflows will shut down, future ones won’t start if this one fails."
-        isChecked={abortOnFailureEnabled}
-        onChange={onAbortOnFailureToggleChange}
-      />
+const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
+  const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
+  const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
 
-      <Divider my="24" />
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    updatePipelineWorkflowParallel(pipelineId, workflowId, e.target.value);
+  };
 
-      <Select
-        isRequired
-        label="Always run"
-        value={shouldAlwaysRunValue}
-        helperText={shouldAlwaysRunHelperText}
-        onChange={(e) => onShouldAlwaysRunChange(e.target.value)}
-      >
-        {shouldAlwaysRunOptions.map(({ value, label }) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </Select>
-
-      <Divider my="24" />
-
-      <Textarea
-        label="Additional running conditions"
-        placeholder="Enter any valid Go template"
-        value={runIfExpression}
-        helperText="Enter any valid Go template. The workflow will only be executed if this template evaluates to true. You can use our `getenv` and `enveq` functions for interacting with env vars."
-        onChange={onRunIfExpressionChange}
-      />
-    </ExpandableCard>
+  return (
+    <Input
+      value={value}
+      type="number"
+      label="Parallel copies"
+      helperText={
+        <DetailedHelperText
+          summary="The number of copies of this Workflow that will be executed in parallel at runtime."
+          details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. EnvVars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
+        />
+      }
+      onChange={handleChange}
+    />
   );
 };
 
