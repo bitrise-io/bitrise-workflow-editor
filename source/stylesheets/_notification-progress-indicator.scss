@@ -43,7 +43,7 @@
 }
 
 .notification {
-	border-color: $def-blue-light;
+	border-color: $def-blue-shade;
 	color: $def-blue-shade;
 	background-color: $def-blue-light;
 
@@ -53,7 +53,7 @@
 }
 
 .progress-indicator.in-progress {
-	border-color: $def-light-grape;
+	border-color: $def-violet_blue;;
 	color: $def-violet_blue;
 	background-color: $def-light-grape;
 
@@ -63,7 +63,7 @@
 }
 
 .notification.error, .progress-indicator.error {
-	border-color: $def-danger-light;
+	border-color: $def-danger;
 	color: $def-danger;
 	background-color: $def-danger-light;
 
@@ -73,7 +73,7 @@
 }
 
 .notification.success, .progress-indicator.success {
-	border-color: $def-green-light;
+	border-color:  $def-green;
 	color: $def-green;
 	background-color: $def-green-light;
 
@@ -83,7 +83,7 @@
 }
 
 .notification.warning {
-	border-color: $def-yellow-1;
+	border-color: $def-yellow-5;
 	color: $def-yellow-5;
 	background-color: $def-yellow-1;
 

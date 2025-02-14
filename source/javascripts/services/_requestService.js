@@ -800,7 +800,7 @@ import jsyaml from 'js-yaml';
 
         switch (requestService.mode) {
           case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/stacks`);
+            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/stack`);
 
             break;
           case 'cli':
