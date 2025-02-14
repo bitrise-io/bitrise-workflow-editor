@@ -1,4 +1,5 @@
 /* eslint-disable import/no-cycle */
+import { memo } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepActions } from '../contexts/WorkflowCardContext';
 import StepList from './StepList';
@@ -19,4 +20,4 @@ const StepBundleStepList = ({ stepBundleId }: Props) => {
   );
 };
 
-export default StepBundleStepList;
+export default memo(StepBundleStepList);
