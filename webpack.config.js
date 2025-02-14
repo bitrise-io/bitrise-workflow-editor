@@ -1,6 +1,6 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { ProvidePlugin, DefinePlugin } = require('webpack');
+const { ProvidePlugin, DefinePlugin, EnvironmentPlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPLugin = require('terser-webpack-plugin');
@@ -262,12 +262,14 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
+    new EnvironmentPlugin({
+      ANALYTICS: 'false',
+      MODE: 'WEBSITE',
+      NODE_ENV: 'development',
+      PUBLIC_URL_ROOT: '',
+      WFE_VERSION: version,
+    }),
     new DefinePlugin({
-      'process.env.MODE': JSON.stringify(MODE || 'WEBSITE'),
-      'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
-      'process.env.WFE_VERSION': JSON.stringify(version),
-      'process.env.ANALYTICS': JSON.stringify(process.env.ANALYTICS || 'false'),
-      'process.env.PUBLIC_URL_ROOT': JSON.stringify(process.env.PUBLIC_URL_ROOT || ''),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {
