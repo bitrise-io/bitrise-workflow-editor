@@ -1519,7 +1519,7 @@ import jsyaml from 'js-yaml';
       };
 
       requestService.getApp = function (appSlug, requestConfig) {
-        const requestURL = requestService.webServerPath(`/api/app/${appSlug}`);
+        const requestURL = requestService.webServerPath(`/app/${appSlug}.json`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, undefined, requestConfig).then(function (response) {
