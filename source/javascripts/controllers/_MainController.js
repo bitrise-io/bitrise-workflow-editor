@@ -1099,15 +1099,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         };
 
         viewModel.appPath = function () {
-          return stringService.stringReplacedWithParameters('/apps/:app_slug', {
-            app_slug: appService.appDetails?.slug,
-          });
-        };
-
-        viewModel.appCodeSigningPath = function () {
-          return stringService.stringReplacedWithParameters('/apps/:app_slug/code_signing', {
-            app_slug: appService.appDetails?.slug,
-          });
+          return `/apps/:app_slug${appService.appDetails?.slug}`;
         };
 
         viewModel.init = function () {
@@ -1219,12 +1211,6 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
         viewModel.appNameWithPlaceholder = function () {
           return appService.appDetails?.title || 'Unknown app';
-        };
-
-        viewModel.workflowsAndPipelinesPath = function () {
-          return stringService.stringReplacedWithParameters('/apps/:app_slug/workflows_and_pipelines', {
-            app_slug: appService.appDetails?.slug || '',
-          });
         };
 
         viewModel.saveSecretsFromReact = function (secretsFromReact) {
