@@ -1083,15 +1083,11 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         };
 
         viewModel.workspaceSecretsPath = function () {
-          return stringService.stringReplacedWithParameters('/workspaces/:workspace_slug/secrets', {
-            workspace_slug: appService.appDetails?.ownerData?.slug,
-          });
+          return `/workspaces/${appService.appDetails?.ownerData?.slug}/secrets`;
         };
 
         viewModel.workspacePlanSelectorPath = function () {
-          return stringService.stringReplacedWithParameters('/workspaces/:workspace_slug/plan_selector', {
-            workspace_slug: appService.appDetails?.ownerData?.slug,
-          });
+          return `/workspaces/${appService.appDetails?.ownerData?.slug}/plan_selector`;
         };
 
         viewModel.dashboardPath = function () {

@@ -254,9 +254,7 @@ import WindowUtils from '@/core/utils/WindowUtils';
 
         viewModel.stackOptionTitle = function (stack) {
           if (stack === null) {
-            return stringService.stringReplacedWithParameters('Default (<stack_name>)', {
-              stack_name: viewModel.stackOptionTitle(appService.stack),
-            });
+            return `Default (${viewModel.stackOptionTitle(appService.stack)})`;
           }
 
           return stack.name || stack.id;

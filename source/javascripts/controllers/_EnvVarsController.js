@@ -110,12 +110,9 @@
             viewModel.envVarsBySource.push({
               type: 'workflow',
               workflowID: aWorkflowID,
-              notification: stringService.stringReplacedWithParameters(
-                'You can specify Env Vars which will only be available for the steps in your <workflow_id> Workflow.',
-                {
-                  workflow_id: aWorkflowID,
-                },
-              ),
+              notification: `You can specify Env Vars which will only be available for the steps in your ${
+                aWorkflowID
+              } Workflow.`,
               envVars: _.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
                 return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
               }),
