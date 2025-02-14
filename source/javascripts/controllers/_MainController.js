@@ -1095,7 +1095,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         };
 
         viewModel.appPath = function () {
-          return `/apps/${appService.appDetails?.slug}`;
+          return `/app/${appService.appDetails?.slug}`;
         };
 
         viewModel.init = function () {

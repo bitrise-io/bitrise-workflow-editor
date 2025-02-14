@@ -715,7 +715,7 @@ import jsyaml from 'js-yaml';
 
         switch (requestService.mode) {
           case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/machine-type-configs`);
+            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/machine_type_configs`);
 
             break;
           case 'cli':
