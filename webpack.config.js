@@ -92,14 +92,14 @@ const htmlExporter = {
 const entry = {
   vendor: './javascripts/vendor.js',
   strings: './javascripts/strings.js.erb',
-  routes: './javascripts/routes.js.erb',
+  routes: './javascripts/routes.js',
   main: './javascripts/index.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
 }
 if (isDataDogRumEnabled) {
-  entry.datadogrum = './javascripts/datadog-rum.js.erb';
+  entry.datadogrum = './javascripts/datadog-rum.js';
 }
 
 /** @type {import('webpack').Configuration} */
@@ -270,6 +270,8 @@ module.exports = {
     new DefinePlugin({
       'process.env.MODE': JSON.stringify(MODE || 'WEBSITE'),
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
+      'process.env.WFE_VERSION': JSON.stringify(version),
+      'process.env.ANALYTICS': JSON.stringify(process.env.ANALYTICS || 'false'),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {

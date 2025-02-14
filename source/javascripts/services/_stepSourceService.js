@@ -1,21 +1,19 @@
 (function () {
-
-
-  angular.module("BitriseWorkflowEditor").factory("stepSourceService", [
-    "$q",
-    "requestService",
-    "appService",
-    "semverService",
-    "stepLibSearchService",
-    "logger",
-    "Step",
+  angular.module('BitriseWorkflowEditor').factory('stepSourceService', [
+    '$q',
+    'requestService',
+    'appService',
+    'semverService',
+    'stepLibSearchService',
+    'logger',
+    'Step',
     function ($q, requestService, appService, semverService, stepLibSearchService, logger, Step) {
       const BITRISE_STEPLIB = 'https://github.com/bitrise-io/bitrise-steplib.git';
       const stepSourceService = {
         defaultLibraryURL: undefined,
         libraries: [],
         localSteps: [],
-        gitSteps: []
+        gitSteps: [],
       };
 
       const LATEST_VERSION = null;
@@ -26,22 +24,22 @@
         }
 
         const library = _.find(stepSourceService.libraries, {
-          url: step.libraryURL
+          url: step.libraryURL,
         });
 
         if (!library) {
-          throw new Error("<%= data[:strings][:step_source_service][:get_library_for_step][:default_error] %>")
+          throw new Error('Library not found for step');
         }
 
         return library;
       };
 
       const logStepVersionMissing = function (step, requestedVersion, library) {
-        logger.warn("Step version could not be resolved", {
+        logger.warn('Step version could not be resolved', {
           id: step.id,
           version: step.version,
           requestedVersion,
-          stepsLength: Object.keys(library.steps).length
+          stepsLength: Object.keys(library.steps).length,
         });
       };
 
@@ -52,7 +50,7 @@
 
         const messageTags = {
           stepCVS: step.cvs,
-          library: library.url
+          library: library.url,
         };
 
         try {
@@ -64,7 +62,7 @@
           }
 
           if (!step.isConfigured()) {
-            logger.warn("Step is not configured", messageTags);
+            logger.warn('Step is not configured', messageTags);
           }
         } catch (error) {
           logger.error(error, messageTags);
@@ -74,9 +72,9 @@
       stepSourceService.stepFromCVS = function (cvs) {
         const step = new Step(cvs);
 
-        const idStartIndex = cvs.indexOf("::") !== -1 ? cvs.indexOf("::") + 2 : 0;
+        const idStartIndex = cvs.indexOf('::') !== -1 ? cvs.indexOf('::') + 2 : 0;
         const versionStartIndex =
-          cvs.lastIndexOf("@") !== -1 && cvs.indexOf("::") < cvs.lastIndexOf("@") ? cvs.lastIndexOf("@") + 1 : -1;
+          cvs.lastIndexOf('@') !== -1 && cvs.indexOf('::') < cvs.lastIndexOf('@') ? cvs.lastIndexOf('@') + 1 : -1;
 
         const source =
           idStartIndex > 0 && cvs.slice(0, idStartIndex - 2).length > 0 ? cvs.slice(0, idStartIndex - 2) : null;
@@ -86,15 +84,15 @@
 
         if (!step.isWithBlock()) {
           switch (source) {
-            case "path": {
+            case 'path': {
               if (id.length === 0) {
-                throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_path] %>");
+                throw new Error('Path not specified.');
               }
 
               step.localPath = id;
 
               const localStep = _.find(stepSourceService.localSteps, {
-                localPath: step.localPath
+                localPath: step.localPath,
               });
 
               if (localStep) {
@@ -103,9 +101,9 @@
 
               break;
             }
-            case "git": {
+            case 'git': {
               if (id.length === 0) {
-                throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_git_url] %>");
+                throw new Error('Git URL not specified.');
               }
 
               step.gitURL = id;
@@ -113,7 +111,7 @@
 
               const gitStep = _.find(stepSourceService.gitSteps, {
                 gitURL: step.gitURL,
-                version: step.version
+                version: step.version,
               });
 
               if (gitStep) {
@@ -122,15 +120,15 @@
 
               break;
             }
-            case "bundle":
+            case 'bundle':
               break;
             default: {
               if (!source && !stepSourceService.defaultLibraryURL) {
-                throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_library] %>");
+                throw new Error('Step library not specified.');
               }
 
               if (id.length === 0) {
-                throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_id] %>");
+                throw new Error('Step ID not specified.');
               }
 
               step.libraryURL = source !== null ? source : stepSourceService.defaultLibraryURL;
@@ -138,7 +136,7 @@
               step.version = version;
 
               const library = _.find(stepSourceService.libraries, {
-                url: step.libraryURL
+                url: step.libraryURL,
               });
 
               if (!library) {
@@ -199,7 +197,7 @@
           return;
         }
 
-        const indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") !== -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
+        const indexOfVersionInCurrentCVS = step.cvs.lastIndexOf('@') !== -1 ? step.cvs.lastIndexOf('@') + 1 : -1;
         if (indexOfVersionInCurrentCVS !== -1) {
           step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
         }
@@ -247,12 +245,12 @@
 
           if (step.libraryURL !== undefined && !isStepInLib(step)) {
             if (step.libraryURL === BITRISE_STEPLIB) {
-              stepLibSearchCVSs.push(aCVS.replace(BITRISE_STEPLIB, "").replace("::", ""));
+              stepLibSearchCVSs.push(aCVS.replace(BITRISE_STEPLIB, '').replace('::', ''));
             } else {
               libraryURLs.push(step.libraryURL);
             }
           } else if (step.localPath !== undefined) {
-            if (requestService.mode === "cli") {
+            if (requestService.mode === 'cli') {
               loadPromises.push(loadStepWithCVS(aCVS, requestConfig));
             }
           } else if (step.gitURL !== undefined) {
@@ -263,16 +261,16 @@
                     resolve(defaultStepConfig);
                   },
                   function (_error) {
-                    if (requestService.mode === "cli") {
+                    if (requestService.mode === 'cli') {
                       reject(_error);
                     } else {
                       logger.error(_error);
 
                       resolve(null);
                     }
-                  }
+                  },
                 );
-              })
+              }),
             );
           }
 
@@ -292,7 +290,7 @@
           const stepLibSearchPromise = stepLibSearchService
             .list({
               stepCVSs: stepLibSearchCVSs,
-              includeInputs: true
+              includeInputs: true,
             })
             .then(function (steps) {
               addStepsToDefaultLibrary(steps);
@@ -304,21 +302,19 @@
         return $q.all(loadPromises);
       };
 
-
       function isStepInLib(step) {
         const library = stepSourceService.libraries.find(function (lib) {
-          return lib.url === step.libraryURL
+          return lib.url === step.libraryURL;
         });
         if (!library || !library.steps || !library.steps[step.id]) {
           return false;
         }
 
         if (!step.version) {
-          const latestStepVersion = library.latestStepVersions[step.id]
-          return !!library.steps[step.id][latestStepVersion]
+          const latestStepVersion = library.latestStepVersions[step.id];
+          return !!library.steps[step.id][latestStepVersion];
         }
         return !!semverService.resolveVersion(step.version, step.id, library);
-
       }
 
       function addStepsToDefaultLibrary(steps) {
@@ -326,8 +322,7 @@
           const stepVersions = {};
           let latestStepVersion;
 
-          Object
-            .values(steps[stepId].versions)
+          Object.values(steps[stepId].versions)
             // We need to order versions, so the last step version processed
             // will be the latest version
             .sort(function (v1, v2) {
@@ -353,7 +348,7 @@
             library = {
               url: BITRISE_STEPLIB,
               steps: {},
-              latestStepVersions: {}
+              latestStepVersions: {},
             };
 
             stepSourceService.libraries.push(library);
@@ -381,7 +376,7 @@
           if (
             step.libraryURL !== undefined &&
             _.find(stepSourceService.libraries, {
-              url: step.libraryURL
+              url: step.libraryURL,
             })
           ) {
             return $q.when();
@@ -390,7 +385,7 @@
           if (
             step.localPath !== undefined &&
             _.find(stepSourceService.localSteps, {
-              localPath: step.localPath
+              localPath: step.localPath,
             })
           ) {
             return $q.when();
@@ -400,7 +395,7 @@
             step.gitURL !== undefined &&
             _.find(stepSourceService.gitSteps, {
               gitURL: step.gitURL,
-              version: step.version
+              version: step.version,
             })
           ) {
             return $q.when();
@@ -418,14 +413,14 @@
             stepSourceService.gitSteps.push(step);
           } else {
             // TODO: implement single library step load if neccessary
-            logger.warn("Single library step load not implemented");
+            logger.warn('Single library step load not implemented');
           }
         });
       }
 
       function normalizeStepLib(steps, libraryURL) {
         const library = {
-          url: libraryURL
+          url: libraryURL,
         };
 
         const stepIDs = _.keys(steps).sort();
@@ -464,7 +459,7 @@
 
       stepSourceService.searchOfficialSteps = function (query) {
         return stepLibSearchService
-          .fuzzySearch({ query, latestOnly: true, attributesToRetrieve: ["id", "version", "cvs"] })
+          .fuzzySearch({ query, latestOnly: true, attributesToRetrieve: ['id', 'version', 'cvs'] })
           .then(function (steps) {
             return Object.keys(steps);
           });
@@ -474,7 +469,7 @@
         return $q(function (resolve, reject) {
           const notLoadedLibraryURLs = _.reject(_.uniq(libraryURLs), function (aLibraryURL) {
             return _.find(stepSourceService.libraries, {
-              url: aLibraryURL
+              url: aLibraryURL,
             });
           });
 
@@ -495,19 +490,19 @@
                   resolve();
                 } catch (error) {
                   logger.error(error);
-                  reject(new Error("<%= data[:strings][:step_source_service][:load_library][:default_error] %>"));
+                  reject(new Error('Error loading library.'));
                 }
               });
             },
             function (error) {
               logger.error(error);
               reject(error);
-            }
+            },
           );
         });
       };
 
       return stepSourceService;
-    }
+    },
   ]);
 })();
