@@ -102,7 +102,17 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
       const entities = transformWorkflowsToGraphEntities(workflows, isGraphPipelineEnabled);
 
       setNodes((nds) => {
-        const newNodes = entities.nodes.map((node) => nds.find((n) => n.id === node.id) || node);
+        const newNodes = entities.nodes.map((node) => {
+          const existingNode = nds.find((n) => n.id === node.id);
+
+          if (existingNode) {
+            existingNode.data = node.data;
+            return existingNode;
+          }
+
+          return node;
+        });
+
         return autoLayoutingGraphNodes(workflows, newNodes);
       });
 

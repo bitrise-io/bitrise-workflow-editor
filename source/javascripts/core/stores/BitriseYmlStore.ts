@@ -35,6 +35,7 @@ type BitriseYmlStoreState = {
     shouldAlwaysRun: string,
   ) => void;
   updatePipelineWorkflowConditionRunIfExpression: (pipelineId: string, workflowId: string, expression: string) => void;
+  updatePipelineWorkflowParallel: (pipelineId: string, workflowId: string, parallel: string) => void;
 
   // Workflow related actions
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
@@ -212,6 +213,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
             runIfExpression,
             state.yml,
           ),
+        };
+      });
+    },
+    updatePipelineWorkflowParallel(pipelineId, workflowId, parallel) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updatePipelineWorkflowParallel(pipelineId, workflowId, parallel, state.yml),
         };
       });
     },
