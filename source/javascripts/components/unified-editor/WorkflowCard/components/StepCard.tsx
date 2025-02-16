@@ -79,6 +79,7 @@ export type StepCardProps = {
   isSortable?: boolean;
   isDragging?: boolean;
   showSecondary?: boolean;
+  cvs: string;
 };
 
 const StepCard = ({
@@ -89,6 +90,7 @@ const StepCard = ({
   isDragging,
   showSecondary = true,
   stepBundleId,
+  cvs,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
@@ -121,6 +123,7 @@ const StepCard = ({
     id: uniqueId,
     disabled: !isSortable,
     data: {
+      cvs,
       uniqueId,
       stepIndex,
       workflowId,
@@ -211,6 +214,7 @@ const StepCard = ({
     if (isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
       menuItems.push(
         <OverflowMenuItem
+          key="upgrade"
           leftIconName="ArrowUp"
           onClick={(e) => {
             e.stopPropagation();
@@ -229,6 +233,7 @@ const StepCard = ({
     if (isSimpleStep) {
       menuItems.push(
         <OverflowMenuItem
+          key="group"
           leftIconName="Steps"
           onClick={(e) => {
             e.stopPropagation();
@@ -250,6 +255,7 @@ const StepCard = ({
     if (selectedStepIndices?.length === 1 || !isHighlighted) {
       menuItems.push(
         <OverflowMenuItem
+          key="duplicate"
           leftIconName="Duplicate"
           onClick={(e) => {
             e.stopPropagation();
@@ -266,11 +272,12 @@ const StepCard = ({
       );
     }
     if (menuItems.length > 0) {
-      menuItems.push(<Divider my="8" />);
+      menuItems.push(<Divider key="divider" my="8" />);
     }
     menuItems.push(
       <OverflowMenuItem
         isDanger
+        key="remove"
         leftIconName="Trash"
         onClick={(e) => {
           e.stopPropagation();
