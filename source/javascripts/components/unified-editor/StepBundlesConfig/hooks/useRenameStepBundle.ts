@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useStepBundleConfigContext } from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfig.context';
 
-const useRenameStepBundle = (onChange?: (newStepBundleId: string) => void) => {
-  const selectedStepBundleId = useStepBundleConfigContext()?.id ?? '';
+const useRenameStepBundle = (selectedStepBundleId: string = '', onChange?: (newStepBundleId: string) => void) => {
   const stepBundleIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);

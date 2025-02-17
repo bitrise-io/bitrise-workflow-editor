@@ -16,6 +16,7 @@ export enum WorkflowsPageDialogType {
 type State = {
   selectedStepIndices: number[];
   stepBundleId: string;
+  parentStepBundleId: string;
   workflowId: string;
   parentWorkflowId: string;
   openedDialogType: WorkflowsPageDialogType;
@@ -28,6 +29,8 @@ type DialogParams = {
   type: WorkflowsPageDialogType;
   selectedStepIndices?: number[];
   stepBundleId?: string;
+  newStepBundleId?: string;
+  parentStepBundleId?: string;
   workflowId?: string;
   parentWorkflowId?: string;
   selectionParent?: SelectionParent;
@@ -48,6 +51,8 @@ type Action = {
 export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   selectedStepIndices: [],
   stepBundleId: '',
+  newStepBundleId: '',
+  parentStepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
   openedDialogType: WorkflowsPageDialogType.NONE,
@@ -81,8 +86,10 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   },
   openDialog: ({
     type,
-    workflowId = '',
     stepBundleId = '',
+    newStepBundleId = '',
+    parentStepBundleId = '',
+    workflowId = '',
     parentWorkflowId = '',
     selectedStepIndices,
     selectionParent,
@@ -103,6 +110,8 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
               type,
               selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
               stepBundleId,
+              newStepBundleId,
+              parentStepBundleId,
               workflowId,
               parentWorkflowId,
               selectionParent: selectionParent || stateSelectionParent,
@@ -113,6 +122,8 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         return {
           selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
           stepBundleId,
+          newStepBundleId,
+          parentStepBundleId,
           workflowId,
           parentWorkflowId,
           _nextDialog: undefined,
@@ -138,6 +149,8 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
         return {
           selectedStepIndices: [],
           stepBundleId: '',
+          newStepBundleId: '',
+          parentStepBundleId: '',
           workflowId: '',
           parentWorkflowId: '',
           nextDialog: undefined,
