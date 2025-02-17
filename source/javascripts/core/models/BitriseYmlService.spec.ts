@@ -1590,12 +1590,20 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         pipelines: {
-          pl1: { summary: 'summary', description: 'description' },
+          pl1: {
+            summary: 'summary',
+            description: 'description',
+            status_report_name: 'Executing <target_id> for <project_title>',
+          },
           pl2: { title: 'title', summary: 'summary' },
         },
       };
 
-      const actualYml = BitriseYmlService.updatePipeline('pl1', { title: '', description: 'description' }, sourceYml);
+      const actualYml = BitriseYmlService.updatePipeline(
+        'pl1',
+        { title: '', description: 'description', status_report_name: 'Executing <target_id> for <project_title>' },
+        sourceYml,
+      );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

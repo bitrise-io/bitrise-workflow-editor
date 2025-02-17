@@ -20,13 +20,13 @@ const getValidationError = (value: string) => {
 };
 
 type GitStatusNameInputProps = {
-  workflowId: string | undefined;
+  targetId: string | undefined;
   onChange: (newValue: string, isValid: boolean) => void;
   statusReportName: string;
 };
 
 const GitStatusNameInput = (props: GitStatusNameInputProps) => {
-  const { workflowId, onChange, statusReportName } = props;
+  const { targetId, onChange, statusReportName } = props;
   const [error, setError] = useState<string>('');
 
   const pageProps = WindowUtils.pageProps();
@@ -34,7 +34,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
 
   const variables: Record<string, string | null> = {
     ...pageProps?.settings?.statusReport?.variables,
-    '<target_id>': pageProps?.settings?.statusReport?.variables['<target_id>'] || workflowId || '',
+    '<target_id>': pageProps?.settings?.statusReport?.variables['<target_id>'] || targetId || '',
     '<event_type>': 'pr',
   };
 
