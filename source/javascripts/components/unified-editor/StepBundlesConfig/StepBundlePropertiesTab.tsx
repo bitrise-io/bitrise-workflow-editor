@@ -2,10 +2,10 @@ import { ChangeEventHandler, useState } from 'react';
 import { Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import EditableInput from '@/components/EditableInput/EditableInput';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StepBundleYmlObject } from '@/core/models/Step';
+import { StepBundleModel } from '@/core/models/BitriseYml';
 import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
 import { useStepBundleConfigContext } from './StepBundlesConfig.context';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
@@ -38,14 +38,14 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
 
   const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, summary: e.target.value }));
-    debouncedUpdateStepBundle(stepBundle?.id || '', { summary: e.target.value } as StepBundleYmlObject);
+    debouncedUpdateStepBundle(stepBundle?.id || '', { summary: e.target.value } as StepBundleModel);
   };
 
   const handleDescriptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     setValues((prev) => ({ ...prev, description: e.target.value }));
     debouncedUpdateStepBundle(stepBundle?.id || '', {
       description: e.target.value,
-    } as StepBundleYmlObject);
+    } as StepBundleModel);
   };
 
   return (

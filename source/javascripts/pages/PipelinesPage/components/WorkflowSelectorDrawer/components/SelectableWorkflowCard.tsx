@@ -2,9 +2,9 @@ import { memo } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
 import useStacksAndMachines from '@/components/unified-editor/WorkflowConfig/hooks/useStacksAndMachines';
-import StackAndMachineService from '@/core/models/StackAndMachineService';
+import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import { WorkflowCard } from '@/components/unified-editor';
 
 type Props = {

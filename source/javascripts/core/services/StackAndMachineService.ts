@@ -1,8 +1,10 @@
-import { PartialDeep } from 'type-fest';
 import { toMerged } from 'es-toolkit';
+import { PartialDeep } from 'type-fest';
+
+import { Stack, StackOption } from '../models/Stack';
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
-import { MachineType, MachineTypeOption } from './MachineType';
-import { Stack, StackOption } from './Stack';
+import { MachineType, MachineTypeOption } from '../models/MachineType';
+
 import StackService from './StackService';
 import MachineTypeService from './MachineTypeService';
 

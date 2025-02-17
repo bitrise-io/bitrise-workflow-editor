@@ -9,7 +9,7 @@ import {
   WithGroupDrawer,
   WorkflowConfigDrawer,
 } from '@/components/unified-editor';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepBundleConfigDrawer from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigDrawer';

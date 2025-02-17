@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import WorkflowService from '@/core/models/WorkflowService';
-import StepBundleService from '@/core/models/StepBundleService';
+import WorkflowService from '@/core/services/WorkflowService';
+import StepBundleService from '@/core/services/StepBundleService';
 
 type Props = {
   workflowId?: string;

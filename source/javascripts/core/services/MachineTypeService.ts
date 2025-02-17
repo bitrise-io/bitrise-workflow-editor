@@ -1,7 +1,6 @@
-import { Stack } from '@/core/models/Stack';
-import { Meta } from '@/core/models/BitriseYml';
-import { WorkflowYmlObject } from '@/core/models/Workflow';
-import { MachineType } from '@/core/models/MachineType';
+import { Meta, WorkflowModel } from '../models/BitriseYml';
+import { MachineType } from '../models/MachineType';
+import { Stack } from '../models/Stack';
 
 function getMachineById(machines: MachineType[], id?: string): MachineType | undefined {
   return machines.find((m) => m.id === id);
@@ -30,7 +29,7 @@ function getMachineOfWorkflow({
   meta,
 }: {
   machines: MachineType[];
-  workflow: WorkflowYmlObject;
+  workflow: WorkflowModel;
   meta: Meta;
 }): MachineType | undefined {
   const workflowMachine = getMachineFromMeta(machines, workflow.meta);

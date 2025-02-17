@@ -1,5 +1,5 @@
 import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
-import StackAndMachineService from '@/core/models/StackAndMachineService';
+import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useStacksAndMachines from '../hooks/useStacksAndMachines';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';

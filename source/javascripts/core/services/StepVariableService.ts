@@ -1,16 +1,16 @@
-import { StepVariable } from './Step';
+import { EnvironmentItemModel, EnvModel } from '../models/BitriseYml';
 
-const getName = (input: StepVariable) => {
+const getName = (input: EnvironmentItemModel) => {
   const { opts, ...rest } = input;
   return Object.keys(rest)[0];
 };
 
-const getValue = (input: StepVariable) => {
+const getValue = (input: EnvironmentItemModel) => {
   const { opts, ...rest } = input;
   return String(Object.values(rest)[0] ?? '');
 };
 
-const findInput = (inputs: StepVariable[], name: string) => {
+const findInput = (inputs: EnvModel, name: string) => {
   return inputs.find((input) => getName(input) === name);
 };
 

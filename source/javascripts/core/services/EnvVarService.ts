@@ -1,4 +1,5 @@
-import { EnvVar, EnvVarYml } from './EnvVar';
+import { EnvVar } from '../models/EnvVar';
+import { EnvironmentItemModel } from '../models/BitriseYml';
 
 function validateKey(key?: string) {
   if (!key || !String(key).trim()) {
@@ -12,7 +13,7 @@ function validateKey(key?: string) {
   return true;
 }
 
-function parseYmlEnvVar({ opts, ...env }: EnvVarYml, source = ''): EnvVar {
+function parseYmlEnvVar({ opts, ...env }: EnvironmentItemModel, source = ''): EnvVar {
   return {
     source,
     key: Object.keys(env)[0],
@@ -35,7 +36,7 @@ function toYmlValue(value: unknown) {
   return value;
 }
 
-function parseEnvVar(envVar: EnvVar): EnvVarYml {
+function parseEnvVar(envVar: EnvVar): EnvironmentItemModel {
   let envVarYml = { [envVar.key]: toYmlValue(envVar.value) };
 
   if (envVar.isExpand !== undefined) {

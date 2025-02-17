@@ -1,4 +1,4 @@
-import { Workflows } from '@/core/models/Workflow';
+import { Workflows } from '../models/BitriseYml';
 
 function getDependantWorkflows(workflows: Workflows, id: string) {
   const workflowIdsWhereWorkflowIsUsed = new Set<string>();

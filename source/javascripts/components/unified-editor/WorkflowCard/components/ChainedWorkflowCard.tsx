@@ -7,7 +7,7 @@ import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDi
 
 import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 

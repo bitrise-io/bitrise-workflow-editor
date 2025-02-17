@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';

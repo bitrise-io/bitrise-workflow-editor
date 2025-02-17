@@ -1,17 +1,18 @@
 import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
 
-import { StepInputVariable } from '@/core/models/Step';
-import StepVariableService from '@/core/models/StepVariableService';
-import StepCodeEditor from './StepCodeEditor';
+import { EnvModel } from '@/core/models/BitriseYml';
+import StepVariableService from '@/core/services/StepVariableService';
+
 import StepInput from './StepInput';
+import StepCodeEditor from './StepCodeEditor';
 import StepSelectInput from './StepSelectInput';
 
 type Props = {
   title?: string;
   stepId?: string;
-  defaults?: StepInputVariable[];
-  inputs?: StepInputVariable[];
+  inputs?: EnvModel;
+  defaults?: EnvModel;
   onChange?: (name: string, value: string | null) => void;
 };
 

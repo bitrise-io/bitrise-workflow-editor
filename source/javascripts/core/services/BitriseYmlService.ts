@@ -1,15 +1,30 @@
-import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } from 'es-toolkit';
 import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
+import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } from 'es-toolkit';
+
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import StepService from '@/core/models/StepService';
-import PipelineService from '@/core/models/PipelineService';
-import { EnvVarYml } from './EnvVar';
-import { BitriseYml, Meta } from './BitriseYml';
-import { StagesYml } from './Stage';
-import { TriggerMapYml } from './TriggerMap';
-import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
-import { PipelinesYml, PipelineWorkflows, PipelineYmlObject } from './Pipeline';
-import { BITRISE_STEP_LIBRARY_URL, StepBundleYmlObject, StepInputVariable, StepYmlObject } from './Step';
+
+import {
+  BitriseYml,
+  EnvironmentItemModel,
+  EnvModel,
+  Meta,
+  PipelineModel,
+  Pipelines,
+  PipelineWorkflows,
+  Stages,
+  StepBundleModel,
+  StepModel,
+  TriggerMapItemModel,
+  TriggersModel,
+  WorkflowModel,
+  Workflows,
+} from '../models/BitriseYml';
+
+import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
+import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
+
+import StepService from './StepService';
+import PipelineService from './PipelineService';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -57,7 +72,7 @@ function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bitr
 function updateStep(
   workflowId: string,
   stepIndex: number,
-  newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  newValues: Omit<StepModel, 'inputs' | 'outputs'>,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -98,7 +113,7 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
   return copy;
 }
 
-function updateStepInputs(workflowId: string, stepIndex: number, newInputs: StepInputVariable[], yml: BitriseYml) {
+function updateStepInputs(workflowId: string, stepIndex: number, newInputs: EnvModel, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
@@ -106,10 +121,7 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: Step
     return copy;
   }
 
-  const [, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [
-    string,
-    StepYmlObject,
-  ];
+  const [, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [string, StepModel];
 
   newInputs.forEach((input) => {
     if (!stepYmlObject.inputs) {
@@ -311,7 +323,7 @@ function groupStepsToStepBundle(
       const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
       return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
     })
-    .filter(Boolean) as Array<{ [key: string]: StepYmlObject }>;
+    .filter(Boolean) as Array<{ [key: string]: StepModel }>;
 
   // Create and add selected step / steps to the step bundle
   copy.step_bundles = {
@@ -370,7 +382,7 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
   return copy;
 }
 
-function updateStepBundle(stepBundleId: string, stepBundle: StepBundleYmlObject, yml: BitriseYml): BitriseYml {
+function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   mapValues(stepBundle, (value: string, key: never) => {
@@ -389,7 +401,7 @@ function updateStepBundle(stepBundleId: string, stepBundle: StepBundleYmlObject,
 function updateStepInStepBundle(
   stepBundleId: string,
   stepIndex: number,
-  newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  newValues: Omit<StepModel, 'inputs' | 'outputs'>,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -414,12 +426,7 @@ function updateStepInStepBundle(
   return copy;
 }
 
-function updateStepInputsInStepBundle(
-  stepBundleId: string,
-  stepIndex: number,
-  newInputs: StepInputVariable[],
-  yml: BitriseYml,
-) {
+function updateStepInputsInStepBundle(stepBundleId: string, stepIndex: number, newInputs: EnvModel, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
 
   // If the step bundle or step is missing in the YML just return the YML
@@ -429,7 +436,7 @@ function updateStepInputsInStepBundle(
 
   const [, stepYmlObject] = Object.entries(copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex])[0] as [
     string,
-    StepYmlObject,
+    StepModel,
   ];
 
   newInputs.forEach((input) => {
@@ -503,7 +510,7 @@ function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseY
   return copy;
 }
 
-function updateWorkflow(workflowId: string, workflow: WorkflowYmlObject, yml: BitriseYml): BitriseYml {
+function updateWorkflow(workflowId: string, workflow: WorkflowModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   mapValues(workflow, (value: string, key: never) => {
@@ -669,7 +676,7 @@ function removeChainedWorkflow(
 function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  let basePipeline: PipelineYmlObject = PipelineService.EMPTY_PIPELINE;
+  let basePipeline: PipelineModel = PipelineService.EMPTY_PIPELINE;
 
   if (basePipelineId && copy.pipelines?.[basePipelineId]) {
     basePipeline = copy.pipelines[basePipelineId];
@@ -699,7 +706,7 @@ function renamePipeline(pipelineId: string, newPipelineId: string, yml: BitriseY
   return copy;
 }
 
-function updatePipeline(pipelineId: string, pipeline: PipelineYmlObject, yml: BitriseYml): BitriseYml {
+function updatePipeline(pipelineId: string, pipeline: PipelineModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   mapValues(pipeline, (value: string, key: never) => {
@@ -996,7 +1003,7 @@ function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitri
   return copy;
 }
 
-function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+function appendWorkflowEnvVar(workflowId: string, envVar: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   if (!copy.workflows?.[workflowId]) {
@@ -1008,7 +1015,7 @@ function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: Bitris
   return copy;
 }
 
-function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: BitriseYml): BitriseYml {
+function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   if (!copy.workflows?.[workflowId]) {
@@ -1016,7 +1023,7 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
   }
 
   copy.workflows[workflowId].envs = envVars.map((newEnvVar, i) => {
-    const oldEnvVar = copy.workflows?.[workflowId]?.envs?.[i] as EnvVarYml;
+    const oldEnvVar = copy.workflows?.[workflowId]?.envs?.[i];
 
     if (!oldEnvVar) {
       return newEnvVar;
@@ -1045,7 +1052,7 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
   return copy;
 }
 
-function updateTriggerMap(newTriggerMap: TriggerMapYml, yml: BitriseYml): BitriseYml {
+function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   copy.trigger_map = newTriggerMap;
@@ -1083,11 +1090,7 @@ function getUniqueStepIds(yml: BitriseYml) {
   return Array.from(ids);
 }
 
-function updateWorkflowTriggers(
-  workflowId: string,
-  triggers: WorkflowYmlObject['triggers'],
-  yml: BitriseYml,
-): BitriseYml {
+function updateWorkflowTriggers(workflowId: string, triggers: TriggersModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow is missing in the YML just return the YML
@@ -1122,11 +1125,7 @@ function updateWorkflowTriggersEnabled(workflowId: string, isEnabled: boolean, y
   return copy;
 }
 
-function updatePipelineTriggers(
-  pipelineID: string,
-  triggers: PipelineYmlObject['triggers'],
-  yml: BitriseYml,
-): BitriseYml {
+function updatePipelineTriggers(pipelineID: string, triggers: TriggersModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   // If the pipeline is missing in the YML just return the YML
@@ -1272,6 +1271,7 @@ function deleteWorkflowFromDependsOn(workflowId: string, workflows: PipelineWork
 
 function deleteWorkflowVariants(workflowId: string, workflows: PipelineWorkflows = {}): PipelineWorkflows {
   const variantKeys = keys(pickBy(workflows, (workflow) => Boolean(workflow?.uses?.includes(workflowId))));
+
   let result = omit(workflows, variantKeys);
   variantKeys.forEach((key) => {
     result = deleteWorkflowFromDependsOn(key, result);
@@ -1280,7 +1280,7 @@ function deleteWorkflowVariants(workflowId: string, workflows: PipelineWorkflows
   return result;
 }
 
-function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: StagesYml): StagesYml {
+function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: Stages): Stages {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
 
@@ -1300,7 +1300,7 @@ function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stage
   });
 }
 
-function deleteWorkflowFromStages(workflowId: string, stages: StagesYml = {}): StagesYml {
+function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stages {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
 
@@ -1315,7 +1315,7 @@ function deleteWorkflowFromStages(workflowId: string, stages: StagesYml = {}): S
   });
 }
 
-function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pipelines: PipelinesYml): PipelinesYml {
+function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pipelines: Pipelines): Pipelines {
   return mapValues(pipelines, (pipeline) => {
     const pipelineCopy = deepCloneSimpleObject(pipeline);
 
@@ -1344,11 +1344,7 @@ function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pi
   });
 }
 
-function deleteWorkflowFromPipelines(
-  workflowId: string,
-  pipelines: PipelinesYml = {},
-  stages: StagesYml = {},
-): PipelinesYml {
+function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = {}, stages: Stages = {}): Pipelines {
   const stageIds = Object.keys(stages);
 
   return mapValues(pipelines, (pipeline) => {
@@ -1380,8 +1376,8 @@ function deleteWorkflowFromPipelines(
 function renameWorkflowInTriggerMap(
   workflowId: string,
   newWorkflowId: string,
-  triggerMap: TriggerMapYml,
-): TriggerMapYml {
+  triggerMap: TriggerMapItemModel[],
+): TriggerMapItemModel[] {
   return triggerMap.map((trigger) => {
     const triggerCopy = deepCloneSimpleObject(trigger);
 
@@ -1393,15 +1389,18 @@ function renameWorkflowInTriggerMap(
   });
 }
 
-function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMapYml = []): TriggerMapYml {
+function deleteWorkflowFromTriggerMap(
+  workflowId: string,
+  triggerMap: TriggerMapItemModel[] = [],
+): TriggerMapItemModel[] {
   return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
 }
 
 function renamePipelineInTriggerMap(
   pipelineId: string,
   newPipelineId: string,
-  triggerMap: TriggerMapYml,
-): TriggerMapYml {
+  triggerMap: TriggerMapItemModel[],
+): TriggerMapItemModel[] {
   return triggerMap.map((trigger) => {
     const triggerCopy = deepCloneSimpleObject(trigger);
 
@@ -1413,7 +1412,10 @@ function renamePipelineInTriggerMap(
   });
 }
 
-function deletePipelineFromTriggerMap(pipelineId: string, triggerMap: TriggerMapYml = []): TriggerMapYml {
+function deletePipelineFromTriggerMap(
+  pipelineId: string,
+  triggerMap: TriggerMapItemModel[] = [],
+): TriggerMapItemModel[] {
   return triggerMap.filter((trigger) => trigger.pipeline !== pipelineId);
 }
 

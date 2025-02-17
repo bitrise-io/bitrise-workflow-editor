@@ -1,10 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from '@jest/globals';
 import type { MatcherFunction } from 'expect';
-import { BitriseYml } from './BitriseYml';
+
+import { ChainedWorkflowPlacement } from '../models/Workflow';
+import { BitriseYml, EnvironmentItemModel } from '../models/BitriseYml';
+
 import BitriseYmlService from './BitriseYmlService';
-import { ChainedWorkflowPlacement } from './Workflow';
-import { EnvVarYml } from './EnvVar';
 
 const toMatchBitriseYml: MatcherFunction<[expected: BitriseYml]> = function m(actual, expected) {
   const objectsAreEquals = this.equals(actual, expected, undefined, true);
@@ -2782,7 +2783,7 @@ describe('BitriseYmlService', () => {
   });
 
   describe('appendWorkflowEnvVar', () => {
-    const newEnv: EnvVarYml = {
+    const newEnv: EnvironmentItemModel = {
       FOO: 'bar',
       opts: {
         is_expand: true,

@@ -3,7 +3,7 @@ import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclo
 
 import useWorkflow from '@/hooks/useWorkflow';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import StackAndMachineService from '@/core/models/StackAndMachineService';
+import StackAndMachineService from '@/core/services/StackAndMachineService';
 
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';

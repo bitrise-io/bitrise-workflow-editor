@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/models/EnvVarService';
+import EnvVarService from '@/core/services/EnvVarService';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { CreateEnvVarFormValues, HandlerFn } from '../types';
 
