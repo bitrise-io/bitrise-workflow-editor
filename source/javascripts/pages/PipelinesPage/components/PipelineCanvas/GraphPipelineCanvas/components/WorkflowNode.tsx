@@ -84,7 +84,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
-  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
   const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
@@ -143,10 +142,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     handleRemoveChainedWorkflow,
     handleChainedWorkflowsUpdate,
   } = useMemo(() => {
-    if (!isGraphPipelinesEnabled) {
-      return {};
-    }
-
     function handleWorkflowActionDialogChange(workflowId: string, action: 'remove') {
       switch (action) {
         case 'remove': {
@@ -410,7 +405,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
     };
   }, [
-    isGraphPipelinesEnabled,
     uses,
     upgradeStep,
     upgradeStepInStepBundle,

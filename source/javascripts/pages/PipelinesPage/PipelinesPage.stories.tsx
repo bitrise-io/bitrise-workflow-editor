@@ -29,30 +29,14 @@ export default {
   beforeEach: () => {
     process.env.MODE = 'cli';
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
-    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', true);
   },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;
 
-export const ReadOnly: Story = {
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', false);
-  },
-};
-
 export const CreateFirstGraphPipeline: Story = {
   args: {
     yml: { format_version: '2' },
-  },
-};
-
-export const CreateFirstStagedPipeline: Story = {
-  args: {
-    yml: { format_version: '2' },
-  },
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', false);
   },
 };
 

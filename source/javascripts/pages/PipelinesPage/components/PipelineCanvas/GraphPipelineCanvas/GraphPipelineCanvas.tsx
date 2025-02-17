@@ -18,7 +18,6 @@ import { isEqual } from 'es-toolkit';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 import GraphPipelineCanvasEmptyState from '../../EmptyStates/GraphPipelineCanvasEmptyState';
 import WorkflowNode from './components/WorkflowNode';
@@ -45,8 +44,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
   const [prevWorkflows, setPrevWorkflows] = useState(workflows);
-  const isGraphPipelineEnabled = useFeatureFlag('enable-dag-pipelines');
-  const initial = transformWorkflowsToGraphEntities(workflows, isGraphPipelineEnabled);
+  const initial = transformWorkflowsToGraphEntities(workflows);
   const { updateEdgeData } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
@@ -99,7 +97,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   // Update nodes and edges when workflows change
   useEffect(() => {
     if (!isEqual(workflows, prevWorkflows)) {
-      const entities = transformWorkflowsToGraphEntities(workflows, isGraphPipelineEnabled);
+      const entities = transformWorkflowsToGraphEntities(workflows);
 
       setNodes((nds) => {
         const newNodes = entities.nodes.map((node) => {
@@ -122,7 +120,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
 
       setPrevWorkflows(workflows);
     }
-  }, [workflows, prevWorkflows, isGraphPipelineEnabled, setNodes, setEdges]);
+  }, [workflows, prevWorkflows, setNodes, setEdges]);
 
   return (
     <>
