@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import PipelineService from '@/core/models/PipelineService';
+import PipelineService from '@/core/services/PipelineService';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';

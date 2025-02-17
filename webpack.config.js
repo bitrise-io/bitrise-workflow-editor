@@ -1,6 +1,6 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { ProvidePlugin, DefinePlugin } = require('webpack');
+const { ProvidePlugin, DefinePlugin, EnvironmentPlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPLugin = require('terser-webpack-plugin');
@@ -91,15 +91,14 @@ const htmlExporter = {
 
 const entry = {
   vendor: './javascripts/vendor.js',
-  strings: './javascripts/strings.js.erb',
-  routes: './javascripts/routes.js.erb',
+  routes: './javascripts/routes.js',
   main: './javascripts/index.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
 }
 if (isDataDogRumEnabled) {
-  entry.datadogrum = './javascripts/datadog-rum.js.erb';
+  entry.datadogrum = './javascripts/datadog-rum.js';
 }
 
 /** @type {import('webpack').Configuration} */
@@ -170,7 +169,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
+    extensions: ['.js', '.ts', '.tsx', '.css', '.scss'],
   },
   module: {
     rules: [
@@ -178,10 +177,6 @@ module.exports = {
       {
         test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
-      },
-      {
-        test: /\.erb$/i,
-        use: railsTransformer('erb'),
       },
       {
         test: /\.tsx?$/i,
@@ -216,8 +211,8 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.s[ac]ss(\.erb)?$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
+        test: /\.scss$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
 
       /* --- Images --- */
@@ -267,9 +262,14 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
+    new EnvironmentPlugin({
+      ANALYTICS: 'false',
+      MODE: 'WEBSITE',
+      NODE_ENV: 'development',
+      PUBLIC_URL_ROOT: '',
+      WFE_VERSION: version,
+    }),
     new DefinePlugin({
-      'process.env.MODE': JSON.stringify(MODE || 'WEBSITE'),
-      'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {

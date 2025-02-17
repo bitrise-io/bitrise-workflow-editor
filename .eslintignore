@@ -10,3 +10,4 @@ rails
 release
 **/*.spec.js
 source/javascripts/clarity.js
+karma.conf.js

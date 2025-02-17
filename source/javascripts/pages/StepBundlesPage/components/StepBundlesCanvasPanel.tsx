@@ -8,7 +8,7 @@ import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { LibraryType } from '@/core/models/Step';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 

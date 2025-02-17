@@ -12,7 +12,7 @@ import {
 
 import { capitalize, startCase } from 'es-toolkit';
 import { useAlgoliaSteps } from '@/hooks/useAlgolia';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearch from '../hooks/useSearch';
 

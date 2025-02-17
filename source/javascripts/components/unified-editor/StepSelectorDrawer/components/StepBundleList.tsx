@@ -1,6 +1,6 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import useNavigation from '@/hooks/useNavigation';
 import useSearch from '../hooks/useSearch';
 import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';

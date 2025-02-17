@@ -10,7 +10,7 @@ function transformWorkflowsToGraphEntities(workflows: PipelineWorkflow[], action
   workflows.forEach((workflow) => {
     nodes.push(createWorkflowNode(workflow, actionable));
 
-    workflow.dependsOn.forEach((source) => {
+    workflow.dependsOn?.forEach((source) => {
       edges.push(createGraphPipelineEdge(source, workflow.id, actionable));
     });
   });

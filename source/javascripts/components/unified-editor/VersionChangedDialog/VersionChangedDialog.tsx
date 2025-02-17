@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text, useDisclosure } from '@bitrise/bitkit';
 import { useQuery } from '@tanstack/react-query';
 import StepApi from '@/core/api/StepApi';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 type Props = {

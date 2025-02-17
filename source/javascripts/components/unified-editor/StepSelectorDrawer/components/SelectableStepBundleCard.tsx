@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import { WorkflowCardContextProvider } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleCard from './StepBundleCard';
 

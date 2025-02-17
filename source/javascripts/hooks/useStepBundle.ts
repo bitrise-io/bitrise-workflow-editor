@@ -1,4 +1,4 @@
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const useStepBundle = (id: string) => {
