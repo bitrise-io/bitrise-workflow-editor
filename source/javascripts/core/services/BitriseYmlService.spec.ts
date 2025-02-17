@@ -3709,6 +3709,21 @@ describe('BitriseYmlService', () => {
   });
 
   describe('groupStepsToStepBundle', () => {
+    it('should return the original YAML if no steps are selected', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = { ...sourceYml };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
     it('when a single step is selected, the selected step should be added to step bundles and removed from workflows', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
@@ -3727,7 +3742,28 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [1], sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when a single step is selected in a nested step bundle, the selected step should be grouped into a new step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { 'bundle::new_bundle': {} }, { deploy: {} }] },
+          new_bundle: { steps: [{ clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('undefined', 'bundle1', 'new_bundle', [1], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3750,7 +3786,34 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 1], sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [0, 1], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when multiple consecutive steps are selected in a nested step bundle, the selected steps should be grouped into a new step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ 'bundle::new_bundle': {} }, { deploy: {} }] },
+          new_bundle: { steps: [{ script: {} }, { clone: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle(
+        'undefined',
+        'bundle1',
+        'new_bundle',
+        [0, 1],
+        sourceYml,
+      );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -3773,7 +3836,28 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', 'step_bundle', [0, 2], sourceYml);
+      const actualYml = BitriseYmlService.groupStepsToStepBundle('wf1', undefined, 'step_bundle', [0, 2], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when multiple non-consecutive steps are selected in a nested step bundle, the selected steps should be grouped into a new step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: { steps: [{ 'bundle::new_bundle': {} }, { clone: {} }] },
+          new_bundle: { steps: [{ script: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.groupStepsToStepBundle(undefined, 'bundle1', 'new_bundle', [0, 2], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

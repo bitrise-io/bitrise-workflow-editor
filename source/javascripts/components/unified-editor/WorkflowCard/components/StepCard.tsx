@@ -29,6 +29,7 @@ import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -107,6 +108,8 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
   const {
@@ -148,7 +151,7 @@ const StepCard = ({
   const { isStep } = StepService;
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
 
-  const isSimpleStep = step && !stepBundleId && isStep(step.cvs, library);
+  const isSimpleStep = step && isStep(step.cvs, library);
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
@@ -230,20 +233,17 @@ const StepCard = ({
         </OverflowMenuItem>,
       );
     }
-    if (isSimpleStep) {
+    if ((enableStepBundles || !stepBundleId) && isSimpleStep) {
       menuItems.push(
         <OverflowMenuItem
           key="group"
           leftIconName="Steps"
           onClick={(e) => {
             e.stopPropagation();
-            if (onGroupStepsToStepBundle && onSelectStep && selectedStepIndices) {
+            if (onGroupStepsToStepBundle && selectedStepIndices) {
               const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-              if (isHighlighted) {
-                onGroupStepsToStepBundle(workflowId || '', generatedId, selectedStepIndices);
-              } else {
-                onGroupStepsToStepBundle(workflowId || '', generatedId, [stepIndex]);
-              }
+              const indices = isHighlighted ? selectedStepIndices : [stepIndex];
+              onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
             }
           }}
         >
@@ -323,26 +323,26 @@ const StepCard = ({
       </ButtonGroup>
     );
   }, [
-    existingStepBundleIds,
-    isClonable,
+    workflowId,
+    stepBundleId,
     isDragging,
-    isHighlighted,
-    isRemovable,
     isUpgradable,
+    isClonable,
+    isRemovable,
+    selectedStepIndices,
+    isHighlighted,
+    enableStepBundles,
     isSimpleStep,
+    onUpgradeStep,
+    onUpgradeStepInStepBundle,
+    stepIndex,
     latestMajor,
+    onGroupStepsToStepBundle,
+    existingStepBundleIds,
     onCloneStep,
     onCloneStepInStepBundle,
     onDeleteStep,
     onDeleteStepInStepBundle,
-    onGroupStepsToStepBundle,
-    onSelectStep,
-    onUpgradeStep,
-    onUpgradeStepInStepBundle,
-    selectedStepIndices,
-    stepBundleId,
-    stepIndex,
-    workflowId,
   ]);
 
   return (

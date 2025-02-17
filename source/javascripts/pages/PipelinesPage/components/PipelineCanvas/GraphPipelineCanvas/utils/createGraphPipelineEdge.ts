@@ -1,13 +1,13 @@
 import { GRAPH_EDGE_TYPE } from '../GraphPipelineCanvas.const';
 import { GraphPipelineEdgeType } from '../GraphPipelineCanvas.types';
 
-function createGraphPipelineEdge(sourceWorkflowId: string, targetWorkflowId: string, actionable: boolean) {
+function createGraphPipelineEdge(sourceWorkflowId: string, targetWorkflowId: string) {
   return {
     id: `${sourceWorkflowId}->${targetWorkflowId}`,
-    deletable: actionable,
+    deletable: true,
     focusable: false,
     selectable: true,
-    reconnectable: actionable,
+    reconnectable: true,
     type: GRAPH_EDGE_TYPE,
     source: sourceWorkflowId,
     target: targetWorkflowId,

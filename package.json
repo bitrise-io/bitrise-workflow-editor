@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "1.5.13192",
+  "version": "1.5.13202",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -54,7 +54,7 @@
     "stepDefinitions": "spec/integration"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.203.0",
+    "@bitrise/bitkit": "^13.207.0",
     "@bitrise/react2angular": "^5.0.0",
     "@bitrise/steplib-search": "^2.3.0",
     "@chakra-ui/react": "^2.8.2",
