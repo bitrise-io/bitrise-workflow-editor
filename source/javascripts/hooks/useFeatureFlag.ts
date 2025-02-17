@@ -1,6 +1,4 @@
 const defaultValues = {
-  'enable-dag-pipelines': false,
-  'enable-wfe-pipeline-viewer': false,
   'enable-wfe-step-bundles-ui': false,
   'enable-wfe-parallel-workflow': false,
   'enable-algolia-search-for-steps': false,
