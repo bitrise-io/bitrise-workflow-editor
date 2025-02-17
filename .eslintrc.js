@@ -2,7 +2,6 @@ module.exports = {
   root: true,
   parserOptions: {
     tsconfigRootDir: __dirname,
-    extraFileExtensions: ['.js.erb'],
     project: ['tsconfig.json', 'tsconfig.eslint.json'],
   },
   env: {
@@ -94,7 +93,7 @@ module.exports = {
       },
     },
     {
-      files: ['source/javascripts/**/*.js', 'source/javascripts/**/*.js.erb', 'source/javascripts/services/**/*.ts'],
+      files: ['source/javascripts/**/*.js', 'source/javascripts/services/**/*.ts'],
       rules: {
         'func-names': 'off',
         'no-multi-assign': 'off',

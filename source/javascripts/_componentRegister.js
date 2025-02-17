@@ -82,7 +82,6 @@ angular
       'appName',
       'appPath',
       'workspacePath',
-      'workflowsAndPipelinesPath',
       'isDiffEditorEnabled',
       'onDiffClick',
       'isDiffDisabled',

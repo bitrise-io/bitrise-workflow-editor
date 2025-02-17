@@ -1,5 +1,0 @@
-import StepLib from "@bitrise/steplib-search";
-
-angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", function() {
-	return new StepLib("<%= data[:constants][:algolia][:appID] %>", "<%= data[:constants][:algolia][:apiKey] %>");
-});

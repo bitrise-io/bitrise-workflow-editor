@@ -4,18 +4,8 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
 (function () {
   angular
-    .module("BitriseWorkflowEditor")
-    .service("appService", function (
-      $q,
-      requestService,
-      stringService,
-      Trigger,
-      Step,
-      Variable,
-      Stack,
-      MachineType
-    ) {
-
+    .module('BitriseWorkflowEditor')
+    .service('appService', function ($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
       const appService = {
         // JSON objects
         appConfig: undefined,
@@ -48,7 +38,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         ownerPlanData: undefined,
         allowedStepIds: undefined,
         orgBetaTags: undefined,
-        publicApi: undefined
+        publicApi: undefined,
       };
 
       appService.reachedStepLimit = function () {
@@ -61,17 +51,20 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         }
 
         return $q(function (resolve, reject) {
-          requestService.getAppDetails(requestConfig).then(function (appDetails) {
-            appService.appDetails = appDetails;
+          requestService.getAppDetails(requestConfig).then(
+            function (appDetails) {
+              appService.appDetails = appDetails;
 
-            resolve();
-          }, function (error) {
-            appService.appDetails = {
-              slug: requestService.appSlug
-            };
+              resolve();
+            },
+            function (error) {
+              appService.appDetails = {
+                slug: requestService.appSlug,
+              };
 
-            reject(error);
-          });
+              reject(error);
+            },
+          );
         });
       };
 
@@ -178,7 +171,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           if (appService.hasTriggers) {
             config.trigger_map = _.sortBy(config.trigger_map, function (aTriggerConfig) {
               const trigger = new Trigger(aTriggerConfig);
-              return _.indexOf(["push", "pull-request", "tag"], trigger.type());
+              return _.indexOf(['push', 'pull-request', 'tag'], trigger.type());
             });
           } else {
             delete config.trigger_map;
@@ -201,10 +194,14 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
             })
           ) {
-            errors.push(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
+            errors.push(
+              new Error(
+                'one or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number',
+              ),
+            );
 
             if (shouldKeysBeUnique) {
-              errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
+              errors.push(new Error('should be unique'));
             }
           }
 
@@ -213,7 +210,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
             })
           ) {
-            errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_value] %>"));
+            errors.push(new Error('invalid Environment Variable value. Should not be empty'));
           }
 
           if (errors.length === 0) {
@@ -240,7 +237,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
             }),
             function (anEnvVar) {
               return _.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value());
-            }
+            },
           );
 
           _.each(variablesWithoutKeyAndValue, function (aVariable) {
@@ -251,7 +248,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           variables = variables.concat(
             _.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
               return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
-            })
+            }),
           );
         }
 
@@ -264,7 +261,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               }),
               function (anEnvVar) {
                 return _.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value());
-              }
+              },
             );
 
             _.each(variablesWithoutKeyAndValue, function (aVariable) {
@@ -275,53 +272,49 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
             variables = variables.concat(
               _.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
                 return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
-              })
+              }),
             );
           });
         }
 
         // Populate the meta with the default machine type if necessary
         if (
-          requestService.mode === "website" &&
+          requestService.mode === 'website' &&
           appService.appDetails.isMachineTypeSelectorAvailable &&
           appService.defaultMachineType
         ) {
           if (!appService.appConfig.meta) {
             appService.appConfig.meta = {};
           }
-          if (!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
-            appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+          if (!appService.appConfig.meta['bitrise.io']) {
+            appService.appConfig.meta['bitrise.io'] = {};
           }
 
           if (appService.stack && appService.stack.isAgentPoolStack()) {
-            delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+            delete appService.appConfig.meta['bitrise.io'].machine_type_id;
           } else {
-            appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
-              appService.defaultMachineType.id;
+            appService.appConfig.meta['bitrise.io'].machine_type_id = appService.defaultMachineType.id;
           }
 
           appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
         }
 
-
         return validateVariables(variables);
-      }
+      };
 
       appService.saveAppConfig = function (tabOpenDuringSave, appConfig, version) {
         let requestConfig;
         if (enableXBitriseConfigVersionHeader && (version || appService.savedAppConfigVersion)) {
           requestConfig = {
             headers: {
-              [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigVersion
-            }
+              [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigVersion,
+            },
           };
         }
 
-        return requestService
-          .postAppConfig(appConfig, tabOpenDuringSave, requestConfig)
-          .then(function () {
-            appService.hasTriggers = Boolean(appConfig.trigger_map?.length);
-          });
+        return requestService.postAppConfig(appConfig, tabOpenDuringSave, requestConfig).then(function () {
+          appService.hasTriggers = Boolean(appConfig.trigger_map?.length);
+        });
       };
 
       appService.discardAppConfigChanges = function () {
@@ -348,9 +341,9 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
           appService.secrets = _.map(secretConfigs, function (aSecretConfig) {
             switch (requestService.mode) {
-              case "website":
+              case 'website':
                 return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
-              case "cli":
+              case 'cli':
                 return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
             }
           });
@@ -379,14 +372,18 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
       }
 
       appService.saveSecrets = function () {
-        appService.secrets = appService.secrets.filter((aSecretVar) => !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
-        appService.secrets.filter((s) => s.scope() !== 'workspace').forEach((aSecretVar) => {
-          aSecretVar.isKeyChangeable = false;
-          aSecretVar.shouldShowValue = false;
-          if (aSecretVar.isProtected()) {
-            aSecretVar.value(null);
-          }
-        });
+        appService.secrets = appService.secrets.filter(
+          (aSecretVar) => !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()),
+        );
+        appService.secrets
+          .filter((s) => s.scope() !== 'workspace')
+          .forEach((aSecretVar) => {
+            aSecretVar.isKeyChangeable = false;
+            aSecretVar.shouldShowValue = false;
+            if (aSecretVar.isProtected()) {
+              aSecretVar.value(null);
+            }
+          });
         appService.savedSecrets = angular.copy(appService.secrets);
       };
 
@@ -408,7 +405,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
             }
 
             return $q.reject(response);
-          }
+          },
         );
       };
 
@@ -421,8 +418,8 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         if (enableXBitriseConfigVersionHeader && (version || appService.savedAppConfigYMLVersion)) {
           requestConfig = {
             headers: {
-              [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigYMLVersion
-            }
+              [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigYMLVersion,
+            },
           };
         }
 
@@ -441,16 +438,17 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         const metaMachineTypeID =
           appService.appConfig &&
           appService.appConfig.meta &&
-          appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
-          appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
+          appService.appConfig.meta['bitrise.io'] &&
+          appService.appConfig.meta['bitrise.io'].machine_type_id;
 
-        const defaultMachineTypeID = metaMachineTypeID || appService.appDetails.appMachineTypeIdWithoutDeprecatedMachineReplacement;
+        const defaultMachineTypeID =
+          metaMachineTypeID || appService.appDetails.appMachineTypeIdWithoutDeprecatedMachineReplacement;
         appService.defaultMachineType = _.find(MachineType.all, {
           id: defaultMachineTypeID,
-          stackType: appService.stack.type
+          stackType: appService.stack.type,
         });
         if (!appService.defaultMachineType) {
-          return $q.reject(new Error("<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>"));
+          return $q.reject(new Error('Invalid machine type set in bitrise.yml meta'));
         }
 
         appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
@@ -461,7 +459,6 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
       appService.defaultMachineTypeHasUnsavedChanges = function () {
         return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
       };
-
 
       appService.rollbackVersionHasUnsavedChanges = function () {
         return !angular.equals(appService.rollbackVersion, appService.savedRollbackVersion);
@@ -479,25 +476,21 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
         let stackID;
         let dockerImage;
-        if (
-          appService.appConfig.meta &&
-          appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
-        ) {
-          stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
-          dockerImage =
-            appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+        if (appService.appConfig.meta && appService.appConfig.meta['bitrise.io']) {
+          stackID = appService.appConfig.meta['bitrise.io'].stack;
+          dockerImage = appService.appConfig.meta['bitrise.io'].docker_image;
         }
         const stackIDAndDockerImageFetchPromise =
           stackID && dockerImage
             ? $q.when()
             : requestService.getStackAndDockerImage(requestConfig).then(function (data) {
-              if (!stackID) {
-                stackID = data.stackID;
-              }
-              if (!dockerImage) {
-                dockerImage = data.dockerImage;
-              }
-            });
+                if (!stackID) {
+                  stackID = data.stackID;
+                }
+                if (!dockerImage) {
+                  dockerImage = data.dockerImage;
+                }
+              });
 
         return stackIDAndDockerImageFetchPromise.then(function () {
           appService.stack = Stack.getPotentiallyInvalidStack(stackID);
@@ -508,11 +501,8 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
       };
 
       appService.setRollbackVersionFromBitriseYml = function () {
-        if (
-          appService.appConfig.meta &&
-          appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
-        ) {
-          const rollbackVersionFromBitriseYml = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
+        if (appService.appConfig.meta && appService.appConfig.meta['bitrise.io']) {
+          const rollbackVersionFromBitriseYml = appService.appConfig.meta['bitrise.io'].stack_rollback_version;
           if (appService.getStackRollbackVersion() === rollbackVersionFromBitriseYml) {
             appService.rollbackVersion = rollbackVersionFromBitriseYml;
             appService.savedRollbackVersion = rollbackVersionFromBitriseYml;
@@ -521,18 +511,15 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
             appService.savedRollbackVersion = undefined;
           }
         }
-      }
+      };
 
       appService.getRollbackVersionFromBitriseYml = function () {
-        if (
-          !appService.appConfig.meta ||
-          !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
-        ) {
+        if (!appService.appConfig.meta || !appService.appConfig.meta['bitrise.io']) {
           return undefined;
         }
 
-        return appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
-      }
+        return appService.appConfig.meta['bitrise.io'].stack_rollback_version;
+      };
 
       appService.getStackRollbackVersion = function (workflow) {
         let { stack } = appService;
@@ -549,7 +536,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         }
 
         return stack.getRollbackVersion(machineType.id, isPaying, appService.appDetails.ownerData.slug);
-      }
+      };
 
       appService.isOwnerPaying = function () {
         if (!appService.appDetails || !appService.appDetails.ownerData) {
@@ -557,14 +544,14 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         }
 
         return appService.appDetails.ownerData.isPaying;
-      }
+      };
 
       appService.availableStacks = function () {
         if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
           return undefined;
         }
 
-        if (appService.appDetails.projectTypeID === "other") {
+        if (appService.appDetails.projectTypeID === 'other') {
           return [...Stack.all];
         }
         return _.filter(Stack.all, function (aStack) {
@@ -573,8 +560,6 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           }
           return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
         });
-
-
       };
 
       appService.stackHasUnsavedChanges = function () {
@@ -588,7 +573,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         if (!appConfig.meta) {
           appConfig.meta = {};
         }
-        const BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+        const BITRISE_META_KEY = 'bitrise.io';
         if (!appConfig.meta[BITRISE_META_KEY]) {
           appConfig.meta[BITRISE_META_KEY] = {};
         }
@@ -605,13 +590,11 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           delete appConfig.meta[BITRISE_META_KEY].stack_rollback_version;
         }
 
-        return appService
-          .saveAppConfig(tabOpenDuringSave, appConfig, version)
-          .then(function () {
-            appService.savedStack = angular.copy(appService.stack);
-            appService.savedDockerImage = appService.dockerImage;
-            appService.savedRollbackVersion = appService.rollbackVersion;
-          });
+        return appService.saveAppConfig(tabOpenDuringSave, appConfig, version).then(function () {
+          appService.savedStack = angular.copy(appService.stack);
+          appService.savedDockerImage = appService.dockerImage;
+          appService.savedRollbackVersion = appService.rollbackVersion;
+        });
       };
 
       appService.discardStackChanges = function () {
@@ -627,14 +610,16 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
         }
 
         if (
-          requestService.mode === "website" &&
+          requestService.mode === 'website' &&
           appService.appDetails.ownerData &&
           appService.appDetails.ownerData.slug
         ) {
-          return requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+          return requestService
+            .getOrgPlanData(appService.appDetails.ownerData.slug)
             .then(function (ownerPlanData) {
               appService.ownerPlanData = ownerPlanData;
-            }).catch(() => {
+            })
+            .catch(() => {
               appService.ownerPlanData = null;
             });
         }
@@ -647,13 +632,13 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           return $q.when();
         }
 
-        if (
-          requestService.mode === "website"
-        ) {
-          return requestService.getOrgBetaTags(appService.appDetails.ownerData.slug)
+        if (requestService.mode === 'website') {
+          return requestService
+            .getOrgBetaTags(appService.appDetails.ownerData.slug)
             .then(function (data) {
               appService.orgBetaTags = data.beta_tags;
-            }).catch(() => {
+            })
+            .catch(() => {
               appService.orgBetaTags = null;
             });
         }
@@ -666,14 +651,14 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           return appService.appConfig.containers[containerId]?.image || '';
         }
         return '';
-      }
+      };
 
       appService.getWithBlockServices = function (serviceIds) {
         if (Array.isArray(serviceIds) && serviceIds.length > 0 && appService.appConfig.services) {
           return serviceIds.map((id) => appService.appConfig.services[id].image);
         }
         return [];
-      }
+      };
 
       appService.getNormalizedAppConfig = function (requestConfig) {
         return requestService.getAppConfig(requestConfig).then(function ({ version, content }) {

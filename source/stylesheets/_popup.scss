@@ -187,7 +187,7 @@
 	.popup-body#default-alert-popup-body.success {
 
 		&:before {
-			background-image: background_image_from_svg_content('<%= svg("check") %>');
+			background-image: background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="rgba(255,255,255,0.99)"><path d="M10.213 13.915L17.234 7l1.49 1.49L10.212 17 5 11.68l1.49-1.489z"/></svg>');
 			background-size: auto 32px;
 			background-color: $def-green;
 		}
@@ -214,7 +214,7 @@
 	.popup-body#default-confirm-popup-body {
 
 		&:before {
-			background-image: background_image_from_svg_content('<%= svg("exclamation-mark") %>');
+			background-image: background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="rgba(255,255,255,0.99)"><path d="M112.9 49.3v2.9l-6.8 64.1H93.5l-6.4-64.1v-2.9H112.9zM88.2 150.7v-23.2h23.9v23.2H88.2z"/></svg>');
 			background-size: auto 54px;
 			background-color: $def-danger;
 		}
@@ -255,7 +255,7 @@
 	.popup-body#default-alert-popup-body.error {
 
 		&:before {
-			background-image: background_image_from_svg_content('<%= svg("cross") %>');
+			background-image: background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24" fill="rgba(255,255,255,0.99)"><path d="M12.01 10.608L16.618 6l1.402 1.402-4.608 4.608 4.608 4.608-1.402 1.402-4.608-4.608-4.608 4.608L6 16.618l4.608-4.608L6 7.402 7.402 6z"/></svg>');
 			background-size: auto 32px;
 			background-color: $def-danger;
 		}
@@ -282,7 +282,7 @@
 	.popup-body#default-alert-popup-body.notice {
 
 		&:before {
-			background-image: background_image_from_svg_content('<%= svg("lightbulb") %>');
+			background-image: background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="rgba(255,255,255,0.99)"><path d="M12 6c-3.3 0-6 2.7-6 6 0 2 1 3.8 2.5 4.8l.2.6c.2.9 1 1.5 1.9 1.5h2.9c.9 0 1.7-.6 1.9-1.5l.2-.6C17 15.8 18 14 18 12c0-3.3-2.7-6-6-6zm2.4 9.2c-.4.3-.6.7-.8 1.1l-.2.7h-2.8l-.2-.6c-.1-.5-.4-.9-.8-1.1-1-.8-1.6-2-1.6-3.3 0-2.2 1.8-4 4-4s4 1.8 4 4c0 1.3-.6 2.5-1.6 3.2zM12 22c1.4 0 2.7-.8 3-2H9c.3 1.1 1.6 2 3 2zM11 2h2v2h-2V2zm6.662 1.697l1.532 1.285-1.286 1.532-1.532-1.285 1.286-1.532zm4.012 5.582l.348 1.97-1.97.347-.347-1.97 1.97-.347zm-.514 6.855l-1 1.732-1.732-1 1-1.732 1.732 1zM3.84 17.866l-1-1.732 1.732-1 1 1.732-1.732 1zm-1.862-6.618l.348-1.97 1.97.348-.348 1.97-1.97-.348zm2.828-6.266l1.532-1.285 1.286 1.532-1.532 1.285-1.286-1.532z"/></svg>');
 			background-size: auto 24px;
 			background-color: $def-blue;
 		}

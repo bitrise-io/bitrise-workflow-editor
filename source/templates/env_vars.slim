@@ -2,18 +2,18 @@
 	section.cardo.warn-box
 		.icon
 		.message
-			.title == data[:strings][:env_vars][:warn][:title]
+			.title == "You should <strong>not</strong> add private information here."
 			p
-				== data[:strings][:env_vars][:warn][:detail]
-				button<[ng-click="mainCtrl.selectMenuByID('secrets')"] == data[:strings][:env_vars][:warn][:button_title]
+				| These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use
+				button[ng-click="mainCtrl.selectMenuByID('secrets')"] == "Secrets"
 				| .
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
 		header
 			h2[ng-switch="envVarsOfSource.type"]
-				span[ng-switch-when="app"] == data[:strings][:env_vars][:app][:title]
+				span[ng-switch-when="app"] == "Project Environment Variables"
 				span[ng-switch-when="workflow"]
 					span>[ng-bind="envVarsOfSource.workflowID"]
-					em == data[:strings][:env_vars][:workflow][:title_postfix]
+					em == "Workflow Environment Variables"
 				p[ng-if="envVarsOfSource.notification" ng-bind="envVarsOfSource.notification"]
 		article
 			ul.env-vars[order-by-drag models="envVarsOfSource.envVars"]
@@ -21,18 +21,18 @@
 					p.progress-indicator[progress-model="envVar.customProperties.progress"]
 					form[name="envVarForm" ng-if="!envVar.customProperties.progress.isInProgress" method="POST"]
 						.key-value-delete
-							input.key[type="text" name="key" autocomplete="off" ng-model="envVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!envVar.isKeyChangeable" custom-validators="{'key': Variable.isValidKey(envVar.key())}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
+							input.key[type="text" name="key" autocomplete="off" ng-model="envVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!envVar.isKeyChangeable" custom-validators="{'key': Variable.isValidKey(envVar.key())}" placeholder="Key" skip-drag-order]
 							.value-with-actions
-								textarea.value[name="value" msd-elastic ng-model="envVar.value" ng-model-options="{getterSetter: true}" ng-trim="false" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
+								textarea.value[name="value" msd-elastic ng-model="envVar.value" ng-model-options="{getterSetter: true}" ng-trim="false" placeholder="Value" skip-drag-order]
 							.actions[floating-menu toggle="envVar.customProperties.isMenuVisible"]
 								button.dropdown-toggle[ng-click="envVar.customProperties.isMenuVisible = !envVar.customProperties.isMenuVisible"]  == svg("three-horizontal-dots")
 								.dropdown[ng-if="envVar.customProperties.isMenuVisible"]
-									button.dropdown-option.delete-env-var[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == data[:strings][:env_vars][:actions][:delete_env_var]
+									button.dropdown-option.delete-env-var[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == "Delete"
 						.env-var-settings
 							.is-expand
 								checkbox.small[name="isExpand" ng-model="envVar.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
-								label[for="env-var-editor-is-expand-checkbox-{{ $index }}"] == data[:strings][:env_vars][:replace_variables_label]
+								label[for="env-var-editor-is-expand-checkbox-{{ $index }}"] == "Replace variables in inputs?"
 						.actions.small
-							button.option.delete-env-var.rebo.danger[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == data[:strings][:env_vars][:actions][:delete_env_var]
+							button.option.delete-env-var.rebo.danger[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == "Delete"
 						p.notification.warning[ng-if="envVarForm.key.$invalid && !envVarForm.key.$pristine" ng-bind="envVarsCtrl.envVarValidationWarning(envVar)"]
-			button.add.rebo.purple[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == data[:strings][:env_vars][:add_new]
+			button.add.rebo.purple[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == "Add new"

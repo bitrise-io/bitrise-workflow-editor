@@ -18,7 +18,6 @@ module.exports = (config) => {
 		// list of files / patterns to load in the browser
 		files: [
 			"javascripts/vendor.js",
-			"javascripts/strings.js",
 			"javascripts/routes.js",
 			"../node_modules/jasmine-ajax/lib/mock-ajax.js",
 			"../node_modules/angular-mocks/angular-mocks.js",
