@@ -3,12 +3,8 @@ import { safeDigest } from '@/services/react-compat';
 import WindowUtils from '@/core/utils/WindowUtils';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { segmentTrack } from '@/utils/segmentTracking';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { configMergeDialog } from '@/components/ConfigMergeDialog/ConfigMergeDialog.store';
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
-
-const enableConfigConflictResolution = useFeatureFlag('enable-wfe-config-conflict-resolution-ui');
-const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-config-version-header');
 
 (function () {
   angular
@@ -422,14 +418,19 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               'Save',
               'Cancel',
               function () {
-                viewModel.save({ shouldReturnPromise: true, source: 'unsaved_changes_save_button' }).then(
-                  function () {
-                    resolve();
-                  },
-                  function (error) {
-                    reject();
-                  },
-                );
+                viewModel
+                  .save({
+                    shouldReturnPromise: true,
+                    source: 'unsaved_changes_save_button',
+                  })
+                  .then(
+                    function () {
+                      resolve();
+                    },
+                    function (error) {
+                      reject();
+                    },
+                  );
               },
               function () {
                 reject();
@@ -540,7 +541,11 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               break;
           }
 
-          window.dispatchEvent(new CustomEvent('main::yml::has-unsaved-changes', { detail: result }));
+          window.dispatchEvent(
+            new CustomEvent('main::yml::has-unsaved-changes', {
+              detail: result,
+            }),
+          );
           return result;
         };
 
@@ -610,7 +615,10 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
           async function startSavingProcess() {
             viewModel.saveProgress.start('Saving, wait a sec...');
-            segmentTrack('Workflow Editor Save Button Clicked', { source, tab_name: viewModel.currentMenu.id });
+            segmentTrack('Workflow Editor Save Button Clicked', {
+              source,
+              tab_name: viewModel.currentMenu.id,
+            });
 
             if (shouldValidate) {
               try {
@@ -749,7 +757,10 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
               return mode;
             } catch (error) {
               if (!error) return 'cancel';
-              configMergeDialog.setState({ errorMessage: error.message, isLoading: false });
+              configMergeDialog.setState({
+                errorMessage: error.message,
+                isLoading: false,
+              });
               return showConfigMergeDialog(finalYaml, false);
             }
           }
@@ -818,7 +829,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           function handleConfigMerge(defaultYourYaml, defaultBaseYaml) {
             const isYmlFormat = viewModel.currentMenu.id === 'yml';
 
-            if (!enableConfigConflictResolution || isRepositorySavedYml) {
+            if (isRepositorySavedYml) {
               return $q.resolve(isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
             }
 
@@ -844,7 +855,10 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
                   const hasChanges = defaultBaseYaml ? defaultBaseYaml !== remoteYaml : baseYaml !== remoteYaml;
 
                   if (!hasChanges) {
-                    return $q.resolve({ finalYaml: yourYaml, shouldReCheckRemoteChanges: false });
+                    return $q.resolve({
+                      finalYaml: yourYaml,
+                      shouldReCheckRemoteChanges: false,
+                    });
                   }
 
                   if (!configMergeDialog.getState().isOpen) {
@@ -915,7 +929,10 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
           function startSavingProcess() {
             if (!configMergeDialog.getState().isOpen) {
-              segmentTrack('Workflow Editor Save Button Clicked', { source, tab_name: viewModel.currentMenu.id });
+              segmentTrack('Workflow Editor Save Button Clicked', {
+                source,
+                tab_name: viewModel.currentMenu.id,
+              });
             }
 
             viewModel.saveProgress.start('Saving, wait a sec...');
@@ -931,7 +948,10 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
                 viewModel.saveProgress.reset();
                 configMergeDialog.setState(configMergeDialog.getInitialState());
 
-                $rootScope.$emit('MainController::saveSuccess', { forceReload, menu: viewModel.currentMenu.id });
+                $rootScope.$emit('MainController::saveSuccess', {
+                  forceReload,
+                  menu: viewModel.currentMenu.id,
+                });
               })
               .catch((error) => {
                 if (!error) {
@@ -963,9 +983,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
           }
         }
 
-        viewModel.save = enableXBitriseConfigVersionHeader
-          ? saveWithXBitriseConfigVersionHeader
-          : saveWithoutXBitriseConfigVersionHeader;
+        viewModel.save = saveWithXBitriseConfigVersionHeader;
 
         viewModel.isSaveEnabled = function () {
           if (!viewModel.menuProgress.isIdle) {
@@ -1000,7 +1018,9 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
             event.preventDefault();
 
             if (viewModel.isSaveEnabled()) {
-              viewModel.save({ source: 'save_changes_keyboard_shortcut_pressed' });
+              viewModel.save({
+                source: 'save_changes_keyboard_shortcut_pressed',
+              });
             }
 
             if (configMergeDialog.getState().isOpen && !configMergeDialog.getState().isLoading) {

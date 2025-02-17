@@ -1,7 +1,3 @@
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-
-const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-config-version-header');
-
 (function () {
   angular
     .module('BitriseWorkflowEditor')
@@ -304,7 +300,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
       appService.saveAppConfig = function (tabOpenDuringSave, appConfig, version) {
         let requestConfig;
-        if (enableXBitriseConfigVersionHeader && (version || appService.savedAppConfigVersion)) {
+        if (version || appService.savedAppConfigVersion) {
           requestConfig = {
             headers: {
               [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigVersion,
@@ -415,7 +411,7 @@ const enableXBitriseConfigVersionHeader = useFeatureFlag('enable-wfe-x-bitrise-c
 
       appService.saveAppConfigYML = function (tabOpenDuringSave, appConfigYML, version) {
         let requestConfig;
-        if (enableXBitriseConfigVersionHeader && (version || appService.savedAppConfigYMLVersion)) {
+        if (version || appService.savedAppConfigYMLVersion) {
           requestConfig = {
             headers: {
               [requestService.appConfigVersionHeaderName]: version || appService.savedAppConfigYMLVersion,
