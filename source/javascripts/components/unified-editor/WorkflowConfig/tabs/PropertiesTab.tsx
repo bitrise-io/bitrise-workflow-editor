@@ -82,7 +82,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
       {isGitStatusNameEnabled && (
         <GitStatusNameInput
-          workflowId={workflow?.id}
+          targetId={workflow?.id}
           onChange={handleGitStatusNameChange}
           statusReportName={statusReportName}
         />
