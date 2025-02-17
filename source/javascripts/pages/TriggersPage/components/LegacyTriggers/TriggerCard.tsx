@@ -16,7 +16,7 @@ interface TriggerCardProps extends CardProps {
 
 const TriggerCard = (props: TriggerCardProps) => {
   const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
-  const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
+  const { conditions, pipelineable, isDraftPr, isActive, priority } = triggerItem;
 
   const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
     id: triggerItem.id as string,
@@ -62,7 +62,7 @@ const TriggerCard = (props: TriggerCardProps) => {
     >
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
-        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} />
+        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} priority={priority} />
       </Box>
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
         <Icon name="ArrowRight" marginRight="16" />

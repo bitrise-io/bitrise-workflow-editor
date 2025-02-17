@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Checkbox, Input, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
@@ -40,12 +40,13 @@ const AddTrigger = (props: AddTriggerProps) => {
     defaultValues: {
       conditions: defaultConditions,
       isDraftPr: editedItem?.draft_enabled !== false,
+      priority: editedItem?.priority || 0,
     },
   });
 
   const { control, handleSubmit, setValue, reset, watch } = formMethods;
 
-  const { conditions, isDraftPr } = watch();
+  const { conditions, isDraftPr, priority } = watch();
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -85,6 +86,10 @@ const AddTrigger = (props: AddTriggerProps) => {
       delete newTrigger.draft_enabled;
     }
 
+    if (data.priority !== undefined && data.priority !== 0) {
+      newTrigger.priority = data.priority;
+    }
+
     onSubmit(newTrigger);
   };
 
@@ -114,7 +119,11 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    if (isEqual(getConditionList(trigger), conditions) && isEqual(trigger.draft_enabled !== false, isDraftPr)) {
+    if (
+      isEqual(getConditionList(trigger), conditions) &&
+      isEqual(trigger.draft_enabled !== false, isDraftPr) &&
+      isEqual(trigger.priority, priority)
+    ) {
       isSameTriggerExist = true;
     }
   });
@@ -186,6 +195,15 @@ const AddTrigger = (props: AddTriggerProps) => {
               Include draft pull requests
             </Checkbox>
           )}
+          <Input
+            value={priority}
+            type="number"
+            min={-100}
+            max={100}
+            label="Priority"
+            marginBlockStart="24"
+            onChange={(e) => setValue(`priority`, Number(e.target.value))}
+          />
         </Box>
         <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">
           <Tooltip

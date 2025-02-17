@@ -7,6 +7,7 @@ type TriggerConditionsProps = {
   isDraftPr?: boolean;
   triggerType?: TriggerType;
   triggerDisabled?: boolean;
+  priority?: number;
 };
 
 const iconMap: Record<LegacyConditionType | ConditionType, TypeIconName> = {
@@ -44,7 +45,7 @@ const toolTip: Record<LegacyConditionType | ConditionType, string> = {
 };
 
 const TriggerConditions = (props: TriggerConditionsProps) => {
-  const { conditions, isDraftPr, triggerDisabled, triggerType } = props;
+  const { conditions, isDraftPr, triggerDisabled, triggerType, priority } = props;
   return (
     <Box display="flex" alignItems="center" flexWrap="wrap" rowGap="8" columnGap="4">
       {(!conditions || conditions.length === 0) && <Tag size="sm">No conditions.</Tag>}
@@ -70,6 +71,11 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
       {triggerType === 'pull_request' && isDraftPr === false && (
         <Text textStyle="body/md/regular" color="text/secondary">
           • Draft PRs excluded
+        </Text>
+      )}
+      {priority !== undefined && (
+        <Text textStyle="body/md/regular" color="text/secondary">
+          • Priority: {priority}
         </Text>
       )}
     </Box>

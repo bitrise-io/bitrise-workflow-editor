@@ -44,6 +44,7 @@ export type TriggerItem = {
   source: TriggerType;
   isDraftPr?: boolean;
   isActive: boolean;
+  priority?: number;
 };
 
 export interface FormItems extends Omit<TriggerItem, 'conditions'> {
@@ -54,6 +55,7 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   }[];
   isDraftPr?: boolean;
   isActive: boolean;
+  priority?: number;
 }
 
 type StringOrRegex =
@@ -73,6 +75,7 @@ export type TargetBasedTriggerItem = {
   source_branch?: StringOrRegex;
   target_branch?: StringOrRegex;
   tag?: StringOrRegex;
+  priority?: number;
 };
 
 export type TargetBasedTriggers = WorkflowYmlObject['triggers'];
