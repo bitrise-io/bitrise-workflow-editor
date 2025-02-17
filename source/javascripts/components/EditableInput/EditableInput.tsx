@@ -104,7 +104,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
       rightAddonPlacement="inside"
       rightAddon={
         editable.isEditing ? (
-          <ButtonGroup justifyContent="center" spacing="0" m="5px 8px">
+          <ButtonGroup mx="8" spacing="0">
             <ControlButton
               size={buttonSize}
               iconName="Check"
@@ -115,7 +115,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
             <ControlButton size={buttonSize} aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
           </ButtonGroup>
         ) : (
-          <ControlButton m="5px 8px" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
+          <ControlButton mx="8" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
         )
       }
     />
