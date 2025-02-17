@@ -3,16 +3,16 @@
 
 // Major layouts
 
-@import "_index.scss.erb";
-@import "_tab-env_vars.scss.erb";
-@import "_tab-stack.scss.erb";
+@import "_index.scss";
+@import "_tab-env_vars.scss";
+@import "_tab-stack.scss";
 
 // Common elements
 
 @import "_rebo";
 @import "_cardo";
-@import "_popup.scss.erb";
-@import "_notification-progress-indicator.scss.erb";
+@import "_popup.scss";
+@import "_notification-progress-indicator.scss";
 @import "_order-by-drag";
 
 @import "~monaco-editor/min/vs/editor/editor.main.css";

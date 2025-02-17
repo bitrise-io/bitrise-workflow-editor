@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toMerged } from 'es-toolkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { Step, StepBundle, StepLike, StepLikeYmlObject, WithGroup } from '@/core/models/Step';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import StepApi, { StepApiResult } from '@/core/api/StepApi';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 

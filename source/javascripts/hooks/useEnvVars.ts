@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/models/EnvVarService';
+import EnvVarService from '@/core/services/EnvVarService';
 import EnvVarsApi from '@/core/api/EnvVarsApi';
 import WindowUtils from '@/core/utils/WindowUtils';
 import StepApi from '@/core/api/StepApi';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useDefaultStepLibrary from './useDefaultStepLibrary';
 
 const useDefaultEnvVars = (enabled: boolean) => {

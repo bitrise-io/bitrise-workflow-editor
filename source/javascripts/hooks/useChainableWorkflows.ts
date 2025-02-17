@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import Fuse from 'fuse.js';
 import { useQuery } from '@tanstack/react-query';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 
 type Props = {
   id: string;

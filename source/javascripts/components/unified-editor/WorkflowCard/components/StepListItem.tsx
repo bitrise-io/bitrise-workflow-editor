@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { memo } from 'react';
 
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepBundleCard from '../../StepSelectorDrawer/components/StepBundleCard';
 

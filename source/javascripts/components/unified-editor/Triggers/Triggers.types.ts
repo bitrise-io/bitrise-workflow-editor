@@ -1,4 +1,4 @@
-import { WorkflowYmlObject } from '@/core/models/Workflow';
+import { TriggersModel } from '@/core/models/BitriseYml';
 
 export type LegacyTagConditionType = 'tag';
 
@@ -75,7 +75,7 @@ export type TargetBasedTriggerItem = {
   tag?: StringOrRegex;
 };
 
-export type TargetBasedTriggers = WorkflowYmlObject['triggers'];
+export type TargetBasedTriggers = TriggersModel;
 
 export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
   pipelineableId: string;

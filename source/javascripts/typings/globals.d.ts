@@ -8,10 +8,7 @@ declare global {
   const TEST_BITRISE_YML: BitriseYml;
 
   interface Window {
-    // strings.js.erb
-    strings: { [s: string]: any };
-
-    // routes.js.erb
+    // routes.js
     routes: { [s: string]: any };
 
     // webpack.config.js

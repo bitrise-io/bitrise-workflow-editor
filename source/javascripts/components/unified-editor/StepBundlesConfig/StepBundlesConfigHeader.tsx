@@ -1,6 +1,6 @@
 import { Box, Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 
 type Props = {
   parentStepBundleId: string;

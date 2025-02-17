@@ -61,18 +61,12 @@ class RequestService {
     });
 
     if (!response.ok) {
-      const responseBody = await this.convertResponseToJson(
-        response,
-        window.strings.request_service.load_app_config.default_error,
-      );
+      const responseBody = await this.convertResponseToJson(response, 'Error loading app config.');
 
       if (responseBody.bitrise_yml) {
         const error = this.prefixedError(
-          this.errorFromResponseBody(
-            responseBody,
-            window.strings.request_service.load_app_config.invalid_bitrise_yml_error,
-          ).message,
-          window.strings.request_service.load_app_config.error_prefix,
+          this.errorFromResponseBody(responseBody, 'Your config (bitrise.yml) is invalid.').message,
+          'Error loading app config: ',
         );
         this.logErrorWithLevel(error, StatusType.warn);
 
@@ -83,15 +77,12 @@ class RequestService {
         };
       }
 
-      const error = this.errorFromResponseBody(
-        responseBody,
-        window.strings.request_service.load_app_config.default_error,
-      );
+      const error = this.errorFromResponseBody(responseBody, 'Error loading app config.');
       this.logErrorWithLevel(error, response.status < 500 ? StatusType.warn : StatusType.error);
       throw error;
     }
 
-    const defaultError = window.strings.request_service.load_app_config.default_error;
+    const defaultError = 'Error loading app config.';
     const version = response.headers.get(this.appConfigVersionHeaderName);
     const content = await this.convertResponseToText(response, defaultError);
 
@@ -150,7 +141,7 @@ class RequestService {
 
   private errorFromResponseBody(
     responseBody: { error?: string; error_msg?: string },
-    defaultMessage: string = window.strings.request_service.response.default_error,
+    defaultMessage: string = 'Error during request.',
   ): Error {
     return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
   }

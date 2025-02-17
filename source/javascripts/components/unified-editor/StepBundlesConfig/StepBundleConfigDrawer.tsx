@@ -1,6 +1,6 @@
 import { Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import useStep from '@/hooks/useStep';
 import FloatingDrawer, {
   FloatingDrawerBody,

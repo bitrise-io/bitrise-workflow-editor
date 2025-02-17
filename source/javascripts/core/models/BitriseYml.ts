@@ -1,23 +1,23 @@
-type BitriseDataModel = {
+export type BitriseYml = {
   format_version: string;
   default_step_lib_source?: string;
   project_type?: string;
   title?: string;
   summary?: string;
   description?: string;
-  services?: Record<string, ContainerModel>;
-  containers?: Record<string, ContainerModel>;
+  services?: Services;
+  containers?: Containers;
   app?: AppModel;
   meta?: Meta;
-  trigger_map?: TriggerMapItemModel[];
-  workflows?: Record<string, WorkflowModel>;
-  pipelines?: Record<string, PipelineModel>;
-  stages?: Record<string, StageModel>;
-  step_bundles?: Record<string, StepBundleModel>;
+  trigger_map?: TriggerMap;
+  workflows?: Workflows;
+  pipelines?: Pipelines;
+  stages?: Stages;
+  step_bundles?: StepBundles;
   includes?: IncludeItemModel[];
 };
 
-type EnvironmentItemOptionsModel = {
+export type EnvironmentItemOptionsModel = {
   is_expand?: boolean;
   skip_if_empty?: boolean;
   title?: string;
@@ -33,22 +33,25 @@ type EnvironmentItemOptionsModel = {
   meta?: Record<string, unknown>;
 };
 
-type EnvironmentItemModel = Record<string, unknown> & {
+export type EnvironmentItemModel = Record<string, unknown> & {
   opts?: EnvironmentItemOptionsModel;
 };
 
-type EnvModel = EnvironmentItemModel[];
+export type EnvModel = EnvironmentItemModel[];
 
-type StepBundleModel = {
+export type StepBundleModel = {
   envs?: EnvModel;
-  steps?: Record<string, StepModel>[];
+  steps?: Steps;
+  title?: string;
+  summary?: string;
+  description?: string;
 };
 
-type StepBundleOverrideModel = {
+export type StepBundleOverrideModel = {
   envs?: EnvModel;
 };
 
-type IncludeItemModel = {
+export type IncludeItemModel = {
   path: string;
   repository?: string;
   branch?: string;
@@ -56,20 +59,20 @@ type IncludeItemModel = {
   tag?: string;
 };
 
-type StageModel = {
+export type StageModel = {
   title?: string;
   summary?: string;
   description?: string;
-  workflows?: Record<string, WorkflowStageConfigModel>[];
+  workflows?: StageWorkflows;
   abort_on_fail?: boolean;
   should_always_run?: boolean;
 };
 
-type WorkflowStageConfigModel = {
+export type WorkflowStageConfigModel = {
   run_if?: string;
 };
 
-type StepModel = {
+export type StepModel = {
   title?: string;
   summary?: string;
   description?: string;
@@ -94,20 +97,20 @@ type StepModel = {
   asset_urls?: Record<string, string>;
 };
 
-type StepToolkitModel = {
+export type StepToolkitModel = {
   bash?: BashStepToolkitModel;
   go?: GoStepToolkitModel;
 };
 
-type BashStepToolkitModel = {
+export type BashStepToolkitModel = {
   entry_file?: string;
 };
 
-type GoStepToolkitModel = {
+export type GoStepToolkitModel = {
   package_name: string;
 };
 
-type WorkflowModel = {
+export type WorkflowModel = {
   title?: string;
   summary?: string;
   description?: string;
@@ -121,7 +124,7 @@ type WorkflowModel = {
   status_report_name?: string;
 };
 
-type TriggerMapItemModel = {
+export type TriggerMapItemModel = {
   type?: 'push' | 'pull_request' | 'tag';
   pattern?: string;
   enabled?: boolean;
@@ -139,13 +142,13 @@ type TriggerMapItemModel = {
   is_pull_request_allowed?: boolean;
 };
 
-type WithModel = {
+export type WithModel = {
   container?: string;
   services?: string[];
-  steps: Record<string, StepModel>[];
+  steps: Steps;
 };
 
-type Meta = {
+export type Meta = {
   'bitrise.io'?: {
     stack?: string;
     machine_type_id?: string;
@@ -154,7 +157,7 @@ type Meta = {
   sensitivity?: string;
 };
 
-type AppModel = {
+export type AppModel = {
   title?: string;
   summary?: string;
   description?: string;
@@ -162,49 +165,49 @@ type AppModel = {
   envs?: EnvModel;
 };
 
-type StepSourceModel = {
+export type StepSourceModel = {
   git: string;
   commit?: string;
 };
 
-type DepsModel = {
+export type DepsModel = {
   brew?: (string | BrewDepModel)[];
   apt_get?: (string | AptGetDepModel)[];
   check_only?: (string | CheckOnlyDepModel)[];
 };
 
-type BrewDepModel = {
+export type BrewDepModel = {
   name: string;
   bin_name?: string;
 };
 
-type AptGetDepModel = {
+export type AptGetDepModel = {
   name: string;
   bin_name?: string;
 };
 
-type CheckOnlyDepModel = {
+export type CheckOnlyDepModel = {
   name: string;
 };
 
-type PipelineModel = {
+export type PipelineModel = {
   title?: string;
   summary?: string;
   description?: string;
   triggers?: TriggersModel;
   status_report_name?: string;
-  stages?: Record<string, StageModel>[];
-  workflows?: Record<string, GraphPipelineWorkflowModel>;
+  stages?: PipelineStages;
+  workflows?: PipelineWorkflows;
 };
 
-type TriggersModel = {
+export type TriggersModel = {
   enabled?: boolean;
   push?: PushTriggerModel[];
   pull_request?: PullrequestTriggerModel[];
   tag?: TagTriggerModel[];
 };
 
-type GraphPipelineWorkflowModel = {
+export type GraphPipelineWorkflowModel = {
   uses?: string;
   parallel?: number;
   depends_on?: string[];
@@ -215,14 +218,14 @@ type GraphPipelineWorkflowModel = {
   };
 };
 
-type PushTriggerModel = {
+export type PushTriggerModel = {
   enabled?: boolean;
   branch?: string | TriggerMapItemModelRegexCondition;
   commit_message?: string | TriggerMapItemModelRegexCondition;
   changed_files?: string | TriggerMapItemModelRegexCondition;
 };
 
-type PullrequestTriggerModel = {
+export type PullrequestTriggerModel = {
   enabled?: boolean;
   draft_enabled?: boolean;
   source_branch?: string | TriggerMapItemModelRegexCondition;
@@ -233,20 +236,20 @@ type PullrequestTriggerModel = {
   changed_files?: string | TriggerMapItemModelRegexCondition;
 };
 
-type TagTriggerModel = {
+export type TagTriggerModel = {
   enabled?: boolean;
   name?: string | TriggerMapItemModelRegexCondition;
 };
 
-type TriggerMapItemModelRegexCondition = {
+export type TriggerMapItemModelRegexCondition = {
   regex: string;
 };
 
-type StepListItemModel = {
+export type StepListItemModel = {
   [stepId: string]: StepModel | WithModel | StepBundleOverrideModel;
 };
 
-type ContainerModel = {
+export type ContainerModel = {
   image: string;
   credentials?: DockerCredentialModel;
   ports?: string[];
@@ -254,12 +257,21 @@ type ContainerModel = {
   options?: string;
 };
 
-type DockerCredentialModel = {
+export type DockerCredentialModel = {
   username: string;
   password: string;
   server?: string;
 };
 
-type BitriseYml = BitriseDataModel;
-
-export { BitriseYml, Meta };
+// Helper types
+export type TriggerMap = TriggerMapItemModel[];
+export type Steps = Record<string, StepModel>[];
+export type Stages = Record<string, StageModel>;
+export type Services = Record<string, ContainerModel>;
+export type Workflows = Record<string, WorkflowModel>;
+export type Pipelines = Record<string, PipelineModel>;
+export type Containers = Record<string, ContainerModel>;
+export type StepBundles = Record<string, StepBundleModel>;
+export type PipelineStages = Record<string, StageModel>[];
+export type StageWorkflows = Record<string, WorkflowStageConfigModel>[];
+export type PipelineWorkflows = Record<string, GraphPipelineWorkflowModel>;

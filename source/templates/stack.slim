@@ -1,25 +1,25 @@
 .tab-stack.menu-content-padding[ng-controller="StackController as stackCtrl" ng-init="stackCtrl.init()"]
 	section.cardo.stack-settings.default
 		header
-			h2 == data[:strings][:stack][:default_stack_settings][:header_title]
-			p.header-description == replaced_string(data[:strings][:stack][:default_stack_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
+			h2 == "Default Stack"
+			p.header-description == "This will appear as a default stack in your workflows."
 		article
 			section
-				r-notification.notification-block.invalid-version[status="'error'" title="'#{ data[:strings][:stack][:rollback_version][:invalid_version_title] }'" message="'#{ data[:strings][:stack][:rollback_version][:invalid_version_message] }'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
+				r-notification.notification-block.invalid-version[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
 				.max-width-wrapper
-					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == data[:strings][:stack][:invalid_stack]
-					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:incompatible_stack]
+					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == "Your current stack is invalid! Choose another stack from the list below."
+					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == "Your current stack is not compatible with your current project type! Select a different stack from the list below."
 					.stack-selector-wrapper
 						select.mak.stack-selector[ng-model="appService.stack" ng-options="stackCtrl.stackOptionTitle(stack) for stack in stackCtrl.stackOptions()" ng-change="stackCtrl.onDefaultStackChange()"]
 					.stack-info[ng-if="appService.stack.description"]
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
 							.stack-description[sanitized-markdown="appService.stack.description"]
-							a.stack-info-link[ng-if="appService.stack.descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(appService.stack)" ng-href="{{ stackCtrl.descriptionURLForStack(appService.stack) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
-							p.stack-info-multistack[ng-if="appService.stack.descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(appService.stack)"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(appService.stack) }}", "{{ appService.stack.descriptionURLGen2AppleSilicon }}"])
-							p.stack-update-policy == data[:strings][:stack][:stack_update_policy]
+							a.stack-info-link[ng-if="appService.stack.descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(appService.stack)" ng-href="{{ stackCtrl.descriptionURLForStack(appService.stack) }}" target="_blank"] == "See what software is installed on this stack"
+							p.stack-info-multistack[ng-if="appService.stack.descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(appService.stack)"] == "See what software is installed on this stack: <a href='{{ stackCtrl.descriptionURLForStack(appService.stack) }}' target='_blank'>Intel</a> / <a href='{{ appService.stack.descriptionURLGen2AppleSilicon }}' target='_blank'>Apple Silicon</a>"
+							p.stack-update-policy == "Read more about the <a href='https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html' target='_blank'>Stack Update Policy</a>."
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
-						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
+						label.docker-image-label == "Docker image to use"
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
 			section.machine-type-settings[ng-if="stackCtrl.canShowDefaulStackMachines()"]
 				h4.machine-type-header Machine type for the default stack
@@ -57,36 +57,36 @@
 											span<> @
 											span[ng-bind="machineType.cpuDescription"]
 										.ram[ng-bind="machineType.ram"]
-					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
+					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == "Learn more about Machine types »"
 			section.previous-version-settings
 				div.input-and-label
-					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
-					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
-					r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
-				r-notification-message-with-link.notification-block.rollback-warning[type="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" link-url="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_href] }'" link-text="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_text] }'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
+					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? 'Previous version is not available' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
+					label[for="use-previous-version-checkbox"] == "Use previous version"
+					r-info-tooltip[label="'Enable this option if your build is failing after a Bitrise Stack Update. Your build will start slower while using rollback stack versions.'"]
+				r-notification-message-with-link.notification-block.rollback-warning[type="'warning'" message="'Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.'" link-url="'https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack'" link-text="'Learn more'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
 	section.cardo.stack-settings.workflow-specific
 		header
-			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
-			p == replaced_string(data[:strings][:stack][:workflow_specific_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
+			h2 == "Workflow Specific Stacks"
+			p == "This will appear as a default stack in your workflows."
 		article
 			section.workflow[ng-repeat="workflow in stackCtrl.workflows"]
 				h4.workflow-header
 					strong.workflow-id[ng-bind="workflow.id"]
-					span == data[:strings][:stack][:workflow_id_postfix]
-				r-notification.notification-block.invalid-version[status="'error'" title="'#{ data[:strings][:stack][:rollback_version][:invalid_version_title] }'" message="'#{ data[:strings][:stack][:rollback_version][:invalid_version_message] }'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailableForWorkflow(workflow)"]
-				p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == data[:strings][:stack][:invalid_stack]
-				p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) != -1 && appService.availableStacks().indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == data[:strings][:stack][:incompatible_stack]
+					span == " workflow"
+				r-notification.notification-block.invalid-version[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailableForWorkflow(workflow)"]
+				p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == "Your current stack is invalid! Choose another stack from the list below."
+				p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) != -1 && appService.availableStacks().indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == "Your current stack is not compatible with your current project type! Select a different stack from the list below."
 				.max-width-wrapper
 					.stack-selector-wrapper[ng-class="{'default': stackCtrl.stackGetterSetterForWorkflow(workflow)() === null}"]
 						select.mak.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stackCtrl.stackOptionTitle(stack) for stack in [null].concat(stackCtrl.stackOptions())"]
-						label.default-stack == data[:strings][:stack][:default]
+						label.default-stack == "default"
 					.stack-info[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
-							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
-							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}", "{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}"])
-							p.stack-update-policy == data[:strings][:stack][:stack_update_policy]
+							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == "See what software is installed on this stack"
+							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())"] == "See what software is installed on this stack: <a href='{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}' target='_blank'>Intel</a> / <a href='{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}' target='_blank'>Apple Silicon</a>"
+							p.stack-update-policy == "Read more about the <a href='https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html' target='_blank'>Stack Update Policy</a>."
 				.machine-type-settings[ng-if="stackCtrl.canShowWorkflowStackMachines(workflow)"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="groupId in stackCtrl.getStackMachineTypeGroupIds(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
@@ -123,11 +123,11 @@
 												span<> @
 												span[ng-bind="machineType.cpuDescription"]
 											.ram[ng-bind="machineType.ram"]
-							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
+							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == "Learn more about Machine types »"
 					.previous-version-settings.workflow-specific
 						div.input-and-label
-							r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow) ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)" on-change="stackCtrl.onChangeRollbackVersionForWorkflow" list-item-id="workflow.id" is-disabled="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow)"]
-							label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
-							r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
-						r-notification-message-with-link.notification-block.rollback-warning[type="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" link-url="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_href] }'" link-text="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_text] }'" ng-if="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)"]
+							r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow) ? 'Previous version is not available' : undefined" is-checked="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)" on-change="stackCtrl.onChangeRollbackVersionForWorkflow" list-item-id="workflow.id" is-disabled="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow)"]
+							label[for="use-previous-version-checkbox"] == "Use previous version"
+							r-info-tooltip[label="'Enable this option if your build is failing after a Bitrise Stack Update. Your build will start slower while using rollback stack versions.'"]
+						r-notification-message-with-link.notification-block.rollback-warning[type="'warning'" message="'Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.'" link-url="'https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack'" link-text="'Learn more'" ng-if="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)"]
 

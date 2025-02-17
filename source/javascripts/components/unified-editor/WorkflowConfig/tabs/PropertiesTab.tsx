@@ -2,7 +2,7 @@ import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import DeleteWorkflowDialog from '@/components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog';

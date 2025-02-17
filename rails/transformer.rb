@@ -2,20 +2,9 @@ require "erb"
 require "slim"
 require "json"
 require "slim/include"
-require "./strings"
 
 input = STDIN.read
 command = ARGV[0]
-
-def webserver_path(path)
-    return "not_available" if mode.eql?("cli")
-    return path
-end
-
-def local_server_path(path)
-    return "not_available" if mode.eql?("website")
-    return path
-end
 
 def mode_dependant_asset_path(path)
     case mode
@@ -33,16 +22,6 @@ def mode
     end
 end
 
-# string helpers
-
-def replaced_string(string, replacements)
-    replacements.each do |replacement|
-        string = string.sub(/<[a-zA-Z0-9\-\_\.]+>/, replacement) unless replacement.nil?
-    end
-
-    return string
-end
-
 # asset helpers
 
 def image_path(image)
@@ -56,10 +35,6 @@ def svg(filename)
     return File.read(file_path).gsub("\n", "").gsub("\r", "").gsub("\t", "")
 end
 
-def data
-    strings
-end
-
 def prod?
     ENV['NODE_ENV'] == 'prod'
 end
@@ -70,10 +45,6 @@ end
 
 def clarity?
     ENV['CLARITY'] == 'true'
-end
-
-def freshpaint?
-    ENV['FRESHPAINT'] == 'true'
 end
 
 def datadog_rum?

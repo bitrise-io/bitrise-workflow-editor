@@ -4,7 +4,8 @@ import { sortBy, uniqBy } from 'es-toolkit';
 
 import WindowUtils from '../utils/WindowUtils';
 import RuntimeUtils from '../utils/RuntimeUtils';
-import { Maintainer, StepYmlObject, VariableOpts } from '../models/Step';
+import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
+import { Maintainer } from '../models/Step';
 
 type AlgoliaStepResponse = {
   readonly objectID: string;
@@ -14,13 +15,13 @@ type AlgoliaStepResponse = {
   is_latest: boolean;
   is_deprecated: boolean;
   latest_version_number: string;
-  step: Partial<StepYmlObject>;
+  step: Partial<StepModel>;
   info?: AlgoliaStepInfo;
 };
 
 type AlgoliaStepInfo = {
   maintainer?: Maintainer;
-  asset_urls?: StepYmlObject['asset_urls'] & {
+  asset_urls?: StepModel['asset_urls'] & {
     'icon.svg'?: string;
     'icon.png'?: string;
   };
@@ -30,7 +31,7 @@ type AlgoliaStepInputResponse = {
   readonly objectID: string;
   cvs: string;
   order: number;
-  opts: VariableOpts;
+  opts: EnvironmentItemOptionsModel;
   is_latest: boolean;
   [key: string]: unknown;
 };
