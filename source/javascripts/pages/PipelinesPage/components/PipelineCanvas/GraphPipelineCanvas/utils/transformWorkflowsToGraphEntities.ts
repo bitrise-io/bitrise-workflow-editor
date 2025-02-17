@@ -3,15 +3,15 @@ import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCa
 import createGraphPipelineEdge from './createGraphPipelineEdge';
 import createWorkflowNode from './createWorkflowNode';
 
-function transformWorkflowsToGraphEntities(workflows: PipelineWorkflow[], actionable: boolean) {
+function transformWorkflowsToGraphEntities(workflows: PipelineWorkflow[]) {
   const nodes: GraphPipelineNodeType[] = [];
   const edges: GraphPipelineEdgeType[] = [];
 
   workflows.forEach((workflow) => {
-    nodes.push(createWorkflowNode(workflow, actionable));
+    nodes.push(createWorkflowNode(workflow));
 
     workflow.dependsOn?.forEach((source) => {
-      edges.push(createGraphPipelineEdge(source, workflow.id, actionable));
+      edges.push(createGraphPipelineEdge(source, workflow.id));
     });
   });
 
