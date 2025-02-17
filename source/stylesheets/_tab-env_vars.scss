@@ -102,7 +102,7 @@
 
 								border: 1px solid $color;
 								color: $color;
-								background-image: background_image_from_svg_content('<%= svg("env_var_prefix") %>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
+								background-image: background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg" width="208.374" height="400" viewBox="0 0 208.374 400" fill="rgb(255,255,255)"><path d="M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001"/></svg>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
 							}
 
 							@include order(1);
@@ -392,7 +392,7 @@
 								@include margin-x(0);
 
 								&:after {
-									content: "<%= data[:strings][:env_vars][:delete_env_var] %>";
+									content: "Delete";
 								}
 							}
 

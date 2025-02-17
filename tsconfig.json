@@ -41,7 +41,6 @@
     "tests/**/*.ts",
     "playwright.config.ts",
     "source/javascripts/**/*.js",
-    "source/javascripts/**/*.js.erb",
     "source/javascripts/**/*.ts",
     "source/javascripts/**/*.tsx",
     "spec/mocks.js"
