@@ -70,9 +70,9 @@ export type TargetBasedTriggerItem = {
   draft_enabled?: boolean;
   enabled?: boolean;
   label?: StringOrRegex;
+  name?: StringOrRegex;
   source_branch?: StringOrRegex;
   target_branch?: StringOrRegex;
-  tag?: StringOrRegex;
 };
 
 export type TargetBasedTriggers = WorkflowYmlObject['triggers'];
