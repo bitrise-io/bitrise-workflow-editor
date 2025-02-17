@@ -209,7 +209,7 @@ export type TriggersModel = {
 
 export type GraphPipelineWorkflowModel = {
   uses?: string;
-  parallel?: number;
+  parallel?: string;
   depends_on?: string[];
   abort_on_fail?: boolean;
   should_always_run?: 'off' | 'workflow';

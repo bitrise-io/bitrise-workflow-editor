@@ -939,12 +939,10 @@ function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, 
     return copy;
   }
 
-  const parallelAsNumber = Number(parallel);
-
-  if (parallelAsNumber === 0) {
+  if (!parallel || parallel === '0') {
     delete copy.pipelines[pipelineId].workflows[workflowId].parallel;
-  } else if (Number.isFinite(parallelAsNumber)) {
-    copy.pipelines[pipelineId].workflows[workflowId].parallel = parallelAsNumber;
+  } else {
+    copy.pipelines[pipelineId].workflows[workflowId].parallel = parallel;
   }
 
   return copy;
