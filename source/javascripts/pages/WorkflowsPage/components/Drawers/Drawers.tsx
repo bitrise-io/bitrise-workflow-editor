@@ -25,7 +25,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     openDialog,
     closeDialog,
     isDialogOpen,
-    setStepBundleId,
     setWorkflowId,
     unmountDialog,
     isDialogMounted,
@@ -48,11 +47,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvs, selectedStepIndices[0]);
+      if (workflowId) {
+        addStep(workflowId, cvs, selectedStepIndices[0]);
+      } else {
+        addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
+      }
       openDialog({
         type: WorkflowsPageDialogType.STEP_BUNDLE,
         workflowId,
-        stepBundleId: id,
+        stepBundleId,
       })();
     } else if (workflowId) {
       addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
@@ -75,7 +78,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
   };
 
   const handleRenameStepBundle = (newStepBundleId: string) => {
-    setStepBundleId(newStepBundleId);
     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
@@ -144,6 +146,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onRename={handleRenameStepBundle}
           workflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
+          stepBundleId={stepBundleId}
         />
       )}
 
@@ -155,7 +158,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
-          showStepBundles={!stepBundleId}
+          targetStepBundleId={stepBundleId}
         />
       )}
 

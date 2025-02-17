@@ -20,16 +20,17 @@ import StepList from './components/StepList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
-  showStepBundles: boolean;
+  targetStepBundleId?: string;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targetStepBundleId, ...props }: Props) => {
   const resetSearch = useSearch((s) => s.reset);
 
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
     tabIds: ['step', 'stepBundle'],
   });
 
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const enableAlgoliaSearch = useFeatureFlag('enable-algolia-search-for-steps');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
@@ -59,14 +60,12 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
                 </Tag>
               )}
             </Box>
-            {showStepBundles && (
-              <Box position="relative" mt="8" mx="-24">
-                <TabList paddingX="8">
-                  <Tab>Step</Tab>
-                  <Tab>Step bundle</Tab>
-                </TabList>
-              </Box>
-            )}
+            <Box position="relative" mt="8" mx="-24">
+              <TabList paddingX="8">
+                <Tab>Step</Tab>
+                {(enableStepBundles || !targetStepBundleId) && <Tab>Step bundle</Tab>}
+              </TabList>
+            </Box>
             {stepLimitReached && (
               <Notification
                 mt={16}
@@ -103,7 +102,7 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
                   )}
                 </TabPanel>
                 <TabPanel display="flex" flexDir="column" gap="12">
-                  <StepBundleList onSelectStep={onSelectStep} />
+                  <StepBundleList onSelectStep={onSelectStep} targetStepBundleId={targetStepBundleId} />
                 </TabPanel>
               </TabPanels>
             </ReactFlowProvider>

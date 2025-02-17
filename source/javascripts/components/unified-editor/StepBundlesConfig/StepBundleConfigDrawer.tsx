@@ -1,7 +1,3 @@
-import { Text } from '@bitrise/bitkit';
-import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/services/StepBundleService';
-import useStep from '@/hooks/useStep';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -11,38 +7,39 @@ import FloatingDrawer, {
 } from '../FloatingDrawer/FloatingDrawer';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
+import StepBundlesConfigHeader from './StepBundlesConfigHeader';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  onRename: (name: string) => void;
-  workflowId: string;
+  onRename?: (name: string) => void;
+  stepBundleId?: string;
   stepIndex: number;
+  workflowId?: string;
 };
 
-const StepBundleConfigDrawer = ({ onRename, workflowId, stepIndex, ...props }: Props) => {
-  const { data } = useStep({ workflowId, stepIndex });
-
-  const dependants = useDependantWorkflows({ stepBundleCvs: data?.cvs });
-  const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
-
+const StepBundleConfigDrawerContent = ({
+  onRename,
+  ...props
+}: Omit<Props, 'stepBundleId' | 'stepIndex' | 'workflowId'>) => {
   return (
     <FloatingDrawer {...props}>
       <FloatingDrawerContent>
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
-          <Text as="h3" textStyle="heading/h3">
-            {data?.title}
-          </Text>
-          <Text color="text/secondary" textStyle="body/md/regular">
-            {usedInWorkflowsText}
-          </Text>
+          <StepBundlesConfigHeader />
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
-          <StepBundlesConfigProvider stepBundleId={data?.id || ''}>
-            <StepBundlePropertiesTab onRename={onRename} />
-          </StepBundlesConfigProvider>
+          <StepBundlePropertiesTab onRename={onRename} />
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>
+  );
+};
+
+const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, workflowId, ...props }: Props) => {
+  return (
+    <StepBundlesConfigProvider stepBundleId={stepBundleId} stepIndex={stepIndex} workflowId={workflowId}>
+      <StepBundleConfigDrawerContent {...props} />
+    </StepBundlesConfigProvider>
   );
 };
 

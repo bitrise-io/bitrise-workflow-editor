@@ -25,6 +25,7 @@ import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 
 import StepService from './StepService';
 import PipelineService from './PipelineService';
+import StepBundleService from './StepBundleService';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -247,7 +248,6 @@ function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleI
 
 function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
-
   // If the step bundle is missing in the YML just return the YML
   if (!copy.step_bundles?.[stepBundleId]) {
     return copy;
@@ -262,12 +262,28 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
       Object.entries(copy.workflows).map(([workflowId, workflow]) => {
         const filteredSteps = workflow.steps?.filter((step) => {
           const [stepId] = Object.keys(step);
-          return stepId !== `bundle::${stepBundleId}`;
+          return stepId !== StepBundleService.idToCvs(stepBundleId);
         });
-
         return [workflowId, { ...workflow, steps: filteredSteps }];
       }),
     );
+  }
+
+  if (copy.step_bundles) {
+    Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
+      const filteredSteps = bundle.steps?.filter((step) => {
+        const [stepId] = Object.keys(step);
+        return stepId !== StepBundleService.idToCvs(stepBundleId);
+      });
+      // Remove `steps` field if empty
+      if (copy.step_bundles?.[id]) {
+        if (filteredSteps?.length) {
+          copy.step_bundles[id].steps = filteredSteps;
+        } else {
+          delete copy.step_bundles[id].steps;
+        }
+      }
+    });
   }
 
   // Remove the whole `step_bundles` section in the YML if empty
@@ -301,16 +317,23 @@ function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: numbe
 }
 
 function groupStepsToStepBundle(
-  workflowId: string,
-  stepBundleId: string,
+  workflowId: string | undefined,
+  stepBundleId: string | undefined,
+  newStepBundleId: string,
   selectedStepIndices: number[],
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  // If the workflow or step is missing in the YML just return the YML
-  const stepsInWorkflow = copy.workflows?.[workflowId]?.steps;
-  if (!selectedStepIndices.length || !stepsInWorkflow) {
+  // If there aren't any selected steps or steps are missing in the YML, just return the YML
+  let stepsInEntity;
+  if (workflowId) {
+    stepsInEntity = copy.workflows?.[workflowId]?.steps;
+  }
+  if (stepBundleId) {
+    stepsInEntity = copy.step_bundles?.[stepBundleId]?.steps;
+  }
+  if (!selectedStepIndices.length || !stepsInEntity) {
     return copy;
   }
 
@@ -318,7 +341,7 @@ function groupStepsToStepBundle(
   const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
   const removedSteps = sortedIndices
     .map((stepIndex) => {
-      const removedStep = stepsInWorkflow.splice(stepIndex, 1)[0];
+      const removedStep = stepsInEntity.splice(stepIndex, 1)[0];
       const cvs = Object.keys(removedStep)[0];
       const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
       return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
@@ -328,12 +351,12 @@ function groupStepsToStepBundle(
   // Create and add selected step / steps to the step bundle
   copy.step_bundles = {
     ...copy.step_bundles,
-    [stepBundleId]: { steps: removedSteps.reverse() },
+    [newStepBundleId]: { steps: removedSteps.reverse() },
   };
 
-  // Push the created step bundle to the workflow, which contained the selected step / steps
+  // Push the created step bundle to the workflow or step_bundle, which contained the selected step / steps
   const insertPosition = sortedIndices.reverse()[0];
-  stepsInWorkflow.splice(insertPosition, 0, { [`bundle::${stepBundleId}`]: {} });
+  stepsInEntity.splice(insertPosition, 0, { [StepBundleService.idToCvs(newStepBundleId)]: {} });
   return copy;
 }
 
@@ -368,8 +391,8 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
         if (workflow.steps) {
           renamedSteps = workflow.steps.map((step: any) => {
             const [stepId, stepDetails] = Object.entries(step)[0];
-            if (stepId === `bundle::${stepBundleId}`) {
-              return { [`bundle::${newStepBundleId}`]: stepDetails };
+            if (stepId === StepBundleService.idToCvs(stepBundleId)) {
+              return { [StepBundleService.idToCvs(newStepBundleId)]: stepDetails };
             }
             return step;
           });
@@ -377,6 +400,21 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
         return [workflowId, { ...workflow, steps: renamedSteps }];
       }),
     );
+  }
+
+  if (copy.step_bundles) {
+    Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
+      const renamedSteps = bundle.steps?.map((step) => {
+        const [stepId, stepDetails] = Object.entries(step)[0];
+        if (stepId === StepBundleService.idToCvs(stepBundleId)) {
+          return { [StepBundleService.idToCvs(newStepBundleId)]: stepDetails };
+        }
+        return step;
+      });
+      if (copy.step_bundles?.[id]) {
+        copy.step_bundles[id].steps = renamedSteps;
+      }
+    });
   }
 
   return copy;
