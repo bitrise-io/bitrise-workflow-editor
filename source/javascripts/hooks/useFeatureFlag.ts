@@ -1,7 +1,6 @@
 const defaultValues = {
   'enable-wfe-step-bundles-ui': false,
   'enable-wfe-parallel-workflow': false,
-  'enable-algolia-search-for-steps': false,
   'enable-wfe-config-conflict-resolution-ui': false,
   'enable-wfe-x-bitrise-config-version-header': false,
   'enable-create-graph-pipeline-based-on-staged-pipeline': false,
