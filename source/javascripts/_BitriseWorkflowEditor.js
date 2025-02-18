@@ -54,10 +54,6 @@ function modeDependantAssetPath(path) {
       reloadOnSearch: false,
     });
 
-    $routeProvider.when('/code_signing', {
-      templateUrl: modeDependantAssetPath('templates/code_signing.html'),
-    });
-
     $routeProvider.when('/secrets', {
       templateUrl: modeDependantAssetPath('templates/secrets.html'),
     });

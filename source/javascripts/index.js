@@ -10,9 +10,7 @@ const ctxs = [
   // app
   require.context('./controllers', true),
   require.context('./components', true),
-  require.context('./factories', true),
   require.context('./services', true),
-  require.context('./filters', true),
   require.context('./directives', true),
 
   // templates

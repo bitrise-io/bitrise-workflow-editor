@@ -3,7 +3,6 @@ window.routes = {
     workflows: 'workflows',
     pipelines: 'pipelines',
     step_bundles: 'step_bundles',
-    code_signing: 'code_signing',
     secrets: 'secrets',
     env_vars: 'env_vars',
     triggers: 'triggers',
@@ -15,7 +14,6 @@ window.routes = {
     workflows: 'templates/workflows.html',
     pipelines: 'templates/pipelines.html',
     step_bundles: 'templates/step_bundles.html',
-    code_signing: 'templates/code_signing.html',
     secrets: 'templates/secrets.html',
     env_vars: 'templates/env_vars.html',
     triggers: 'templates/triggers.html',
@@ -94,7 +92,6 @@ window.routes = {
     apple_developer_account_default_team_post: '/me/profile/apple_developer_account/default_team.json',
     workflows_and_pipelines: '/app/<app_slug>/workflows-and-pipelines',
     get_org_beta_tags: '/organization/<org_slug>/beta_tags',
-    app_setting_code_signing: '/app/<app_slug>/settings/code-signing',
   },
   local_server: {
     cancel_api_connection_close: '/api/connection',
