@@ -17,12 +17,12 @@ import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from '.
 type ContentProps = {
   id: string;
   uses?: string;
-  parallel?: number;
+  parallel?: string;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
-const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: number }>) => {
+const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: string }>) => {
   const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
   const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
 
@@ -34,14 +34,31 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: num
     );
   }
 
+  const shouldDisplayParallelAsNumber = !isNaN(Number(parallel));
+  const badgeContent = shouldDisplayParallelAsNumber ? Number(parallel) : '$';
+
+  const tooltipLabel = shouldDisplayParallelAsNumber ? (
+    `${parallel} parallel copies`
+  ) : (
+    <>
+      {`Number of copies is calculated based on `}
+      <strong>{parallel}</strong>
+      {` Env Var.`}
+    </>
+  );
+
+  const tooltipAriaLabel = shouldDisplayParallelAsNumber
+    ? `${parallel} parallel copies`
+    : `Number of copies is calculated based on ${parallel} Env Var.`;
+
   return (
     <Box display="flex" minW={0} maxW="100%" gap="4" alignItems="center">
       <Text textStyle="body/md/semibold" hasEllipsis>
         {children}
       </Text>
-      <Tooltip shouldWrapChildren label={`${parallel} parallel copies`} aria-label={`${parallel} parallel copies`}>
+      <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
         <Text color="text/secondary" textStyle="comp/badge/sm" bg="sys/neutral/subtle" px="4" borderRadius="4">
-          {parallel}
+          {badgeContent}
         </Text>
       </Tooltip>
     </Box>

@@ -2394,7 +2394,7 @@ describe('BitriseYmlService', () => {
   });
 
   describe('updatePipelineWorkflowParallel', () => {
-    it('should add parallel attribute if valid number is provided', () => {
+    it('should add parallel attribute with string value', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
@@ -2412,7 +2412,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3,
+                parallel: '3',
               },
             },
           },
@@ -2424,14 +2424,14 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should update existing parallel attribute with new value', () => {
+    it('should update existing parallel attribute with new string value', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3,
+                parallel: '3',
               },
             },
           },
@@ -2444,7 +2444,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 5,
+                parallel: '5',
               },
             },
           },
@@ -2463,7 +2463,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3,
+                parallel: '3',
               },
             },
           },
@@ -2486,14 +2486,14 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should remove parallel attribute if zero is provided', () => {
+    it('should remove parallel attribute if zero string is provided', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3,
+                parallel: '3',
               },
             },
           },
@@ -2516,14 +2516,14 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should not update parallel attribute if non-numeric string is provided', () => {
+    it('should accept any string value', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         pipelines: {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3,
+                parallel: '3',
               },
             },
           },
@@ -2536,78 +2536,14 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3,
+                parallel: 'any-string',
               },
             },
           },
         },
       };
 
-      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', 'invalid', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should not update parallel attribute if NaN is provided', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            workflows: {
-              wf1: {
-                parallel: 3,
-              },
-            },
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            workflows: {
-              wf1: {
-                parallel: 3,
-              },
-            },
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', 'NaN', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should not update parallel attribute if Infinity is provided', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            workflows: {
-              wf1: {
-                parallel: 3,
-              },
-            },
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            workflows: {
-              wf1: {
-                parallel: 3,
-              },
-            },
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', 'Infinity', sourceYml);
+      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', 'any-string', sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
