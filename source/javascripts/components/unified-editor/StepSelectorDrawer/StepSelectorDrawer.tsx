@@ -13,7 +13,7 @@ import useSearch from './hooks/useSearch';
 import StepBundleFilter from './components/StepBundleFilter';
 import StepFilter from './components/StepFilter';
 import StepBundleList from './components/StepBundleList';
-import AlgoliaStepList from './components/AlgoliaStepList/AlgoliaStepList';
+import AlgoliaStepList from './components/AlgoliaStepList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;

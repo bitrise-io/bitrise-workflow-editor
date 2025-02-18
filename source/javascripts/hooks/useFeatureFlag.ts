@@ -1,4 +1,5 @@
 const defaultValues = {
+  'enable-wfe-diff-editor': false,
   'enable-wfe-step-bundles-ui': false,
   'enable-wfe-parallel-workflow': false,
 };

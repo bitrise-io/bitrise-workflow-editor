@@ -5,10 +5,10 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { AlgoliaStepResponse } from '@/core/api/AlgoliaApi';
 
+import { findScrollContainer } from '@/core/utils/CommonUtils';
 import useVirtualItems from '../hooks/useVirtualItems';
 import useCalculateColumns from '../hooks/useCalculateColumns';
-import { findScrollContainer } from '../AlgoliaStepList.utils';
-import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from '../AlgoliaStepList.const';
+import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from './AlgoliaStepList.const';
 
 import AlgoliaStepListItem from './AlgoliaStepListItem';
 
