@@ -16,7 +16,7 @@ interface TriggerCardProps extends CardProps {
 
 const TriggerCard = (props: TriggerCardProps) => {
   const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
-  const { conditions, pipelineable, isDraftPr, isActive, priority } = triggerItem;
+  const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
 
   const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
     id: triggerItem.id as string,
