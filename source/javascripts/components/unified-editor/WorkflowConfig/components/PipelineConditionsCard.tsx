@@ -1,4 +1,4 @@
-import { ChangeEventHandler } from 'react';
+import { ChangeEventHandler, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 
@@ -140,20 +140,30 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
+  const defaultValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
-  const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
-  const validationResult = GraphPipelineWorkflowService.validateParallel(value);
-  const errorText = validationResult === true ? undefined : validationResult;
+
+  const [value, setValue] = useState(defaultValue);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    updatePipelineWorkflowParallel(pipelineId, workflowId, e.target.value);
+    const newValue = e.target.value;
+    const validationError = GraphPipelineWorkflowService.validateParallel(newValue);
+
+    setValue(newValue);
+    setError(validationError === true ? undefined : validationError);
+
+    if (validationError === true) {
+      updatePipelineWorkflowParallel(pipelineId, workflowId, newValue);
+    }
   };
 
   return (
     <Input
+      value={value}
+      errorText={error}
       label="Parallel copies"
-      errorText={errorText}
-      defaultValue={value}
+      defaultValue={defaultValue}
       helperText={
         <DetailedHelperText
           summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."
