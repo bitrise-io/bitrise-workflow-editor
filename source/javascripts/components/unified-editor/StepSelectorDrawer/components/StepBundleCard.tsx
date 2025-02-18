@@ -1,12 +1,25 @@
 /* eslint-disable import/no-cycle */
-import { useMemo, useRef } from 'react';
-import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { useMemo, useRef, MouseEvent } from 'react';
+import {
+  Box,
+  Card,
+  CardProps,
+  Collapse,
+  ControlButton,
+  Divider,
+  OverflowMenu,
+  OverflowMenuItem,
+  Text,
+  useDisclosure,
+} from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/services/StepBundleService';
 import { LibraryType } from '@/core/models/Step';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import generateUniqueEntityId from '@/core/utils/CommonUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
 import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
 import useReactFlowZoom from '../../WorkflowCard/hooks/useReactFlowZoom';
@@ -36,10 +49,11 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
-  const { isSelected } = useSelection();
-  const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();
+  const { isSelected, selectedStepIndices } = useSelection();
+  const { onDeleteStep, onDeleteStepInStepBundle, onGroupStepsToStepBundle, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
+  const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
   const sortable = useSortable({
     id: uniqueId,
@@ -75,6 +89,18 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const isHighlighted = isSelected({ workflowId, stepBundleId, stepIndex });
   const isPlaceholder = sortable.isDragging;
 
+  const handleClick = onSelectStep
+    ? (e: MouseEvent<HTMLDivElement>) => {
+        onSelectStep?.({
+          isMultiple: e.ctrlKey || e.metaKey,
+          stepIndex,
+          type: LibraryType.BUNDLE,
+          stepBundleId,
+          wfId: workflowId,
+        });
+      }
+    : undefined;
+
   const cardProps = useMemo(() => {
     const common: CardProps = {
       variant: 'outline',
@@ -100,53 +126,77 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
+    const indices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
+    const suffix = selectedStepIndices && selectedStepIndices.length > 1 ? 's' : '';
+
     if ((!workflowId && !stepBundleId) || isDragging || (!onDeleteStep && !onSelectStep)) {
       return null;
     }
 
     return (
-      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-        {onSelectStep && (
-          <ControlButton
-            iconName="Settings"
-            aria-label="Settings"
-            size="xs"
-            onClick={() => {
-              onSelectStep({
-                stepIndex,
-                type: LibraryType.BUNDLE,
-                wfId: workflowId,
-                stepBundleId,
-              });
+      <OverflowMenu
+        placement="bottom-end"
+        size="md"
+        buttonSize="xs"
+        buttonProps={{
+          'aria-label': 'Show step actions',
+          iconName: 'MoreVertical',
+          onClick: (e) => {
+            e.stopPropagation();
+          },
+          display: 'none',
+          _groupHover: { display: 'inline-flex' },
+          _active: { display: 'inline-flex' },
+        }}
+      >
+        {onGroupStepsToStepBundle && selectedStepIndices && selectedStepIndices.length > 1 && (
+          <OverflowMenuItem
+            key="group"
+            leftIconName="Steps"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onGroupStepsToStepBundle && selectedStepIndices) {
+                const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
+                onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
+              }
             }}
-          />
+          >
+            New bundle with {selectedStepIndices?.length} Step
+            {suffix}
+          </OverflowMenuItem>
         )}
+        {selectedStepIndices && selectedStepIndices.length > 1 && <Divider key="divider" my="8" />}
         {isRemovable && (
-          <ControlButton
-            iconName="Trash"
-            aria-label="Remove Step bundle"
-            size="xs"
+          <OverflowMenuItem
             isDanger
+            key="remove"
+            leftIconName="Trash"
             onClick={(e) => {
               e.stopPropagation();
               if (workflowId && onDeleteStep) {
-                onDeleteStep(workflowId, [stepIndex], cvs);
+                onDeleteStep(workflowId, indices, cvs);
               }
               if (stepBundleId && onDeleteStepInStepBundle) {
-                onDeleteStepInStepBundle(stepBundleId, [stepIndex], cvs);
+                onDeleteStepInStepBundle(stepBundleId, indices, cvs);
               }
             }}
-          />
+          >
+            Delete Step{suffix}
+          </OverflowMenuItem>
         )}
-      </ButtonGroup>
+      </OverflowMenu>
     );
   }, [
     cvs,
+    existingStepBundleIds,
     isDragging,
+    isHighlighted,
     isRemovable,
     onDeleteStep,
     onDeleteStepInStepBundle,
+    onGroupStepsToStepBundle,
     onSelectStep,
+    selectedStepIndices,
     stepBundleId,
     stepIndex,
     workflowId,
@@ -173,6 +223,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               gap="4"
               className="group"
               minW={0}
+              onClick={handleClick}
+              role={onSelectStep ? 'button' : 'div'}
             >
               {isCollapsable && (
                 <ControlButton
