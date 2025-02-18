@@ -1,8 +1,6 @@
 const defaultValues = {
   'enable-wfe-step-bundles-ui': false,
   'enable-wfe-parallel-workflow': false,
-  'enable-wfe-config-conflict-resolution-ui': false,
-  'enable-wfe-x-bitrise-config-version-header': false,
 };
 
 type FeatureFlags = typeof defaultValues;
