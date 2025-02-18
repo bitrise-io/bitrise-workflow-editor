@@ -980,7 +980,9 @@ function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, 
   if (!parallel || parallel === '0') {
     delete copy.pipelines[pipelineId].workflows[workflowId].parallel;
   } else {
-    copy.pipelines[pipelineId].workflows[workflowId].parallel = parallel;
+    copy.pipelines[pipelineId].workflows[workflowId].parallel = (
+      !isNaN(Number(parallel)) ? Number(parallel) : parallel
+    ) as never;
   }
 
   return copy;
