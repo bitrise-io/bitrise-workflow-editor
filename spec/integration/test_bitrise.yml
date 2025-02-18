@@ -31,7 +31,7 @@ pipelines:
       - branch: main
     workflows:
       tmp:
-        parallel: 4
+        parallel: '4'
         depends_on:
         - wf1
       wf1: {}

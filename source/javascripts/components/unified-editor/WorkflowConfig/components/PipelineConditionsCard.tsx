@@ -6,6 +6,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
 type PipelineConditionInputProps = {
   pipelineId: string;
@@ -139,8 +140,10 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
-  const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
+  const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
+  const validationResult = GraphPipelineWorkflowService.validateParallel(value);
+  const errorText = validationResult === true ? undefined : validationResult;
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     updatePipelineWorkflowParallel(pipelineId, workflowId, e.target.value);
@@ -148,13 +151,13 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
 
   return (
     <Input
-      value={value}
-      type="number"
       label="Parallel copies"
+      errorText={errorText}
+      defaultValue={value}
       helperText={
         <DetailedHelperText
-          summary="The number of copies of this Workflow that will be executed in parallel at runtime."
-          details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. EnvVars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
+          summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."
+          details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. Env Vars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
         />
       }
       onChange={handleChange}
