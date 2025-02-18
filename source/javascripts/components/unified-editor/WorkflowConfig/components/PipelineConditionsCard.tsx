@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 
@@ -6,6 +6,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
 type PipelineConditionInputProps = {
   pipelineId: string;
@@ -139,27 +140,20 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
-  const [errorText, setErrorText] = useState<string>();
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
-  const defaultValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
-
-  const isValid = (value: string) => {
-    return !value || value.startsWith('$') || !isNaN(Number(value));
-  };
+  const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
+  const validationResult = GraphPipelineWorkflowService.validateParallel(value);
+  const errorText = validationResult === true ? undefined : validationResult;
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { value } = e.target;
-
-    // NOTE: Just notify the user about the error, but still update the value
-    setErrorText(isValid(value) ? undefined : 'Value can be a number, or an Env Var.');
-    updatePipelineWorkflowParallel(pipelineId, workflowId, value);
+    updatePipelineWorkflowParallel(pipelineId, workflowId, e.target.value);
   };
 
   return (
     <Input
       label="Parallel copies"
       errorText={errorText}
-      defaultValue={defaultValue}
+      defaultValue={value}
       helperText={
         <DetailedHelperText
           summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."
