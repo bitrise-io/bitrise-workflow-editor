@@ -344,7 +344,9 @@ function groupStepsToStepBundle(
       const removedStep = stepsInEntity.splice(stepIndex, 1)[0];
       const cvs = Object.keys(removedStep)[0];
       const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
-      return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
+      const isStepOrStepBundle =
+        StepService.isStep(cvs, defaultStepLibrary) || StepService.isStepBundle(cvs, defaultStepLibrary);
+      return isStepOrStepBundle ? removedStep : null;
     })
     .filter(Boolean) as Array<{ [key: string]: StepModel }>;
 

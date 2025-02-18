@@ -88,8 +88,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
   const isHighlighted = isSelected({ workflowId, stepBundleId, stepIndex });
   const isPlaceholder = sortable.isDragging;
+  const isButton = onSelectStep && (workflowId || stepBundleId);
 
-  const handleClick = onSelectStep
+  const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
         onSelectStep?.({
           isMultiple: e.ctrlKey || e.metaKey,
@@ -224,7 +225,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               className="group"
               minW={0}
               onClick={handleClick}
-              role={onSelectStep ? 'button' : 'div'}
+              role={isButton ? 'button' : 'div'}
             >
               {isCollapsable && (
                 <ControlButton
