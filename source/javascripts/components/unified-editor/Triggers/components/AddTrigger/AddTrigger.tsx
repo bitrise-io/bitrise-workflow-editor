@@ -88,6 +88,8 @@ const AddTrigger = (props: AddTriggerProps) => {
 
     if (data.priority !== undefined && data.priority !== 0) {
       newTrigger.priority = data.priority;
+    } else {
+       delete newTrigger. priority;
     }
 
     onSubmit(newTrigger);
