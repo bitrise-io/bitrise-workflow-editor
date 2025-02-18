@@ -2,9 +2,9 @@ name: workflow-editor
 description: |-
   Bitrise Workflow Editor.
 executable:
-  osx: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.5.13222/workflow-editor-Darwin-x86_64
-  osx-arm64: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.5.13222/workflow-editor-Darwin-arm64
-  linux: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.5.13222/workflow-editor-Linux-x86_64
+  osx: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.5.13229/workflow-editor-Darwin-x86_64
+  osx-arm64: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.5.13229/workflow-editor-Darwin-arm64
+  linux: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.5.13229/workflow-editor-Linux-x86_64
 requirements:
   - tool: bitrise
     min_version: 1.18.0
