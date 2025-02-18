@@ -140,10 +140,10 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
-  const defaultValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
+  const initValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel || '');
 
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState(initValue);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -163,7 +163,6 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
       value={value}
       errorText={error}
       label="Parallel copies"
-      defaultValue={defaultValue}
       helperText={
         <DetailedHelperText
           summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."

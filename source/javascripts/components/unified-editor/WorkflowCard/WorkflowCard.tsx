@@ -43,7 +43,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
     badgeContent = '$';
     tooltipLabel = (
       <>
-        Number of copies is calculated based on <strong>${parallel}</strong> Env Var.
+        Number of copies is calculated based on <strong>{parallel}</strong> Env Var.
       </>
     );
     tooltipAriaLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
