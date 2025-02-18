@@ -95,7 +95,7 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
       boxShadow="large"
       border="1px solid"
       borderColor="border/regular"
-      margin={[0, 24]}
+      margin={[0, 16]}
       marginTop={[0, 72]}
       borderRadius={[0, 12]}
       containerProps={containerProps}

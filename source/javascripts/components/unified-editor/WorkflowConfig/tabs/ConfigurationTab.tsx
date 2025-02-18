@@ -17,7 +17,7 @@ const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) 
   const isChainedWorkflow = !!parentWorkflowId;
 
   return (
-    <Box display="flex" flexDir="column" gap="24">
+    <Box display="flex" flexDir="column" gap="16">
       {context === 'pipeline' && !isChainedWorkflow && <PipelineConditionsCard />}
       {RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow && <StackAndMachineCard />}
       <EnvVarsCard />
