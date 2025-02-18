@@ -89,7 +89,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     if (data.priority !== undefined && data.priority !== 0) {
       newTrigger.priority = data.priority;
     } else {
-       delete newTrigger. priority;
+      delete newTrigger.priority;
     }
 
     onSubmit(newTrigger);
@@ -121,11 +121,7 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    if (
-      isEqual(getConditionList(trigger), conditions) &&
-      isEqual(trigger.draft_enabled !== false, isDraftPr) &&
-      isEqual(trigger.priority, priority)
-    ) {
+    if (isEqual(getConditionList(trigger), conditions) && isEqual(trigger.draft_enabled !== false, isDraftPr)) {
       isSameTriggerExist = true;
     }
   });

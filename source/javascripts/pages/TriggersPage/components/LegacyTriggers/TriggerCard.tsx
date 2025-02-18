@@ -62,7 +62,7 @@ const TriggerCard = (props: TriggerCardProps) => {
     >
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
-        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} priority={priority} />
+        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} />
       </Box>
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
         <Icon name="ArrowRight" marginRight="16" />
