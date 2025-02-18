@@ -1,5 +1,5 @@
-function validateParallel(parallel?: string) {
-  if (!parallel || parallel.startsWith('$') || !isNaN(Number(parallel))) {
+function validateParallel(parallel?: string | number) {
+  if (!parallel || (typeof parallel === 'string' && parallel.startsWith('$')) || !isNaN(Number(parallel))) {
     return true;
   }
 
