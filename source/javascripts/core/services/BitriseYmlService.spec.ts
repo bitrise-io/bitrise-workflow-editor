@@ -2412,7 +2412,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: '3',
+                parallel: 3 as never, // TODO: remove as never when BitriseYml is typed
               },
             },
           },
@@ -2444,7 +2444,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: '5',
+                parallel: 5 as never, // TODO: remove as never when BitriseYml is typed
               },
             },
           },
