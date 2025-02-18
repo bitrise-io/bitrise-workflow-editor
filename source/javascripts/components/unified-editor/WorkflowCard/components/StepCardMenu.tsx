@@ -1,4 +1,4 @@
-import { ButtonGroup, Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
+import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -127,25 +127,23 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   }
 
   return (
-    <ButtonGroup spacing="0" display="flex">
-      <OverflowMenu
-        placement="bottom-end"
-        size="md"
-        buttonSize="xs"
-        buttonProps={{
-          'aria-label': 'Show step actions',
-          iconName: 'MoreVertical',
-          onClick: (e) => {
-            e.stopPropagation();
-          },
-          display: 'none',
-          _groupHover: { display: 'inline-flex' },
-          _active: { display: 'inline-flex' },
-        }}
-      >
-        {menuItems}
-      </OverflowMenu>
-    </ButtonGroup>
+    <OverflowMenu
+      placement="bottom-end"
+      size="md"
+      buttonSize="xs"
+      buttonProps={{
+        'aria-label': 'Show step actions',
+        iconName: 'MoreVertical',
+        onClick: (e) => {
+          e.stopPropagation();
+        },
+        display: 'none',
+        _groupHover: { display: 'inline-flex' },
+        _active: { display: 'inline-flex' },
+      }}
+    >
+      {menuItems}
+    </OverflowMenu>
   );
 };
 
