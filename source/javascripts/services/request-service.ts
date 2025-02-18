@@ -1,8 +1,11 @@
 import { StatusType } from '@datadog/browser-logs';
 import { HTTPMethod } from 'http-method-enum';
+
 import WindowUtils from '@/core/utils/WindowUtils';
-import { Logger } from './logger';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 import StringService from './string-service';
+import { Logger } from './logger';
 
 enum RequestServiceMode {
   Website = 'website',
@@ -36,13 +39,9 @@ class RequestService {
   }
 
   public configure({ mode, appSlug, logger }: RequestServiceConfigureOptions = {}): void {
-    this.mode = mode || (this.modeFromEnvVars() as string);
+    this.mode = mode || (RuntimeUtils.isWebsiteMode() ? RequestServiceMode.Website : RequestServiceMode.Cli);
     this.appSlug = appSlug ?? WindowUtils.appSlug() ?? '';
     this.logger = logger;
-  }
-
-  public isWebsiteMode(): boolean {
-    return this.mode === 'website';
   }
 
   public async getAppConfigYML(
@@ -87,14 +86,6 @@ class RequestService {
     const content = await this.convertResponseToText(response, defaultError);
 
     return { version, content };
-  }
-
-  private modeFromEnvVars(): RequestServiceMode {
-    if (process.env.MODE === 'WEBSITE') {
-      return RequestServiceMode.Website;
-    }
-
-    return RequestServiceMode.Cli;
   }
 
   private async requestWithAbortedPromise({ method, url, body, abortedPromise }: RequestParams): Promise<any> {

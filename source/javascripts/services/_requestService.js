@@ -1,5 +1,4 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import jsyaml from 'js-yaml';
 
 (function () {
   angular
@@ -383,8 +382,6 @@ import jsyaml from 'js-yaml';
         });
       };
 
-      // Secrets
-
       requestService.getPipelineConfig = function (requestConfig) {
         let requestURL;
 
@@ -411,32 +408,6 @@ import jsyaml from 'js-yaml';
             },
             function (response) {
               reject(errorFromResponse(response, 'Error loading pipeline config.', 'Error loading pipeline config: '));
-            },
-          );
-        });
-      };
-
-      requestService.getSecrets = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/secrets-without-values`);
-
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/secrets');
-
-            break;
-        }
-
-        return $q(function (resolve, reject) {
-          $http.get(requestURL, requestConfig).then(
-            function (response) {
-              resolve(response.data.envs);
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error loading secrets.', 'Error loading secrets: '));
             },
           );
         });
@@ -469,166 +440,6 @@ import jsyaml from 'js-yaml';
                   'Error getting secret environment value: ',
                 ),
               );
-            },
-          );
-        });
-      };
-
-      // Steps
-
-      requestService.libraryFetch = function (libraryURLs, requestConfig) {
-        let requestMethod;
-        let requestURL;
-        let requestData;
-
-        if (libraryURLs) {
-          requestData = {
-            libraries: libraryURLs,
-          };
-        }
-
-        switch (requestService.mode) {
-          case 'website':
-            requestMethod = 'get';
-            requestURL = requestService.webServerPath(
-              'https://bitrise-steplib-collection.s3.amazonaws.com/spec.json.gz',
-            );
-
-            break;
-          case 'cli':
-            requestMethod = 'post';
-            requestURL = requestService.localServerPath('/api/steplib');
-
-            break;
-        }
-
-        return $q(function (resolve, reject) {
-          $http[requestMethod](requestURL, requestData, requestConfig).then(
-            function (response) {
-              switch (requestService.mode) {
-                case 'website': {
-                  const libraryMap = {};
-                  libraryMap[response.data.steplib_source] = response.data;
-
-                  resolve(libraryMap);
-
-                  break;
-                }
-                case 'cli':
-                  resolve(response.data.library_map);
-
-                  break;
-              }
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error fetching libraries.', 'Error fetching libraries: '));
-            },
-          );
-        });
-      };
-
-      requestService.stepConfigFetch = function (step, requestConfig) {
-        const requestURL = requestService.localServerPath('/api/step');
-        const requestData = {};
-
-        if (step.localPath) {
-          requestData.library = 'path';
-          requestData.id = step.localPath;
-        } else if (step.gitURL) {
-          switch (requestService.mode) {
-            case 'website': {
-              let stepYMLurl;
-
-              const githubGitURLRegexp =
-                /^(?:(?:http|https):\/\/){0,1}(?:www.){0,1}(?:(?:github).com\/)(.*?)(?:.git){0,1}$/;
-              if (githubGitURLRegexp.test(step.gitURL)) {
-                stepYMLurl = requestService.webServerPath(
-                  `https://raw.githubusercontent.com/${githubGitURLRegexp.exec(step.gitURL)[1]}/${step.version ? step.version : 'master'}/step.yml`,
-                );
-              }
-
-              if (stepYMLurl) {
-                return $q(function (resolve, reject) {
-                  $http.get(stepYMLurl, requestConfig).then(
-                    function (response) {
-                      try {
-                        const defaultStepConfig = jsyaml.load(response.data);
-                        resolve(defaultStepConfig);
-                      } catch (error) {
-                        reject(new Error(`Error fetching step config from ${stepYMLurl}`));
-                      }
-                    },
-                    function (response) {
-                      reject(
-                        new Error(
-                          `Error fetching step config from GitHub: ${response.data || `Status ${response.status}`}`,
-                        ),
-                      );
-                    },
-                  );
-                });
-              }
-              return $q.reject(new Error(`Step config fetch not supported for host: ${stepYMLurl}`));
-            }
-            case 'cli': {
-              let url = step.gitURL;
-              const sshMatch = url.match(/^git@([^:]+):(.+)$/);
-
-              if (sshMatch) {
-                const [, host, path] = sshMatch;
-                url = `https://${host}/${path}`;
-              }
-
-              url = url.replace('http://', 'https://');
-
-              requestData.library = 'git';
-              requestData.id = url;
-              requestData.version = step.version;
-
-              break;
-            }
-          }
-        } else {
-          requestData.library = step.libraryURL;
-          requestData.id = step.id;
-          requestData.version = step.version;
-        }
-
-        return $q(function (resolve, reject) {
-          $http.post(requestURL, requestData, requestConfig).then(
-            function (response) {
-              resolve(response.data.step);
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error fetching step config.'));
-            },
-          );
-        });
-      };
-
-      // Variables
-
-      requestService.getDefaultOutputs = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/default-outputs`);
-
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/default-outputs');
-
-            break;
-        }
-
-        return $q(function (resolve, reject) {
-          $http.get(requestURL, requestConfig).then(
-            function (response) {
-              resolve(response.data);
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error loading default outputs.', 'Error loading default outputs: '));
             },
           );
         });

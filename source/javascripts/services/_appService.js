@@ -327,27 +327,6 @@
         });
       };
 
-      appService.getSecrets = function (shouldForceReload, requestConfig) {
-        if (!shouldForceReload && appService.secrets) {
-          return $q.when();
-        }
-
-        return requestService.getSecrets(requestConfig).then(function (secretConfigs) {
-          normalizeSecretConfigs(secretConfigs);
-
-          appService.secrets = _.map(secretConfigs, function (aSecretConfig) {
-            switch (requestService.mode) {
-              case 'website':
-                return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
-              case 'cli':
-                return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
-            }
-          });
-
-          appService.savedSecrets = angular.copy(appService.secrets);
-        });
-      };
-
       appService.getSecretValue = function (secret, requestConfig) {
         if (!_.isNull(secret.value()) && appService.secrets) {
           return $q.when();

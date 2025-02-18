@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { AppConfig } from '@/models/AppConfig';
 import { segmentTrack } from '@/utils/segmentTracking';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { BitriseYml } from '@/core/models/BitriseYml';
@@ -11,7 +10,7 @@ import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 type UpdateConfigurationDialogProps = {
   onClose: () => void;
   appSlug: string;
-  getDataToSave: () => AppConfig | string;
+  getDataToSave: () => BitriseYml | string;
   onComplete(): void;
   defaultBranch: string;
   gitRepoSlug: string;
