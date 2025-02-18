@@ -982,7 +982,7 @@ function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, 
   } else {
     copy.pipelines[pipelineId].workflows[workflowId].parallel = (
       !isNaN(Number(parallel)) ? Number(parallel) : parallel
-    ) as never;
+    ) as never; // TODO: Fix this type casting
   }
 
   return copy;
