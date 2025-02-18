@@ -3,7 +3,6 @@ const defaultValues = {
   'enable-wfe-parallel-workflow': false,
   'enable-wfe-config-conflict-resolution-ui': false,
   'enable-wfe-x-bitrise-config-version-header': false,
-  'enable-create-graph-pipeline-based-on-staged-pipeline': false,
 };
 
 type FeatureFlags = typeof defaultValues;
