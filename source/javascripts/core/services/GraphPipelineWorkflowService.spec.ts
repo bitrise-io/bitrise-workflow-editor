@@ -11,6 +11,10 @@ describe('GraphPipelineWorkflowService', () => {
     });
 
     it('should return true when parallel is a number', () => {
+      expect(GraphPipelineWorkflowService.validateParallel(42)).toBe(true);
+    });
+
+    it('should return true when parallel is a string number', () => {
       expect(GraphPipelineWorkflowService.validateParallel('42')).toBe(true);
     });
 
