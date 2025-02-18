@@ -55,6 +55,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
   return (
     <Box>
       <Input
+        size="md"
         label="Git status name"
         helperText={
           <>

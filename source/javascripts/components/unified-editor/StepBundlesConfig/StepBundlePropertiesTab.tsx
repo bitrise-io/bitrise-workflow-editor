@@ -58,9 +58,10 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
         sanitize={StepBundleService.sanitizeName}
         validate={(v) => StepBundleService.validateName(v, stepBundle?.id || '', stepBundleIds)}
         onCommit={handleNameChange}
-        marginBlockEnd="24"
+        marginBlockEnd="16"
+        size="md"
       />
-      <Textarea label="Summary" value={summary} onChange={handleSummaryChange} marginBlockEnd="24" />
+      <Textarea label="Summary" value={summary} onChange={handleSummaryChange} marginBlockEnd="16" />
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
       {!!onDelete && (
         <>
