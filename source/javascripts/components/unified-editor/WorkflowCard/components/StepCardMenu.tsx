@@ -32,14 +32,17 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
   const { selectedStepIndices } = useSelection();
+  const defaultStepLibrary = useDefaultStepLibrary();
 
   const { isStep } = StepService;
-  const defaultStepLibrary = useDefaultStepLibrary();
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
   const isSimpleStep = step && isStep(step.cvs, library);
+  const isClonable = onCloneStep || onCloneStepInStepBundle;
+  const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
   const suffix = selectedStepIndices && selectedStepIndices.length > 1 ? 's' : '';
+  const indices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
 
   const menuItems = [];
   if (isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
@@ -61,7 +64,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if ((enableStepBundles || !stepBundleId) && isSimpleStep) {
+  if (onGroupStepsToStepBundle && (enableStepBundles || !stepBundleId) && isSimpleStep) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
@@ -70,7 +73,6 @@ const StepCardMenu = (props: StepCardMenuProps) => {
           e.stopPropagation();
           if (onGroupStepsToStepBundle && selectedStepIndices) {
             const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-            const indices = isHighlighted ? selectedStepIndices : [stepIndex];
             onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
           }
         }}
@@ -80,7 +82,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (selectedStepIndices?.length === 1 || !isHighlighted) {
+  if (isClonable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
     menuItems.push(
       <OverflowMenuItem
         key="duplicate"
@@ -102,32 +104,27 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   if (menuItems.length > 0) {
     menuItems.push(<Divider key="divider" my="8" />);
   }
-  menuItems.push(
-    <OverflowMenuItem
-      isDanger
-      key="remove"
-      leftIconName="Trash"
-      onClick={(e) => {
-        e.stopPropagation();
-        if (workflowId && onDeleteStep) {
-          if (isHighlighted && selectedStepIndices) {
-            onDeleteStep(workflowId, selectedStepIndices);
-          } else {
-            onDeleteStep(workflowId, [stepIndex]);
+
+  if (isRemovable) {
+    menuItems.push(
+      <OverflowMenuItem
+        isDanger
+        key="remove"
+        leftIconName="Trash"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (workflowId && onDeleteStep) {
+            onDeleteStep(workflowId, indices);
           }
-        }
-        if (stepBundleId && onDeleteStepInStepBundle) {
-          if (isHighlighted && selectedStepIndices) {
-            onDeleteStepInStepBundle(stepBundleId, selectedStepIndices);
-          } else {
-            onDeleteStepInStepBundle(stepBundleId, [stepIndex]);
+          if (stepBundleId && onDeleteStepInStepBundle) {
+            onDeleteStepInStepBundle(stepBundleId, indices);
           }
-        }
-      }}
-    >
-      Delete Step{suffix}
-    </OverflowMenuItem>,
-  );
+        }}
+      >
+        Delete Step{suffix}
+      </OverflowMenuItem>,
+    );
+  }
 
   return (
     <ButtonGroup spacing="0" display="flex">
@@ -146,7 +143,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
           _active: { display: 'inline-flex' },
         }}
       >
-        {...menuItems}
+        {menuItems}
       </OverflowMenu>
     </ButtonGroup>
   );
