@@ -1,8 +1,6 @@
 const defaultValues = {
   'enable-wfe-step-bundles-ui': false,
   'enable-wfe-parallel-workflow': false,
-  'enable-algolia-search-for-steps': false,
-  'enable-create-graph-pipeline-based-on-staged-pipeline': false,
 };
 
 type FeatureFlags = typeof defaultValues;

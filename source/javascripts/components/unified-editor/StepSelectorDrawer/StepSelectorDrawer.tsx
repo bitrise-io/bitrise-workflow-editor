@@ -1,7 +1,7 @@
-import { Box, Tabs, Tag, Text, useTabs, Notification, TabList, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
+import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import WindowUtils from '@/core/utils/WindowUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -15,7 +15,6 @@ import StepBundleFilter from './components/StepBundleFilter';
 import StepFilter from './components/StepFilter';
 import StepBundleList from './components/StepBundleList';
 import AlgoliaStepList from './components/AlgoliaStepList/AlgoliaStepList';
-import StepList from './components/StepList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
@@ -31,7 +30,6 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targe
   });
 
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
-  const enableAlgoliaSearch = useFeatureFlag('enable-algolia-search-for-steps');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -92,14 +90,10 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targe
             <ReactFlowProvider>
               <TabPanels>
                 <TabPanel>
-                  {enableAlgoliaSearch ? (
-                    <AlgoliaStepList
-                      enabledSteps={stepLimitReached ? enabledSteps : undefined}
-                      onSelectStep={onSelectStep}
-                    />
-                  ) : (
-                    <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
-                  )}
+                  <AlgoliaStepList
+                    enabledSteps={stepLimitReached ? enabledSteps : undefined}
+                    onSelectStep={onSelectStep}
+                  />
                 </TabPanel>
                 <TabPanel display="flex" flexDir="column" gap="12">
                   <StepBundleList onSelectStep={onSelectStep} targetStepBundleId={targetStepBundleId} />

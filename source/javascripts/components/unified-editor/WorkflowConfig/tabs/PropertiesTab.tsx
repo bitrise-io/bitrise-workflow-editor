@@ -68,7 +68,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
 
   return (
-    <Box gap="24" display="flex" flexDir="column">
+    <Box gap="16" display="flex" flexDir="column">
       <EditableInput
         isRequired
         name="name"
@@ -77,6 +77,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
         sanitize={WorkflowService.sanitizeName}
         validate={WorkflowService.validateName}
         onCommit={handleNameChange}
+        size="md"
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
