@@ -31,9 +31,9 @@ pipelines:
       - branch: main
     workflows:
       tmp:
-        parallel: 4
         depends_on:
         - wf1
+        parallel: 4
       wf1: {}
       wf2:
         depends_on:
@@ -301,6 +301,8 @@ workflows:
     summary: Second workflow
     description: Second, but definitely not the last
     triggers:
+      pull_request:
+      - target_branch: '*'
       tag:
       - name:
           regex: '*'

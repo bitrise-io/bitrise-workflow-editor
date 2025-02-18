@@ -89,6 +89,7 @@ const TriggerItem = (props: TriggerItemProps) => {
         conditions={conditions}
         isDraftPr={trigger.draft_enabled}
         triggerType={triggerType}
+        priority={trigger.priority}
         triggerDisabled={globalDisabled || triggerDisabled}
       />
       <OverflowMenu>
@@ -171,7 +172,7 @@ const Triggers = (props: TriggersProps) => {
 
     const triggerConditions: Record<string, any> = {};
     (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
-      if (key !== 'enabled' && key !== 'draft_enabled') {
+      if (key !== 'enabled' && key !== 'draft_enabled' && key !== 'priority') {
         if (typeof trigger[key] === 'string') {
           triggerConditions[key] = { wildcard: trigger[key] };
         } else {

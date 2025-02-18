@@ -220,6 +220,7 @@ export type GraphPipelineWorkflowModel = {
 
 export type PushTriggerModel = {
   enabled?: boolean;
+  priority?: number;
   branch?: string | TriggerMapItemModelRegexCondition;
   commit_message?: string | TriggerMapItemModelRegexCondition;
   changed_files?: string | TriggerMapItemModelRegexCondition;
@@ -227,6 +228,7 @@ export type PushTriggerModel = {
 
 export type PullrequestTriggerModel = {
   enabled?: boolean;
+  priority?: number;
   draft_enabled?: boolean;
   source_branch?: string | TriggerMapItemModelRegexCondition;
   target_branch?: string | TriggerMapItemModelRegexCondition;
@@ -238,6 +240,7 @@ export type PullrequestTriggerModel = {
 
 export type TagTriggerModel = {
   enabled?: boolean;
+  priority?: number;
   name?: string | TriggerMapItemModelRegexCondition;
 };
 
