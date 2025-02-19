@@ -2412,7 +2412,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 3 as never, // TODO: remove as never when BitriseYml is typed
+                parallel: 3,
               },
             },
           },
@@ -2431,7 +2431,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: '3',
+                parallel: 3,
               },
             },
           },
@@ -2444,7 +2444,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: 5 as never, // TODO: remove as never when BitriseYml is typed
+                parallel: 5,
               },
             },
           },
@@ -2463,7 +2463,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: '3',
+                parallel: 3,
               },
             },
           },
@@ -2493,7 +2493,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: '3',
+                parallel: 3,
               },
             },
           },
@@ -2523,7 +2523,7 @@ describe('BitriseYmlService', () => {
           pl1: {
             workflows: {
               wf1: {
-                parallel: '3',
+                parallel: 3,
               },
             },
           },
@@ -2546,6 +2546,40 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf1', 'any-string', sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the pipeline does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl2', 'wf1', '3', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updatePipelineWorkflowParallel('pl1', 'wf2', '3', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
 

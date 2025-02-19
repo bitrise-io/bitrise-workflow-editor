@@ -1,9 +1,10 @@
-import { memo, PropsWithChildren, useMemo, useRef } from 'react';
+import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import useWorkflow from '@/hooks/useWorkflow';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
+import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
@@ -17,12 +18,12 @@ import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from '.
 type ContentProps = {
   id: string;
   uses?: string;
-  parallel?: string;
+  parallel?: string | number;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
-const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: string }>) => {
+const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
   const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
   const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
 
@@ -34,22 +35,19 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: str
     );
   }
 
-  const shouldDisplayParallelAsNumber = !isNaN(Number(parallel));
-  const badgeContent = shouldDisplayParallelAsNumber ? Number(parallel) : '$';
+  let badgeContent = parallel;
+  let tooltipLabel = `${parallel} parallel copies` as ReactNode;
+  let tooltipAriaLabel = `${parallel} parallel copies`;
 
-  const tooltipLabel = shouldDisplayParallelAsNumber ? (
-    `${parallel} parallel copies`
-  ) : (
-    <>
-      {`Number of copies is calculated based on `}
-      <strong>{parallel}</strong>
-      {` Env Var.`}
-    </>
-  );
-
-  const tooltipAriaLabel = shouldDisplayParallelAsNumber
-    ? `${parallel} parallel copies`
-    : `Number of copies is calculated based on ${parallel} Env Var.`;
+  if (!GraphPipelineWorkflowService.isIntegerValue(parallel)) {
+    badgeContent = '$';
+    tooltipLabel = (
+      <>
+        Number of copies is calculated based on <strong>{parallel}</strong> Env Var.
+      </>
+    );
+    tooltipAriaLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
+  }
 
   return (
     <Box display="flex" minW={0} maxW="100%" gap="4" alignItems="center">

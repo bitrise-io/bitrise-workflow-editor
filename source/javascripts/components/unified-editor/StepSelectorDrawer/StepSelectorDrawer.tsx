@@ -1,7 +1,6 @@
 import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 import WindowUtils from '@/core/utils/WindowUtils';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -28,8 +27,6 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targe
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
     tabIds: ['step', 'stepBundle'],
   });
-
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
@@ -61,7 +58,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targe
             <Box position="relative" mt="8" mx="-24">
               <TabList paddingX="8">
                 <Tab>Step</Tab>
-                {(enableStepBundles || !targetStepBundleId) && <Tab>Step bundle</Tab>}
+                <Tab>Step bundle</Tab>
               </TabList>
             </Box>
             {stepLimitReached && (
