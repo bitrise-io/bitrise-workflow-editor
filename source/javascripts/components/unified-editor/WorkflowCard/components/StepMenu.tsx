@@ -4,6 +4,9 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import StepService from '@/core/services/StepService';
+import { StepListItemModel } from '@/core/models/BitriseYml';
 
 type StepMenuProps = {
   isHighlighted?: boolean;
@@ -26,31 +29,36 @@ const StepMenu = (props: StepMenuProps) => {
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const { selectedStepIndices } = useSelection();
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
-  const selectedStepCvses = useBitriseYmlStore((s) => {
+
+  const { selectedStepIndices } = useSelection();
+  const finalIndices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
+  const finalStepCvses = useBitriseYmlStore((s) => {
+    let steps: StepListItemModel[] | undefined;
     if (workflowId) {
-      return selectedStepIndices
-        ?.map((index) => Object.keys(s.yml.workflows?.[workflowId].steps?.[index] || {})[0])
-        .filter(Boolean);
+      steps = s.yml.workflows?.[workflowId].steps;
     }
     if (stepBundleId) {
-      return selectedStepIndices
-        ?.map((index) => Object.keys(s.yml.step_bundles?.[stepBundleId].steps?.[index] || {})[0])
-        .filter(Boolean);
+      steps = s.yml.step_bundles?.[stepBundleId].steps;
     }
+    return finalIndices?.map((index) => Object.keys(steps?.[index] || {})[0]);
   });
-  const isWithGroup = selectedStepCvses?.some((cvs) => cvs.includes('with'));
+
+  const containsWithGroup = finalStepCvses?.some((cvs) => cvs === 'with');
+
+  const defaultStepLibrary = useDefaultStepLibrary();
+  const { isStepBundle } = StepService;
+  const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
+  const isSingleStepBundle =
+    finalStepCvses?.length === 1 && finalStepCvses[0] && isStepBundle(finalStepCvses[0], library);
 
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
   const isClonable = onCloneStep || onCloneStepInStepBundle;
-  const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
-
-  const suffix = selectedStepIndices && selectedStepIndices.length > 1 ? 's' : '';
-  const indices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
+  const isDeletable = onDeleteStep || onDeleteStepInStepBundle;
+  const suffix = finalIndices && finalIndices.length > 1 ? 's' : '';
 
   const menuItems = [];
-  if (step && isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+  if (isUpgradable && finalIndices.length === 1) {
     menuItems.push(
       <OverflowMenuItem
         key="upgrade"
@@ -69,7 +77,8 @@ const StepMenu = (props: StepMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (onGroupStepsToStepBundle && !isWithGroup) {
+
+  if (onGroupStepsToStepBundle && !containsWithGroup && !isSingleStepBundle) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
@@ -78,16 +87,16 @@ const StepMenu = (props: StepMenuProps) => {
           e.stopPropagation();
           if (onGroupStepsToStepBundle && selectedStepIndices) {
             const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-            onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
+            onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, finalIndices);
           }
         }}
       >
-        New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
+        New bundle with {finalIndices.length} Step
         {suffix}
       </OverflowMenuItem>,
     );
   }
-  if (step && isClonable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+  if (isClonable && finalIndices.length === 1) {
     menuItems.push(
       <OverflowMenuItem
         key="duplicate"
@@ -110,19 +119,19 @@ const StepMenu = (props: StepMenuProps) => {
     menuItems.push(<Divider key="divider" my="8" />);
   }
 
-  if (isRemovable) {
+  if (isDeletable) {
     menuItems.push(
       <OverflowMenuItem
         isDanger
-        key="remove"
+        key="delete"
         leftIconName="Trash"
         onClick={(e) => {
           e.stopPropagation();
           if (workflowId && onDeleteStep) {
-            onDeleteStep(workflowId, indices);
+            onDeleteStep(workflowId, finalIndices);
           }
           if (stepBundleId && onDeleteStepInStepBundle) {
-            onDeleteStepInStepBundle(stepBundleId, indices);
+            onDeleteStepInStepBundle(stepBundleId, finalIndices);
           }
         }}
       >
