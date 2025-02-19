@@ -1,9 +1,4 @@
-@import "default";
-@import "constants";
-
 .tab-stack {
-	$content-spacing: 10px;
-
 	.stack-settings {
 		margin-bottom: 30px;
 
@@ -21,10 +16,12 @@
 		}
 
 		article {
-			@include padding-y(0);
+			padding-top: 0;
+			padding-bottom: 0;
 
 			section {
-				@include padding-y(18px);
+				padding-top: 18px;
+				padding-bottom: 18px;
 
 				.max-width-wrapper {
 					max-width: 550px;
@@ -34,11 +31,11 @@
 
 		.notification.stack-error {
 			margin-top: 0;
-			margin-bottom: $content-spacing;
+			margin-bottom: 10px;
 		}
 
 		.stack-selector-wrapper {
-			margin-bottom: $content-spacing;
+			margin-bottom: 10px;
 
 			.stack-selector {
 				width: 100%;
@@ -47,17 +44,17 @@
 
 		.stack-info {
 			display: flex;
-			@include align-items(flex-start);
+			align-items: flex-start;
 			width: 100%;
-			$icon-size: 18px;
-			$spacing: 8px;
 
 			.info-badge-wrapper {
-				@include margin-x(14px);
+				margin-left: 14px;
+				margin-right: 14px;
 
 				svg {
 					display: block;
-					@include size($icon-size);
+					width: 18px;
+					height: 18px;
 				}
 			}
 
@@ -67,10 +64,10 @@
 				.stack-description, .stack-update-policy {
 					line-height: 1.5;
 					margin-top: 0;
-					margin-bottom: $spacing;
+					margin-bottom: 8px;
 					font-size: 15px;
 					font-weight: 400;
-					color: $def-darkgrey;
+					color: var(--def-darkgrey);
 
 					&:not(.ninja) > p:first-child {
 						margin-top: 0;
@@ -78,7 +75,7 @@
 				}
 
 				a {
-					color: $def-green;
+					color: var(--def-green);
 					font-weight: 500;
 					text-decoration: none;
 
@@ -90,7 +87,7 @@
 				.stack-info-multistack {
 					font-size: 15px;
 					font-weight: 400;
-					color: $def-darkgrey;
+					color: var(--def-darkgrey);
 
 					&:not(:last-child) {
 						margin-bottom: 6px;
@@ -100,7 +97,7 @@
 				.stack-info-link {
 					font-size: 15px;
 					font-weight: 500;
-					color: $def-green;
+					color: var(--def-green);
 
 					&:not(:last-child) {
 						margin-bottom: 6px;
@@ -131,19 +128,19 @@
 				display: block;
 				box-sizing: border-box;
 				width: 100%;
-				border: 1px solid $def-mediumlightgrey;
-				@include border-radius($def-radius);
+				border: 1px solid var(--def-mediumlightgrey);
+				border-radius: var(--def-radius);
 				padding: 7px 12px;
 				font-size: 13px;
 
 				&:disabled {
-					color: $def-grey;
+					color: var(--def-grey);
 				}
 			}
 		}
 
 		.machine-type-settings {
-			border-top: 1px solid $def-mediumlightgrey;
+			border-top: 1px solid var(--def-mediumlightgrey);
 
 			.machine-type-header {
 				font-size: 19px;
@@ -182,7 +179,7 @@
 					text-transform: capitalize;
 					font-size: 16px;
 					font-weight: 700;
-					color: $def-darkgrey;
+					color: var(--def-darkgrey);
 					margin-right: 16px;
 				}
 
@@ -208,7 +205,7 @@
 					max-width: 100%;
 					padding: 12px;
 					border-radius: 8px;
-					border: 1px solid $def-grey;
+					border: 1px solid var(--def-grey);
 
 					.machine-type-data {
 						display: flex;
@@ -257,7 +254,7 @@
 
 								.tag {
 									border-radius: 4px;
-									background-color: $def-grey;
+									background-color: var(--def-grey);
 									color: #ffffff;
 									text-transform: uppercase;
 									font-size: 10px;
@@ -266,7 +263,7 @@
 									padding: 1px 6px;
 
 									&.gen2 {
-										background-color: $def-green-shade;
+										background-color: var(--def-green-shade);
 									}
 								}
 
@@ -284,7 +281,7 @@
 									line-height: normal;
 									text-transform: uppercase;
 									color: #351d48;
-									background-color: $def-yellow;
+									background-color: var(--def-yellow);
 								}
 							}
 
@@ -297,8 +294,9 @@
 
 						.separator {
 							height: 1px;
-							@include margin-y(8px);
-							background-color: $def-verylightgrey;
+							margin-top: 8px;
+							margin-bottom: 8px;
+							background-color: var(--def-verylightgrey);
 						}
 
 						.bottom {
@@ -306,7 +304,7 @@
 							justify-content: space-between;
 							font-size: 14px;
 							font-weight: 400;
-							color: $def-darkgrey;
+							color: var(--def-darkgrey);
 
 							.os {
 								max-width: 90px;
@@ -322,8 +320,9 @@
 
 						svg {
 							top: 0px;
-							@include size(88px, 88px);
-							fill: $def-darkgrey;
+							width: 88px;
+							height: 88px;
+							fill: var(--def-darkgrey);
 						}
 					}
 
@@ -332,41 +331,41 @@
 					}
 
 					&.selected:not(.not-available) {
-						border: 1px solid $def-violet_blue;
-						background-color: $def-light-grape;
+						border: 1px solid var(--def-violet_blue);
+						background-color: var(--def-light-grape);
 					}
 
 					&:not(.selected):not(.not-available):hover {
 						cursor: pointer;
-						border: 1px solid $def-violet_blue;
-						background-color: $def-light-grape;
+						border: 1px solid var(--def-violet_blue);
+						background-color: var(--def-light-grape);
 
 						.machine-type-data {
 
 							.top, .bottom {
-								color: $def-violet_blue;
+								color: var(--def-violet_blue);
 
 								.name, .credit-per-min {
-									color: $def-violet_blue;
+									color: var(--def-violet_blue);
 
 								}
 
 								.stack-type-icon svg {
-									fill: $def-violet_blue;
+									fill: var(--def-violet_blue);
 								}
 							}
 
 							.separator {
-								background-color: $def-violet_blue;
+								background-color: var(--def-violet_blue);
 							}
 						}
 
 						.machine-type-icon svg {
-							fill: $def-violet_blue;
+							fill: var (--def-violet_blue);
 						}
 					}
 
-					@include media-below-mid {
+					@media only screen and (max-width: 768px) {
 
 						.machine-type-data {
 							.separator {
@@ -404,7 +403,7 @@
 		}
 
 		.previous-version-settings {
-			border-top: 1px solid $def-mediumlightgrey;
+			border-top: 1px solid var(--def-mediumlightgrey);
 			padding-top: 18px;
 
 			.input-and-label {
@@ -429,7 +428,7 @@
 					color: inherit;
 
 					&:hover, &:focus {
-						color: $def-green;
+						color: var(--def-green);
 					}
 				}
 			}
@@ -443,14 +442,14 @@
 			.workflow {
 
 				&:not(:last-child) {
-					border-bottom: 1px solid $def-mediumlightgrey;
+					border-bottom: 1px solid var(--def-mediumlightgrey);
 				}
 
 				.workflow-header {
 					margin-top: 0;
-					margin-bottom: $content-spacing;
+					margin-bottom: 10px;
 					font-size: 16px;
-					color: $def-darkgrey;
+					color: var(--def-darkgrey);
 					font-weight: 400;
 
 					.workflow-id {
@@ -472,20 +471,21 @@
 						}
 
 						label.default-stack {
-							$badge-height: 14px;
-
-							@include position(absolute, 50%, 30px);
+							position: absolute;
+							top: 50%;
+							right: 30px;
 							box-sizing: border-box;
-							line-height: $badge-height;
-							margin-top: - $badge-height / 2;
-							@include border-radius($badge-height / 2);
-							@include padding-x(5px);
+							line-height: 14px;
+							margin-top: -7px;
+							border-radius: 7px;
+							padding-left: 5px;
+							padding-right: 5px;
 							font-size: 10px;
 							letter-spacing: 0.5px;
 							font-weight: 400;
 							text-transform: uppercase;
 							color: white;
-							background-color: $def-blue;
+							background-color: var(--def-blue);
 						}
 					}
 				}
