@@ -85,7 +85,7 @@ const StepMenu = (props: StepMenuProps) => {
         leftIconName="Steps"
         onClick={(e) => {
           e.stopPropagation();
-          if (onGroupStepsToStepBundle && selectedStepIndices) {
+          if (onGroupStepsToStepBundle && finalIndices) {
             const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
             onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, finalIndices);
           }
