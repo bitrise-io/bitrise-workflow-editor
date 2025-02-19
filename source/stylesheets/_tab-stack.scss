@@ -67,7 +67,7 @@
 					margin-bottom: 8px;
 					font-size: 15px;
 					font-weight: 400;
-					color: var(--def-darkgrey);
+					color: #616161;
 
 					&:not(.ninja) > p:first-child {
 						margin-top: 0;
@@ -75,7 +75,7 @@
 				}
 
 				a {
-					color: var(--def-green);
+					color: #0fc389;
 					font-weight: 500;
 					text-decoration: none;
 
@@ -87,7 +87,7 @@
 				.stack-info-multistack {
 					font-size: 15px;
 					font-weight: 400;
-					color: var(--def-darkgrey);
+					color: #616161;
 
 					&:not(:last-child) {
 						margin-bottom: 6px;
@@ -97,7 +97,7 @@
 				.stack-info-link {
 					font-size: 15px;
 					font-weight: 500;
-					color: var(--def-green);
+					color: #0fc389;
 
 					&:not(:last-child) {
 						margin-bottom: 6px;
@@ -128,19 +128,19 @@
 				display: block;
 				box-sizing: border-box;
 				width: 100%;
-				border: 1px solid var(--def-mediumlightgrey);
-				border-radius: var(--def-radius);
+				border: 1px solid #cccccc;
+				border-radius: 4px;
 				padding: 7px 12px;
 				font-size: 13px;
 
 				&:disabled {
-					color: var(--def-grey);
+					color: #acacac;
 				}
 			}
 		}
 
 		.machine-type-settings {
-			border-top: 1px solid var(--def-mediumlightgrey);
+			border-top: 1px solid #cccccc;
 
 			.machine-type-header {
 				font-size: 19px;
@@ -179,7 +179,7 @@
 					text-transform: capitalize;
 					font-size: 16px;
 					font-weight: 700;
-					color: var(--def-darkgrey);
+					color: #616161;
 					margin-right: 16px;
 				}
 
@@ -205,7 +205,7 @@
 					max-width: 100%;
 					padding: 12px;
 					border-radius: 8px;
-					border: 1px solid var(--def-grey);
+					border: 1px solid #acacac;
 
 					.machine-type-data {
 						display: flex;
@@ -254,7 +254,7 @@
 
 								.tag {
 									border-radius: 4px;
-									background-color: var(--def-grey);
+									background-color: #acacac;
 									color: #ffffff;
 									text-transform: uppercase;
 									font-size: 10px;
@@ -263,7 +263,7 @@
 									padding: 1px 6px;
 
 									&.gen2 {
-										background-color: var(--def-green-shade);
+										background-color: #0fb37d;
 									}
 								}
 
@@ -281,7 +281,7 @@
 									line-height: normal;
 									text-transform: uppercase;
 									color: #351d48;
-									background-color: var(--def-yellow);
+									background-color: #ffc500;
 								}
 							}
 
@@ -296,7 +296,7 @@
 							height: 1px;
 							margin-top: 8px;
 							margin-bottom: 8px;
-							background-color: var(--def-verylightgrey);
+							background-color: #ececec;
 						}
 
 						.bottom {
@@ -304,7 +304,7 @@
 							justify-content: space-between;
 							font-size: 14px;
 							font-weight: 400;
-							color: var(--def-darkgrey);
+							color: #616161;
 
 							.os {
 								max-width: 90px;
@@ -322,7 +322,7 @@
 							top: 0px;
 							width: 88px;
 							height: 88px;
-							fill: var(--def-darkgrey);
+							fill: #616161;
 						}
 					}
 
@@ -331,37 +331,37 @@
 					}
 
 					&.selected:not(.not-available) {
-						border: 1px solid var(--def-violet_blue);
-						background-color: var(--def-light-grape);
+						border: 1px solid #760fc3;
+						background-color: #f8f0ff;
 					}
 
 					&:not(.selected):not(.not-available):hover {
 						cursor: pointer;
-						border: 1px solid var(--def-violet_blue);
-						background-color: var(--def-light-grape);
+						border: 1px solid #760fc3;
+						background-color: #f8f0ff;
 
 						.machine-type-data {
 
 							.top, .bottom {
-								color: var(--def-violet_blue);
+								color: #760fc3;
 
 								.name, .credit-per-min {
-									color: var(--def-violet_blue);
+									color: #760fc3;
 
 								}
 
 								.stack-type-icon svg {
-									fill: var(--def-violet_blue);
+									fill: #760fc3;
 								}
 							}
 
 							.separator {
-								background-color: var(--def-violet_blue);
+								background-color: #760fc3;
 							}
 						}
 
 						.machine-type-icon svg {
-							fill: var (--def-violet_blue);
+							fill: #760fc3;
 						}
 					}
 
@@ -403,7 +403,7 @@
 		}
 
 		.previous-version-settings {
-			border-top: 1px solid var(--def-mediumlightgrey);
+			border-top: 1px solid #cccccc;
 			padding-top: 18px;
 
 			.input-and-label {
@@ -428,7 +428,7 @@
 					color: inherit;
 
 					&:hover, &:focus {
-						color: var(--def-green);
+						color: #0fc389;
 					}
 				}
 			}
@@ -442,14 +442,14 @@
 			.workflow {
 
 				&:not(:last-child) {
-					border-bottom: 1px solid var(--def-mediumlightgrey);
+					border-bottom: 1px solid #cccccc;
 				}
 
 				.workflow-header {
 					margin-top: 0;
 					margin-bottom: 10px;
 					font-size: 16px;
-					color: var(--def-darkgrey);
+					color: #616161;
 					font-weight: 400;
 
 					.workflow-id {
@@ -485,7 +485,7 @@
 							font-weight: 400;
 							text-transform: uppercase;
 							color: white;
-							background-color: var(--def-blue);
+							background-color: #0d83cd;
 						}
 					}
 				}
