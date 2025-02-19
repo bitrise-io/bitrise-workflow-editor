@@ -1,5 +1,6 @@
 import 'monaco-editor/esm/vs/editor/editor.api.js';
-import { safeDigest } from '../services/react-compat';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { safeDigest } from '@/services/react-compat';
 
 (function () {
   angular
@@ -13,7 +14,7 @@ import { safeDigest } from '../services/react-compat';
 
       viewModel.init = function () {
         viewModel.isEditorLoading = true;
-        if (requestService.isWebsiteMode()) {
+        if (RuntimeUtils.isWebsiteMode()) {
           const fetchPipelineConfig = appService.getPipelineConfig().then(function () {
             viewModel.ciConfigYml = appService.appConfigYML;
 

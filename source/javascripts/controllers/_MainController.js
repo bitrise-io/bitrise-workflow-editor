@@ -5,6 +5,7 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { segmentTrack } from '@/utils/segmentTracking';
 import { configMergeDialog } from '@/components/ConfigMergeDialog/ConfigMergeDialog.store';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
 (function () {
@@ -13,20 +14,19 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
     .controller(
       'MainController',
       function (
+        $q,
         $scope,
         $rootScope,
-        $q,
-        $location,
         $timeout,
-        requestService,
-        appService,
-        stringService,
-        Progress,
-        Popup,
-        Stack,
+        $location,
         logger,
-        MachineType,
+        appService,
+        requestService,
+        Popup,
+        Progress,
+        Stack,
         Variable,
+        MachineType,
       ) {
         const viewModel = this;
 
@@ -84,7 +84,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             possibleURLParameterKeys: ['trigger_type', 'pipeline', 'workflow_id'],
             cssClass: 'triggers',
           },
-          requestService.mode === 'website'
+          RuntimeUtils.isWebsiteMode()
             ? {
                 id: 'stack',
                 title: 'Stack',
@@ -93,7 +93,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
                 cssClass: 'stack',
               }
             : null,
-          requestService.mode === 'website'
+          RuntimeUtils.isWebsiteMode()
             ? {
                 id: 'licenses',
                 title: 'Licenses',
@@ -223,12 +223,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               case 'pipelines': {
                 const loadPromises = [appService.getAppConfig()];
 
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(appService.getPipelineConfig());
                 }
 
                 $q.all(loadPromises).then(() => {
-                  if (requestService.isWebsiteMode()) {
+                  if (RuntimeUtils.isWebsiteMode()) {
                     return Stack.getAll().then(appService.getStackAndDockerImage).then(resolve, reject);
                   }
 
@@ -239,7 +239,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               }
               case 'workflows': {
                 const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(appService.getPipelineConfig());
                 }
 
@@ -259,12 +259,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               }
               case 'env-vars': {
                 const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(Stack.getAll());
                   loadPromises.push(appService.getPipelineConfig());
                 }
                 let loadPromise = $q.all(loadPromises);
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
                     if (appService.appDetails.isMachineTypeSelectorAvailable) {
                       return MachineType.getAll().then(appService.getDefaultMachineType);
@@ -284,7 +284,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               }
               case 'triggers': {
                 const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(appService.getPipelineConfig());
                 }
                 const loadPromise = $q.all(loadPromises);
@@ -452,7 +452,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               });
 
               const isInitialSelection = !viewModel.currentMenu;
-              if (isInitialSelection && requestService.mode === 'website') {
+              if (isInitialSelection && RuntimeUtils.isWebsiteMode()) {
                 history.pushState(
                   {
                     eventID: 'backButtonPressedOnInitialWorkflowEditorPage',
@@ -553,7 +553,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         };
 
         window.onload = function () {
-          if (requestService.mode === 'cli') {
+          if (RuntimeUtils.isLocalMode()) {
             requestService.cancelAPIConnectionClose();
           }
         };
@@ -614,7 +614,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
           const isYmlFormat = viewModel.currentMenu.id === 'yml';
           const shouldValidate = !['secrets', 'yml'].includes(viewModel.currentMenu.id);
-          const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
+          const isRepositorySavedYml = RuntimeUtils.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
 
           async function startSavingProcess() {
             viewModel.saveProgress.start('Saving, wait a sec...');
@@ -827,7 +827,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           if (!viewModel.hasUnsavedChanges()) {
             return false;
           }
-
           return true;
         };
 
@@ -949,51 +948,43 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
           logger.info('App start');
 
-          viewModel.isWebsiteMode = requestService.isWebsiteMode();
-
           appService.getAppConfig();
 
           $q(function (resolve, reject) {
             viewModel.isDiffEditorEnabled = useFeatureFlag('enable-wfe-diff-editor');
 
-            switch (requestService.mode) {
-              case 'website':
-                requestService.appSlug = WindowUtils.appSlug();
-
-                if (!requestService.appSlug) {
-                  return reject('No app slug specified.');
-                }
-
-                requestService
-                  .getCurrentUserMetadata('last_workflow_edited_date')
-                  .then((lastWFEDateMetadataResp) => {
-                    viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-                  })
-                  .finally(() => {
-                    appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
-                  });
-
-                break;
-              case 'cli':
-                resolve();
-
-                break;
+            if (RuntimeUtils.isLocalMode()) {
+              resolve();
+              return;
             }
+
+            if (!WindowUtils.appSlug()) {
+              return reject('No app slug specified.');
+            }
+
+            requestService
+              .getCurrentUserMetadata('last_workflow_edited_date')
+              .then((lastWFEDateMetadataResp) => {
+                viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+              })
+              .finally(() => {
+                appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
+              });
           })
             .then(
               function () {
-                if (requestService.mode === 'website') {
+                if (RuntimeUtils.isWebsiteMode()) {
                   viewModel.defaultBranch = appService.appDetails.defaultBranch;
                   viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
                 }
-                if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
+                if (RuntimeUtils.isWebsiteMode() && appService.appDetails.isMachineTypeSelectorAvailable) {
                   const stackMenu = _.find(viewModel.menus, {
                     id: 'stack',
                   });
                   stackMenu.title = 'Stacks and Machines';
                 }
 
-                if (requestService.mode === 'website' && appService.appDetails.isCurrentUserIsOrgOwner) {
+                if (RuntimeUtils.isWebsiteMode() && appService.appDetails.isCurrentUserIsOrgOwner) {
                   const licensesMenu = _.find(viewModel.menus, {
                     id: 'licenses',
                   });
@@ -1016,7 +1007,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         };
 
         viewModel.shouldShowMenuBar = function () {
-          if (requestService.mode === 'cli') {
+          if (RuntimeUtils.isLocalMode()) {
             return true;
           }
 

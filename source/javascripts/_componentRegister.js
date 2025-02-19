@@ -15,13 +15,13 @@ import NotificationMessageWithLink from './components/NotificationMessageWithLin
 import UpdateConfigurationDialog from './components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 import {
+  LicensesPage,
   PipelinesPage,
   SecretsPage,
   StepBundlesPage,
   TriggersPage,
   WorkflowsPage,
   YmlPage,
-  LicensesPage,
 } from './pages';
 
 function register(component, props, injects) {
@@ -34,13 +34,7 @@ angular
   .component('rTriggersPage', register(TriggersPage, ['yml', 'onChange']))
   .component(
     'rSecretsPage',
-    register(SecretsPage, [
-      'appSlug',
-      'onSecretsChange',
-      'sharedSecretsAvailable',
-      'secretSettingsUrl',
-      'planSelectorPageUrl',
-    ]),
+    register(SecretsPage, ['onSecretsChange', 'sharedSecretsAvailable', 'secretSettingsUrl', 'planSelectorPageUrl']),
   )
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'onChange']))
   .component('rWorkflowsPage', register(WorkflowsPage, ['yml', 'onChange']))
@@ -65,14 +59,7 @@ angular
   .component('rStepItemBadge', register(StepBadge, ['step']))
   .component(
     'rUpdateConfigurationDialog',
-    register(UpdateConfigurationDialog, [
-      'onClose',
-      'appSlug',
-      'getDataToSave',
-      'onComplete',
-      'defaultBranch',
-      'gitRepoSlug',
-    ]),
+    register(UpdateConfigurationDialog, ['onClose', 'getDataToSave', 'onComplete', 'defaultBranch', 'gitRepoSlug']),
   )
   .component('rInfoTooltip', register(InfoTooltip, ['label']))
   .component('rToggle', register(Toggle, ['tooltipLabel', 'isDisabled', 'isChecked', 'onChange', 'listItemId']))
@@ -90,7 +77,6 @@ angular
       'isSaveInProgress',
       'onDiscardClick',
       'isDiscardDisabled',
-      'isWebsiteMode',
     ]),
   )
   .component(

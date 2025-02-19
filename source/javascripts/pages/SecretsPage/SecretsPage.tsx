@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
 import { Secret } from '@/core/models/Secret';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
+import WindowUtils from '@/core/utils/WindowUtils';
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
-  appSlug: string;
   onSecretsChange: (secrets: Secret[]) => void;
   sharedSecretsAvailable: boolean;
   // Cleanup
@@ -14,7 +14,8 @@ type SecretsPageProps = {
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
-  const { onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
+  const appSlug = WindowUtils.appSlug() ?? '';
+  const { onSecretsChange, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
   const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);

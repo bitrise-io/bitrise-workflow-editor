@@ -1,7 +1,7 @@
 import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import generateUniqueEntityId from '@/core/utils/CommonUtils';
+import { generateUniqueEntityId } from '@/core/utils/CommonUtils';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';

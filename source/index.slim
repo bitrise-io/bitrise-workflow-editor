@@ -7,7 +7,6 @@ html
 		base[href="/" target="_parent"]
 		link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }" crossorigin="anonymous"]
 		script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }" crossorigin="anonymous"]
-		script[src="#{ mode_dependant_asset_path 'javascripts/routes.js' }" crossorigin="anonymous"]
 		- if clarity?
 			script[src="#{ mode_dependant_asset_path 'javascripts/clarity.js' }" crossorigin="anonymous"]
 		- if datadog_rum?

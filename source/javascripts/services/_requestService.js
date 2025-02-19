@@ -1,17 +1,15 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
+
 (function () {
   angular
     .module('BitriseWorkflowEditor')
-    .service('requestService', function ($q, $injector, $http, RequestService, stringService, dateService, logger) {
+    .service('requestService', function ($q, $http, logger, stringService, RequestService) {
       const requestService = {
-        mode: RequestService.mode,
-        appSlug: RequestService.appSlug,
+        appSlug: WindowUtils.appSlug() || '',
         appConfigVersionHeaderName: RequestService.appConfigVersionHeaderName,
-      };
-
-      requestService.isWebsiteMode = function () {
-        return RequestService.isWebsiteMode();
       };
 
       function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
@@ -75,14 +73,14 @@
       }
 
       requestService.localServerPath = function (path) {
-        if (process.env.MODE !== 'CLI') {
+        if (RuntimeUtils.isWebsiteMode()) {
           return 'not_available';
         }
         return path;
       };
 
       requestService.webServerPath = function (path) {
-        if (process.env.MODE !== 'WEBSITE') {
+        if (RuntimeUtils.isLocalMode()) {
           return 'not_available';
         }
         return path;
@@ -105,16 +103,11 @@
       // Current User
 
       requestService.getCurrentUserMetadata = function (metadataKey, requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/me/profile/metadata.json?key=${metadataKey}`);
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting current user metadata is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting current user metadata is only available in website mode'));
         }
 
+        const requestURL = requestService.webServerPath(`/me/profile/metadata.json?key=${metadataKey}`);
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
@@ -134,19 +127,12 @@
       };
 
       requestService.updateCurrentUserMetadata = function (metadataKeyValue, requestConfig) {
-        let requestURL;
-        let requestData;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath('/me/profile/metadata.json');
-
-            requestData = { ...metadataKeyValue };
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Updating current user metadata is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Updating current user metadata is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath('/me/profile/metadata.json');
+        const requestData = { ...metadataKeyValue };
 
         return $q(function (resolve, reject) {
           $http.put(requestURL, requestData, requestConfig).then(
@@ -167,15 +153,11 @@
       };
 
       requestService.getOrgPlanData = function (orgSlug, requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/organization/${orgSlug}/payment_subscription_status`);
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting organization subscription status is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting organization subscription status is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/organization/${orgSlug}/payment_subscription_status`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -223,52 +205,48 @@
       // App details
 
       requestService.getAppDetails = function (requestConfig) {
-        switch (requestService.mode) {
-          case 'website': {
-            const requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}.json`);
-
-            return $q(function (resolve, reject) {
-              $http.get(requestURL, requestConfig).then(
-                function (response) {
-                  resolve({
-                    avatarURL: response.data.avatar_icon_url,
-                    slug: response.data.slug,
-                    title: response.data.title,
-                    projectTypeID: response.data.project_type,
-                    providerID: response.data.provider,
-                    repositoryURL: response.data.url,
-                    stack: response.data.stack_identifier,
-                    isPublic: response.data.is_public,
-                    isCurrentUserOwner: response.data.owner_is_current_user,
-                    isCurrentUserIsOrgOwner: response.data.is_current_user_can_destroy,
-                    isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
-                    appMachineTypeIdWithoutDeprecatedMachineReplacement:
-                      response.data.app_machine_type_id_without_deprecated_machine_replacement,
-                    ownerData: {
-                      slug: response.data.owner_slug,
-                      type: response.data.owner_type,
-                      name:
-                        response.data.owner_type === 'User' ? response.data.owner_username : response.data.owner_name,
-                      isPaying: response.data.owner_is_paying,
-                    },
-                    buildData: {
-                      lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
-                      lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at,
-                    },
-                    defaultBranch: response.data.default_branch_name,
-                    gitRepoSlug: response.data.git_repo_slug,
-                  });
-                },
-                function (response) {
-                  reject(errorFromResponse(response, 'Error loading app data.', 'Error loading app data: '));
-                },
-              );
-            });
-          }
-          case 'cli': {
-            return $q.reject(new Error('Saving Apple Credential User for app is only available in website mode'));
-          }
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Saving Apple Credential User for app is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}.json`);
+
+        return $q(function (resolve, reject) {
+          $http.get(requestURL, requestConfig).then(
+            function (response) {
+              resolve({
+                avatarURL: response.data.avatar_icon_url,
+                slug: response.data.slug,
+                title: response.data.title,
+                projectTypeID: response.data.project_type,
+                providerID: response.data.provider,
+                repositoryURL: response.data.url,
+                stack: response.data.stack_identifier,
+                isPublic: response.data.is_public,
+                isCurrentUserOwner: response.data.owner_is_current_user,
+                isCurrentUserIsOrgOwner: response.data.is_current_user_can_destroy,
+                isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
+                appMachineTypeIdWithoutDeprecatedMachineReplacement:
+                  response.data.app_machine_type_id_without_deprecated_machine_replacement,
+                ownerData: {
+                  slug: response.data.owner_slug,
+                  type: response.data.owner_type,
+                  name: response.data.owner_type === 'User' ? response.data.owner_username : response.data.owner_name,
+                  isPaying: response.data.owner_is_paying,
+                },
+                buildData: {
+                  lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
+                  lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at,
+                },
+                defaultBranch: response.data.default_branch_name,
+                gitRepoSlug: response.data.git_repo_slug,
+              });
+            },
+            function (response) {
+              reject(errorFromResponse(response, 'Error loading app data.', 'Error loading app data: '));
+            },
+          );
+        });
       };
 
       // App config
@@ -277,22 +255,19 @@
         let requestURL;
         let requestData;
 
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
-            requestData = {
-              app_config_datastore_yaml: appConfig,
-              tab_open_during_save: tabOpenDuringSave,
-            };
+        if (RuntimeUtils.isWebsiteMode()) {
+          requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
+          requestData = {
+            app_config_datastore_yaml: appConfig,
+            tab_open_during_save: tabOpenDuringSave,
+          };
+        }
 
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/bitrise-yml.json');
-            requestData = {
-              bitrise_yml: appConfig,
-            };
-
-            break;
+        if (RuntimeUtils.isLocalMode()) {
+          requestURL = requestService.localServerPath('/api/bitrise-yml.json');
+          requestData = {
+            bitrise_yml: appConfig,
+          };
         }
 
         return $q(function (resolve, reject) {
@@ -308,18 +283,9 @@
       };
 
       requestService.getAppConfig = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
-
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/bitrise-yml.json');
-
-            break;
-        }
+        const requestURL = RuntimeUtils.isWebsiteMode()
+          ? requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`)
+          : requestService.localServerPath('/api/bitrise-yml.json');
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -342,22 +308,19 @@
         let requestURL;
         let requestData;
 
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
-            requestData = {
-              app_config_datastore_yaml: appConfigYML,
-              tab_open_during_save: 'yml',
-            };
+        if (RuntimeUtils.isWebsiteMode()) {
+          requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
+          requestData = {
+            app_config_datastore_yaml: appConfigYML,
+            tab_open_during_save: 'yml',
+          };
+        }
 
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/bitrise-yml');
-            requestData = {
-              bitrise_yml: appConfigYML,
-            };
-
-            break;
+        if (RuntimeUtils.isLocalMode()) {
+          requestURL = requestService.localServerPath('/api/bitrise-yml');
+          requestData = {
+            bitrise_yml: appConfigYML,
+          };
         }
 
         return $q(function (resolve, reject) {
@@ -383,16 +346,11 @@
       };
 
       requestService.getPipelineConfig = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/pipeline_config`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting pipeline config is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting pipeline config is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/pipeline_config`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -414,18 +372,13 @@
       };
 
       requestService.getSecretValue = function (secret, requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(
-              `/api/app/${requestService.appSlug}/secrets/${secret.key()}.json`,
-            );
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting secret environment value is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting secret environment value is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(
+          `/api/app/${requestService.appSlug}/secrets/${secret.key()}.json`,
+        );
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -448,16 +401,11 @@
       // Machine Type
 
       requestService.getMachineTypeConfigs = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/machine_type_configs`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting machine types is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting machine types is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/machine_type_configs`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -506,16 +454,11 @@
       // Stacks
 
       requestService.getStackAndDockerImage = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/stack`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting stack is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting stack is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/stack`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -533,16 +476,11 @@
       };
 
       requestService.getStacks = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/all_stack_info`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting stacks is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting stacks is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/all_stack_info`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(

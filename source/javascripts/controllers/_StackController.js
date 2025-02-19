@@ -5,18 +5,7 @@ import WindowUtils from '@/core/utils/WindowUtils';
     .module('BitriseWorkflowEditor')
     .controller(
       'StackController',
-      function (
-        $q,
-        $scope,
-        $rootScope,
-        stringService,
-        appService,
-        Workflow,
-        Stack,
-        MachineType,
-        dateService,
-        requestService,
-      ) {
+      function ($scope, $rootScope, appService, dateService, requestService, Stack, Workflow, MachineType) {
         const viewModel = this;
 
         viewModel.workflows = [];

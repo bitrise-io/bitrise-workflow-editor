@@ -9,10 +9,8 @@ export default {
     isDiscardDisabled: false,
     isSaveInProgress: false,
     isSaveDisabled: false,
-    isWebsiteMode: true,
   },
   argTypes: {
-    isWebsiteMode: { control: 'boolean' },
     appName: { control: 'text' },
     appPath: { control: 'text' },
     workspacePath: { control: 'text' },
@@ -27,7 +25,9 @@ export default {
 export const Website = {};
 
 export const CLI = {
-  args: {
-    isWebsiteMode: false,
+  beforeEach: () => {
+    process.env.MODE = 'cli';
+    window.parent.pageProps = undefined;
+    window.parent.globalProps = undefined;
   },
 };

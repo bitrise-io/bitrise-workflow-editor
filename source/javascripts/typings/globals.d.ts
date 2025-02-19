@@ -8,9 +8,6 @@ declare global {
   const TEST_BITRISE_YML: BitriseYml;
 
   interface Window {
-    // routes.js
-    routes: { [s: string]: any };
-
     // webpack.config.js
     localFeatureFlags: Partial<{
       [s: string]: string | number | boolean;
@@ -34,6 +31,7 @@ declare global {
       account: {
         slug: string;
         name: string;
+        sharedResourcesAvailable?: boolean;
       };
       env?: {
         SEGMENT_JS_WRITE_KEY_NEW: string;
