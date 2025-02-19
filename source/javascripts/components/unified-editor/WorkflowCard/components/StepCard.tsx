@@ -29,7 +29,6 @@ import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -107,8 +106,6 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
   } = useStepActions();
-
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
 
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
 
@@ -233,7 +230,7 @@ const StepCard = ({
         </OverflowMenuItem>,
       );
     }
-    if ((enableStepBundles || !stepBundleId) && isSimpleStep) {
+    if (!stepBundleId && isSimpleStep) {
       menuItems.push(
         <OverflowMenuItem
           key="group"
@@ -331,7 +328,6 @@ const StepCard = ({
     isRemovable,
     selectedStepIndices,
     isHighlighted,
-    enableStepBundles,
     isSimpleStep,
     onUpgradeStep,
     onUpgradeStepInStepBundle,
