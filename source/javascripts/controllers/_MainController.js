@@ -249,6 +249,10 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               }
               case 'step_bundles': {
                 const loadPromises = [appService.getAppConfig()];
+                if (requestService.isWebsiteMode()) {
+                  loadPromises.push(appService.getPipelineConfig());
+                }
+
                 $q.all(loadPromises).then(resolve, reject);
 
                 break;
