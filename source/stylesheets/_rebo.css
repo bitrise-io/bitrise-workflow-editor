@@ -1,21 +1,35 @@
 .rebo {
-	box-sizing: border-box;
-	border: 1px solid;
-	border-radius: 4px;
-	padding: 10px 12px;
-	text-align: center;
-	font-size: 15px;
-	font-weight: 500;
-	color: #fff;
-	transition:
-	  border-color 0.2s,
-	  color 0.2s,
-	  background-color 0.2s;
-	border-color: #683d87;
-	background-image: linear-gradient(to top, #450674, #6c0eb2);
-  }
-  
-  .rebo:hover,
-  .rebo:focus {
-	background-image: linear-gradient(to top, #351d48, #351d48);
-  }
+  box-sizing: border-box;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background-color 0.2s;
+}
+
+.rebo.purple {
+  border-color: #683d87;
+  background-image: linear-gradient(to top, #450674, #6c0eb2);
+}
+
+.rebo.purple:hover,
+.rebo.purple:focus {
+  background-image: linear-gradient(to top, #351d48, #351d48);
+}
+
+.rebo.danger {
+  border-color: #ff2158;
+  background-color: #ff2158;
+}
+
+.rebo.danger:hover,
+.rebo.danger:focus {
+  border-color: #ee003b;
+  background-color: #ee003b;
+}

@@ -1,281 +1,389 @@
 .tab-env-vars section {
-	margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .tab-env-vars section.warn-box {
-	display: flex;
-	justify-content: space-between;
-	padding: 12px 18px;
-	border: solid 1px #ffc500cc;
-	background-color: #ffc50066;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border: solid 1px #ffc500cc;
+  background-color: #ffc50066;
 }
 
 .tab-env-vars section.warn-box .icon {
-	margin-right: 15px;
+  margin-right: 15px;
 }
 
 .tab-env-vars section.warn-box .icon:before {
-	content: "";
-	display: inline-block;
-	width: 67px;
-	height: 62px;
-	background-size: 67px 62px;
-	background-image: url("/images/warning-cat.png");
-	vertical-align: sub;
-	background-repeat: no-repeat;
-	background-position: center bottom;
+  content: "";
+  display: inline-block;
+  width: 67px;
+  height: 62px;
+  background-size: 67px 62px;
+  background-image: url("/images/warning-cat.png");
+  vertical-align: sub;
+  background-repeat: no-repeat;
+  background-position: center bottom;
 }
 
 .tab-env-vars section.warn-box .message {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 .tab-env-vars section.warn-box .message .title {
-	color: #444;
-	font-size: 20px;
-	font-weight: 400;
-	font-style: normal;
-	font-stretch: normal;
-	line-height: 1;
-	letter-spacing: 0.3px;
+  color: #444;
+  font-size: 20px;
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1;
+  letter-spacing: 0.3px;
 }
 
 .tab-env-vars section.warn-box .message p {
-	color: #444;
-	font-size: 13px;
-	font-weight: normal;
-	font-style: normal;
-	font-stretch: normal;
-	line-height: 1.38;
-	letter-spacing: normal;
-	margin-bottom: 0;
+  color: #444;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  margin-bottom: 0;
 }
 
 .tab-env-vars section.warn-box .message p button {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 .tab-env-vars article {
-	padding: 0;
-	background-color: #fff;
+  padding: 0;
+  background-color: #fff;
 }
 
 .tab-env-vars article ul.env-vars {
-	margin-top: 0;
-	margin-bottom: 0;
-	padding-left: 0;
-	list-style: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
 }
 
 .tab-env-vars article ul.env-vars li {
-	border-bottom: 1px solid #ccc;
-	padding: 12px 18px;
-	background-color: #fff;
-	cursor: move;
+  border-bottom: 1px solid #ccc;
+  padding: 12px 18px;
+  background-color: #fff;
+  cursor: move;
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete {
-	display: flex;
-	align-items: center;
-	margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete:before {
-	content: "=";
-	order: 2;
-	margin-left: 20px;
-	margin-right: 20px;
-	width: 10px;
-	font-size: 19px;
-	font-weight: 700;
+  content: "=";
+  order: 2;
+  margin-left: 20px;
+  margin-right: 20px;
+  width: 10px;
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete input.key,
 .tab-env-vars article ul.env-vars li .key-value-delete textarea.value {
-	padding: 0 14px;
-	height: 36px;
-	font-size: 14px;
-	font-weight: 400;
-	font-family: "SourceCodePro", monospace;
+  padding: 0 14px;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "SourceCodePro", monospace;
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete input.key {
-	order: 1;
-	flex-shrink: 0;
-	box-sizing: border-box;
-	width: 330px;
-	border-radius: 4px;
-	padding-left: 44px;
-	background-size: 8px auto, 30px 100%;
-	background-position: left 11px center, left center;
-	background-repeat: no-repeat;
-	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='208.374' height='400' viewBox='0 0 208.374 400' fill='rgb(255,255,255)'><path d='M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001'/></svg>"), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='30' height='36' fill='rgba(129,81,168,0.99)'></rect></svg>");
-	border: 1px solid #8151a8;
-	color: #8151a8;
+  order: 1;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 330px;
+  border-radius: 4px;
+  padding-left: 44px;
+  background-size:
+    8px auto,
+    30px 100%;
+  background-position:
+    left 11px center,
+    left center;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='208.374' height='400' viewBox='0 0 208.374 400' fill='rgb(255,255,255)'><path d='M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='30' height='36' fill='rgba(129,81,168,0.99)'></rect></svg>");
+  border: 1px solid #8151a8;
+  color: #8151a8;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete input.key.ng-invalid:not(.ng-pristine) {
-	border: 1px solid #ff2158;
-	color: #ff2158;
-	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='208.374' height='400' viewBox='0 0 208.374 400' fill='rgb(255,255,255)'><path d='M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001'/></svg>"), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='30' height='36' fill='rgba(255,33,88,0.99)'></rect></svg>");
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  input.key.ng-invalid:not(.ng-pristine) {
+  border: 1px solid #ff2158;
+  color: #ff2158;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='208.374' height='400' viewBox='0 0 208.374 400' fill='rgb(255,255,255)'><path d='M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='30' height='36' fill='rgba(255,33,88,0.99)'></rect></svg>");
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete input.key:disabled {
-	background-color: #ececec;
-	color: #616161;
+  background-color: #ececec;
+  color: #616161;
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions {
-	order: 3;
-	flex-grow: 1;
-	align-self: flex-start;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	position: relative;
-	overflow: hidden;
+  order: 3;
+  flex-grow: 1;
+  align-self: flex-start;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions textarea.value {
-	align-self: stretch;
-	box-sizing: border-box;
-	border: 0;
-	padding-top: 8px;
-	padding-bottom: 8px;
-	display: block;
-	width: 100%;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .value-with-actions
+  textarea.value {
+  align-self: stretch;
+  box-sizing: border-box;
+  border: 0;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: block;
+  width: 100%;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions textarea.value:disabled {
-	background-color: #ececec;
-	color: #616161;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .value-with-actions
+  textarea.value:disabled {
+  background-color: #ececec;
+  color: #616161;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions.secret textarea.value {
-	padding-right: 68px;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .value-with-actions.secret
+  textarea.value {
+  padding-right: 68px;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions.secret textarea.value.protected {
-	padding-right: 14px;
-	color: #777;
-	background-color: #d7d7d7;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .value-with-actions.secret
+  textarea.value.protected {
+  padding-right: 14px;
+  color: #777;
+  background-color: #d7d7d7;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions .lock {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 54px;
-	height: 100%;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .value-with-actions
+  .lock {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 54px;
+  height: 100%;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .value-with-actions .lock svg {
-	width: 16px;
-	height: 18px;
-	margin: 9px 19px;
-	fill: #777;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .value-with-actions
+  .lock
+  svg {
+  width: 16px;
+  height: 18px;
+  margin: 9px 19px;
+  fill: #777;
 }
 
 .tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) {
-	order: 4;
-	flex-shrink: 0;
-	position: relative;
-	margin-left: 15px;
+  order: 4;
+  flex-shrink: 0;
+  position: relative;
+  margin-left: 15px;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown-toggle {
-	cursor: pointer;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown-toggle {
+  cursor: pointer;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown-toggle svg {
-	width: 26px;
-	height: 12px;
-	fill: #acacac;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown-toggle
+  svg {
+  width: 26px;
+  height: 12px;
+  fill: #acacac;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown-toggle:focus svg,
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown-toggle:hover svg {
-	fill: #616161;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown-toggle:focus
+  svg,
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown-toggle:hover
+  svg {
+  fill: #616161;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown {
-	position: absolute;
-	top: 100%;
-	right: 0;
-	z-index: 45;
-	width: 180px;
-	margin-top: 10px;
-	border: 1px solid #d7d7d7;
-	border-radius: 5px;
-	box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-	overflow: hidden;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 45;
+  width: 180px;
+  margin-top: 10px;
+  border: 1px solid #d7d7d7;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown .dropdown-option {
-	display: block;
-	padding: 15px 12px;
-	font-size: 13px;
-	font-weight: 400;
-	color: #ff2158;
-	width: 100%;
-	text-align: left;
-	background-color: #fff;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown
+  .dropdown-option {
+  display: block;
+  padding: 15px 12px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #ff2158;
+  width: 100%;
+  text-align: left;
+  background-color: #fff;
 }
 
-.tab-env-vars article ul.env-vars li .key-value-delete .actions:not(.small) .dropdown .dropdown-option:hover {
-	background-color: #f8f8f8;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .key-value-delete
+  .actions:not(.small)
+  .dropdown
+  .dropdown-option:hover {
+  background-color: #f8f8f8;
 }
 
 .tab-env-vars article ul.env-vars li .env-var-settings {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .tab-env-vars article ul.env-vars li .env-var-settings:not(:last-child) {
-	margin-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .tab-env-vars article ul.env-vars li .env-var-settings .is-expand {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
 
-.tab-env-vars article ul.env-vars li .env-var-settings .is-expand .checkbox + label {
-	margin-left: 8px;
+.tab-env-vars
+  article
+  ul.env-vars
+  li
+  .env-var-settings
+  .is-expand
+  .checkbox
+  + label {
+  margin-left: 8px;
 }
 
 .tab-env-vars article ul.env-vars li .env-var-settings .is-expand label {
-	font-size: 13px;
-	font-weight: 400;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 .tab-env-vars article ul.env-vars li .env-var-settings .is-expand {
-	flex-shrink: 0;
-	box-sizing: border-box;
-	width: 380px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 380px;
 }
 
 .tab-env-vars article ul.env-vars li .actions.small {
-	display: none;
+  display: none;
 }
 
 .tab-env-vars article ul.env-vars li p.notification {
-	margin-top: 0;
-	margin-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .tab-env-vars article ul.env-vars li.dragged-element {
-	z-index: 20;
-	border-top: 1px solid #ccc;
+  z-index: 20;
+  border-top: 1px solid #ccc;
 }
 
 .tab-env-vars article ul.env-vars.drag-in-progress * {
-	user-select: none;
+  user-select: none;
 }
 
 .tab-env-vars article button.add {
-	width: 330px;
-	margin: 12px 18px;
+  width: 330px;
+  margin: 12px 18px;
+}
+
+@media only screen and (max-width: 767px) {
+  .tab-env-vars article ul.env-vars li .actions.small {
+    display: block;
+  }
 }
