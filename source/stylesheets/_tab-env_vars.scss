@@ -7,9 +7,11 @@
 		margin-bottom: 20px;
 
 		&.warn-box {
-			@include display-flex;
-			@include justify-content(space-between);
+			display: flex;
+			justify-content: space-between;
 			padding: 12px 18px;
+			border: solid 1px #ffc500cc;
+			background-color: #ffc50066;		
 
 			.icon {
 				margin-right: 15px;
@@ -17,6 +19,10 @@
 				&:before {
 					content: "";
 					display: inline-block;
+					width: 67px;
+					height: 62px;
+					background-size: 67px 62px;
+					background-image: url("/images/warning-cat.png");
 					vertical-align: sub;
 					background-repeat: no-repeat;
 					background-position: center bottom;
@@ -24,13 +30,13 @@
 			}
 
 			.message {
-				@include display-flex;
-				@include flex-direction(column);
-				@include justify-content(center);
-				@include flex-grow(1);
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				flex-grow: 1;
 
 				.title {
-					color: $def-verydarkgrey;
+					color: #444;
 					font-size: 20px;
 					font-weight: 400;
 					font-style: normal;
@@ -38,115 +44,109 @@
 					line-height: 1;
 					letter-spacing: 0.3px;
 				}
+				p {
+					color: #444;
+					font-size: 13px;
+					font-weight: normal;
+					font-style: normal;
+					font-stretch: normal;
+					line-height: 1.38;
+					letter-spacing: normal;
+					margin-bottom: 0;
+			
+					button {
+						text-decoration: underline;
+					}
+				}
 			}
 		}
 
-		p.notification.source-specific-notification {
-			@include margin-y(0);
-			@include border-x(none);
-			@include border-radius(0);
-			padding: $cardo-verticalpadding $cardo-horizontalpadding;
-		}
-
 		article {
-			$border: 1px solid $def-mediumlightgrey;
-			$first_column-width: 330px;
-			$input-height: 36px;
-			$action_dropdown_icon-spacing: 15px;
-			$action_dropdown_icon-width: 26px;
-
 			padding: 0;
-			background-color: white;
+			background-color: #fff;
 
 			ul.env-vars {
-				@include margin-y(0);
+				margin-top: 0;
+				margin-bottom: 0;
 				padding-left: 0;
 				list-style: none;
 
 				li {
-					border-bottom: $border;
-					padding: $cardo-verticalpadding $cardo-horizontalpadding;
-					background-color: white;
+					border-bottom: 1px solid #ccc;
+					padding: 12px 18px;
+					background-color: #fff;
 					cursor: move;
 
 					.key-value-delete {
-						$input-horizontalpadding: 14px;
-
-						@include display-flex;
-						@include align-items(center);
+						display: flex;
+						align-items: center;
 						margin-bottom: 12px;
 
 						&:before {
 							content: "=";
-							@include order(2);
-							@include margin-x(20px);
+							order: 2;
+							margin-left: 20px;
+							margin-right: 20px;
 							width: 10px;
 							font-size: 19px;
 							font-weight: 700;
 						}
 
 						input.key, textarea.value {
-							padding: 0px $input-horizontalpadding;
-							height: $input-height;
+							padding: 0 14px;
+							height: 36px;
 							font-size: 14px;
 							font-weight: 400;
-							@include SourceCodeProWithFallback;
+							font-family: "SourceCodePro", monospace;
 						}
 
 						input.key {
-							$background_width: 8px;
-							$background_reservedwidth: 30px;
-
-							@mixin input_key_styling($is_danger) {
-								$color: if($is_danger, $def-danger, $def-purple);
-
-								border: 1px solid $color;
-								color: $color;
-								background-image: background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg" width="208.374" height="400" viewBox="0 0 208.374 400" fill="rgb(255,255,255)"><path d="M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001"/></svg>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
-							}
-
-							@include order(1);
-							@include flex-shrink(0);
-							@include box-sizing(border-box);
-							width: $first_column-width;
-							@include border-radius($def-radius);
-							padding-left: $background_reservedwidth + $input-horizontalpadding;
-							background-size: $background_width auto, $background_reservedwidth 100%;
-							background-position: left #{($background_reservedwidth - $background_width) / 2} center, left center;
+							order: 1;
+							flex-shrink: 0;
+							box-sizing: border-box;
+							width: 330px;
+							border-radius: 4px;
+							padding-left: 44px;
+							background-size: 8px auto, 30px 100%;
+							background-position: left 11px center, left center;
 							background-repeat: no-repeat;
-							@include input_key_styling(false);
+							background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='208.374' height='400' viewBox='0 0 208.374 400' fill='rgb(255,255,255)'><path d='M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001'/></svg>"), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='30' height='36' fill='rgba(129,81,168,0.99)'></rect></svg>");
+							border: 1px solid #8151a8;
+							color: #8151a8;
 
 							&.ng-invalid:not(.ng-pristine) {
-								@include input_key_styling(true);
+								border: 1px solid #ff2158;
+								color: #ff2158;
+								background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='208.374' height='400' viewBox='0 0 208.374 400' fill='rgb(255,255,255)'><path d='M120.02 176.001c-45.496-11.67-61.646-17.298-61.646-34.606v-0.77c0-12.781 15.271-22.925 37.451-22.925 18.042 0 37.891 6.372 57.104 17.676 4.517 2.624 9.912 4.15 15.576 4.15 15.015 0 27.515-11.683 27.515-26.722 0-11.279-6.177-19.177-12.573-22.924 -15.039-9.559-31.714-16.028-50.073-19.727V25c0-13.794-11.206-25-25-25 -13.806 0-25 11.206-25 25v42.798c-44.751 5.933-75 35.498-75 78.101v0.757c0 52.271 39.075 66.943 92.09 80.493 44.043 11.279 57.91 18.799 57.91 33.472v0.757c0 15.43-19.336 24.829-43.018 24.829 -25.562 0-49.89-9.033-69.837-23.706 -3.771-2.637-10.277-5.249-17.797-5.249C12.671 257.251 0 268.896 0 283.96c0 9.009 4.199 17.285 10.596 21.802 22.021 15.82 46.924 25.684 72.778 29.614V375c0 13.794 11.194 25 25 25 13.794 0 25-11.206 25-25v-39.819c43.53-7.349 75-35.01 75-79.468v-0.732C208.374 209.106 173.413 189.93 120.02 176.001'/></svg>"), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><rect width='30' height='36' fill='rgba(255,33,88,0.99)'></rect></svg>");
 							}
 
 							&:disabled {
-								background-color: $def-verylightgrey;
-    						color: $def-darkgrey;
+								background-color: #ececec;
+    							color: #616161;
 							}
 						}
 
 						.value-with-actions {
-							@include order(3);
-							@include flex-grow(1);
-							@include align-self(flex-start);
-							border: 1px solid $def-mediumlightgrey;
-							@include border-radius($def-radius);
+							order: 3;
+							flex-grow: 1;
+							align-self: flex-start;
+							border: 1px solid #ccc;
+							border-radius: 4px;
 							position: relative;
 							overflow: hidden;
 
 							textarea.value {
-								@include align-self(stretch);
-								@include box-sizing(border-box);
+								align-self: stretch;
+								box-sizing: border-box;
 								border: 0;
-								@include padding-y(8px);
+								padding-top: 8px;
+								padding-bottom: 8px;
 								display: block;
 								width: 100%;
 
-
 								&:disabled {
-									background-color: $def-verylightgrey;
-    							color: $def-darkgrey;
+									background-color: #ececec;
+    							color: #616161;
 								}
 							}
 
@@ -157,64 +157,58 @@
 
 									&.protected {
 										padding-right: 14px;
-										color: $def-mediumdarkgrey;
-										background-color: $def-lightgrey;
+										color: #777;
+										background-color: #d7d7d7;
 									}
 								}
 							}
 
 							.lock {
-								@include position(absolute, 0, 0);
-								@include size(54px, 100%);
+								position: absolute;
+								top: 0;
+								right: 0;
+								width: 54px;
+								height: 100%;
 
 								svg {
-									@include size(16px, 18px);
+									width: 16px;
+									height: 18px;
 									margin: 9px 19px;
-									fill: $def-mediumdarkgrey;
+									fill: #777;
 								}
-							}
-
-							.eye-checkbox {
-								@include position(absolute, 0, 0);
-								@include size(54px, 100%);
-								@include border-radius(0);
-								background-color: $def-mediumlightgrey;
-							}
-
-							.should-show-value {
-								display: none;
 							}
 						}
 
 						.actions:not(.small) {
-							@include order(4);
-							@include flex-shrink(0);
+							order: 4;
+							flex-shrink: 0;
 							position: relative;
-							margin-left: $action_dropdown_icon-spacing;
-
-
+							margin-left: 15px;
 
 							.dropdown-toggle {
 								cursor: pointer;
 
 								svg {
-									@include size($action_dropdown_icon-width, 12px);
-									fill: $def-grey;
+									width: 26px;
+									height: 12px;
+									fill: #acacac;
 								}
 
 								&:focus svg, &:hover svg {
-									fill: $def-darkgrey;
+									fill: #616161;
 								}
 							}
 
 							.dropdown {
-								@include position(absolute, 100%, 0);
-								z-index: $zindex-popover;
+								position: absolute;
+								top: 100%;
+								right: 0;
+								z-index: 45;
 								width: 180px;
 								margin-top: 10px;
-								border: 1px solid $def-lightgrey;
-								@include border-radius(5px);
-								@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
+								border: 1px solid #d7d7d7;
+								border-radius: 5px;
+								box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
 								overflow: hidden;
 
 								.dropdown-option {
@@ -222,45 +216,30 @@
 									padding: 15px 12px;
 									font-size: 13px;
 									font-weight: 400;
-									color: $def-mediumdarkgrey;
-									background-color: white;
-
-									&:hover {
-										background-color: $def-ultralightgrey;
-									}
-
-									&:not(:last-child) {
-										border-bottom: 1px solid $def-lightgrey;
-									}
-
-									&.delete-env-var {
-										color: $def-danger;
-									}
-								}
-
-								a.dropdown-option {
-									text-decoration: none;
-								}
-
-								button.dropdown-option {
+									color: #ff2158;
 									width: 100%;
 									text-align: left;
+									background-color: #fff;
+
+									&:hover {
+										background-color: #f8f8f8;
+									}
 								}
 							}
 						}
 					}
 
 					.env-var-settings {
-						@include display-flex;
-						@include align-items(center);
+						display: flex;
+						align-items: center;
 
 						&:not(:last-child) {
 							margin-bottom: 12px;
 						}
 
-						.is-expand, .is-expose-with-popover {
-							@include display-flex;
-							@include align-items(center);
+						.is-expand {
+							display: flex;
+							align-items: center;
 
 							.checkbox + label {
 								margin-left: 8px;
@@ -273,9 +252,9 @@
 						}
 
 						.is-expand {
-							@include flex-shrink(0);
-							@include box-sizing(border-box);
-							width: $first_column-width + 50px;
+							flex-shrink: 0;
+							box-sizing: border-box;
+							width: 380px;
 						}
 					}
 
@@ -284,201 +263,28 @@
 					}
 
 					p.notification {
-						@include margin-y(0);
+						margin-top: 0;
+						margin-bottom: 0;
 					}
 				}
 
 				li.dragged-element {
-					z-index: $zindex-dragged_element;
-					border-top: $border;
+					z-index: 20;
+					border-top: 1px solid #ccc;
 				}
 			}
 
 			ul.env-vars.drag-in-progress {
 
 				* {
-					@include user-select(none);
+					user-select: none
 				}
 			}
 
 			button.add {
-				width: $first_column-width;
-				margin: $cardo-verticalpadding $cardo-horizontalpadding;
+				width: 330px;
+				margin: 12px 18px;
 			}
-
-			@include media-below-mid {
-				@include display-flex;
-				@include flex-direction(column);
-
-				ul.env-vars {
-
-					li {
-
-						.key-value-delete {
-							@include flex-direction(column);
-							margin-bottom: 0;
-
-							input.key {
-								@include align-self(stretch);
-							}
-
-							&:before {
-								@include margin-y(10px);
-								margin-left: $first_column-width / 2;
-								margin-right: auto;
-							}
-
-							.value-with-actions {
-								width: $first_column-width;
-								border: 0;
-
-								textarea.value {
-									padding-right: 14px;
-									border: 1px solid $def-mediumlightgrey;
-									@include border-radius($def-radius);
-								}
-
-								.eye-checkbox {
-									display: none;
-								}
-
-								.should-show-value {
-									@include display-flex;
-									@include align-items(center);
-									@include align-self(flex-start);
-									@include order(4);
-									@include padding-y(16px);
-									margin-top: 12px;
-
-									.checkbox + label {
-										margin-left: 8px;
-									}
-
-									label {
-										font-size: 13px;
-										font-weight: 400;
-									}
-								}
-							}
-
-							.actions:not(.small) {
-								display: none;
-							}
-						}
-
-						.env-var-settings {
-							@include flex_direction(column);
-							@include align_items(flex-start);
-
-							.is-expand, .is-expose-with-popover {
-								@include padding-y(16px);
-							}
-
-							.is-expose-with-popover .is-expose .popover {
-								top: 95%;
-							}
-						}
-
-						.actions.small {
-							@include display-flex;
-							@include flex_direction(column);
-							@include align_items(flex-start);
-							@include flex-shrink(0);
-
-							button.delete-env-var, button.make-it-protected {
-								@include align-self(stretch);
-								@include size($first_column-width, auto);
-								margin-top: 12px;
-								@include margin-x(0);
-
-								&:after {
-									content: "Delete";
-								}
-							}
-
-							button.make-it-protected {
-								border-color: $def-mediumdarkgrey;
-								color: $def-mediumdarkgrey;
-								background-color: white;
-							}
-						}
-					}
-				}
-			}
-
-			@include media-below-small {
-
-				ul.env-vars {
-
-					li {
-
-						.key-value-delete {
-
-							input.key {
-								width: auto;
-							}
-
-							.value-with-actions {
-								width: 100%;
-							}
-
-							&:before {
-								@include margin-x(0);
-							}
-						}
-
-						.actions.small {
-
-							button.delete-env-var, button.make-it-protected {
-								width: auto;
-							}
-						}
-					}
-				}
-
-				button.add {
-					@include flex-grow(1);
-					width: auto;
-				}
-			}
-		}
-	}
-}
-
-.tab-env-vars section.warn-box {
-	border: solid 1px #ffc500cc;
-	background-color: #ffc50066;
-
-	.icon:before {
-		width: 67px;
-		height: 62px;
-		background-size: 67px 62px;
-		background-repeat: no-repeat;
-		background-image: url("/images/warning-cat.png");
-	}
-
-	.message p {
-		color: $def-verydarkgrey;
-		font-size: 13px;
-		font-weight: normal;
-		font-style: normal;
-		font-stretch: normal;
-		line-height: 1.38;
-		letter-spacing: normal;
-		margin-bottom: 0;
-
-		button {
-			text-decoration: underline;
-		}
-	}
-
-	@include media-below-tiny {
-		@include flex-direction(column);
-
-		.icon {
-			@include align-self(center);
-			margin-right: 15px;
-			margin-bottom: 15px;
 		}
 	}
 }

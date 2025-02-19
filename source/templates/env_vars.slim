@@ -4,7 +4,7 @@
 		.message
 			.title == "You should <strong>not</strong> add private information here."
 			p
-				| These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use
+				| These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use 
 				button[ng-click="mainCtrl.selectMenuByID('secrets')"] == "Secrets"
 				| .
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
@@ -32,7 +32,5 @@
 							.is-expand
 								checkbox.small[name="isExpand" ng-model="envVar.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
 								label[for="env-var-editor-is-expand-checkbox-{{ $index }}"] == "Replace variables in inputs?"
-						.actions.small
-							button.option.delete-env-var.rebo.danger[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == "Delete"
 						p.notification.warning[ng-if="envVarForm.key.$invalid && !envVarForm.key.$pristine" ng-bind="envVarsCtrl.envVarValidationWarning(envVar)"]
 			button.add.rebo.purple[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == "Add new"

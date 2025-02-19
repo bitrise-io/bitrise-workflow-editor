@@ -1,39 +1,38 @@
-@import "default";
-@import "constants";
-
 .cardo {
-	border: 1px solid $def-mediumlightgrey;
-	@include border-radius($cardo-borderradius);
+	border: 1px solid #ccc;
+	border-radius: 6px;
 	overflow: hidden;
+}
 
-	header {
-		padding: $cardo-verticalpadding $cardo-horizontalpadding;
-		background-color: $def-verylightgrey;
+.cardo header {
+	padding: 12px 18px;
+	background-color: #ececec;
+}
 
-		h2 {
-			@include margin-y(0);
-			font-size: 16px;
-			font-weight: 700;
+.cardo header h2 {
+	margin-top: 0;
+	margin-bottom: 0;
+	font-size: 16px;
+	font-weight: 700;
+}
 
-			em {
-				font-style: normal;
-				font-weight: 300;
-			}
-		}
+.cardo header h2 em {
+	font-style: normal;
+	font-weight: 300;
+}
 
-		h2:not(:last-child) {
-			margin-bottom: 8px;
-		}
+.cardo header h2:not(:last-child) {
+	margin-bottom: 8px;
+}
 
-		p {
-			@include margin-y(0);
-			font-size: 13px;
-			font-weight: 400;
-			color: $def-darkgrey;
-		}
-	}
+.cardo header p {
+	margin-top: 0;
+	margin-bottom: 0;
+	font-size: 13px;
+	font-weight: 400;
+	color: #616161;
+}
 
-	article:not(.unpadded) {
-		padding: $cardo-verticalpadding $cardo-horizontalpadding;
-	}
+.cardo article:not(.unpadded) {
+	padding: 12px 18px;
 }

@@ -46,7 +46,7 @@
 		}
 
 		.stack-info {
-			@include display-flex;
+			display: flex;
 			@include align-items(flex-start);
 			width: 100%;
 			$icon-size: 18px;
@@ -62,7 +62,7 @@
 			}
 
 			.stack-info-text {
-				@include flex-grow(1);
+				flex-grow: 1;
 
 				.stack-description, .stack-update-policy {
 					line-height: 1.5;
@@ -129,7 +129,7 @@
 
 			.docker-image, .den-tags {
 				display: block;
-				@include box-sizing(border-box);
+				box-sizing: border-box;
 				width: 100%;
 				border: 1px solid $def-mediumlightgrey;
 				@include border-radius($def-radius);
@@ -189,7 +189,7 @@
 				.subtitle {
 					font-size: 13px;
 					font-weight: 500;
-					color: $def-mediumdarkgrey;
+					color: #777;
 				}
 			}
 
@@ -249,7 +249,9 @@
 									line-height: 1;
 									letter-spacing: 0.08px;
 									color: var(--color-black);
-									@include ellipsis-oneliner;
+									overflow: hidden;
+									white-space: nowrap;
+									text-overflow: ellipsis;								
 									margin-right: 8px;
 								}
 
@@ -281,7 +283,7 @@
 									font-stretch: normal;
 									line-height: normal;
 									text-transform: uppercase;
-									color: $def-darkbluegrey;
+									color: #351d48;
 									background-color: $def-yellow;
 								}
 							}
@@ -473,7 +475,7 @@
 							$badge-height: 14px;
 
 							@include position(absolute, 50%, 30px);
-							@include box-sizing(border-box);
+							box-sizing: border-box;
 							line-height: $badge-height;
 							margin-top: - $badge-height / 2;
 							@include border-radius($badge-height / 2);
