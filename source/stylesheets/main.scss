@@ -1,10 +1,6 @@
-// Major layouts
-
 @import "_index.scss";
 @import "_tab-env_vars.scss";
 @import "_tab-stack.scss";
-
-// Common elements
 
 @import "_rebo";
 @import "_cardo";
@@ -13,8 +9,6 @@
 @import "_order-by-drag";
 
 @import "~monaco-editor/min/vs/editor/editor.main.css";
-
-// Basic settings
 
 :focus {
   outline: none;
@@ -227,8 +221,6 @@ input[type="submit"] {
   color: black;
   background-color: #ececec;
 }
-
-// Common classes
 
 .vertical-scroll {
   overflow-y: auto;
