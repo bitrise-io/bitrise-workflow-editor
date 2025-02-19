@@ -2,10 +2,8 @@ import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
-import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
-import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 type StepMenuProps = {
   isHighlighted?: boolean;
@@ -28,14 +26,21 @@ const StepMenu = (props: StepMenuProps) => {
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
   const { selectedStepIndices } = useSelection();
-  const defaultStepLibrary = useDefaultStepLibrary();
+  const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
+  const selectedStepCvses = useBitriseYmlStore((s) => {
+    if (workflowId) {
+      return selectedStepIndices?.map((index) => Object.keys(s.yml.workflows?.[workflowId].steps?.[index] || {})[0]);
+    }
+    if (stepBundleId) {
+      return selectedStepIndices?.map(
+        (index) => Object.keys(s.yml.step_bundles?.[stepBundleId].steps?.[index] || {})[0],
+      );
+    }
+  });
+  const isWithGroup = selectedStepCvses?.some((cvs) => cvs.includes('with'));
 
-  const { isStep } = StepService;
-  const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
-  const isSimpleStep = isStep(step?.cvs ?? '', library);
   const isClonable = onCloneStep || onCloneStepInStepBundle;
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
@@ -62,7 +67,7 @@ const StepMenu = (props: StepMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (onGroupStepsToStepBundle && isSimpleStep) {
+  if (onGroupStepsToStepBundle && !isWithGroup) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
