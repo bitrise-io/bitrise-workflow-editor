@@ -978,7 +978,7 @@ function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, 
     return copy;
   }
 
-  const typedParallel = GraphPipelineWorkflowService.castParallel(parallel);
+  const typedParallel = GraphPipelineWorkflowService.asIntegerIfPossible(parallel);
 
   if (!typedParallel) {
     delete copy.pipelines[pipelineId].workflows[workflowId].parallel;

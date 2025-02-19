@@ -39,7 +39,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   let tooltipLabel = `${parallel} parallel copies` as ReactNode;
   let tooltipAriaLabel = `${parallel} parallel copies`;
 
-  if (!GraphPipelineWorkflowService.isNumericParallel(parallel)) {
+  if (!GraphPipelineWorkflowService.isIntegerValue(parallel)) {
     badgeContent = '$';
     tooltipLabel = (
       <>

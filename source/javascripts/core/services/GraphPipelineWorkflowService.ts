@@ -1,25 +1,25 @@
 function validateParallel(parallel?: string | number) {
   const isEmpty = !parallel && parallel !== 0 && parallel !== '0';
   const isEnvVar = typeof parallel === 'string' && parallel.startsWith('$');
-  const isPositiveNumber = isNumericParallel(parallel) && Number(parallel) > 0;
+  const isPositiveInteger = isIntegerValue(parallel) && Number(parallel) > 0;
 
-  if (isEmpty || isEnvVar || isPositiveNumber) {
+  if (isEmpty || isEnvVar || isPositiveInteger) {
     return true;
   }
 
-  return 'Parallel copies should be a positive number or a valid environment variable.';
+  return 'Parallel copies should be a positive integer or a valid environment variable.';
 }
 
-function isNumericParallel(parallel?: string | number) {
-  return !isNaN(Number(parallel));
+function isIntegerValue(value?: string | number) {
+  return Number.isInteger(Number(value));
 }
 
-function castParallel(parallel?: string | number) {
-  return isNumericParallel(parallel) ? Number(parallel) : parallel;
+function asIntegerIfPossible(value?: string | number) {
+  return isIntegerValue(value) ? Number(value) : value;
 }
 
 export default {
-  castParallel,
+  isIntegerValue,
   validateParallel,
-  isNumericParallel,
+  asIntegerIfPossible,
 };
