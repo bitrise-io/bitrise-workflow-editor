@@ -30,12 +30,14 @@ const StepMenu = (props: StepMenuProps) => {
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
   const selectedStepCvses = useBitriseYmlStore((s) => {
     if (workflowId) {
-      return selectedStepIndices?.map((index) => Object.keys(s.yml.workflows?.[workflowId].steps?.[index] || {})[0]);
+      return selectedStepIndices
+        ?.map((index) => Object.keys(s.yml.workflows?.[workflowId].steps?.[index] || {})[0])
+        .filter(Boolean);
     }
     if (stepBundleId) {
-      return selectedStepIndices?.map(
-        (index) => Object.keys(s.yml.step_bundles?.[stepBundleId].steps?.[index] || {})[0],
-      );
+      return selectedStepIndices
+        ?.map((index) => Object.keys(s.yml.step_bundles?.[stepBundleId].steps?.[index] || {})[0])
+        .filter(Boolean);
     }
   });
   const isWithGroup = selectedStepCvses?.some((cvs) => cvs.includes('with'));
