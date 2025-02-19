@@ -1,7 +1,12 @@
 import { Edge, Node } from '@xyflow/react';
 import { PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
 
-export type WorkflowNodeType = Node<{ fixed?: boolean; highlighted?: boolean; uses?: string; parallel?: string }>;
+export type WorkflowNodeType = Node<{
+  uses?: string;
+  fixed?: boolean;
+  highlighted?: boolean;
+  parallel?: string | number;
+}>;
 export type PlaceholderNodeType = Node<{ dependsOn: string[] }>;
 export type GraphPipelineEdgeType = Edge<{ highlighted?: boolean }>;
 export type GraphPipelineNodeType = PlaceholderNodeType | WorkflowNodeType;

@@ -26,6 +26,7 @@ import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 import StepService from './StepService';
 import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
+import GraphPipelineWorkflowService from './GraphPipelineWorkflowService';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -977,12 +978,12 @@ function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, 
     return copy;
   }
 
-  if (!parallel || parallel === '0') {
+  const typedParallel = GraphPipelineWorkflowService.asIntegerIfPossible(parallel);
+
+  if (!typedParallel) {
     delete copy.pipelines[pipelineId].workflows[workflowId].parallel;
   } else {
-    copy.pipelines[pipelineId].workflows[workflowId].parallel = (
-      !isNaN(Number(parallel)) ? Number(parallel) : parallel
-    ) as never; // TODO: Fix this type casting
+    copy.pipelines[pipelineId].workflows[workflowId].parallel = typedParallel;
   }
 
   return copy;
