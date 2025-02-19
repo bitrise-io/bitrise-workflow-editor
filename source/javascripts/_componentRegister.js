@@ -32,10 +32,7 @@ function register(component, props, injects) {
 angular
   .module('BitriseWorkflowEditor')
   .component('rTriggersPage', register(TriggersPage, ['yml', 'onChange']))
-  .component(
-    'rSecretsPage',
-    register(SecretsPage, ['onSecretsChange', 'sharedSecretsAvailable', 'secretSettingsUrl', 'planSelectorPageUrl']),
-  )
+  .component('rSecretsPage', register(SecretsPage, ['onSecretsChange']))
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'onChange']))
   .component('rWorkflowsPage', register(WorkflowsPage, ['yml', 'onChange']))
   .component('rStepBundlesPage', register(StepBundlesPage, ['yml', 'onChange']))

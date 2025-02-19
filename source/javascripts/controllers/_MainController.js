@@ -40,7 +40,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         viewModel.defaultBranch = '';
         viewModel.gitRepoSlug = '';
         viewModel.appDetails = undefined;
-        viewModel.showSharedSecrets = false;
         viewModel.menus = _.compact([
           {
             id: 'workflows',
@@ -927,14 +926,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           }
         };
 
-        viewModel.workspaceSecretsPath = function () {
-          return `/workspaces/${appService.appDetails?.ownerData?.slug}/secrets`;
-        };
-
-        viewModel.workspacePlanSelectorPath = function () {
-          return `/workspaces/${appService.appDetails?.ownerData?.slug}/plan_selector`;
-        };
-
         viewModel.dashboardPath = function () {
           return '/dashboard';
         };
@@ -990,10 +981,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
                   });
                   licensesMenu.cssClass = 'licenses';
                 }
-
-                appService.getOwnerPlanData().then(function () {
-                  viewModel.showSharedSecrets = Boolean(appService.ownerPlanData?.sharedResourcesAvailable);
-                });
 
                 viewModel.initAppProgress.success();
               },

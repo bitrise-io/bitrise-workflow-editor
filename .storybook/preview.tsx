@@ -32,6 +32,7 @@ const preview: Preview = {
       account: {
         slug: "account-1",
         name: "Mando",
+        sharedResourcesAvailable: false,
       },
     };
     window.parent.pageProps = {
