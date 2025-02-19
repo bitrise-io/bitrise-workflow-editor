@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
+import { useShallow } from 'zustand/react/shallow';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -34,7 +35,15 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   }));
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
-    useStepBundlesPageStore();
+    useStepBundlesPageStore(
+      useShallow((s) => ({
+        closeDialog: s.closeDialog,
+        openDialog: s.openDialog,
+        selectedStepIndices: s.selectedStepIndices,
+        selectionParent: s.selectionParent,
+        setSelectedStepIndices: s.setSelectedStepIndices,
+      })),
+    );
 
   const handleSelectStep = useCallback<
     (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
