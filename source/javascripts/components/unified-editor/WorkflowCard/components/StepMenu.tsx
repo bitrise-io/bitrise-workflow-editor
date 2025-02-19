@@ -1,6 +1,5 @@
 import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import StepService from '@/core/services/StepService';
@@ -8,7 +7,7 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
-type StepCardMenuProps = {
+type StepMenuProps = {
   isHighlighted?: boolean;
   isUpgradable?: boolean;
   step?: Step;
@@ -17,7 +16,7 @@ type StepCardMenuProps = {
   workflowId?: string;
 };
 
-const StepCardMenu = (props: StepCardMenuProps) => {
+const StepMenu = (props: StepMenuProps) => {
   const { isHighlighted, isUpgradable, step, stepBundleId, stepIndex, workflowId } = props;
   const {
     onCloneStep,
@@ -29,7 +28,6 @@ const StepCardMenu = (props: StepCardMenuProps) => {
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
   const { selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -37,7 +35,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   const { isStep } = StepService;
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
-  const isSimpleStep = step && isStep(step.cvs, library);
+  const isSimpleStep = isStep(step?.cvs ?? '', library);
   const isClonable = onCloneStep || onCloneStepInStepBundle;
   const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
 
@@ -45,7 +43,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   const indices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
 
   const menuItems = [];
-  if (isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+  if (step && isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
     menuItems.push(
       <OverflowMenuItem
         key="upgrade"
@@ -64,7 +62,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (onGroupStepsToStepBundle && (enableStepBundles || !stepBundleId) && isSimpleStep) {
+  if (onGroupStepsToStepBundle && isSimpleStep) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
@@ -82,7 +80,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (isClonable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+  if (step && isClonable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
     menuItems.push(
       <OverflowMenuItem
         key="duplicate"
@@ -147,4 +145,4 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   );
 };
 
-export default StepCardMenu;
+export default StepMenu;
