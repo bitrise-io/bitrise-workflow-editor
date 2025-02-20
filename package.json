@@ -72,6 +72,7 @@
     "esprima": "^4.0.1",
     "http-method-enum": "^1.0.0",
     "jquery": "^3.7.1",
+    "launchdarkly-js-client-sdk": "^3.5.0",
     "monaco-editor": "0.51.0",
     "monaco-yaml": "^5.2.3",
     "ng-showdown": "^1.1.0",
