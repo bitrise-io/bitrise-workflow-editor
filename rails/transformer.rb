@@ -57,7 +57,7 @@ when "erb"
 when "slim"
     def favicon_tag(name, rel: "icon", href: nil, type: "image/icon", sizes: "16x16")
         href ||= name
-        "<link href=\"#{href}\" rel=\"#{rel}\" type=\"#{type}\" sizes=\"#{sizes}\" />"
+        "<link href=\"#{href}\" rel=\"#{rel}\" type=\"#{type}\" sizes=\"#{sizes}\" crossorigin=\"anonymous\" />"
     end
 
     def include_slim(name, options = {}, &block)

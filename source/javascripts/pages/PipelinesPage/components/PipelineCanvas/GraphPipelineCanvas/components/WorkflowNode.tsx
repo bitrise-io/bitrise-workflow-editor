@@ -119,7 +119,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   useResizeObserver({
     ref,
-    onResize: ({ height }) => updateNode(id, { height }),
+    onResize: ({ height }) => {
+      requestAnimationFrame(() => updateNode(id, { height }));
+    },
   });
 
   const uses = 'uses' in data ? data.uses : undefined;

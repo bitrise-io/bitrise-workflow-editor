@@ -7,7 +7,7 @@ const useIsTruncated = (ref: RefObject<HTMLElement>) => {
     const refCurrent = ref.current;
     const checkTruncation = () => {
       if (refCurrent) {
-        setIsTruncated(refCurrent.scrollWidth > refCurrent.clientWidth);
+        requestAnimationFrame(() => setIsTruncated(refCurrent.scrollWidth > refCurrent.clientWidth));
       }
     };
 

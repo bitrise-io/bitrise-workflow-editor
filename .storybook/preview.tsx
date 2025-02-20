@@ -1,6 +1,5 @@
 import "../source/javascripts/typings/globals.d.ts";
 
-import React from "react";
 import { Provider } from "@bitrise/bitkit";
 import type { Preview } from "@storybook/react";
 import { initialize, mswLoader } from "msw-storybook-addon";
@@ -33,6 +32,7 @@ const preview: Preview = {
       account: {
         slug: "account-1",
         name: "Mando",
+        sharedResourcesAvailable: false,
       },
     };
     window.parent.pageProps = {

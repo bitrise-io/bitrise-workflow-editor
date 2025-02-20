@@ -13,6 +13,7 @@ import {
   PipelineWorkflows,
   Stages,
   StepBundleModel,
+  StepListItemModel,
   StepModel,
   TriggerMapItemModel,
   TriggersModel,
@@ -354,7 +355,9 @@ function groupStepsToStepBundle(
 
   // Push the created step bundle to the workflow or step_bundle, which contained the selected step / steps
   const insertPosition = sortedIndices.reverse()[0];
-  stepsInEntity.splice(insertPosition, 0, { [StepBundleService.idToCvs(newStepBundleId)]: {} });
+  stepsInEntity.splice(insertPosition, 0, {
+    [StepBundleService.idToCvs(newStepBundleId)]: {},
+  });
   return copy;
 }
 
@@ -387,10 +390,12 @@ function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: Bi
       Object.entries(copy.workflows).map(([workflowId, workflow]) => {
         let renamedSteps = workflow.steps;
         if (workflow.steps) {
-          renamedSteps = workflow.steps.map((step: any) => {
+          renamedSteps = workflow.steps.map((step: StepListItemModel) => {
             const [stepId, stepDetails] = Object.entries(step)[0];
             if (stepId === StepBundleService.idToCvs(stepBundleId)) {
-              return { [StepBundleService.idToCvs(newStepBundleId)]: stepDetails };
+              return {
+                [StepBundleService.idToCvs(newStepBundleId)]: stepDetails,
+              };
             }
             return step;
           });

@@ -1,5 +1,6 @@
 type Action = 'move' | 'clone' | 'remove';
 
+// TODO move to core/utils
 export const moveStepIndices = (
   action: Action,
   indices: number[],
