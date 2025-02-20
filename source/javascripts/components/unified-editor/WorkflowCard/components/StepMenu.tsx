@@ -4,9 +4,6 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
-import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import StepService from '@/core/services/StepService';
-import { StepListItemModel } from '@/core/models/BitriseYml';
 
 type StepMenuProps = {
   isHighlighted?: boolean;
@@ -33,24 +30,6 @@ const StepMenu = (props: StepMenuProps) => {
 
   const { selectedStepIndices } = useSelection();
   const finalIndices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
-  const finalStepCvses = useBitriseYmlStore((s) => {
-    let steps: StepListItemModel[] | undefined;
-    if (workflowId) {
-      steps = s.yml.workflows?.[workflowId].steps;
-    }
-    if (stepBundleId) {
-      steps = s.yml.step_bundles?.[stepBundleId].steps;
-    }
-    return finalIndices?.map((index) => Object.keys(steps?.[index] || {})[0]);
-  });
-
-  const containsWithGroup = finalStepCvses?.some((cvs) => cvs === 'with');
-
-  const defaultStepLibrary = useDefaultStepLibrary();
-  const { isStepBundle } = StepService;
-  const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
-  const isSingleStepBundle =
-    finalStepCvses?.length === 1 && finalStepCvses[0] && isStepBundle(finalStepCvses[0], library);
 
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
   const isClonable = onCloneStep || onCloneStepInStepBundle;
@@ -78,7 +57,7 @@ const StepMenu = (props: StepMenuProps) => {
     );
   }
 
-  if (onGroupStepsToStepBundle && !containsWithGroup && !isSingleStepBundle) {
+  if (onGroupStepsToStepBundle) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
