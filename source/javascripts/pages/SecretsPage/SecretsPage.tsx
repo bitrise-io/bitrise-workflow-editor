@@ -18,11 +18,13 @@ const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
   const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
-  const { data: secrets = [] } = useSecrets({ appSlug });
+  const { data: secrets } = useSecrets({ appSlug });
 
   useEffect(() => {
-    setWorkspaceSecretList(secrets.filter((secret) => secret.isShared));
-    setAppSecretList(secrets.filter((secret) => !secret.isShared));
+    if (secrets) {
+      setWorkspaceSecretList(secrets.filter((secret) => secret.isShared));
+      setAppSecretList(secrets.filter((secret) => !secret.isShared));
+    }
   }, [secrets]);
 
   useEffect(() => {
