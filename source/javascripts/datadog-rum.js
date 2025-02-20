@@ -1,4 +1,5 @@
 import { datadogRum } from '@datadog/browser-rum';
+import { reactPlugin } from '@datadog/browser-rum-react';
 
 datadogRum.init({
   applicationId: 'f4cdd4d4-095c-4be2-955c-86755f9a84e6',
@@ -9,4 +10,5 @@ datadogRum.init({
   sessionSampleRate: 100,
   sessionReplaySampleRate: 20,
   trackInteractions: false,
+  plugins: [reactPlugin()],
 });
