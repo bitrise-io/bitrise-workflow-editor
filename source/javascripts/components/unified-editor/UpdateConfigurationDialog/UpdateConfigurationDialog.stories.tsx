@@ -19,7 +19,7 @@ export default {
     defaultBranch: 'main',
     gitRepoSlug: 'VoyagerGitRepo',
     getDataToSave: () => {
-      return { key: 'value' };
+      return 'key: value';
     },
     onComplete: () => {},
   },

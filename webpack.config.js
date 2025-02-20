@@ -91,9 +91,8 @@ const htmlExporter = {
 };
 
 const entry = {
-  vendor: './javascripts/vendor.js',
-  routes: './javascripts/routes.js',
   main: './javascripts/index.js',
+  vendor: './javascripts/vendor.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';

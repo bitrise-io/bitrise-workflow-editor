@@ -1,7 +1,10 @@
+import WindowUtils from '@/core/utils/WindowUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 (function () {
   angular
     .module('BitriseWorkflowEditor')
-    .service('appService', function ($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
+    .service('appService', function ($q, requestService, stringService, Step, Stack, Trigger, Variable, MachineType) {
       const appService = {
         // JSON objects
         appConfig: undefined,
@@ -55,7 +58,7 @@
             },
             function (error) {
               appService.appDetails = {
-                slug: requestService.appSlug,
+                slug: WindowUtils.appSlug() ?? '',
               };
 
               reject(error);
@@ -275,7 +278,7 @@
 
         // Populate the meta with the default machine type if necessary
         if (
-          requestService.mode === 'website' &&
+          RuntimeUtils.isWebsiteMode() &&
           appService.appDetails.isMachineTypeSelectorAvailable &&
           appService.defaultMachineType
         ) {
@@ -324,27 +327,6 @@
 
         return requestService.getPipelineConfig(requestConfig).then(function (pipelineConfig) {
           appService.pipelineConfig = pipelineConfig;
-        });
-      };
-
-      appService.getSecrets = function (shouldForceReload, requestConfig) {
-        if (!shouldForceReload && appService.secrets) {
-          return $q.when();
-        }
-
-        return requestService.getSecrets(requestConfig).then(function (secretConfigs) {
-          normalizeSecretConfigs(secretConfigs);
-
-          appService.secrets = _.map(secretConfigs, function (aSecretConfig) {
-            switch (requestService.mode) {
-              case 'website':
-                return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
-              case 'cli':
-                return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
-            }
-          });
-
-          appService.savedSecrets = angular.copy(appService.secrets);
         });
       };
 
@@ -605,11 +587,7 @@
           return $q.when();
         }
 
-        if (
-          requestService.mode === 'website' &&
-          appService.appDetails.ownerData &&
-          appService.appDetails.ownerData.slug
-        ) {
+        if (RuntimeUtils.isWebsiteMode() && appService.appDetails.ownerData && appService.appDetails.ownerData.slug) {
           return requestService
             .getOrgPlanData(appService.appDetails.ownerData.slug)
             .then(function (ownerPlanData) {
@@ -628,7 +606,7 @@
           return $q.when();
         }
 
-        if (requestService.mode === 'website') {
+        if (RuntimeUtils.isWebsiteMode()) {
           return requestService
             .getOrgBetaTags(appService.appDetails.ownerData.slug)
             .then(function (data) {

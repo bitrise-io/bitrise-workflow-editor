@@ -14,9 +14,6 @@ coverage/
 storybook-static/
 
 node_modules
-spec/integration/cypress/videos
-spec/integration/cypress/screenshots
-spec/integration/cypress/results
 .docker-sync
 .env
 .vendor

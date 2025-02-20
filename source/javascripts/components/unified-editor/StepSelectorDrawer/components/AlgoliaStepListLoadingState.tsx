@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Box, Card, Skeleton, SkeletonBox } from '@bitrise/bitkit';
 import { range } from 'es-toolkit';
 import useCalculateColumns from '../hooks/useCalculateColumns';
-import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from '../AlgoliaStepList.const';
+import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from './AlgoliaStepList.const';
 
 const AlgoliaStepListLoadingState = () => {
   const ref = useRef<HTMLDivElement>(null);

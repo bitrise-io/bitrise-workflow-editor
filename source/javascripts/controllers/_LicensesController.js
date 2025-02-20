@@ -1,7 +1,7 @@
 import { safeDigest } from '@/services/react-compat';
 
 (function () {
-  angular.module('BitriseWorkflowEditor').controller('LicensesController', function ($rootScope, $scope, appService) {
+  angular.module('BitriseWorkflowEditor').controller('LicensesController', function ($scope, $rootScope, appService) {
     const viewModel = this;
     viewModel.yml = null;
 

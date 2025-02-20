@@ -284,38 +284,4 @@
 
     return Variable;
   });
-
-  angular.module('BitriseWorkflowEditor').filter('prettifiedKey', function () {
-    return function (key) {
-      if (!key) {
-        return undefined;
-      }
-
-      return `$${key}`;
-    };
-  });
-
-  angular.module('BitriseWorkflowEditor').filter('prettifiedVariableKey', function ($filter) {
-    return function (variable) {
-      if (!variable) {
-        return undefined;
-      }
-
-      const key = variable.key();
-
-      return $filter('prettifiedKey')(key);
-    };
-  });
-
-  angular.module('BitriseWorkflowEditor').filter('variablesfilteredByKey', function (stringService) {
-    return function (variables, keyFilter) {
-      if (!variables) {
-        return undefined;
-      }
-
-      return _.filter(variables, function (aVariable) {
-        return stringService.isStringMatchingTerm(aVariable.key(), keyFilter);
-      });
-    };
-  });
 })();

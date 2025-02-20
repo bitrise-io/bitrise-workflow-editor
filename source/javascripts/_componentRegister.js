@@ -15,13 +15,13 @@ import NotificationMessageWithLink from './components/NotificationMessageWithLin
 import UpdateConfigurationDialog from './components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 import {
+  LicensesPage,
   PipelinesPage,
   SecretsPage,
   StepBundlesPage,
   TriggersPage,
   WorkflowsPage,
   YmlPage,
-  LicensesPage,
 } from './pages';
 
 function register(component, props, injects) {
@@ -32,16 +32,7 @@ function register(component, props, injects) {
 angular
   .module('BitriseWorkflowEditor')
   .component('rTriggersPage', register(TriggersPage, ['yml', 'onChange']))
-  .component(
-    'rSecretsPage',
-    register(SecretsPage, [
-      'appSlug',
-      'onSecretsChange',
-      'sharedSecretsAvailable',
-      'secretSettingsUrl',
-      'planSelectorPageUrl',
-    ]),
-  )
+  .component('rSecretsPage', register(SecretsPage, ['onSecretsChange']))
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'onChange']))
   .component('rWorkflowsPage', register(WorkflowsPage, ['yml', 'onChange']))
   .component('rStepBundlesPage', register(StepBundlesPage, ['yml', 'onChange']))
@@ -65,14 +56,7 @@ angular
   .component('rStepItemBadge', register(StepBadge, ['step']))
   .component(
     'rUpdateConfigurationDialog',
-    register(UpdateConfigurationDialog, [
-      'onClose',
-      'appSlug',
-      'getDataToSave',
-      'onComplete',
-      'defaultBranch',
-      'gitRepoSlug',
-    ]),
+    register(UpdateConfigurationDialog, ['onClose', 'getDataToSave', 'onComplete', 'defaultBranch', 'gitRepoSlug']),
   )
   .component('rInfoTooltip', register(InfoTooltip, ['label']))
   .component('rToggle', register(Toggle, ['tooltipLabel', 'isDisabled', 'isChecked', 'onChange', 'listItemId']))
@@ -80,7 +64,6 @@ angular
     'rHeader',
     register(Header, [
       'appName',
-      'appPath',
       'workspacePath',
       'isDiffEditorEnabled',
       'onDiffClick',
@@ -90,7 +73,6 @@ angular
       'isSaveInProgress',
       'onDiscardClick',
       'isDiscardDisabled',
-      'isWebsiteMode',
     ]),
   )
   .component(

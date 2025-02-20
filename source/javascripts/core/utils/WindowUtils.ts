@@ -22,6 +22,10 @@ function userSlug() {
   return globalProps()?.user?.slug;
 }
 
+function workspace() {
+  return globalProps()?.account;
+}
+
 function project() {
   return pageProps()?.project;
 }
@@ -41,6 +45,7 @@ export default {
   appSlug,
   workspaceSlug,
   userSlug,
+  workspace,
   project,
   limits,
   abilities,
