@@ -1,6 +1,5 @@
 import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import generateUniqueEntityId from '@/core/utils/CommonUtils';
 import StepService from '@/core/services/StepService';
@@ -29,7 +28,6 @@ const StepCardMenu = (props: StepCardMenuProps) => {
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
   const { selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -64,7 +62,7 @@ const StepCardMenu = (props: StepCardMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (onGroupStepsToStepBundle && (enableStepBundles || !stepBundleId) && isSimpleStep) {
+  if (onGroupStepsToStepBundle && !stepBundleId && isSimpleStep) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
