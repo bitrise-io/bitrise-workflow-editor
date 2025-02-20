@@ -39,19 +39,11 @@ workflows:
                 asdf plugin add nodejs ||:
                 asdf install nodejs
       - script:
-          title: bundle install & npm ci
-          deps:
-            apt_get:
-              - name: ruby
-              - name: ruby-dev
-              - name: build-essential
+          title: bnpm ci
           inputs:
             - content: |-
                 #!/bin/bash
                 set -ex
-
-                gem install -f bundler:2.5.6
-                bundle install
                 npm ci
   build-client:
     title: Build the client
@@ -191,4 +183,3 @@ workflows:
           inputs:
             - content: |-
                 npm run e2e:ci
-

@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Bitrise Workflow Editor</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+    />
+    <base href="/" target="_parent" />
+    <link
+      href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/favicon.ico"
+      rel="icon"
+      sizes="32x32"
+      crossorigin="anonymous"
+    />
+    <link
+      href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/apple-touch-icon.png"
+      rel="apple-touch-icon"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body ng-app="BitriseWorkflowEditor" ng-cloak>
+    <r-root-component></r-root-component>
+    <div
+      class="layout"
+      ng-controller="MainController as mainCtrl"
+      ng-init="mainCtrl.init()"
+      style="display: contents"
+    >
+      <div
+        class="progress-indicator"
+        progress-model="mainCtrl.initAppProgress"
+        style="margin: 24px 32px"
+      ></div>
+      <div class="new-layout" ng-if="!mainCtrl.initAppProgress.isInProgress">
+        <r-header
+          class="header"
+          app-name="mainCtrl.appNameWithPlaceholder()"
+          workspace-path="mainCtrl.breadCrumbsAccountPath()"
+          is-diff-editor-enabled="mainCtrl.isDiffEditorEnabled"
+          is-diff-disabled="!mainCtrl.isDiffEnabled()"
+          on-diff-click="mainCtrl.openDiffDialog"
+          on-discard-click="mainCtrl.discardChangesSelected"
+          is-discard-disabled="!mainCtrl.isDiscardEnabled()"
+          on-save-click="mainCtrl.save"
+          is-save-disabled="!mainCtrl.isSaveEnabled()"
+          is-save-in-progress="mainCtrl.saveProgress.isInProgress"
+        ></r-header
+        ><r-navigation
+          class="navigation"
+          ng-if="mainCtrl.shouldShowMenuBar()"
+          items="mainCtrl.menus"
+          active-item="mainCtrl.currentMenu"
+          on-item-selected="mainCtrl.menuSelected"
+        ></r-navigation
+        ><r-diff-dialog
+          ng-if="mainCtrl.isDiffEditorEnabled"
+          is-open="mainCtrl.isDiffDialogOpen"
+          on-close="mainCtrl.closeDiffDialog"
+          original-text="mainCtrl.originalYaml"
+          modified-text="mainCtrl.modifiedYaml"
+          on-change="mainCtrl.saveDiffChanges"
+        ></r-diff-dialog
+        ><r-config-merge-dialog
+          on-save="mainCtrl.saveConfigMergeDialogResult"
+          on-close="mainCtrl.closeConfigMergeDialog"
+        ></r-config-merge-dialog>
+        <main class="main">
+          <p
+            class="progress-indicator"
+            progress-model="mainCtrl.menuProgress"
+          ></p>
+          <p
+            class="progress-indicator"
+            progress-model="mainCtrl.loadDataProgress"
+          ></p>
+          <p
+            class="progress-indicator"
+            progress-model="mainCtrl.changeMenuProgress"
+          ></p>
+          <div
+            class="tab-content"
+            ng-view
+            ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"
+          ></div>
+        </main>
+      </div>
+      <r-update-configuration-dialog
+        ng-if="mainCtrl.isUpdateConfigurationDialogOpen"
+        on-close="mainCtrl.closeUpdateConfigurationDialog"
+        on-complete="mainCtrl.onSaveToRepoComplete"
+        get-data-to-save="mainCtrl.getDataToSave"
+        default-branch="mainCtrl.defaultBranch"
+        git-repo-slug="mainCtrl.gitRepoSlug"
+      ></r-update-configuration-dialog>
+    </div>
+    <aside ng-controller="DefaultPopupController as defaultPopupCtrl">
+      <popup model="defaultPopupCtrl.alertPopup">
+        <div
+          class="popup-body"
+          id="default-alert-popup-body"
+          ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"
+        ></div>
+        <article class="vertical-scroll">
+          <h2 ng-bind="defaultPopupCtrl.alertPopup.parameters.title"></h2>
+          <p
+            ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details"
+            ng-bind-html="detail"
+          ></p>
+        </article>
+        <footer>
+          <button
+            ng-click="defaultPopupCtrl.alertPopup.isVisible = false"
+            ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"
+            data-e2e-tag="confirm-button"
+          ></button>
+        </footer> </popup
+      ><popup model="defaultPopupCtrl.confirmPopup">
+        <div class="popup-body" id="default-confirm-popup-body"></div>
+        <article class="vertical-scroll">
+          <h2 ng-bind="defaultPopupCtrl.confirmPopup.parameters.title"></h2>
+          <p
+            ng-repeat="detail in defaultPopupCtrl.confirmPopup.parameters.details"
+            ng-bind-html="detail"
+          ></p>
+        </article>
+        <footer>
+          <button
+            class="yes"
+            ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()"
+            ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle"
+            data-e2e-tag="confirm-button"
+          ></button
+          ><button
+            class="no"
+            ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()"
+            ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle"
+            data-e2e-tag="cancel-button"
+          ></button>
+        </footer>
+      </popup>
+    </aside>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<div
+  class="tab-env-vars menu-content-padding"
+  ng-controller="EnvVarsController as envVarsCtrl"
+  ng-init="envVarsCtrl.configureWithMode(&#39;env-vars&#39;)"
+>
+  <section class="cardo warn-box">
+    <div class="icon"></div>
+    <div class="message">
+      <div class="title">
+        You should <strong>not</strong> add private information here.
+      </div>
+      <p>
+        These Environment Variables will also be available in builds triggered
+        by pull requests and bitrise.yml. For private info use
+        <button ng-click="mainCtrl.selectMenuByID(&#39;secrets&#39;)">
+          Secrets</button
+        >.
+      </p>
+    </div>
+  </section>
+  <section
+    class="cardo"
+    ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"
+  >
+    <header>
+      <h2 ng-switch="envVarsOfSource.type">
+        <span ng-switch-when="app">Project Environment Variables</span
+        ><span ng-switch-when="workflow"
+          ><span ng-bind="envVarsOfSource.workflowID"></span>
+          <em>Workflow Environment Variables</em></span
+        >
+        <p
+          ng-if="envVarsOfSource.notification"
+          ng-bind="envVarsOfSource.notification"
+        ></p>
+      </h2>
+    </header>
+    <article>
+      <ul class="env-vars" order-by-drag models="envVarsOfSource.envVars">
+        <li ng-repeat="envVar in envVarsOfSource.envVars">
+          <p
+            class="progress-indicator"
+            progress-model="envVar.customProperties.progress"
+          ></p>
+          <form
+            name="envVarForm"
+            ng-if="!envVar.customProperties.progress.isInProgress"
+            method="POST"
+          >
+            <div class="key-value-delete">
+              <input
+                class="key"
+                type="text"
+                name="key"
+                autocomplete="off"
+                ng-model="envVar.key"
+                ng-model-options="{getterSetter: true}"
+                ng-disabled="!envVar.isKeyChangeable"
+                custom-validators="{&#39;key&#39;: Variable.isValidKey(envVar.key())}"
+                placeholder="Key"
+                skip-drag-order
+              />
+              <div class="value-with-actions">
+                <textarea
+                  class="value"
+                  name="value"
+                  msd-elastic
+                  ng-model="envVar.value"
+                  ng-model-options="{getterSetter: true}"
+                  ng-trim="false"
+                  placeholder="Value"
+                  skip-drag-order
+                ></textarea>
+              </div>
+              <div
+                class="actions"
+                floating-menu
+                toggle="envVar.customProperties.isMenuVisible"
+              >
+                <button
+                  class="dropdown-toggle"
+                  ng-click="envVar.customProperties.isMenuVisible = !envVar.customProperties.isMenuVisible"
+                >
+                  &vellip;
+                </button>
+                <div
+                  class="dropdown"
+                  ng-if="envVar.customProperties.isMenuVisible"
+                >
+                  <button
+                    class="dropdown-option delete-env-var"
+                    ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="env-var-settings">
+              <div class="is-expand">
+                <checkbox
+                  class="small"
+                  name="isExpand"
+                  ng-model="envVar.isExpand"
+                  ng-model-options="{getterSetter: true}"
+                  checkbox-id-expression="&#39;env-var-editor-is-expand-checkbox-&#39; + $index"
+                ></checkbox
+                ><label for="env-var-editor-is-expand-checkbox-{{ $index }}"
+                  >Replace variables in inputs?</label
+                >
+              </div>
+            </div>
+            <div class="actions small">
+              <button
+                class="option delete-env-var rebo danger"
+                ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"
+              >
+                Delete
+              </button>
+            </div>
+            <p
+              class="notification warning"
+              ng-if="envVarForm.key.$invalid &amp;&amp; !envVarForm.key.$pristine"
+              ng-bind="envVarsCtrl.envVarValidationWarning(envVar)"
+            ></p>
+          </form>
+        </li>
+      </ul>
+      <button
+        class="add rebo purple"
+        ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"
+      >
+        Add new
+      </button>
+    </article>
+  </section>
+</div>

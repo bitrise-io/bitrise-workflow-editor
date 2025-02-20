@@ -2,11 +2,11 @@
 
 # Bitrise Workflow Editor
 
-> **Note: project is going through AngularJS -> React transition.
+> \*\*Note: project is going through AngularJS -> React transition.
 > Please read more about this in
 >
-the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).
-**
+> the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).
+> \*\*
 
 ## How to install & use the Workflow Editor on your Mac/Linux
 
@@ -28,8 +28,7 @@ at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39]
 
 ## Install requirements
 
-Workflow editor uses webpack for static asset compilation and asset bundling. For transformation we need to use some
-rails related transformation hence it also uses bundler to install ruby dependencies. In addition it uses karma and
+Workflow editor uses webpack for static asset compilation and asset bundling. In addition it uses karma and
 jasmine for frontend tests execution so it needs `node` and `npm` installed to get the dependencies for testing and also
 production.
 
