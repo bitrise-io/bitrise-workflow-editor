@@ -3,7 +3,10 @@
 # Bitrise Workflow Editor
 
 > **Note: project is going through AngularJS -> React transition.
-> Please read more about this in the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).**
+> Please read more about this in
+>
+the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).
+**
 
 ## How to install & use the Workflow Editor on your Mac/Linux
 
@@ -80,11 +83,7 @@ on `localhost:3000/app/{slug}/workflow_editor`.
 
 ```bash
 npm test        # run unit tests on already compiled client
-
 npm run e2e:api # run only the local binary api for e2e tests
-npm run e2e:dev # run e2e test dashboard (cypress dashboard)
-npm run e2e:run # run e2e tests itself (cypress)
-npm run e2e     # run e2e tests concurrently with the local binary api
 ```
 
 _NOTE: for e2e testing you could start a service normally with `npm start` (to develop and run tests on it parallel) or
@@ -125,7 +124,7 @@ end up on master as a single commit.
 ## Testing standards
 
 1. Unit tests are required for every new feature
-1. Consider write E2E tests as well (with cucumber and cypress)
+1. Consider writing React Testing library component tests
 
 ## New version release
 

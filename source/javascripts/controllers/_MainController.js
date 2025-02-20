@@ -236,19 +236,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
                 break;
               }
-              case 'workflows': {
+              case 'workflows':
+              case 'step_bundles':
+              case 'triggers':
+              case 'licenses': {
                 const loadPromises = [appService.getAppConfig()];
                 if (RuntimeUtils.isWebsiteMode()) {
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-
-                $q.all(loadPromises).then(resolve, reject);
-
-                break;
-              }
-              case 'step_bundles': {
-                const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
                   loadPromises.push(appService.getPipelineConfig());
                 }
 
@@ -279,39 +272,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
                     reject(error);
                   },
                 );
-                break;
-              }
-              case 'triggers': {
-                const loadPromises = [appService.getAppConfig()];
-                if (RuntimeUtils.isWebsiteMode()) {
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-                const loadPromise = $q.all(loadPromises);
-
-                loadPromise.then(
-                  function () {
-                    resolve();
-                  },
-                  function (error) {
-                    reject(error);
-                  },
-                );
-                break;
-              }
-              case 'licenses': {
-                const loadPromises = [appService.getAppConfig(), appService.getPipelineConfig()];
-
-                const loadPromise = $q.all(loadPromises);
-
-                loadPromise.then(
-                  function () {
-                    resolve();
-                  },
-                  function (error) {
-                    reject(error);
-                  },
-                );
-
                 break;
               }
               case 'secrets':
@@ -924,14 +884,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           if (appService.appDetails.ownerData.type === 'Organization') {
             return `/dashboard#?organization_slug=${appService.appDetails.ownerData.slug}`;
           }
-        };
-
-        viewModel.dashboardPath = function () {
-          return '/dashboard';
-        };
-
-        viewModel.appPath = function () {
-          return `/app/${appService.appDetails?.slug}`;
         };
 
         viewModel.init = function () {

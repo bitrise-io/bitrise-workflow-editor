@@ -53,7 +53,6 @@
     "apiserver",
     "build",
     "cmd",
-    "cypress",
     "node_modules",
     "rails",
     "release",

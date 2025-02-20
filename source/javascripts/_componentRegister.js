@@ -64,7 +64,6 @@ angular
     'rHeader',
     register(Header, [
       'appName',
-      'appPath',
       'workspacePath',
       'isDiffEditorEnabled',
       'onDiffClick',

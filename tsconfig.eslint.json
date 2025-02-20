@@ -1,14 +1,12 @@
 {
   "allowJs": true,
   "compilerOptions": {
-    "noEmit": true,
+    "noEmit": true
   },
   "include": [
     ".eslintrc.js",
-    "reporter-config.js",
-    "webpack.config.js",
-    "cypress.config.ts",
     ".storybook/**/*",
-    "jest.config.js"
+    "jest.config.js",
+    "webpack.config.js"
   ]
 }

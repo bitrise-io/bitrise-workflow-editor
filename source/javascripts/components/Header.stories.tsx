@@ -4,7 +4,6 @@ export default {
   component: Header,
   args: {
     appName: 'My App',
-    appPath: '/app',
     workspacePath: '/workspace',
     isDiscardDisabled: false,
     isSaveInProgress: false,
@@ -12,7 +11,6 @@ export default {
   },
   argTypes: {
     appName: { control: 'text' },
-    appPath: { control: 'text' },
     workspacePath: { control: 'text' },
     isDiscardDisabled: { control: 'boolean' },
     onDiscardClick: { type: 'function' },
