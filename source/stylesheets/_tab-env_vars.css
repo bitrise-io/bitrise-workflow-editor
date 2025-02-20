@@ -241,6 +241,8 @@
   .actions:not(.small)
   .dropdown-toggle {
   cursor: pointer;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .tab-env-vars

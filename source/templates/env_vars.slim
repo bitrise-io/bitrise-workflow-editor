@@ -25,7 +25,7 @@
 							.value-with-actions
 								textarea.value[name="value" msd-elastic ng-model="envVar.value" ng-model-options="{getterSetter: true}" ng-trim="false" placeholder="Value" skip-drag-order]
 							.actions[floating-menu toggle="envVar.customProperties.isMenuVisible"]
-								button.dropdown-toggle[ng-click="envVar.customProperties.isMenuVisible = !envVar.customProperties.isMenuVisible"]  == svg("three-horizontal-dots")
+								button.dropdown-toggle[ng-click="envVar.customProperties.isMenuVisible = !envVar.customProperties.isMenuVisible"] &vellip;
 								.dropdown[ng-if="envVar.customProperties.isMenuVisible"]
 									button.dropdown-option.delete-env-var[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == "Delete"
 						.env-var-settings
