@@ -4,7 +4,7 @@ import './_componentRegister';
 import './_serviceRegister';
 
 import '../index.slim';
-import '../stylesheets/main.scss';
+import '../stylesheets/main.css';
 
 const ctxs = [
   // app
