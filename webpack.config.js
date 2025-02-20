@@ -73,10 +73,10 @@ const isClarityEnabled = CLARITY === 'true';
 const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
 
-const railsTransformer = (mode) => ({
+const railsTransformer = () => ({
   loader: 'shell-loader',
   options: {
-    script: `bundle exec ruby transformer.rb ${mode}`,
+    script: 'bundle exec ruby transformer.rb slim',
     cwd: './rails',
     maxBuffer: 1024 ** 3,
     env: { ...process.env, wfe_version: version },
@@ -206,7 +206,7 @@ module.exports = {
       /* --- HTML & CSS --- */
       {
         test: /\.(slim)$/i,
-        use: [htmlExporter, railsTransformer('slim')],
+        use: [htmlExporter, railsTransformer()],
       },
       {
         test: /\.css$/i,
