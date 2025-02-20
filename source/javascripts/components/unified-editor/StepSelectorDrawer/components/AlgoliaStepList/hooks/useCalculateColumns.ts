@@ -20,7 +20,7 @@ const useCalculateColumns = (ref: RefObject<HTMLElement>) => {
     ref,
     onResize: ({ width }) => {
       if (width) {
-        setColumns(Math.ceil(width / 600));
+        requestAnimationFrame(() => setColumns(Math.ceil(width / 600)));
       }
     },
   });
