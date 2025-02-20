@@ -1,12 +1,13 @@
 package service
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
@@ -14,6 +15,20 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 )
+
+// MarshalBitriseDataModel ...
+func MarshalBitriseDataModel(bitriseDataModel models.BitriseDataModel) ([]byte, error) {
+	var formattedBitriseYML bytes.Buffer
+
+	encoder := yaml.NewEncoder(&formattedBitriseYML)
+	encoder.SetIndent(2)
+
+	if err := encoder.Encode(bitriseDataModel); err != nil {
+		return nil, err
+	}
+
+	return formattedBitriseYML.Bytes(), nil
+}
 
 // AppendBitriseConfigVersionHeader ...
 func AppendBitriseConfigVersionHeader(w http.ResponseWriter, contStr string) {
@@ -169,7 +184,7 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contAsYAML, err := yaml.Marshal(reqObj.BitriseYML)
+	contAsYAML, err := MarshalBitriseDataModel(reqObj.BitriseYML)
 	if err != nil {
 		log.Errorf("Failed to serialize bitrise_yml as YAML, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
@@ -216,8 +231,6 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	yaml.FutureLineWrap()
-
 	bitriseDataModel := models.BitriseDataModel{}
 	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &bitriseDataModel); err != nil {
 		log.Errorf("Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
@@ -225,7 +238,7 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formattedBitriseYML, err := yaml.Marshal(bitriseDataModel)
+	formattedBitriseYML, err := MarshalBitriseDataModel(bitriseDataModel)
 	if err != nil {
 		log.Errorf("Failed to serialize bitrise_yml as YAML, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
