@@ -4,7 +4,7 @@
 		.message
 			.title == "You should <strong>not</strong> add private information here."
 			p
-				| These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use
+				| These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use 
 				button[ng-click="mainCtrl.selectMenuByID('secrets')"] == "Secrets"
 				| .
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
