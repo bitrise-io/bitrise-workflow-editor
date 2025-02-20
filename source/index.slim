@@ -5,14 +5,14 @@ html
 		title Bitrise Workflow Editor
 		meta[name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"]
 		base[href="/" target="_parent"]
-		link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }"]
-		script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }"]
-		script[src="#{ mode_dependant_asset_path 'javascripts/routes.js' }"]
+		link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }" crossorigin="anonymous"]
+		script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }" crossorigin="anonymous"]
+		script[src="#{ mode_dependant_asset_path 'javascripts/routes.js' }" crossorigin="anonymous"]
 		- if clarity?
-			script[src="#{ mode_dependant_asset_path 'javascripts/clarity.js' }"]
+			script[src="#{ mode_dependant_asset_path 'javascripts/clarity.js' }" crossorigin="anonymous"]
 		- if datadog_rum?
-			script[src="#{ mode_dependant_asset_path 'javascripts/datadogrum.js' }"]
-		script[src="#{ mode_dependant_asset_path 'javascripts/main.js' }"]
+			script[src="#{ mode_dependant_asset_path 'javascripts/datadogrum.js' }" crossorigin="anonymous"]
+		script[src="#{ mode_dependant_asset_path 'javascripts/main.js' }" crossorigin="anonymous"]
 		== favicon_tag "apple-touch-icon.png", href: image_path("favicons/apple-touch-icon.png"), rel: 'apple-touch-icon', type: 'image/png'
 		== favicon_tag "apple-touch-icon-76x76.png", href: image_path("favicons/apple-touch-icon-76x76.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "76x76"
 		== favicon_tag "apple-touch-icon-120x120.png", href: image_path("favicons/apple-touch-icon-120x120.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "120x120"
