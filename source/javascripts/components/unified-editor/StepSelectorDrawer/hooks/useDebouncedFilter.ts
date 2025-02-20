@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-import useSearch from '../../../hooks/useSearch';
+import useSearch from './useSearch';
 
 const useDebouncedFilter = () => {
   const search = useSearch((s) => s.stepQuery);

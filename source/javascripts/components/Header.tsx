@@ -1,8 +1,9 @@
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useResponsive } from '@bitrise/bitkit';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 
 type Props = {
   appName: string;
-  appPath: string;
   workspacePath: string;
   isDiffEditorEnabled: boolean;
   onDiffClick: () => void;
@@ -12,12 +13,10 @@ type Props = {
   isSaveInProgress: boolean;
   onDiscardClick: () => void;
   isDiscardDisabled: boolean;
-  isWebsiteMode: boolean;
 };
 
 const Header = ({
   appName = '',
-  appPath = '/app',
   workspacePath = '/workspace',
   isDiffEditorEnabled,
   onDiffClick,
@@ -27,9 +26,10 @@ const Header = ({
   isSaveInProgress,
   onDiscardClick,
   isDiscardDisabled,
-  isWebsiteMode,
 }: Props) => {
   const { isMobile } = useResponsive();
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const appPath = isWebsiteMode ? `/app/${WindowUtils.appSlug()}` : '';
 
   return (
     <Box

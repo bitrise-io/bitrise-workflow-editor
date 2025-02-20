@@ -1,5 +1,5 @@
 (function () {
-  angular.module('BitriseWorkflowEditor').factory('Workflow', function (stepSourceService, Step, Stack) {
+  angular.module('BitriseWorkflowEditor').factory('Workflow', function (Step, Stack) {
     const BITRISE_META_KEY = 'bitrise.io';
 
     const Workflow = function (id, workflowConfig) {
@@ -12,17 +12,8 @@
 
       this.steps = _.map(workflowConfig.steps, function (aWrappedUserStepConfig) {
         const stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
-        let step;
         const userStepConfig = aWrappedUserStepConfig[stepCVS];
-
-        try {
-          step = stepSourceService.stepFromCVS(stepCVS);
-          step.userStepConfig = _.extend(userStepConfig, step.userStepConfig);
-        } catch (error) {
-          step = new Step(stepCVS, userStepConfig);
-        }
-
-        return step;
+        return new Step(stepCVS, userStepConfig);
       });
     };
 

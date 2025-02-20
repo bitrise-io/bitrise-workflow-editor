@@ -1,18 +1,15 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import jsyaml from 'js-yaml';
+
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 
 (function () {
   angular
     .module('BitriseWorkflowEditor')
-    .service('requestService', function ($q, $injector, $http, RequestService, stringService, dateService, logger) {
+    .service('requestService', function ($q, $http, logger, stringService, RequestService) {
       const requestService = {
-        mode: RequestService.mode,
-        appSlug: RequestService.appSlug,
+        appSlug: WindowUtils.appSlug() || '',
         appConfigVersionHeaderName: RequestService.appConfigVersionHeaderName,
-      };
-
-      requestService.isWebsiteMode = function () {
-        return RequestService.isWebsiteMode();
       };
 
       function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
@@ -76,14 +73,14 @@ import jsyaml from 'js-yaml';
       }
 
       requestService.localServerPath = function (path) {
-        if (process.env.MODE !== 'CLI') {
+        if (RuntimeUtils.isWebsiteMode()) {
           return 'not_available';
         }
         return path;
       };
 
       requestService.webServerPath = function (path) {
-        if (process.env.MODE !== 'WEBSITE') {
+        if (RuntimeUtils.isLocalMode()) {
           return 'not_available';
         }
         return path;
@@ -106,16 +103,11 @@ import jsyaml from 'js-yaml';
       // Current User
 
       requestService.getCurrentUserMetadata = function (metadataKey, requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/me/profile/metadata.json?key=${metadataKey}`);
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting current user metadata is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting current user metadata is only available in website mode'));
         }
 
+        const requestURL = requestService.webServerPath(`/me/profile/metadata.json?key=${metadataKey}`);
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
             function (response) {
@@ -135,19 +127,12 @@ import jsyaml from 'js-yaml';
       };
 
       requestService.updateCurrentUserMetadata = function (metadataKeyValue, requestConfig) {
-        let requestURL;
-        let requestData;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath('/me/profile/metadata.json');
-
-            requestData = { ...metadataKeyValue };
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Updating current user metadata is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Updating current user metadata is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath('/me/profile/metadata.json');
+        const requestData = { ...metadataKeyValue };
 
         return $q(function (resolve, reject) {
           $http.put(requestURL, requestData, requestConfig).then(
@@ -168,15 +153,11 @@ import jsyaml from 'js-yaml';
       };
 
       requestService.getOrgPlanData = function (orgSlug, requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/organization/${orgSlug}/payment_subscription_status`);
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting organization subscription status is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting organization subscription status is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/organization/${orgSlug}/payment_subscription_status`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -224,52 +205,48 @@ import jsyaml from 'js-yaml';
       // App details
 
       requestService.getAppDetails = function (requestConfig) {
-        switch (requestService.mode) {
-          case 'website': {
-            const requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}.json`);
-
-            return $q(function (resolve, reject) {
-              $http.get(requestURL, requestConfig).then(
-                function (response) {
-                  resolve({
-                    avatarURL: response.data.avatar_icon_url,
-                    slug: response.data.slug,
-                    title: response.data.title,
-                    projectTypeID: response.data.project_type,
-                    providerID: response.data.provider,
-                    repositoryURL: response.data.url,
-                    stack: response.data.stack_identifier,
-                    isPublic: response.data.is_public,
-                    isCurrentUserOwner: response.data.owner_is_current_user,
-                    isCurrentUserIsOrgOwner: response.data.is_current_user_can_destroy,
-                    isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
-                    appMachineTypeIdWithoutDeprecatedMachineReplacement:
-                      response.data.app_machine_type_id_without_deprecated_machine_replacement,
-                    ownerData: {
-                      slug: response.data.owner_slug,
-                      type: response.data.owner_type,
-                      name:
-                        response.data.owner_type === 'User' ? response.data.owner_username : response.data.owner_name,
-                      isPaying: response.data.owner_is_paying,
-                    },
-                    buildData: {
-                      lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
-                      lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at,
-                    },
-                    defaultBranch: response.data.default_branch_name,
-                    gitRepoSlug: response.data.git_repo_slug,
-                  });
-                },
-                function (response) {
-                  reject(errorFromResponse(response, 'Error loading app data.', 'Error loading app data: '));
-                },
-              );
-            });
-          }
-          case 'cli': {
-            return $q.reject(new Error('Saving Apple Credential User for app is only available in website mode'));
-          }
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Saving Apple Credential User for app is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}.json`);
+
+        return $q(function (resolve, reject) {
+          $http.get(requestURL, requestConfig).then(
+            function (response) {
+              resolve({
+                avatarURL: response.data.avatar_icon_url,
+                slug: response.data.slug,
+                title: response.data.title,
+                projectTypeID: response.data.project_type,
+                providerID: response.data.provider,
+                repositoryURL: response.data.url,
+                stack: response.data.stack_identifier,
+                isPublic: response.data.is_public,
+                isCurrentUserOwner: response.data.owner_is_current_user,
+                isCurrentUserIsOrgOwner: response.data.is_current_user_can_destroy,
+                isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
+                appMachineTypeIdWithoutDeprecatedMachineReplacement:
+                  response.data.app_machine_type_id_without_deprecated_machine_replacement,
+                ownerData: {
+                  slug: response.data.owner_slug,
+                  type: response.data.owner_type,
+                  name: response.data.owner_type === 'User' ? response.data.owner_username : response.data.owner_name,
+                  isPaying: response.data.owner_is_paying,
+                },
+                buildData: {
+                  lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
+                  lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at,
+                },
+                defaultBranch: response.data.default_branch_name,
+                gitRepoSlug: response.data.git_repo_slug,
+              });
+            },
+            function (response) {
+              reject(errorFromResponse(response, 'Error loading app data.', 'Error loading app data: '));
+            },
+          );
+        });
       };
 
       // App config
@@ -278,22 +255,19 @@ import jsyaml from 'js-yaml';
         let requestURL;
         let requestData;
 
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
-            requestData = {
-              app_config_datastore_yaml: appConfig,
-              tab_open_during_save: tabOpenDuringSave,
-            };
+        if (RuntimeUtils.isWebsiteMode()) {
+          requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
+          requestData = {
+            app_config_datastore_yaml: appConfig,
+            tab_open_during_save: tabOpenDuringSave,
+          };
+        }
 
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/bitrise-yml.json');
-            requestData = {
-              bitrise_yml: appConfig,
-            };
-
-            break;
+        if (RuntimeUtils.isLocalMode()) {
+          requestURL = requestService.localServerPath('/api/bitrise-yml.json');
+          requestData = {
+            bitrise_yml: appConfig,
+          };
         }
 
         return $q(function (resolve, reject) {
@@ -309,18 +283,9 @@ import jsyaml from 'js-yaml';
       };
 
       requestService.getAppConfig = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
-
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/bitrise-yml.json');
-
-            break;
-        }
+        const requestURL = RuntimeUtils.isWebsiteMode()
+          ? requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`)
+          : requestService.localServerPath('/api/bitrise-yml.json');
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -343,22 +308,19 @@ import jsyaml from 'js-yaml';
         let requestURL;
         let requestData;
 
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
-            requestData = {
-              app_config_datastore_yaml: appConfigYML,
-              tab_open_during_save: 'yml',
-            };
+        if (RuntimeUtils.isWebsiteMode()) {
+          requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/config.json`);
+          requestData = {
+            app_config_datastore_yaml: appConfigYML,
+            tab_open_during_save: 'yml',
+          };
+        }
 
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/bitrise-yml');
-            requestData = {
-              bitrise_yml: appConfigYML,
-            };
-
-            break;
+        if (RuntimeUtils.isLocalMode()) {
+          requestURL = requestService.localServerPath('/api/bitrise-yml');
+          requestData = {
+            bitrise_yml: appConfigYML,
+          };
         }
 
         return $q(function (resolve, reject) {
@@ -383,19 +345,12 @@ import jsyaml from 'js-yaml';
         });
       };
 
-      // Secrets
-
       requestService.getPipelineConfig = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/pipeline_config`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting pipeline config is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting pipeline config is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/pipeline_config`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -416,45 +371,14 @@ import jsyaml from 'js-yaml';
         });
       };
 
-      requestService.getSecrets = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/secrets-without-values`);
-
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/secrets');
-
-            break;
-        }
-
-        return $q(function (resolve, reject) {
-          $http.get(requestURL, requestConfig).then(
-            function (response) {
-              resolve(response.data.envs);
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error loading secrets.', 'Error loading secrets: '));
-            },
-          );
-        });
-      };
-
       requestService.getSecretValue = function (secret, requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(
-              `/api/app/${requestService.appSlug}/secrets/${secret.key()}.json`,
-            );
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting secret environment value is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting secret environment value is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(
+          `/api/app/${requestService.appSlug}/secrets/${secret.key()}.json`,
+        );
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -474,179 +398,14 @@ import jsyaml from 'js-yaml';
         });
       };
 
-      // Steps
-
-      requestService.libraryFetch = function (libraryURLs, requestConfig) {
-        let requestMethod;
-        let requestURL;
-        let requestData;
-
-        if (libraryURLs) {
-          requestData = {
-            libraries: libraryURLs,
-          };
-        }
-
-        switch (requestService.mode) {
-          case 'website':
-            requestMethod = 'get';
-            requestURL = requestService.webServerPath(
-              'https://bitrise-steplib-collection.s3.amazonaws.com/spec.json.gz',
-            );
-
-            break;
-          case 'cli':
-            requestMethod = 'post';
-            requestURL = requestService.localServerPath('/api/steplib');
-
-            break;
-        }
-
-        return $q(function (resolve, reject) {
-          $http[requestMethod](requestURL, requestData, requestConfig).then(
-            function (response) {
-              switch (requestService.mode) {
-                case 'website': {
-                  const libraryMap = {};
-                  libraryMap[response.data.steplib_source] = response.data;
-
-                  resolve(libraryMap);
-
-                  break;
-                }
-                case 'cli':
-                  resolve(response.data.library_map);
-
-                  break;
-              }
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error fetching libraries.', 'Error fetching libraries: '));
-            },
-          );
-        });
-      };
-
-      requestService.stepConfigFetch = function (step, requestConfig) {
-        const requestURL = requestService.localServerPath('/api/step');
-        const requestData = {};
-
-        if (step.localPath) {
-          requestData.library = 'path';
-          requestData.id = step.localPath;
-        } else if (step.gitURL) {
-          switch (requestService.mode) {
-            case 'website': {
-              let stepYMLurl;
-
-              const githubGitURLRegexp =
-                /^(?:(?:http|https):\/\/){0,1}(?:www.){0,1}(?:(?:github).com\/)(.*?)(?:.git){0,1}$/;
-              if (githubGitURLRegexp.test(step.gitURL)) {
-                stepYMLurl = requestService.webServerPath(
-                  `https://raw.githubusercontent.com/${githubGitURLRegexp.exec(step.gitURL)[1]}/${step.version ? step.version : 'master'}/step.yml`,
-                );
-              }
-
-              if (stepYMLurl) {
-                return $q(function (resolve, reject) {
-                  $http.get(stepYMLurl, requestConfig).then(
-                    function (response) {
-                      try {
-                        const defaultStepConfig = jsyaml.load(response.data);
-                        resolve(defaultStepConfig);
-                      } catch (error) {
-                        reject(new Error(`Error fetching step config from ${stepYMLurl}`));
-                      }
-                    },
-                    function (response) {
-                      reject(
-                        new Error(
-                          `Error fetching step config from GitHub: ${response.data || `Status ${response.status}`}`,
-                        ),
-                      );
-                    },
-                  );
-                });
-              }
-              return $q.reject(new Error(`Step config fetch not supported for host: ${stepYMLurl}`));
-            }
-            case 'cli': {
-              let url = step.gitURL;
-              const sshMatch = url.match(/^git@([^:]+):(.+)$/);
-
-              if (sshMatch) {
-                const [, host, path] = sshMatch;
-                url = `https://${host}/${path}`;
-              }
-
-              url = url.replace('http://', 'https://');
-
-              requestData.library = 'git';
-              requestData.id = url;
-              requestData.version = step.version;
-
-              break;
-            }
-          }
-        } else {
-          requestData.library = step.libraryURL;
-          requestData.id = step.id;
-          requestData.version = step.version;
-        }
-
-        return $q(function (resolve, reject) {
-          $http.post(requestURL, requestData, requestConfig).then(
-            function (response) {
-              resolve(response.data.step);
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error fetching step config.'));
-            },
-          );
-        });
-      };
-
-      // Variables
-
-      requestService.getDefaultOutputs = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/api/app/${requestService.appSlug}/default-outputs`);
-
-            break;
-          case 'cli':
-            requestURL = requestService.localServerPath('/api/default-outputs');
-
-            break;
-        }
-
-        return $q(function (resolve, reject) {
-          $http.get(requestURL, requestConfig).then(
-            function (response) {
-              resolve(response.data);
-            },
-            function (response) {
-              reject(errorFromResponse(response, 'Error loading default outputs.', 'Error loading default outputs: '));
-            },
-          );
-        });
-      };
-
       // Machine Type
 
       requestService.getMachineTypeConfigs = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/machine_type_configs`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting machine types is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting machine types is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/machine_type_configs`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -695,16 +454,11 @@ import jsyaml from 'js-yaml';
       // Stacks
 
       requestService.getStackAndDockerImage = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/stack`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting stack is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting stack is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/stack`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(
@@ -722,16 +476,11 @@ import jsyaml from 'js-yaml';
       };
 
       requestService.getStacks = function (requestConfig) {
-        let requestURL;
-
-        switch (requestService.mode) {
-          case 'website':
-            requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/all_stack_info`);
-
-            break;
-          case 'cli':
-            return $q.reject(new Error('Getting stacks is only available in website mode'));
+        if (RuntimeUtils.isLocalMode()) {
+          return $q.reject(new Error('Getting stacks is only available in website mode'));
         }
+
+        const requestURL = requestService.webServerPath(`/app/${requestService.appSlug}/all_stack_info`);
 
         return $q(function (resolve, reject) {
           $http.get(requestURL, requestConfig).then(

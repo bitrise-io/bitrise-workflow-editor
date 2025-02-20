@@ -1,5 +1,5 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
-import useSearch from '../../../hooks/useSearch';
+import useSearch from '../hooks/useSearch';
 
 const AlgoliaStepListEmptyState = () => {
   const setSearchStep = useSearch((s) => s.setSearchStep);
