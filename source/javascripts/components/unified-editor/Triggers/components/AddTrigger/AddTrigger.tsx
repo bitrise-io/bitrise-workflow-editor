@@ -20,8 +20,7 @@ type AddTriggerProps = {
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, id, trackingData } =
-    props;
+  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData } = props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -143,11 +142,19 @@ const AddTrigger = (props: AddTriggerProps) => {
             {title}
           </Text>
           <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-            Set up the trigger conditions that should all be met to execute the {id} target.
+            Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this Pipeline should
+            run.
           </Text>
           {fields.map((item, index) => {
             return (
-              <ConditionCard conditionNumber={index} key={item.id} optionsMap={optionsMap} labelsMap={labelsMap}>
+              <ConditionCard
+                conditionNumber={index}
+                fields={fields}
+                labelsMap={labelsMap}
+                key={item.id}
+                onAppend={onAppend}
+                optionsMap={optionsMap}
+              >
                 {index > 0 && (
                   <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
                     Remove
@@ -156,15 +163,6 @@ const AddTrigger = (props: AddTriggerProps) => {
               </ConditionCard>
             );
           })}
-          <Button
-            variant="secondary"
-            leftIconName="PlusCircle"
-            width="100%"
-            onClick={onAppend}
-            isDisabled={fields.length >= Object.keys(optionsMap).length}
-          >
-            Add condition
-          </Button>
           {triggerType === 'pull_request' && (
             <Checkbox
               isChecked={isDraftPr}
