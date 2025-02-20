@@ -343,10 +343,7 @@ function groupStepsToStepBundle(
   const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
   const removedSteps = sortedIndices
     .map((stepIndex) => {
-      const removedStep = stepsInEntity.splice(stepIndex, 1)[0];
-      const cvs = Object.keys(removedStep)[0];
-      const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
-      return StepService.isStep(cvs, defaultStepLibrary) ? removedStep : null;
+      return stepsInEntity.splice(stepIndex, 1)[0];
     })
     .filter(Boolean) as Array<{ [key: string]: StepModel }>;
 
