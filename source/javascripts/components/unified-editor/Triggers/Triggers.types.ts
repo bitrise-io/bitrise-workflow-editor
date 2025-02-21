@@ -60,6 +60,7 @@ export type StringOrRegex =
   | string
   | {
       regex: string;
+      wildcard?: string;
     };
 
 export type TargetBasedTriggerItem = {

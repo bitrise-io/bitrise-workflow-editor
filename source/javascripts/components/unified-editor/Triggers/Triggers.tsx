@@ -19,7 +19,7 @@ import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
+import { StringOrRegex, TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
 
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
@@ -169,13 +169,13 @@ const Triggers = (props: TriggersProps) => {
       delete (triggers[type][index] as TargetBasedTriggerItem).enabled;
     }
 
-    const triggerConditions: Record<string, any> = {};
+    const triggerConditions: Record<string, StringOrRegex> = {};
     (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
       if (key !== 'enabled' && key !== 'draft_enabled') {
         if (typeof trigger[key] === 'string') {
-          triggerConditions[key] = { wildcard: trigger[key] };
+          triggerConditions[key] = { wildcard: trigger[key] } as StringOrRegex;
         } else {
-          triggerConditions[key] = trigger[key];
+          triggerConditions[key] = trigger[key] as StringOrRegex;
         }
       }
     });

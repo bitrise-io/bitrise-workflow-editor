@@ -8,6 +8,7 @@ import {
   Input,
   Select,
   Table,
+  Tbody,
   Td,
   Text,
   Th,
@@ -15,7 +16,7 @@ import {
   Toggletip,
   Tr,
 } from '@bitrise/bitkit';
-import { Tbody, Tfoot } from '@chakra-ui/react';
+import { Tfoot } from '@chakra-ui/react';
 import { Condition, FormItems } from '../../Triggers.types';
 
 type ConditionCardProps = {
