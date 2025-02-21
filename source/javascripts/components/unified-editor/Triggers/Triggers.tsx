@@ -151,7 +151,7 @@ const Triggers = (props: TriggersProps) => {
   };
 
   const onTriggerDelete = (trigger: TargetBasedTriggerItem, type: TriggerType) => {
-    triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
+    triggers[type] = triggers[type]?.filter((t: TargetBasedTriggerItem) => !isEqual(trigger, t));
     updateTriggers(id, triggers);
   };
 

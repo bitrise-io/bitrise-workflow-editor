@@ -3,7 +3,7 @@ import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitris
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
-import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems } from '../../Triggers.types';
+import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems, StringOrRegex } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
@@ -91,15 +91,15 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   const handleSegmentTrack = () => {
-    const triggerConditions: Record<string, any> = {};
+    const triggerConditions: Record<string, StringOrRegex> = {};
     conditions.forEach((condition) => {
-      let value: any = {};
+      let value = {};
       if (condition.isRegex) {
         value = { regex: condition.value };
       } else {
         value = { wildcard: condition.value };
       }
-      triggerConditions[condition.type || ''] = value;
+      triggerConditions[condition.type || ''] = value as StringOrRegex;
     });
     segmentTrack(
       editedItem

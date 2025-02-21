@@ -56,7 +56,7 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   isActive: boolean;
 }
 
-type StringOrRegex =
+export type StringOrRegex =
   | string
   | {
       regex: string;
