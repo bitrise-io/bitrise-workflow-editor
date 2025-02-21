@@ -184,13 +184,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                 onAppend={onAppend}
                 optionsMap={OPTIONS_MAP}
                 remove={remove}
-              >
-                {/* {index > 0 && (
-                  <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
-                    Remove
-                  </Button>
-                )} */}
-              </ConditionCard>
+              />
               <Checkbox
                 isChecked={isDraftPr}
                 mt={16}

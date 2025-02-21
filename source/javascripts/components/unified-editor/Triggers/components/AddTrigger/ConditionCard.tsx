@@ -23,12 +23,12 @@ type ConditionCardProps = {
   fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
   onAppend?: () => void;
   optionsMap: Record<string, string>;
-  remove: () => void;
+  remove: (index: number) => void;
   labelsMap: Record<string, string>;
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
-  const { fields, onAppend, optionsMap } = props;
+  const { fields, onAppend, optionsMap, remove } = props;
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
 
@@ -132,6 +132,11 @@ const ConditionCard = (props: ConditionCardProps) => {
                     isDanger
                     position="absolute"
                     top="16"
+                    onClick={() => {
+                      if (index > 0) {
+                        remove(index);
+                      }
+                    }}
                   />
                 </Td>
               </Tr>

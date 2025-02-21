@@ -154,13 +154,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             onAppend={onAppend}
             optionsMap={optionsMap}
             remove={remove}
-          >
-            {/* {index > 0 && (
-              <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
-                Remove
-              </Button>
-            )} */}
-          </ConditionCard>
+          />
           {triggerType === 'pull_request' && (
             <Checkbox
               isChecked={isDraftPr}
