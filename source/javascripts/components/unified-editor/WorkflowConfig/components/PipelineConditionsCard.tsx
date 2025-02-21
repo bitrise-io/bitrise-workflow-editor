@@ -1,7 +1,7 @@
 import { ChangeEventHandler, useState } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 
+import { useShallow } from '@/hooks/useShallow';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';

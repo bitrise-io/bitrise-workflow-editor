@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bitrise-io/bitrise/bitrise"
-	"github.com/bitrise-io/bitrise/cli"
+	"github.com/bitrise-io/bitrise/v2/bitrise"
+	"github.com/bitrise-io/bitrise/v2/cli"
 )
 
 // ValidationResponse ...
