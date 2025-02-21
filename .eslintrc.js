@@ -52,6 +52,19 @@ module.exports = {
         message: 'Do not use TEST_BITRISE_YML outside of storybook, spec or mock files.',
       },
     ],
+    'no-restricted-imports': [
+      'error',
+      {
+        name: 'zustand/shallow',
+        importNames: ['useShallow'],
+        message: `Please import useShallow from '@/core/hooks/useShallow' instead.`,
+      },
+      {
+        name: 'zustand/react/shallow',
+        importNames: ['useShallow'],
+        message: `Please import useShallow from '@/core/hooks/useShallow' instead.`,
+      },
+    ],
   },
   overrides: [
     {

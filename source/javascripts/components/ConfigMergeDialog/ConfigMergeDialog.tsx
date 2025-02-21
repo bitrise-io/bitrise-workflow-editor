@@ -14,7 +14,7 @@ import {
 import * as monaco from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
 import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
-import { useShallow } from 'zustand/react/shallow';
+import { useShallow } from '@/hooks/useShallow';
 import { configMergeDialog, useConfigMergeDialog } from './ConfigMergeDialog.store';
 
 loader.config({ monaco });

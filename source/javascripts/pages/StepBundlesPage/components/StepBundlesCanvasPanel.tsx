@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import { useShallow } from 'zustand/react/shallow';
+import { useShallow } from '@/hooks/useShallow';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
