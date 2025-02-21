@@ -53,29 +53,31 @@
   <aside ng-controller="DefaultPopupController as defaultPopupCtrl">
     <popup model="defaultPopupCtrl.alertPopup">
       <div class="popup-body" id="default-alert-popup-body"
-        ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"></div>
-      <article class="vertical-scroll">
-        <h2 ng-bind="defaultPopupCtrl.alertPopup.parameters.title"></h2>
-        <p ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details" ng-bind-html="detail"></p>
-      </article>
-      <footer>
-        <button ng-click="defaultPopupCtrl.alertPopup.isVisible = false"
-          ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle" data-e2e-tag="confirm-button"></button>
-      </footer>
+        ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass">
+        <article class="vertical-scroll">
+          <h2 ng-bind="defaultPopupCtrl.alertPopup.parameters.title"></h2>
+          <p ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details" ng-bind-html="detail"></p>
+        </article>
+        <footer>
+          <button ng-click="defaultPopupCtrl.alertPopup.isVisible = false"
+            ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle" data-e2e-tag="confirm-button"></button>
+        </footer>
+      </div>
     </popup>
 
     <popup model="defaultPopupCtrl.confirmPopup">
-      <div class="popup-body" id="default-confirm-popup-body"></div>
-      <article class="vertical-scroll">
-        <h2 ng-bind="defaultPopupCtrl.confirmPopup.parameters.title"></h2>
-        <p ng-repeat="detail in defaultPopupCtrl.confirmPopup.parameters.details" ng-bind-html="detail"></p>
-      </article>
-      <footer>
-        <button class="yes" ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()"
-          ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle" data-e2e-tag="confirm-button"></button>
-        <button class="no" ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()"
-          ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle" data-e2e-tag="cancel-button"></button>
-      </footer>
+      <div class="popup-body" id="default-confirm-popup-body">
+        <article class="vertical-scroll">
+          <h2 ng-bind="defaultPopupCtrl.confirmPopup.parameters.title"></h2>
+          <p ng-repeat="detail in defaultPopupCtrl.confirmPopup.parameters.details" ng-bind-html="detail"></p>
+        </article>
+        <footer>
+          <button class="yes" ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()"
+            ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle" data-e2e-tag="confirm-button"></button>
+          <button class="no" ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()"
+            ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle" data-e2e-tag="cancel-button"></button>
+        </footer>
+      </div>
     </popup>
   </aside>
 </body>
