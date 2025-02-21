@@ -52,8 +52,11 @@ const AddTrigger = (props: AddTriggerProps) => {
   });
 
   const onAppend = () => {
+    const availableTypes = Object.keys(optionsMap) as ConditionType[];
+    const usedTypes = conditions.map((condition) => condition.type);
+    const newType = availableTypes.find((type) => !usedTypes.includes(type));
     append({
-      type: '',
+      type: newType,
       value: '',
       isRegex: false,
     });
@@ -138,31 +141,26 @@ const AddTrigger = (props: AddTriggerProps) => {
     <FormProvider {...formMethods}>
       <Box as="form" display="flex" flexDir="column" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
         <Box>
-          <Text textStyle="heading/h3" marginBlockEnd="8">
+          <Text textStyle="heading/h4" marginBlockEnd="4">
             {title}
           </Text>
-          <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
+          <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
             Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this Pipeline should
             run.
           </Text>
-          {fields.map((item, index) => {
-            return (
-              <ConditionCard
-                conditionNumber={index}
-                fields={fields}
-                labelsMap={labelsMap}
-                key={item.id}
-                onAppend={onAppend}
-                optionsMap={optionsMap}
-              >
-                {index > 0 && (
-                  <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
-                    Remove
-                  </Button>
-                )}
-              </ConditionCard>
-            );
-          })}
+          <ConditionCard
+            fields={fields}
+            labelsMap={labelsMap}
+            onAppend={onAppend}
+            optionsMap={optionsMap}
+            remove={remove}
+          >
+            {/* {index > 0 && (
+              <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
+                Remove
+              </Button>
+            )} */}
+          </ConditionCard>
           {triggerType === 'pull_request' && (
             <Checkbox
               isChecked={isDraftPr}

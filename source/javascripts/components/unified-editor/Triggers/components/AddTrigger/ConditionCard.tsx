@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import { useFormContext, Controller, FieldArrayWithId } from 'react-hook-form';
 import {
   Button,
@@ -20,22 +19,17 @@ import { Tbody, Tfoot } from '@chakra-ui/react';
 import { Condition, FormItems } from '../../Triggers.types';
 
 type ConditionCardProps = {
-  children: ReactNode;
-  conditionNumber: number;
   fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
   onAppend?: () => void;
   optionsMap: Record<string, string>;
+  remove: () => void;
   labelsMap: Record<string, string>;
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
-  const { conditionNumber, fields, onAppend, optionsMap } = props;
+  const { fields, onAppend, optionsMap } = props;
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
-  const { isRegex, type } = conditions[conditionNumber] || {};
-
-  // TODO: investigate why blank target and source branch text not shown on the UI
-  // children
 
   return (
     <Card variant="outline" overflow="hidden">
@@ -48,94 +42,100 @@ const ConditionCard = (props: ConditionCardProps) => {
           </Tr>
         </Thead>
         <Tbody>
-          <Tr>
-            <Td position="relative">
-              {!!type && (
-                <Controller
-                  name={`conditions.${conditionNumber}.type`}
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      placeholder="Select a condition type"
-                      size="md"
-                      position="absolute"
-                      top="12"
-                      width="calc(100% - 32px)"
-                      {...field}
-                    >
-                      {Object.entries(optionsMap).map(([optionType, text]) => {
-                        const isConditionTypeUsed = conditions.some(
-                          (condition: Condition) => condition.type === optionType,
-                        );
-                        const isTypeOfCurrentCard = optionType === conditions[conditionNumber].type;
+          {fields.map((fieldItem, index) => {
+            const cond = conditions[index] || {};
+            const { isRegex, type } = cond;
+            return (
+              <Tr key={fieldItem.id}>
+                <Td position="relative">
+                  {!!type && (
+                    <Controller
+                      name={`conditions.${index}.type`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          placeholder="Select a condition type"
+                          size="md"
+                          position="absolute"
+                          top="12"
+                          width="calc(100% - 32px)"
+                          {...field}
+                        >
+                          {Object.entries(optionsMap).map(([optionType, text]) => {
+                            const isConditionTypeUsed = conditions.some(
+                              (condition: Condition) => condition.type === optionType,
+                            );
+                            const isTypeOfCurrentCard = optionType === conditions[index].type;
 
-                        if (isConditionTypeUsed && !isTypeOfCurrentCard) {
-                          return undefined;
-                        }
+                            if (isConditionTypeUsed && !isTypeOfCurrentCard) {
+                              return undefined;
+                            }
 
-                        return (
-                          <option key={optionType} value={optionType}>
-                            {text}
-                          </option>
-                        );
-                      })}
-                    </Select>
-                  )}
-                />
-              )}
-            </Td>
-            {!!type && (
-              <Td>
-                <Controller
-                  name={`conditions.${conditionNumber}.value`}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      isRequired={type !== 'target_branch' && type !== 'source_branch' && type !== 'name'}
-                      onChange={(e) => field.onChange(e.target.value.trimStart())}
-                      placeholder={isRegex ? '.*' : '*'}
-                      size="md"
-                      mt={4}
+                            return (
+                              <option key={optionType} value={optionType}>
+                                {text}
+                              </option>
+                            );
+                          })}
+                        </Select>
+                      )}
                     />
                   )}
-                />
-                {type === 'pull_request_target_branch' && (
-                  <Text color="sys/neutral/base" textStyle="body/sm/regular" mt={4}>
-                    If you leave it blank, Bitrise will start builds for any target branch.
-                  </Text>
+                </Td>
+                {!!type && (
+                  <Td>
+                    <Controller
+                      name={`conditions.${index}.value`}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          isRequired={type !== 'target_branch' && type !== 'source_branch' && type !== 'name'}
+                          onChange={(e) => field.onChange(e.target.value.trimStart())}
+                          placeholder={isRegex ? '.*' : '*'}
+                          size="md"
+                          mt={4}
+                        />
+                      )}
+                    />
+                    {type === 'pull_request_target_branch' && (
+                      <Text color="sys/neutral/base" textStyle="body/sm/regular" mt={4}>
+                        If you leave it blank, Bitrise will start builds for any target branch.
+                      </Text>
+                    )}
+                    {type === 'pull_request_source_branch' && (
+                      <Text color="sys/neutral/base" textStyle="body/sm/regular" mt={4}>
+                        If you leave it blank, Bitrise will start builds for any source branch.
+                      </Text>
+                    )}
+                    <Checkbox
+                      mt={8}
+                      mb={4}
+                      isChecked={isRegex}
+                      onChange={(e) => setValue(`conditions.${index}.isRegex`, e.target.checked)}
+                    >
+                      Use regex pattern
+                      <Toggletip
+                        label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method."
+                        learnMoreUrl="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
+                      >
+                        <Icon name="Info" size="16" marginLeft="5" />
+                      </Toggletip>
+                    </Checkbox>
+                  </Td>
                 )}
-                {type === 'pull_request_source_branch' && (
-                  <Text color="sys/neutral/base" textStyle="body/sm/regular" mt={4}>
-                    If you leave it blank, Bitrise will start builds for any source branch.
-                  </Text>
-                )}
-                <Checkbox
-                  mt={8}
-                  mb={4}
-                  isChecked={isRegex}
-                  onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
-                >
-                  Use regex pattern
-                  <Toggletip
-                    label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method."
-                    learnMoreUrl="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
-                  >
-                    <Icon name="Info" size="16" marginLeft="5" />
-                  </Toggletip>
-                </Checkbox>
-              </Td>
-            )}
-            <Td position="relative">
-              <ControlButton
-                iconName="Trash"
-                aria-label="Remove value"
-                size="sm"
-                isDanger
-                position="absolute"
-                top="16"
-              />
-            </Td>
-          </Tr>
+                <Td position="relative">
+                  <ControlButton
+                    iconName="Trash"
+                    aria-label="Remove value"
+                    size="sm"
+                    isDanger
+                    position="absolute"
+                    top="16"
+                  />
+                </Td>
+              </Tr>
+            );
+          })}
         </Tbody>
         <Tfoot>
           <Tr>
