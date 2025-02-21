@@ -3,16 +3,29 @@ import './_apihandler';
 import './_componentRegister';
 import './_serviceRegister';
 
+// Load styles
 import '../stylesheets/main.css';
 
-const ctxs = [
-  // app
-  require.context('./controllers', true),
-  require.context('./components', true),
-  require.context('./services', true),
-  require.context('./directives', true),
-];
+import.meta.glob('./vendor.js', { eager: true });
 
-ctxs.forEach(function (ctx) {
-  ctx.keys().forEach(ctx);
+// Load Angular components in order
+const loadModules = async () => {
+  // Load services first
+  await Promise.all(Object.values(import.meta.glob('./services/*.js')).map((load) => load()));
+
+  // Then components
+  await Promise.all(Object.values(import.meta.glob('./components/*.js')).map((load) => load()));
+
+  // Then directives
+  await Promise.all(Object.values(import.meta.glob('./directives/*.js')).map((load) => load()));
+
+  // Controllers last
+  await Promise.all(Object.values(import.meta.glob('./controllers/*.js')).map((load) => load()));
+};
+
+// Initialize after DOM is ready
+global.$(() => {
+  loadModules().then(() => {
+    angular.bootstrap(document, ['BitriseWorkflowEditor']);
+  });
 });

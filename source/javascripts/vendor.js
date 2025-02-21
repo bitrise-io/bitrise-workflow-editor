@@ -18,6 +18,8 @@ import 'esprima';
 
 global.$ = $;
 global._ = _;
+window.$ = $;
+window._ = _;
 
 $(document).ready(function () {
   document.body.addEventListener('DOMSubtreeModified', function () {
