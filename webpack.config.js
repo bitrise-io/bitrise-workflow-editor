@@ -9,6 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const { version } = require('./package.json');
 
@@ -73,26 +74,9 @@ const isClarityEnabled = CLARITY === 'true';
 const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
 
-const railsTransformer = (mode) => ({
-  loader: 'shell-loader',
-  options: {
-    script: `bundle exec ruby transformer.rb ${mode}`,
-    cwd: './rails',
-    maxBuffer: 1024 ** 3,
-    env: { ...process.env, wfe_version: version },
-  },
-});
-
-const htmlExporter = {
-  loader: 'file-loader',
-  options: {
-    name: '[path][name].html',
-  },
-};
-
 const entry = {
-  main: './javascripts/index.js',
   vendor: './javascripts/vendor.js',
+  main: './javascripts/index.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
@@ -204,10 +188,6 @@ module.exports = {
 
       /* --- HTML & CSS --- */
       {
-        test: /\.(slim)$/i,
-        use: [htmlExporter, railsTransformer('slim')],
-      },
-      {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
@@ -257,7 +237,10 @@ module.exports = {
       'window._': 'underscore',
     }),
     new CopyPlugin({
-      patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
+      patterns: [
+        { from: 'images/favicons/*', to: OUTPUT_FOLDER },
+        { from: 'templates/*', to: OUTPUT_FOLDER },
+      ],
     }),
     new EnvironmentPlugin({
       ANALYTICS: 'false',
@@ -285,6 +268,11 @@ module.exports = {
           fileDependencies: [LD_LOCAL_FILE],
         },
       ),
+    }),
+    new HtmlWebpackPlugin({
+      publicPath,
+      scriptLoading: 'blocking',
+      template: 'index.html',
     }),
   ],
 };
