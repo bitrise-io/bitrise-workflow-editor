@@ -1,7 +1,4 @@
-import { useMemo } from 'react';
-import Fuse from 'fuse.js';
-import { useQuery } from '@tanstack/react-query';
-import { useWorkflows } from '@/hooks/useWorkflows';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/services/WorkflowService';
 
 type Props = {
@@ -10,23 +7,15 @@ type Props = {
 };
 
 const useChainableWorkflows = ({ id, search }: Props) => {
-  const ymlWorkflows = useWorkflows();
-  const chainableWorkflows = useMemo(() => WorkflowService.getChainableWorkflows(ymlWorkflows, id), [ymlWorkflows, id]);
+  const chainableWorkflows = useBitriseYmlStore((state) =>
+    WorkflowService.getChainableWorkflows(state.yml.workflows || {}, id),
+  );
 
-  const index = useMemo(() => {
-    return new Fuse(chainableWorkflows);
-  }, [chainableWorkflows]);
+  if (!search) {
+    return chainableWorkflows;
+  }
 
-  return useQuery({
-    queryKey: ['workflows', { id, search, filter: 'chainable' }],
-    queryFn: async () => {
-      if (!search) {
-        return chainableWorkflows;
-      }
-
-      return index.search(search).map((result) => result.item);
-    },
-  });
+  return chainableWorkflows.filter((wfId) => wfId.toLowerCase().includes(search.toLowerCase()));
 };
 
 export { useChainableWorkflows };

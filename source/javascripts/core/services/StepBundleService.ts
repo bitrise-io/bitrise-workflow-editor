@@ -20,9 +20,11 @@ function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: S
   const stepBundleChains = getStepBundleChains(stepBundles);
 
   Object.values(stepBundleChains).forEach((chain) => {
-    chain.forEach((bundle) => {
-      directDependants = directDependants.concat(getDirectDependants(workflows, idToCvs(bundle)));
-    });
+    if (chain.length > 1) {
+      chain.forEach((bundle) => {
+        directDependants = directDependants.concat(getDirectDependants(workflows, idToCvs(bundle)));
+      });
+    }
   });
 
   return uniq(directDependants);

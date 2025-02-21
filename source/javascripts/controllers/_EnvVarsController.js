@@ -3,23 +3,11 @@
     .module('BitriseWorkflowEditor')
     .controller(
       'EnvVarsController',
-      function (
-        $scope,
-        $rootScope,
-        $q,
-        $cookies,
-        requestService,
-        stringService,
-        appService,
-        Progress,
-        Variable,
-        Popup,
-      ) {
+      function ($scope, $rootScope, $cookies, appService, stringService, Popup, Progress, Variable) {
         const viewModel = this;
 
         $scope.appService = appService;
         $scope.Variable = Variable;
-        $scope.requestService = requestService;
 
         let mode;
         let envVarsWatchers;

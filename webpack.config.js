@@ -8,6 +8,7 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 const { version } = require('./package.json');
 
@@ -90,9 +91,8 @@ const htmlExporter = {
 };
 
 const entry = {
-  vendor: './javascripts/vendor.js',
-  routes: './javascripts/routes.js',
   main: './javascripts/index.js',
+  vendor: './javascripts/vendor.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
@@ -156,6 +156,7 @@ module.exports = {
           },
         },
       }),
+      new CssMinimizerPlugin(),
     ],
   },
   performance: {
@@ -169,7 +170,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.ts', '.tsx', '.css', '.scss'],
+    extensions: ['.js', '.ts', '.tsx', '.css'],
   },
   module: {
     rules: [
@@ -209,10 +210,6 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
-      {
-        test: /\.scss$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
 
       /* --- Images --- */

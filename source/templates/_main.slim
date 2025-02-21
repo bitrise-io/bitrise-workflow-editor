@@ -4,8 +4,6 @@ r-root-component
   .progress-indicator[progress-model="mainCtrl.initAppProgress" style="margin: 24px 32px"]
   .new-layout[ng-if="!mainCtrl.initAppProgress.isInProgress"]
     r-header.header[
-      is-website-mode="mainCtrl.isWebsiteMode"
-      app-path="mainCtrl.appPath()"
       app-name="mainCtrl.appNameWithPlaceholder()"
       workspace-path="mainCtrl.breadCrumbsAccountPath()"
       is-diff-editor-enabled="mainCtrl.isDiffEditorEnabled"
@@ -47,7 +45,6 @@ r-root-component
 
   r-update-configuration-dialog[
     ng-if="mainCtrl.isUpdateConfigurationDialogOpen"
-    app-slug="appService.appDetails.slug"
     on-close="mainCtrl.closeUpdateConfigurationDialog"
     on-complete="mainCtrl.onSaveToRepoComplete"
     get-data-to-save="mainCtrl.getDataToSave"

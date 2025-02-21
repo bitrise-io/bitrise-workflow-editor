@@ -1,16 +1,12 @@
 import { StatusType } from '@datadog/browser-logs';
 import { HTTPMethod } from 'http-method-enum';
-import WindowUtils from '@/core/utils/WindowUtils';
-import { Logger } from './logger';
-import StringService from './string-service';
 
-enum RequestServiceMode {
-  Website = 'website',
-  Cli = 'cli',
-}
+import WindowUtils from '@/core/utils/WindowUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { Logger } from './logger';
 
 interface RequestServiceConfigureOptions {
-  mode?: string;
+  mode?: 'website' | 'cli';
   appSlug?: string;
   logger?: Logger;
 }
@@ -23,36 +19,32 @@ interface RequestParams {
 }
 
 class RequestService {
-  public mode = '';
+  private appSlug: string = '';
 
-  public appSlug = '';
-
-  public appConfigVersionHeaderName = 'Bitrise-Config-Version';
+  private mode: 'website' | 'cli';
 
   private logger: Logger | undefined;
 
+  public appConfigVersionHeaderName = 'Bitrise-Config-Version';
+
   constructor(logger: Logger) {
     this.configure({ logger });
+    this.mode = RuntimeUtils.isWebsiteMode() ? 'website' : 'cli';
+    this.appSlug = WindowUtils.appSlug() ?? '';
   }
 
   public configure({ mode, appSlug, logger }: RequestServiceConfigureOptions = {}): void {
-    this.mode = mode || (this.modeFromEnvVars() as string);
-    this.appSlug = appSlug ?? WindowUtils.appSlug() ?? '';
     this.logger = logger;
-  }
-
-  public isWebsiteMode(): boolean {
-    return this.mode === 'website';
+    this.mode = mode ?? 'cli';
+    this.appSlug = appSlug ?? '';
   }
 
   public async getAppConfigYML(
     abortedPromise: Promise<undefined>,
   ): Promise<{ version?: string; content: string } | Error | { bitrise_yml: string; error_message: Error }> {
-    const websiteRequestURL = StringService.stringReplacedWithParameters(window.routes.website.yml_get, {
-      app_slug: this.appSlug,
-    });
-    const cliRequestURL = window.routes.local_server.yml_get;
-    const requestURL = this.mode === RequestServiceMode.Website ? websiteRequestURL : cliRequestURL;
+    const websiteRequestURL = `/api/app/${this.appSlug}/config.yml`;
+    const cliRequestURL = '/api/bitrise-yml';
+    const requestURL = this.mode === 'website' ? websiteRequestURL : cliRequestURL;
 
     const response = await this.requestWithAbortedPromise({
       method: HTTPMethod.GET,
@@ -87,14 +79,6 @@ class RequestService {
     const content = await this.convertResponseToText(response, defaultError);
 
     return { version, content };
-  }
-
-  private modeFromEnvVars(): RequestServiceMode {
-    if (process.env.MODE === 'WEBSITE') {
-      return RequestServiceMode.Website;
-    }
-
-    return RequestServiceMode.Cli;
   }
 
   private async requestWithAbortedPromise({ method, url, body, abortedPromise }: RequestParams): Promise<any> {

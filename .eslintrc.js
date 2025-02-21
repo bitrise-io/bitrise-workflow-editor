@@ -16,7 +16,6 @@ module.exports = {
     jQuery: 'readonly',
     inject: false,
     angular: false,
-    Cypress: false,
     Promise: false,
   },
   extends: ['plugin:@bitrise/config'],

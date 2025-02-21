@@ -1,4 +1,4 @@
-import { safeDigest } from '../services/react-compat';
+import { safeDigest } from '@/services/react-compat';
 
 (function () {
   angular.module('BitriseWorkflowEditor').controller('DefaultPopupController', function ($scope, $rootScope, Popup) {

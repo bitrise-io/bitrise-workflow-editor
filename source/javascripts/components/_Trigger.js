@@ -152,17 +152,4 @@
 
     return Trigger;
   });
-
-  angular.module('BitriseWorkflowEditor').filter('displayNameForTriggerType', function () {
-    return function (triggerType) {
-      switch (triggerType) {
-        case 'push':
-          return 'Push';
-        case 'pull-request':
-          return 'Pull request';
-        case 'tag':
-          return 'Tag';
-      }
-    };
-  });
 })();

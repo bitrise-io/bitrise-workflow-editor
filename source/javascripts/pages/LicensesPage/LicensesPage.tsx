@@ -11,7 +11,9 @@ const LicensesPageContent = () => {
 
   const workflows = useWorkflows();
 
-  const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
+  const { data: licensePools, isPending } = useGetLicensePoolsQuery({
+    workspaceSlug,
+  });
 
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
@@ -52,7 +54,7 @@ const LicensesPageContent = () => {
           </Thead>
           <Tbody>
             {Object.keys(workflows).map((wfId) => {
-              const value = (workflows[wfId].meta?.['bitrise.io']?.license_pool_id as any) || '';
+              const value = workflows[wfId].meta?.['bitrise.io']?.license_pool_id || '';
               return (
                 <Tr key={wfId}>
                   <Td>{wfId}</Td>

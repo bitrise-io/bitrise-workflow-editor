@@ -1,7 +1,7 @@
 import { safeDigest } from '@/services/react-compat';
 
 (function () {
-  angular.module('BitriseWorkflowEditor').controller('PipelinesController', function ($rootScope, $scope, appService) {
+  angular.module('BitriseWorkflowEditor').controller('PipelinesController', function ($scope, $rootScope, appService) {
     const viewModel = this;
     viewModel.yml = appService.appConfig;
 

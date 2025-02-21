@@ -4,6 +4,8 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { segmentTrack } from '@/utils/segmentTracking';
 import { configMergeDialog } from '@/components/ConfigMergeDialog/ConfigMergeDialog.store';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
 (function () {
@@ -12,21 +14,19 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
     .controller(
       'MainController',
       function (
+        $q,
         $scope,
         $rootScope,
-        $q,
-        $location,
         $timeout,
-        requestService,
-        appService,
-        stringService,
-        Progress,
-        Popup,
-        Stack,
+        $location,
         logger,
-        MachineType,
-        launchDarklyService,
+        appService,
+        requestService,
+        Popup,
+        Progress,
+        Stack,
         Variable,
+        MachineType,
       ) {
         const viewModel = this;
 
@@ -40,7 +40,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         viewModel.defaultBranch = '';
         viewModel.gitRepoSlug = '';
         viewModel.appDetails = undefined;
-        viewModel.showSharedSecrets = false;
         viewModel.menus = _.compact([
           {
             id: 'workflows',
@@ -84,7 +83,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             possibleURLParameterKeys: ['trigger_type', 'pipeline', 'workflow_id'],
             cssClass: 'triggers',
           },
-          requestService.mode === 'website'
+          RuntimeUtils.isWebsiteMode()
             ? {
                 id: 'stack',
                 title: 'Stack',
@@ -93,7 +92,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
                 cssClass: 'stack',
               }
             : null,
-          requestService.mode === 'website'
+          RuntimeUtils.isWebsiteMode()
             ? {
                 id: 'licenses',
                 title: 'Licenses',
@@ -223,12 +222,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               case 'pipelines': {
                 const loadPromises = [appService.getAppConfig()];
 
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(appService.getPipelineConfig());
                 }
 
                 $q.all(loadPromises).then(() => {
-                  if (requestService.isWebsiteMode()) {
+                  if (RuntimeUtils.isWebsiteMode()) {
                     return Stack.getAll().then(appService.getStackAndDockerImage).then(resolve, reject);
                   }
 
@@ -237,31 +236,27 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
                 break;
               }
-              case 'workflows': {
+              case 'workflows':
+              case 'step_bundles':
+              case 'triggers':
+              case 'licenses': {
                 const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(appService.getPipelineConfig());
                 }
 
-                $q.all(loadPromises).then(resolve, reject);
-
-                break;
-              }
-              case 'step_bundles': {
-                const loadPromises = [appService.getAppConfig()];
                 $q.all(loadPromises).then(resolve, reject);
 
                 break;
               }
               case 'env-vars': {
                 const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromises.push(Stack.getAll());
                   loadPromises.push(appService.getPipelineConfig());
-                  loadPromises.push(launchDarklyService.initialize());
                 }
                 let loadPromise = $q.all(loadPromises);
-                if (requestService.isWebsiteMode()) {
+                if (RuntimeUtils.isWebsiteMode()) {
                   loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
                     if (appService.appDetails.isMachineTypeSelectorAvailable) {
                       return MachineType.getAll().then(appService.getDefaultMachineType);
@@ -277,39 +272,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
                     reject(error);
                   },
                 );
-                break;
-              }
-              case 'triggers': {
-                const loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-                const loadPromise = $q.all(loadPromises);
-
-                loadPromise.then(
-                  function () {
-                    resolve();
-                  },
-                  function (error) {
-                    reject(error);
-                  },
-                );
-                break;
-              }
-              case 'licenses': {
-                const loadPromises = [appService.getAppConfig(), appService.getPipelineConfig()];
-
-                const loadPromise = $q.all(loadPromises);
-
-                loadPromise.then(
-                  function () {
-                    resolve();
-                  },
-                  function (error) {
-                    reject(error);
-                  },
-                );
-
                 break;
               }
               case 'secrets':
@@ -449,7 +411,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               });
 
               const isInitialSelection = !viewModel.currentMenu;
-              if (isInitialSelection && requestService.mode === 'website') {
+              if (isInitialSelection && RuntimeUtils.isWebsiteMode()) {
                 history.pushState(
                   {
                     eventID: 'backButtonPressedOnInitialWorkflowEditorPage',
@@ -550,7 +512,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         };
 
         window.onload = function () {
-          if (requestService.mode === 'cli') {
+          if (RuntimeUtils.isLocalMode()) {
             requestService.cancelAPIConnectionClose();
           }
         };
@@ -605,13 +567,13 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           return viewModel.dataToSave;
         };
 
-        function saveWithXBitriseConfigVersionHeader({ shouldReturnPromise = false, source = 'save_changes_button' }) {
+        viewModel.save = function ({ shouldReturnPromise = false, source = 'save_changes_button' }) {
           let remoteConfig;
           let remoteVersion;
 
           const isYmlFormat = viewModel.currentMenu.id === 'yml';
           const shouldValidate = !['secrets', 'yml'].includes(viewModel.currentMenu.id);
-          const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
+          const isRepositorySavedYml = RuntimeUtils.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
 
           async function startSavingProcess() {
             viewModel.saveProgress.start('Saving, wait a sec...');
@@ -806,184 +768,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           }
 
           startSavingProcess();
-        }
-
-        function saveWithoutXBitriseConfigVersionHeader({
-          shouldReturnPromise = false,
-          source = 'save_changes_button',
-        }) {
-          const isRepositorySavedYml = requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml;
-
-          function validateConfigIfNeeded() {
-            return !['secrets', 'yml'].includes(viewModel.currentMenu.id)
-              ? appService.validateAppConfig()
-              : $q.resolve();
-          }
-
-          function formatYaml(yaml) {
-            return BitriseYmlApi.formatYml(yaml)
-              .then((formattedYaml) => formattedYaml)
-              .catch(() => yaml);
-          }
-
-          function handleConfigMerge(defaultYourYaml, defaultBaseYaml) {
-            const isYmlFormat = viewModel.currentMenu.id === 'yml';
-
-            if (isRepositorySavedYml) {
-              return $q.resolve(isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
-            }
-
-            viewModel.deferredConflictResolution = $q.defer();
-
-            const fetchRemoteConfig = isYmlFormat ? requestService.getAppConfigYML : appService.getNormalizedAppConfig;
-
-            return fetchRemoteConfig()
-              .then(({ content }) => {
-                const unformattedBaseYaml = isYmlFormat
-                  ? appService.savedAppConfigYML
-                  : BitriseYmlApi.toYml(appService.savedAppConfig);
-                const unformattedYourYaml =
-                  defaultYourYaml ||
-                  (isYmlFormat ? appService.appConfigYML : BitriseYmlApi.toYml(appService.appConfig));
-                const unformattedRemoteYaml = isYmlFormat ? content : BitriseYmlApi.toYml(content);
-
-                return Promise.all([
-                  formatYaml(unformattedBaseYaml),
-                  formatYaml(unformattedYourYaml),
-                  formatYaml(unformattedRemoteYaml),
-                ]).then(([baseYaml, yourYaml, remoteYaml]) => {
-                  const hasChanges = defaultBaseYaml ? defaultBaseYaml !== remoteYaml : baseYaml !== remoteYaml;
-
-                  if (!hasChanges) {
-                    return $q.resolve({
-                      finalYaml: yourYaml,
-                      shouldReCheckRemoteChanges: false,
-                    });
-                  }
-
-                  if (!configMergeDialog.getState().isOpen) {
-                    segmentTrack('Workflow Editor Config Merge Popup Shown', {
-                      tab_name: viewModel.currentMenu.id,
-                    });
-                  }
-
-                  configMergeDialog.setState({
-                    baseYaml,
-                    yourYaml,
-                    remoteYaml,
-                    isOpen: true,
-                    isLoading: false,
-                  });
-
-                  return viewModel.deferredConflictResolution.promise;
-                });
-              })
-              .then(({ finalYaml, shouldReCheckRemoteChanges = true }) => {
-                if (!shouldReCheckRemoteChanges) {
-                  return finalYaml;
-                }
-
-                return handleConfigMerge(finalYaml, configMergeDialog.getState().remoteYaml);
-              });
-          }
-
-          function saveConfigBasedOnMenu(finalYaml) {
-            if (isRepositorySavedYml) {
-              viewModel.isUpdateConfigurationDialogOpen = true;
-              viewModel.deferredUserSavedYmlToRepository = $q.defer();
-              viewModel.dataToSave = viewModel.currentMenu.id === 'yml' ? finalYaml : appService.appConfig;
-              return viewModel.deferredUserSavedYmlToRepository.promise;
-            }
-
-            const saveActions = {
-              yml: () => appService.saveAppConfigYML(viewModel.currentMenu.id, finalYaml),
-              stack: () =>
-                appService.saveStackAndDockerImage(viewModel.currentMenu.id, BitriseYmlApi.fromYml(finalYaml)),
-              secrets: () => $q.resolve(),
-              default: () => appService.saveAppConfig(viewModel.currentMenu.id, BitriseYmlApi.fromYml(finalYaml)),
-            };
-
-            return (saveActions[viewModel.currentMenu.id] || saveActions.default)();
-          }
-
-          function reloadConfigurations() {
-            const isStackAndMachinesMenu = viewModel.currentMenu.id === 'stack';
-
-            if (isStackAndMachinesMenu) {
-              viewModel.loadDataProgress.start('Loading, wait a sec...');
-            }
-
-            return $q
-              .all([appService.getAppConfig(true), appService.getAppConfigYML(true)])
-              .then(() => {
-                if (isStackAndMachinesMenu) {
-                  return appService.getStackAndDockerImage(true);
-                }
-
-                return $q.resolve();
-              })
-              .finally(() => {
-                viewModel.loadDataProgress.reset();
-              });
-          }
-
-          function startSavingProcess() {
-            if (!configMergeDialog.getState().isOpen) {
-              segmentTrack('Workflow Editor Save Button Clicked', {
-                source,
-                tab_name: viewModel.currentMenu.id,
-              });
-            }
-
-            viewModel.saveProgress.start('Saving, wait a sec...');
-
-            return validateConfigIfNeeded()
-              .then(() => handleConfigMerge())
-              .then((finalYaml) => saveConfigBasedOnMenu(finalYaml))
-              .then(() => reloadConfigurations())
-              .then(() => {
-                const forceReload = configMergeDialog.getState().isOpen || isRepositorySavedYml;
-
-                updateLastWorkflowMetadata();
-                viewModel.saveProgress.reset();
-                configMergeDialog.setState(configMergeDialog.getInitialState());
-
-                $rootScope.$emit('MainController::saveSuccess', {
-                  forceReload,
-                  menu: viewModel.currentMenu.id,
-                });
-              })
-              .catch((error) => {
-                if (!error) {
-                  viewModel.saveProgress.reset();
-                  return $q.resolve();
-                }
-
-                segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-                  source: 'save',
-                  tab_name: viewModel.currentMenu.id,
-                });
-
-                if (configMergeDialog.getState().isOpen) {
-                  configMergeDialog.setState({ errorMessage: error.message });
-                  return startSavingProcess();
-                }
-
-                viewModel.saveProgress.reset();
-                $rootScope.$emit('MainController::saveError');
-                Popup.showErrorPopup('Failed to save changes.', error.message);
-
-                return shouldReturnPromise ? $q.reject(error) : $q.resolve();
-              });
-          }
-
-          const promise = startSavingProcess();
-          if (shouldReturnPromise) {
-            return promise;
-          }
-        }
-
-        viewModel.save = saveWithXBitriseConfigVersionHeader;
+        };
 
         viewModel.isSaveEnabled = function () {
           if (!viewModel.menuProgress.isIdle) {
@@ -1001,7 +786,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           if (!viewModel.hasUnsavedChanges()) {
             return false;
           }
-
           return true;
         };
 
@@ -1102,83 +886,53 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           }
         };
 
-        viewModel.workspaceSecretsPath = function () {
-          return `/workspaces/${appService.appDetails?.ownerData?.slug}/secrets`;
-        };
-
-        viewModel.workspacePlanSelectorPath = function () {
-          return `/workspaces/${appService.appDetails?.ownerData?.slug}/plan_selector`;
-        };
-
-        viewModel.dashboardPath = function () {
-          return '/dashboard';
-        };
-
-        viewModel.appPath = function () {
-          return `/app/${appService.appDetails?.slug}`;
-        };
-
         viewModel.init = function () {
           viewModel.initAppProgress.start('Loading, wait a sec...');
 
           logger.info('App start');
 
-          viewModel.isWebsiteMode = requestService.isWebsiteMode();
-
           appService.getAppConfig();
 
           $q(function (resolve, reject) {
-            launchDarklyService.initialize().then(() => {
-              viewModel.isDiffEditorEnabled = launchDarklyService.variation('enable-wfe-diff-editor');
+            viewModel.isDiffEditorEnabled = useFeatureFlag('enable-wfe-diff-editor');
 
-              switch (requestService.mode) {
-                case 'website':
-                  requestService.appSlug = WindowUtils.appSlug();
+            if (RuntimeUtils.isLocalMode()) {
+              resolve();
+              return;
+            }
 
-                  if (!requestService.appSlug) {
-                    return reject('No app slug specified.');
-                  }
+            if (!WindowUtils.appSlug()) {
+              return reject('No app slug specified.');
+            }
 
-                  requestService
-                    .getCurrentUserMetadata('last_workflow_edited_date')
-                    .then((lastWFEDateMetadataResp) => {
-                      viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-                    })
-                    .finally(() => {
-                      appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
-                    });
-
-                  break;
-                case 'cli':
-                  resolve();
-
-                  break;
-              }
-            });
+            requestService
+              .getCurrentUserMetadata('last_workflow_edited_date')
+              .then((lastWFEDateMetadataResp) => {
+                viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+              })
+              .finally(() => {
+                appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
+              });
           })
             .then(
               function () {
-                if (requestService.mode === 'website') {
+                if (RuntimeUtils.isWebsiteMode()) {
                   viewModel.defaultBranch = appService.appDetails.defaultBranch;
                   viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
                 }
-                if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
+                if (RuntimeUtils.isWebsiteMode() && appService.appDetails.isMachineTypeSelectorAvailable) {
                   const stackMenu = _.find(viewModel.menus, {
                     id: 'stack',
                   });
                   stackMenu.title = 'Stacks and Machines';
                 }
 
-                if (requestService.mode === 'website' && appService.appDetails.isCurrentUserIsOrgOwner) {
+                if (RuntimeUtils.isWebsiteMode() && appService.appDetails.isCurrentUserIsOrgOwner) {
                   const licensesMenu = _.find(viewModel.menus, {
                     id: 'licenses',
                   });
                   licensesMenu.cssClass = 'licenses';
                 }
-
-                appService.getOwnerPlanData().then(function () {
-                  viewModel.showSharedSecrets = Boolean(appService.ownerPlanData?.sharedResourcesAvailable);
-                });
 
                 viewModel.initAppProgress.success();
               },
@@ -1192,7 +946,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         };
 
         viewModel.shouldShowMenuBar = function () {
-          if (requestService.mode === 'cli') {
+          if (RuntimeUtils.isLocalMode()) {
             return true;
           }
 
