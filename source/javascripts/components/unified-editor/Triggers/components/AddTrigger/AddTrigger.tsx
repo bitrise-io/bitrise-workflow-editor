@@ -151,7 +151,7 @@ const AddTrigger = (props: AddTriggerProps) => {
           <ConditionCard
             fields={fields}
             labelsMap={labelsMap}
-            onAppend={onAppend}
+            append={onAppend}
             optionsMap={optionsMap}
             remove={remove}
           />

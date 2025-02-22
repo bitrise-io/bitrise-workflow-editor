@@ -181,7 +181,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
               <ConditionCard
                 fields={fields}
                 labelsMap={LABELS_MAP}
-                onAppend={onAppend}
+                append={onAppend}
                 optionsMap={OPTIONS_MAP}
                 remove={remove}
               />

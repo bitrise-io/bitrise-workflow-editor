@@ -21,14 +21,14 @@ import { Condition, FormItems } from '../../Triggers.types';
 
 type ConditionCardProps = {
   fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
-  onAppend?: () => void;
+  append?: () => void;
   optionsMap: Record<string, string>;
   remove: (index: number) => void;
   labelsMap: Record<string, string>;
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
-  const { fields, onAppend, optionsMap, remove } = props;
+  const { fields, append, optionsMap, remove } = props;
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
 
@@ -130,13 +130,10 @@ const ConditionCard = (props: ConditionCardProps) => {
                     aria-label="Remove value"
                     size="sm"
                     isDanger
+                    isDisabled={fields.length === 1}
                     position="absolute"
                     top="16"
-                    onClick={() => {
-                      if (index > 0) {
-                        remove(index);
-                      }
-                    }}
+                    onClick={() => remove(index)}
                   />
                 </Td>
               </Tr>
@@ -150,7 +147,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                 variant="tertiary"
                 size="md"
                 leftIconName="PlusCircle"
-                onClick={onAppend}
+                onClick={append}
                 isDisabled={fields.length >= Object.keys(optionsMap).length}
               >
                 Add condition
