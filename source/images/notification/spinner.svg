@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-	<circle cx="12" cy="12" fill="transparent" r="8" stroke="rgba(118,15,195,0.99)" stroke-dasharray="50.26548245743669" stroke-width="2px" transform="rotate(-83.8945 12 12)">
-		<animate attributeName="stroke-dashoffset" calcMode="spline" dur="2000ms" fill="freeze" keySplines="0.4 0 0.2 1" repeatCount="indefinite" values="150.79644737231007;50.26548245743669"/>
-		<animateTransform attributeName="transform" calcMode="spline" dur="2000ms" fill="freeze" keySplines="0.4 0 0.2 1" repeatCount="indefinite" type="rotate" values="-90 12 12;270 12 12"/>
-	</circle>
-</svg>

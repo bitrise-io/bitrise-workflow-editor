@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "1.5.13332",
+  "version": "1.5.13359",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -69,6 +69,7 @@
     "angular-elastic": "^2.5.1",
     "angular-route": "^1.8.3",
     "angular-sanitize": "^1.8.3",
+    "dequal": "^2.0.3",
     "es-toolkit": "^1.27.0",
     "esprima": "^4.0.1",
     "http-method-enum": "^1.0.0",
@@ -90,7 +91,7 @@
     "underscore": "^1.13.7",
     "usehooks-ts": "^3.1.0",
     "yaml": "^2.6.0",
-    "zustand": "^4.5.5"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@bitrise/eslint-plugin": "^2.12.0",
@@ -133,9 +134,9 @@
     "eslint": "^8.57.1",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-jasmine": "^4.2.2",
-    "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "glob": "^11.0.0",
+    "html-webpack-plugin": "^5.6.3",
     "husky": "^9.1.6",
     "identity-obj-proxy": "^3.0.0",
     "ignore-loader": "^0.1.2",
@@ -166,7 +167,7 @@
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.6.3",
-    "webpack": "^5.97.1",
+    "webpack": "^5.98.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.2.0",
