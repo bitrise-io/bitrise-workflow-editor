@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { useStore } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
+import { useShallow } from '@/hooks/useShallow';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { BitriseYmlContext } from '@/contexts/BitriseYmlProvider';
 
