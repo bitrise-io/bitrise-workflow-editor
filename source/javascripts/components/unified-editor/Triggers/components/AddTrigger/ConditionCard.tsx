@@ -58,7 +58,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                         size="md"
                         position="absolute"
                         top="12"
-                        width="calc(100% - 32px)"
+                        width="calc(100% - 24px)"
                         {...field}
                       >
                         {Object.entries(optionsMap).map(([optionType, text]) => {
@@ -124,11 +124,12 @@ const ConditionCard = (props: ConditionCardProps) => {
                   <ControlButton
                     iconName="Trash"
                     aria-label="Remove value"
+                    position="absolute"
+                    top="16"
+                    right="16"
                     size="sm"
                     isDanger
                     isDisabled={fields.length === 1}
-                    position="absolute"
-                    top="16"
                     onClick={() => remove(index)}
                   />
                 </Td>
