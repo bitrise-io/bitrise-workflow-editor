@@ -27,6 +27,14 @@ type ConditionCardProps = {
   labelsMap: Record<string, string>;
 };
 
+const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
+  target_branch: 'If you leave it blank, Bitrise will start builds for any target branch.',
+  pull_request_target_branch: 'If you leave it blank, Bitrise will start builds for any target branch.',
+  source_branch: 'If you leave it blank, Bitrise will start builds for any source branch.',
+  pull_request_source_branch: 'If you leave it blank, Bitrise will start builds for any source branch.',
+  name: 'If you leave it blank, Bitrise will start builds for any tag.',
+};
+
 const ConditionCard = (props: ConditionCardProps) => {
   const { fields, append, optionsMap, remove } = props;
   const { control, watch, setValue } = useFormContext();
@@ -52,20 +60,10 @@ const ConditionCard = (props: ConditionCardProps) => {
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
             const { isRegex, type } = cond;
-            let helperText = '';
-            if (type === 'target_branch' || type === 'pull_request_target_branch') {
-              helperText = 'If you leave it blank, Bitrise will start builds for any target branch.';
-            }
-            if (type === 'source_branch' || type === 'pull_request_source_branch') {
-              helperText = 'If you leave it blank, Bitrise will start builds for any source branch.';
-            }
-            if (type === 'name') {
-              helperText = 'If you leave it blank, Bitrise will start builds for any tag.';
-            }
 
             return (
               <Tr key={fieldItem.id}>
-                {type !== 'name' && (
+                {showConditionsAndValue && (
                   <Td position="relative">
                     <Controller
                       name={`conditions.${index}.type`}
@@ -110,7 +108,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                         onChange={(e) => field.onChange(e.target.value.trimStart())}
                         placeholder={isRegex ? '.*' : '*'}
                         label={showConditionsAndValue ? '' : 'Tag'}
-                        helperText={helperText}
+                        helperText={CONDITION_HELPERTEXT_MAP[type] || ''}
                         size="md"
                         mt={4}
                       />
