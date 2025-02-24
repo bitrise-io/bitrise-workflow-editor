@@ -46,12 +46,12 @@ const ConditionCard = (props: ConditionCardProps) => {
 
   return (
     <Card variant="outline" overflow="hidden">
-      <Table borderRadius="8" variant="borderless" disableRowHover>
+      <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
         <Thead backgroundColor="background/primary">
           <Tr>
             <Th>Condition</Th>
             <Th>Value</Th>
-            {!isTagCondition && <Th />}
+            {!isTagCondition && <Th width="44px" />}
           </Tr>
         </Thead>
         <Tbody>
@@ -61,19 +61,12 @@ const ConditionCard = (props: ConditionCardProps) => {
 
             return (
               <Tr key={fieldItem.id}>
-                <Td position="relative">
+                <Td verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.type`}
                     control={control}
                     render={({ field }) => (
-                      <Select
-                        placeholder="Select a condition type"
-                        size="md"
-                        position="absolute"
-                        top="12"
-                        width="calc(100% - 24px)"
-                        {...field}
-                      >
+                      <Select placeholder="Select a condition type" size="md" {...field}>
                         {Object.entries(optionsMap).map(([optionType, text]) => {
                           const isConditionTypeUsed = conditions.some(
                             (condition: Condition) => condition.type === optionType,
@@ -105,13 +98,11 @@ const ConditionCard = (props: ConditionCardProps) => {
                         placeholder={isRegex ? '.*' : '*'}
                         helperText={CONDITION_HELPERTEXT_MAP[type] || ''}
                         size="md"
-                        mt={4}
                       />
                     )}
                   />
                   <Checkbox
                     mt={8}
-                    mb={4}
                     isChecked={isRegex}
                     onChange={(e) => setValue(`conditions.${index}.isRegex`, e.target.checked)}
                   >
@@ -125,10 +116,11 @@ const ConditionCard = (props: ConditionCardProps) => {
                   </Checkbox>
                 </Td>
                 {!isTagCondition && (
-                  <Td display="flex" justifyContent="center" alignItems="center">
+                  <Td verticalAlign="top" paddingLeft="0" paddingTop="16">
                     <ControlButton
                       iconName="Trash"
-                      aria-label="Remove value"
+                      aria-label="Remove"
+                      isTooltipDisabled={fields.length === 1}
                       size="sm"
                       isDanger
                       isDisabled={fields.length === 1}
