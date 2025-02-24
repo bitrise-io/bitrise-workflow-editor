@@ -1,8 +1,7 @@
 import TabHeader from '../components/TabHeader';
 import TabContainer from '../components/TabContainer';
 import PrivateInfoNotification from '../components/PrivateInfoNotification';
-import AddNewButton from '../components/AddNewButton';
-import EnvVarsTable from '../components/EnvVarsTable';
+import EnvVarsTable from '../components/EnvVarsTable/EnvVarsTable';
 
 const ProjectTab = () => {
   return (
@@ -13,7 +12,6 @@ const ProjectTab = () => {
         subtitle="Variables will also be available in builds triggered by pull requests"
       />
       <EnvVarsTable source="app" />
-      <AddNewButton alignSelf="flex-start" />
     </TabContainer>
   );
 };

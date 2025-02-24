@@ -13,7 +13,7 @@ type Props = {
 
 const EnvVarsPageContent = () => {
   return (
-    <Tabs>
+    <Tabs isLazy>
       <Box>
         <Text textStyle="heading/h2" p="32">
           Environment Variables
