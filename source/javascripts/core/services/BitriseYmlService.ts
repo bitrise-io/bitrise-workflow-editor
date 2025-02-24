@@ -342,10 +342,15 @@ function groupStepsToStepBundle(
   // Remove step / steps from a workflow and make sure that the removed step / steps are not part of a with group or a step bundle
   const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
   const removedSteps = sortedIndices
+    .filter((stepIndex) => {
+      if (Object.keys(stepsInEntity[stepIndex])[0].startsWith('with')) {
+        return false;
+      }
+      return true;
+    })
     .map((stepIndex) => {
       return stepsInEntity.splice(stepIndex, 1)[0];
-    })
-    .filter(Boolean) as Array<{ [key: string]: StepModel }>;
+    }) as Array<{ [key: string]: StepModel }>;
 
   // Create and add selected step / steps to the step bundle
   copy.step_bundles = {
