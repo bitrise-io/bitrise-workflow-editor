@@ -45,7 +45,7 @@
   "dependencies": {
     "@bitrise/bitkit": "^13.209.0",
     "@bitrise/react2angular": "^5.0.0",
-    "@chakra-ui/react": "^2.8.2",
+    "@chakra-ui/react": "^3.0.0",
     "@dagrejs/dagre": "^1.1.4",
     "@datadog/browser-core": "^6.3.0",
     "@datadog/browser-logs": "^6.3.0",
