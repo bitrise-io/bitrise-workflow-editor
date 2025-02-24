@@ -12,10 +12,10 @@ import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/services/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
-import StepCardMenu from '@/components/unified-editor/WorkflowCard/components/StepCardMenu';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';
+import StepMenu from './StepMenu';
 
 type StepSecondaryTextProps = {
   errorText?: string;
@@ -188,7 +188,7 @@ const StepCard = ({
     }
 
     return (
-      <StepCardMenu
+      <StepMenu
         isHighlighted={isHighlighted}
         isUpgradable={isUpgradable}
         step={step}
