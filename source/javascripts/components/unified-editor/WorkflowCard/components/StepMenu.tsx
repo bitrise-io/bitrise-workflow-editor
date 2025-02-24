@@ -2,12 +2,10 @@ import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { generateUniqueEntityId } from '@/core/utils/CommonUtils';
-import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import { Step } from '@/core/models/Step';
-import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
-type StepCardMenuProps = {
+type StepMenuProps = {
   isHighlighted?: boolean;
   isUpgradable?: boolean;
   step?: Step;
@@ -16,7 +14,7 @@ type StepCardMenuProps = {
   workflowId?: string;
 };
 
-const StepCardMenu = (props: StepCardMenuProps) => {
+const StepMenu = (props: StepMenuProps) => {
   const { isHighlighted, isUpgradable, step, stepBundleId, stepIndex, workflowId } = props;
   const {
     onCloneStep,
@@ -29,21 +27,17 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   } = useStepActions();
 
   const existingStepBundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles || {}));
+
   const { selectedStepIndices } = useSelection();
-  const defaultStepLibrary = useDefaultStepLibrary();
+  const finalIndices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
 
-  const { isStep } = StepService;
-  const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
   const latestMajor = VersionUtils.latestMajor(step?.resolvedInfo?.versions)?.toString() ?? '';
-  const isSimpleStep = step && isStep(step.cvs, library);
   const isClonable = onCloneStep || onCloneStepInStepBundle;
-  const isRemovable = onDeleteStep || onDeleteStepInStepBundle;
-
-  const suffix = selectedStepIndices && selectedStepIndices.length > 1 ? 's' : '';
-  const indices = isHighlighted && selectedStepIndices ? selectedStepIndices : [stepIndex];
+  const isDeletable = onDeleteStep || onDeleteStepInStepBundle;
+  const suffix = finalIndices && finalIndices.length > 1 ? 's' : '';
 
   const menuItems = [];
-  if (isUpgradable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+  if (isUpgradable && finalIndices.length === 1) {
     menuItems.push(
       <OverflowMenuItem
         key="upgrade"
@@ -62,25 +56,26 @@ const StepCardMenu = (props: StepCardMenuProps) => {
       </OverflowMenuItem>,
     );
   }
-  if (onGroupStepsToStepBundle && !stepBundleId && isSimpleStep) {
+
+  if (onGroupStepsToStepBundle) {
     menuItems.push(
       <OverflowMenuItem
         key="group"
         leftIconName="Steps"
         onClick={(e) => {
           e.stopPropagation();
-          if (onGroupStepsToStepBundle && selectedStepIndices) {
+          if (onGroupStepsToStepBundle && finalIndices) {
             const generatedId = generateUniqueEntityId(existingStepBundleIds, 'Step_bundle');
-            onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, indices);
+            onGroupStepsToStepBundle(workflowId, stepBundleId, generatedId, finalIndices);
           }
         }}
       >
-        New bundle with {isHighlighted ? selectedStepIndices?.length : 1} Step
+        New bundle with {finalIndices.length} Step
         {suffix}
       </OverflowMenuItem>,
     );
   }
-  if (isClonable && (selectedStepIndices?.length === 1 || !isHighlighted)) {
+  if (isClonable && finalIndices.length === 1) {
     menuItems.push(
       <OverflowMenuItem
         key="duplicate"
@@ -103,19 +98,19 @@ const StepCardMenu = (props: StepCardMenuProps) => {
     menuItems.push(<Divider key="divider" my="8" />);
   }
 
-  if (isRemovable) {
+  if (isDeletable) {
     menuItems.push(
       <OverflowMenuItem
         isDanger
-        key="remove"
+        key="delete"
         leftIconName="Trash"
         onClick={(e) => {
           e.stopPropagation();
           if (workflowId && onDeleteStep) {
-            onDeleteStep(workflowId, indices);
+            onDeleteStep(workflowId, finalIndices);
           }
           if (stepBundleId && onDeleteStepInStepBundle) {
-            onDeleteStepInStepBundle(stepBundleId, indices);
+            onDeleteStepInStepBundle(stepBundleId, finalIndices);
           }
         }}
       >
@@ -145,4 +140,4 @@ const StepCardMenu = (props: StepCardMenuProps) => {
   );
 };
 
-export default StepCardMenu;
+export default StepMenu;
