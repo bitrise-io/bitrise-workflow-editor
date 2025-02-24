@@ -139,7 +139,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                 <Button
                   variant="tertiary"
                   size="md"
-                  leftIconName="PlusCircle"
+                  leftIconName="Plus"
                   onClick={append}
                   isDisabled={fields.length >= Object.keys(optionsMap).length}
                 >

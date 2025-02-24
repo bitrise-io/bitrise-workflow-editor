@@ -265,6 +265,7 @@ const Triggers = (props: TriggersProps) => {
           />
         </Card>
         <ExpandableCard
+          isExpanded
           padding="0"
           buttonPadding="16px 24px"
           buttonContent={
@@ -303,6 +304,7 @@ const Triggers = (props: TriggersProps) => {
           </Button>
         </ExpandableCard>
         <ExpandableCard
+          isExpanded
           padding="0"
           buttonPadding="16px 24px"
           buttonContent={
@@ -344,6 +346,7 @@ const Triggers = (props: TriggersProps) => {
           </Button>
         </ExpandableCard>
         <ExpandableCard
+          isExpanded
           padding="0"
           buttonPadding="16px 24px"
           buttonContent={
