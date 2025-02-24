@@ -5,9 +5,8 @@
 import path from 'path';
 import { readFileSync, existsSync } from 'fs';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
-const { version: WFE_VERSION } = require('./package.json');
+import reactSWCPlugin from '@vitejs/plugin-react-swc';
+import { version as WFE_VERSION } from './package.json';
 
 const CODEBASE = path.resolve(__dirname, 'source');
 const OUTPUT_FOLDER = path.resolve(__dirname, 'build');
@@ -17,16 +16,27 @@ const { ANALYTICS, NODE_ENV, MODE, PUBLIC_URL_ROOT, DEV_SERVER_PORT } = process.
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
 const publicPath = `${urlPrefix}/${WFE_VERSION}/`;
+const isProd = NODE_ENV === 'prod';
 
 export default defineConfig({
   root: CODEBASE,
   base: publicPath,
+  mode: isProd ? 'production' : 'development',
   build: {
-    target: 'es5',
+    target: 'es2015',
+    emptyOutDir: true,
     outDir: OUTPUT_FOLDER,
-    commonjsOptions: { transformMixedEsModules: true },
+    sourcemap: isProd ? 'hidden' : false,
+    rollupOptions: {
+      input: {
+        main: path.resolve(CODEBASE, 'index.html'),
+        index: path.resolve(CODEBASE, 'javascripts/index.js'),
+        vendor: path.resolve(CODEBASE, 'javascripts/vendor.js'),
+      },
+    },
   },
   server: {
+    host: '0.0.0.0',
     port: Number(DEV_SERVER_PORT || 4567),
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -40,7 +50,11 @@ export default defineConfig({
     },
     extensions: ['.html', '.js', '.ts', '.tsx', '.css'],
   },
-  plugins: [react()],
+  plugins: [
+    reactSWCPlugin({
+      devTarget: 'es2015',
+    }),
+  ],
   define: {
     global: '{}',
     'process.env.MODE': JSON.stringify(MODE),

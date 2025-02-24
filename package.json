@@ -26,7 +26,7 @@
   "scripts": {
     "lint": "eslint source/javascripts --cache",
     "lint:fix": "eslint source/javascripts --cache --quiet --fix",
-    "build": "webpack --bail",
+    "build": "vite build",
     "build:website": "MODE=WEBSITE ANALYTICS=true CLARITY=true DATADOG_RUM=true npm run build",
     "build:plugin": "MODE=CLI ANALYTICS=true npm run build && ./_scripts/compile_api.sh",
     "start:dev": "vite",
@@ -98,6 +98,7 @@
     "@chakra-ui/cli": "^2.4.1",
     "@google-cloud/storage": "^7.14.0",
     "@playwright/test": "^1.48.2",
+    "@rollup/plugin-terser": "^0.4.4",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/addon-interactions": "^8.4.7",
     "@storybook/addon-links": "^8.4.7",

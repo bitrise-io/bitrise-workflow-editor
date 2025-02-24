@@ -5,7 +5,6 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { useEnvVarsAndSecretsCompletionProvider } from '@/hooks/useMonacoCompletionProvider';
-import useMonacoYaml from '@/hooks/useMonacoYaml';
 
 const EDITOR_OPTIONS = {
   roundedSelection: false,
@@ -27,7 +26,6 @@ const YmlEditor = (props: YmlEditorProps) => {
 
   const [monacoInstance, setMonaco] = useState<Monaco>();
 
-  useMonacoYaml(monacoInstance);
   useEnvVarsAndSecretsCompletionProvider({
     monaco: monacoInstance,
     language: 'yaml',

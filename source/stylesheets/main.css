@@ -8,8 +8,6 @@
 @import "_notification-progress-indicator.css";
 @import "_order-by-drag.css";
 
-@import "monaco-editor/min/vs/editor/editor.main.css";
-
 :focus {
   outline: none;
 }
