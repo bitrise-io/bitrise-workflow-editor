@@ -116,7 +116,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                   </Checkbox>
                 </Td>
                 {!isTagCondition && (
-                  <Td verticalAlign="top" paddingLeft="0" paddingTop="16">
+                  <Td verticalAlign="top" paddingLeft="0" paddingTop="12">
                     <ControlButton
                       iconName="Trash"
                       aria-label="Remove"
