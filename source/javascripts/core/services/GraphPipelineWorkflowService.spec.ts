@@ -34,7 +34,7 @@ describe('GraphPipelineWorkflowService', () => {
 
       it('should return error message when collision detected', () => {
         expect(GraphPipelineWorkflowService.validateParallel(3, 'foo', ['bar', 'foo', 'foo_1', 'foo_2'])).toBe(
-          'Cannot create 3 parallel workflows because the following IDs already exist: foo_1, foo_2. Please rename these existing workflows.',
+          'Cannot create 3 parallel workflows because the following IDs already exist: foo_1, foo_2.',
         );
       });
     });
@@ -46,7 +46,7 @@ describe('GraphPipelineWorkflowService', () => {
 
       it('should return error message when possible collision detected', () => {
         expect(GraphPipelineWorkflowService.validateParallel('$ENV', 'foo', ['bar', 'foo', 'foo_1', 'foo_2'])).toBe(
-          'The environment variable $ENV might create workflow IDs that conflict with existing workflows: foo_1, foo_2. To prevent runtime errors, rename these existing workflows.',
+          'The environment variable $ENV might create workflow IDs that conflict with existing workflows: foo_1, foo_2.',
         );
       });
     });
