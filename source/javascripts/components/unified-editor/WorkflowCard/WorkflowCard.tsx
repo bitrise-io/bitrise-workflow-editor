@@ -1,9 +1,10 @@
-import { memo, PropsWithChildren, useMemo, useRef } from 'react';
+import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import useWorkflow from '@/hooks/useWorkflow';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import StackAndMachineService from '@/core/models/StackAndMachineService';
+import StackAndMachineService from '@/core/services/StackAndMachineService';
+import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
@@ -17,12 +18,12 @@ import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from '.
 type ContentProps = {
   id: string;
   uses?: string;
-  parallel?: number;
+  parallel?: string | number;
   isCollapsable?: boolean;
   containerProps?: CardProps;
 };
 
-const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: number }>) => {
+const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
   const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
   const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
 
@@ -34,14 +35,28 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<{ parallel?: num
     );
   }
 
+  let badgeContent = parallel;
+  let tooltipLabel = `${parallel} parallel copies` as ReactNode;
+  let tooltipAriaLabel = `${parallel} parallel copies`;
+
+  if (!GraphPipelineWorkflowService.isIntegerValue(parallel)) {
+    badgeContent = '$';
+    tooltipLabel = (
+      <>
+        Number of copies is calculated based on <strong>{parallel}</strong> Env Var.
+      </>
+    );
+    tooltipAriaLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
+  }
+
   return (
     <Box display="flex" minW={0} maxW="100%" gap="4" alignItems="center">
       <Text textStyle="body/md/semibold" hasEllipsis>
         {children}
       </Text>
-      <Tooltip shouldWrapChildren label={`${parallel} parallel copies`} aria-label={`${parallel} parallel copies`}>
+      <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
         <Text color="text/secondary" textStyle="comp/badge/sm" bg="sys/neutral/subtle" px="4" borderRadius="4">
-          {parallel}
+          {badgeContent}
         </Text>
       </Tooltip>
     </Box>

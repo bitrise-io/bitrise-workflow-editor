@@ -1,4 +1,4 @@
-import { StepBundles } from '@/core/models/Step';
+import { StepBundles } from '@/core/models/BitriseYml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 export const useStepBundles = (): StepBundles => {

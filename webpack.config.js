@@ -1,6 +1,6 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { ProvidePlugin, DefinePlugin } = require('webpack');
+const { ProvidePlugin, DefinePlugin, EnvironmentPlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPLugin = require('terser-webpack-plugin');
@@ -8,6 +8,8 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const { version } = require('./package.json');
 
@@ -72,34 +74,15 @@ const isClarityEnabled = CLARITY === 'true';
 const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
 
-const railsTransformer = (mode) => ({
-  loader: 'shell-loader',
-  options: {
-    script: `bundle exec ruby transformer.rb ${mode}`,
-    cwd: './rails',
-    maxBuffer: 1024 ** 3,
-    env: { ...process.env, wfe_version: version },
-  },
-});
-
-const htmlExporter = {
-  loader: 'file-loader',
-  options: {
-    name: '[path][name].html',
-  },
-};
-
 const entry = {
   vendor: './javascripts/vendor.js',
-  strings: './javascripts/strings.js.erb',
-  routes: './javascripts/routes.js.erb',
   main: './javascripts/index.js',
 };
 if (isClarityEnabled) {
   entry.clarity = './javascripts/clarity.js';
 }
 if (isDataDogRumEnabled) {
-  entry.datadogrum = './javascripts/datadog-rum.js.erb';
+  entry.datadogrum = './javascripts/datadog-rum.js';
 }
 
 /** @type {import('webpack').Configuration} */
@@ -157,6 +140,7 @@ module.exports = {
           },
         },
       }),
+      new CssMinimizerPlugin(),
     ],
   },
   performance: {
@@ -170,7 +154,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
+    extensions: ['.js', '.ts', '.tsx', '.css'],
   },
   module: {
     rules: [
@@ -178,10 +162,6 @@ module.exports = {
       {
         test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
-      },
-      {
-        test: /\.erb$/i,
-        use: railsTransformer('erb'),
       },
       {
         test: /\.tsx?$/i,
@@ -208,16 +188,8 @@ module.exports = {
 
       /* --- HTML & CSS --- */
       {
-        test: /\.(slim)$/i,
-        use: [htmlExporter, railsTransformer('slim')],
-      },
-      {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
-      {
-        test: /\.s[ac]ss(\.erb)?$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
       },
 
       /* --- Images --- */
@@ -265,11 +237,19 @@ module.exports = {
       'window._': 'underscore',
     }),
     new CopyPlugin({
-      patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
+      patterns: [
+        { from: 'images/favicons/*', to: OUTPUT_FOLDER },
+        { from: 'templates/*', to: OUTPUT_FOLDER },
+      ],
+    }),
+    new EnvironmentPlugin({
+      ANALYTICS: 'false',
+      MODE: 'WEBSITE',
+      NODE_ENV: 'development',
+      PUBLIC_URL_ROOT: '',
+      WFE_VERSION: version,
     }),
     new DefinePlugin({
-      'process.env.MODE': JSON.stringify(MODE || 'WEBSITE'),
-      'process.env.NODE_ENV': JSON.stringify(NODE_ENV || 'development'),
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
           if (existsSync(LD_LOCAL_FILE)) {
@@ -288,6 +268,11 @@ module.exports = {
           fileDependencies: [LD_LOCAL_FILE],
         },
       ),
+    }),
+    new HtmlWebpackPlugin({
+      publicPath,
+      scriptLoading: 'blocking',
+      template: 'index.html',
     }),
   ],
 };

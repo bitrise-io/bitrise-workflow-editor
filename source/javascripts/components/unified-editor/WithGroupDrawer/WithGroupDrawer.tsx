@@ -1,6 +1,6 @@
 import { Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
 import useStep from '@/hooks/useStep';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import { WithGroup } from '@/core/models/Step';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import FloatingDrawer, {

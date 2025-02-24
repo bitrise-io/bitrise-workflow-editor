@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Input } from '@bitrise/bitkit';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import NoWorkflowsEmptyState from './NoWorkflowsEmptyState';

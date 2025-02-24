@@ -9,7 +9,7 @@ import {
 } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import StepBundleConfigDrawer from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigDrawer';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
@@ -48,11 +48,15 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
-      addStep(workflowId, cvs, selectedStepIndices[0]);
+      if (workflowId) {
+        addStep(workflowId, cvs, selectedStepIndices[0]);
+      } else {
+        addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
+      }
       openDialog({
         type: PipelinesPageDialogType.STEP_BUNDLE,
         workflowId,
-        stepBundleId: id,
+        stepBundleId,
         selectedStepIndices,
       })();
     } else if (workflowId) {
@@ -152,6 +156,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onRename={handleRenameStepBundle}
           workflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
+          stepBundleId={stepBundleId}
         />
       )}
 
@@ -162,7 +167,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
-          showStepBundles={!stepBundleId}
+          targetStepBundleId={stepBundleId}
         />
       )}
 

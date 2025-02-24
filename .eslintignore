@@ -4,9 +4,9 @@ _scripts
 apiserver
 build
 cmd
-cypress
 node_modules
 rails
 release
 **/*.spec.js
 source/javascripts/clarity.js
+karma.conf.js

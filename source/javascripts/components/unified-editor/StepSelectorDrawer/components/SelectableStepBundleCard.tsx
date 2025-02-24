@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
 import { WorkflowCardContextProvider } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleCard from './StepBundleCard';
 
@@ -13,7 +13,7 @@ type SelectableStepBundleCardProps = {
 const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   const { id, onClick } = props;
   const [isPreviewMode, setIsPreviewMode] = useState(true);
-  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${id}` });
+  const dependants = useDependantWorkflows({ stepBundleCvs: StepBundleService.idToCvs(id) });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
   const handleClick = () => {
@@ -45,7 +45,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           <StepBundleCard
             uniqueId=""
             stepIndex={-1}
-            cvs={`bundle::${id}`}
+            cvs={StepBundleService.idToCvs(id)}
             isPreviewMode={isPreviewMode}
             isCollapsable={false}
           />

@@ -1,5 +1,3 @@
-import { cachedFn } from './services/react-compat';
-import semverService from './services/semver-service';
 import StringService from './services/string-service';
 import RequestService from './services/request-service';
 import loggerFactory from './services/logger';
@@ -19,15 +17,9 @@ angular
       });
     },
   ])
-  .factory('semverService', function () {
-    return semverService;
-  })
   .factory('StringService', function () {
     return StringService;
   })
   .factory('RequestService', function (logger) {
     return new RequestService(logger);
-  })
-  .factory('reactCompatService', function () {
-    return { cachedFn };
   });

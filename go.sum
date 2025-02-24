@@ -16,8 +16,8 @@ github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be h1:9AeTilPcZAjCFI
 github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be/go.mod h1:ySMOLuWl6zY27l47sB3qLNK6tF2fkHG55UZxx8oIVo4=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
-github.com/bitrise-io/bitrise v0.0.0-20250212092443-030954631c6d h1:ughSlHymNkVyStxRDGRUk2vyiU9AUiKuoV59rz7WA4E=
-github.com/bitrise-io/bitrise v0.0.0-20250212092443-030954631c6d/go.mod h1:qivxh7r8oAluFnq1/fZC+Sa/4jyQM0CQDtAPmt9LRfI=
+github.com/bitrise-io/bitrise/v2 v2.29.3 h1:JAPgPI2Vrsy+hpAFZzGjn0oB0GimtE2RZ3urfsIlIKw=
+github.com/bitrise-io/bitrise/v2 v2.29.3/go.mod h1:Os9ORyjQO4SYJT12iRook2t8A/hiOauHx7WpS1mOfeE=
 github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 h1:vSHYT6kCL/iOT9BVuUPm0tVcbW57r5zldLWg0aB7qbQ=
 github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192/go.mod h1:CIHVcxZUvsG99XUJV6JlR7okNsMMGY81jMvPC20W+O0=
 github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92 h1:+alkNYr5sbvCpvu2YQC4SLddnIP2BeAIjr8/EsObonw=

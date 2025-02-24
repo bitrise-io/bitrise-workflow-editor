@@ -1,4 +1,4 @@
-type MachineType = {
+export type MachineType = {
   id: string;
   name: string;
   specs: {
@@ -12,9 +12,7 @@ type MachineType = {
   creditCost: number;
 };
 
-type MachineTypeOption = {
+export type MachineTypeOption = {
   value: string;
   label: string;
 };
-
-export { MachineType, MachineTypeOption };

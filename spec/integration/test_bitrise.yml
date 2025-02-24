@@ -31,9 +31,9 @@ pipelines:
       - branch: main
     workflows:
       tmp:
+        parallel: '4'
         depends_on:
         - wf1
-        parallel: 4
       wf1: {}
       wf2:
         depends_on:
@@ -48,6 +48,9 @@ pipelines:
       wf5:
         depends_on:
         - wf4
+      wf7:
+        depends_on:
+        - wf5
   pl1:
     stages:
     - st1: {}
@@ -298,8 +301,6 @@ workflows:
     summary: Second workflow
     description: Second, but definitely not the last
     triggers:
-      pull_request:
-      - target_branch: '*'
       tag:
       - name:
           regex: '*'
@@ -462,6 +463,7 @@ workflows:
         - password: $PAT
         - host: github.com
     - xamarin-user-management: {}
+    - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: {}
     - bundle::install_deps: {}
     - with:
         container: ruby
@@ -483,3 +485,11 @@ step_bundles:
         - clone_depth: "0"
     - cache-pull@2.1.3: {}
     - deploy-to-bitrise-io@1.7.1: {}
+  test:
+    steps:
+    - activate-ssh-key@4.1.1: {}
+    - open-vpn@0.1.2: {}
+  verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
+    steps:
+    - theappspajamas-service-account-key-installer@0.0.3: {}
+    - android-manifest-info@1.0.2: {}
