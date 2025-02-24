@@ -15,7 +15,7 @@ import EnvVarsTableFooter from './EnvVarsTableFooter';
 import EnvVarsTableItem from './EnvVarsTableItem';
 
 type Props = {
-  source: 'app' | 'workflow';
+  source: 'project' | 'workflow';
   sourceId?: string;
 };
 
@@ -33,10 +33,11 @@ const EMPTY_ENVS: EnvModel = [];
 
 const EnvVarsTable = ({ source, sourceId }: Props) => {
   const [activeItem, setActiveItem] = useState<EnvVarWithUniqueId>();
+  const updateProjectEnvVars = useBitriseYmlStore((state) => state.updateProjectEnvVars);
   const updateWorkflowEnvVars = useBitriseYmlStore((state) => state.updateWorkflowEnvVars);
 
   const ymlEnvVars = useBitriseYmlStore((state) => {
-    if (source === 'app') {
+    if (source === 'project') {
       return state.yml.app?.envs ?? EMPTY_ENVS;
     }
 
@@ -57,9 +58,8 @@ const EnvVarsTable = ({ source, sourceId }: Props) => {
   const updateEnvs = (newEnvVars: EnvVarWithUniqueId[]) => {
     setEnvs(newEnvVars);
 
-    // TODO: Implement service method to update project level env vars
-    if (source === 'app') {
-      // updateAppEnvVars(newEnvVars);
+    if (source === 'project') {
+      updateProjectEnvVars(newEnvVars);
     }
 
     if (source === 'workflow' && sourceId) {

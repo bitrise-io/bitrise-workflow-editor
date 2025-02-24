@@ -4,7 +4,7 @@ const EnvVarsTableHeader = () => {
   return (
     <Box
       pl="32"
-      pr="44"
+      pr="48"
       as="header"
       height="48"
       display="flex"

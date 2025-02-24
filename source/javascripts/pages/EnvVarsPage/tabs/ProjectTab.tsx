@@ -11,7 +11,7 @@ const ProjectTab = () => {
         title="Project Environment Variables"
         subtitle="Variables will also be available in builds triggered by pull requests"
       />
-      <EnvVarsTable source="app" />
+      <EnvVarsTable source="project" />
     </TabContainer>
   );
 };
