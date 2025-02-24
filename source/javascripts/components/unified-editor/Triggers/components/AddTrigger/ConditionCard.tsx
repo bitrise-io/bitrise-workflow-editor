@@ -40,22 +40,20 @@ const ConditionCard = (props: ConditionCardProps) => {
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
 
-  const showConditionsAndValue = useMemo(() => {
-    return conditions.some((condition: Condition) => condition.type !== 'name');
+  const isTagCondition = useMemo(() => {
+    return conditions.some((condition: Condition) => condition.type === 'name');
   }, [conditions]);
 
   return (
     <Card variant="outline" overflow="hidden">
-      <Table borderRadius="8" variant="borderless">
-        {showConditionsAndValue && (
-          <Thead backgroundColor="background/primary">
-            <Tr>
-              <Th>Condition</Th>
-              <Th>Value</Th>
-              <Th />
-            </Tr>
-          </Thead>
-        )}
+      <Table borderRadius="8" variant="borderless" disableRowHover>
+        <Thead backgroundColor="background/primary">
+          <Tr>
+            <Th>Condition</Th>
+            <Th>Value</Th>
+            {!isTagCondition && <Th />}
+          </Tr>
+        </Thead>
         <Tbody>
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
@@ -63,51 +61,48 @@ const ConditionCard = (props: ConditionCardProps) => {
 
             return (
               <Tr key={fieldItem.id}>
-                {showConditionsAndValue && (
-                  <Td position="relative">
-                    <Controller
-                      name={`conditions.${index}.type`}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          placeholder="Select a condition type"
-                          size="md"
-                          position="absolute"
-                          top="12"
-                          width="calc(100% - 24px)"
-                          {...field}
-                        >
-                          {Object.entries(optionsMap).map(([optionType, text]) => {
-                            const isConditionTypeUsed = conditions.some(
-                              (condition: Condition) => condition.type === optionType,
-                            );
-                            const isTypeOfCurrentCard = optionType === conditions[index].type;
+                <Td position="relative">
+                  <Controller
+                    name={`conditions.${index}.type`}
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        placeholder="Select a condition type"
+                        size="md"
+                        position="absolute"
+                        top="12"
+                        width="calc(100% - 24px)"
+                        {...field}
+                      >
+                        {Object.entries(optionsMap).map(([optionType, text]) => {
+                          const isConditionTypeUsed = conditions.some(
+                            (condition: Condition) => condition.type === optionType,
+                          );
+                          const isTypeOfCurrentCard = optionType === conditions[index].type;
 
-                            if (isConditionTypeUsed && !isTypeOfCurrentCard) {
-                              return undefined;
-                            }
+                          if (isConditionTypeUsed && !isTypeOfCurrentCard) {
+                            return undefined;
+                          }
 
-                            return (
-                              <option key={optionType} value={optionType}>
-                                {text}
-                              </option>
-                            );
-                          })}
-                        </Select>
-                      )}
-                    />
-                  </Td>
-                )}
+                          return (
+                            <option key={optionType} value={optionType}>
+                              {text}
+                            </option>
+                          );
+                        })}
+                      </Select>
+                    )}
+                  />
+                </Td>
                 <Td>
                   <Controller
                     name={`conditions.${index}.value`}
                     render={({ field }) => (
                       <Input
                         {...field}
-                        isRequired={type !== 'target_branch' && type !== 'source_branch'}
+                        isRequired={type !== 'target_branch' && type !== 'source_branch' && type !== 'name'}
                         onChange={(e) => field.onChange(e.target.value.trimStart())}
                         placeholder={isRegex ? '.*' : '*'}
-                        label={showConditionsAndValue ? '' : 'Tag'}
                         helperText={CONDITION_HELPERTEXT_MAP[type] || ''}
                         size="md"
                         mt={4}
@@ -129,37 +124,41 @@ const ConditionCard = (props: ConditionCardProps) => {
                     </Toggletip>
                   </Checkbox>
                 </Td>
-                <Td display="flex" justifyContent="center" alignItems="center">
-                  <ControlButton
-                    iconName="Trash"
-                    aria-label="Remove value"
-                    size="sm"
-                    isDanger
-                    isDisabled={fields.length === 1}
-                    onClick={() => remove(index)}
-                  />
-                </Td>
+                {!isTagCondition && (
+                  <Td display="flex" justifyContent="center" alignItems="center">
+                    <ControlButton
+                      iconName="Trash"
+                      aria-label="Remove value"
+                      size="sm"
+                      isDanger
+                      isDisabled={fields.length === 1}
+                      onClick={() => remove(index)}
+                    />
+                  </Td>
+                )}
               </Tr>
             );
           })}
         </Tbody>
-        <Tfoot>
-          <Tr>
-            <Td>
-              <Button
-                variant="tertiary"
-                size="md"
-                leftIconName="PlusCircle"
-                onClick={append}
-                isDisabled={fields.length >= Object.keys(optionsMap).length}
-              >
-                Add condition
-              </Button>
-            </Td>
-            <Td />
-            {showConditionsAndValue && <Td />}
-          </Tr>
-        </Tfoot>
+        {!isTagCondition && (
+          <Tfoot>
+            <Tr>
+              <Td>
+                <Button
+                  variant="tertiary"
+                  size="md"
+                  leftIconName="PlusCircle"
+                  onClick={append}
+                  isDisabled={fields.length >= Object.keys(optionsMap).length}
+                >
+                  Add condition
+                </Button>
+              </Td>
+              <Td />
+              <Td />
+            </Tr>
+          </Tfoot>
+        )}
       </Table>
     </Card>
   );
