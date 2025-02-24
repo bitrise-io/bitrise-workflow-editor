@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useFormContext, Controller, FieldArrayWithId } from 'react-hook-form';
 import {
   Button,
@@ -10,7 +11,6 @@ import {
   Table,
   Tbody,
   Td,
-  Text,
   Th,
   Thead,
   Toggletip,
@@ -32,79 +32,90 @@ const ConditionCard = (props: ConditionCardProps) => {
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
 
+  const showConditionsAndValue = useMemo(() => {
+    return conditions.some((condition: Condition) => condition.type !== 'name');
+  }, [conditions]);
+
   return (
     <Card variant="outline" overflow="hidden">
       <Table borderRadius="8" variant="borderless">
-        <Thead backgroundColor="background/primary">
-          <Tr>
-            <Th>Condition</Th>
-            <Th>Value</Th>
-            <Th />
-          </Tr>
-        </Thead>
+        {showConditionsAndValue && (
+          <Thead backgroundColor="background/primary">
+            <Tr>
+              <Th>Condition</Th>
+              <Th>Value</Th>
+              <Th />
+            </Tr>
+          </Thead>
+        )}
         <Tbody>
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
             const { isRegex, type } = cond;
+            let helperText = '';
+            if (type === 'target_branch' || type === 'pull_request_target_branch') {
+              helperText = 'If you leave it blank, Bitrise will start builds for any target branch.';
+            }
+            if (type === 'source_branch' || type === 'pull_request_source_branch') {
+              helperText = 'If you leave it blank, Bitrise will start builds for any source branch.';
+            }
+            if (type === 'name') {
+              helperText = 'If you leave it blank, Bitrise will start builds for any tag.';
+            }
+
             return (
               <Tr key={fieldItem.id}>
-                <Td position="relative">
-                  <Controller
-                    name={`conditions.${index}.type`}
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        placeholder="Select a condition type"
-                        size="md"
-                        position="absolute"
-                        top="12"
-                        width="calc(100% - 24px)"
-                        {...field}
-                      >
-                        {Object.entries(optionsMap).map(([optionType, text]) => {
-                          const isConditionTypeUsed = conditions.some(
-                            (condition: Condition) => condition.type === optionType,
-                          );
-                          const isTypeOfCurrentCard = optionType === conditions[index].type;
+                {type !== 'name' && (
+                  <Td position="relative">
+                    <Controller
+                      name={`conditions.${index}.type`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          placeholder="Select a condition type"
+                          size="md"
+                          position="absolute"
+                          top="12"
+                          width="calc(100% - 24px)"
+                          {...field}
+                        >
+                          {Object.entries(optionsMap).map(([optionType, text]) => {
+                            const isConditionTypeUsed = conditions.some(
+                              (condition: Condition) => condition.type === optionType,
+                            );
+                            const isTypeOfCurrentCard = optionType === conditions[index].type;
 
-                          if (isConditionTypeUsed && !isTypeOfCurrentCard) {
-                            return undefined;
-                          }
+                            if (isConditionTypeUsed && !isTypeOfCurrentCard) {
+                              return undefined;
+                            }
 
-                          return (
-                            <option key={optionType} value={optionType}>
-                              {text}
-                            </option>
-                          );
-                        })}
-                      </Select>
-                    )}
-                  />
-                </Td>
+                            return (
+                              <option key={optionType} value={optionType}>
+                                {text}
+                              </option>
+                            );
+                          })}
+                        </Select>
+                      )}
+                    />
+                  </Td>
+                )}
                 <Td>
                   <Controller
                     name={`conditions.${index}.value`}
                     render={({ field }) => (
                       <Input
                         {...field}
-                        isRequired={type !== 'target_branch' && type !== 'source_branch' && type !== 'name'}
+                        isRequired={type !== 'target_branch' && type !== 'source_branch'}
                         onChange={(e) => field.onChange(e.target.value.trimStart())}
                         placeholder={isRegex ? '.*' : '*'}
+                        label={showConditionsAndValue ? '' : 'Tag'}
+                        helperText={helperText}
                         size="md"
                         mt={4}
                       />
                     )}
                   />
-                  {type === 'pull_request_target_branch' && (
-                    <Text color="sys/neutral/base" textStyle="body/sm/regular" mt={4}>
-                      If you leave it blank, Bitrise will start builds for any target branch.
-                    </Text>
-                  )}
-                  {type === 'pull_request_source_branch' && (
-                    <Text color="sys/neutral/base" textStyle="body/sm/regular" mt={4}>
-                      If you leave it blank, Bitrise will start builds for any source branch.
-                    </Text>
-                  )}
                   <Checkbox
                     mt={8}
                     mb={4}
@@ -120,13 +131,10 @@ const ConditionCard = (props: ConditionCardProps) => {
                     </Toggletip>
                   </Checkbox>
                 </Td>
-                <Td position="relative">
+                <Td display="flex" justifyContent="center" alignItems="center">
                   <ControlButton
                     iconName="Trash"
                     aria-label="Remove value"
-                    position="absolute"
-                    top="16"
-                    right="16"
                     size="sm"
                     isDanger
                     isDisabled={fields.length === 1}
@@ -151,7 +159,7 @@ const ConditionCard = (props: ConditionCardProps) => {
               </Button>
             </Td>
             <Td />
-            <Td />
+            {showConditionsAndValue && <Td />}
           </Tr>
         </Tfoot>
       </Table>
