@@ -3,7 +3,8 @@ import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitris
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
-import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems, StringOrRegex } from '../../Triggers.types';
+import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
+import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
@@ -91,7 +92,7 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   const handleSegmentTrack = () => {
-    const triggerConditions: Record<string, StringOrRegex> = {};
+    const triggerConditions: Record<string, TriggerMapItemModelRegexCondition> = {};
     conditions.forEach((condition) => {
       let value = {};
       if (condition.isRegex) {
@@ -99,7 +100,7 @@ const AddTrigger = (props: AddTriggerProps) => {
       } else {
         value = { wildcard: condition.value };
       }
-      triggerConditions[condition.type || ''] = value as StringOrRegex;
+      triggerConditions[condition.type || ''] = value as TriggerMapItemModelRegexCondition;
     });
     segmentTrack(
       editedItem

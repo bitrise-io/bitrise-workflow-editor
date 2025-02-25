@@ -1,4 +1,4 @@
-import { TriggersModel } from '@/core/models/BitriseYml';
+import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel } from '@/core/models/BitriseYml';
 
 export type LegacyTagConditionType = 'tag';
 
@@ -56,27 +56,7 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   isActive: boolean;
 }
 
-export type StringOrRegex =
-  | string
-  | {
-      regex: string;
-      wildcard?: string;
-    };
-
-export type TargetBasedTriggerItem = {
-  branch?: StringOrRegex;
-  changed_files?: StringOrRegex;
-  commit_message?: StringOrRegex;
-  comment?: StringOrRegex;
-  draft_enabled?: boolean;
-  enabled?: boolean;
-  label?: StringOrRegex;
-  source_branch?: StringOrRegex;
-  target_branch?: StringOrRegex;
-  tag?: StringOrRegex;
-};
-
-export type TargetBasedTriggers = TriggersModel;
+export type TargetBasedTriggerItem = PushTriggerModel & PullrequestTriggerModel & TagTriggerModel;
 
 export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
   pipelineableId: string;
