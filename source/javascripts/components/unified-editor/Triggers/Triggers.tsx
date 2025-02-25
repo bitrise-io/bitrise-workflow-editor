@@ -20,7 +20,8 @@ import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StringOrRegex, TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
+import { TriggerMapItemModelRegexCondition, TriggersModel } from '@/core/models/BitriseYml';
+import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
 
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
@@ -115,7 +116,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 type TriggersProps = {
   additionalTrackingData: Record<string, string>;
   id: string;
-  triggers?: TargetBasedTriggers;
+  triggers?: TriggersModel;
   updateTriggers: BitriseYmlStoreState['updateWorkflowTriggers'];
   updateTriggersEnabled: BitriseYmlStoreState['updateWorkflowTriggersEnabled'];
 };
@@ -134,7 +135,7 @@ const Triggers = (props: TriggersProps) => {
     isWebsiteMode,
   );
 
-  const triggers: TargetBasedTriggers = deepCloneSimpleObject(triggersProp || {});
+  const triggers: TriggersModel = deepCloneSimpleObject(triggersProp || {});
 
   const { triggersInProject, numberOfLegacyTriggers } = useBitriseYmlStore(({ yml }) => ({
     triggersInProject: getPipelineableTriggers(yml),
@@ -170,13 +171,13 @@ const Triggers = (props: TriggersProps) => {
       delete (triggers[type][index] as TargetBasedTriggerItem).enabled;
     }
 
-    const triggerConditions: Record<string, StringOrRegex> = {};
+    const triggerConditions: Record<string, TriggerMapItemModelRegexCondition> = {};
     (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
       if (key !== 'enabled' && key !== 'draft_enabled') {
         if (typeof trigger[key] === 'string') {
-          triggerConditions[key] = { wildcard: trigger[key] } as StringOrRegex;
+          triggerConditions[key] = { regex: trigger[key] } as TriggerMapItemModelRegexCondition;
         } else {
-          triggerConditions[key] = trigger[key] as StringOrRegex;
+          triggerConditions[key] = trigger[key] as TriggerMapItemModelRegexCondition;
         }
       }
     });
