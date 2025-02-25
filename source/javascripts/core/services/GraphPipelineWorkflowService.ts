@@ -14,7 +14,7 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
     }
 
     if (collisions.length > 0) {
-      return `Cannot create ${parallel} parallel workflows because the following IDs already exist: ${collisions.join(', ')}.`;
+      return `Cannot create ${parallel} parallel Workflows because the following IDs already exist: ${collisions.join(', ')}.`;
     }
   }
 
@@ -28,7 +28,7 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
     });
 
     if (collisions.length > 0) {
-      return `The environment variable ${parallel} might create workflow IDs that conflict with existing workflows: ${collisions.join(', ')}.`;
+      return `The environment variable ${parallel} might create Workflow IDs that conflict with existing Workflows: ${collisions.join(', ')}.`;
     }
   }
 
