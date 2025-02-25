@@ -3,7 +3,7 @@ import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitris
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
-import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems } from '../../Triggers.types';
+import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems, StringOrRegex } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
@@ -20,8 +20,7 @@ type AddTriggerProps = {
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, id, trackingData } =
-    props;
+  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData } = props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -53,8 +52,11 @@ const AddTrigger = (props: AddTriggerProps) => {
   });
 
   const onAppend = () => {
+    const availableTypes = Object.keys(optionsMap) as ConditionType[];
+    const usedTypes = conditions.map((condition) => condition.type);
+    const newType = availableTypes.find((type) => !usedTypes.includes(type));
     append({
-      type: '',
+      type: newType,
       value: '',
       isRegex: false,
     });
@@ -89,15 +91,15 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   const handleSegmentTrack = () => {
-    const triggerConditions: Record<string, any> = {};
+    const triggerConditions: Record<string, StringOrRegex> = {};
     conditions.forEach((condition) => {
-      let value: any = {};
+      let value = {};
       if (condition.isRegex) {
         value = { regex: condition.value };
       } else {
         value = { wildcard: condition.value };
       }
-      triggerConditions[condition.type || ''] = value;
+      triggerConditions[condition.type || ''] = value as StringOrRegex;
     });
     segmentTrack(
       editedItem
@@ -139,32 +141,20 @@ const AddTrigger = (props: AddTriggerProps) => {
     <FormProvider {...formMethods}>
       <Box as="form" display="flex" flexDir="column" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
         <Box>
-          <Text textStyle="heading/h3" marginBlockEnd="8">
+          <Text textStyle="heading/h4" marginBlockEnd="4">
             {title}
           </Text>
-          <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-            Set up the trigger conditions that should all be met to execute the {id} target.
+          <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
+            Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this Pipeline should
+            run.
           </Text>
-          {fields.map((item, index) => {
-            return (
-              <ConditionCard conditionNumber={index} key={item.id} optionsMap={optionsMap} labelsMap={labelsMap}>
-                {index > 0 && (
-                  <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
-                    Remove
-                  </Button>
-                )}
-              </ConditionCard>
-            );
-          })}
-          <Button
-            variant="secondary"
-            leftIconName="PlusCircle"
-            width="100%"
-            onClick={onAppend}
-            isDisabled={fields.length >= Object.keys(optionsMap).length}
-          >
-            Add condition
-          </Button>
+          <ConditionCard
+            fields={fields}
+            labelsMap={labelsMap}
+            append={onAppend}
+            optionsMap={optionsMap}
+            remove={remove}
+          />
           {triggerType === 'pull_request' && (
             <Checkbox
               isChecked={isDraftPr}
