@@ -77,7 +77,6 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
         sanitize={WorkflowService.sanitizeName}
         validate={WorkflowService.validateName}
         onCommit={handleNameChange}
-        size="md"
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
