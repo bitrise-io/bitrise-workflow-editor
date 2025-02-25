@@ -16,7 +16,12 @@ import {
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
 import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
-import { FormItems, LegacyPushConditionType, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+import {
+  ConditionType,
+  FormItems,
+  LegacyPushConditionType,
+  TriggerItem,
+} from '@/components/unified-editor/Triggers/Triggers.types';
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 type DialogProps = {
@@ -109,10 +114,13 @@ const AddPushTriggerDialog = (props: DialogProps) => {
   };
 
   const onAppend = () => {
+    const availableTypes = Object.keys(OPTIONS_MAP) as ConditionType[];
+    const usedTypes = conditions.map((condition) => condition.type);
+    const newType = availableTypes.find((type) => !usedTypes.includes(type));
     append({
-      isRegex: false,
-      type: '',
+      type: newType,
       value: '',
+      isRegex: false,
     });
   };
 
@@ -136,7 +144,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
         isOpen={isOpen}
         onClose={onFormCancel}
         title={isEditMode ? 'Edit trigger' : 'Add push trigger'}
-        maxWidth="480"
+        maxWidth="640"
         onSubmit={handleSubmit(onFormSubmit)}
       >
         <DialogBody>
@@ -156,26 +164,13 @@ const AddPushTriggerDialog = (props: DialogProps) => {
                 </DefinitionTooltip>{' '}
                 that should all be met to execute the targeted Pipeline or Workflow.
               </Text>
-              {fields.map((item, index) => {
-                return (
-                  <ConditionCard conditionNumber={index} key={item.id} optionsMap={OPTIONS_MAP} labelsMap={LABELS_MAP}>
-                    {index > 0 && (
-                      <Button leftIconName="MinusCircle" onClick={() => remove(index)} size="sm" variant="tertiary">
-                        Remove
-                      </Button>
-                    )}
-                  </ConditionCard>
-                );
-              })}
-              <Button
-                variant="secondary"
-                leftIconName="PlusCircle"
-                width="100%"
-                onClick={onAppend}
-                isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
-              >
-                Add condition
-              </Button>
+              <ConditionCard
+                fields={fields}
+                labelsMap={LABELS_MAP}
+                append={onAppend}
+                optionsMap={OPTIONS_MAP}
+                remove={remove}
+              />
             </>
           ) : (
             <>

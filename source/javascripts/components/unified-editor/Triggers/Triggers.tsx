@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   ExpandableCard,
+  Icon,
   Link,
   Notification,
   OverflowMenu,
@@ -19,7 +20,7 @@ import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
+import { StringOrRegex, TargetBasedTriggerItem, TargetBasedTriggers, TriggerType } from './Triggers.types';
 
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
@@ -151,7 +152,7 @@ const Triggers = (props: TriggersProps) => {
   };
 
   const onTriggerDelete = (trigger: TargetBasedTriggerItem, type: TriggerType) => {
-    triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
+    triggers[type] = triggers[type]?.filter((t: TargetBasedTriggerItem) => !isEqual(trigger, t));
     updateTriggers(id, triggers);
   };
 
@@ -169,13 +170,13 @@ const Triggers = (props: TriggersProps) => {
       delete (triggers[type][index] as TargetBasedTriggerItem).enabled;
     }
 
-    const triggerConditions: Record<string, any> = {};
+    const triggerConditions: Record<string, StringOrRegex> = {};
     (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
       if (key !== 'enabled' && key !== 'draft_enabled') {
         if (typeof trigger[key] === 'string') {
-          triggerConditions[key] = { wildcard: trigger[key] };
+          triggerConditions[key] = { wildcard: trigger[key] } as StringOrRegex;
         } else {
-          triggerConditions[key] = trigger[key];
+          triggerConditions[key] = trigger[key] as StringOrRegex;
         }
       }
     });
@@ -264,9 +265,15 @@ const Triggers = (props: TriggersProps) => {
           />
         </Card>
         <ExpandableCard
+          isExpanded
           padding="0"
           buttonPadding="16px 24px"
-          buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}
+          buttonContent={
+            <Box display="flex" justifyContent="flex-start">
+              <Icon name="Push" marginRight={8} />
+              <Text textStyle="body/lg/semibold">Push</Text>
+            </Box>
+          }
         >
           {(triggers.push as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
             <TriggerItem
@@ -285,10 +292,10 @@ const Triggers = (props: TriggersProps) => {
             />
           ))}
           <Button
-            margin="24"
+            margin="12"
             size="md"
-            variant="secondary"
-            leftIconName="PlusCircle"
+            variant="tertiary"
+            leftIconName="Plus"
             onClick={() => {
               setTriggerType('push');
             }}
@@ -297,9 +304,15 @@ const Triggers = (props: TriggersProps) => {
           </Button>
         </ExpandableCard>
         <ExpandableCard
+          isExpanded
           padding="0"
           buttonPadding="16px 24px"
-          buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>}
+          buttonContent={
+            <Box display="flex" justifyContent="flex-start">
+              <Icon name="Pull" marginRight={8} />
+              <Text textStyle="body/lg/semibold">Pull request</Text>
+            </Box>
+          }
           marginY="12"
         >
           {(triggers.pull_request as TargetBasedTriggerItem[])?.map(
@@ -321,10 +334,10 @@ const Triggers = (props: TriggersProps) => {
             ),
           )}
           <Button
-            margin="24"
+            margin="12"
             size="md"
-            variant="secondary"
-            leftIconName="PlusCircle"
+            variant="tertiary"
+            leftIconName="Plus"
             onClick={() => {
               setTriggerType('pull_request');
             }}
@@ -333,9 +346,15 @@ const Triggers = (props: TriggersProps) => {
           </Button>
         </ExpandableCard>
         <ExpandableCard
+          isExpanded
           padding="0"
           buttonPadding="16px 24px"
-          buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}
+          buttonContent={
+            <Box display="flex" justifyContent="flex-start">
+              <Icon name="Tag" marginRight={8} />
+              <Text textStyle="body/lg/semibold">Tag</Text>
+            </Box>
+          }
         >
           {(triggers.tag as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
             <TriggerItem
@@ -354,10 +373,10 @@ const Triggers = (props: TriggersProps) => {
             />
           ))}
           <Button
-            margin="24"
+            margin="12"
             size="md"
-            variant="secondary"
-            leftIconName="PlusCircle"
+            variant="tertiary"
+            leftIconName="Plus"
             onClick={() => {
               setTriggerType('tag');
             }}
