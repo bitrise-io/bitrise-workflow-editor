@@ -1,6 +1,6 @@
 import { ChangeEventHandler, useState } from 'react';
 import { Box, CodeSnippet, Input, Link, Text } from '@bitrise/bitkit';
-import WindowUtils from '../../../../core/utils/WindowUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 
 const TOOLTIP_MAP: Record<string, string> = {
   '<event_type>': 'PR / Push / Tag',
@@ -73,7 +73,6 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         placeholder={projectBasedTemplate}
         value={statusReportName}
         onChange={onGitStatusNameChange}
-        withCounter
         maxLength={100}
       />
       {pageProps?.settings?.statusReport && (
