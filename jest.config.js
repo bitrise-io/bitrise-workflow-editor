@@ -4,7 +4,7 @@ module.exports = {
   roots: ['./source'],
   testEnvironment: 'node',
   transform: {
-    '^.+.tsx?$': 'ts-jest',
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   },
   moduleNameMapper: {
     '\\.(css|less|svg)$': 'identity-obj-proxy',
