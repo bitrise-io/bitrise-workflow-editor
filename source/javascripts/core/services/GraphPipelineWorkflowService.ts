@@ -3,10 +3,14 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
   const isEnvVar = typeof parallel === 'string' && parallel.startsWith('$');
   const isPositiveInteger = isIntegerValue(parallel) && Number(parallel) > 0;
 
+  if (isPositiveInteger && Number(parallel) > 500) {
+    return 'The maximum number of parallel copies is 500.';
+  }
+
   if (isPositiveInteger && workflowId && existingWorkflowIds?.length) {
     const collisions: string[] = [];
 
-    for (let i = 0; i < Math.min(Number(parallel), 9999); i++) {
+    for (let i = 0; i < Number(parallel); i++) {
       const generatedWorkflowId = `${workflowId}_${i}`;
       if (existingWorkflowIds.includes(generatedWorkflowId)) {
         collisions.push(generatedWorkflowId);
