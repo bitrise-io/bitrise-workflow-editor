@@ -112,6 +112,7 @@ type BitriseYmlStoreState = {
   updatePipelineTriggers: (pipelineId: string, triggers: TriggersModel) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
   updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
+  updateStepBundleInputs: (id: string, inputs: EnvModel, yml: BitriseYml) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -509,6 +510,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
+        };
+      });
+    },
+    updateStepBundleInputs(id, inputs) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepBundleInputs(id, inputs, state.yml),
         };
       });
     },

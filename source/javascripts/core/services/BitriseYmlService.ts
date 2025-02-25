@@ -1093,6 +1093,22 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: Bitri
   return copy;
 }
 
+function updateStepBundleInputs(id: string, inputs: EnvModel, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[id]) {
+    return copy;
+  }
+
+  copy.step_bundles[id].inputs = updateInputs(copy.step_bundles[id].inputs, inputs);
+
+  if (shouldRemoveField(copy.step_bundles[id].inputs, yml.step_bundles?.[id]?.inputs)) {
+    delete copy.step_bundles[id].inputs;
+  }
+
+  return copy;
+}
+
 function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1246,6 +1262,44 @@ function updateEnvVars(oldEnvVars?: EnvModel, newEnvVars?: EnvModel) {
     }
 
     return oldEnvVar;
+  });
+}
+
+function updateInputs(oldInputs?: EnvModel, newInputs?: EnvModel) {
+  return newInputs?.map((newInput, i) => {
+    const oldInput = oldInputs?.[i];
+
+    if (!oldInput) {
+      return newInput;
+    }
+
+    const { opts: oo, ...oldInputKeyValue } = oldInput;
+    const { opts: no, ...newInputKeyValue } = newInput;
+
+    if (!isEqual(oldInputKeyValue, newInputKeyValue)) {
+      return newInput;
+    }
+
+    if (newInput.opts) {
+      oldInput.opts = omitBy(newInput.opts, (value) => {
+        if (typeof value === 'boolean') {
+          return value !== true;
+        }
+        if (typeof value === 'string') {
+          return value === '';
+        }
+        if (Array.isArray(value) && value.length === 0) {
+          return true;
+        }
+        return false;
+      });
+    }
+
+    if (isEmpty(oldInput.opts)) {
+      delete oldInput.opts;
+    }
+
+    return oldInput;
   });
 }
 
@@ -1574,4 +1628,5 @@ export default {
   updatePipelineTriggers,
   updatePipelineTriggersEnabled,
   updateLicensePoolId,
+  updateStepBundleInputs,
 };
