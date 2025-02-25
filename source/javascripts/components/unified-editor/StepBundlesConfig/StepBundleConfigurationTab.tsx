@@ -8,7 +8,7 @@ const StepBundleConfigurationTab = () => {
       values for each Workflow."
       p={48}
     >
-      <Button leftIconName="Plus" variant="secondary" mt={24}>
+      <Button leftIconName="Plus" variant="secondary" size="md" mt={24}>
         Add input
       </Button>
     </EmptyState>

@@ -36,13 +36,11 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           )}
         </Box>
       </Box>
-      <Box mx={variant === 'drawer' ? '-24' : '0'} mt="16">
-        <TabList position="relative" paddingX="8">
-          <Tab>Configuration</Tab>
-          <Tab>Properties</Tab>
-          {shouldShowTriggersTab && <Tab>Triggers</Tab>}
-        </TabList>
-      </Box>
+      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
+        <Tab>Configuration</Tab>
+        <Tab>Properties</Tab>
+        {shouldShowTriggersTab && <Tab>Triggers</Tab>}
+      </TabList>
     </>
   );
 };
