@@ -1,4 +1,4 @@
-import { Box, TabList, Tabs, Text, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
+import { TabList, Tabs, Text, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
@@ -14,15 +14,13 @@ type Props = {
 const EnvVarsPageContent = () => {
   return (
     <Tabs isLazy>
-      <Box>
-        <Text textStyle="heading/h2" p="32">
-          Environment Variables
-        </Text>
-        <TabList px="16">
-          <Tab>Project</Tab>
-          <Tab>Workflows</Tab>
-        </TabList>
-      </Box>
+      <Text as="h2" textStyle="heading/h2" p="32">
+        Environment Variables
+      </Text>
+      <TabList px="16">
+        <Tab>Project</Tab>
+        <Tab>Workflows</Tab>
+      </TabList>
       <TabPanels>
         <TabPanel>
           <ProjectTab />

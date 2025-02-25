@@ -13,8 +13,12 @@ const EnvVarsTableHeader = () => {
       borderBottom="1px solid"
       borderColor="border/minimal"
     >
-      <Text flex="1">Key</Text>
-      <Text flex="1">Value</Text>
+      <Text as="span" flex="1">
+        Key
+      </Text>
+      <Text as="span" flex="1">
+        Value
+      </Text>
     </Box>
   );
 };

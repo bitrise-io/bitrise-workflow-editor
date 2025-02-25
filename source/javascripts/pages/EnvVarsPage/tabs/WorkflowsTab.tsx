@@ -20,7 +20,9 @@ const WorkflowsTab = () => {
       />
       {workflowIds.map((workflowId, index) => (
         <Fragment key={workflowId}>
-          <Text textStyle="heading/h3">{workflowId}</Text>
+          <Text as="h3" textStyle="heading/h3">
+            {workflowId}
+          </Text>
           <EnvVarsTable source="workflow" sourceId={workflowId} />
           {workflowIds.length - 1 > index && <Divider />}
         </Fragment>

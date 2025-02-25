@@ -8,7 +8,9 @@ type Props = {
 const TabHeader = ({ title, subtitle }: Props) => {
   return (
     <Box>
-      <Text textStyle="heading/h3">{title}</Text>
+      <Text as="h3" textStyle="heading/h3">
+        {title}
+      </Text>
       <Text textStyle="body/md/regular" color="text/secondary">
         {subtitle}
       </Text>
