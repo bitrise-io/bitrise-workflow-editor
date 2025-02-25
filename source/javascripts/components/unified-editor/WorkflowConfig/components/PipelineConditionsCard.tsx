@@ -1,6 +1,7 @@
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 
+import { uniq } from 'es-toolkit';
 import { useShallow } from '@/hooks/useShallow';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -143,20 +144,30 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
   const initValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel || '');
 
+  const existingWorkflowIds = useBitriseYmlStore((s) => {
+    return uniq([
+      ...Object.keys(s.yml.workflows ?? {}),
+      ...Object.keys(s.yml.pipelines?.[pipelineId]?.workflows ?? {}),
+    ]);
+  });
+
   const [value, setValue] = useState(initValue);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const newValue = e.target.value;
-    const validationError = GraphPipelineWorkflowService.validateParallel(newValue);
+    setValue(e.target.value);
+  };
 
-    setValue(newValue);
+  useEffect(() => {
+    const stringValue = String(value);
+    const validationError = GraphPipelineWorkflowService.validateParallel(stringValue, workflowId, existingWorkflowIds);
+
     setError(validationError === true ? undefined : validationError);
 
     if (validationError === true) {
-      updatePipelineWorkflowParallel(pipelineId, workflowId, newValue);
+      updatePipelineWorkflowParallel(pipelineId, workflowId, stringValue);
     }
-  };
+  }, [value, pipelineId, workflowId, existingWorkflowIds, updatePipelineWorkflowParallel]);
 
   return (
     <Input
