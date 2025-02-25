@@ -1,8 +1,8 @@
-import { Box } from '@bitrise/bitkit';
-import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { Tabs } from '@bitrise/bitkit';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
-import StepBundlePropertiesTab from './StepBundlePropertiesTab';
-import StepBundlesConfigHeader from './StepBundlesConfigHeader';
+import StepBundleConfigContent from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigContent';
+import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import StepBundleConfigHeader from './StepBundlesConfigHeader';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
 type Props = {
@@ -14,12 +14,10 @@ const StepBundlesConfigPanelContent = () => {
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
   return (
-    <Box padding="24" borderLeft="1px solid" borderColor="border/regular">
-      <Box as="header" marginBlockEnd="24">
-        <StepBundlesConfigHeader />
-      </Box>
-      <StepBundlePropertiesTab onDelete={() => closeDialog()} onRename={setSelectedStepBundle} />
-    </Box>
+    <Tabs borderLeft="1px solid" borderColor="border/regular">
+      <StepBundleConfigHeader variant="panel" />
+      <StepBundleConfigContent onDelete={closeDialog} onRename={setSelectedStepBundle} p={24} />
+    </Tabs>
   );
 };
 

@@ -1,3 +1,5 @@
+import { Tabs } from '@bitrise/bitkit';
+import StepBundleConfigHeader from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfigHeader';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -5,9 +7,8 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
-import StepBundlesConfigHeader from './StepBundlesConfigHeader';
+import StepBundleConfigContent from './StepBundleConfigContent';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   onRename?: (name: string) => void;
@@ -21,17 +22,19 @@ const StepBundleConfigDrawerContent = ({
   ...props
 }: Omit<Props, 'stepBundleId' | 'stepIndex' | 'workflowId'>) => {
   return (
-    <FloatingDrawer {...props}>
-      <FloatingDrawerContent>
-        <FloatingDrawerCloseButton />
-        <FloatingDrawerHeader>
-          <StepBundlesConfigHeader />
-        </FloatingDrawerHeader>
-        <FloatingDrawerBody>
-          <StepBundlePropertiesTab onRename={onRename} />
-        </FloatingDrawerBody>
-      </FloatingDrawerContent>
-    </FloatingDrawer>
+    <Tabs>
+      <FloatingDrawer {...props}>
+        <FloatingDrawerContent>
+          <FloatingDrawerCloseButton />
+          <FloatingDrawerHeader>
+            <StepBundleConfigHeader variant="drawer" />
+          </FloatingDrawerHeader>
+          <FloatingDrawerBody>
+            <StepBundleConfigContent onRename={onRename} />
+          </FloatingDrawerBody>
+        </FloatingDrawerContent>
+      </FloatingDrawer>
+    </Tabs>
   );
 };
 
