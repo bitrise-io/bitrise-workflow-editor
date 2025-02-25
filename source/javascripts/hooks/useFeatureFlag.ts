@@ -5,6 +5,7 @@ const defaultValues = {
   'enable-wfe-diff-editor': false,
   'enable-wfe-step-bundles-ui': false,
   'enable-wfe-parallel-workflow': false,
+  'enable-wfe-react-env-vars-page': false,
 };
 
 type FeatureFlags = typeof defaultValues;
