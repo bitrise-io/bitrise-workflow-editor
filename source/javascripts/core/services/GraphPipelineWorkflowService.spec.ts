@@ -50,6 +50,23 @@ describe('GraphPipelineWorkflowService', () => {
         );
       });
     });
+
+    describe('maximum parallel copies', () => {
+      it('should return true when parallel is less than or equal to 500', () => {
+        expect(GraphPipelineWorkflowService.validateParallel(500)).toBe(true);
+        expect(GraphPipelineWorkflowService.validateParallel('500')).toBe(true);
+        expect(GraphPipelineWorkflowService.validateParallel(499)).toBe(true);
+      });
+
+      it('should return error message when parallel is greater than 500', () => {
+        expect(GraphPipelineWorkflowService.validateParallel(501)).toBe(
+          'The maximum number of parallel copies is 500.',
+        );
+        expect(GraphPipelineWorkflowService.validateParallel('501')).toBe(
+          'The maximum number of parallel copies is 500.',
+        );
+      });
+    });
   });
 
   describe('isIntegerValue', () => {
