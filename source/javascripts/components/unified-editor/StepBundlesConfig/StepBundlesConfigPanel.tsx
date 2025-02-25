@@ -16,7 +16,7 @@ const StepBundlesConfigPanelContent = () => {
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
       <StepBundleConfigHeader variant="panel" />
-      <StepBundleConfigContent onDelete={closeDialog} onRename={setSelectedStepBundle} p={24} flex="1" minH="0" />
+      <StepBundleConfigContent onDelete={closeDialog} onRename={setSelectedStepBundle} p={24} flex="1" />
     </Tabs>
   );
 };
