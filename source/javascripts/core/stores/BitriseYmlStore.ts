@@ -23,6 +23,9 @@ type BitriseYmlStoreState = {
 
   getUniqueStepIds: () => string[];
 
+  // Project related actions
+  updateProjectEnvVars: (envVars: EnvVar[]) => void;
+
   // Pipeline related actions
   createPipeline: (pipelineId: string, basePipelineId?: string) => void;
   renamePipeline: (pipelineId: string, newPipelineId: string) => void;
@@ -119,6 +122,15 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
     defaultMeta,
     getUniqueStepIds() {
       return BitriseYmlService.getUniqueStepIds(get().yml);
+    },
+
+    // Project related actions
+    updateProjectEnvVars(envVars) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),
+        };
+      });
     },
 
     // Pipeline related actions
