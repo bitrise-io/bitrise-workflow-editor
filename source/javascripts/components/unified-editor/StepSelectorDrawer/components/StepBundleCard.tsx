@@ -156,7 +156,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   size="xs"
                   tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
                   className="nopan"
-                  onClick={onToggle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggle();
+                  }}
                   iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
                   aria-label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
                   tooltipProps={{
