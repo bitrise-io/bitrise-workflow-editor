@@ -1,7 +1,7 @@
 import { Tabs } from '@bitrise/bitkit';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
-import StepBundleConfigContent from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigContent';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import StepBundleConfigContent from './StepBundleConfigContent';
 import StepBundleConfigHeader from './StepBundlesConfigHeader';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
@@ -14,9 +14,9 @@ const StepBundlesConfigPanelContent = () => {
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
   return (
-    <Tabs borderLeft="1px solid" borderColor="border/regular">
+    <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
       <StepBundleConfigHeader variant="panel" />
-      <StepBundleConfigContent onDelete={closeDialog} onRename={setSelectedStepBundle} p={24} />
+      <StepBundleConfigContent onDelete={closeDialog} onRename={setSelectedStepBundle} p={24} flex="1" minH="0" />
     </Tabs>
   );
 };

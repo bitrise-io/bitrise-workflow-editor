@@ -14,11 +14,11 @@ const StepBundleConfigContent = ({ onDelete, onRename, ...rest }: ConfigContentP
   return (
     <TabPanels {...rest}>
       {enableStepBundles && (
-        <TabPanel>
+        <TabPanel overflowY="auto" h="100%">
           <StepBundleConfigurationTab />
         </TabPanel>
       )}
-      <TabPanel>
+      <TabPanel overflowY="auto" h="100%">
         <StepBundlePropertiesTab onDelete={() => onDelete && onDelete()} onRename={onRename} />
       </TabPanel>
     </TabPanels>
