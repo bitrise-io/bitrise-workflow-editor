@@ -77,3 +77,17 @@ export const WithParallelWorkflow: Story = {
     set(window, 'parent.globalProps.featureFlags.account["enable-wfe-parallel-workflow"]', true);
   },
 };
+
+export const WithParallelWorkflowCollision: Story = {
+  args: {
+    yml: (() => {
+      const yml = TEST_BITRISE_YML;
+      set(yml, 'workflows.tmp_3', {});
+      set(yml, 'pipelines["graph-pipeline"].workflows.tmp_2', { uses: 'tmp' });
+      return yml;
+    })(),
+  },
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account["enable-wfe-parallel-workflow"]', true);
+  },
+};
