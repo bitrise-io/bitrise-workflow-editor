@@ -6,7 +6,7 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
   if (isPositiveInteger && workflowId && existingWorkflowIds?.length) {
     const collisions: string[] = [];
 
-    for (let i = 0; i < Number(parallel); i++) {
+    for (let i = 0; i < Math.min(Number(parallel), 9999); i++) {
       const generatedWorkflowId = `${workflowId}_${i}`;
       if (existingWorkflowIds.includes(generatedWorkflowId)) {
         collisions.push(generatedWorkflowId);
