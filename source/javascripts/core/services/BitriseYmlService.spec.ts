@@ -2809,6 +2809,109 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('updateProjectEnvVars', () => {
+    it('should add project envs if project is not exists in the yml', () => {
+      const sourceYml: BitriseYml = { format_version: '' };
+      const expectedYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }] } };
+      const actualYml = BitriseYmlService.updateProjectEnvVars([{ ENV0: 'env0' }], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should add project envs if project envs not exists in the yml', () => {
+      const sourceYml: BitriseYml = { format_version: '', app: {} };
+      const expectedYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }] } };
+      const actualYml = BitriseYmlService.updateProjectEnvVars([{ ENV0: 'env0' }], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove project envs field when the updated envs are empty', () => {
+      const sourceYml: BitriseYml = { format_version: '', app: { title: 'title', envs: [{ ENV0: 'env0' }] } };
+      const expectedYml: BitriseYml = { format_version: '', app: { title: 'title' } };
+      const actualYml = BitriseYmlService.updateProjectEnvVars([], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove project env item', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }, { opts: { is_expand: true }, ENV2: 'env2' }] },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [{ ENV0: 'env0' }, { ENV2: 'env2', opts: { is_expand: true } }] },
+      };
+
+      const actualYml = BitriseYmlService.updateProjectEnvVars(
+        [{ ENV0: 'env0' }, { ENV2: 'env2', opts: { is_expand: true } }],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update existing project envs', () => {
+      const sourceYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }] } };
+      const expectedYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }, { ENV1: 'envX' }] } };
+      const actualYml = BitriseYmlService.updateProjectEnvVars([{ ENV0: 'env0' }, { ENV1: 'envX' }], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should set and keep the existing position of the opts fields', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [
+            { opts: { is_expand: true }, ENV0: 'preserve-opts-key-position' },
+            { ENV1: 'env-1' },
+            { ENV2: 'env-2' },
+          ],
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [
+            { opts: { is_expand: false }, ENV0: 'preserve-opts-key-position' },
+            { ENV1: 'env-1' },
+            { ENV2: 'env-2', opts: { is_expand: false } },
+          ],
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateProjectEnvVars(
+        [
+          {
+            ENV0: 'preserve-opts-key-position',
+            opts: { is_expand: false }, // NOTE: Opts position is different here, but the service can keep the order of keys!
+          },
+          {
+            ENV1: 'env-1',
+          },
+          {
+            ENV2: 'env-2',
+            opts: { is_expand: false },
+          },
+        ],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should keep originally empty envs field', () => {
+      const sourceAndExpectedYml: BitriseYml = { format_version: '', app: { envs: [] } };
+      const actualYml = BitriseYmlService.updateProjectEnvVars([], sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('updateWorkflowEnvVars', () => {
     it('should add workflow envs if workflow has no envs before', () => {
       const sourceYml: BitriseYml = {

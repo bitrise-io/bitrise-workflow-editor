@@ -1061,6 +1061,22 @@ function appendWorkflowEnvVar(workflowId: string, envVar: EnvironmentItemModel, 
   return copy;
 }
 
+function updateProjectEnvVars(envVars: EnvModel, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.app) {
+    copy.app = {};
+  }
+
+  copy.app.envs = updateEnvVars(copy.app.envs, envVars);
+
+  if (shouldRemoveField(copy.app.envs, yml.app?.envs)) {
+    delete copy.app.envs;
+  }
+
+  return copy;
+}
+
 function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1068,28 +1084,7 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: Bitri
     return copy;
   }
 
-  copy.workflows[workflowId].envs = envVars.map((newEnvVar, i) => {
-    const oldEnvVar = copy.workflows?.[workflowId]?.envs?.[i];
-
-    if (!oldEnvVar) {
-      return newEnvVar;
-    }
-
-    const { opts: oo, ...oldEnvVarKeyValue } = oldEnvVar;
-    const { opts: no, ...newEnvVarKeyValue } = newEnvVar;
-
-    if (!isEqual(oldEnvVarKeyValue, newEnvVarKeyValue)) {
-      return newEnvVar;
-    }
-
-    if (newEnvVar.opts?.is_expand === undefined) {
-      delete oldEnvVar.opts;
-    } else {
-      oldEnvVar.opts = { is_expand: newEnvVar.opts.is_expand };
-    }
-
-    return oldEnvVar;
-  });
+  copy.workflows[workflowId].envs = updateEnvVars(copy.workflows[workflowId].envs, envVars);
 
   if (shouldRemoveField(copy.workflows[workflowId].envs, yml.workflows?.[workflowId]?.envs)) {
     delete copy.workflows[workflowId].envs;
@@ -1228,6 +1223,31 @@ function shouldRemoveField<T>(modified: T, original: T) {
 }
 
 // PRIVATE FUNCTIONS
+
+function updateEnvVars(oldEnvVars?: EnvModel, newEnvVars?: EnvModel) {
+  return newEnvVars?.map((newEnvVar, i) => {
+    const oldEnvVar = oldEnvVars?.[i];
+
+    if (!oldEnvVar) {
+      return newEnvVar;
+    }
+
+    const { opts: oo, ...oldEnvVarKeyValue } = oldEnvVar;
+    const { opts: no, ...newEnvVarKeyValue } = newEnvVar;
+
+    if (!isEqual(oldEnvVarKeyValue, newEnvVarKeyValue)) {
+      return newEnvVar;
+    }
+
+    if (newEnvVar.opts?.is_expand === undefined) {
+      delete oldEnvVar.opts;
+    } else {
+      oldEnvVar.opts = { is_expand: newEnvVar.opts.is_expand };
+    }
+
+    return oldEnvVar;
+  });
+}
 
 function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workflows: Workflows): Workflows {
   return mapValues(workflows, (workflow) => {
@@ -1547,6 +1567,7 @@ export default {
   updateWorkflowMeta,
   updateTriggerMap,
   appendWorkflowEnvVar,
+  updateProjectEnvVars,
   updateWorkflowEnvVars,
   updateWorkflowTriggers,
   updateWorkflowTriggersEnabled,
