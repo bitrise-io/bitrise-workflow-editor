@@ -26,6 +26,30 @@ describe('GraphPipelineWorkflowService', () => {
       expect(GraphPipelineWorkflowService.validateParallel(1.5)).toBe(expectedError);
       expect(GraphPipelineWorkflowService.validateParallel('1.5')).toBe(expectedError);
     });
+
+    describe('collision detection when parallel is positive integer', () => {
+      it('should return true when collision not detected', () => {
+        expect(GraphPipelineWorkflowService.validateParallel(3, 'foo', ['bar'])).toBe(true);
+      });
+
+      it('should return error message when collision detected', () => {
+        expect(GraphPipelineWorkflowService.validateParallel(3, 'foo', ['bar', 'foo', 'foo_1', 'foo_2'])).toBe(
+          'Cannot create 3 parallel Workflows because the following IDs already exist: foo_1, foo_2.',
+        );
+      });
+    });
+
+    describe('collision detection when parallel is environment variable', () => {
+      it('should return true when collision not detected', () => {
+        expect(GraphPipelineWorkflowService.validateParallel('$ENV', 'foo', ['bar'])).toBe(true);
+      });
+
+      it('should return error message when possible collision detected', () => {
+        expect(GraphPipelineWorkflowService.validateParallel('$ENV', 'foo', ['bar', 'foo', 'foo_1', 'foo_2'])).toBe(
+          'The environment variable $ENV might create Workflow IDs that conflict with existing Workflows: foo_1, foo_2.',
+        );
+      });
+    });
   });
 
   describe('isIntegerValue', () => {
