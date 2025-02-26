@@ -1,3 +1,5 @@
+import { create } from 'zustand';
+import { combine } from 'zustand/middleware';
 import { TabList, Tabs, Text, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
@@ -11,9 +13,11 @@ type Props = {
   onChange: (yml: BitriseYml) => void;
 };
 
+const useTabs = create(combine({ index: 0 }, (set) => ({ onChange: (index: number) => set({ index }) })));
+
 const EnvVarsPageContent = () => {
   return (
-    <Tabs isLazy>
+    <Tabs {...useTabs()} isLazy>
       <Text as="h2" textStyle="heading/h2" p="32">
         Environment Variables
       </Text>
