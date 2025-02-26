@@ -52,7 +52,7 @@ const StepMenu = (props: StepMenuProps) => {
           }
         }}
       >
-        Update Step version
+        Update version
       </OverflowMenuItem>,
     );
   }
@@ -70,8 +70,7 @@ const StepMenu = (props: StepMenuProps) => {
           }
         }}
       >
-        New bundle with {finalIndices.length} Step
-        {suffix}
+        New bundle with {finalIndices.length} item{suffix}
       </OverflowMenuItem>,
     );
   }
@@ -90,7 +89,7 @@ const StepMenu = (props: StepMenuProps) => {
           }
         }}
       >
-        Duplicate Step
+        Duplicate
       </OverflowMenuItem>,
     );
   }
@@ -114,7 +113,7 @@ const StepMenu = (props: StepMenuProps) => {
           }
         }}
       >
-        Delete Step{suffix}
+        Delete item{suffix}
       </OverflowMenuItem>,
     );
   }
