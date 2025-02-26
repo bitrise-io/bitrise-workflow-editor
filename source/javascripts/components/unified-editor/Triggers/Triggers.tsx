@@ -302,7 +302,7 @@ const Triggers = (props: TriggersProps) => {
               setTriggerType('push');
             }}
           >
-            Add push trigger
+            Add trigger
           </Button>
         </ExpandableCard>
         <ExpandableCard
@@ -344,7 +344,7 @@ const Triggers = (props: TriggersProps) => {
               setTriggerType('pull_request');
             }}
           >
-            Add pull request trigger
+            Add trigger
           </Button>
         </ExpandableCard>
         <ExpandableCard
@@ -383,7 +383,7 @@ const Triggers = (props: TriggersProps) => {
               setTriggerType('tag');
             }}
           >
-            Add tag trigger
+            Add trigger
           </Button>
         </ExpandableCard>
       </Box>
