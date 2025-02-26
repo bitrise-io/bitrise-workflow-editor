@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Box, Button, EmptyState, Input, Link, Text } from '@bitrise/bitkit';
 import { ButtonGroup, Collapse, useDisclosure } from '@chakra-ui/react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { StepBundleModel } from '@/core/models/BitriseYml';
+import { EnvironmentItemModel, EnvModel } from '@/core/models/BitriseYml';
 import StepInput from '../StepConfigDrawer/components/StepInput';
 import StepBundleAdditionalFields from './StepBundleAdditionalFields';
 
@@ -11,21 +11,27 @@ const StepBundleConfigurationTab = () => {
   const [showInputs, setShowInputs] = useState(false);
   const { isOpen, onToggle } = useDisclosure();
 
-  const formMethods = useForm<StepBundleModel>({
+  const formMethods = useForm<EnvironmentItemModel>({
     defaultValues: {
-      title: '',
       key: '',
-      defaultValue: '',
-      summary: '',
-      valueOptions: '',
-      category: '',
-      description: '',
+      default_value: '',
+      opts: {
+        title: '',
+        summary: '',
+        value_options: [],
+        category: '',
+        description: '',
+        is_required: false,
+        is_expand: false,
+        is_sensitive: false,
+        is_dont_change_value: false,
+      },
     },
   });
 
   const { control, handleSubmit, reset } = formMethods;
 
-  const onFormSubmit = (data: StepBundleModel) => {
+  const onFormSubmit = (data: EnvModel) => {
     console.log(data);
   };
 
@@ -94,7 +100,9 @@ const StepBundleConfigurationTab = () => {
                 name="defaultValue"
                 control={control}
                 render={({ field }) => (
-                  <StepInput label="Default value" helperText="Value must be a string." flex={1} {...field} />
+                  <Box flex={1}>
+                    <StepInput label="Default value" helperText="Value must be a string." {...field} />
+                  </Box>
                 )}
               />
             </Box>

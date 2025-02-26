@@ -41,13 +41,10 @@ export type EnvModel = EnvironmentItemModel[];
 
 export type StepBundleModel = {
   envs?: EnvModel;
+  inputs?: EnvModel;
   steps?: Steps;
   title?: string;
-  key?: string;
-  defaultValue?: string;
   summary?: string;
-  valueOptions?: string;
-  category?: string;
   description?: string;
 };
 
