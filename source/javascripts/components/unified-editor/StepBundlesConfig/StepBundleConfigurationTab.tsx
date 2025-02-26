@@ -3,30 +3,29 @@ import { useState } from 'react';
 import { Box, Button, EmptyState, Input, Link, Text } from '@bitrise/bitkit';
 import { ButtonGroup, Collapse, useDisclosure } from '@chakra-ui/react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
-import StepBundleAdditionalFields from '@/components/unified-editor/StepBundlesConfig/StepBundleAdditionalFields';
-
-type FormItems = {
-  title: string;
-  key: string;
-  defaultValue: string;
-};
+import { StepBundleModel } from '@/core/models/BitriseYml';
+import StepInput from '../StepConfigDrawer/components/StepInput';
+import StepBundleAdditionalFields from './StepBundleAdditionalFields';
 
 const StepBundleConfigurationTab = () => {
   const [showInputs, setShowInputs] = useState(false);
   const { isOpen, onToggle } = useDisclosure();
 
-  const formMethods = useForm<FormItems>({
+  const formMethods = useForm<StepBundleModel>({
     defaultValues: {
       title: '',
       key: '',
       defaultValue: '',
+      summary: '',
+      valueOptions: '',
+      category: '',
+      description: '',
     },
   });
 
   const { control, handleSubmit, reset } = formMethods;
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: StepBundleModel) => {
     console.log(data);
   };
 

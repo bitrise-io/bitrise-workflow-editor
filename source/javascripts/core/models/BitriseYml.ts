@@ -43,6 +43,8 @@ export type StepBundleModel = {
   envs?: EnvModel;
   steps?: Steps;
   title?: string;
+  key?: string;
+  defaultValue?: string;
   summary?: string;
   valueOptions?: string;
   category?: string;
