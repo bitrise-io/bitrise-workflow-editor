@@ -15,6 +15,7 @@ import NotificationMessageWithLink from './components/NotificationMessageWithLin
 import UpdateConfigurationDialog from './components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 import {
+  EnvVarsPage,
   LicensesPage,
   PipelinesPage,
   SecretsPage,
@@ -31,6 +32,7 @@ function register(component, props, injects) {
 // Page components
 angular
   .module('BitriseWorkflowEditor')
+  .component('rEnvVarsPage', register(EnvVarsPage, ['yml', 'onChange']))
   .component('rTriggersPage', register(TriggersPage, ['yml', 'onChange']))
   .component('rSecretsPage', register(SecretsPage, ['onSecretsChange']))
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'onChange']))
