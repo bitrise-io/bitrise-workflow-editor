@@ -44,6 +44,8 @@ export type StepBundleModel = {
   steps?: Steps;
   title?: string;
   summary?: string;
+  valueOptions?: string;
+  category?: string;
   description?: string;
 };
 

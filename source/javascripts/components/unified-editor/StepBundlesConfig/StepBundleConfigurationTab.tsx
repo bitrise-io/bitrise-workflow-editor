@@ -1,8 +1,10 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
-import { Box, Button, EmptyState, Input, Text } from '@bitrise/bitkit';
-import { ButtonGroup } from '@chakra-ui/react';
+import { Box, Button, EmptyState, Input, Link, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Collapse, useDisclosure } from '@chakra-ui/react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
+import StepBundleAdditionalFields from '@/components/unified-editor/StepBundlesConfig/StepBundleAdditionalFields';
 
 type FormItems = {
   title: string;
@@ -12,6 +14,7 @@ type FormItems = {
 
 const StepBundleConfigurationTab = () => {
   const [showInputs, setShowInputs] = useState(false);
+  const { isOpen, onToggle } = useDisclosure();
 
   const formMethods = useForm<FormItems>({
     defaultValues: {
@@ -96,6 +99,16 @@ const StepBundleConfigurationTab = () => {
                 )}
               />
             </Box>
+            <Collapse
+              in={isOpen}
+              transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
+              style={{ overflow: 'visible' }}
+            >
+              <StepBundleAdditionalFields />
+            </Collapse>
+            <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
+              {isOpen ? 'Show less options' : 'Show more options'}
+            </Link>
             <ButtonGroup display="flex" justifyContent="space-between" marginBlockStart="auto">
               <Button variant="tertiary" isDanger onClick={handleCancel}>
                 Cancel
