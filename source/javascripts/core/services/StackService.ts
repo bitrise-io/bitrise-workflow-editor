@@ -12,22 +12,6 @@ function isSelfHosted(stack: Stack) {
   return stack.id.startsWith('agent');
 }
 
-function selectStack(stacks: Stack[], stackId: string, defaultStackId: string): Stack | undefined {
-  // - If YML contains a valid stack
-  const selectedStack = getStackById(stacks, stackId);
-  if (selectedStack) {
-    return selectedStack;
-  }
-
-  // - If YMl not contains stack info, but default stack is available
-  const defaultStack = getStackById(stacks, defaultStackId);
-  if (defaultStack) {
-    return { ...defaultStack, id: '' };
-  }
-
-  return undefined;
-}
-
 function toStackOption(stack: Stack): StackOption {
   return {
     value: stack.id,
@@ -36,7 +20,6 @@ function toStackOption(stack: Stack): StackOption {
 }
 
 export default {
-  selectStack,
   getOsOfStack,
   getStackById,
   isSelfHosted,
