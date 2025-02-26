@@ -1,3 +1,4 @@
+import EnvVarsPage from './EnvVarsPage/EnvVarsPage';
 import LicensesPage from './LicensesPage/LicensesPage';
 import PipelinesPage from './PipelinesPage/PipelinesPage';
 import SecretsPage from './SecretsPage/SecretsPage';
@@ -6,4 +7,4 @@ import TriggersPage from './TriggersPage/TriggersPage';
 import WorkflowsPage from './WorkflowsPage/WorkflowsPage';
 import YmlPage from './YmlPage/YmlPage';
 
-export { LicensesPage, PipelinesPage, StepBundlesPage, SecretsPage, TriggersPage, WorkflowsPage, YmlPage };
+export { EnvVarsPage, LicensesPage, PipelinesPage, StepBundlesPage, SecretsPage, TriggersPage, WorkflowsPage, YmlPage };
