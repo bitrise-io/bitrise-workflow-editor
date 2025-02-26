@@ -130,15 +130,15 @@ export type TriggerMapItemModel = {
   enabled?: boolean;
   pipeline?: string;
   workflow?: string;
-  push_branch?: string | TriggerMapItemModelRegexCondition;
-  commit_message?: string | TriggerMapItemModelRegexCondition;
-  changed_files?: string | TriggerMapItemModelRegexCondition;
-  pull_request_source_branch?: string | TriggerMapItemModelRegexCondition;
-  pull_request_target_branch?: string | TriggerMapItemModelRegexCondition;
+  push_branch?: TriggerMapItemModelRegexCondition;
+  commit_message?: TriggerMapItemModelRegexCondition;
+  changed_files?: TriggerMapItemModelRegexCondition;
+  pull_request_source_branch?: TriggerMapItemModelRegexCondition;
+  pull_request_target_branch?: TriggerMapItemModelRegexCondition;
   draft_pull_request_enabled?: boolean;
-  pull_request_label?: string | TriggerMapItemModelRegexCondition;
-  pull_request_comment?: string | TriggerMapItemModelRegexCondition;
-  tag?: string | TriggerMapItemModelRegexCondition;
+  pull_request_label?: TriggerMapItemModelRegexCondition;
+  pull_request_comment?: TriggerMapItemModelRegexCondition;
+  tag?: TriggerMapItemModelRegexCondition;
   is_pull_request_allowed?: boolean;
 };
 
@@ -221,32 +221,34 @@ export type GraphPipelineWorkflowModel = {
 export type PushTriggerModel = {
   enabled?: boolean;
   priority?: number;
-  branch?: string | TriggerMapItemModelRegexCondition;
-  commit_message?: string | TriggerMapItemModelRegexCondition;
-  changed_files?: string | TriggerMapItemModelRegexCondition;
+  branch?: TriggerMapItemModelRegexCondition;
+  commit_message?: TriggerMapItemModelRegexCondition;
+  changed_files?: TriggerMapItemModelRegexCondition;
 };
 
 export type PullrequestTriggerModel = {
   enabled?: boolean;
   priority?: number;
   draft_enabled?: boolean;
-  source_branch?: string | TriggerMapItemModelRegexCondition;
-  target_branch?: string | TriggerMapItemModelRegexCondition;
-  label?: string | TriggerMapItemModelRegexCondition;
-  comment?: string | TriggerMapItemModelRegexCondition;
-  commit_message?: string | TriggerMapItemModelRegexCondition;
-  changed_files?: string | TriggerMapItemModelRegexCondition;
+  source_branch?: TriggerMapItemModelRegexCondition;
+  target_branch?: TriggerMapItemModelRegexCondition;
+  label?: TriggerMapItemModelRegexCondition;
+  comment?: TriggerMapItemModelRegexCondition;
+  commit_message?: TriggerMapItemModelRegexCondition;
+  changed_files?: TriggerMapItemModelRegexCondition;
 };
 
 export type TagTriggerModel = {
   enabled?: boolean;
   priority?: number;
-  name?: string | TriggerMapItemModelRegexCondition;
+  name?: TriggerMapItemModelRegexCondition;
 };
 
-export type TriggerMapItemModelRegexCondition = {
-  regex: string;
-};
+export type TriggerMapItemModelRegexCondition =
+  | string
+  | {
+      regex: string;
+    };
 
 export type StepListItemModel = {
   [stepId: string]: StepModel | WithModel | StepBundleOverrideModel;

@@ -18,7 +18,7 @@ const defaultValidateFn: Props['validate'] = () => true;
 const defaultSanitizeFn: Props['sanitize'] = (value) => value;
 
 const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidateFn, onCommit, ...props }: Props) => {
-  const { size, value, defaultValue, ...inputProps } = props;
+  const { size = 'md', value, defaultValue, ...inputProps } = props;
   const buttonSize = size === 'lg' ? 'md' : 'sm';
 
   // TODO maybe useEditable hook from Chakra UI
