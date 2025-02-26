@@ -3,22 +3,22 @@ import { useState } from 'react';
 import { Box, Button, EmptyState, Input, Link, Text } from '@bitrise/bitkit';
 import { ButtonGroup, Collapse, useDisclosure } from '@chakra-ui/react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { EnvironmentItemModel, EnvModel } from '@/core/models/BitriseYml';
+import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import StepInput from '../StepConfigDrawer/components/StepInput';
-import StepBundleAdditionalFields from './StepBundleAdditionalFields';
+import StepBundleAdditionalFields, { FormItems } from './StepBundleAdditionalFields';
 
 const StepBundleConfigurationTab = () => {
   const [showInputs, setShowInputs] = useState(false);
   const { isOpen, onToggle } = useDisclosure();
 
-  const formMethods = useForm<EnvironmentItemModel>({
+  const formMethods = useForm<FormItems>({
     defaultValues: {
       key: '',
       default_value: '',
       opts: {
         title: '',
         summary: '',
-        value_options: [],
+        value_options: '',
         category: '',
         description: '',
         is_required: false,
@@ -31,8 +31,23 @@ const StepBundleConfigurationTab = () => {
 
   const { control, handleSubmit, reset } = formMethods;
 
-  const onFormSubmit = (data: EnvModel) => {
-    console.log(data);
+  const onFormSubmit = (data: FormItems) => {
+    const result: EnvironmentItemModel = {
+      key: data.key,
+      value: data.default_value,
+      opts: {
+        title: data.opts.title,
+        summary: data.opts.summary,
+        value_options: data.opts.value_options.split('\n'),
+        category: data.opts.category,
+        description: data.opts.description,
+        is_required: data.opts.is_required,
+        is_expand: data.opts.is_expand,
+        is_sensitive: data.opts.is_sensitive,
+        is_dont_change_value: data.opts.is_dont_change_value,
+      },
+    };
+    console.log(result);
   };
 
   const handleCancel = () => {
@@ -68,7 +83,7 @@ const StepBundleConfigurationTab = () => {
           <Box as="form" display="flex" flexDir="column" gap="16" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
             <Text textStyle="heading/h3">New bundle input</Text>
             <Controller
-              name="title"
+              name="opts.title"
               control={control}
               render={({ field }) => (
                 <Input
@@ -97,7 +112,7 @@ const StepBundleConfigurationTab = () => {
               />
               <Text mx={8}>=</Text>
               <Controller
-                name="defaultValue"
+                name="default_value"
                 control={control}
                 render={({ field }) => (
                   <Box flex={1}>
