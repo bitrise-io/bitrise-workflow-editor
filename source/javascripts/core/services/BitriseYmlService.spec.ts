@@ -4457,12 +4457,152 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('updateStepBundleInputs', () => {
-    it('should add step bundle inputs if step bundle has no inputs before', () => {
+  describe('updateStepBundleInput', () => {
+    it('should update key of bundle input', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         step_bundles: {
-          bundle1: {},
+          bundle1: {
+            inputs: [{ opts: { is_required: true }, INPUT0: 'input0' }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ opts: { is_required: true }, INPUT0_NEW: 'input0' }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInput(
+        'bundle1',
+        0,
+        { INPUT0_NEW: 'input0', opts: { is_required: true } },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update value of bundle input', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ opts: { is_required: true }, INPUT0: 'input0' }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ opts: { is_required: true }, INPUT0: 'input0_new' }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInput(
+        'bundle1',
+        0,
+        { INPUT0: 'input0_new', opts: { is_required: true } },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update opts of bundle input and keep the original order', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [
+              {
+                opts: { title: 'oldTitle', is_required: true, value_options: ['foo'], category: 'category' },
+                INPUT0: 'input0',
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [
+              { opts: { title: 'new long Title', value_options: ['bar'], category: 'category' }, INPUT0: 'input0' },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInput(
+        'bundle1',
+        0,
+        {
+          INPUT0: 'input0',
+          opts: { category: 'category', title: 'new long Title', value_options: ['bar'], is_required: false },
+        },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should add opts to step bunde', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [
+              {
+                INPUT0: 'input0',
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ INPUT0: 'input0', opts: { title: 'title' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInput(
+        'bundle1',
+        0,
+        {
+          INPUT0: 'input0',
+          opts: { title: 'title' },
+        },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove opts to step bunde', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [
+              {
+                INPUT0: 'input0',
+                opts: { is_required: true, title: 'title' },
+              },
+            ],
+          },
         },
       };
 
@@ -4475,229 +4615,17 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStepBundleInputs('bundle1', [{ INPUT0: 'input0' }], sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should remove step bundle inputs field when the updated inputs are empty', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [{ INPUT0: 'input0' }],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {},
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateStepBundleInputs('bundle1', [], sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should remove step bundle input field', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [
-              {
-                INPUT0: 'input0',
-              },
-              {
-                INPUT1: 'input1',
-              },
-              {
-                opts: { is_required: true },
-                INPUT2: 'input2',
-              },
-            ],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [
-              {
-                INPUT0: 'input0',
-              },
-              {
-                INPUT2: 'input2',
-                opts: { is_required: true },
-              },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateStepBundleInputs(
+      const actualYml = BitriseYmlService.updateStepBundleInput(
         'bundle1',
-        [
-          {
-            INPUT0: 'input0',
-          },
-          {
-            INPUT2: 'input2',
-            opts: { is_required: true },
-          },
-        ],
+        0,
+        {
+          INPUT0: 'input0',
+          opts: { title: '', is_required: false },
+        },
         sourceYml,
       );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should update existing step bundle inputs', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [{ INPUT0: 'input0' }, { INPUT1: 'input1' }],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [{ INPUT0: 'input0' }, { INPUT1: 'inputX' }],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateStepBundleInputs(
-        'bundle1',
-        [{ INPUT0: 'input0' }, { INPUT1: 'inputX' }],
-        sourceYml,
-      );
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should set and keep the existing position of the opts fields', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [
-              {
-                opts: { title: 'title0' },
-                INPUT0: 'preserve-opts-key-position',
-              },
-              {
-                INPUT1: 'input1',
-              },
-              {
-                INPUT2: 'input2',
-              },
-            ],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [
-              {
-                opts: { title: 'newTitle0' },
-                INPUT0: 'preserve-opts-key-position',
-              },
-              {
-                INPUT1: 'input1',
-              },
-              {
-                INPUT2: 'input2',
-                opts: { title: 'newTitle2' },
-              },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateStepBundleInputs(
-        'bundle1',
-        [
-          {
-            INPUT0: 'preserve-opts-key-position',
-            opts: { title: 'newTitle0' }, // NOTE: Opts position is different here, but the service can keep the order of keys!
-          },
-          {
-            INPUT1: 'input1',
-          },
-          {
-            INPUT2: 'input2',
-            opts: { title: 'newTitle2' },
-          },
-        ],
-        sourceYml,
-      );
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should remove opts fields', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [
-              {
-                INPUT0: 'input0',
-                opts: { title: 'title', is_required: true, value_options: ['foo'] },
-              },
-            ],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [
-              {
-                INPUT0: 'input0',
-              },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateStepBundleInputs(
-        'bundle1',
-        [
-          {
-            INPUT0: 'input0',
-            opts: { is_required: false },
-          },
-        ],
-        sourceYml,
-      );
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should keep originally empty inputs field', () => {
-      const sourceAndExpectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: { bundle1: { inputs: [] } },
-      };
-      const actualYml = BitriseYmlService.updateStepBundleInputs('bundle1', [], sourceAndExpectedYml);
-
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
 });

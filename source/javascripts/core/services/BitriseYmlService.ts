@@ -6,6 +6,7 @@ import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import {
   BitriseYml,
   EnvironmentItemModel,
+  EnvironmentItemOptionsModel,
   EnvModel,
   Meta,
   PipelineModel,
@@ -1093,18 +1094,70 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: Bitri
   return copy;
 }
 
-function updateStepBundleInputs(id: string, inputs: EnvModel, yml: BitriseYml): BitriseYml {
+function updateStepBundleInput(
+  bundleId: string,
+  index: number,
+  newInput: EnvironmentItemModel,
+  yml: BitriseYml,
+): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (!copy.step_bundles?.[id]) {
+  if (!copy.step_bundles?.[bundleId] || !copy.step_bundles?.[bundleId].inputs?.[index]) {
     return copy;
   }
 
-  copy.step_bundles[id].inputs = updateInputs(copy.step_bundles[id].inputs, inputs);
-
-  if (shouldRemoveField(copy.step_bundles[id].inputs, yml.step_bundles?.[id]?.inputs)) {
-    delete copy.step_bundles[id].inputs;
+  let oldInput = copy.step_bundles[bundleId].inputs[index];
+  if (isEqual(oldInput, newInput)) {
+    return copy;
   }
+
+  const { opts: oo, ...oldInputKeyValue } = oldInput;
+  const { opts: no, ...newInputKeyValue } = newInput;
+
+  const [oldKey, oldValue] = Object.entries(oldInputKeyValue)[0];
+  const [newKey, newValue] = Object.entries(newInputKeyValue)[0];
+
+  if (newKey !== oldKey) {
+    oldInput = mapKeys(oldInput, (_value, key) => (oldKey === key ? newKey : key));
+  }
+
+  if (newValue !== oldValue) {
+    oldInput[newKey] = newValue;
+  }
+
+  if (isEmpty(oldInput.opts) && !isEmpty(newInput.opts)) {
+    oldInput.opts = newInput.opts;
+  }
+
+  if (!isEmpty(oldInput.opts) && !isEmpty(newInput.opts) && oldInput.opts) {
+    oldInput.opts = mapValues<EnvironmentItemOptionsModel, keyof EnvironmentItemOptionsModel, any>(
+      oldInput.opts,
+      (_value, key) => {
+        if (newInput.opts?.[key]) {
+          return newInput.opts[key];
+        }
+        return undefined;
+      },
+    );
+  }
+
+  if (!isEmpty(oldInput.opts)) {
+    oldInput.opts = omitBy(oldInput.opts, (value) => {
+      if (!value) {
+        return true;
+      }
+      if (Array.isArray(value) && value.length === 0) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  if (isEmpty(oldInput.opts)) {
+    delete oldInput.opts;
+  }
+
+  copy.step_bundles[bundleId].inputs[index] = oldInput;
 
   return copy;
 }
@@ -1262,44 +1315,6 @@ function updateEnvVars(oldEnvVars?: EnvModel, newEnvVars?: EnvModel) {
     }
 
     return oldEnvVar;
-  });
-}
-
-function updateInputs(oldInputs?: EnvModel, newInputs?: EnvModel) {
-  return newInputs?.map((newInput, i) => {
-    const oldInput = oldInputs?.[i];
-
-    if (!oldInput) {
-      return newInput;
-    }
-
-    const { opts: oo, ...oldInputKeyValue } = oldInput;
-    const { opts: no, ...newInputKeyValue } = newInput;
-
-    if (!isEqual(oldInputKeyValue, newInputKeyValue)) {
-      return newInput;
-    }
-
-    if (newInput.opts) {
-      oldInput.opts = omitBy(newInput.opts, (value) => {
-        if (typeof value === 'boolean') {
-          return value !== true;
-        }
-        if (typeof value === 'string') {
-          return value === '';
-        }
-        if (Array.isArray(value) && value.length === 0) {
-          return true;
-        }
-        return false;
-      });
-    }
-
-    if (isEmpty(oldInput.opts)) {
-      delete oldInput.opts;
-    }
-
-    return oldInput;
   });
 }
 
@@ -1628,5 +1643,5 @@ export default {
   updatePipelineTriggers,
   updatePipelineTriggersEnabled,
   updateLicensePoolId,
-  updateStepBundleInputs,
+  updateStepBundleInput,
 };
