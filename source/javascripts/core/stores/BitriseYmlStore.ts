@@ -10,6 +10,7 @@ import {
   TriggersModel,
   WorkflowModel,
   StepBundleModel,
+  EnvironmentItemModel,
 } from '@/core/models/BitriseYml';
 
 import { EnvVar } from '@/core/models/EnvVar';
@@ -112,6 +113,7 @@ type BitriseYmlStoreState = {
   updatePipelineTriggers: (pipelineId: string, triggers: TriggersModel) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
   updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
+  updateStepBundleInput: (bundleId: string, index: number, newInput: EnvironmentItemModel) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -509,6 +511,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
+        };
+      });
+    },
+    updateStepBundleInput(bundleId, index, newInput) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepBundleInput(bundleId, index, newInput, state.yml),
         };
       });
     },

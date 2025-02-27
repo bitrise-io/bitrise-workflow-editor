@@ -41,14 +41,11 @@ export type EnvModel = EnvironmentItemModel[];
 
 export type StepBundleModel = {
   envs?: EnvModel;
+  inputs?: EnvModel;
   steps?: Steps;
   title?: string;
   summary?: string;
   description?: string;
-};
-
-export type StepBundleOverrideModel = {
-  envs?: EnvModel;
 };
 
 export type IncludeItemModel = {
@@ -248,7 +245,7 @@ export type TriggerMapItemModelRegexCondition =
     };
 
 export type StepListItemModel = {
-  [stepId: string]: StepModel | WithModel | StepBundleOverrideModel;
+  [stepId: string]: StepModel | WithModel | StepBundleModel;
 };
 
 export type ContainerModel = {
