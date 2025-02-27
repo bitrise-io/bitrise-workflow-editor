@@ -4,6 +4,7 @@
 
 import path from 'path';
 import { readFileSync, existsSync } from 'fs';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vite';
 import reactSWCPlugin from '@vitejs/plugin-react-swc';
 import { version as WFE_VERSION } from './package.json';
@@ -23,7 +24,7 @@ export default defineConfig({
   base: publicPath,
   mode: isProd ? 'production' : 'development',
   build: {
-    target: 'es2015',
+    target: 'ES2015',
     emptyOutDir: true,
     outDir: OUTPUT_FOLDER,
     sourcemap: isProd ? 'hidden' : false,
@@ -32,6 +33,14 @@ export default defineConfig({
         main: path.resolve(CODEBASE, 'index.html'),
         index: path.resolve(CODEBASE, 'javascripts/index.js'),
         vendor: path.resolve(CODEBASE, 'javascripts/vendor.js'),
+      },
+      output: {
+        entryFileNames: 'javascripts/[name].js',
+        chunkFileNames: 'javascripts/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        manualChunks: {
+          'monaco-editor': ['monaco-editor'],
+        },
       },
     },
   },
@@ -52,7 +61,15 @@ export default defineConfig({
   },
   plugins: [
     reactSWCPlugin({
-      devTarget: 'es2015',
+      devTarget: 'ES2015',
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: path.resolve(CODEBASE, 'templates'),
+          dest: '.',
+        },
+      ],
     }),
   ],
   define: {

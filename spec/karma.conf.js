@@ -6,6 +6,7 @@ process.on("infrastructure_error", (error) => {
   console.error("infrastructure_error", error);
 });
 
+/** @param {import('karma').Config} config */
 module.exports = (config) => {
   config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
