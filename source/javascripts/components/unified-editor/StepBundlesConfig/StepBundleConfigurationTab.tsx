@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
-import { Box, Button, EmptyState, Input, Link, Text } from '@bitrise/bitkit';
-import { ButtonGroup, Collapse, useDisclosure } from '@chakra-ui/react';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import { Box, Button, ButtonGroup, EmptyState, Input, Link, Text, useDisclosure } from '@bitrise/bitkit';
+import { Collapse } from '@chakra-ui/react';
+import { FormProvider, useController, useForm } from 'react-hook-form';
 import StepInput from '../StepConfigDrawer/components/StepInput';
-import StepBundleAdditionalFields, { FormItems } from './StepBundleAdditionalFields';
+import { FormItems } from './StepBundle.types';
+import StepBundleAdditionalFields from './StepBundleAdditionalFields';
 
 const StepBundleConfigurationTab = () => {
   const [showInputs, setShowInputs] = useState(false);
@@ -14,11 +14,11 @@ const StepBundleConfigurationTab = () => {
   const formMethods = useForm<FormItems>({
     defaultValues: {
       key: '',
-      default_value: '',
+      value: '',
       opts: {
         title: '',
         summary: '',
-        value_options: '',
+        value_options: [],
         category: '',
         description: '',
         is_required: false,
@@ -29,25 +29,13 @@ const StepBundleConfigurationTab = () => {
     },
   });
 
-  const { control, handleSubmit, reset } = formMethods;
+  const { control, handleSubmit, register, reset } = formMethods;
+
+  const { field } = useController({ control, name: 'value' });
 
   const onFormSubmit = (data: FormItems) => {
-    const result: EnvironmentItemModel = {
-      key: data.key,
-      value: data.default_value,
-      opts: {
-        title: data.opts.title,
-        summary: data.opts.summary,
-        value_options: data.opts.value_options.split('\n'),
-        category: data.opts.category,
-        description: data.opts.description,
-        is_required: data.opts.is_required,
-        is_expand: data.opts.is_expand,
-        is_sensitive: data.opts.is_sensitive,
-        is_dont_change_value: data.opts.is_dont_change_value,
-      },
-    };
-    console.log(result);
+    const { key, value, opts } = data;
+    console.log({ [key]: value, opts });
   };
 
   const handleCancel = () => {
@@ -82,44 +70,28 @@ const StepBundleConfigurationTab = () => {
         <FormProvider {...formMethods}>
           <Box as="form" display="flex" flexDir="column" gap="16" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
             <Text textStyle="heading/h3">New bundle input</Text>
-            <Controller
-              name="opts.title"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  label="Title"
-                  helperText="This will be the label of the input. Keep it short and descriptive."
-                  size="md"
-                  isRequired
-                  {...field}
-                />
-              )}
+            <Input
+              label="Title"
+              helperText="This will be the label of the input. Keep it short and descriptive."
+              size="md"
+              isRequired
+              {...register('opts.title')}
             />
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Controller
-                name="key"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    label="Key"
-                    helperText="Use this key as variable in Step inputs."
-                    size="md"
-                    flex={1}
-                    isRequired
-                    {...field}
-                  />
-                )}
+              <Input
+                label="Key"
+                helperText="Use this key as variable in Step inputs."
+                size="md"
+                flex={1}
+                isRequired
+                {...register('key')}
               />
               <Text mx={8}>=</Text>
-              <Controller
-                name="default_value"
-                control={control}
-                render={({ field }) => (
-                  <Box flex={1}>
-                    <StepInput label="Default value" helperText="Value must be a string." {...field} />
-                  </Box>
-                )}
-              />
+              <Box flex={1}>
+                <Box flex={1}>
+                  <StepInput label="Default value" helperText="Value must be a string." {...field} />
+                </Box>
+              </Box>
             </Box>
             <Collapse
               in={isOpen}

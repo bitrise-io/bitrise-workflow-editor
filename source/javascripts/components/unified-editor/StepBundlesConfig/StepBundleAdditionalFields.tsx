@@ -1,43 +1,29 @@
 import { Box, Checkbox, Input, Textarea } from '@bitrise/bitkit';
-import { Controller, useFormContext } from 'react-hook-form';
-
-export type FormItems = {
-  key: string;
-  default_value: string;
-  opts: {
-    title: string;
-    summary: string;
-    value_options: string;
-    category: string;
-    description: string;
-    is_required: boolean;
-    is_expand: boolean;
-    is_sensitive: boolean;
-    is_dont_change_value: boolean;
-  };
-};
+import { useController, useFormContext } from 'react-hook-form';
+import { FormItems } from '@/components/unified-editor/StepBundlesConfig/StepBundle.types';
 
 const StepBundleAdditionalFields = () => {
-  const { control, register } = useFormContext<FormItems>();
+  const { register } = useFormContext<FormItems>();
+  const {
+    field: { onChange, value, ...rest },
+  } = useController({ name: 'opts.value_options' });
+
+  const handleValueOptionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value.split('\n'));
+  };
 
   return (
     <Box display="flex" flexDirection="column" gap={16}>
-      <Controller name="opts.summary" control={control} render={({ field }) => <Input label="Summary" {...field} />} />
-      <Controller
-        name="opts.value_options"
-        control={control}
-        render={({ field }) => <Textarea label="Value options" helperText="Add values as new lines." {...field} />}
+      <Input label="Summary" {...register('opts.summary')} />
+      <Textarea
+        label="Value options"
+        helperText="Add values as new lines."
+        value={value.join('\n')}
+        onChange={handleValueOptionsChange}
+        {...rest}
       />
-      <Controller
-        name="opts.category"
-        control={control}
-        render={({ field }) => <Input label="Category" {...field} />}
-      />
-      <Controller
-        name="opts.description"
-        control={control}
-        render={({ field }) => <Textarea label="Description" {...field} />}
-      />
+      <Input label="Category" {...register('opts.category')} />
+      <Textarea label="Description" {...register('opts.description')} />
       <Checkbox helperText="Input must have a valid value, or the Step will fail." {...register('opts.is_required')}>
         Required
       </Checkbox>
