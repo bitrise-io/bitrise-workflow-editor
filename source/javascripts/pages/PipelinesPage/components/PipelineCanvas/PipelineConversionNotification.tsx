@@ -15,7 +15,7 @@ const PipelineConversionNotification = ({ pipelineId }: Props) => {
 
   return (
     <Ribbon colorScheme="blue" onClose={() => hidePipelineConversionNotificationFor(pipelineId)}>
-      This Pipeline is based on a staged setup. Review artifact sharing and running conditions before running.
+      This Pipeline is based on a staged setup. Review artifact sharing and run conditions before running.
     </Ribbon>
   );
 };
