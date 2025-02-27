@@ -4505,11 +4505,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.deleteStepBundleInput(
-        'bundle1',
-        { INPUT0: 'input0', opts: { is_required: true } },
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.deleteStepBundleInput('bundle1', 0, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

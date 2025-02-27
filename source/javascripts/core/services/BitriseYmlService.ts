@@ -1106,14 +1106,14 @@ function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel,
   return copy;
 }
 
-function deleteStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
+function deleteStepBundleInput(bundleId: string, index: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   if (!copy.step_bundles?.[bundleId]) {
     return copy;
   }
 
-  copy.step_bundles[bundleId].inputs = copy.step_bundles[bundleId].inputs?.filter((input) => !isEqual(input, newInput));
+  copy.step_bundles?.[bundleId].inputs?.splice(index, 1);
 
   if (shouldRemoveField(copy.step_bundles?.[bundleId].inputs, undefined)) {
     delete copy.step_bundles?.[bundleId].inputs;
