@@ -1,4 +1,3 @@
-import { Meta, WorkflowModel } from '../models/BitriseYml';
 import { MachineType } from '../models/MachineType';
 import { Stack } from '../models/Stack';
 
@@ -12,60 +11,6 @@ function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType
   }
 
   return machines.filter((m) => stack.machineTypes.includes(m.id));
-}
-
-function getMachineFromMeta(machines: MachineType[], meta?: Meta): MachineType | undefined {
-  if (!meta) {
-    return undefined;
-  }
-
-  const machineId = meta['bitrise.io']?.machine_type_id;
-  return getMachineById(machines, machineId);
-}
-
-function getMachineOfWorkflow({
-  machines,
-  workflow,
-  meta,
-}: {
-  machines: MachineType[];
-  workflow: WorkflowModel;
-  meta: Meta;
-}): MachineType | undefined {
-  const workflowMachine = getMachineFromMeta(machines, workflow.meta);
-  return workflowMachine || getMachineFromMeta(machines, meta);
-}
-
-// Machine type selection depends on whether the requested machine type is available on the selected stack
-function selectMachineType(
-  selectableMachines: MachineType[],
-  selectedMachineTypeId: string,
-  defaultMachineTypeId: string,
-  isSelectionDisabled: boolean,
-): MachineType | undefined {
-  if (isSelectionDisabled) {
-    return undefined;
-  }
-
-  // - If the selected machine type is available, returns the selectedMachineTypeId, and the corresponding machine
-  const requestedMachine = getMachineById(selectableMachines, selectedMachineTypeId);
-  if (requestedMachine) {
-    return requestedMachine;
-  }
-
-  // - If the selected machine type is empty, but the default machine type is available, returns '' and the default machine
-  const defaultMachine = getMachineById(selectableMachines, defaultMachineTypeId);
-  if (defaultMachine) {
-    return { ...defaultMachine, id: '' };
-  }
-
-  // - If the both the selected machine type and the default machine type are not available, returns the first selectable machine's id and the first selectable machine
-  const firstMachine = selectableMachines[0];
-  if (firstMachine) {
-    return firstMachine;
-  }
-
-  return undefined;
 }
 
 function toMachineOption(machine: MachineType) {
@@ -88,8 +33,5 @@ function toMachineOption(machine: MachineType) {
 export default {
   getMachineById,
   getMachinesOfStack,
-  getMachineFromMeta,
-  getMachineOfWorkflow,
-  selectMachineType,
   toMachineOption,
 };
