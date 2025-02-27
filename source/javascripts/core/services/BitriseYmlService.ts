@@ -6,6 +6,7 @@ import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import {
   BitriseYml,
   EnvironmentItemModel,
+  EnvironmentItemOptionsModel,
   EnvModel,
   Meta,
   PipelineModel,
@@ -1093,6 +1094,102 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: Bitri
   return copy;
 }
 
+function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[bundleId]) {
+    return copy;
+  }
+
+  copy.step_bundles[bundleId].inputs = [...(copy.step_bundles[bundleId].inputs ?? []), newInput];
+
+  return copy;
+}
+
+function deleteStepBundleInput(bundleId: string, index: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[bundleId]) {
+    return copy;
+  }
+
+  copy.step_bundles?.[bundleId].inputs?.splice(index, 1);
+
+  if (shouldRemoveField(copy.step_bundles?.[bundleId].inputs, undefined)) {
+    delete copy.step_bundles?.[bundleId].inputs;
+  }
+
+  return copy;
+}
+
+function updateStepBundleInput(
+  bundleId: string,
+  index: number,
+  newInput: EnvironmentItemModel,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[bundleId] || !copy.step_bundles?.[bundleId].inputs?.[index]) {
+    return copy;
+  }
+
+  let oldInput = copy.step_bundles[bundleId].inputs[index];
+  if (isEqual(oldInput, newInput)) {
+    return copy;
+  }
+
+  const { opts: oo, ...oldInputKeyValue } = oldInput;
+  const { opts: no, ...newInputKeyValue } = newInput;
+
+  const [oldKey, oldValue] = Object.entries(oldInputKeyValue)[0];
+  const [newKey, newValue] = Object.entries(newInputKeyValue)[0];
+
+  if (newKey !== oldKey) {
+    oldInput = mapKeys(oldInput, (_value, key) => (oldKey === key ? newKey : key));
+  }
+
+  if (newValue !== oldValue) {
+    oldInput[newKey] = newValue;
+  }
+
+  if (isEmpty(oldInput.opts) && !isEmpty(newInput.opts)) {
+    oldInput.opts = newInput.opts;
+  }
+
+  if (!isEmpty(oldInput.opts) && !isEmpty(newInput.opts) && oldInput.opts) {
+    oldInput.opts = mapValues<EnvironmentItemOptionsModel, keyof EnvironmentItemOptionsModel, any>(
+      oldInput.opts,
+      (_value, key) => {
+        if (newInput.opts?.[key]) {
+          return newInput.opts[key];
+        }
+        return undefined;
+      },
+    );
+  }
+
+  if (!isEmpty(oldInput.opts)) {
+    oldInput.opts = omitBy(oldInput.opts, (value) => {
+      if (!value) {
+        return true;
+      }
+      if (Array.isArray(value) && value.length === 0) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  if (isEmpty(oldInput.opts)) {
+    delete oldInput.opts;
+  }
+
+  copy.step_bundles[bundleId].inputs[index] = oldInput;
+
+  return copy;
+}
+
 function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1574,4 +1671,7 @@ export default {
   updatePipelineTriggers,
   updatePipelineTriggersEnabled,
   updateLicensePoolId,
+  appendStepBundleInput,
+  deleteStepBundleInput,
+  updateStepBundleInput,
 };
