@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
-import { Box, Button, ButtonGroup, EmptyState, Input, Link, Text, useDisclosure } from '@bitrise/bitkit';
-import { Collapse } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, Collapse, EmptyState, Input, Link, Text, useDisclosure } from '@bitrise/bitkit';
 import { FormProvider, useController, useForm } from 'react-hook-form';
 import StepInput from '../StepConfigDrawer/components/StepInput';
 import { FormItems } from './StepBundle.types';
