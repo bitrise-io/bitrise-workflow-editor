@@ -1,117 +1,61 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
-import { Box, Button, ButtonGroup, Collapse, EmptyState, Input, Link, Text, useDisclosure } from '@bitrise/bitkit';
-import { FormProvider, useController, useForm } from 'react-hook-form';
-import StepInput from '../StepConfigDrawer/components/StepInput';
-import { FormItems } from './StepBundle.types';
-import StepBundleAdditionalFields from './StepBundleAdditionalFields';
+import { Button, EmptyState } from '@bitrise/bitkit';
+import StepBundleInputsCategoryCard from '@/components/unified-editor/StepBundlesConfig/StepBundleInputsCategoryCard';
+import StepBundleInputsForm from '@/components/unified-editor/StepBundlesConfig/StepBundleInputsForm';
+import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import { useStepBundleConfigContext } from './StepBundlesConfig.context';
+import { InputListItem } from './StepBundle.types';
 
 const StepBundleConfigurationTab = () => {
-  const [showInputs, setShowInputs] = useState(false);
-  const { isOpen, onToggle } = useDisclosure();
+  const [selectedInput, setSelectedInput] = useState<EnvironmentItemModel | null | 'empty'>(null);
+  const stepBundle = useStepBundleConfigContext();
 
-  const formMethods = useForm<FormItems>({
-    defaultValues: {
-      key: '',
-      value: '',
-      opts: {
-        title: '',
-        summary: '',
-        value_options: [],
-        category: '',
-        description: '',
-        is_required: false,
-        is_expand: false,
-        is_sensitive: false,
-        is_dont_change_value: false,
-      },
-    },
+  const categories: Record<string, InputListItem[]> = {
+    uncategorized: [],
+  };
+  stepBundle?.userValues.inputs?.forEach((input, index) => {
+    if (input?.opts?.category) {
+      categories[input.opts.category] = categories[input.opts.category] || [];
+      categories[input.opts.category].push({ ...input, index });
+    } else {
+      categories.uncategorized.push({ ...input, index });
+    }
   });
 
-  const { control, handleSubmit, register, reset } = formMethods;
-
-  const { field } = useController({ control, name: 'value' });
-
-  const onFormSubmit = (data: FormItems) => {
-    const { key, value, opts } = data;
-    console.log({ [key]: value, opts });
+  const handleEdit = (index: number) => {
+    setSelectedInput(stepBundle?.userValues.inputs?.[index] || 'empty');
+    console.log('Edit', index);
   };
 
-  const handleCancel = () => {
-    setShowInputs(false);
-    reset();
-  };
+  if (selectedInput) {
+    return <StepBundleInputsForm />;
+  }
 
-  return (
-    <>
-      {!showInputs && (
-        <EmptyState
-          title="Bundle inputs"
-          description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom
-      values for each Workflow."
-          p={48}
-        >
-          <Button
-            leftIconName="Plus"
-            variant="secondary"
-            size="md"
-            mt={24}
-            onClick={() => {
-              setShowInputs(true);
-            }}
-          >
-            Add input
-          </Button>
-        </EmptyState>
-      )}
-
-      {showInputs && (
-        <FormProvider {...formMethods}>
-          <Box as="form" display="flex" flexDir="column" gap="16" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
-            <Text textStyle="heading/h3">New bundle input</Text>
-            <Input
-              label="Title"
-              helperText="This will be the label of the input. Keep it short and descriptive."
-              size="md"
-              isRequired
-              {...register('opts.title')}
-            />
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Input
-                label="Key"
-                helperText="Use this key as variable in Step inputs."
-                size="md"
-                flex={1}
-                isRequired
-                {...register('key')}
-              />
-              <Text mx={8}>=</Text>
-              <Box flex={1}>
-                <Box flex={1}>
-                  <StepInput label="Default value" helperText="Value must be a string." {...field} />
-                </Box>
-              </Box>
-            </Box>
-            <Collapse
-              in={isOpen}
-              transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
-              style={{ overflow: 'visible' }}
-            >
-              <StepBundleAdditionalFields />
-            </Collapse>
-            <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
-              {isOpen ? 'Show less options' : 'Show more options'}
-            </Link>
-            <ButtonGroup display="flex" justifyContent="space-between" marginBlockStart="auto">
-              <Button variant="tertiary" isDanger onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button type="submit">Create</Button>
-            </ButtonGroup>
-          </Box>
-        </FormProvider>
-      )}
-    </>
+  return stepBundle?.userValues.inputs?.length ? (
+    Object.entries(categories).map(([category, inputs]) => {
+      if (category === 'uncategorized') {
+        return <StepBundleInputsCategoryCard key={category} defaults={inputs} onEdit={handleEdit} />;
+      }
+      return <StepBundleInputsCategoryCard key={category} title={category} defaults={inputs} onEdit={handleEdit} />;
+    })
+  ) : (
+    <EmptyState
+      title="Bundle inputs"
+      description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
+      p={48}
+    >
+      <Button
+        leftIconName="Plus"
+        variant="secondary"
+        size="md"
+        mt={24}
+        onClick={() => {
+          setSelectedInput('empty');
+        }}
+      >
+        Add input
+      </Button>
+    </EmptyState>
   );
 };
 
