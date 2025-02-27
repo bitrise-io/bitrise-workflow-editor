@@ -20,8 +20,8 @@ const PipelineCanvas = () => {
 
   return (
     <>
+      <PipelineConversionSignposting pipelineId={selectedPipeline} />
       <PipelineConversionNotification pipelineId={selectedPipeline} />
-      {variant === 'staged' && <PipelineConversionSignposting pipelineId={selectedPipeline} />}
       <Box bg="background/secondary" flex="1" position="relative" userSelect="none">
         <Toolbar
           top="16"

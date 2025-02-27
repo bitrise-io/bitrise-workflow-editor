@@ -1,8 +1,11 @@
 import { Ribbon } from '@bitrise/bitkit';
+
+import PipelineService from '@/core/services/PipelineService';
 import { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
 
-import usePipelineConversionSignposting from '../../hooks/usePipelineConversionSignposting';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
+import usePipelineConversionSignposting from '../../hooks/usePipelineConversionSignposting';
+import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
 
 type Props = {
   pipelineId: string;
@@ -11,8 +14,11 @@ type Props = {
 const PipelineConversionSignposting = ({ pipelineId }: Props) => {
   const bitriseYmlStoreApi = useBitriseYmlStoreApi();
   const { onSelectPipeline } = usePipelineSelector();
+
   const { isPipelineConversionSignpostingHiddenFor, hidePipelineConversionSignpostingFor } =
     usePipelineConversionSignposting();
+
+  const { displayPipelineConversionNotificationFor } = usePipelineConversionNotification();
 
   if (isPipelineConversionSignpostingHiddenFor(pipelineId)) {
     return null;
@@ -22,14 +28,19 @@ const PipelineConversionSignposting = ({ pipelineId }: Props) => {
     const pipelineIds = Object.keys(bitriseYmlStoreApi.getState().yml.pipelines ?? {});
 
     let suffix = 0;
-    let newPipelineName = [pipelineId, 'converted'].join('_');
-    while (pipelineIds.includes(newPipelineName)) {
+    let newPipelineId = [pipelineId, 'converted'].join('_');
+    while (pipelineIds.includes(newPipelineId)) {
       suffix += 1;
-      newPipelineName = [pipelineId, 'converted', suffix].join('_');
+      newPipelineId = [pipelineId, 'converted', suffix].join('_');
     }
 
-    bitriseYmlStoreApi.getState().createPipeline(newPipelineName, pipelineId);
-    onSelectPipeline(newPipelineName);
+    bitriseYmlStoreApi.getState().createPipeline(newPipelineId, pipelineId);
+
+    if (PipelineService.hasStepInside(newPipelineId, 'pull-intermediate-files', bitriseYmlStoreApi.getState().yml)) {
+      displayPipelineConversionNotificationFor(newPipelineId);
+    }
+
+    onSelectPipeline(newPipelineId);
   };
 
   return (
