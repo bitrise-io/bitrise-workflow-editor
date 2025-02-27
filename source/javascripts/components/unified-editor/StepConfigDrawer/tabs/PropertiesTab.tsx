@@ -125,12 +125,10 @@ const PropertiesTab = () => {
         <Link
           gap="4"
           display="flex"
-          target="_blank"
           alignSelf="start"
           className="source"
           alignItems="center"
           colorScheme="purple"
-          rel="noreferrer noopener"
           href={sourceUrl}
           isExternal
         >
