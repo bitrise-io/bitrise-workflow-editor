@@ -48,10 +48,6 @@ export type StepBundleModel = {
   description?: string;
 };
 
-export type StepBundleOverrideModel = {
-  envs?: EnvModel;
-};
-
 export type IncludeItemModel = {
   path: string;
   repository?: string;
@@ -249,7 +245,7 @@ export type TriggerMapItemModelRegexCondition =
     };
 
 export type StepListItemModel = {
-  [stepId: string]: StepModel | WithModel | StepBundleOverrideModel;
+  [stepId: string]: StepModel | WithModel | StepBundleModel;
 };
 
 export type ContainerModel = {

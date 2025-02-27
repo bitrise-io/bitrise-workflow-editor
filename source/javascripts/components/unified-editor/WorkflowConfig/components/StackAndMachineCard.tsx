@@ -69,9 +69,18 @@ const StackAndMachineCard = () => {
           isLoading={isLoading}
           value={selectedStack.id}
           errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
-          onChange={(e) =>
-            updateWorkflowMeta(workflow?.id || '', { stack: e.target.value, machine_type_id: selectedMachineType.id })
-          }
+          onChange={(e) => {
+            const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
+              stackId: e.target.value,
+              machineTypeId: selectedMachineType.id,
+              availableStacks: data?.availableStacks,
+              availableMachineTypes: data?.availableMachineTypes,
+            });
+            updateWorkflowMeta(workflow?.id || '', {
+              stack: stackId,
+              machine_type_id: machineTypeId,
+            });
+          }}
         >
           {availableStackOptions.map(({ value, label }) => (
             <option key={value} value={value}>
@@ -86,9 +95,18 @@ const StackAndMachineCard = () => {
           value={selectedMachineType.id}
           isDisabled={isMachineTypeSelectionDisabled}
           errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
-          onChange={(e) =>
-            updateWorkflowMeta(workflow?.id || '', { stack: selectedStack.id, machine_type_id: e.target.value })
-          }
+          onChange={(e) => {
+            const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
+              stackId: selectedStack.id,
+              machineTypeId: e.target.value,
+              availableStacks: data?.availableStacks,
+              availableMachineTypes: data?.availableMachineTypes,
+            });
+            updateWorkflowMeta(workflow?.id || '', {
+              stack: stackId,
+              machine_type_id: machineTypeId,
+            });
+          }}
         >
           {availableMachineTypeOptions.map(({ value, label }) => (
             <option key={value} value={value}>

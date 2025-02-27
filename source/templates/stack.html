@@ -59,7 +59,7 @@
             </div>
           </h5>
           <h5 class="machine-type-subheader" ng-if="appService.stack.type === &#39;linux&#39; &amp;&amp; groupId === &#39;gen2&#39;">
-            Pro Linux machines
+            AMD EPYC Zen4 Linux machines
           </h5>
           <div class="machine-types">
             <div class="machine-type-wrapper {{ machineType.stackType }}" ng-repeat="machineType in stackCtrl.stackMachineMap[appService.stack.id][groupId] track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{&#39;selected&#39;: machineType.id == appService.defaultMachineType.id, &#39;not-available&#39;: !machineType.isAvailable}">
@@ -162,7 +162,7 @@
               </div>
             </h5>
             <h5 class="machine-type-subheader" ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === &#39;linux&#39; &amp;&amp; groupId === &#39;gen2&#39;">
-              Pro Linux machines
+              AMD EPYC Zen4 Linux machines
             </h5>
             <div class="machine-types">
               <div class="machine-type-wrapper {{ machineType.stackType }}" ng-repeat="machineType in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id][groupId]" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{&#39;selected&#39;: machineType.id == stackCtrl.workflowMachineType(workflow).id, &#39;not-available&#39;: !machineType.isAvailable}">
