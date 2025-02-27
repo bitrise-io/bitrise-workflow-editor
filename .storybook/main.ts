@@ -42,10 +42,15 @@ const config: StorybookConfig = {
         test: /.*\/bitkit\/.*tsx?$/,
         use: [
           {
-            loader: "ts-loader",
+            loader: "swc-loader",
             options: {
-              transpileOnly: true,
-              configFile: require.resolve("@bitrise/bitkit/src/tsconfig.json"),
+              jsc: {
+                transform: {
+                  react: {
+                    runtime: 'automatic',
+                  },
+                },
+              },
             },
           },
         ],

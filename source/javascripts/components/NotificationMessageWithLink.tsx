@@ -14,7 +14,7 @@ const NotificationMessageWithLink: FunctionComponent<Props> = ({ message, type, 
   <Notification status={type}>
     <>
       {message}{' '}
-      <Link href={linkUrl} target="_blank" rel="noreferrer noopener" isUnderlined>
+      <Link href={linkUrl} isUnderlined isExternal>
         {linkText}
       </Link>
     </>
