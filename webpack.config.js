@@ -199,7 +199,7 @@ module.exports = {
         generator: {
           filename: '[name]-[hash][ext][query]',
           outputPath: 'images',
-          publicPath: isWebsiteMode ? `${publicPath}images/` : '/images/',
+          publicPath: `${publicPath}images/`,
         },
       },
 
@@ -210,7 +210,7 @@ module.exports = {
         generator: {
           filename: '[name]-[hash][ext][query]',
           outputPath: 'fonts',
-          publicPath: isWebsiteMode ? `${publicPath}fonts/` : '/fonts/',
+          publicPath: isWebsiteMode ? `${publicPath}fonts/` : 'fonts/',
         },
       },
     ],
