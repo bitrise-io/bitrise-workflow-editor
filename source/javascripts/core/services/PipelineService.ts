@@ -4,6 +4,7 @@ import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 
 import StepService from './StepService';
+import WorkflowService from './WorkflowService';
 
 const PIPELINE_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 const EMPTY_PIPELINE = { workflows: {} } as PipelineModel;
@@ -89,11 +90,13 @@ function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
     return false;
   }
 
-  return Object.entries(pipeline.workflows ?? {}).some(([workflowId, workflow]) => {
-    return yml.workflows?.[workflow.uses || workflowId]?.steps?.some((stepYmlObject) => {
-      const cvs = Object.keys(stepYmlObject)[0];
-      const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL);
-      return id === stepId;
+  return Object.entries(pipeline.workflows ?? {}).some(([workflowId, { uses }]) => {
+    return WorkflowService.getWorkflowChain(yml.workflows ?? {}, uses || workflowId).some((wfId) => {
+      return yml.workflows?.[wfId]?.steps?.some((stepYmlObject) => {
+        const cvs = Object.keys(stepYmlObject)[0];
+        const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL);
+        return id === stepId;
+      });
     });
   });
 }
