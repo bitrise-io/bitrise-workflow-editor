@@ -1094,6 +1094,34 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: Bitri
   return copy;
 }
 
+function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[bundleId]) {
+    return copy;
+  }
+
+  copy.step_bundles[bundleId].inputs = [...(copy.step_bundles[bundleId].inputs ?? []), newInput];
+
+  return copy;
+}
+
+function deleteStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[bundleId]) {
+    return copy;
+  }
+
+  copy.step_bundles[bundleId].inputs = copy.step_bundles[bundleId].inputs?.filter((input) => !isEqual(input, newInput));
+
+  if (shouldRemoveField(copy.step_bundles?.[bundleId].inputs, undefined)) {
+    delete copy.step_bundles?.[bundleId].inputs;
+  }
+
+  return copy;
+}
+
 function updateStepBundleInput(
   bundleId: string,
   index: number,
@@ -1643,5 +1671,7 @@ export default {
   updatePipelineTriggers,
   updatePipelineTriggersEnabled,
   updateLicensePoolId,
+  appendStepBundleInput,
+  deleteStepBundleInput,
   updateStepBundleInput,
 };

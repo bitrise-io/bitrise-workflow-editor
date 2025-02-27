@@ -4457,6 +4457,64 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('appendStepBundleInput', () => {
+    it('should add input to step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ INPUT0: 'input0', opts: { is_required: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendStepBundleInput(
+        'bundle1',
+        { INPUT0: 'input0', opts: { is_required: true } },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('deleteStepBundleInput', () => {
+    it('should delete input from step bundle', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ INPUT0: 'input0', opts: { is_required: true } }, { INPUT1: 'input1' }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        step_bundles: {
+          bundle1: {
+            inputs: [{ INPUT1: 'input1' }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStepBundleInput(
+        'bundle1',
+        { INPUT0: 'input0', opts: { is_required: true } },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('updateStepBundleInput', () => {
     it('should update key of bundle input', () => {
       const sourceYml: BitriseYml = {
