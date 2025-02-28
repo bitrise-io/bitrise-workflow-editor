@@ -1522,14 +1522,13 @@ function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = 
     }
 
     // Remove workflow from `workflows` section of the pipeline
-    delete pipelineCopy.workflows?.[workflowId];
+    if (pipelineCopy.workflows) {
+      delete pipelineCopy.workflows?.[workflowId];
+      pipelineCopy.workflows = deleteWorkflowFromDependsOn(workflowId, pipelineCopy.workflows);
+      pipelineCopy.workflows = deleteWorkflowVariants(workflowId, pipelineCopy.workflows);
 
-    pipelineCopy.workflows = deleteWorkflowFromDependsOn(workflowId, pipelineCopy.workflows);
-
-    pipelineCopy.workflows = deleteWorkflowVariants(workflowId, pipelineCopy.workflows);
-
-    if (shouldRemoveField(pipelineCopy.workflows, pipeline.workflows)) {
-      delete pipelineCopy.workflows;
+      // NOTE: We don't remove the whole `workflows` section in the pipeline if empty
+      //       because it can be detected as staged pipeline if the `workflows` section is missing
     }
 
     return pipelineCopy;
