@@ -83,6 +83,7 @@ const StepInput = forwardRef(
         placeholder={defaultValue || (isSensitive ? 'Add secret' : 'Enter value')}
         errorText={validationErrorIfRequired(value, isRequired)}
         helperText={<StepHelperText {...(helper ?? { summary: helperText })} />}
+        formControlProps={{ flex: 1 }}
         onChange={(e) => {
           setValue(e.currentTarget.value);
           onChange?.(e.currentTarget.value);

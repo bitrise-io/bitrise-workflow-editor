@@ -1,5 +1,4 @@
 import { Tabs } from '@bitrise/bitkit';
-import StepBundleConfigHeader from '@/components/unified-editor/StepBundlesConfig/StepBundlesConfigHeader';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -7,6 +6,7 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
+import StepBundleConfigHeader from './StepBundlesConfigHeader';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 import StepBundleConfigContent from './StepBundleConfigContent';
 
