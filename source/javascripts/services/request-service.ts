@@ -1,8 +1,7 @@
 import { StatusType } from '@datadog/browser-logs';
 import { HTTPMethod } from 'http-method-enum';
-
-import WindowUtils from '@/core/utils/WindowUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import PageProps from '@/core/utils/PageProps';
 import { Logger } from './logger';
 
 interface RequestServiceConfigureOptions {
@@ -30,7 +29,7 @@ class RequestService {
   constructor(logger: Logger) {
     this.configure({ logger });
     this.mode = RuntimeUtils.isWebsiteMode() ? 'website' : 'cli';
-    this.appSlug = WindowUtils.appSlug() ?? '';
+    this.appSlug = PageProps.appSlug();
   }
 
   public configure({ mode, appSlug, logger }: RequestServiceConfigureOptions = {}): void {

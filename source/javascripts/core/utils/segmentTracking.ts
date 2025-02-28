@@ -1,9 +1,12 @@
 import { toMerged } from 'es-toolkit';
 import { AnalyticsBrowser } from '@segment/analytics-next';
-import WindowUtils from '@/core/utils/WindowUtils';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
-const segmentKey = WindowUtils.globalProps()?.env?.SEGMENT_JS_WRITE_KEY_NEW || '';
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
+
+const segmentKey = GlobalProps.env()?.SEGMENT_JS_WRITE_KEY_NEW || '';
 let segmentAnalytics: AnalyticsBrowser;
 
 if (segmentKey) {
@@ -24,8 +27,8 @@ if (segmentKey) {
     },
   );
 
-  if (WindowUtils.userSlug()) {
-    segmentAnalytics.identify(WindowUtils.userSlug());
+  if (GlobalProps.userSlug()) {
+    segmentAnalytics.identify(GlobalProps.userSlug());
   }
 }
 
@@ -52,7 +55,7 @@ type SegmentEventContext = {
 };
 
 const baseProperties: SegmentEventProperties = {
-  app_slug: WindowUtils.appSlug() ?? '',
+  app_slug: PageProps.appSlug(),
   event_schema_version: 1,
   event_scope: 'user',
   event_type: 'interaction',
@@ -64,11 +67,11 @@ const baseProperties: SegmentEventProperties = {
   source_service_name: 'workflow-editor',
   source_service_version: window.serviceVersion,
   tracking_type: 'client_side',
-  workspace_slug: WindowUtils.workspaceSlug() ?? '',
+  workspace_slug: GlobalProps.workspaceSlug(),
 };
 
 const baseContext: SegmentEventContext = {
-  workspace_slug: WindowUtils.workspaceSlug() ?? '',
+  workspace_slug: GlobalProps.workspaceSlug(),
 };
 
 export const segmentTrack = (
