@@ -2,10 +2,11 @@ import aa from 'search-insights';
 import algoliasearch from 'algoliasearch';
 import { sortBy, uniqBy } from 'es-toolkit';
 
-import WindowUtils from '../utils/WindowUtils';
-import RuntimeUtils from '../utils/RuntimeUtils';
-import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
+import GlobalProps from '@/core/utils/GlobalProps';
+
 import { Maintainer } from '../models/Step';
+import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
+import RuntimeUtils from '../utils/RuntimeUtils';
 
 type AlgoliaStepResponse = {
   readonly objectID: string;
@@ -49,7 +50,7 @@ aa('init', {
   useCookie: true,
   appId: ALGOLIA_APP_ID,
   apiKey: ALGOLIA_API_KEY,
-  authenticatedUserToken: WindowUtils.userSlug(),
+  authenticatedUserToken: GlobalProps.userSlug(),
 });
 
 // Search Functions
@@ -109,7 +110,7 @@ function trackStepSelected(queryId: string, objectId: string, position: number) 
     positions: [position],
     eventName: 'Step Selected',
     index: ALGOLIA_STEPLIB_STEPS_INDEX,
-    authenticatedUserToken: WindowUtils.userSlug(),
+    authenticatedUserToken: GlobalProps.userSlug(),
   });
 }
 

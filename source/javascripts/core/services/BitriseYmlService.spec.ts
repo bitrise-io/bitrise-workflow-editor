@@ -1099,6 +1099,35 @@ describe('BitriseYmlService', () => {
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
+
+    it('should NOT remove the pipeline workflows property when last workflow removed in it', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {},
+        },
+        pipelines: {
+          pl1: {
+            workflows: {
+              wf1: {},
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: {
+            workflows: {},
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteWorkflow('wf1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
   });
 
   describe('deleteWorkflows', () => {

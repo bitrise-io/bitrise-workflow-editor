@@ -4,9 +4,10 @@ import { useMemo } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 
-import WindowUtils from '@/core/utils/WindowUtils';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
 
 import Drawers from './components/Drawers/Drawers';
 import usePipelineSelector from './hooks/usePipelineSelector';
@@ -43,10 +44,10 @@ const PipelinesPageContent = () => {
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
 
   const hasPipelines = keys.length > 0;
-  const canAccessPipelines = WindowUtils.limits()?.isPipelinesAvailable;
+  const canAccessPipelines = PageProps.limits()?.isPipelinesAvailable;
 
   const upgradePlan = () => {
-    window.location.assign(`/workspaces/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`);
+    window.location.assign(`/workspaces/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`);
   };
 
   const variant = useMemo(() => {

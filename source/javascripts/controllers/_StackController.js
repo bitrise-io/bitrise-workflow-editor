@@ -1,4 +1,4 @@
-import WindowUtils from '@/core/utils/WindowUtils';
+import PageProps from '@/core/utils/PageProps';
 
 (function () {
   angular
@@ -170,7 +170,7 @@ import WindowUtils from '@/core/utils/WindowUtils';
               configure();
             });
 
-          requestService.getApp(WindowUtils.appSlug()).then((response) => {
+          requestService.getApp(PageProps.appSlug()).then((response) => {
             const gracePeriodDates = {};
             if (
               response.deprecated_machines_replacement_config &&

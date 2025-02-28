@@ -1,11 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { useSessionStorage } from 'usehooks-ts';
-import WindowUtils from '@/core/utils/WindowUtils';
-import { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
+
 import PipelineService from '@/core/services/PipelineService';
+import PageProps from '@/core/utils/PageProps';
+import { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
 
 const usePipelineConversionSignposting = () => {
-  const key = ['pipeline-conversion-signposting', WindowUtils.appSlug() ?? 'cli'].join('-');
+  const key = ['pipeline-conversion-signposting', PageProps.appSlug() || 'cli'].join('-');
   const [state, setState] = useSessionStorage<string[]>(key, []);
   const bitriseYmlStoreApi = useBitriseYmlStoreApi();
 

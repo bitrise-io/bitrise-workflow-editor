@@ -1,7 +1,7 @@
 import { Context } from '@datadog/browser-core';
 import { datadogLogs, HandlerType, Logger as DLogger, StatusType } from '@datadog/browser-logs';
 import { pick } from 'underscore';
-import WindowUtils from '@/core/utils/WindowUtils';
+import PageProps from '@/core/utils/PageProps';
 
 export interface Logger {
   debug(message: string, ctx?: Record<string, string>): void;
@@ -76,7 +76,7 @@ const getDefaultTags = (): Context => {
   const defaultTags = {
     service: 'workflow-editor',
     mode: window.mode,
-    appSlug: WindowUtils.appSlug() ?? '',
+    appSlug: PageProps.appSlug(),
   };
 
   const nullCheck = (val: string | null): boolean => !!val;
