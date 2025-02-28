@@ -34,7 +34,8 @@ const StepBundlesPageContent = () => {
       height="100%"
     >
       <Button
-        leftIconName="PlusCircle"
+        size="md"
+        leftIconName="Plus"
         onClick={openDialog({
           type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
         })}
