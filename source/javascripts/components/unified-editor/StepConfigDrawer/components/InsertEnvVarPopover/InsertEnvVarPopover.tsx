@@ -10,11 +10,13 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
+
 import { EnvVar } from '@/core/models/EnvVar';
+import PageProps from '@/core/utils/PageProps';
 import useEnvVars from '@/hooks/useEnvVars';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useSecrets } from '@/hooks/useSecrets';
-import WindowUtils from '@/core/utils/WindowUtils';
+
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
@@ -33,7 +35,7 @@ const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
 const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
-  const appSlug = WindowUtils.appSlug() ?? '';
+  const appSlug = PageProps.appSlug();
   const [{ id }] = useSelectedWorkflow();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading: isLoadingEnvVars, envs } = useEnvVars([id], shouldLoadVars);

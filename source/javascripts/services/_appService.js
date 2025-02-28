@@ -1,4 +1,4 @@
-import WindowUtils from '@/core/utils/WindowUtils';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 (function () {
@@ -58,7 +58,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
             },
             function (error) {
               appService.appDetails = {
-                slug: WindowUtils.appSlug() ?? '',
+                slug: PageProps.appSlug() ?? '',
               };
 
               reject(error);

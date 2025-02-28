@@ -1,6 +1,7 @@
 import { ChangeEventHandler, useState } from 'react';
 import { Box, CodeSnippet, Input, Link, Text } from '@bitrise/bitkit';
-import WindowUtils from '@/core/utils/WindowUtils';
+
+import PageProps from '@/core/utils/PageProps';
 
 const TOOLTIP_MAP: Record<string, string> = {
   '<event_type>': 'PR / Push / Tag',
@@ -29,12 +30,12 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
   const { targetId, onChange, statusReportName } = props;
   const [error, setError] = useState<string>('');
 
-  const pageProps = WindowUtils.pageProps();
-  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
+  const statusReport = PageProps.settings()?.statusReport;
+  const projectBasedTemplate = statusReport?.defaultProjectBasedStatusNameTemplate;
 
   const variables: Record<string, string | null> = {
-    ...pageProps?.settings?.statusReport?.variables,
-    '<target_id>': pageProps?.settings?.statusReport?.variables['<target_id>'] || targetId || '',
+    ...statusReport?.variables,
+    '<target_id>': statusReport?.variables['<target_id>'] || targetId || '',
     '<event_type>': 'pr',
   };
 
@@ -75,7 +76,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         onChange={onGitStatusNameChange}
         maxLength={100}
       />
-      {pageProps?.settings?.statusReport && (
+      {statusReport && (
         <>
           <Text color="input/text/helper" textStyle="body/sm/regular" marginBlockStart="8">
             {preview}

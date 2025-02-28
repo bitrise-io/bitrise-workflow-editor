@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
-import { segmentTrack } from '@/utils/segmentTracking';
+import { segmentTrack } from '@/core/utils/segmentTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
-import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems } from '../../Triggers.types';
+import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
