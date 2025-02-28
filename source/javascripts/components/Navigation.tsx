@@ -10,7 +10,7 @@ import {
   TypeIconName,
   useResponsive,
 } from '@bitrise/bitkit';
-import { segmentTrack } from '@/utils/segmentTracking';
+import { segmentTrack } from '@/core/utils/segmentTracking';
 
 type Item = {
   id: string;
