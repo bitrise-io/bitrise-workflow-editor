@@ -71,13 +71,14 @@
         function getCategory(machine) {
           if (machine.chip === 'intel') {
             return 'intel';
-          } else if (machine.id.includes('m1')) {
+          }
+          if (machine.id.includes('m1')) {
             if (machine.id.includes('max')) {
               return 'm1-max';
-            } else {
-              return 'm1';
             }
-          } else if (machine.id.startsWith('g2.mac.')) {
+            return 'm1';
+          }
+          if (machine.id.startsWith('g2.mac.')) {
             return 'm2';
           }
           return 'other';
@@ -99,9 +100,9 @@
           return cpuCountA - cpuCountB;
         });
 
-        MachineType.all = sortedMachines.map(machine => ({
+        MachineType.all = sortedMachines.map((machine) => ({
           ...machine,
-          category: getCategory(machine)
+          category: getCategory(machine),
         }));
       });
     };
