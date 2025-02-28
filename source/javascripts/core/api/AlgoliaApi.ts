@@ -43,8 +43,6 @@ const ALGOLIA_STEPLIB_STEPS_INDEX = 'steplib_steps';
 const ALGOLIA_STEPLIB_INPUTS_INDEX = 'steplib_inputs';
 
 const client = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_API_KEY);
-// const stepsIndex = client.initIndex(ALGOLIA_STEPLIB_STEPS_INDEX);
-// const inputsIndex = client.initIndex(ALGOLIA_STEPLIB_INPUTS_INDEX);
 
 aa('init', {
   useCookie: true,
