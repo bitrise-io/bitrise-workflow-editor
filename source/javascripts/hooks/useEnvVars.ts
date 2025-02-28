@@ -1,17 +1,19 @@
 import { useMemo } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepService from '@/core/services/StepService';
-import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/services/EnvVarService';
-import EnvVarsApi from '@/core/api/EnvVarsApi';
-import WindowUtils from '@/core/utils/WindowUtils';
+
 import StepApi from '@/core/api/StepApi';
+import EnvVarsApi from '@/core/api/EnvVarsApi';
+import { EnvVar } from '@/core/models/EnvVar';
+import StepService from '@/core/services/StepService';
+import EnvVarService from '@/core/services/EnvVarService';
 import WorkflowService from '@/core/services/WorkflowService';
+import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import useDefaultStepLibrary from './useDefaultStepLibrary';
 
 const useDefaultEnvVars = (enabled: boolean) => {
-  const appSlug = WindowUtils.appSlug() ?? '';
+  const appSlug = PageProps.appSlug();
   const projectType = useBitriseYmlStore((s) => s.yml.project_type);
 
   return useQuery({

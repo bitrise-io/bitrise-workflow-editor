@@ -1,14 +1,14 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import WindowUtils from '@/core/utils/WindowUtils';
 
 (function () {
   angular
     .module('BitriseWorkflowEditor')
     .service('requestService', function ($q, $http, logger, stringService, RequestService) {
       const requestService = {
-        appSlug: WindowUtils.appSlug() || '',
+        appSlug: PageProps.appSlug() || '',
         appConfigVersionHeaderName: RequestService.appConfigVersionHeaderName,
       };
 

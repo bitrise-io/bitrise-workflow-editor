@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure, Notification } from '@bitrise/bitkit';
-import { segmentTrack } from '@/utils/segmentTracking';
-import useUserMetaData from '@/hooks/useUserMetaData';
+import { Box, Button, DataWidget, DataWidgetItem, Notification, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
-import WindowUtils from '@/core/utils/WindowUtils';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { segmentTrack } from '@/core/utils/segmentTracking';
+import useUserMetaData from '@/hooks/useUserMetaData';
+
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
 const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
@@ -21,11 +23,11 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
 
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
-  const isRepositoryYmlAvailable = WindowUtils.limits()?.isRepositoryYmlAvailable;
+  const isRepositoryYmlAvailable = PageProps.limits()?.isRepositoryYmlAvailable;
 
-  const appSlug = WindowUtils.appSlug() || '';
-  const defaultBranch = WindowUtils.pageProps()?.project?.defaultBranch || '';
-  const gitRepoSlug = WindowUtils.pageProps()?.project?.gitRepoSlug || '';
+  const appSlug = PageProps.appSlug() || '';
+  const defaultBranch = PageProps.app()?.defaultBranch || '';
+  const gitRepoSlug = PageProps.app()?.gitRepoSlug || '';
 
   const {
     isModularYamlSupported,

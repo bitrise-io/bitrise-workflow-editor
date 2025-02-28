@@ -15,7 +15,7 @@ import {
 import { isEqual } from 'es-toolkit';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { segmentTrack } from '@/utils/segmentTracking';
+import { segmentTrack } from '@/core/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
@@ -175,7 +175,9 @@ const Triggers = (props: TriggersProps) => {
     (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
       if (key !== 'enabled' && key !== 'draft_enabled') {
         if (typeof trigger[key] === 'string') {
-          triggerConditions[key] = { regex: trigger[key] } as TriggerMapItemModelRegexCondition;
+          triggerConditions[key] = {
+            regex: trigger[key],
+          } as TriggerMapItemModelRegexCondition;
         } else {
           triggerConditions[key] = trigger[key] as TriggerMapItemModelRegexCondition;
         }

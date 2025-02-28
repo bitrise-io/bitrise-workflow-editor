@@ -1,4 +1,6 @@
-import WindowUtils from '@/core/utils/WindowUtils';
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
+
 import Client from './client';
 
 type StartBuildRequestBody = {
@@ -39,13 +41,13 @@ function createStartBuildRequestBody({
   workflowId?: string;
   branch: string;
 }): StartBuildRequestBody {
-  const username = WindowUtils.globalProps()?.user?.username;
+  const username = GlobalProps.user()?.username;
 
   return {
     payload: {
       hook_info: {
         type: 'bitrise',
-        build_trigger_token: WindowUtils.pageProps()?.project?.buildTriggerToken || '',
+        build_trigger_token: PageProps.app()?.buildTriggerToken || '',
       },
       build_params: {
         pipeline_id: pipelineId,

@@ -11,8 +11,8 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { Secret } from '@/core/models/Secret';
-import WindowUtils from '@/core/utils/WindowUtils';
 import { useSecrets } from '@/hooks/useSecrets';
+import PageProps from '@/core/utils/PageProps';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
@@ -33,7 +33,7 @@ const filterPredicate = (item: Secret, filter: string): boolean =>
   );
 
 const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
-  const appSlug = WindowUtils.appSlug() ?? '';
+  const appSlug = PageProps.appSlug();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading, data: secrets = [] } = useSecrets({
     appSlug,
