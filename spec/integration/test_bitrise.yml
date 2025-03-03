@@ -484,6 +484,7 @@ step_bundles:
           description: ...
           is_required: true
           category: myFirstCategory
+      - foo: bar
       - distribution_method: development
         opts:
           title: Distribution method

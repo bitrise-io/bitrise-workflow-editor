@@ -7,7 +7,7 @@ type State = StepBundle | undefined;
 const Context = createContext<State>(undefined);
 
 type Props = PropsWithChildren<{ id?: string; stepBundleId?: string; stepIndex: number; workflowId?: string }>;
-const StepBundlesConfigProvider = ({ id, stepBundleId, children, stepIndex, workflowId }: Props) => {
+const StepBundleConfigProvider = ({ id, stepBundleId, children, stepIndex, workflowId }: Props) => {
   const stepLike = useStep({ stepBundleId, stepIndex, workflowId });
 
   const stepBundle = useStepBundle(id || stepLike?.data?.id || '');
@@ -19,4 +19,4 @@ export const useStepBundleConfigContext = () => {
   return useContext<State>(Context);
 };
 
-export default StepBundlesConfigProvider;
+export default StepBundleConfigProvider;

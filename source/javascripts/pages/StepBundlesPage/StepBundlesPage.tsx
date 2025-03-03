@@ -4,10 +4,10 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
-import StepBundlesConfigPanel from '../../components/unified-editor/StepBundlesConfig/StepBundlesConfigPanel';
-import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
+import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundlesPage.store';
 import Drawers from './components/Drawers';
+import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
 
 const StepBundlesPageContent = () => {
   const stepBundles = useStepBundles();
@@ -24,7 +24,7 @@ const StepBundlesPageContent = () => {
   const content = hasStepBundles ? (
     <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
       <StepBundlesCanvasPanel stepBundleId={selectedStepBundleId} />
-      <StepBundlesConfigPanel id={selectedStepBundleId} />
+      <StepBundleConfigPanel id={selectedStepBundleId} />
     </Box>
   ) : (
     <EmptyState
