@@ -35,11 +35,11 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
             </Box>
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <TabPanels>
+            <TabPanels height="100%">
               <TabPanel>
                 <PropertiesTab onDelete={props.onClose} pipelineId={pipelineId} />
               </TabPanel>
-              <TabPanel>
+              <TabPanel overflowY="auto" h="100%">
                 <TriggersTab pipelineId={pipelineId} />
               </TabPanel>
             </TabPanels>

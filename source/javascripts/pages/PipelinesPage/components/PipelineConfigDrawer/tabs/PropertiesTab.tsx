@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import PipelineService from '@/core/models/PipelineService';
+import PipelineService from '@/core/services/PipelineService';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
 import DeletePipelineDialog from '../components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = {
@@ -18,9 +19,10 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
   const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 
-  const { summary, description, updatePipeline } = useBitriseYmlStore((s) => ({
+  const { summary, description, statusReportName, updatePipeline } = useBitriseYmlStore((s) => ({
     summary: s.yml.pipelines?.[pipelineId]?.summary || '',
     description: s.yml.pipelines?.[pipelineId]?.description || '',
+    statusReportName: s.yml.pipelines?.[pipelineId]?.status_report_name || '',
     updatePipeline: s.updatePipeline,
   }));
 
@@ -78,6 +80,12 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
           value={description}
           onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
         />
+        <GitStatusNameInput
+          targetId={pipelineId}
+          onChange={(newStatusReportName) => updatePipeline(pipelineId, { status_report_name: newStatusReportName })}
+          statusReportName={statusReportName}
+        />
+
         <Button leftIconName="Trash" alignSelf="flex-start" variant="danger-secondary" onClick={onOpenDeleteDialog}>
           Delete Pipeline
         </Button>

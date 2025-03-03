@@ -1,11 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Link, Notification, Text } from '@bitrise/bitkit';
-import WindowUtils from '@/core/utils/WindowUtils';
-import { BitriseYml } from '@/core/models/BitriseYml';
+
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import useUserMetaData from '@/hooks/useUserMetaData';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useUserMetaData from '@/hooks/useUserMetaData';
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
 
@@ -14,7 +14,7 @@ const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notifi
 const TriggersPageContent = () => {
   const { yml } = useBitriseYmlStore();
 
-  const appSlug = WindowUtils.appSlug() ?? '';
+  const appSlug = PageProps.appSlug();
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 

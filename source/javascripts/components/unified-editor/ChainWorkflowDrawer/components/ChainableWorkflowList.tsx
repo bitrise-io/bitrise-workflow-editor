@@ -21,7 +21,7 @@ const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
     watch,
     initialValues: InitialValues,
   });
-  const { data: workflows = [] } = useChainableWorkflows({
+  const workflows = useChainableWorkflows({
     id: workflowId,
     search: formValues.search,
   });

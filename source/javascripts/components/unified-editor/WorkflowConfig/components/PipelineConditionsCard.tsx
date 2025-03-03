@@ -1,11 +1,13 @@
-import { ChangeEventHandler } from 'react';
-import { useShallow } from 'zustand/react/shallow';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 
+import { uniq } from 'es-toolkit';
+import { useShallow } from '@/hooks/useShallow';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
 type PipelineConditionInputProps = {
   pipelineId: string;
@@ -139,22 +141,43 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
-  const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel);
   const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
+  const initValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel || '');
+
+  const existingWorkflowIds = useBitriseYmlStore((s) => {
+    return uniq([
+      ...Object.keys(s.yml.workflows ?? {}),
+      ...Object.keys(s.yml.pipelines?.[pipelineId]?.workflows ?? {}),
+    ]);
+  });
+
+  const [value, setValue] = useState(initValue);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    updatePipelineWorkflowParallel(pipelineId, workflowId, e.target.value);
+    setValue(e.target.value);
   };
+
+  useEffect(() => {
+    const stringValue = String(value);
+    const validationError = GraphPipelineWorkflowService.validateParallel(stringValue, workflowId, existingWorkflowIds);
+
+    setError(validationError === true ? undefined : validationError);
+
+    if (validationError === true) {
+      updatePipelineWorkflowParallel(pipelineId, workflowId, stringValue);
+    }
+  }, [value, pipelineId, workflowId, existingWorkflowIds, updatePipelineWorkflowParallel]);
 
   return (
     <Input
       value={value}
-      type="number"
+      errorText={error}
       label="Parallel copies"
       helperText={
         <DetailedHelperText
-          summary="The number of copies of this Workflow that will be executed in parallel at runtime."
-          details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. EnvVars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
+          summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."
+          details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. Env Vars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
         />
       }
       onChange={handleChange}

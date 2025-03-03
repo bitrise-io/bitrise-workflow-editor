@@ -35,7 +35,7 @@ function autoLayoutingGraphNodes(workflows: PipelineWorkflow[], nodes: GraphPipe
       }
 
       graph.setNode(node.id, { width: WORKFLOW_NODE_WIDTH, height: node.height ?? WORKFLOW_NODE_HEIGHT });
-      workflow.dependsOn.forEach((source) => graph.setEdge(source, node.id));
+      workflow.dependsOn?.forEach((source) => graph.setEdge(source, node.id));
     }
   });
 

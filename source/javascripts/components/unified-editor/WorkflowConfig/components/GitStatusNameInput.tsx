@@ -1,6 +1,7 @@
 import { ChangeEventHandler, useState } from 'react';
 import { Box, CodeSnippet, Input, Link, Text } from '@bitrise/bitkit';
-import WindowUtils from '../../../../core/utils/WindowUtils';
+
+import PageProps from '@/core/utils/PageProps';
 
 const TOOLTIP_MAP: Record<string, string> = {
   '<event_type>': 'PR / Push / Tag',
@@ -20,21 +21,21 @@ const getValidationError = (value: string) => {
 };
 
 type GitStatusNameInputProps = {
-  workflowId: string | undefined;
+  targetId: string | undefined;
   onChange: (newValue: string, isValid: boolean) => void;
   statusReportName: string;
 };
 
 const GitStatusNameInput = (props: GitStatusNameInputProps) => {
-  const { workflowId, onChange, statusReportName } = props;
+  const { targetId, onChange, statusReportName } = props;
   const [error, setError] = useState<string>('');
 
-  const pageProps = WindowUtils.pageProps();
-  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
+  const statusReport = PageProps.settings()?.statusReport;
+  const projectBasedTemplate = statusReport?.defaultProjectBasedStatusNameTemplate;
 
   const variables: Record<string, string | null> = {
-    ...pageProps?.settings?.statusReport?.variables,
-    '<target_id>': pageProps?.settings?.statusReport?.variables['<target_id>'] || workflowId || '',
+    ...statusReport?.variables,
+    '<target_id>': statusReport?.variables['<target_id>'] || targetId || '',
     '<event_type>': 'pr',
   };
 
@@ -55,6 +56,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
   return (
     <Box>
       <Input
+        size="md"
         label="Git status name"
         helperText={
           <>
@@ -72,10 +74,9 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         placeholder={projectBasedTemplate}
         value={statusReportName}
         onChange={onGitStatusNameChange}
-        withCounter
         maxLength={100}
       />
-      {pageProps?.settings?.statusReport && (
+      {statusReport && (
         <>
           <Text color="input/text/helper" textStyle="body/sm/regular" marginBlockStart="8">
             {preview}

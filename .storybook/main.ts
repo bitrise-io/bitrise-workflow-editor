@@ -1,7 +1,7 @@
 import path from "path";
 import YAML from "yaml";
 import { readFileSync } from "fs";
-import { DefinePlugin, webpack } from "webpack";
+import { DefinePlugin } from "webpack";
 import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const config: StorybookConfig = {
@@ -42,10 +42,15 @@ const config: StorybookConfig = {
         test: /.*\/bitkit\/.*tsx?$/,
         use: [
           {
-            loader: "ts-loader",
+            loader: "swc-loader",
             options: {
-              transpileOnly: true,
-              configFile: require.resolve("@bitrise/bitkit/src/tsconfig.json"),
+              jsc: {
+                transform: {
+                  react: {
+                    runtime: 'automatic',
+                  },
+                },
+              },
             },
           },
         ],

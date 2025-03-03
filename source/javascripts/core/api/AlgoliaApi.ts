@@ -1,10 +1,12 @@
 import aa from 'search-insights';
-import algoliasearch from 'algoliasearch';
 import { sortBy, uniqBy } from 'es-toolkit';
+import { algoliasearch } from 'algoliasearch';
 
-import WindowUtils from '../utils/WindowUtils';
-import RuntimeUtils from '../utils/RuntimeUtils';
-import { Maintainer, StepYmlObject, VariableOpts } from '../models/Step';
+import GlobalProps from '@/core/utils/GlobalProps';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
+import { Maintainer } from '../models/Step';
+import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
 
 type AlgoliaStepResponse = {
   readonly objectID: string;
@@ -14,13 +16,13 @@ type AlgoliaStepResponse = {
   is_latest: boolean;
   is_deprecated: boolean;
   latest_version_number: string;
-  step: Partial<StepYmlObject>;
+  step: Partial<StepModel>;
   info?: AlgoliaStepInfo;
 };
 
 type AlgoliaStepInfo = {
   maintainer?: Maintainer;
-  asset_urls?: StepYmlObject['asset_urls'] & {
+  asset_urls?: StepModel['asset_urls'] & {
     'icon.svg'?: string;
     'icon.png'?: string;
   };
@@ -30,7 +32,7 @@ type AlgoliaStepInputResponse = {
   readonly objectID: string;
   cvs: string;
   order: number;
-  opts: VariableOpts;
+  opts: EnvironmentItemOptionsModel;
   is_latest: boolean;
   [key: string]: unknown;
 };
@@ -41,28 +43,30 @@ const ALGOLIA_STEPLIB_STEPS_INDEX = 'steplib_steps';
 const ALGOLIA_STEPLIB_INPUTS_INDEX = 'steplib_inputs';
 
 const client = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_API_KEY);
-const stepsIndex = client.initIndex(ALGOLIA_STEPLIB_STEPS_INDEX);
-const inputsIndex = client.initIndex(ALGOLIA_STEPLIB_INPUTS_INDEX);
 
 aa('init', {
   useCookie: true,
   appId: ALGOLIA_APP_ID,
   apiKey: ALGOLIA_API_KEY,
-  authenticatedUserToken: WindowUtils.userSlug(),
+  authenticatedUserToken: GlobalProps.userSlug(),
 });
 
 // Search Functions
 function searchSteps(query: string, categories: string[], maintainers: string[]) {
-  return stepsIndex.search<AlgoliaStepResponse>(query, {
-    hitsPerPage: 1000,
-    analytics: RuntimeUtils.isProduction(),
-    clickAnalytics: RuntimeUtils.isProduction(),
-    facetFilters: [
-      'is_latest:true',
-      'is_deprecated:false',
-      categories.map((category) => `step.type_tags:${category}`),
-      maintainers.map((maintainer) => `info.maintainer:${maintainer}`),
-    ],
+  return client.searchSingleIndex<AlgoliaStepResponse>({
+    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+    searchParams: {
+      query,
+      hitsPerPage: 1000,
+      analytics: RuntimeUtils.isProduction(),
+      clickAnalytics: RuntimeUtils.isProduction(),
+      facetFilters: [
+        'is_latest:true',
+        'is_deprecated:false',
+        categories.map((category) => `step.type_tags:${category}`),
+        maintainers.map((maintainer) => `info.maintainer:${maintainer}`),
+      ],
+    },
   });
 }
 
@@ -70,9 +74,12 @@ function searchSteps(query: string, categories: string[], maintainers: string[])
 async function getAllSteps() {
   const results: Array<AlgoliaStepResponse> = [];
 
-  await stepsIndex.browseObjects<AlgoliaStepResponse>({
-    batch: (objects) => results.push(...objects),
-    filters: 'is_latest:true AND is_deprecated:false',
+  await client.browseObjects<AlgoliaStepResponse>({
+    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+    aggregator: ({ hits }) => results.push(...hits),
+    browseParams: {
+      filters: 'is_latest:true AND is_deprecated:false',
+    },
   });
 
   return uniqBy(results, (r) => r.id);
@@ -81,9 +88,12 @@ async function getAllSteps() {
 async function getAllStepsById(id: string) {
   const results: Array<AlgoliaStepResponse> = [];
 
-  await stepsIndex.browseObjects<AlgoliaStepResponse>({
-    batch: (objects) => results.push(...objects),
-    filters: `id:${id}`,
+  await client.browseObjects<AlgoliaStepResponse>({
+    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+    aggregator: ({ hits }) => results.push(...hits),
+    browseParams: {
+      filters: `id:${id}`,
+    },
   });
 
   return results;
@@ -92,9 +102,12 @@ async function getAllStepsById(id: string) {
 async function getStepInputsByCvs(cvs: string) {
   const results: AlgoliaStepInputResponse[] = [];
 
-  await inputsIndex.browseObjects<AlgoliaStepInputResponse>({
-    batch: (batch) => results.push(...batch),
-    filters: `cvs:${cvs}`,
+  await client.browseObjects<AlgoliaStepInputResponse>({
+    indexName: ALGOLIA_STEPLIB_INPUTS_INDEX,
+    aggregator: ({ hits }) => results.push(...hits),
+    browseParams: {
+      filters: `cvs:${cvs}`,
+    },
   });
 
   return sortBy(results, [(r) => r.order]);
@@ -108,7 +121,7 @@ function trackStepSelected(queryId: string, objectId: string, position: number) 
     positions: [position],
     eventName: 'Step Selected',
     index: ALGOLIA_STEPLIB_STEPS_INDEX,
-    authenticatedUserToken: WindowUtils.userSlug(),
+    authenticatedUserToken: GlobalProps.userSlug(),
   });
 }
 

@@ -1,14 +1,14 @@
 /* eslint-disable import/no-cycle */
 import { memo } from 'react';
 
-import StepService from '@/core/models/StepService';
+import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepBundleCard from '../../StepSelectorDrawer/components/StepBundleCard';
 
 import StepCard, { StepCardProps } from './StepCard';
 
 const StepListItem = (props: StepCardProps) => {
-  const { cvs, stepBundleId, stepIndex, workflowId = '', ...rest } = props;
+  const { cvs, ...rest } = props;
 
   const defaultStepLibrary = useDefaultStepLibrary();
 
@@ -19,10 +19,10 @@ const StepListItem = (props: StepCardProps) => {
   const isStepBundle = StepService.isStepBundle(cvs, defaultStepLibrary);
 
   if (isStepBundle) {
-    return <StepBundleCard isCollapsable cvs={cvs} stepIndex={stepIndex} workflowId={workflowId} {...rest} />;
+    return <StepBundleCard isCollapsable cvs={cvs} {...rest} />;
   }
 
-  return <StepCard cvs={cvs} stepIndex={stepIndex} stepBundleId={stepBundleId} workflowId={workflowId} {...rest} />;
+  return <StepCard cvs={cvs} {...rest} />;
 };
 
 export default memo(StepListItem);

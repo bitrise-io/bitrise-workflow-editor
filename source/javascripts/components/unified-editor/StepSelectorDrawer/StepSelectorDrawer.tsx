@@ -1,7 +1,9 @@
-import { Box, Tabs, Tag, Text, useTabs, Notification, TabList, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
+import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import WindowUtils from '@/core/utils/WindowUtils';
+
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -14,29 +16,26 @@ import useSearch from './hooks/useSearch';
 import StepBundleFilter from './components/StepBundleFilter';
 import StepFilter from './components/StepFilter';
 import StepBundleList from './components/StepBundleList';
-import AlgoliaStepList from './components/AlgoliaStepList/AlgoliaStepList';
-import StepList from './components/StepList';
+import AlgoliaStepList from './components/AlgoliaStepList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
-  showStepBundles: boolean;
+  targetStepBundleId?: string;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onCloseComplete, ...props }: Props) => {
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targetStepBundleId, ...props }: Props) => {
   const resetSearch = useSearch((s) => s.reset);
 
   const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
     tabIds: ['step', 'stepBundle'],
   });
 
-  const enableAlgoliaSearch = useFeatureFlag('enable-algolia-search-for-steps');
-
   const uniqueStepCount = enabledSteps?.size ?? -1;
-  const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
+  const uniqueStepLimit = PageProps.limits()?.uniqueStepLimit;
   const showStepLimit = typeof uniqueStepLimit === 'number';
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
-  const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
+  const upgradeLink = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
   const handleCloseComplete = () => {
     resetSearch();
@@ -59,14 +58,12 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
                 </Tag>
               )}
             </Box>
-            {showStepBundles && (
-              <Box position="relative" mt="8" mx="-24">
-                <TabList paddingX="8">
-                  <Tab>Step</Tab>
-                  <Tab>Step bundle</Tab>
-                </TabList>
-              </Box>
-            )}
+            <Box position="relative" mt="8" mx="-24">
+              <TabList paddingX="8">
+                <Tab>Step</Tab>
+                <Tab>Step bundle</Tab>
+              </TabList>
+            </Box>
             {stepLimitReached && (
               <Notification
                 mt={16}
@@ -93,17 +90,13 @@ const StepSelectorDrawer = ({ enabledSteps, showStepBundles, onSelectStep, onClo
             <ReactFlowProvider>
               <TabPanels>
                 <TabPanel>
-                  {enableAlgoliaSearch ? (
-                    <AlgoliaStepList
-                      enabledSteps={stepLimitReached ? enabledSteps : undefined}
-                      onSelectStep={onSelectStep}
-                    />
-                  ) : (
-                    <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
-                  )}
+                  <AlgoliaStepList
+                    enabledSteps={stepLimitReached ? enabledSteps : undefined}
+                    onSelectStep={onSelectStep}
+                  />
                 </TabPanel>
                 <TabPanel display="flex" flexDir="column" gap="12">
-                  <StepBundleList onSelectStep={onSelectStep} />
+                  <StepBundleList onSelectStep={onSelectStep} targetStepBundleId={targetStepBundleId} />
                 </TabPanel>
               </TabPanels>
             </ReactFlowProvider>

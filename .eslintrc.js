@@ -2,7 +2,6 @@ module.exports = {
   root: true,
   parserOptions: {
     tsconfigRootDir: __dirname,
-    extraFileExtensions: ['.js.erb'],
     project: ['tsconfig.json', 'tsconfig.eslint.json'],
   },
   env: {
@@ -17,7 +16,6 @@ module.exports = {
     jQuery: 'readonly',
     inject: false,
     angular: false,
-    Cypress: false,
     Promise: false,
   },
   extends: ['plugin:@bitrise/config'],
@@ -52,6 +50,19 @@ module.exports = {
       {
         name: 'TEST_BITRISE_YML',
         message: 'Do not use TEST_BITRISE_YML outside of storybook, spec or mock files.',
+      },
+    ],
+    'no-restricted-imports': [
+      'error',
+      {
+        name: 'zustand/shallow',
+        importNames: ['useShallow'],
+        message: `Please import useShallow from '@/core/hooks/useShallow' instead.`,
+      },
+      {
+        name: 'zustand/react/shallow',
+        importNames: ['useShallow'],
+        message: `Please import useShallow from '@/core/hooks/useShallow' instead.`,
       },
     ],
   },
@@ -94,7 +105,7 @@ module.exports = {
       },
     },
     {
-      files: ['source/javascripts/**/*.js', 'source/javascripts/**/*.js.erb', 'source/javascripts/services/**/*.ts'],
+      files: ['source/javascripts/**/*.js', 'source/javascripts/services/**/*.ts'],
       rules: {
         'func-names': 'off',
         'no-multi-assign': 'off',

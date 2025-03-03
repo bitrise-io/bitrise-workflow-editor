@@ -1,14 +1,16 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import { cloneDeep } from 'es-toolkit';
-import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepInput from '../components/StepInput';
-import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import StepInputGroup from '../components/StepInputGroup';
 
-function groupStepInputs(inputs?: StepInputVariable[]) {
-  return inputs?.reduce<Record<string, StepInputVariable[]>>((groups, input) => {
+import { EnvModel, StepModel } from '@/core/models/BitriseYml';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+import StepInput from '../components/StepInput';
+import StepInputGroup from '../components/StepInputGroup';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
+
+function groupStepInputs(inputs?: EnvModel) {
+  return inputs?.reduce<Record<string, EnvModel>>((groups, input) => {
     const category = input.opts?.category ?? '';
     return {
       ...groups,
@@ -68,7 +70,7 @@ const ConfigurationTab = () => {
     }
   };
 
-  const onToggleChange = (newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => {
+  const onToggleChange = (newValues: Omit<StepModel, 'inputs' | 'outputs'>) => {
     if (workflowId) {
       updateStep(workflowId, stepIndex, newValues);
     }

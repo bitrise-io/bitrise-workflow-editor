@@ -1,17 +1,20 @@
 import { Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
+import GlobalProps from '@/core/utils/GlobalProps';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import { useGetLicensePoolsQuery } from '@/hooks/useLicensePools';
-import WindowUtils from '@/core/utils/WindowUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useGetLicensePoolsQuery } from '@/hooks/useLicensePools';
 
 const LicensesPageContent = () => {
-  const workspaceSlug = WindowUtils.workspaceSlug() || '';
+  const workspaceSlug = GlobalProps.workspaceSlug();
 
   const workflows = useWorkflows();
 
-  const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
+  const { data: licensePools, isPending } = useGetLicensePoolsQuery({
+    workspaceSlug,
+  });
 
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
@@ -52,7 +55,7 @@ const LicensesPageContent = () => {
           </Thead>
           <Tbody>
             {Object.keys(workflows).map((wfId) => {
-              const value = (workflows[wfId].meta?.['bitrise.io']?.license_pool_id as any) || '';
+              const value = workflows[wfId].meta?.['bitrise.io']?.license_pool_id || '';
               return (
                 <Tr key={wfId}>
                   <Td>{wfId}</Td>

@@ -3,7 +3,7 @@ import { safeDigest } from '@/services/react-compat';
 (function () {
   angular
     .module('BitriseWorkflowEditor')
-    .controller('StepBundlesController', function ($rootScope, $scope, appService) {
+    .controller('StepBundlesController', function ($scope, $rootScope, appService) {
       const viewModel = this;
       viewModel.yml = null;
 

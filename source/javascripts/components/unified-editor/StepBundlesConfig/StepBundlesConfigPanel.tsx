@@ -1,43 +1,30 @@
-import { Box } from '@bitrise/bitkit';
+import { Tabs } from '@bitrise/bitkit';
+import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import StepBundleConfigContent from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigContent';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
-import { useStepBundles } from '@/hooks/useStepBundles';
-import { useStepBundlesPageStore } from '../../../pages/StepBundlesPage/StepBundlesPage.store';
-import StepBundlePropertiesTab from './StepBundlePropertiesTab';
-import StepBundlesConfigHeader from './StepBundlesConfigHeader';
+import StepBundleConfigHeader from './StepBundlesConfigHeader';
 import StepBundlesConfigProvider from './StepBundlesConfig.context';
 
-type ConfigPanelContentProps = {
-  stepBundleId: string;
+type Props = {
+  id: string;
 };
 
-const StepBundlesConfigPanelContent = ({ stepBundleId }: ConfigPanelContentProps) => {
+const StepBundlesConfigPanelContent = () => {
   const { closeDialog } = useStepBundlesPageStore();
   const [, setSelectedStepBundle] = useSelectedStepBundle();
-  const stepBundles = useStepBundles();
-
-  const handleOnDelete = (deletedId: string) => {
-    setSelectedStepBundle(Object.keys(stepBundles).find((bundleId) => bundleId !== deletedId));
-    closeDialog();
-  };
 
   return (
-    <Box borderLeft="1px solid" borderColor="border/regular">
-      <StepBundlesConfigHeader parentStepBundleId={stepBundleId} />
-      <Box padding="16px 24px">
-        <StepBundlePropertiesTab onDelete={handleOnDelete} onRename={setSelectedStepBundle} />
-      </Box>
-    </Box>
+    <Tabs borderLeft="1px solid" borderColor="border/regular">
+      <StepBundleConfigHeader variant="panel" />
+      <StepBundleConfigContent onDelete={closeDialog} onRename={setSelectedStepBundle} p={24} />
+    </Tabs>
   );
 };
 
-type Props = {
-  stepBundleId: string;
-};
-
-const StepBundlesConfigPanel = ({ stepBundleId }: Props) => {
+const StepBundlesConfigPanel = ({ id }: Props) => {
   return (
-    <StepBundlesConfigProvider stepBundleId={stepBundleId}>
-      <StepBundlesConfigPanelContent stepBundleId={stepBundleId} />
+    <StepBundlesConfigProvider id={id} stepIndex={-1}>
+      <StepBundlesConfigPanelContent />
     </StepBundlesConfigProvider>
   );
 };

@@ -2,7 +2,7 @@ import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import EditableInput from '@/components/EditableInput/EditableInput';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import DeleteWorkflowDialog from '@/components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog';
@@ -68,7 +68,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
 
   return (
-    <Box gap="24" display="flex" flexDir="column">
+    <Box gap="16" display="flex" flexDir="column">
       <EditableInput
         isRequired
         name="name"
@@ -82,7 +82,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
       {isGitStatusNameEnabled && (
         <GitStatusNameInput
-          workflowId={workflow?.id}
+          targetId={workflow?.id}
           onChange={handleGitStatusNameChange}
           statusReportName={statusReportName}
         />

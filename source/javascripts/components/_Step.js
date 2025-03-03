@@ -1,5 +1,5 @@
 (function () {
-  angular.module('BitriseWorkflowEditor').factory('Step', function ($injector, Variable) {
+  angular.module('BitriseWorkflowEditor').factory('Step', function () {
     const MAINTAINER = {
       VERIFIED: 'verified',
       OFFICIAL: 'bitrise',
@@ -244,32 +244,5 @@
     }
 
     return Step;
-  });
-
-  angular.module('BitriseWorkflowEditor').filter('stepSourceCSSClass', function () {
-    return function (step) {
-      if (!step) {
-        return undefined;
-      }
-
-      const sourceURL = step.sourceURL();
-
-      const regexpForGithubStepSourceURL = /^(?:https?:\/\/)?(?:www.)?github.com\/.+/;
-      if (regexpForGithubStepSourceURL.test(sourceURL)) {
-        return 'github';
-      }
-
-      const regexpForBitbucketStepSourceURL = /^(?:https?:\/\/)?(?:www.)?bitbucket.(?:com|org)\/.+/;
-      if (regexpForBitbucketStepSourceURL.test(sourceURL)) {
-        return 'bitbucket';
-      }
-
-      const regexpForGitlabStepSourceURL = /^(?:https?:\/\/)?(?:www.)?gitlab.com\/.+/;
-      if (regexpForGitlabStepSourceURL.test(sourceURL)) {
-        return 'gitlab';
-      }
-
-      return 'unknown';
-    };
   });
 })();

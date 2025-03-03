@@ -29,30 +29,14 @@ export default {
   beforeEach: () => {
     process.env.MODE = 'cli';
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
-    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', true);
   },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;
 
-export const ReadOnly: Story = {
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', false);
-  },
-};
-
 export const CreateFirstGraphPipeline: Story = {
   args: {
     yml: { format_version: '2' },
-  },
-};
-
-export const CreateFirstStagedPipeline: Story = {
-  args: {
-    yml: { format_version: '2' },
-  },
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account["enable-dag-pipelines"]', false);
   },
 };
 
@@ -89,6 +73,20 @@ export const WithStepBundlesUI: Story = {
 };
 
 export const WithParallelWorkflow: Story = {
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account["enable-wfe-parallel-workflow"]', true);
+  },
+};
+
+export const WithParallelWorkflowCollision: Story = {
+  args: {
+    yml: (() => {
+      const yml = TEST_BITRISE_YML;
+      set(yml, 'workflows.tmp_3', {});
+      set(yml, 'pipelines["graph-pipeline"].workflows.tmp_2', { uses: 'tmp' });
+      return yml;
+    })(),
+  },
   beforeEach: () => {
     set(window, 'parent.globalProps.featureFlags.account["enable-wfe-parallel-workflow"]', true);
   },

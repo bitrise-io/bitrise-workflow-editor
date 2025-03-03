@@ -44,12 +44,6 @@ const withStepBundleUI = (storyObj: Story) => {
   });
 };
 
-const withAlgoliaSearch = (storyObj: Story) => {
-  return extendBeforeEach(storyObj, () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-algolia-search-for-steps', true);
-  });
-};
-
 const withStepLimit = (storyObj: Story, limit = 3) => {
   let copy = { ...storyObj };
 
@@ -109,6 +103,3 @@ export const Error: Story = {
 
 export const WithStepLimit: Story = withStepLimit(Default);
 export const WithStepBundleUI: Story = withStepBundleUI(Default);
-export const WithAlgoliaSearch: Story = withAlgoliaSearch(Default);
-export const WithAlgoliaSearchAndStepLimit: Story = withAlgoliaSearch(withStepLimit(Default));
-export const WithAlgoliaSearchAndStepBundleUI: Story = withAlgoliaSearch(withStepBundleUI(Default));

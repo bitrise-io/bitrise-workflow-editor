@@ -12,8 +12,7 @@ import {
 
 import { capitalize, startCase } from 'es-toolkit';
 import { useAlgoliaSteps } from '@/hooks/useAlgolia';
-import StepService from '@/core/models/StepService';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+import StepService from '@/core/services/StepService';
 import useSearch from '../hooks/useSearch';
 
 const MAINTAINERS: Array<{
@@ -43,8 +42,6 @@ const MAINTAINERS: Array<{
 ];
 
 const StepFilterCategories = memo(() => {
-  const algoliaSearchEnabled = useFeatureFlag('enable-algolia-search-for-steps');
-
   const { data: steps = [] } = useAlgoliaSteps();
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
 
@@ -54,8 +51,8 @@ const StepFilterCategories = memo(() => {
   const setSelectedMaintainers = useSearch((s) => s.setSearchStepMaintainers);
 
   const options = useMemo(
-    () => (algoliaSearchEnabled ? [...selectedCategories, ...selectedMaintainers] : selectedCategories),
-    [algoliaSearchEnabled, selectedCategories, selectedMaintainers],
+    () => [...selectedCategories, ...selectedMaintainers],
+    [selectedCategories, selectedMaintainers],
   );
   const handleFilterChange = useCallback(
     (values: string[]) => {
@@ -63,11 +60,9 @@ const StepFilterCategories = memo(() => {
       const mans = values.filter((v) => MAINTAINERS.some((m) => m.key === v));
 
       setSelectedCategories(cats);
-      if (algoliaSearchEnabled) {
-        setSelectedMaintainers(mans);
-      }
+      setSelectedMaintainers(mans);
     },
-    [algoliaSearchEnabled, categories, setSelectedCategories, setSelectedMaintainers],
+    [categories, setSelectedCategories, setSelectedMaintainers],
   );
 
   return (
@@ -78,17 +73,13 @@ const StepFilterCategories = memo(() => {
             {capitalize(startCase(category))}
           </SelectableTag>
         ))}
-        {algoliaSearchEnabled && (
-          <>
-            <Divider orientation="vertical" height="auto" />
-            {MAINTAINERS.map(({ key, icon, label }) => (
-              <SelectableTag key={key} value={key}>
-                <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
-                {label}
-              </SelectableTag>
-            ))}
-          </>
-        )}
+        <Divider orientation="vertical" height="auto" />
+        {MAINTAINERS.map(({ key, icon, label }) => (
+          <SelectableTag key={key} value={key}>
+            <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
+            {label}
+          </SelectableTag>
+        ))}
       </Box>
     </SelectableTagGroup>
   );

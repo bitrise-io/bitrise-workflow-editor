@@ -1,17 +1,29 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useStepBundles } from '@/hooks/useStepBundles';
+import StepBundleService from '@/core/services/StepBundleService';
+import useNavigation from '@/hooks/useNavigation';
 import useSearch from '../hooks/useSearch';
 import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
 import SelectableStepBundleCard from './SelectableStepBundleCard';
 
 type StepBundleListProps = {
   onSelectStep: SelectStepHandlerFn;
+  targetStepBundleId?: string;
 };
 
-const StepBundleList = ({ onSelectStep }: StepBundleListProps) => {
-  const bundleIds = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
+const StepBundleList = ({ onSelectStep, targetStepBundleId }: StepBundleListProps) => {
+  const stepBundles = useStepBundles();
+  const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
+  const bundleIds = Object.keys(stepBundles).filter((id) => {
+    if (targetStepBundleId) {
+      return !stepBundleChains[id].includes(targetStepBundleId);
+    }
+    return true;
+  });
+
   const filterStepBundles = useSearch((s) => s.stepBundleQuery);
   const setSearchStepBundle = useSearch((s) => s.setSearchStepBundle);
+  const { replace } = useNavigation();
 
   const filteredItems = bundleIds.filter((id) => {
     const lowerCaseFilterString = filterStepBundles.toLowerCase();
@@ -26,7 +38,7 @@ const StepBundleList = ({ onSelectStep }: StepBundleListProps) => {
   };
 
   const handleClick = (id: string) => {
-    onSelectStep(`bundle::${id}`);
+    onSelectStep(StepBundleService.idToCvs(id));
   };
 
   if (bundleIds.length === 0) {
@@ -34,16 +46,10 @@ const StepBundleList = ({ onSelectStep }: StepBundleListProps) => {
       <EmptyState
         iconName="Steps"
         title="Your Step bundles will appear here"
-        description="With Step bundles, you can create reusable chunks of configuration. You can create Step bundles in the YML."
+        description="Create Step bundles directly in Workflows, or on the Step bundles page."
       >
-        <Button
-          as="a"
-          variant="tertiary"
-          rightIconName="ArrowNorthEast"
-          href="https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/step-bundles.html"
-          target="_blank"
-        >
-          Read documentations
+        <Button variant="tertiary" rightIconName="ArrowNorthEast" onClick={() => replace('/step_bundles')}>
+          Go to Step bundles
         </Button>
       </EmptyState>
     );

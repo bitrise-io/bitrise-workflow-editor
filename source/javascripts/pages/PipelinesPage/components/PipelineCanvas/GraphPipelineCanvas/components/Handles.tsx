@@ -3,7 +3,6 @@ import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useR
 import { Box, BoxProps } from '@bitrise/bitkit';
 import { useHover } from 'usehooks-ts';
 import { Icon, IconProps } from '@chakra-ui/react';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 import createPlaceholderNode from '../utils/createPlaceholderNode';
 import createPlaceholderEdge from '../utils/createPlaceholderEdge';
@@ -138,10 +137,9 @@ export const RightHandle = (props: BoxProps) => {
   const edges = useEdges();
   const hover = useHover(ref);
   const fromHandle = useConnection((s) => s.fromHandle);
-  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const isDragging = fromHandle?.position === Position.Right && fromHandle?.nodeId === id;
-  const isInButtonState = isGraphPipelinesEnabled && (isDragging || (hover && !fromHandle));
+  const isInButtonState = isDragging || (hover && !fromHandle);
   const isSelected = edges.some(({ source, selected }) => source === id && selected);
   const isHighlighted = edges.some(({ source, data }) => source === id && data?.highlighted);
 

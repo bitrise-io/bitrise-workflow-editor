@@ -1,4 +1,4 @@
-import { WorkflowYmlObject } from '@/core/models/Workflow';
+import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel } from '@/core/models/BitriseYml';
 
 export type LegacyTagConditionType = 'tag';
 
@@ -56,26 +56,7 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   isActive: boolean;
 }
 
-type StringOrRegex =
-  | string
-  | {
-      regex: string;
-    };
-
-export type TargetBasedTriggerItem = {
-  branch?: StringOrRegex;
-  changed_files?: StringOrRegex;
-  commit_message?: StringOrRegex;
-  comment?: StringOrRegex;
-  draft_enabled?: boolean;
-  enabled?: boolean;
-  label?: StringOrRegex;
-  name?: StringOrRegex;
-  source_branch?: StringOrRegex;
-  target_branch?: StringOrRegex;
-};
-
-export type TargetBasedTriggers = WorkflowYmlObject['triggers'];
+export type TargetBasedTriggerItem = PushTriggerModel & PullrequestTriggerModel & TagTriggerModel;
 
 export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
   pipelineableId: string;

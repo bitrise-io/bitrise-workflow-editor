@@ -1,12 +1,22 @@
 import { createStore, StoreApi } from 'zustand';
-import { BitriseYml, Meta } from '@/core/models/BitriseYml';
-import { PipelineYmlObject } from '@/core/models/Pipeline';
-import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
-import BitriseYmlService from '@/core/models/BitriseYmlService';
-import { StepBundleYmlObject, StepInputVariable, StepYmlObject } from '@/core/models/Step';
-import { EnvVar } from '../models/EnvVar';
-import EnvVarService from '../models/EnvVarService';
-import { TriggerMapYml } from '../models/TriggerMap';
+
+import {
+  Meta,
+  EnvModel,
+  StepModel,
+  BitriseYml,
+  TriggerMap,
+  PipelineModel,
+  TriggersModel,
+  WorkflowModel,
+  StepBundleModel,
+  EnvironmentItemModel,
+} from '@/core/models/BitriseYml';
+
+import { EnvVar } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/services/EnvVarService';
+import BitriseYmlService from '@/core/services/BitriseYmlService';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 
 type BitriseYmlStoreState = {
   yml: BitriseYml;
@@ -14,10 +24,13 @@ type BitriseYmlStoreState = {
 
   getUniqueStepIds: () => string[];
 
+  // Project related actions
+  updateProjectEnvVars: (envVars: EnvVar[]) => void;
+
   // Pipeline related actions
   createPipeline: (pipelineId: string, basePipelineId?: string) => void;
   renamePipeline: (pipelineId: string, newPipelineId: string) => void;
-  updatePipeline: (pipelineId: string, pipeline: PipelineYmlObject) => void;
+  updatePipeline: (pipelineId: string, pipeline: PipelineModel) => void;
   deletePipeline: (pipelineId: string) => void;
   deletePipelines: (pipelineIds: string[]) => void;
   addWorkflowToPipeline: (pipelineId: string, workflowId: string, parentWorkflowId?: string) => void;
@@ -40,7 +53,7 @@ type BitriseYmlStoreState = {
   // Workflow related actions
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
-  updateWorkflow: (workflowId: string, workflow: WorkflowYmlObject) => void;
+  updateWorkflow: (workflowId: string, workflow: WorkflowModel) => void;
   deleteWorkflow: (workflowId: string) => void;
   deleteWorkflows: (workflowIds: string[]) => void;
   setChainedWorkflows: (
@@ -67,12 +80,12 @@ type BitriseYmlStoreState = {
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   cloneStep: (workflowId: string, stepIndex: number) => void;
-  updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>) => void;
-  updateStepInputs: (workflowId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
+  updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepModel, 'inputs' | 'outputs'>) => void;
+  updateStepInputs: (workflowId: string, stepIndex: number, inputs: EnvModel) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, selectedStepIndices: number[]) => void;
-  updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
-  updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
+  updateTriggerMap: (newTriggerMap: TriggerMap) => void;
+  updateWorkflowTriggers: (workflowId: string, triggers: TriggersModel) => void;
   updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
 
   // Step Bundle related actions
@@ -83,23 +96,24 @@ type BitriseYmlStoreState = {
   deleteStepBundle: (stepBundleId: string) => void;
   deleteStepInStepBundle: (stepBundleId: string, selectedStepIndices: number[]) => void;
   groupStepsToStepBundle: (
-    workflowId: string,
-    stepBundleId: string,
+    workflowId: string | undefined,
+    stepBundleId: string | undefined,
+    newStepBundleId: string,
     selectedStepIndices: number[],
-    baseStepBundleId?: string,
   ) => void;
   moveStepInStepBundle: (stepBundleId: string, stepIndex: number, to: number) => void;
   renameStepBundle: (stepBundleId: string, newStepBundleId: string) => void;
-  updateStepBundle: (stepBundleId: string, stepBundle: StepBundleYmlObject) => void;
+  updateStepBundle: (stepBundleId: string, stepBundle: StepBundleModel) => void;
   updateStepInStepBundle: (
     stepBundleId: string,
     stepIndex: number,
-    newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+    newValues: Omit<StepModel, 'inputs' | 'outputs'>,
   ) => void;
-  updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: StepInputVariable[]) => void;
-  updatePipelineTriggers: (pipelineId: string, triggers: PipelineYmlObject['triggers']) => void;
+  updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: EnvModel) => void;
+  updatePipelineTriggers: (pipelineId: string, triggers: TriggersModel) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
   updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
+  updateStepBundleInput: (bundleId: string, index: number, newInput: EnvironmentItemModel) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -110,6 +124,15 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
     defaultMeta,
     getUniqueStepIds() {
       return BitriseYmlService.getUniqueStepIds(get().yml);
+    },
+
+    // Project related actions
+    updateProjectEnvVars(envVars) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),
+        };
+      });
     },
 
     // Pipeline related actions
@@ -424,10 +447,16 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    groupStepsToStepBundle(workflowId, stepBundleId, selectedStepIndices) {
+    groupStepsToStepBundle(workflowId, stepBundleId, newStepBundleId, selectedStepIndices) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.groupStepsToStepBundle(workflowId, stepBundleId, selectedStepIndices, state.yml),
+          yml: BitriseYmlService.groupStepsToStepBundle(
+            workflowId,
+            stepBundleId,
+            newStepBundleId,
+            selectedStepIndices,
+            state.yml,
+          ),
         };
       });
     },
@@ -482,6 +511,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
+        };
+      });
+    },
+    updateStepBundleInput(bundleId, index, newInput) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepBundleInput(bundleId, index, newInput, state.yml),
         };
       });
     },

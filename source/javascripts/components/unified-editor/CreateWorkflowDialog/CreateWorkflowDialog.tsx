@@ -1,5 +1,5 @@
 import { DialogProps } from '@bitrise/bitkit';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';

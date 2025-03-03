@@ -1,13 +1,16 @@
 import { toMerged } from 'es-toolkit';
+
+import { Stage } from '@/core/models/Stage';
+import { PipelineStages } from '@/core/models/BitriseYml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { PipelinesStages, Stage } from '@/core/models/Stage';
+
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 
 const usePipelineStages = (): Stage[] => {
   const { selectedPipeline } = usePipelineSelector();
 
   return useBitriseYmlStore(({ yml }) => {
-    const pipelineStages: PipelinesStages = yml.pipelines?.[selectedPipeline].stages ?? [];
+    const pipelineStages: PipelineStages = yml.pipelines?.[selectedPipeline].stages ?? [];
 
     return pipelineStages.map((pipelineStageObj) => {
       const stageId = Object.keys(pipelineStageObj)[0];

@@ -1,5 +1,5 @@
 import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
@@ -23,8 +23,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        px={variant === 'panel' ? '24' : '0'}
-        py={variant === 'panel' ? '16' : '0'}
+        p={variant === 'panel' ? '16px 24px 0px 24px' : '0'}
       >
         <Box>
           <Text as="h3" textStyle="heading/h3">
@@ -37,13 +36,11 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           )}
         </Box>
       </Box>
-      <Box mx={variant === 'drawer' ? '-24' : '0'} mt="16">
-        <TabList position="relative" paddingX="8">
-          <Tab>Configuration</Tab>
-          <Tab>Properties</Tab>
-          {shouldShowTriggersTab && <Tab>Triggers</Tab>}
-        </TabList>
-      </Box>
+      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
+        <Tab>Configuration</Tab>
+        <Tab>Properties</Tab>
+        {shouldShowTriggersTab && <Tab>Triggers</Tab>}
+      </TabList>
     </>
   );
 };

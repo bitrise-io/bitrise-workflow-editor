@@ -1,24 +1,35 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/models/StepBundleService';
+import StepBundleService from '@/core/services/StepBundleService';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { useStepBundleConfigContext } from './StepBundlesConfig.context';
 
-type Props = {
-  parentStepBundleId: string;
+type HeaderProps = {
+  variant: 'panel' | 'drawer';
 };
 
-const StepBundlesConfigHeader = ({ parentStepBundleId }: Props) => {
-  const dependants = useDependantWorkflows({ stepBundleCvs: `bundle::${parentStepBundleId}` });
+const StepBundleConfigHeader = (props: HeaderProps) => {
+  const { variant } = props;
+  const { cvs, id, userValues } = useStepBundleConfigContext() ?? {};
+  const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
+  const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 
   return (
-    <Box padding="24px 24px 16px 24px">
-      <Text as="h3" textStyle="heading/h3">
-        {parentStepBundleId || 'Step bundle'}
-      </Text>
-      <Text textStyle="body/sm/regular" color="text/secondary">
-        {StepBundleService.getUsedByText(dependants.length)}
-      </Text>
-    </Box>
+    <>
+      <Box padding={variant === 'panel' ? '24' : undefined} paddingBottom="16">
+        <Text as="h3" textStyle="heading/h3">
+          {userValues?.title || id || 'Step bundle'}
+        </Text>
+        <Text textStyle="body/sm/regular" color="text/secondary">
+          {StepBundleService.getUsedByText(dependants.length)}
+        </Text>
+      </Box>
+      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : undefined}>
+        {enableStepBundles && <Tab>Configuration</Tab>}
+        <Tab>Properties</Tab>
+      </TabList>
+    </>
   );
 };
 
-export default StepBundlesConfigHeader;
+export default StepBundleConfigHeader;

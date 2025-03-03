@@ -18,7 +18,7 @@ const defaultValidateFn: Props['validate'] = () => true;
 const defaultSanitizeFn: Props['sanitize'] = (value) => value;
 
 const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidateFn, onCommit, ...props }: Props) => {
-  const { size, value, defaultValue, ...inputProps } = props;
+  const { size = 'md', value, defaultValue, ...inputProps } = props;
   const buttonSize = size === 'lg' ? 'md' : 'sm';
 
   // TODO maybe useEditable hook from Chakra UI
@@ -104,7 +104,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
       rightAddonPlacement="inside"
       rightAddon={
         editable.isEditing ? (
-          <ButtonGroup justifyContent="center" spacing="0" m="8">
+          <ButtonGroup mx="8" spacing="0">
             <ControlButton
               size={buttonSize}
               iconName="Check"
@@ -115,7 +115,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
             <ControlButton size={buttonSize} aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
           </ButtonGroup>
         ) : (
-          <ControlButton m="8" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
+          <ControlButton mx="8" size={buttonSize} aria-label="Edit" iconName="Pencil" onClick={handleEdit} />
         )
       }
     />

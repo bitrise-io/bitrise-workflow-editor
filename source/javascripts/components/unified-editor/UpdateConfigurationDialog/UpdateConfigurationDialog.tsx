@@ -1,24 +1,24 @@
 import { useEffect } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { AppConfig } from '@/models/AppConfig';
-import { segmentTrack } from '@/utils/segmentTracking';
-import useFormattedYml from '@/hooks/useFormattedYml';
+
 import { BitriseYml } from '@/core/models/BitriseYml';
+import PageProps from '@/core/utils/PageProps';
+import useFormattedYml from '@/hooks/useFormattedYml';
 import { useGetCiConfigMutation } from '@/hooks/useCiConfig';
+import { segmentTrack } from '@/core/utils/segmentTracking';
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type UpdateConfigurationDialogProps = {
   onClose: () => void;
-  appSlug: string;
-  getDataToSave: () => AppConfig | string;
+  getDataToSave: () => BitriseYml | string;
   onComplete(): void;
   defaultBranch: string;
   gitRepoSlug: string;
 };
 
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
-  const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
+  const { onClose, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
   const { error, isPending, mutate, reset } = useGetCiConfigMutation();
 
@@ -50,7 +50,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   };
 
   const handleDoneClick = () => {
-    mutate({ projectSlug: appSlug }, { onSuccess: onComplete });
+    mutate({ projectSlug: PageProps.appSlug() }, { onSuccess: onComplete });
   };
 
   const handleClose = () => {

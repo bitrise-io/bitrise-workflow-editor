@@ -1,6 +1,6 @@
 import { isObject } from 'es-toolkit/compat';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import {
   DecoratedPipelineableTriggerItem,
   TriggerType,

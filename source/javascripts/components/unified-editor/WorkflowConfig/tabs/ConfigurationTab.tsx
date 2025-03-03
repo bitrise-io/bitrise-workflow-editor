@@ -1,6 +1,6 @@
 import { Box } from '@bitrise/bitkit';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import WorkflowService from '@/core/models/WorkflowService';
+import WorkflowService from '@/core/services/WorkflowService';
 import EnvVarsCard from '../components/EnvVarsCard';
 import StackAndMachineCard from '../components/StackAndMachineCard';
 import PipelineConditionsCard from '../components/PipelineConditionsCard';
@@ -17,7 +17,7 @@ const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) 
   const isChainedWorkflow = !!parentWorkflowId;
 
   return (
-    <Box display="flex" flexDir="column" gap="24">
+    <Box display="flex" flexDir="column" gap="16">
       {context === 'pipeline' && !isChainedWorkflow && <PipelineConditionsCard />}
       {RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow && <StackAndMachineCard />}
       <EnvVarsCard />
