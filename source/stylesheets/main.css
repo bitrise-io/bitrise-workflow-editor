@@ -1,14 +1,10 @@
 @import "_index.css";
-@import "_tab-env_vars.css";
 @import "_tab-stack.css";
 
 @import "_rebo.css";
 @import "_cardo.css";
 @import "_popup.css";
 @import "_notification-progress-indicator.css";
-@import "_order-by-drag.css";
-
-@import "~monaco-editor/min/vs/editor/editor.main.css";
 
 :focus {
   outline: none;
