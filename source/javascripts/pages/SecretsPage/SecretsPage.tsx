@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
+
 import { Secret } from '@/core/models/Secret';
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
-import WindowUtils from '@/core/utils/WindowUtils';
+
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
@@ -10,10 +13,10 @@ type SecretsPageProps = {
 };
 
 const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
-  const appSlug = WindowUtils.appSlug() ?? '';
-  const workspaceSecretsPath = `/workspaces/${WindowUtils.workspaceSlug()}/secrets`;
-  const planSelectorPath = `/workspaces/${WindowUtils.workspaceSlug()}/plan_selector`;
-  const sharedSecretsAvailable = WindowUtils.workspace()?.sharedResourcesAvailable;
+  const appSlug = PageProps.appSlug();
+  const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/secrets`;
+  const planSelectorPath = `/workspaces/${GlobalProps.workspaceSlug()}/plan_selector`;
+  const sharedSecretsAvailable = GlobalProps.workspace()?.sharedResourcesAvailable;
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [appSecretList, setAppSecretList] = useState<Secret[]>([]);

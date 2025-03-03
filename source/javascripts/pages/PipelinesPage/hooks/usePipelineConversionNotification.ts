@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import WindowUtils from '@/core/utils/WindowUtils';
+
+import PageProps from '@/core/utils/PageProps';
 
 const usePipelineConversionNotification = () => {
-  const key = ['pipeline-conversion-notification', WindowUtils.appSlug() ?? 'cli'].join('-');
+  const key = ['pipeline-conversion-notification', PageProps.appSlug() || 'cli'].join('-');
   const [state, setState] = useLocalStorage<string[]>(key, []);
 
   const isPipelineConversionNotificationDisplayedFor = useCallback(

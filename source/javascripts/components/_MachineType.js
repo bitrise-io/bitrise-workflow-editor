@@ -68,23 +68,42 @@
           });
         });
 
-        MachineType.all = _.sortBy(MachineType.all, function (machineType) {
-          const categories = ['intel', 'm1', 'm1-max', 'm2', 'other'];
-          let category = 'other';
-          if (machineType.chip === 'intel') {
-            category = 'intel';
-          } else if (machineType.id.includes('m1')) {
-            if (machineType.id.includes('max')) {
-              category = 'm1-max';
-            } else {
-              category = 'm1';
+        function getCategory(machine) {
+          if (machine.chip === 'intel') {
+            return 'intel';
+          }
+          if (machine.id.includes('m1')) {
+            if (machine.id.includes('max')) {
+              return 'm1-max';
             }
-          } else if (machineType.id.startsWith('g2.mac.')) {
-            category = 'm2';
+            return 'm1';
+          }
+          if (machine.id.startsWith('g2.mac.')) {
+            return 'm2';
+          }
+          return 'other';
+        }
+
+        function getCpuCountNumber(cpuCount) {
+          const match = cpuCount.match(/\d+/);
+          return match ? parseInt(match[0], 10) : 0;
+        }
+
+        const sortedMachines = MachineType.all.sort((a, b) => {
+          const creditComparison = a.creditPerMin - b.creditPerMin;
+          if (creditComparison !== 0) {
+            return creditComparison;
           }
 
-          return [categories.indexOf(category), machineType.creditPerMin];
+          const cpuCountA = getCpuCountNumber(a.cpuCount);
+          const cpuCountB = getCpuCountNumber(b.cpuCount);
+          return cpuCountA - cpuCountB;
         });
+
+        MachineType.all = sortedMachines.map((machine) => ({
+          ...machine,
+          category: getCategory(machine),
+        }));
       });
     };
 
