@@ -162,29 +162,33 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
   return result;
 }
 
-function changeStack({
+function changeStackAndMachine({
   stackId,
   machineTypeId,
+  defaultStackId,
   availableStacks = [],
   availableMachineTypes = [],
 }: {
   stackId: string;
   machineTypeId: string;
+  defaultStackId: string;
   availableStacks?: Stack[];
   availableMachineTypes?: MachineType[];
 }) {
   const newStack = StackService.getStackById(availableStacks, stackId);
-  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, newStack);
+  const defaultStack = StackService.getStackById(availableStacks, defaultStackId);
+
+  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, newStack ?? defaultStack);
   const currentMachine = MachineTypeService.getMachineById(selectableMachines, machineTypeId);
 
   return {
-    stackId: newStack?.id || '',
-    machineTypeId: currentMachine?.id || '',
+    stackId: newStack?.id ?? '',
+    machineTypeId: currentMachine?.id ?? '',
   };
 }
 
 export default {
-  changeStackAndMachine: changeStack,
+  changeStackAndMachine,
   createMachineType,
   selectStackAndMachine,
 };
