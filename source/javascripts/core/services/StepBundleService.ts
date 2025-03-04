@@ -1,5 +1,6 @@
-import { uniq } from 'es-toolkit';
-import { StepBundles, Workflows } from '../models/BitriseYml';
+import { omitBy, uniq } from 'es-toolkit';
+import { isEmpty } from 'es-toolkit/compat';
+import { EnvironmentItemModel, StepBundles, Workflows } from '../models/BitriseYml';
 
 function getDirectDependants(workflows: Workflows, cvs: string) {
   const directDependants: string[] = [];
@@ -95,6 +96,29 @@ function idToCvs(id: string) {
   return `bundle::${id}`;
 }
 
+function sanitizeInputOpts(input: EnvironmentItemModel) {
+  const sanitizedInput = { ...input };
+  sanitizedInput.opts = omitBy(input.opts || {}, (value) => {
+    if (!value) {
+      return true;
+    }
+    if (Array.isArray(value) && value.length === 0) {
+      return true;
+    }
+    return false;
+  });
+
+  if (isEmpty(sanitizedInput.opts)) {
+    delete sanitizedInput.opts;
+  }
+
+  return sanitizedInput;
+}
+
+function sanitizeInputKey(key: string) {
+  return key.replace(/[^a-zA-Z0-9_]/g, '').trim();
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -104,4 +128,6 @@ export default {
   getStepBundleChain,
   cvsToId,
   idToCvs,
+  sanitizeInputOpts,
+  sanitizeInputKey,
 };
