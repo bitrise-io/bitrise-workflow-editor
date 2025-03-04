@@ -1,12 +1,9 @@
 @import "_index.css";
-@import "_tab-env_vars.css";
 @import "_tab-stack.css";
 
-@import "_rebo.css";
 @import "_cardo.css";
 @import "_popup.css";
 @import "_notification-progress-indicator.css";
-@import "_order-by-drag.css";
 
 :focus {
   outline: none;
@@ -96,114 +93,6 @@ input[type="submit"] {
 .mak:hover,
 .mak:focus {
   background-color: #ececec;
-}
-
-.checkbox {
-  z-index: 0;
-  position: relative;
-  width: 46px;
-  height: 22px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.checkbox:before {
-  z-index: -2;
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #d7d7d7;
-}
-
-.checkbox input[type="checkbox"] {
-  display: block;
-  width: 100%;
-  height: 100%;
-  appearance: none;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.checkbox .checkbox-svg-wrapper {
-  z-index: -1;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 50%;
-  height: 100%;
-  transition: right 0.2s, background-color 0.2s, opacity 0.2s;
-  background-color: #0fc389;
-}
-
-.checkbox .checkbox-svg-wrapper svg[check],
-.checkbox .checkbox-svg-wrapper svg[cross] {
-  position: absolute;
-  transition: opacity 0.2s;
-  fill: #fff;
-}
-
-.checkbox .checkbox-svg-wrapper svg[check] {
-  width: 24px;
-  height: 24px;
-  top: -1px;
-  left: 0;
-}
-
-.checkbox .checkbox-svg-wrapper svg[cross] {
-  width: 24px;
-  height: 24px;
-  top: -1px;
-  left: 0;
-}
-
-.checkbox input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
-  right: 50%;
-  background-color: #ff2158;
-}
-
-.checkbox input[type="checkbox"]:disabled + .checkbox-svg-wrapper {
-  opacity: 0.5;
-}
-
-.checkbox input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper svg[check],
-.checkbox input[type="checkbox"]:checked + .checkbox-svg-wrapper svg[cross] {
-  opacity: 0;
-}
-
-.checkbox input[type="checkbox"]:checked:not(:disabled):hover + .checkbox-svg-wrapper,
-.checkbox input[type="checkbox"]:checked:not(:disabled):focus + .checkbox-svg-wrapper {
-  background-color: #0fb37d;
-}
-
-.checkbox input[type="checkbox"]:not(:checked):not(:disabled):hover + .checkbox-svg-wrapper,
-.checkbox input[type="checkbox"]:not(:checked):not(:disabled):focus + .checkbox-svg-wrapper {
-  background-color: #ee003b;
-}
-
-.checkbox.small {
-  width: 36px;
-  height: 16px;
-}
-
-.checkbox.small .checkbox-svg-wrapper svg[check] {
-  width: 10px;
-  height: 9px;
-  top: 3px;
-  left: 4px;
-}
-
-.checkbox.small .checkbox-svg-wrapper svg[cross] {
-  width: 8px;
-  height: 8px;
-  top: 4px;
-  left: 5px;
 }
 
 [sanitized-markdown] a {

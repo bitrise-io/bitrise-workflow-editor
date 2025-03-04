@@ -19,7 +19,7 @@ import {
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import DateFormatter from '@/utils/dateFormatter';
-import { segmentTrack } from '@/utils/segmentTracking';
+import { segmentTrack } from '@/core/utils/segmentTracking';
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { useGetCiConfigMutation, usePostCiConfigMutation } from '@/hooks/useCiConfig';
 import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';

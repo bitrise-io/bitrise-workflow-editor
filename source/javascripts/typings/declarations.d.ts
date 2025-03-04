@@ -11,3 +11,8 @@ declare module '*?worker' {
   };
   export default workerConstructor;
 }
+
+declare module '*.png' {
+  const content: string;
+  export default content;
+}
