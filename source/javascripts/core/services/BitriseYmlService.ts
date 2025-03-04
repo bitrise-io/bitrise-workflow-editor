@@ -1101,7 +1101,10 @@ function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel,
     return copy;
   }
 
-  copy.step_bundles[bundleId].inputs = [...(copy.step_bundles[bundleId].inputs ?? []), newInput];
+  copy.step_bundles[bundleId].inputs = [
+    ...(copy.step_bundles[bundleId].inputs ?? []),
+    StepBundleService.sanitizeInputOpts(newInput),
+  ];
 
   return copy;
 }
@@ -1169,17 +1172,7 @@ function updateStepBundleInput(
     );
   }
 
-  if (!isEmpty(oldInput.opts)) {
-    oldInput.opts = omitBy(oldInput.opts, (value) => {
-      if (!value) {
-        return true;
-      }
-      if (Array.isArray(value) && value.length === 0) {
-        return true;
-      }
-      return false;
-    });
-  }
+  oldInput = StepBundleService.sanitizeInputOpts(oldInput);
 
   if (isEmpty(oldInput.opts)) {
     delete oldInput.opts;

@@ -12,15 +12,17 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import { useController, useForm } from 'react-hook-form';
+import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import StepBundleService from '@/core/services/StepBundleService';
 import StepInput from '../../StepConfigDrawer/components/StepInput';
-import { FormItems, InputListItem } from '../types/StepBundle.types';
+import { FormItems, FormMode } from '../types/StepBundle.types';
+import StepSelectInput from '../../StepConfigDrawer/components/StepSelectInput';
 
-function expandInputListItem(listItem: InputListItem = { index: -1 }) {
-  const { index, opts, ...keyValuePair } = listItem;
+function expandInput(input: EnvironmentItemModel = {}) {
+  const { opts, ...keyValuePair } = input;
   const key = Object.keys(keyValuePair)[0] || '';
   const value = (Object.values(keyValuePair)[0] as string | null) || '';
   return {
-    index: typeof index === 'number' ? index : -1,
     key,
     value,
     opts: opts || {},
@@ -28,17 +30,21 @@ function expandInputListItem(listItem: InputListItem = { index: -1 }) {
 }
 
 type StepBundleInputsFormProps = {
-  input?: InputListItem;
+  ids: string[];
+  index: number;
+  input?: EnvironmentItemModel;
   onCancel: VoidFunction;
+  onSubmit: (data: EnvironmentItemModel, index: number, mode: FormMode) => void;
 };
 
 const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
-  const { onCancel, input } = props;
+  const { ids, index, input, onCancel, onSubmit } = props;
   const { isOpen, onToggle } = useDisclosure();
 
-  const { index, opts, key, value } = expandInputListItem(input);
+  const { opts, key, value } = expandInput(input);
 
-  const { control, handleSubmit, register, reset, watch } = useForm<FormItems>({
+  const { control, formState, handleSubmit, register, reset, watch } = useForm<FormItems>({
+    mode: 'onChange',
     values: {
       key,
       value,
@@ -57,11 +63,21 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
     },
   });
 
+  const { field: keyField } = useController({
+    control,
+    name: 'key',
+    rules: {
+      validate: (k) =>
+        ids.includes(k) && k !== key ? 'This key is used in this step bundle, Choose another one.' : undefined,
+    },
+  });
   const { field: valueField } = useController({ control, name: 'value' });
   const { field: valueOptionsField } = useController({ control, name: 'opts.value_options' });
 
+  const mode = key ? 'edit' : 'append';
+
   const onFormSubmit = (data: FormItems) => {
-    console.log({ [data.key]: data.value, opts: data.opts }, index);
+    onSubmit({ [data.key]: data.value, opts: data.opts }, index, mode);
   };
 
   const onCancelClick = () => {
@@ -69,30 +85,44 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
     onCancel();
   };
 
+  const valueOptions = watch('opts.value_options');
+
+  const isSubmitDisabled = !(!!watch('key') && formState.isDirty) || !!formState.errors.key?.message;
+
   return (
     <Box as="form" display="flex" flexDir="column" gap="16" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
       <Box display="flex" flexDir="column" gap="16" flex="1">
-        <Text textStyle="heading/h3">New bundle input</Text>
+        <Text textStyle="heading/h3">{mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}</Text>
         <Input
           label="Title"
           helperText="This will be the label of the input. Keep it short and descriptive."
           size="md"
-          isRequired
           {...register('opts.title')}
         />
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Input
+            errorText={formState.errors.key?.message}
             label="Key"
             helperText="Use this key as variable in Step inputs."
             size="md"
             flex={1}
             isRequired
-            {...register('key')}
+            {...keyField}
+            onChange={(e) => keyField.onChange(StepBundleService.sanitizeInputKey(e.target.value))}
           />
           <Text as="span" mx="8">
             =
           </Text>
-          <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
+          {valueOptions?.length ? (
+            <StepSelectInput
+              label="Default value"
+              helperText="Value must be a string."
+              options={valueOptions ?? []}
+              {...valueField}
+            />
+          ) : (
+            <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
+          )}
         </Box>
         <Collapse in={isOpen}>
           <Box display="flex" flexDirection="column" gap="16">
@@ -102,9 +132,10 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
               helperText="Add values as new lines."
               {...valueOptionsField}
               value={valueOptionsField.value?.join('\n')}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                valueOptionsField.onChange(e.target.value.split('\n'))
-              }
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                const v = e.target.value.trimStart();
+                valueOptionsField.onChange(v ? v.split('\n') : []);
+              }}
             />
             <Input label="Category" {...register('opts.category')} />
             <Textarea label="Description" {...register('opts.description')} />
@@ -146,7 +177,9 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
         <Button variant="tertiary" isDanger onClick={onCancelClick}>
           Cancel
         </Button>
-        <Button type="submit">Create</Button>
+        <Button isDisabled={isSubmitDisabled} type="submit">
+          {mode === 'edit' ? 'Update' : 'Create'}
+        </Button>
       </ButtonGroup>
     </Box>
   );

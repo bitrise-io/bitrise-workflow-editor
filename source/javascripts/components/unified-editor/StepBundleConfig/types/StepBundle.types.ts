@@ -1,10 +1,5 @@
 import { EnvironmentItemModel, EnvironmentItemOptionsModel } from '@/core/models/BitriseYml';
 
-export enum StepBundleConfigTab {
-  CONFIGURATION = 'configuration',
-  PROPERTIES = 'properties',
-}
-
 export type FormItems = {
   key: string;
   value: string;
@@ -14,3 +9,5 @@ export type FormItems = {
 export type InputListItem = {
   index: number;
 } & EnvironmentItemModel;
+
+export type FormMode = 'edit' | 'append';

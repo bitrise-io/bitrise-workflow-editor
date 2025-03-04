@@ -1,5 +1,15 @@
 import { Fragment } from 'react';
-import { Box, Button, Card, Divider, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  ExpandableCard,
+  Input,
+  OverflowMenu,
+  OverflowMenuItem,
+  Text,
+} from '@bitrise/bitkit';
 
 import { useCopyToClipboard } from 'usehooks-ts';
 import StepSelectInput from '@/components/unified-editor/StepConfigDrawer/components/StepSelectInput';
@@ -33,7 +43,7 @@ const StepBundleInputsCategoryCard = ({ defaults = [], onAdd, onChange, onDelete
         return (
           <Fragment key={key}>
             <Box display="flex" gap="12">
-              {isSelectInput && (
+              {false && isSelectInput && (
                 <StepSelectInput
                   helper={helper}
                   label={opts?.title || key}
@@ -46,7 +56,7 @@ const StepBundleInputsCategoryCard = ({ defaults = [], onAdd, onChange, onDelete
                 />
               )}
 
-              {!isSelectInput && (
+              {false && !isSelectInput && (
                 <StepInput
                   helper={helper}
                   label={opts?.title || key}
@@ -59,6 +69,8 @@ const StepBundleInputsCategoryCard = ({ defaults = [], onAdd, onChange, onDelete
                   flex={1}
                 />
               )}
+
+              <Input flex="1" value={value || ''} isReadOnly size="md" label={opts?.title || key} isRequired />
 
               <OverflowMenu buttonProps={{ marginTop: '28', 'aria-label': 'More', iconName: 'MoreVertical' }}>
                 <OverflowMenuItem leftIconName="Duplicate" onClick={() => copy(key)}>

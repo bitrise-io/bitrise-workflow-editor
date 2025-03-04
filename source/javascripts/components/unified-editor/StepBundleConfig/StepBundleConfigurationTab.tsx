@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button, EmptyState } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
-import { InputListItem } from './types/StepBundle.types';
+import { FormMode, InputListItem } from './types/StepBundle.types';
 import StepBundleInputsCategoryCard from './StepBundleInputs/StepBundleInputsCategoryCard';
 import StepBundleInputsForm from './StepBundleInputs/StepBundleInputsForm';
 
@@ -10,8 +11,9 @@ const StepBundleConfigurationTab = () => {
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const stepBundle = useStepBundleConfigContext();
 
-  // const appendStepBundleInput = useBitriseYmlStore((s) => s.appendStepBundleInput);
+  const appendStepBundleInput = useBitriseYmlStore((s) => s.appendStepBundleInput);
   const deleteStepBundleInput = useBitriseYmlStore((s) => s.deleteStepBundleInput);
+  const updateStepBundleInput = useBitriseYmlStore((s) => s.updateStepBundleInput);
 
   const categories: Record<string, InputListItem[]> = {
     uncategorized: [],
@@ -41,11 +43,25 @@ const StepBundleConfigurationTab = () => {
     setSelectedInputIndex(index);
   };
 
+  const handleSubmit = (data: EnvironmentItemModel, index: number, mode: FormMode) => {
+    if (mode === 'edit') {
+      updateStepBundleInput(stepBundle?.id || '', index, data);
+    } else {
+      appendStepBundleInput(stepBundle?.id || '', data);
+    }
+    setSelectedInputIndex(-1);
+  };
+
   if (selectedInputIndex > -1) {
     return (
       <StepBundleInputsForm
+        ids={Object.values(categories)
+          .flat()
+          .map(({ index, opts, ...rest }) => Object.keys({ ...rest })[0])}
+        index={selectedInputIndex}
+        input={stepBundle?.userValues.inputs?.[selectedInputIndex]}
         onCancel={() => setSelectedInputIndex(-1)}
-        input={{ index: selectedInputIndex, ...stepBundle?.userValues.inputs?.[selectedInputIndex] }}
+        onSubmit={handleSubmit}
       />
     );
   }
