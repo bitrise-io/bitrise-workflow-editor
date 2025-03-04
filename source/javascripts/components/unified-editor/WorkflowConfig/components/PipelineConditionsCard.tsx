@@ -172,11 +172,14 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
   return (
     <Input
       value={value}
+      type="number" // TODO: Remove this when we release the dynamic parallel feature
       errorText={error}
       label="Parallel copies"
       helperText={
         <DetailedHelperText
-          summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."
+          summary="The number of copies of this Workflow that will be executed in parallel at runtime."
+          // TODO: Use this helper text after we release the dynamic parallel feature.
+          // summary="The number of copies of this Workflow that will be executed in parallel at runtime. Value can be a number, or an Env Var."
           details="For example, entering 4 means that 4 identical copies of the Workflow will execute in parallel. Env Vars called `$BITRISE_IO_PARALLEL_TOTAL` and `$BITRISE_IO_PARALLEL_INDEX` are available to help distinguish between copies."
         />
       }
