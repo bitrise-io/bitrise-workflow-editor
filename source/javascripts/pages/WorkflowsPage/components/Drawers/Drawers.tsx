@@ -4,6 +4,7 @@ import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   StartBuildDialog,
+  StepBundleConfigDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
   WithGroupDrawer,
@@ -12,7 +13,6 @@ import {
 import StepService from '@/core/services/StepService';
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
-import StepBundleConfigDrawer from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigDrawer';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 
 const Drawers = ({ children }: PropsWithChildren) => {

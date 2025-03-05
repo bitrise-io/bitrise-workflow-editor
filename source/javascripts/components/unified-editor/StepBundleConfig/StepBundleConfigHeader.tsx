@@ -2,7 +2,7 @@ import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import StepBundleService from '@/core/services/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { useStepBundleConfigContext } from './StepBundlesConfig.context';
+import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type HeaderProps = {
   variant: 'panel' | 'drawer';

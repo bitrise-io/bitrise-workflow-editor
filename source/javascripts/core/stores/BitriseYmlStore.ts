@@ -113,6 +113,8 @@ type BitriseYmlStoreState = {
   updatePipelineTriggers: (pipelineId: string, triggers: TriggersModel) => void;
   updatePipelineTriggersEnabled: (pipelineId: string, isEnabled: boolean) => void;
   updateLicensePoolId: (workflowId: string, stack: string, machineTypeId: string) => void;
+  appendStepBundleInput: (bundleId: string, newInput: EnvironmentItemModel) => void;
+  deleteStepBundleInput: (bundleId: string, index: number) => void;
   updateStepBundleInput: (bundleId: string, index: number, newInput: EnvironmentItemModel) => void;
 };
 
@@ -511,6 +513,20 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
+        };
+      });
+    },
+    appendStepBundleInput(bundleId, newInput) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.appendStepBundleInput(bundleId, newInput, state.yml),
+        };
+      });
+    },
+    deleteStepBundleInput(bundleId, index) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deleteStepBundleInput(bundleId, index, state.yml),
         };
       });
     },

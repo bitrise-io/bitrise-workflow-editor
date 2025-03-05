@@ -4,13 +4,13 @@ import {
   ChainWorkflowDrawer,
   StartBuildDialog,
   StepConfigDrawer,
+  StepBundleConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
 } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
-import StepBundleConfigDrawer from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigDrawer';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
