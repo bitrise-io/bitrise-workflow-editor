@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Box, Button, ButtonGroup, Checkbox, Input, Link, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Checkbox, Divider, Input, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
 import { segmentTrack } from '@/utils/segmentTracking';
@@ -40,7 +40,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     defaultValues: {
       conditions: defaultConditions,
       isDraftPr: editedItem?.draft_enabled !== false,
-      priority: editedItem?.priority || '',
+      priority: editedItem?.priority,
     },
   });
 
@@ -89,7 +89,7 @@ const AddTrigger = (props: AddTriggerProps) => {
       delete newTrigger.draft_enabled;
     }
 
-    if (data.priority === undefined || data.priority === '0' || data.priority === 0 || data.priority === '') {
+    if (data.priority === undefined || data.priority === '') {
       delete newTrigger.priority;
     } else {
       newTrigger.priority = Number(data.priority);
@@ -126,7 +126,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     if (
       isEqual(getConditionList(trigger), conditions) &&
       isEqual(trigger.draft_enabled !== false, isDraftPr) &&
-      isEqual(trigger.priority || '', priority)
+      isEqual(trigger.priority, priority)
     ) {
       isSameTriggerExist = true;
     }
@@ -187,9 +187,11 @@ const AddTrigger = (props: AddTriggerProps) => {
               Include draft pull requests
             </Checkbox>
           )}
+          <Divider my="24" />
           <Input
             value={priority}
             type="number"
+            helperText="Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this Workflow."
             min={-100}
             max={100}
             label="Priority"
