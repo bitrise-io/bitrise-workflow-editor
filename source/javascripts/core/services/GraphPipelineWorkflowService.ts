@@ -40,7 +40,9 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
     return true;
   }
 
-  return 'Parallel copies should be a positive integer or a valid environment variable.';
+  return 'Parallel copies should be a positive integer.';
+  // TODO: Use this error message after we releasing the dynamic parallel feature.
+  // return 'Parallel copies should be a positive integer or a valid environment variable.';
 }
 
 function isIntegerValue(value?: string | number) {
