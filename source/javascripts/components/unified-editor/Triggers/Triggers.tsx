@@ -91,6 +91,7 @@ const TriggerItem = (props: TriggerItemProps) => {
         conditions={conditions}
         isDraftPr={trigger.draft_enabled}
         triggerType={triggerType}
+        priority={trigger.priority}
         triggerDisabled={globalDisabled || triggerDisabled}
       />
       <OverflowMenu>
@@ -173,7 +174,7 @@ const Triggers = (props: TriggersProps) => {
 
     const triggerConditions: Record<string, TriggerMapItemModelRegexCondition> = {};
     (Object.keys(trigger) as (keyof typeof trigger)[]).forEach((key) => {
-      if (key !== 'enabled' && key !== 'draft_enabled') {
+      if (key !== 'enabled' && key !== 'draft_enabled' && key !== 'priority') {
         if (typeof trigger[key] === 'string') {
           triggerConditions[key] = {
             regex: trigger[key],
@@ -303,7 +304,7 @@ const Triggers = (props: TriggersProps) => {
               setTriggerType('push');
             }}
           >
-            Add push trigger
+            Add trigger
           </Button>
         </ExpandableCard>
         <ExpandableCard
@@ -345,7 +346,7 @@ const Triggers = (props: TriggersProps) => {
               setTriggerType('pull_request');
             }}
           >
-            Add pull request trigger
+            Add trigger
           </Button>
         </ExpandableCard>
         <ExpandableCard
@@ -384,7 +385,7 @@ const Triggers = (props: TriggersProps) => {
               setTriggerType('tag');
             }}
           >
-            Add tag trigger
+            Add trigger
           </Button>
         </ExpandableCard>
       </Box>
