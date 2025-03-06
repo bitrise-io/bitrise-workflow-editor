@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
-import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import PageProps from '@/core/utils/PageProps';
 import useFormattedYml from '@/hooks/useFormattedYml';
 import { useGetCiConfigMutation } from '@/hooks/useCiConfig';
-import { segmentTrack } from '@/core/utils/segmentTracking';
+
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type UpdateConfigurationDialogProps = {
