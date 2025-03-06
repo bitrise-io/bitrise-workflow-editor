@@ -15,10 +15,12 @@ export function trackPipelineCreated(
   pipelineId: string,
   basePipelineId: string | undefined,
   basePipelineType: 'graph' | 'staged' | undefined,
+  source: 'create_pipeline_popup' | 'pipeline_conversion_signposting_banner',
 ) {
   segmentTrack('Pipeline Created', {
     event_type: 'product',
     platform: 'website',
+    source,
     workspace_slug: GlobalProps.workspaceSlug(),
     app_slug: PageProps.appSlug(),
     pipeline_name: pipelineId,
@@ -51,5 +53,5 @@ export function trackConversionSignpostingBannerDismissed(pipelineId: string, nu
 }
 
 export function trackConversionSignpostingBannerCtaClicked(pipelineId: string, basePipelineId: string) {
-  trackPipelineCreated(pipelineId, basePipelineId, 'staged');
+  trackPipelineCreated(pipelineId, basePipelineId, 'staged', 'pipeline_conversion_signposting_banner');
 }
