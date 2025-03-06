@@ -1,11 +1,17 @@
+import { MouseEventHandler } from 'react';
 import { Link, Notification, Text } from '@bitrise/bitkit';
 import useNavigation from '@/hooks/useNavigation';
 
 const SecretsLink = () => {
   const { replace } = useNavigation();
 
+  const onClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
+    e.preventDefault();
+    replace('/secrets');
+  };
+
   return (
-    <Link href="#/secrets" onClick={() => replace('/secrets')} isUnderlined>
+    <Link href="/secrets" onClick={onClick} isUnderlined>
       Secrets
     </Link>
   );

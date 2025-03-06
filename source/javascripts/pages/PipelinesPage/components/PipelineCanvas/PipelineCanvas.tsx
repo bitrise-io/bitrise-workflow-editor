@@ -1,29 +1,26 @@
-import { Box, Ribbon } from '@bitrise/bitkit';
+import { Box } from '@bitrise/bitkit';
 import { Controls, MiniMap } from '@xyflow/react';
+
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import usePipelineSelector from '../../hooks/usePipelineSelector';
-import Toolbar from '../Toolbar/Toolbar';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
-import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
-import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
+import Toolbar from '../Toolbar/Toolbar';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
+import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
+import PipelineConversionNotification from './PipelineConversionNotification';
+import PipelineConversionSignposting from './PipelineConversionSignposting';
 
 const PipelineCanvas = () => {
-  const { isPipelineConversionNotificationDisplayedFor, hidePipelineConversionNotificationFor } =
-    usePipelineConversionNotification();
-
-  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline].workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
 
   return (
     <>
-      {isPipelineConversionNotificationDisplayedFor(selectedPipeline) && (
-        <Ribbon colorScheme="blue" onClose={() => hidePipelineConversionNotificationFor(selectedPipeline)}>
-          This Pipeline is based on a staged setup. Review artifact sharing and running conditions before running.
-        </Ribbon>
-      )}
+      <PipelineConversionSignposting />
+      <PipelineConversionNotification />
       <Box bg="background/secondary" flex="1" position="relative" userSelect="none">
         <Toolbar
           top="16"

@@ -4,7 +4,7 @@ import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrow
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
 import { useUpsertSecret } from '@/hooks/useSecrets';
-import WindowUtils from '@/core/utils/WindowUtils';
+import PageProps from '@/core/utils/PageProps';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
 import SensitiveBadge from './SensitiveBadge';
@@ -37,7 +37,7 @@ const StepInput = forwardRef(
     const isRequired = defaultValue && !value ? false : props.isRequired;
 
     const { mutate: createSecret } = useUpsertSecret({
-      appSlug: WindowUtils.appSlug() ?? '',
+      appSlug: PageProps.appSlug(),
       options: {
         onSuccess: (data) => {
           if (data) {
@@ -83,6 +83,7 @@ const StepInput = forwardRef(
         placeholder={defaultValue || (isSensitive ? 'Add secret' : 'Enter value')}
         errorText={validationErrorIfRequired(value, isRequired)}
         helperText={<StepHelperText {...(helper ?? { summary: helperText })} />}
+        formControlProps={{ flex: 1 }}
         onChange={(e) => {
           setValue(e.currentTarget.value);
           onChange?.(e.currentTarget.value);

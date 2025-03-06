@@ -2,51 +2,16 @@ function dataLayer() {
   return window.parent.dataLayer;
 }
 
-function globalProps() {
-  return window.parent.globalProps;
+function instance() {
+  return window.parent;
 }
 
-function pageProps() {
-  return window.parent.pageProps;
-}
-
-function appSlug() {
-  return pageProps()?.project?.slug ?? null;
-}
-
-function workspaceSlug() {
-  return globalProps()?.account?.slug ?? null;
-}
-
-function userSlug() {
-  return globalProps()?.user?.slug;
-}
-
-function workspace() {
-  return globalProps()?.account;
-}
-
-function project() {
-  return pageProps()?.project;
-}
-
-function limits() {
-  return pageProps()?.limits;
-}
-
-function abilities() {
-  return pageProps()?.abilities;
+function location() {
+  return instance().location;
 }
 
 export default {
   dataLayer,
-  globalProps,
-  pageProps,
-  appSlug,
-  workspaceSlug,
-  userSlug,
-  workspace,
-  project,
-  limits,
-  abilities,
+  instance,
+  location,
 };

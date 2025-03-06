@@ -1,11 +1,13 @@
 import _ from 'underscore';
-import { safeDigest } from '@/services/react-compat';
-import WindowUtils from '@/core/utils/WindowUtils';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { segmentTrack } from '@/utils/segmentTracking';
+
 import { configMergeDialog } from '@/components/ConfigMergeDialog/ConfigMergeDialog.store';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { safeDigest } from '@/services/react-compat';
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
 (function () {
@@ -451,11 +453,11 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               datadogRumCustomTiming('wfe', 'topNavigation');
 
               if (window.clarity) {
-                if (WindowUtils?.userSlug()) {
-                  window.clarity('identify', WindowUtils.userSlug(), undefined, `WFE - ${menu.title}`);
+                if (GlobalProps?.userSlug()) {
+                  window.clarity('identify', GlobalProps.userSlug(), undefined, `WFE - ${menu.title}`);
                 }
-                if (WindowUtils?.workspaceSlug()) {
-                  window.clarity('set', 'workspace_slug', WindowUtils.workspaceSlug());
+                if (GlobalProps?.workspaceSlug()) {
+                  window.clarity('set', 'workspace_slug', GlobalProps.workspaceSlug());
                 }
               }
             },
@@ -901,7 +903,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               return;
             }
 
-            if (!WindowUtils.appSlug()) {
+            if (!PageProps.appSlug()) {
               return reject('No app slug specified.');
             }
 

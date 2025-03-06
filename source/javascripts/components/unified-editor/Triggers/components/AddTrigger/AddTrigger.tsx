@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
-import { Box, Button, ButtonGroup, Checkbox, Divider, Input, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
-import { segmentTrack } from '@/utils/segmentTracking';
+import { Box, Button, ButtonGroup, Checkbox, Divider, Input, Link, Text, Tooltip } from '@bitrise/bitkit';
+
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
-import { TriggerType, TargetBasedTriggerItem, ConditionType, FormItems } from '../../Triggers.types';
+
+import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
@@ -89,7 +91,7 @@ const AddTrigger = (props: AddTriggerProps) => {
       delete newTrigger.draft_enabled;
     }
 
-    if (data.priority === undefined || data.priority === '') {
+    if (data.priority === undefined) {
       delete newTrigger.priority;
     } else {
       newTrigger.priority = Number(data.priority);
@@ -189,14 +191,21 @@ const AddTrigger = (props: AddTriggerProps) => {
           )}
           <Divider my="24" />
           <Input
-            value={priority}
             type="number"
             helperText="Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this Workflow."
-            min={-100}
-            max={100}
+            min="-100"
+            max="100"
             label="Priority"
-            marginBlockStart="24"
-            onChange={(e) => setValue(`priority`, e.target.value)}
+            onChange={(e) => {
+              const parsedValue = parseInt(e.target.value, 10);
+              if (parsedValue >= -100 && parsedValue <= 100) {
+                setValue(`priority`, parsedValue);
+              } else if (e.target.value === '') {
+                setValue(`priority`, undefined);
+              }
+            }}
+            inputMode="numeric"
+            value={priority?.toString() || ''}
           />
         </Box>
         <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">

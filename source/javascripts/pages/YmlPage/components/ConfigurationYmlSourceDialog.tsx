@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   Box,
   Button,
@@ -17,13 +18,13 @@ import {
   Tooltip,
   useToast,
 } from '@bitrise/bitkit';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import DateFormatter from '@/utils/dateFormatter';
-import { segmentTrack } from '@/utils/segmentTracking';
+
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import { useGetCiConfigMutation, usePostCiConfigMutation } from '@/hooks/useCiConfig';
 import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
-import { BitriseYml } from '@/core/models/BitriseYml';
+import DateFormatter from '@/utils/dateFormatter';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;

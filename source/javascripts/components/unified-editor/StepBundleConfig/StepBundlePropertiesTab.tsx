@@ -7,7 +7,7 @@ import { useStepBundles } from '@/hooks/useStepBundles';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundleModel } from '@/core/models/BitriseYml';
 import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
-import { useStepBundleConfigContext } from './StepBundlesConfig.context';
+import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
 
 type StepBundlePropertiesTabProps = {

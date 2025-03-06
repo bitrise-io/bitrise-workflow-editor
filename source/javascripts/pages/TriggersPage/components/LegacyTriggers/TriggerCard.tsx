@@ -1,10 +1,10 @@
 import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from '@bitrise/bitkit';
-
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { segmentTrack } from '@/utils/segmentTracking';
+
 import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 import TriggerConditions from '@/components/unified-editor/Triggers/components/TriggerConditions';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 
 interface TriggerCardProps extends CardProps {
   isOverlay?: boolean;

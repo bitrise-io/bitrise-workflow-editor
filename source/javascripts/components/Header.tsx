@@ -1,6 +1,7 @@
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useResponsive } from '@bitrise/bitkit';
+
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import WindowUtils from '@/core/utils/WindowUtils';
 
 type Props = {
   appName: string;
@@ -29,7 +30,7 @@ const Header = ({
 }: Props) => {
   const { isMobile } = useResponsive();
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-  const appPath = isWebsiteMode ? `/app/${WindowUtils.appSlug()}` : '';
+  const appPath = isWebsiteMode ? `/app/${PageProps.appSlug()}` : '';
 
   return (
     <Box

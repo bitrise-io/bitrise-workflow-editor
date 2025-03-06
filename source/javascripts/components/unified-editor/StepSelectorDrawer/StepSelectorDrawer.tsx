@@ -1,6 +1,9 @@
 import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import WindowUtils from '@/core/utils/WindowUtils';
+
+import PageProps from '@/core/utils/PageProps';
+import GlobalProps from '@/core/utils/GlobalProps';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -29,10 +32,10 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, targe
   });
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
-  const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
+  const uniqueStepLimit = PageProps.limits()?.uniqueStepLimit;
   const showStepLimit = typeof uniqueStepLimit === 'number';
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
-  const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
+  const upgradeLink = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
   const handleCloseComplete = () => {
     resetSearch();

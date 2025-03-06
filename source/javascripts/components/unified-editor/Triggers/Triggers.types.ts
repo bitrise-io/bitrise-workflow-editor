@@ -44,7 +44,7 @@ export type TriggerItem = {
   source: TriggerType;
   isDraftPr?: boolean;
   isActive: boolean;
-  priority?: number | string;
+  priority?: number;
 };
 
 export interface FormItems extends Omit<TriggerItem, 'conditions'> {
@@ -53,9 +53,6 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
     type?: ConditionType | LegacyConditionType | '';
     value: string;
   }[];
-  isDraftPr?: boolean;
-  isActive: boolean;
-  priority?: number | string;
 }
 
 export type TargetBasedTriggerItem = PushTriggerModel & PullrequestTriggerModel & TagTriggerModel;
