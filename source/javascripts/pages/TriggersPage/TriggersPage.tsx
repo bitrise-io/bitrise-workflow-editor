@@ -1,23 +1,18 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Link, Notification, Text } from '@bitrise/bitkit';
 
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useUserMetaData from '@/hooks/useUserMetaData';
-
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
-export type TriggersPageContentProps = {
-  yml: BitriseYml;
-};
-
-const TriggersPageContent = (props: TriggersPageContentProps) => {
-  const { yml } = props;
+const TriggersPageContent = () => {
+  const { yml } = useBitriseYmlStore();
 
   const appSlug = PageProps.appSlug();
 
@@ -57,7 +52,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
         </Notification>
       )}
       <TargetBasedTriggers yml={yml} />
-      <LegacyTriggers yml={yml} />
+      {!!yml.trigger_map && <LegacyTriggers yml={yml} />}
     </>
   );
 };
@@ -70,7 +65,7 @@ type Props = {
 const TriggersPage = ({ onChange, yml }: Props) => {
   return (
     <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <TriggersPageContent yml={yml} />
+      <TriggersPageContent />
     </BitriseYmlProvider>
   );
 };
