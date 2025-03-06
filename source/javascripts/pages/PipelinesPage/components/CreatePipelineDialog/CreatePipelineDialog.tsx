@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { DialogProps } from '@bitrise/bitkit';
 
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
-import { trackPipelineCreated, trackPipelineDialogShown } from '@/core/analytics/PipelineAnalytics';
+import { trackCreatePipelineDialogShown, trackPipelineCreated } from '@/core/analytics/PipelineAnalytics';
 import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore, { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
 
@@ -24,8 +24,10 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
   });
 
   useEffect(() => {
-    trackPipelineDialogShown(pipelineIds.length ? 'pipeline_selector' : 'pipeline_empty_state');
-  }, [pipelineIds.length]);
+    if (props.isOpen) {
+      trackCreatePipelineDialogShown(pipelineIds.length ? 'pipeline_selector' : 'pipeline_empty_state');
+    }
+  }, [pipelineIds.length, props.isOpen]);
 
   const handleCreatePipeline = (pipelineId: string, basePipelineId?: string) => {
     onCreatePipeline(pipelineId, basePipelineId);
@@ -34,8 +36,9 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
     const basePipeline = PipelineService.getPipeline(basePipelineId ?? '', yml);
     // eslint-disable-next-line no-nested-ternary
     const basePipelineType = PipelineService.getPipelineType(basePipelineId ?? '', yml);
+    const numberOfStages = PipelineService.numberOfStages(basePipeline ?? {});
 
-    trackPipelineCreated(pipelineId, basePipelineId, basePipelineType, 'create_pipeline_popup');
+    trackPipelineCreated(pipelineId, basePipelineId, basePipelineType, numberOfStages, 'create_pipeline_popup');
 
     if (!basePipeline || PipelineService.isGraph(basePipeline)) {
       return;

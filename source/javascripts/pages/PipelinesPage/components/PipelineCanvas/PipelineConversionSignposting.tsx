@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Ribbon } from '@bitrise/bitkit';
 
 import {
-  trackConversionSignpostingBannerCtaClicked,
-  trackConversionSignpostingBannerDismissed,
-  trackConversionSignpostingBannerDisplayed,
+  trackConvertPipelineBannerCtaClicked,
+  trackConvertPipelineBannerDismissed,
+  trackConvertPipelineBannerDisplayed,
 } from '@/core/analytics/PipelineAnalytics';
 import PipelineService from '@/core/services/PipelineService';
 import { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
@@ -16,11 +16,10 @@ import usePipelineConversionNotification from '../../hooks/usePipelineConversion
 const PipelineConversionSignposting = () => {
   const bitriseYmlStoreApi = useBitriseYmlStoreApi();
   const { selectedPipeline, onSelectPipeline } = usePipelineSelector();
-  const pipeline = useMemo(
-    () => PipelineService.getPipeline(selectedPipeline, bitriseYmlStoreApi.getState().yml),
-    [bitriseYmlStoreApi, selectedPipeline],
-  );
-  const numberOfStages = useMemo(() => PipelineService.numberOfStages(pipeline ?? {}), [pipeline]);
+  const numberOfStages = useMemo(() => {
+    const pipeline = PipelineService.getPipeline(selectedPipeline, bitriseYmlStoreApi.getState().yml);
+    return PipelineService.numberOfStages(pipeline ?? {});
+  }, [bitriseYmlStoreApi, selectedPipeline]);
 
   const { isPipelineConversionSignpostingHiddenFor, hidePipelineConversionSignpostingFor } =
     usePipelineConversionSignposting();
@@ -28,12 +27,14 @@ const PipelineConversionSignposting = () => {
   const { displayPipelineConversionNotificationFor } = usePipelineConversionNotification();
 
   useEffect(() => {
-    trackConversionSignpostingBannerDisplayed(selectedPipeline, numberOfStages);
-  }, [selectedPipeline, numberOfStages]);
+    if (!isPipelineConversionSignpostingHiddenFor(selectedPipeline)) {
+      trackConvertPipelineBannerDisplayed(selectedPipeline, numberOfStages);
+    }
+  }, [selectedPipeline, numberOfStages, isPipelineConversionSignpostingHiddenFor]);
 
   const handleDismiss = useCallback(() => {
     hidePipelineConversionSignpostingFor(selectedPipeline);
-    trackConversionSignpostingBannerDismissed(selectedPipeline, numberOfStages);
+    trackConvertPipelineBannerDismissed(selectedPipeline, numberOfStages);
   }, [selectedPipeline, numberOfStages, hidePipelineConversionSignpostingFor]);
 
   const handleConvertClick = useCallback(() => {
@@ -47,7 +48,7 @@ const PipelineConversionSignposting = () => {
     }
 
     bitriseYmlStoreApi.getState().createPipeline(newPipelineId, selectedPipeline);
-    trackConversionSignpostingBannerCtaClicked(newPipelineId, selectedPipeline);
+    trackConvertPipelineBannerCtaClicked(newPipelineId, selectedPipeline);
 
     if (PipelineService.hasStepInside(newPipelineId, 'pull-intermediate-files', bitriseYmlStoreApi.getState().yml)) {
       displayPipelineConversionNotificationFor(newPipelineId);
@@ -64,7 +65,11 @@ const PipelineConversionSignposting = () => {
     <Ribbon
       colorScheme="blue"
       onClose={handleDismiss}
-      action={{ label: 'Convert Pipeline', onClick: handleConvertClick }}
+      action={{
+        label: 'Convert Pipeline',
+        onClick: handleConvertClick,
+        alignSelf: 'center',
+      }}
     >
       This Pipeline is read-only. To edit its contents and access more flexible configuration options, convert it to a
       Graph Pipeline.

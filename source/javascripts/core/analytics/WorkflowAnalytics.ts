@@ -3,7 +3,7 @@ import GlobalProps from '@/core/utils/GlobalProps';
 
 import { segmentTrack } from './SegmentBaseTracking';
 
-export function trackWorkflowDialogShown(source: 'workflow_empty_state' | 'workflow_selector') {
+export function trackCreateWorkflowDialogShown(source: 'workflow_empty_state' | 'workflow_selector') {
   segmentTrack('Create Workflow Popup Shown', {
     source,
     event_type: 'interaction',

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { DialogProps } from '@bitrise/bitkit';
 
-import { trackWorkflowCreated, trackWorkflowDialogShown } from '@/core/analytics/WorkflowAnalytics';
+import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -18,8 +18,10 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
   const [, setSelectedWorkflow] = useSelectedWorkflow();
 
   useEffect(() => {
-    trackWorkflowDialogShown(workflowIds.length ? 'workflow_selector' : 'workflow_empty_state');
-  }, [workflowIds.length]);
+    if (props.isOpen) {
+      trackCreateWorkflowDialogShown(workflowIds.length ? 'workflow_selector' : 'workflow_empty_state');
+    }
+  }, [props.isOpen, workflowIds.length]);
 
   const handleCreateWorkflow = (workflowId: string, baseWorkflowId?: string) => {
     onCreateWorkflow(workflowId, baseWorkflowId);
