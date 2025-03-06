@@ -38,7 +38,7 @@ const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
   const appSlug = PageProps.appSlug();
   const [{ id }] = useSelectedWorkflow();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
-  const { isLoading: isLoadingEnvVars, envs } = useEnvVars([id], shouldLoadVars);
+  const { isLoading: isLoadingEnvVars, envs } = useEnvVars({ workflowIds: [id], enabled: shouldLoadVars });
   const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
     appSlug,
     options: { enabled: shouldLoadVars },

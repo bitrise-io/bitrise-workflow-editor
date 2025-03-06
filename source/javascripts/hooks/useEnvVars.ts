@@ -106,7 +106,14 @@ const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
  * TODO: Load the env vars from each previous workflows and steps only
  * TODO: Handle step bundles and with groups as well
  */
-const useEnvVars = (workflowIds: string[], enabled: boolean) => {
+
+type Props = {
+  enabled: boolean;
+  stepBundleId?: string;
+  workflowIds: string[];
+};
+
+const useEnvVars = ({ enabled, workflowIds }: Props) => {
   const envVarMap = new Map<string, EnvVar>();
   const appLevelEnvVars = useAppLevelEnvVars();
   const workflowLevelEnvVars = useWorkflowLevelEnvVars(workflowIds);

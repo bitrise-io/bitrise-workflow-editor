@@ -9,7 +9,7 @@ import { useSecrets } from '@/hooks/useSecrets';
 const useEnvVarsAndSecrets = () => {
   const workflows = useWorkflows();
   const ids = Object.keys(workflows);
-  const { envs } = useEnvVars(ids, true);
+  const { envs } = useEnvVars({ workflowIds: ids, enabled: true });
   const { data: secrets = [] } = useSecrets({ appSlug: PageProps.appSlug() });
 
   return useMemo(() => [...envs, ...secrets].sort((a, b) => a.key.localeCompare(b.key)) as EnvVar[], [envs, secrets]);
