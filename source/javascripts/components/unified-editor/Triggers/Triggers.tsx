@@ -13,16 +13,16 @@ import {
   Toggle,
 } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { segmentTrack } from '@/core/utils/segmentTracking';
-import useUserMetaData from '@/hooks/useUserMetaData';
-import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition, TriggersModel } from '@/core/models/BitriseYml';
-import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
+import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useUserMetaData from '@/hooks/useUserMetaData';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
+import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
 import { getConditionList, getPipelineableTriggers } from './Triggers.utils';

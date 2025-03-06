@@ -3,10 +3,9 @@ import { Controls, MiniMap } from '@xyflow/react';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import Toolbar from '../Toolbar/Toolbar';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
-
+import Toolbar from '../Toolbar/Toolbar';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
 import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 import PipelineConversionNotification from './PipelineConversionNotification';
@@ -20,8 +19,8 @@ const PipelineCanvas = () => {
 
   return (
     <>
-      <PipelineConversionSignposting pipelineId={selectedPipeline} />
-      <PipelineConversionNotification pipelineId={selectedPipeline} />
+      <PipelineConversionSignposting />
+      <PipelineConversionNotification />
       <Box bg="background/secondary" flex="1" position="relative" userSelect="none">
         <Toolbar
           top="16"

@@ -68,7 +68,7 @@ const usePipelineStageNodes = (): Node[] => {
       x += ICON_STAGE_WIDTH + STAGE_GAP;
     }
 
-    nodes.push(stageNode(id, x, stage));
+    nodes.push(stageNode(stage.id, x, stage));
     x += STAGE_WIDTH + STAGE_GAP;
 
     if (isLastStage) {
