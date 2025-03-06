@@ -11,7 +11,7 @@ type Props = {
   category?: string;
   items: InputListItem[];
   onAdd: (category?: string) => void;
-  onChange: (key: string, value: string) => void;
+  onChange: (key: string, value: string, index: number) => void;
   onDelete: (index: number) => void;
   onEdit: (index: number) => void;
 };
@@ -42,7 +42,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   isSensitive={opts?.is_sensitive}
                   options={opts?.value_options ?? []}
                   isDisabled={opts?.is_dont_change_value}
-                  onChange={(changedValue) => onChange(key, changedValue)}
+                  onChange={(changedValue) => onChange(key, changedValue, index)}
                 />
               )}
 
@@ -55,7 +55,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   isRequired={opts?.is_required}
                   isSensitive={opts?.is_sensitive}
                   isDisabled={opts?.is_dont_change_value}
-                  onChange={(changedValue) => onChange(key, changedValue)}
+                  onChange={(changedValue) => onChange(key, changedValue, index)}
                   flex={1}
                 />
               )}

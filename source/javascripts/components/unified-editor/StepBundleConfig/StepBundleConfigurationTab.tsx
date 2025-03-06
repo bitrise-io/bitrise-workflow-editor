@@ -16,6 +16,7 @@ const StepBundleConfigurationTab = () => {
   const appendStepBundleInput = useBitriseYmlStore((s) => s.appendStepBundleInput);
   const deleteStepBundleInput = useBitriseYmlStore((s) => s.deleteStepBundleInput);
   const updateStepBundleInput = useBitriseYmlStore((s) => s.updateStepBundleInput);
+  const updateStepBundleInputInstanceValue = useBitriseYmlStore((s) => s.updateStepBundleInputInstanceValue);
 
   const categories = useStepBundleInputs({
     inputs: stepBundle?.userValues.inputs,
@@ -29,8 +30,23 @@ const StepBundleConfigurationTab = () => {
     setSelectedInputIndex(stepBundle?.userValues.inputs?.length || 0);
   };
 
-  const handlChange = (key: string, value: string) => {
-    console.log('handlChange', key, value);
+  const handlChange = (key: string, newValue: string, index: number) => {
+    const input = stepBundle?.userValues.inputs?.[index];
+    if (context.stepBundleId || context.workflowId) {
+      updateStepBundleInputInstanceValue(
+        key,
+        newValue,
+        context.stepBundleId,
+        context.workflowId,
+        stepBundle?.cvs || `bundle::${stepBundle?.id}`,
+        context.stepIndex,
+      );
+    } else {
+      updateStepBundleInput(stepBundle?.id || '', index, {
+        ...input,
+        [key]: newValue,
+      });
+    }
   };
 
   const handleDelete = (index: number) => {

@@ -1183,6 +1183,63 @@ function updateStepBundleInput(
   return copy;
 }
 
+function updateStepBundleInputInstanceValue(
+  key: string,
+  newValue: string,
+  parentStepBundleId: string | undefined,
+  parentWorkflowId: string | undefined,
+  cvs: string,
+  stepIndex: number,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (
+    (!parentStepBundleId && !parentWorkflowId) ||
+    (parentStepBundleId && !copy.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex]) ||
+    (parentWorkflowId && !copy.workflows?.[parentWorkflowId]?.steps?.[stepIndex])
+  ) {
+    return copy;
+  }
+
+  let inputs: EnvModel = [];
+  if (parentWorkflowId && copy.workflows?.[parentWorkflowId]?.steps?.[stepIndex]) {
+    inputs = copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs || [];
+  }
+  if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex]) {
+    inputs = copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs || [];
+  }
+
+  const inputIndex = inputs?.findIndex(({ opts, ...i }) => Object.keys(i)[0] === key);
+  if (newValue) {
+    if (inputIndex === -1) {
+      inputs.push({ [key]: newValue });
+    } else {
+      inputs[inputIndex] = { ...inputs[inputIndex], [key]: newValue };
+    }
+  } else {
+    inputs.splice(inputIndex, 1);
+  }
+
+  if (parentWorkflowId && copy.workflows?.[parentWorkflowId].steps) {
+    if (inputs.length) {
+      copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs = inputs.length ? inputs : undefined;
+    } else {
+      delete copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs;
+    }
+  }
+
+  if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId].steps) {
+    if (inputs.length) {
+      copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs = inputs;
+    } else {
+      delete copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs;
+    }
+  }
+
+  return copy;
+}
+
 function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1666,4 +1723,5 @@ export default {
   appendStepBundleInput,
   deleteStepBundleInput,
   updateStepBundleInput,
+  updateStepBundleInputInstanceValue,
 };

@@ -163,12 +163,12 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
           {isOpen ? 'Show less options' : 'Show more options'}
         </Link>
       </Box>
-      <ButtonGroup display="flex" justifyContent="space-between" paddingBottom={isOpen ? '24' : undefined}>
-        <Button variant="tertiary" isDanger onClick={onCancelClick}>
-          Cancel
-        </Button>
+      <ButtonGroup display="flex" gap="8" paddingBottom={isOpen ? '24' : undefined}>
         <Button isDisabled={isSubmitDisabled} type="submit">
           {mode === 'edit' ? 'Update' : 'Create'}
+        </Button>
+        <Button variant="secondary" onClick={onCancelClick}>
+          Cancel
         </Button>
       </ButtonGroup>
     </Box>
