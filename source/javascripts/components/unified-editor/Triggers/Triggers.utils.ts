@@ -61,7 +61,7 @@ export const getConditionList = (trigger: TargetBasedTriggerItem) => {
   const conditions: Condition[] = [];
   const triggerKeys = Object.keys(trigger) as (keyof TargetBasedTriggerItem)[];
   triggerKeys.forEach((key) => {
-    if (!['enabled', 'pipelineableId', 'pipelineableType', 'type', 'draft_enabled'].includes(key)) {
+    if (!['enabled', 'pipelineableId', 'pipelineableType', 'type', 'draft_enabled', 'priority'].includes(key)) {
       const isRegex = isObject(trigger[key]);
       conditions.push({
         isRegex,

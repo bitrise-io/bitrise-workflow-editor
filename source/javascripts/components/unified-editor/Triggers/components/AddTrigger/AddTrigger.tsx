@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
-import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Checkbox, Divider, Link, Text, Tooltip } from '@bitrise/bitkit';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
 
+import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
@@ -20,10 +21,12 @@ type AddTriggerProps = {
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
   trackingData: Record<string, number | string | boolean>;
+  entity: 'Workflow' | 'Pipeline';
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData } = props;
+  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData, entity } =
+    props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -42,12 +45,13 @@ const AddTrigger = (props: AddTriggerProps) => {
     defaultValues: {
       conditions: defaultConditions,
       isDraftPr: editedItem?.draft_enabled !== false,
+      priority: editedItem?.priority,
     },
   });
 
   const { control, handleSubmit, setValue, reset, watch } = formMethods;
 
-  const { conditions, isDraftPr } = watch();
+  const { conditions, isDraftPr, priority } = watch();
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -90,6 +94,11 @@ const AddTrigger = (props: AddTriggerProps) => {
       delete newTrigger.draft_enabled;
     }
 
+    if (data.priority === undefined) {
+      delete newTrigger.priority;
+    } else {
+      newTrigger.priority = Number(data.priority);
+    }
     onSubmit(newTrigger);
   };
 
@@ -119,7 +128,11 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    if (isEqual(getConditionList(trigger), conditions) && isEqual(trigger.draft_enabled !== false, isDraftPr)) {
+    if (
+      isEqual(getConditionList(trigger), conditions) &&
+      isEqual(trigger.draft_enabled !== false, isDraftPr) &&
+      isEqual(trigger.priority, priority)
+    ) {
       isSameTriggerExist = true;
     }
   });
@@ -179,6 +192,12 @@ const AddTrigger = (props: AddTriggerProps) => {
               Include draft pull requests
             </Checkbox>
           )}
+          <Divider marginBlock="24" />
+          <PriorityInput
+            onChange={(newValue) => setValue('priority', newValue)}
+            value={priority}
+            helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
+          />
         </Box>
         <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">
           <Tooltip

@@ -560,9 +560,9 @@ function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseY
 function updateWorkflow(workflowId: string, workflow: WorkflowModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  mapValues(workflow, (value: string, key: never) => {
+  mapValues(workflow, (value: string | number, key: never) => {
     if (copy.workflows?.[workflowId]) {
-      if (value) {
+      if (value || (value === 0 && key === 'priority')) {
         copy.workflows[workflowId][key] = value as never;
       } else if (shouldRemoveField(value, yml.workflows?.[workflowId]?.[key])) {
         delete copy.workflows[workflowId][key];
@@ -756,9 +756,9 @@ function renamePipeline(pipelineId: string, newPipelineId: string, yml: BitriseY
 function updatePipeline(pipelineId: string, pipeline: PipelineModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  mapValues(pipeline, (value: string, key: never) => {
+  mapValues(pipeline, (value: string | number, key: never) => {
     if (copy.pipelines?.[pipelineId]) {
-      if (value) {
+      if (value || (value === 0 && key === 'priority')) {
         copy.pipelines[pipelineId][key] = value as never;
       } else if (shouldRemoveField(value, yml.pipelines?.[pipelineId]?.[key])) {
         delete copy.pipelines[pipelineId][key];
