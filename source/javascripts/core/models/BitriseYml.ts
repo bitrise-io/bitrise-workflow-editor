@@ -119,6 +119,7 @@ export type WorkflowModel = {
   timeout_in_minutes?: number;
   triggers?: TriggersModel;
   status_report_name?: string;
+  priority?: number;
 };
 
 export type TriggerMapItemModel = {
@@ -192,6 +193,7 @@ export type PipelineModel = {
   summary?: string;
   description?: string;
   triggers?: TriggersModel;
+  priority?: number;
   status_report_name?: string;
   stages?: PipelineStages;
   workflows?: PipelineWorkflows;

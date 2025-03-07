@@ -1,5 +1,5 @@
 import { ChangeEventHandler, useEffect, useState } from 'react';
-import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Divider, Textarea, useDisclosure } from '@bitrise/bitkit';
 import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -8,6 +8,7 @@ import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/
 import DeleteWorkflowDialog from '@/components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import GitStatusNameInput from '../components/GitStatusNameInput';
+import PriorityInput from '../../PriorityInput/PriorityInput';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -23,13 +24,15 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
   const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
 
-  const [{ summary, description, statusReportName }, setValues] = useState({
+  const [{ summary, description, statusReportName, priority }, setValues] = useState({
     summary: workflow?.userValues.summary || '',
     description: workflow?.userValues.description || '',
     statusReportName: workflow?.userValues.status_report_name || '',
+    priority: workflow?.userValues.priority || undefined,
   });
   const isDeleteable = variant === 'panel';
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflow?.id || '');
+  const isPriorityEnabled = variant === 'panel' && !isUtilityWorkflow;
   const isGitStatusNameEnabled = variant === 'panel' && !isUtilityWorkflow;
 
   const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
@@ -42,6 +45,15 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
     debouncedUpdateWorkflow(workflow?.id || '', {
       description: e.target.value,
     });
+  };
+
+  const handlePriorityChange = (newValue?: number) => {
+    if (newValue !== undefined) {
+      setValues((prev) => ({ ...prev, priority: newValue }));
+      debouncedUpdateWorkflow(workflow?.id || '', {
+        priority: newValue,
+      });
+    }
   };
 
   const handleGitStatusNameChange = (newValue: string, isValid: boolean) => {
@@ -64,8 +76,14 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       summary: workflow?.userValues.summary || '',
       description: workflow?.userValues.description || '',
       statusReportName: workflow?.userValues.status_report_name || '',
+      priority: workflow?.userValues.priority || undefined,
     });
-  }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
+  }, [
+    workflow?.userValues.description,
+    workflow?.userValues.priority,
+    workflow?.userValues.status_report_name,
+    workflow?.userValues.summary,
+  ]);
 
   return (
     <Box gap="16" display="flex" flexDir="column">
@@ -80,6 +98,8 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
+      <Divider marginBlock="8" />
+      {isPriorityEnabled && <PriorityInput onChange={handlePriorityChange} value={priority} />}
       {isGitStatusNameEnabled && (
         <GitStatusNameInput
           targetId={workflow?.id}

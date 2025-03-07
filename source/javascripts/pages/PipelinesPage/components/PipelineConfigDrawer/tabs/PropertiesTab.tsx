@@ -7,6 +7,7 @@ import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
+import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import DeletePipelineDialog from '../components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = {
@@ -19,10 +20,11 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
   const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 
-  const { summary, description, statusReportName, updatePipeline } = useBitriseYmlStore((s) => ({
+  const { summary, description, priority, statusReportName, updatePipeline } = useBitriseYmlStore((s) => ({
     summary: s.yml.pipelines?.[pipelineId]?.summary || '',
     description: s.yml.pipelines?.[pipelineId]?.description || '',
     statusReportName: s.yml.pipelines?.[pipelineId]?.status_report_name || '',
+    priority: s.yml.pipelines?.[pipelineId]?.priority || undefined,
     updatePipeline: s.updatePipeline,
   }));
 
@@ -80,6 +82,7 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
           value={description}
           onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
         />
+        <PriorityInput onChange={(newValue) => updatePipeline(pipelineId, { priority: newValue })} value={priority} />
         <GitStatusNameInput
           targetId={pipelineId}
           onChange={(newStatusReportName) => updatePipeline(pipelineId, { status_report_name: newStatusReportName })}

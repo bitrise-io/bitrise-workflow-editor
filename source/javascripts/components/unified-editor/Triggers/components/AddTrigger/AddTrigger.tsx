@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { isEqual } from 'es-toolkit';
-import { Box, Button, ButtonGroup, Checkbox, Divider, Input, Link, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Checkbox, Divider, Link, Text, Tooltip } from '@bitrise/bitkit';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
 
+import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
@@ -189,24 +190,8 @@ const AddTrigger = (props: AddTriggerProps) => {
               Include draft pull requests
             </Checkbox>
           )}
-          <Divider my="24" />
-          <Input
-            type="number"
-            helperText="Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this Workflow."
-            min="-100"
-            max="100"
-            label="Priority"
-            onChange={(e) => {
-              const parsedValue = parseInt(e.target.value, 10);
-              if (parsedValue >= -100 && parsedValue <= 100) {
-                setValue(`priority`, parsedValue);
-              } else if (e.target.value === '') {
-                setValue(`priority`, undefined);
-              }
-            }}
-            inputMode="numeric"
-            value={priority?.toString() || ''}
-          />
+          <Divider marginBlock="24" />
+          <PriorityInput onChange={(newValue) => setValue('priority', newValue)} value={priority} />
         </Box>
         <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">
           <Tooltip
