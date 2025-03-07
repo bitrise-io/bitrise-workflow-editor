@@ -29,7 +29,7 @@ function validationErrorIfRequired(value: string, isRequired?: boolean) {
 
 const StepInput = forwardRef(
   ({ isSensitive, isDisabled, helperText, helper, defaultValue: propDefaultValue, onChange, ...props }: Props, ref) => {
-    const { workflowId } = useStepDrawerContext();
+    const { stepBundleId, workflowId } = useStepDrawerContext();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
     const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
     const [value, setValue] = useState(String(props.value ?? ''));
@@ -110,7 +110,13 @@ const StepInput = forwardRef(
               <InsertSecretPopover size="sm" onCreate={createSecret} onSelect={({ key }) => insertVariable(key)} />
             )}
             {!isSensitive && (
-              <InsertEnvVarPopover size="sm" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
+              <InsertEnvVarPopover
+                size="sm"
+                onCreate={createEnvVar}
+                onSelect={({ key }) => insertVariable(key)}
+                stepBundleId={stepBundleId}
+                workflowId={workflowId}
+              />
             )}
           </ButtonGroup>
         )}

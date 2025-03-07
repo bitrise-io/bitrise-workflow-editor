@@ -142,6 +142,7 @@ export type TriggerMapItemModel = {
 export type WithModel = {
   container?: string;
   services?: string[];
+  inputs?: EnvModel;
   steps: Steps;
 };
 

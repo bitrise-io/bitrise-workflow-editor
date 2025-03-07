@@ -16,7 +16,7 @@ type Props = Omit<DropdownProps<string | null>, 'onChange'> & {
 
 const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
-    const { workflowId } = useStepDrawerContext();
+    const { stepBundleId, workflowId } = useStepDrawerContext();
     const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
     const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
 
@@ -61,7 +61,13 @@ const StepSelectInput = forwardRef(
           )}
         </Dropdown>
         <Box pt="24">
-          <InsertEnvVarPopover size="md" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
+          <InsertEnvVarPopover
+            size="md"
+            onCreate={createEnvVar}
+            onSelect={({ key }) => insertVariable(key)}
+            stepBundleId={stepBundleId}
+            workflowId={workflowId}
+          />
         </Box>
       </Box>
     );

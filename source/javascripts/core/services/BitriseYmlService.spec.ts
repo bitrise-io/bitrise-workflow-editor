@@ -4711,6 +4711,136 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
+
+  describe('updateStepBundleInputInstanceValue', () => {
+    it('should update value of bundle instance input', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {
+                  inputs: [{ INPUT0: 'input0' }, { INPUT1: 'input1' }],
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {
+                  inputs: [{ INPUT0: 'new_input0' }, { INPUT1: 'input1' }],
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInputInstanceValue(
+        'INPUT0',
+        'new_input0',
+        undefined,
+        'wf1',
+        'bundle::bundle1',
+        0,
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should add value to bundle instance input', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {},
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {
+                  inputs: [{ INPUT0: 'new_input0' }],
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInputInstanceValue(
+        'INPUT0',
+        'new_input0',
+        undefined,
+        'wf1',
+        'bundle::bundle1',
+        0,
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove value from bundle instance input', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {
+                  inputs: [{ INPUT0: 'input0' }],
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {},
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInputInstanceValue(
+        'INPUT0',
+        '',
+        undefined,
+        'wf1',
+        'bundle::bundle1',
+        0,
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
 });
 
 declare module 'expect' {

@@ -37,6 +37,21 @@ const useAppLevelEnvVars = () => {
   });
 };
 
+const useStepBundleLevelEnvVars = (ids: string[]) => {
+  return useBitriseYmlStore((s) => {
+    const envVarMap = new Map<string, EnvVar>();
+
+    ids.forEach((stepBundleId) => {
+      s.yml.step_bundles?.[stepBundleId]?.inputs?.forEach((envVarYml) => {
+        const env = EnvVarService.parseYmlEnvVar(envVarYml, `Step bundle: ${stepBundleId}`);
+        envVarMap.set(env.key, env);
+      });
+    });
+
+    return Array.from(envVarMap.values());
+  });
+};
+
 const useWorkflowLevelEnvVars = (ids: string[]) => {
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
@@ -106,9 +121,17 @@ const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
  * TODO: Load the env vars from each previous workflows and steps only
  * TODO: Handle step bundles and with groups as well
  */
-const useEnvVars = (workflowIds: string[], enabled: boolean) => {
+
+type Props = {
+  enabled: boolean;
+  stepBundleIds?: string[];
+  workflowIds: string[];
+};
+
+const useEnvVars = ({ enabled, stepBundleIds, workflowIds }: Props) => {
   const envVarMap = new Map<string, EnvVar>();
   const appLevelEnvVars = useAppLevelEnvVars();
+  const stepBundleLevelEnvVars = useStepBundleLevelEnvVars(stepBundleIds || []);
   const workflowLevelEnvVars = useWorkflowLevelEnvVars(workflowIds);
   const { data: defaultEnvVars, isLoading: isLoadingDefaultEnvVars } = useDefaultEnvVars(enabled);
   const { data: stepLevelEnvVars, isLoading: isLoadingStepLevelEnvVars } = useStepLevelEnvVars(workflowIds, enabled);
@@ -118,6 +141,7 @@ const useEnvVars = (workflowIds: string[], enabled: boolean) => {
   if (!isLoading && defaultEnvVars && stepLevelEnvVars) {
     defaultEnvVars.forEach((env) => envVarMap.set(env.key, env));
     appLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
+    stepBundleLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
     workflowLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
     stepLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
   }

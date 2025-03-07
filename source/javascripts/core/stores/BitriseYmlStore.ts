@@ -116,6 +116,14 @@ type BitriseYmlStoreState = {
   appendStepBundleInput: (bundleId: string, newInput: EnvironmentItemModel) => void;
   deleteStepBundleInput: (bundleId: string, index: number) => void;
   updateStepBundleInput: (bundleId: string, index: number, newInput: EnvironmentItemModel) => void;
+  updateStepBundleInputInstanceValue: (
+    key: string,
+    newValue: string,
+    parentStepBundleId: string | undefined,
+    parentWorkflowId: string | undefined,
+    cvs: string,
+    stepIndex: number,
+  ) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -534,6 +542,21 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateStepBundleInput(bundleId, index, newInput, state.yml),
+        };
+      });
+    },
+    updateStepBundleInputInstanceValue(key, newValue, parentStepBundleId, parentWorkflowId, cvs, stepIndex) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepBundleInputInstanceValue(
+            key,
+            newValue,
+            parentStepBundleId,
+            parentWorkflowId,
+            cvs,
+            stepIndex,
+            state.yml,
+          ),
         };
       });
     },
