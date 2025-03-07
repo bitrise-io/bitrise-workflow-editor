@@ -37,6 +37,21 @@ const useAppLevelEnvVars = () => {
   });
 };
 
+const useStepBundleLevelEnvVars = (ids: string[]) => {
+  return useBitriseYmlStore((s) => {
+    const envVarMap = new Map<string, EnvVar>();
+
+    ids.forEach((stepBundleId) => {
+      s.yml.step_bundles?.[stepBundleId]?.inputs?.forEach((envVarYml) => {
+        const env = EnvVarService.parseYmlEnvVar(envVarYml, `Step bundle: ${stepBundleId}`);
+        envVarMap.set(env.key, env);
+      });
+    });
+
+    return Array.from(envVarMap.values());
+  });
+};
+
 const useWorkflowLevelEnvVars = (ids: string[]) => {
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
@@ -109,13 +124,14 @@ const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
 
 type Props = {
   enabled: boolean;
-  stepBundleId?: string;
+  stepBundleIds?: string[];
   workflowIds: string[];
 };
 
-const useEnvVars = ({ enabled, workflowIds }: Props) => {
+const useEnvVars = ({ enabled, stepBundleIds, workflowIds }: Props) => {
   const envVarMap = new Map<string, EnvVar>();
   const appLevelEnvVars = useAppLevelEnvVars();
+  const stepBundleLevelEnvVars = useStepBundleLevelEnvVars(stepBundleIds || []);
   const workflowLevelEnvVars = useWorkflowLevelEnvVars(workflowIds);
   const { data: defaultEnvVars, isLoading: isLoadingDefaultEnvVars } = useDefaultEnvVars(enabled);
   const { data: stepLevelEnvVars, isLoading: isLoadingStepLevelEnvVars } = useStepLevelEnvVars(workflowIds, enabled);
@@ -125,6 +141,7 @@ const useEnvVars = ({ enabled, workflowIds }: Props) => {
   if (!isLoading && defaultEnvVars && stepLevelEnvVars) {
     defaultEnvVars.forEach((env) => envVarMap.set(env.key, env));
     appLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
+    stepBundleLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
     workflowLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
     stepLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
   }
