@@ -756,9 +756,9 @@ function renamePipeline(pipelineId: string, newPipelineId: string, yml: BitriseY
 function updatePipeline(pipelineId: string, pipeline: PipelineModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  mapValues(pipeline, (value: string, key: never) => {
+  mapValues(pipeline, (value: string | number, key: never) => {
     if (copy.pipelines?.[pipelineId]) {
-      if (value) {
+      if (value || (value === 0 && key === 'priority')) {
         copy.pipelines[pipelineId][key] = value as never;
       } else if (shouldRemoveField(value, yml.pipelines?.[pipelineId]?.[key])) {
         delete copy.pipelines[pipelineId][key];

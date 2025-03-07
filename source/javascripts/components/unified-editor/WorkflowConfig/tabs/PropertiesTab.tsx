@@ -48,12 +48,10 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   };
 
   const handlePriorityChange = (newValue?: number) => {
-    if (newValue !== undefined) {
-      setValues((prev) => ({ ...prev, priority: newValue }));
-      debouncedUpdateWorkflow(workflow?.id || '', {
-        priority: newValue,
-      });
-    }
+    setValues((prev) => ({ ...prev, priority: newValue }));
+    debouncedUpdateWorkflow(workflow?.id || '', {
+      priority: newValue,
+    });
   };
 
   const handleGitStatusNameChange = (newValue: string, isValid: boolean) => {
@@ -98,7 +96,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
-      <Divider marginBlock="8" />
+      {(isPriorityEnabled || isGitStatusNameEnabled) && <Divider marginBlock="8" />}
       {isPriorityEnabled && <PriorityInput onChange={handlePriorityChange} value={priority} />}
       {isGitStatusNameEnabled && (
         <GitStatusNameInput

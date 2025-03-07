@@ -24,7 +24,8 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
     summary: s.yml.pipelines?.[pipelineId]?.summary || '',
     description: s.yml.pipelines?.[pipelineId]?.description || '',
     statusReportName: s.yml.pipelines?.[pipelineId]?.status_report_name || '',
-    priority: s.yml.pipelines?.[pipelineId]?.priority || undefined,
+    priority:
+      typeof s.yml.pipelines?.[pipelineId]?.priority === 'number' ? s.yml.pipelines?.[pipelineId]?.priority : undefined,
     updatePipeline: s.updatePipeline,
   }));
 
