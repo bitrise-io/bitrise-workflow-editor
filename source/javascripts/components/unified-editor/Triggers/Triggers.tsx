@@ -120,10 +120,11 @@ type TriggersProps = {
   triggers?: TriggersModel;
   updateTriggers: BitriseYmlStoreState['updateWorkflowTriggers'];
   updateTriggersEnabled: BitriseYmlStoreState['updateWorkflowTriggersEnabled'];
+  entity: 'Workflow' | 'Pipeline';
 };
 
 const Triggers = (props: TriggersProps) => {
-  const { additionalTrackingData, id, triggers: triggersProp, updateTriggers, updateTriggersEnabled } = props;
+  const { additionalTrackingData, id, triggers: triggersProp, entity, updateTriggers, updateTriggersEnabled } = props;
 
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTriggerItem } | undefined>(
@@ -239,6 +240,7 @@ const Triggers = (props: TriggersProps) => {
           editedItem={editedItem?.trigger}
           currentTriggers={(triggers[triggerType] as TargetBasedTriggerItem[]) || []}
           trackingData={trackingData}
+          entity={entity}
         />
       )}
       <Box display={triggerType !== undefined ? 'none' : 'block'}>

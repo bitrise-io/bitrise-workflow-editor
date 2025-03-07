@@ -21,10 +21,12 @@ type AddTriggerProps = {
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
   trackingData: Record<string, number | string | boolean>;
+  entity: 'Workflow' | 'Pipeline';
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData } = props;
+  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData, entity } =
+    props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -191,7 +193,11 @@ const AddTrigger = (props: AddTriggerProps) => {
             </Checkbox>
           )}
           <Divider marginBlock="24" />
-          <PriorityInput onChange={(newValue) => setValue('priority', newValue)} value={priority} />
+          <PriorityInput
+            onChange={(newValue) => setValue('priority', newValue)}
+            value={priority}
+            helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
+          />
         </Box>
         <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">
           <Tooltip

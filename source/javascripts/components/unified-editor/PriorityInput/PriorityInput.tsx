@@ -3,14 +3,15 @@ import { Input, InputProps } from '@bitrise/bitkit';
 export interface PriorityInputProps extends Omit<InputProps, 'onChange' | 'value'> {
   onChange: (newValue?: number) => void;
   value?: number;
+  helperText: string;
 }
 
 const PriorityInput = (props: PriorityInputProps) => {
-  const { onChange, value, ...rest } = props;
+  const { onChange, value, helperText, ...rest } = props;
   return (
     <Input
       type="number"
-      helperText="Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this Workflow."
+      helperText={helperText}
       min="-100"
       max="100"
       label="Priority"

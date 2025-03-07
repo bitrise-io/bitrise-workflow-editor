@@ -74,7 +74,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       summary: workflow?.userValues.summary || '',
       description: workflow?.userValues.description || '',
       statusReportName: workflow?.userValues.status_report_name || '',
-      priority: workflow?.userValues.priority || undefined,
+      priority: workflow?.userValues.priority,
     });
   }, [
     workflow?.userValues.description,
@@ -97,7 +97,13 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
       <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
       {(isPriorityEnabled || isGitStatusNameEnabled) && <Divider marginBlock="8" />}
-      {isPriorityEnabled && <PriorityInput onChange={handlePriorityChange} value={priority} />}
+      {isPriorityEnabled && (
+        <PriorityInput
+          onChange={handlePriorityChange}
+          value={priority}
+          helperText="Set priority between -100 and +100. Default value is 0. Available on certain plans only."
+        />
+      )}
       {isGitStatusNameEnabled && (
         <GitStatusNameInput
           targetId={workflow?.id}

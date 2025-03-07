@@ -83,7 +83,11 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
           value={description}
           onChange={(e) => updatePipeline(pipelineId, { description: e.target.value })}
         />
-        <PriorityInput onChange={(newValue) => updatePipeline(pipelineId, { priority: newValue })} value={priority} />
+        <PriorityInput
+          onChange={(newValue) => updatePipeline(pipelineId, { priority: newValue })}
+          value={priority}
+          helperText="Set priority between -100 and +100. Default value is 0. Available on certain plans only."
+        />
         <GitStatusNameInput
           targetId={pipelineId}
           onChange={(newStatusReportName) => updatePipeline(pipelineId, { status_report_name: newStatusReportName })}
