@@ -14,6 +14,75 @@ describe('PipelineService', () => {
     });
   });
 
+  describe('getPipeline', () => {
+    it('returns the pipeline when it exists', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pipeline1: { workflows: { wf1: {} } },
+          pipeline2: { stages: [{ st1: {} }] },
+        },
+      };
+
+      expect(PipelineService.getPipeline('pipeline1', yml)).toEqual({
+        workflows: { wf1: {} },
+      });
+      expect(PipelineService.getPipeline('pipeline2', yml)).toEqual({
+        stages: [{ st1: {} }],
+      });
+    });
+
+    it('returns undefined when the pipeline does not exist', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pipeline1: { workflows: {} } },
+      };
+
+      expect(PipelineService.getPipeline('nonexistent', yml)).toBeUndefined();
+    });
+
+    it('returns undefined when pipelines is undefined', () => {
+      const yml: BitriseYml = { format_version: '' };
+
+      expect(PipelineService.getPipeline('pipeline1', yml)).toBeUndefined();
+    });
+  });
+
+  describe('getPipelineType', () => {
+    it('returns "graph" for pipelines with workflows', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { graph: { workflows: {} } },
+      };
+
+      expect(PipelineService.getPipelineType('graph', yml)).toBe('graph');
+    });
+
+    it('returns "staged" for pipelines with stages', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { staged: { stages: [] } },
+      };
+
+      expect(PipelineService.getPipelineType('staged', yml)).toBe('staged');
+    });
+
+    it('returns undefined when the pipeline does not exist', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pipeline1: { workflows: {} } },
+      };
+
+      expect(PipelineService.getPipelineType('nonexistent', yml)).toBeUndefined();
+    });
+
+    it('returns undefined when pipelines is undefined', () => {
+      const yml: BitriseYml = { format_version: '' };
+
+      expect(PipelineService.getPipelineType('pipeline', yml)).toBeUndefined();
+    });
+  });
+
   describe('validateName', () => {
     it('returns an error message if the pipeline name is empty', () => {
       expect(PipelineService.validateName('')).toBe('Pipeline name is required.');
@@ -41,6 +110,75 @@ describe('PipelineService', () => {
 
     it('trims whitespace from the name', () => {
       expect(PipelineService.sanitizeName('  name  ')).toBe('name');
+    });
+  });
+
+  describe('hasStepInside', () => {
+    it('returns false if the pipeline does not exist', () => {
+      const yml: BitriseYml = { format_version: '' };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+
+    it('returns false if the pipeline is not a graph pipeline', () => {
+      const yml: BitriseYml = { format_version: '', pipelines: { pl1: {} } };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+
+    it('returns true if pipeline contains the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pl1: { workflows: { wf1: {} } } },
+        workflows: { wf1: { steps: [{ 'pull-intermediate-files@1': {} }] } },
+      };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(true);
+    });
+
+    it('returns false if the pipeline NOT contains the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: { pl1: { workflows: { wf1: {} } } },
+        workflows: { wf1: { steps: [{ 'script@1': {} }] } },
+      };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+
+    it('returns false if another pipeline contains the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { workflows: { wf1: {} } },
+          pl2: { workflows: { wf2: {} } },
+        },
+        workflows: {
+          wf1: { steps: [{ 'script@1': {} }] },
+          wf2: { steps: [{ 'pull-intermediate-file@1': {} }] },
+        },
+      };
+
+      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
+    });
+  });
+
+  describe('numberOfStages', () => {
+    it('returns the correct number of stages', () => {
+      const pipeline: PipelineModel = {
+        stages: [{ st1: {} }, { st2: {} }, { st3: {} }],
+      };
+      expect(PipelineService.numberOfStages(pipeline)).toBe(3);
+    });
+
+    it('returns 0 if stages is an empty array', () => {
+      const pipeline: PipelineModel = { stages: [] };
+      expect(PipelineService.numberOfStages(pipeline)).toBe(0);
+    });
+
+    it('returns 0 if the pipeline has no stages', () => {
+      const pipeline: PipelineModel = { workflows: { wf1: {} } };
+      expect(PipelineService.numberOfStages(pipeline)).toBe(0);
     });
   });
 
@@ -141,50 +279,6 @@ describe('PipelineService', () => {
       };
 
       expect(PipelineService.convertToGraphPipeline(pipeline, stages)).toEqual(expected);
-    });
-  });
-
-  describe('hasStepInside', () => {
-    it('returns false if the pipeline does not exist', () => {
-      const yml: BitriseYml = { format_version: '' };
-
-      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
-    });
-
-    it('returns false if the pipeline is not a graph pipeline', () => {
-      const yml: BitriseYml = { format_version: '', pipelines: { pl1: {} } };
-
-      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
-    });
-
-    it('returns true if pipeline contains the step', () => {
-      const yml: BitriseYml = {
-        format_version: '',
-        pipelines: { pl1: { workflows: { wf1: {} } } },
-        workflows: { wf1: { steps: [{ 'pull-intermediate-files@1': {} }] } },
-      };
-
-      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(true);
-    });
-
-    it('returns false if the pipeline NOT contains the step', () => {
-      const yml: BitriseYml = {
-        format_version: '',
-        pipelines: { pl1: { workflows: { wf1: {} } } },
-        workflows: { wf1: { steps: [{ 'script@1': {} }] } },
-      };
-
-      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
-    });
-
-    it('returns false if another pipeline contains the step', () => {
-      const yml: BitriseYml = {
-        format_version: '',
-        pipelines: { pl1: { workflows: { wf1: {} } }, pl2: { workflows: { wf2: {} } } },
-        workflows: { wf1: { steps: [{ 'script@1': {} }] }, wf2: { steps: [{ 'pull-intermediate-file@1': {} }] } },
-      };
-
-      expect(PipelineService.hasStepInside('pl1', 'pull-intermediate-files', yml)).toBe(false);
     });
   });
 });
