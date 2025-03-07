@@ -18,9 +18,7 @@ describe('GraphPipelineWorkflowService', () => {
     });
 
     it('should return error message for invalid values', () => {
-      const expectedError = 'Parallel copies should be a positive integer.';
-      // TODO: Use this error message after we releasing the dynamic parallel feature.
-      // const expectedError = 'Parallel copies should be a positive integer or a valid environment variable.';
+      const expectedError = 'Parallel copies should be a positive integer or a valid environment variable.';
       expect(GraphPipelineWorkflowService.validateParallel('foo')).toBe(expectedError);
       expect(GraphPipelineWorkflowService.validateParallel(-1)).toBe(expectedError);
       expect(GraphPipelineWorkflowService.validateParallel(0)).toBe(expectedError);
