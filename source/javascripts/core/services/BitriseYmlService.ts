@@ -1194,11 +1194,22 @@ function updateStepBundleInputInstanceValue(
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (
-    (!parentStepBundleId && !parentWorkflowId) ||
-    (parentStepBundleId && !copy.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex]) ||
-    (parentWorkflowId && !copy.workflows?.[parentWorkflowId]?.steps?.[stepIndex])
-  ) {
+  if (parentStepBundleId && parentWorkflowId) {
+    throw new Error('parentStepBundleId and parentWorkflowId cannot be set at the same time');
+  }
+
+  let isParentExists = false;
+  if (parentStepBundleId) {
+    isParentExists = !!copy.step_bundles?.[parentStepBundleId];
+  }
+  if (parentWorkflowId) {
+    isParentExists = !!copy.workflows?.[parentWorkflowId];
+  }
+
+  const originalInputs = copy.step_bundles?.[StepBundleService.cvsToId(cvs)]?.inputs || [];
+  const isOriginalInputExists = originalInputs?.findIndex(({ opts, ...i }) => Object.keys(i)[0] === key) > -1;
+
+  if (!isParentExists || key === 'opts' || !isOriginalInputExists) {
     return copy;
   }
 
@@ -1221,7 +1232,7 @@ function updateStepBundleInputInstanceValue(
     inputs.splice(inputIndex, 1);
   }
 
-  if (parentWorkflowId && copy.workflows?.[parentWorkflowId].steps) {
+  if (parentWorkflowId && copy.workflows?.[parentWorkflowId].steps?.[stepIndex]) {
     if (inputs.length) {
       copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs = inputs.length ? inputs : undefined;
     } else {
@@ -1229,7 +1240,7 @@ function updateStepBundleInputInstanceValue(
     }
   }
 
-  if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId].steps) {
+  if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId].steps?.[stepIndex]) {
     if (inputs.length) {
       copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs = inputs;
     } else {

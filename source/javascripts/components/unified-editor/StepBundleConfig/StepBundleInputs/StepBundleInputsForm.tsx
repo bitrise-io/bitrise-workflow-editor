@@ -57,8 +57,12 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
     control,
     name: 'key',
     rules: {
-      validate: (k) =>
-        ids.includes(k) && k !== key ? 'This key is used in this step bundle, Choose another one.' : undefined,
+      validate: (k) => {
+        if (k === 'opts') {
+          return 'They key could not be "opts".';
+        }
+        return ids.includes(k) && k !== key ? 'This key is used in this step bundle, Choose another one.' : undefined;
+      },
     },
   });
   const { field: valueField } = useController({ control, name: 'value' });

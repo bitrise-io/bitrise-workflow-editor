@@ -11,7 +11,7 @@ type HeaderProps = {
 const StepBundleConfigHeader = (props: HeaderProps) => {
   const { variant } = props;
   const { stepBundle } = useStepBundleConfigContext() ?? {};
-  const { cvs, id, userValues } = stepBundle || {};
+  const { cvs, id, userValues } = stepBundle ?? {};
   const enableStepBundles = useFeatureFlag('enable-wfe-step-bundles-ui');
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 
