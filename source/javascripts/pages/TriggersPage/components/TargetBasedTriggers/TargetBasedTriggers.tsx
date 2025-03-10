@@ -117,6 +117,7 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                       <TriggerConditions
                         conditions={getConditionList(trigger)}
                         isDraftPr={trigger.draft_enabled}
+                        priority={trigger.priority}
                         triggerType={trigger.type}
                       />
                     </Td>
