@@ -19,6 +19,7 @@ const TriggersTab = ({ pipelineId }: Props) => {
       triggers={triggers}
       updateTriggers={updatePipelineTriggers}
       updateTriggersEnabled={updatePipelineTriggersEnabled}
+      entity="Pipeline"
     />
   );
 };
