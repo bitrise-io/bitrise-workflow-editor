@@ -1170,6 +1170,11 @@ function updateStepBundleInput(
         return undefined;
       },
     );
+    Object.entries(newInput.opts).forEach(([key, value]) => {
+      if (oldInput.opts && !oldInput.opts[key as keyof EnvironmentItemOptionsModel]) {
+        oldInput.opts[key as keyof EnvironmentItemOptionsModel] = value as any;
+      }
+    });
   }
 
   oldInput = StepBundleService.sanitizeInputOpts(oldInput);
