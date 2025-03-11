@@ -17,13 +17,12 @@ type StepBundlePropertiesTabProps = {
 
 const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   const { onDelete, onRename } = props;
-  const stepBundle = useStepBundleConfigContext();
+  const { stepBundle } = useStepBundleConfigContext();
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
   const updateStepBundle = useBitriseYmlStore((s) => s.updateStepBundle);
   const debouncedUpdateStepBundle = useDebounceCallback(updateStepBundle, 100);
-
   const [{ summary, description }, setValues] = useState({
     summary: stepBundle?.userValues.summary || '',
     description: stepBundle?.userValues.description || '',
