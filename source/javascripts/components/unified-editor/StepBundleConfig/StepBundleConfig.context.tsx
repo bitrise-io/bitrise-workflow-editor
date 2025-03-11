@@ -1,18 +1,26 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import useStepBundle from '@/hooks/useStepBundle';
 import { StepBundle } from '@/core/models/Step';
 import useStep from '@/hooks/useStep';
 
-type State = StepBundle | undefined;
-const Context = createContext<State>(undefined);
-
 type Props = PropsWithChildren<{ id?: string; stepBundleId?: string; stepIndex: number; workflowId?: string }>;
-const StepBundleConfigProvider = ({ id, stepBundleId, children, stepIndex, workflowId }: Props) => {
+
+type State = { stepBundle: StepBundle | undefined } & Props;
+const Context = createContext<State>({
+  stepBundle: undefined,
+  stepIndex: -1,
+});
+
+const StepBundleConfigProvider = (props: Props) => {
+  const { children, id, stepBundleId, stepIndex, workflowId } = props;
+
   const stepLike = useStep({ stepBundleId, stepIndex, workflowId });
 
   const stepBundle = useStepBundle(id || stepLike?.data?.id || '');
 
-  return <Context.Provider value={stepBundle as StepBundle}>{children}</Context.Provider>;
+  const contextValue = useMemo(() => ({ stepBundle, ...props }), [stepBundle, props]);
+
+  return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 };
 
 export const useStepBundleConfigContext = () => {

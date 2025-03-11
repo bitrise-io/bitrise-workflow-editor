@@ -1,76 +1,64 @@
 import { Fragment } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  ExpandableCard,
-  Input,
-  OverflowMenu,
-  OverflowMenuItem,
-  Text,
-} from '@bitrise/bitkit';
+import { Box, Button, Card, Divider, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
 
 import { useCopyToClipboard } from 'usehooks-ts';
 import StepSelectInput from '@/components/unified-editor/StepConfigDrawer/components/StepSelectInput';
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
+import { expandInput } from '../utils/StepBundle.utils';
 import { InputListItem } from '../types/StepBundle.types';
 
 type Props = {
-  defaults: InputListItem[];
-  onAdd: VoidFunction;
-  onChange: (key: string, value: string) => void;
+  category?: string;
+  items: InputListItem[];
+  onAdd: (category?: string) => void;
+  onChange: (key: string, value: string, index: number) => void;
   onDelete: (index: number) => void;
   onEdit: (index: number) => void;
-  title?: string;
 };
 
-const StepBundleInputsCategoryCard = ({ defaults = [], onAdd, onChange, onDelete, onEdit, title }: Props) => {
+const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, onDelete, onEdit }: Props) => {
   const [, copy] = useCopyToClipboard();
 
-  if (defaults.length === 0) {
+  if (items.length === 0) {
     return null;
   }
 
   const content = (
     <>
-      {defaults?.map(({ index, opts, ...defaultInput }) => {
+      {items?.map(({ index, input, instanceValue }) => {
+        const { key, opts, value } = expandInput(input);
         const helper = { summary: opts?.summary, details: opts?.description };
         const isSelectInput = opts?.value_options && opts.value_options.length > 0;
-        const key = Object.keys(defaultInput)[0];
-        const value = (Object.values(defaultInput)[0] as string | null) || '';
 
         return (
           <Fragment key={key}>
             <Box display="flex" gap="12">
-              {false && isSelectInput && (
+              {isSelectInput && (
                 <StepSelectInput
                   helper={helper}
                   label={opts?.title || key}
-                  value={value}
-                  // defaultValue={defaultValue}
+                  value={instanceValue || value}
+                  defaultValue={value}
                   isSensitive={opts?.is_sensitive}
                   options={opts?.value_options ?? []}
                   isDisabled={opts?.is_dont_change_value}
-                  onChange={(changedValue) => onChange(key, changedValue)}
+                  onChange={(changedValue) => onChange(key, changedValue, index)}
                 />
               )}
 
-              {false && !isSelectInput && (
+              {!isSelectInput && (
                 <StepInput
                   helper={helper}
                   label={opts?.title || key}
-                  value={value || ''}
-                  // defaultValue={defaultValue}
+                  value={instanceValue || value}
+                  defaultValue={value}
                   isRequired={opts?.is_required}
                   isSensitive={opts?.is_sensitive}
                   isDisabled={opts?.is_dont_change_value}
-                  onChange={(changedValue) => onChange(key, changedValue)}
+                  onChange={(changedValue) => onChange(key, changedValue, index)}
                   flex={1}
                 />
               )}
-
-              <Input flex="1" value={value || ''} isReadOnly size="md" label={opts?.title || key} isRequired />
 
               <OverflowMenu buttonProps={{ marginTop: '28', 'aria-label': 'More', iconName: 'MoreVertical' }}>
                 <OverflowMenuItem leftIconName="Duplicate" onClick={() => copy(key)}>
@@ -89,13 +77,13 @@ const StepBundleInputsCategoryCard = ({ defaults = [], onAdd, onChange, onDelete
           </Fragment>
         );
       })}
-      <Button leftIconName="Plus" variant="tertiary" size="md" onClick={onAdd}>
+      <Button leftIconName="Plus" variant="tertiary" size="md" onClick={() => onAdd(category)}>
         Add input
       </Button>
     </>
   );
 
-  if (!title) {
+  if (!category) {
     return (
       <Card variant="outline" p="16" mb="16">
         {content}
@@ -104,7 +92,7 @@ const StepBundleInputsCategoryCard = ({ defaults = [], onAdd, onChange, onDelete
   }
 
   return (
-    <ExpandableCard mb={16} buttonContent={<Text textStyle="body/lg/semibold">{title}</Text>}>
+    <ExpandableCard mb={16} buttonContent={<Text textStyle="body/lg/semibold">{category}</Text>}>
       {content}
     </ExpandableCard>
   );

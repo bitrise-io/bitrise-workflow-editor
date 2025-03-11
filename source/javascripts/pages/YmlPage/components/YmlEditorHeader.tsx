@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Notification, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import { segmentTrack } from '@/core/utils/segmentTracking';
 import useUserMetaData from '@/hooks/useUserMetaData';
 
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';

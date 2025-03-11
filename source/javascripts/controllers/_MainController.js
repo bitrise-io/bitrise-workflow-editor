@@ -1,14 +1,13 @@
 import _ from 'underscore';
 
 import { configMergeDialog } from '@/components/ConfigMergeDialog/ConfigMergeDialog.store';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import { segmentTrack } from '@/core/utils/segmentTracking';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { safeDigest } from '@/services/react-compat';
-
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
 (function () {
