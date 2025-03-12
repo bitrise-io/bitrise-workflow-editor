@@ -18,7 +18,7 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
 
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
-  const utililityWorkflowIds = workflowIds.filter((workflowId) => workflowId.startsWith('_'));
+  const utilityWorkflowIds = workflowIds.filter((workflowId) => workflowId.startsWith('_'));
 
   const handleCloseComplete = (stepBundleId: string) => {
     if (stepBundleId) {
@@ -27,12 +27,17 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
     onCloseComplete?.();
   };
 
+  const baseEntities = [
+    { ids: stepBundleIds, groupLabel: utilityWorkflowIds.length ? 'Step bundle' : undefined, type: 'step_bundles' },
+  ];
+
+  if (utilityWorkflowIds.length) {
+    baseEntities.push({ ids: utilityWorkflowIds, groupLabel: 'Utility workflow', type: 'workflows' });
+  }
+
   return (
     <CreateEntityDialog
-      entities={[
-        { ids: stepBundleIds, groupLabel: 'Step bundle', type: 'step_bundles' },
-        { ids: utililityWorkflowIds, groupLabel: 'Utility workflows', type: 'workflows' },
-      ]}
+      baseEntities={baseEntities}
       entityName="Step bundle"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}

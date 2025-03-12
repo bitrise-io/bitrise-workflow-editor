@@ -20,13 +20,13 @@ export default {
 
 export const Default: StoryObj = {
   args: {
-    entities: [{ ids: ['entity 1', 'entity 2', 'entity 3'] }],
+    baseEntities: [{ ids: ['entity 1', 'entity 2', 'entity 3'] }],
   },
 };
 
 export const WithGroups: StoryObj = {
   args: {
-    entities: [
+    baseEntities: [
       { ids: ['entity 1', 'entity 2', 'entity 3'], groupLabel: 'Step bundles', type: 'step_bundle' },
       { ids: ['_entity 1', '_entity 2', '_entity 3'], groupLabel: 'Utility workflows', type: 'utility_workflow' },
     ],

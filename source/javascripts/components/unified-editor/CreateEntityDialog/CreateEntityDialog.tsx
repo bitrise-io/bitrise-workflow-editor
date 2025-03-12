@@ -1,12 +1,12 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 
-type EntityType = { ids: string[]; groupLabel?: string; type?: string };
+type BaseEntityType = { ids: string[]; groupLabel?: string; type?: string };
 
-const Options = ({ entities }: { entities: EntityType[] }) => {
+const Options = ({ baseEntities }: { baseEntities: BaseEntityType[] }) => {
   return (
     <>
-      {entities.map(({ ids, groupLabel, type }) => {
+      {baseEntities.map(({ ids, groupLabel, type }) => {
         if (!groupLabel) {
           return ids.map((id) => (
             <option key={id} value={(type ? `${type}#` : '') + id}>
@@ -34,7 +34,7 @@ type FormValues = {
 };
 
 export type Props = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
-  entities: EntityType[];
+  baseEntities: BaseEntityType[];
   entityName: string;
   onCloseComplete: (entityId: string) => void;
   onCreateEntity: (entityId: string, baseEntityId?: string) => void;
@@ -43,7 +43,7 @@ export type Props = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
 };
 
 const CreateEntityDialog = ({
-  entities,
+  baseEntities,
   entityName,
   onClose,
   onCloseComplete,
@@ -106,7 +106,7 @@ const CreateEntityDialog = ({
           <option key="" value="">
             An empty {entityName}
           </option>
-          <Options entities={entities} />
+          <Options baseEntities={baseEntities} />
         </Select>
       </DialogBody>
       <DialogFooter>
