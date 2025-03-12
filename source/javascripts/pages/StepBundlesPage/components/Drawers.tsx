@@ -34,6 +34,16 @@ const Drawers = () => {
     }
   };
 
+  const handleCreateStepBundle = (newId: string, baseEntityId?: string) => {
+    const [type, baseId] = baseEntityId?.split('#') || [];
+    if (!type || type === 'step_bundles') {
+      createStepBundle(newId, baseId);
+    }
+    if (type === 'workflows') {
+      createStepBundle(newId, undefined, baseId);
+    }
+  };
+
   return (
     <>
       {isDialogMounted(StepBundlesPageDialogType.CREATE_STEP_BUNDLE) && (
@@ -41,7 +51,7 @@ const Drawers = () => {
           isOpen={isDialogOpen(StepBundlesPageDialogType.CREATE_STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreateStepBundle={createStepBundle}
+          onCreateStepBundle={handleCreateStepBundle}
         />
       )}
 

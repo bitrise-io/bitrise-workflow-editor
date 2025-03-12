@@ -3,15 +3,22 @@ import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/C
 import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
 type Props = Omit<DialogProps, 'title'> & {
-  onCreateStepBundle: (stepBundleId: string, baseStepBundleId?: string) => void;
+  onCreateStepBundle: (stepBundleId: string, baseEntityId?: string) => void;
 };
 
 const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, ...props }: Props) => {
+  const workflows = useWorkflows();
+  const workflowIds = Object.keys(workflows);
+
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
+
   const [, setSelectedStepBundle] = useSelectedStepBundle();
+
+  const utililityWorkflowIds = workflowIds.filter((workflowId) => workflowId.startsWith('_'));
 
   const handleCloseComplete = (stepBundleId: string) => {
     if (stepBundleId) {
@@ -22,7 +29,10 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
 
   return (
     <CreateEntityDialog
-      baseEntityIds={stepBundleIds}
+      entities={[
+        { ids: stepBundleIds, groupLabel: 'Step bundle', type: 'step_bundles' },
+        { ids: utililityWorkflowIds, groupLabel: 'Utility workflows', type: 'workflows' },
+      ]}
       entityName="Step bundle"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
