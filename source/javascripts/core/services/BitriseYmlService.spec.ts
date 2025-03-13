@@ -3666,26 +3666,44 @@ describe('BitriseYmlService', () => {
     });
 
     it('should create a step bundle based on a utility workflow', () => {
+      const workflows = {
+        _util: {
+          steps: [{ 'script@1': {} }],
+          before_run: [],
+          after_run: [],
+          meta: {},
+          triggers: {},
+          envs: [
+            {
+              foo: 'bar',
+              opts: {
+                is_expand: true,
+              },
+            },
+          ],
+        },
+      };
+
       const sourceYml: BitriseYml = {
         format_version: '',
-        workflows: {
-          _util: {
-            steps: [{ 'script@1': {} }],
-            meta: {},
-          },
-        },
+        workflows,
       };
 
       const expectedYml: BitriseYml = {
         format_version: '',
-        workflows: {
-          _util: {
-            steps: [{ 'script@1': {} }],
-            meta: {},
-          },
-        },
+        workflows,
         step_bundles: {
-          bundle1: { steps: [{ 'script@1': {} }] },
+          bundle1: {
+            steps: [{ 'script@1': {} }],
+            inputs: [
+              {
+                foo: 'bar',
+                opts: {
+                  is_expand: true,
+                },
+              },
+            ],
+          },
         },
       };
 
