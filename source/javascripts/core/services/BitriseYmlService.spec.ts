@@ -3668,20 +3668,28 @@ describe('BitriseYmlService', () => {
     it('should create a step bundle based on a utility workflow', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
-        step_bundles: {
-          bundle1: { steps: [{ 'script@1': {} }] },
+        workflows: {
+          _util: {
+            steps: [{ 'script@1': {} }],
+            meta: {},
+          },
         },
       };
 
       const expectedYml: BitriseYml = {
         format_version: '',
+        workflows: {
+          _util: {
+            steps: [{ 'script@1': {} }],
+            meta: {},
+          },
+        },
         step_bundles: {
           bundle1: { steps: [{ 'script@1': {} }] },
-          bundle2: { steps: [{ 'script@1': {} }] },
         },
       };
 
-      const actualYml = BitriseYmlService.createStepBundle('bundle2', sourceYml, 'bundle1');
+      const actualYml = BitriseYmlService.createStepBundle('bundle1', sourceYml, undefined, '_util');
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
