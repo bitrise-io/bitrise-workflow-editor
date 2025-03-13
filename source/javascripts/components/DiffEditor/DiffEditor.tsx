@@ -27,6 +27,8 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
       onMount={handleEditorDidMount}
       theme="vs-dark"
       options={{ renderWhitespace: 'all' }}
+      keepCurrentModifiedModel
+      keepCurrentOriginalModel
     />
   );
 };
