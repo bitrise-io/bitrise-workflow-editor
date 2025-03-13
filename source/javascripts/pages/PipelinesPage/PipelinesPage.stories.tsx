@@ -66,12 +66,6 @@ export const WithWorkflowOverride: Story = {
   },
 };
 
-export const WithStepBundlesUI: Story = {
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account["enable-wfe-step-bundles-ui"]', true);
-  },
-};
-
 export const WithParallelWorkflowCollision: Story = {
   args: {
     yml: (() => {

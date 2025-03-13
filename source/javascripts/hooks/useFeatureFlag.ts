@@ -4,7 +4,6 @@ import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
   'enable-wfe-diff-editor': false,
-  'enable-wfe-step-bundles-ui': false,
 };
 
 type FeatureFlags = typeof defaultValues;
