@@ -26,7 +26,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
   const content = (
     <>
       {items?.map(({ index, input, instanceValue }) => {
-        const { key, opts, value } = expandInput(input);
+        const { key, opts, value: defaultValue } = expandInput(input);
         const helper = { summary: opts?.summary, details: opts?.description };
         const isSelectInput = opts?.value_options && opts.value_options.length > 0;
 
@@ -37,8 +37,8 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 <StepSelectInput
                   helper={helper}
                   label={opts?.title || key}
-                  value={instanceValue || value}
-                  defaultValue={value}
+                  value={instanceValue || defaultValue}
+                  defaultValue={instanceValue ? defaultValue : undefined}
                   isSensitive={opts?.is_sensitive}
                   options={opts?.value_options ?? []}
                   isDisabled={opts?.is_dont_change_value}
@@ -50,13 +50,21 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 <StepInput
                   helper={helper}
                   label={opts?.title || key}
-                  value={instanceValue || value}
-                  defaultValue={value}
+                  value={instanceValue}
+                  defaultValue={defaultValue}
                   isRequired={opts?.is_required}
                   isSensitive={opts?.is_sensitive}
                   isDisabled={opts?.is_dont_change_value}
                   onChange={(changedValue) => onChange(key, changedValue, index)}
                   flex={1}
+                  formLabelProps={{
+                    optionalIndicator: (
+                      <Text as="span" color="text/secondary" fontSize="2" fontWeight="normal" marginInlineStart="4">
+                        (optional)
+                      </Text>
+                    ),
+                    requiredIndicator: null,
+                  }}
                 />
               )}
 

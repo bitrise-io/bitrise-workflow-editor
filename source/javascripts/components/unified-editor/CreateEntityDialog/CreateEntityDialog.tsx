@@ -1,13 +1,40 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 
+type BaseEntityType<T> = { ids: string[]; groupLabel?: string; type?: T };
+
+const Options = <T,>({ baseEntities }: { baseEntities: BaseEntityType<T>[] }) => {
+  return (
+    <>
+      {baseEntities.map(({ ids, groupLabel, type }) => {
+        if (!groupLabel) {
+          return ids.map((id) => (
+            <option key={id} value={(type ? `${type}#` : '') + id}>
+              {id}
+            </option>
+          ));
+        }
+        return (
+          <optgroup key={groupLabel} label={groupLabel}>
+            {ids.map((id) => (
+              <option key={id} value={(type ? `${type}#` : '') + id}>
+                {id}
+              </option>
+            ))}
+          </optgroup>
+        );
+      })}
+    </>
+  );
+};
+
 type FormValues = {
   entityId: string;
   baseEntityId: string;
 };
 
-type Props = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
-  baseEntityIds: string[];
+export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
+  baseEntities: BaseEntityType<T>[];
   entityName: string;
   onCloseComplete: (entityId: string) => void;
   onCreateEntity: (entityId: string, baseEntityId?: string) => void;
@@ -15,8 +42,8 @@ type Props = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
   validator: (value: string) => string | boolean;
 };
 
-const CreateEntityDialog = ({
-  baseEntityIds,
+const CreateEntityDialog = <T,>({
+  baseEntities,
   entityName,
   onClose,
   onCloseComplete,
@@ -24,7 +51,7 @@ const CreateEntityDialog = ({
   sanitizer,
   validator,
   ...props
-}: Props) => {
+}: Props<T>) => {
   const {
     reset,
     register,
@@ -79,11 +106,7 @@ const CreateEntityDialog = ({
           <option key="" value="">
             An empty {entityName}
           </option>
-          {baseEntityIds.map((id) => (
-            <option key={id} value={id}>
-              {id}
-            </option>
-          ))}
+          <Options<T> baseEntities={baseEntities} />
         </Select>
       </DialogBody>
       <DialogFooter>

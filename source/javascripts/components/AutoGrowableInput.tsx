@@ -64,7 +64,7 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
   };
 
   return (
-    <FormControl {...formControlProps} textStyle="body/md/regular" isInvalid={!!errorText}>
+    <FormControl {...formControlProps} isRequired={rest.isRequired} textStyle="body/md/regular" isInvalid={!!errorText}>
       {label && (
         <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
           <FormLabel {...formLabelProps}>{label}</FormLabel>

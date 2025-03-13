@@ -100,18 +100,4 @@ export const SelfHostedRunner: Story = {
   },
 };
 
-export const WithStepBundlesUI: Story = {
-  beforeEach: () => {
-    if (window.parent.globalProps) {
-      window.parent.globalProps = {
-        ...window.parent.globalProps,
-        featureFlags: {
-          user: {},
-          account: { 'enable-wfe-step-bundles-ui': true },
-        },
-      };
-    }
-  },
-};
-
 export default meta;
