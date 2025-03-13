@@ -2,7 +2,6 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import useWorkflow from '@/hooks/useWorkflow';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
@@ -24,8 +23,7 @@ type ContentProps = {
 };
 
 const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
-  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
-  const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
+  const shouldDisplayAsParallelWorkflow = Boolean(parallel);
 
   if (!shouldDisplayAsParallelWorkflow) {
     return (
