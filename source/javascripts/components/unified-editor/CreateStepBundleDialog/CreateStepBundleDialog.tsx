@@ -1,9 +1,15 @@
 import { DialogProps } from '@bitrise/bitkit';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
+import WorkflowService from '@/core/services/WorkflowService';
 import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useWorkflows } from '@/hooks/useWorkflows';
+
+export enum StepBundleBaseEntityType {
+  STEP_BUNDLES = 'step_bundles',
+  WORKFLOWS = 'workflows',
+}
 
 type Props = Omit<DialogProps, 'title'> & {
   onCreateStepBundle: (stepBundleId: string, baseEntityId?: string) => void;
@@ -18,7 +24,7 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
 
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
-  const utilityWorkflowIds = workflowIds.filter((workflowId) => workflowId.startsWith('_'));
+  const utilityWorkflowIds = workflowIds.filter((workflowId) => WorkflowService.isUtilityWorkflow(workflowId));
 
   const handleCloseComplete = (stepBundleId: string) => {
     if (stepBundleId) {
@@ -28,22 +34,30 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
   };
 
   const baseEntities = [
-    { ids: stepBundleIds, groupLabel: utilityWorkflowIds.length ? 'Step bundle' : undefined, type: 'step_bundles' },
+    {
+      ids: stepBundleIds,
+      groupLabel: utilityWorkflowIds.length ? 'Step bundles' : undefined,
+      type: StepBundleBaseEntityType.STEP_BUNDLES,
+    },
   ];
 
   if (utilityWorkflowIds.length) {
-    baseEntities.push({ ids: utilityWorkflowIds, groupLabel: 'Utility workflow', type: 'workflows' });
+    baseEntities.push({
+      ids: utilityWorkflowIds,
+      groupLabel: 'Utility workflows',
+      type: StepBundleBaseEntityType.WORKFLOWS,
+    });
   }
 
   return (
-    <CreateEntityDialog
+    <CreateEntityDialog<StepBundleBaseEntityType>
       baseEntities={baseEntities}
       entityName="Step bundle"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
       onCreateEntity={onCreateStepBundle}
       sanitizer={StepBundleService.sanitizeName}
-      validator={(v) => StepBundleService.validateName(v, '', stepBundleIds)}
+      validator={(v: string) => StepBundleService.validateName(v, '', stepBundleIds)}
       {...props}
     />
   );

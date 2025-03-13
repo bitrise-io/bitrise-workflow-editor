@@ -1,9 +1,9 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 
-type BaseEntityType = { ids: string[]; groupLabel?: string; type?: string };
+type BaseEntityType<T> = { ids: string[]; groupLabel?: string; type?: T };
 
-const Options = ({ baseEntities }: { baseEntities: BaseEntityType[] }) => {
+const Options = <T,>({ baseEntities }: { baseEntities: BaseEntityType<T>[] }) => {
   return (
     <>
       {baseEntities.map(({ ids, groupLabel, type }) => {
@@ -33,8 +33,8 @@ type FormValues = {
   baseEntityId: string;
 };
 
-export type Props = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
-  baseEntities: BaseEntityType[];
+export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
+  baseEntities: BaseEntityType<T>[];
   entityName: string;
   onCloseComplete: (entityId: string) => void;
   onCreateEntity: (entityId: string, baseEntityId?: string) => void;
@@ -42,7 +42,7 @@ export type Props = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
   validator: (value: string) => string | boolean;
 };
 
-const CreateEntityDialog = ({
+const CreateEntityDialog = <T,>({
   baseEntities,
   entityName,
   onClose,
@@ -51,7 +51,7 @@ const CreateEntityDialog = ({
   sanitizer,
   validator,
   ...props
-}: Props) => {
+}: Props<T>) => {
   const {
     reset,
     register,
@@ -106,7 +106,7 @@ const CreateEntityDialog = ({
           <option key="" value="">
             An empty {entityName}
           </option>
-          <Options baseEntities={baseEntities} />
+          <Options<T> baseEntities={baseEntities} />
         </Select>
       </DialogBody>
       <DialogFooter>
