@@ -37,7 +37,7 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
 
   return (
     <CreateEntityDialog
-      baseEntityIds={workflowIds}
+      baseEntities={[{ ids: workflowIds }]}
       entityName="Workflow"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
