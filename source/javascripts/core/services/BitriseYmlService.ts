@@ -1290,7 +1290,11 @@ function updateStepBundleInputInstanceValue(
 function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  copy.trigger_map = newTriggerMap;
+  if (newTriggerMap.length) {
+    copy.trigger_map = newTriggerMap;
+  } else {
+    delete copy.trigger_map;
+  }
 
   return copy;
 }

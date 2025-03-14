@@ -40,6 +40,7 @@ import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
+import ConvertLegacyTriggers from './ConvertLegacyTriggers';
 
 type LegacyTriggersProps = {
   yml: BitriseYml;
@@ -156,21 +157,20 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
 
   return (
     <>
-      <>
-        <Text as="h3" textStyle="heading/h3" marginBottom="4">
-          Legacy triggers
-        </Text>
-        <Text color="text/secondary">
-          A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
-          <Link
-            colorScheme="purple"
-            href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-            isExternal
-          >
-            Learn more
-          </Link>
-        </Text>
-      </>
+      <Text as="h3" textStyle="heading/h3" marginBottom="4">
+        Legacy triggers
+      </Text>
+      <Text color="text/secondary">
+        A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
+        <Link
+          colorScheme="purple"
+          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+          isExternal
+        >
+          Learn more
+        </Link>
+      </Text>
+      <ConvertLegacyTriggers triggers={triggers} />
       <Tabs marginTop="24" marginBottom="24">
         <TabList>
           <Tab>Push</Tab>
