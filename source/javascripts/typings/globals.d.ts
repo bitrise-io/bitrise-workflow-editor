@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { LogsPublicApi } from '@datadog/browser-logs/cjs/boot/logsPublicApi';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
