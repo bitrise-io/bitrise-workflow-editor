@@ -1,3 +1,5 @@
+import { datadogRum } from '@datadog/browser-rum';
+
 (function () {
   angular.module('BitriseWorkflowEditor').factory('Workflow', function (Step, Stack) {
     const BITRISE_META_KEY = 'bitrise.io';
@@ -176,6 +178,14 @@
 
     Workflow.prototype.setRollbackVersion = function (isPaying, accountSlug, machineTypes) {
       const stack = this.stack();
+
+      if (!stack) {
+        const error = new Error('Workflow.setRollbackVersion: can not set rollback version without stack');
+        console.warn(error, stack);
+        datadogRum.addError(error, { stack });
+        return;
+      }
+
       const machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
 
       if (!this.workflowConfig.meta) {
