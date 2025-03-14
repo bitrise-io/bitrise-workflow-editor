@@ -542,7 +542,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
         if (workflow) {
           stack = workflow.stack();
-          machineType = workflow.machineType(stack.type, undefined, MachineType.all, isPaying);
+          machineType = workflow.machineType(stack?.type, undefined, MachineType.all, isPaying);
         }
 
         if (!stack || !machineType) {

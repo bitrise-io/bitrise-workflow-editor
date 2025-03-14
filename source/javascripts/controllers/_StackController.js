@@ -1,3 +1,4 @@
+import { datadogRum } from '@datadog/browser-rum';
 import PageProps from '@/core/utils/PageProps';
 
 (function () {
@@ -27,7 +28,21 @@ import PageProps from '@/core/utils/PageProps';
         const machineUpgradeAnnouncementUrl =
           'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
 
-        viewModel.stackMachineMap = appService.availableStacks().reduce(function (result, stack) {
+        const availableStacks = appService.availableStacks();
+        if (!availableStacks) {
+          const error = new Error('StackController: availableStacks is not available');
+          console.warn(error.message, availableStacks);
+          datadogRum.addError(error, { availableStacks });
+        }
+
+        viewModel.stackMachineMap = (availableStacks ?? []).reduce(function (result, stack) {
+          if (!stack) {
+            const error = new Error('StackController: stack is not a Stack instance');
+            console.warn(error.message, stack);
+            datadogRum.addError(error, { stack });
+            return result;
+          }
+
           const stackMachineTypes = _.filter(MachineType.all, function (machineType) {
             if (machineType.availableOnStacks) {
               return machineType.availableOnStacks.indexOf(stack.id) > -1;
@@ -303,6 +318,12 @@ import PageProps from '@/core/utils/PageProps';
 
             if (stack === null && shouldNormalize) {
               return appService.stack;
+            }
+
+            if (!stack) {
+              const error = new Error('StackController.stackGetterSetterForWorkflow: stack is not a Stack instance');
+              console.warn(error.message, stack);
+              datadogRum.addError(error, { stack });
             }
 
             return stack;
