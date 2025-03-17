@@ -130,8 +130,13 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         viewModel.modifiedYaml = '';
 
         viewModel.openDiffDialog = function () {
-          viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
-          viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
+          if (viewModel.currentMenu.id === 'yml') {
+            viewModel.originalYaml = appService.savedAppConfigYML;
+            viewModel.modifiedYaml = appService.appConfigYML;
+          } else {
+            viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
+            viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
+          }
           viewModel.isDiffDialogOpen = true;
           segmentTrack('Workflow Editor Diff Button Clicked', {
             tab_name: viewModel.currentMenu.id,
@@ -148,8 +153,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
         viewModel.saveDiffChanges = function (changedYaml) {
           try {
-            const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
-            appService.appConfig = changedAppConfig;
+            if (viewModel.currentMenu.id === 'yml') {
+              appService.appConfigYML = changedYaml;
+            } else {
+              const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
+              appService.appConfig = changedAppConfig;
+            }
             safeDigest($rootScope);
           } catch (e) {
             segmentTrack('Workflow Editor Invalid Yml Popup Shown', {

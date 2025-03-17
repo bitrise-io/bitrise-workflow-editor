@@ -92,7 +92,7 @@ type BitriseYmlStoreState = {
   addStepToStepBundle: (stepBundleId: string, cvs: string, to: number) => void;
   changeStepVersionInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => void;
   cloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => void;
-  createStepBundle: (stepBundleId: string, baseStepBundleId?: string) => void;
+  createStepBundle: (stepBundleId: string, baseStepBundleId?: string, baseWorkflowId?: string) => void;
   deleteStepBundle: (stepBundleId: string) => void;
   deleteStepInStepBundle: (stepBundleId: string, selectedStepIndices: number[]) => void;
   groupStepsToStepBundle: (
@@ -116,6 +116,14 @@ type BitriseYmlStoreState = {
   appendStepBundleInput: (bundleId: string, newInput: EnvironmentItemModel) => void;
   deleteStepBundleInput: (bundleId: string, index: number) => void;
   updateStepBundleInput: (bundleId: string, index: number, newInput: EnvironmentItemModel) => void;
+  updateStepBundleInputInstanceValue: (
+    key: string,
+    newValue: string,
+    parentStepBundleId: string | undefined,
+    parentWorkflowId: string | undefined,
+    cvs: string,
+    stepIndex: number,
+  ) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -428,10 +436,10 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    createStepBundle(stepBundleId, baseStepBundleId) {
+    createStepBundle(stepBundleId, baseStepBundleId, baseWorkflowId) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.createStepBundle(stepBundleId, state.yml, baseStepBundleId),
+          yml: BitriseYmlService.createStepBundle(stepBundleId, state.yml, baseStepBundleId, baseWorkflowId),
         };
       });
     },
@@ -534,6 +542,21 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateStepBundleInput(bundleId, index, newInput, state.yml),
+        };
+      });
+    },
+    updateStepBundleInputInstanceValue(key, newValue, parentStepBundleId, parentWorkflowId, cvs, stepIndex) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepBundleInputInstanceValue(
+            key,
+            newValue,
+            parentStepBundleId,
+            parentWorkflowId,
+            cvs,
+            stepIndex,
+            state.yml,
+          ),
         };
       });
     },

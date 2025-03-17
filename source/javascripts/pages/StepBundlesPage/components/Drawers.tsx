@@ -3,7 +3,9 @@ import { StepBundleConfigDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
-import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
+import CreateStepBundleDialog, {
+  StepBundleBaseEntityType,
+} from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 
 const Drawers = () => {
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =
@@ -34,6 +36,16 @@ const Drawers = () => {
     }
   };
 
+  const handleCreateStepBundle = (newId: string, baseEntityId?: string) => {
+    const [type, baseId] = baseEntityId?.split('#') || [];
+    if (!type || type === StepBundleBaseEntityType.STEP_BUNDLES) {
+      createStepBundle(newId, baseId);
+    }
+    if (type === StepBundleBaseEntityType.WORKFLOWS) {
+      createStepBundle(newId, undefined, baseId);
+    }
+  };
+
   return (
     <>
       {isDialogMounted(StepBundlesPageDialogType.CREATE_STEP_BUNDLE) && (
@@ -41,7 +53,7 @@ const Drawers = () => {
           isOpen={isDialogOpen(StepBundlesPageDialogType.CREATE_STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreateStepBundle={createStepBundle}
+          onCreateStepBundle={handleCreateStepBundle}
         />
       )}
 

@@ -3,7 +3,6 @@ import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } f
 
 import { uniq } from 'es-toolkit';
 import { useShallow } from '@/hooks/useShallow';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -15,7 +14,6 @@ type PipelineConditionInputProps = {
 };
 
 const PipelineConditionsCard = () => {
-  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
   const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
 
   return (
@@ -28,12 +26,8 @@ const PipelineConditionsCard = () => {
       <Divider my="24" />
       <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
 
-      {enableParallelWorkflow && (
-        <>
-          <Divider my="24" />
-          <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
-        </>
-      )}
+      <Divider my="24" />
+      <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
     </ExpandableCard>
   );
 };

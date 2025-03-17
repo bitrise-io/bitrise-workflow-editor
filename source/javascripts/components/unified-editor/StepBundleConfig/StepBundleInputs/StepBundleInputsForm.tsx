@@ -17,17 +17,7 @@ import StepBundleService from '@/core/services/StepBundleService';
 import StepInput from '../../StepConfigDrawer/components/StepInput';
 import { FormItems, FormMode } from '../types/StepBundle.types';
 import StepSelectInput from '../../StepConfigDrawer/components/StepSelectInput';
-
-function expandInput(input: EnvironmentItemModel = {}) {
-  const { opts, ...keyValuePair } = input;
-  const key = Object.keys(keyValuePair)[0] || '';
-  const value = (Object.values(keyValuePair)[0] as string | null) || '';
-  return {
-    key,
-    value,
-    opts: opts || {},
-  };
-}
+import { expandInput } from '../utils/StepBundle.utils';
 
 type StepBundleInputsFormProps = {
   ids: string[];
@@ -67,8 +57,12 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
     control,
     name: 'key',
     rules: {
-      validate: (k) =>
-        ids.includes(k) && k !== key ? 'This key is used in this step bundle, Choose another one.' : undefined,
+      validate: (k) => {
+        if (k === 'opts') {
+          return 'They key could not be "opts".';
+        }
+        return ids.includes(k) && k !== key ? 'This key is used in this step bundle, Choose another one.' : undefined;
+      },
     },
   });
   const { field: valueField } = useController({ control, name: 'value' });
@@ -173,12 +167,12 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
           {isOpen ? 'Show less options' : 'Show more options'}
         </Link>
       </Box>
-      <ButtonGroup display="flex" justifyContent="space-between" paddingBottom={isOpen ? '24' : undefined}>
-        <Button variant="tertiary" isDanger onClick={onCancelClick}>
-          Cancel
-        </Button>
+      <ButtonGroup display="flex" gap="8" paddingBottom={isOpen ? '24' : undefined}>
         <Button isDisabled={isSubmitDisabled} type="submit">
           {mode === 'edit' ? 'Update' : 'Create'}
+        </Button>
+        <Button variant="secondary" onClick={onCancelClick}>
+          Cancel
         </Button>
       </ButtonGroup>
     </Box>

@@ -58,7 +58,7 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
 
   return (
     <CreateEntityDialog
-      baseEntityIds={baseEntityIds}
+      baseEntities={[{ ids: baseEntityIds }]}
       entityName="Pipeline"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}

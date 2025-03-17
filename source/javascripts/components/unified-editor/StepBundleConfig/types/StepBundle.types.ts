@@ -6,8 +6,10 @@ export type FormItems = {
   opts: EnvironmentItemOptionsModel;
 };
 
+export type FormMode = 'edit' | 'append';
+
 export type InputListItem = {
   index: number;
-} & EnvironmentItemModel;
-
-export type FormMode = 'edit' | 'append';
+  input: EnvironmentItemModel;
+  instanceValue?: string;
+};
