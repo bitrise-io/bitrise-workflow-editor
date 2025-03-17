@@ -14,7 +14,7 @@ const StepBundleConfigPanel = ({ id }: Props) => {
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
   return (
-    <StepBundleConfigProvider id={id} stepIndex={-1}>
+    <StepBundleConfigProvider stepBundleId={id} stepIndex={-1}>
       <Tabs display="flex" flexDirection="column" borderLeft="1px solid" borderColor="border/regular">
         <StepBundleConfigHeader variant="panel" />
         <StepBundleConfigContent

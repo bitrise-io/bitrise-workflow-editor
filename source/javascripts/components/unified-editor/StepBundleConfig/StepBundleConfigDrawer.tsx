@@ -19,7 +19,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 
 const StepBundleConfigDrawer = ({ onRename, stepBundleId, stepIndex, workflowId, ...rest }: Props) => {
   return (
-    <StepBundleConfigProvider stepBundleId={stepBundleId} stepIndex={stepIndex} workflowId={workflowId}>
+    <StepBundleConfigProvider parentStepBundleId={stepBundleId} stepIndex={stepIndex} parentWorkflowId={workflowId}>
       <Tabs>
         <FloatingDrawer {...rest}>
           <FloatingDrawerContent>
