@@ -1,4 +1,4 @@
-import { Input, InputProps } from '@bitrise/bitkit';
+import { Input, InputProps, Link } from '@bitrise/bitkit';
 
 export interface PriorityInputProps extends Omit<InputProps, 'onChange' | 'value'> {
   onChange: (newValue?: number) => void;
@@ -11,7 +11,18 @@ const PriorityInput = (props: PriorityInputProps) => {
   return (
     <Input
       type="number"
-      helperText={helperText}
+      helperText={
+        <>
+          {helperText}{' '}
+          <Link
+            colorScheme="purple"
+            href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/build-priority.html"
+            isExternal
+          >
+            Learn more
+          </Link>
+        </>
+      }
       min="-100"
       max="100"
       label="Priority"
