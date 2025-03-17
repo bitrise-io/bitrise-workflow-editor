@@ -11,7 +11,11 @@ type StacksAndMachinesResponse = {
   available_stacks: {
     [stackId: string]: {
       title: string;
+      description?: string;
       available_machines?: string[];
+      rollback_version?: {
+        [machineTypeId: string]: { free?: string; paying?: string };
+      };
     };
   };
   available_machines: {
@@ -46,11 +50,13 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const availableMachineTypes: MachineType[] = [];
   const defaultMachineTypeIdOfOSs: { [key: string]: string } = {};
 
-  mapValues(response.available_stacks, ({ title, available_machines = [] }, id) => {
+  mapValues(response.available_stacks, ({ title, description = '', available_machines = [], rollback_version }, id) => {
     availableStacks.push({
       id: String(id),
       name: title,
+      description,
       machineTypes: available_machines,
+      rollbackVersion: rollback_version,
     });
   });
 
@@ -61,15 +67,11 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
       availableMachineTypes.push({
         id: String(id),
         name: machine.name,
-        creditCost: machine.credit_per_min,
-        specs: {
-          ram: machine.ram,
-          cpu: {
-            chip: machine.chip,
-            cpuCount: machine.cpu_count,
-            cpuDescription: machine.cpu_description,
-          },
-        },
+        ram: machine.ram,
+        chip: machine.chip,
+        cpuCount: machine.cpu_count,
+        cpuDescription: machine.cpu_description,
+        creditPerMinute: machine.credit_per_min,
       });
     });
   });

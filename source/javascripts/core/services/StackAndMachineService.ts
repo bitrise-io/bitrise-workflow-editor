@@ -29,6 +29,7 @@ function createStack(override?: PartialDeep<Stack>): Stack {
   const base: Stack = {
     id: '',
     name: '',
+    description: '',
     machineTypes: [],
   };
 
@@ -39,8 +40,11 @@ function createMachineType(override?: PartialDeep<MachineType>): MachineType {
   const base: MachineType = {
     id: '',
     name: '',
-    creditCost: 0,
-    specs: { cpu: { chip: '', cpuCount: '', cpuDescription: '' }, ram: '' },
+    ram: '',
+    chip: '',
+    cpuCount: '',
+    cpuDescription: '',
+    creditPerMinute: 0,
   };
 
   return toMerged(base, override || {}) as MachineType;

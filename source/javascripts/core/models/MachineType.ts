@@ -1,15 +1,11 @@
 export type MachineType = {
   id: string;
   name: string;
-  specs: {
-    cpu: {
-      chip: string;
-      cpuCount: string;
-      cpuDescription: string;
-    };
-    ram: string;
-  };
-  creditCost: number;
+  ram: string;
+  chip: string;
+  cpuCount: string;
+  cpuDescription: string;
+  creditPerMinute: number;
 };
 
 export type MachineTypeOption = {

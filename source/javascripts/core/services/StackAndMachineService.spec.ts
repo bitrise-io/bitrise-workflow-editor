@@ -5,18 +5,24 @@ import StackAndMachineService from '@/core/services/StackAndMachineService';
 describe('changeStackAndMachine', () => {
   const stacks: Stack[] = [
     {
-      id: 'osx-xcode-15',
-      name: 'Xcode 15',
-      machineTypes: ['mac-m1', 'mac-m2', 'joker'],
-    },
-    {
       id: 'osx-xcode-16',
       name: 'Xcode 16',
+      description:
+        'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
       machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
+    },
+    {
+      id: 'osx-xcode-15',
+      name: 'Xcode 15',
+      description:
+        'Xcode 15.0.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
+      machineTypes: ['mac-m1', 'mac-m2', 'joker'],
     },
     {
       id: 'linux-ubuntu-22',
       name: 'Ubuntu 22.04',
+      description:
+        'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
       machineTypes: ['standard', 'elite', 'joker'],
     },
   ];
@@ -25,65 +31,65 @@ describe('changeStackAndMachine', () => {
     {
       id: 'standard',
       name: 'Standard',
-      creditCost: 1,
-      specs: {
-        cpu: { chip: 'AMD', cpuCount: '4', cpuDescription: '4 cores' },
-        ram: '8GB',
-      },
+      creditPerMinute: 1,
+      ram: '8GB',
+      chip: 'AMD',
+      cpuCount: '4',
+      cpuDescription: '4 cores',
     },
     {
       id: 'elite',
       name: 'Elite',
-      creditCost: 1,
-      specs: {
-        cpu: { chip: 'AMD', cpuCount: '8', cpuDescription: '8 cores' },
-        ram: '16GB',
-      },
+      creditPerMinute: 1,
+      ram: '16GB',
+      chip: 'AMD',
+      cpuCount: '8',
+      cpuDescription: '8 cores',
     },
     {
       id: 'mac-m1',
       name: 'M1',
-      creditCost: 2,
-      specs: {
-        cpu: { chip: 'M1', cpuCount: '8', cpuDescription: '8 cores' },
-        ram: '16GB',
-      },
+      creditPerMinute: 2,
+      ram: '16GB',
+      chip: 'M1',
+      cpuCount: '8',
+      cpuDescription: '8 cores',
     },
     {
       id: 'mac-m2',
       name: 'M2',
-      creditCost: 3,
-      specs: {
-        cpu: { chip: 'M2', cpuCount: '12', cpuDescription: '12 cores' },
-        ram: '24GB',
-      },
+      creditPerMinute: 3,
+      ram: '24GB',
+      chip: 'M2',
+      cpuCount: '12',
+      cpuDescription: '12 cores',
     },
     {
       id: 'mac-m3',
       name: 'M3',
-      creditCost: 4,
-      specs: {
-        cpu: { chip: 'M3', cpuCount: '16', cpuDescription: '16 cores' },
-        ram: '32GB',
-      },
+      creditPerMinute: 4,
+      ram: '32GB',
+      chip: 'M3',
+      cpuCount: '16',
+      cpuDescription: '16 cores',
     },
     {
       id: 'mac-m4',
       name: 'M4',
-      creditCost: 8,
-      specs: {
-        cpu: { chip: 'M4', cpuCount: '24', cpuDescription: '24 cores' },
-        ram: '64GB',
-      },
+      creditPerMinute: 8,
+      ram: '64GB',
+      chip: 'M4',
+      cpuCount: '24',
+      cpuDescription: '24 cores',
     },
     {
       id: 'joker',
       name: 'Joker',
-      creditCost: 16,
-      specs: {
-        cpu: { chip: 'Joker', cpuCount: '64', cpuDescription: '64 cores' },
-        ram: '128GB',
-      },
+      creditPerMinute: 16,
+      ram: '128GB',
+      chip: 'Joker',
+      cpuCount: '64',
+      cpuDescription: '64 cores',
     },
   ];
 
