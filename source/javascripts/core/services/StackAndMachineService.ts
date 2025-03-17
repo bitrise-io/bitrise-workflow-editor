@@ -8,6 +8,14 @@ import { MachineType, MachineTypeOption } from '../models/MachineType';
 import StackService from './StackService';
 import MachineTypeService from './MachineTypeService';
 
+export type StackWithValue = Stack & {
+  value: string;
+};
+
+export type MachineTypeWithValue = MachineType & {
+  value: string;
+};
+
 type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>> & {
   initialStackId: string;
   selectedStackId: string;
@@ -16,29 +24,31 @@ type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMac
 };
 
 type SelectStackAndMachineResult = {
-  selectedStack: Stack;
+  selectedStack: StackWithValue;
   availableStackOptions: StackOption[];
   isInvalidInitialStack: boolean;
-  selectedMachineType: MachineType;
+  selectedMachineType: MachineTypeWithValue;
   availableMachineTypeOptions: MachineTypeOption[];
   isInvalidInitialMachineType: boolean;
   isMachineTypeSelectionDisabled: boolean;
 };
 
-function createStack(override?: PartialDeep<Stack>): Stack {
-  const base: Stack = {
+function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
+  const base: StackWithValue = {
     id: '',
+    value: '',
     name: '',
     description: '',
     machineTypes: [],
   };
 
-  return toMerged(base, override || {});
+  return toMerged(base, override || {}) as StackWithValue;
 }
 
-function createMachineType(override?: PartialDeep<MachineType>): MachineType {
-  const base: MachineType = {
+function createMachineType(override?: PartialDeep<MachineTypeWithValue>): MachineTypeWithValue {
+  const base: MachineTypeWithValue = {
     id: '',
+    value: '',
     name: '',
     ram: '',
     chip: '',
@@ -47,7 +57,7 @@ function createMachineType(override?: PartialDeep<MachineType>): MachineType {
     creditPerMinute: 0,
   };
 
-  return toMerged(base, override || {}) as MachineType;
+  return toMerged(base, override || {}) as MachineTypeWithValue;
 }
 
 function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
@@ -85,6 +95,7 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     result.selectedStack = createStack({
       id: initialStackId,
       name: initialStackId,
+      value: initialStackId,
     });
     result.isInvalidInitialStack = isInvalidInitialStack;
     result.availableStackOptions.push({
@@ -92,9 +103,9 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
       value: initialStackId,
     });
   } else if (selectedStack) {
-    result.selectedStack = selectedStack;
+    result.selectedStack = { ...selectedStack, value: selectedStack.id };
   } else if (defaultStack) {
-    result.selectedStack = { ...defaultStack, id: '' };
+    result.selectedStack = { ...defaultStack, value: '' };
   }
 
   if (defaultStack) {
@@ -134,6 +145,7 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
       result.selectedMachineType = createMachineType({
         id: initialMachineTypeId,
         name: initialMachineTypeId,
+        value: initialMachineTypeId,
       });
       result.isInvalidInitialMachineType = isInvalidInitialMachineType;
       result.availableMachineTypeOptions.push({
@@ -141,11 +153,14 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
         value: initialMachineTypeId,
       });
     } else if (selectedMachineType) {
-      result.selectedMachineType = selectedMachineType;
+      result.selectedMachineType = {
+        ...selectedMachineType,
+        value: selectedMachineType.id,
+      };
     } else if (defaultMachineType) {
-      result.selectedMachineType = { ...defaultMachineType, id: '' };
+      result.selectedMachineType = { ...defaultMachineType, value: '' };
     } else if (defaultMachineTypeOfOS) {
-      result.selectedMachineType = { ...defaultMachineTypeOfOS, id: '' };
+      result.selectedMachineType = { ...defaultMachineTypeOfOS, value: '' };
     }
 
     if (defaultMachineType) {

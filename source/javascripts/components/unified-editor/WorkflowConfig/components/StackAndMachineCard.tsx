@@ -69,12 +69,12 @@ const StackAndMachineCard = () => {
           isRequired
           label="Stack"
           isLoading={isLoading}
-          value={selectedStack.id}
+          value={selectedStack.value}
           errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
           onChange={(e) => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
               stackId: e.target.value,
-              machineTypeId: selectedMachineType.id,
+              machineTypeId: selectedMachineType.value,
               defaultStackId: data?.defaultStackId || '',
               availableStacks: data?.availableStacks,
               availableMachineTypes: data?.availableMachineTypes,
@@ -95,12 +95,12 @@ const StackAndMachineCard = () => {
           isRequired
           label="Machine type"
           isLoading={isLoading}
-          value={selectedMachineType.id}
+          value={selectedMachineType.value}
           isDisabled={isMachineTypeSelectionDisabled}
           errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
           onChange={(e) => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
-              stackId: selectedStack.id,
+              stackId: selectedStack.value,
               machineTypeId: e.target.value,
               defaultStackId: data?.defaultStackId || '',
               availableStacks: data?.availableStacks,

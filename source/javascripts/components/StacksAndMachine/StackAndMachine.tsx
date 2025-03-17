@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Box } from '@bitrise/bitkit';
 
 import StackAndMachineService from '@/core/services/StackAndMachineService';
@@ -32,6 +33,20 @@ const StackAndMachine = ({ orientation = 'horizontal', stackId, machineTypeId, o
     selectedMachineTypeId: machineTypeId,
   });
 
+  const handleChange = useCallback(
+    (selectedStackId: string, selectedMachineTypeId: string) => {
+      const result = StackAndMachineService.changeStackAndMachine({
+        stackId: selectedStackId,
+        machineTypeId: selectedMachineTypeId,
+        defaultStackId: data?.defaultStackId || '',
+        availableStacks: data?.availableStacks,
+        availableMachineTypes: data?.availableMachineTypes,
+      });
+      onChange(result.stackId, result.machineTypeId);
+    },
+    [data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
+  );
+
   return (
     <Box display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
       <StackSelector
@@ -39,18 +54,7 @@ const StackAndMachine = ({ orientation = 'horizontal', stackId, machineTypeId, o
         isLoading={isLoading}
         isInvalid={isInvalidInitialStack}
         options={availableStackOptions}
-        onChange={(value) => {
-          const { stackId: newStackId, machineTypeId: newMachineTypeId } = StackAndMachineService.changeStackAndMachine(
-            {
-              stackId: value,
-              machineTypeId: selectedMachineType.value,
-              defaultStackId: data?.defaultStackId || '',
-              availableStacks: data?.availableStacks,
-              availableMachineTypes: data?.availableMachineTypes,
-            },
-          );
-          onChange(newStackId, newMachineTypeId);
-        }}
+        onChange={(selectedStackValue) => handleChange(selectedStackValue, selectedMachineType.value)}
       />
       <MachineTypeSelector
         machineType={selectedMachineType}
@@ -58,18 +62,7 @@ const StackAndMachine = ({ orientation = 'horizontal', stackId, machineTypeId, o
         isInvalid={isInvalidInitialMachineType}
         isDisabled={isMachineTypeSelectionDisabled}
         options={availableMachineTypeOptions}
-        onChange={(value) => {
-          const { stackId: newStackId, machineTypeId: newMachineTypeId } = StackAndMachineService.changeStackAndMachine(
-            {
-              stackId: selectedStack.value,
-              machineTypeId: value,
-              defaultStackId: data?.defaultStackId || '',
-              availableStacks: data?.availableStacks,
-              availableMachineTypes: data?.availableMachineTypes,
-            },
-          );
-          onChange(newStackId, newMachineTypeId);
-        }}
+        onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
       />
     </Box>
   );

@@ -17,7 +17,8 @@ const WorkflowStackAndMachine = ({ workflowId, orientation = 'vertical' }: Props
       stackId={stackId}
       machineTypeId={machineTypeId}
       onChange={(s, m) => {
-        console.log(`Set stack and machine type for workflow: ${workflowId}`, {
+        console.log(`Set workflow stack and machine type`, {
+          workflowId,
           stackId: s,
           machineTypeId: m,
         });
