@@ -7,7 +7,7 @@ export default {
   component: StepBundleConfigDrawer,
   args: {
     isOpen: true,
-    workflowId: 'wf7',
+    parentWorkflowId: 'wf7',
     stepIndex: 2,
   },
   argTypes: {
