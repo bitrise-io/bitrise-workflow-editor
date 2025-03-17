@@ -14,17 +14,17 @@ const StepBundlesPageContent = () => {
   const stepBundlesIds = Object.keys(stepBundles);
   const { openDialog } = useStepBundlesPageStore();
   const { closeDialog } = useStepBundlesPageStore();
-  const [{ id: selectedStepBundleId }] = useSelectedStepBundle();
+  const [{ id: stepBundleId }] = useSelectedStepBundle();
   const hasStepBundles = stepBundlesIds.length > 0;
 
   useEffect(() => {
     closeDialog();
-  }, [selectedStepBundleId, closeDialog]);
+  }, [stepBundleId, closeDialog]);
 
   const content = hasStepBundles ? (
     <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
-      <StepBundlesCanvasPanel stepBundleId={selectedStepBundleId} />
-      <StepBundleConfigPanel stepBundleId={selectedStepBundleId} />
+      <StepBundlesCanvasPanel stepBundleId={stepBundleId} />
+      <StepBundleConfigPanel stepBundleId={stepBundleId} />
     </Box>
   ) : (
     <EmptyState
