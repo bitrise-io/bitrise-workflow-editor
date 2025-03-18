@@ -14,7 +14,7 @@ const meta: Meta<typeof StacksAndMachinesPage> = {
   },
   parameters: {
     layout: 'fullscreen',
-    msw: [getStacksAndMachines()],
+    msw: [getStacksAndMachines({ hasSelfHostedRunner: true })],
   },
 };
 

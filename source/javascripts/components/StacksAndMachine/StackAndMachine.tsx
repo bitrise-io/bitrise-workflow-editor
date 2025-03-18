@@ -1,20 +1,27 @@
-import { useCallback } from 'react';
+import { RefObject, useCallback, useRef } from 'react';
 import { Box } from '@bitrise/bitkit';
 
+import { useResizeObserver } from 'usehooks-ts';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
 import MachineTypeSelector from './MachineTypeSelector';
 import StackSelector from './StackSelector';
 
+const useOrientation = (ref: RefObject<HTMLDivElement>) => {
+  const { width } = useResizeObserver({ ref, box: 'border-box' });
+  return width && width < 768 ? 'vertical' : 'horizontal';
+};
+
 type Props = {
-  orientation?: 'horizontal' | 'vertical';
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string) => void;
 };
 
-const StackAndMachine = ({ orientation = 'horizontal', stackId, machineTypeId, onChange }: Props) => {
+const StackAndMachine = ({ stackId, machineTypeId, onChange }: Props) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
 
   const {
@@ -22,14 +29,12 @@ const StackAndMachine = ({ orientation = 'horizontal', stackId, machineTypeId, o
     selectedMachineType,
     availableStackOptions,
     availableMachineTypeOptions,
-    isInvalidInitialStack,
-    isInvalidInitialMachineType,
+    isInvalidStack,
+    isInvalidMachineType,
     isMachineTypeSelectionDisabled,
-  } = StackAndMachineService.selectStackAndMachine({
+  } = StackAndMachineService.prepareStackAndMachineSelectionData({
     ...data,
-    initialStackId: stackId,
     selectedStackId: stackId,
-    initialMachineTypeId: machineTypeId,
     selectedMachineTypeId: machineTypeId,
   });
 
@@ -48,18 +53,18 @@ const StackAndMachine = ({ orientation = 'horizontal', stackId, machineTypeId, o
   );
 
   return (
-    <Box display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
+    <Box ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
       <StackSelector
         stack={selectedStack}
         isLoading={isLoading}
-        isInvalid={isInvalidInitialStack}
+        isInvalid={isInvalidStack}
         options={availableStackOptions}
         onChange={(selectedStackValue) => handleChange(selectedStackValue, selectedMachineType.value)}
       />
       <MachineTypeSelector
         machineType={selectedMachineType}
         isLoading={isLoading}
-        isInvalid={isInvalidInitialMachineType}
+        isInvalid={isInvalidMachineType}
         isDisabled={isMachineTypeSelectionDisabled}
         options={availableMachineTypeOptions}
         onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}

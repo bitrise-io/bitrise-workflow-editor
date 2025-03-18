@@ -17,19 +17,17 @@ export type MachineTypeWithValue = MachineType & {
 };
 
 type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>> & {
-  initialStackId: string;
   selectedStackId: string;
-  initialMachineTypeId: string;
   selectedMachineTypeId: string;
 };
 
 type SelectStackAndMachineResult = {
   selectedStack: StackWithValue;
   availableStackOptions: StackOption[];
-  isInvalidInitialStack: boolean;
+  isInvalidStack: boolean;
   selectedMachineType: MachineTypeWithValue;
   availableMachineTypeOptions: MachineTypeOption[];
-  isInvalidInitialMachineType: boolean;
+  isInvalidMachineType: boolean;
   isMachineTypeSelectionDisabled: boolean;
 };
 
@@ -60,15 +58,13 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
   return toMerged(base, override || {}) as MachineTypeWithValue;
 }
 
-function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
+function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
   const {
     defaultStackId = '',
-    initialStackId,
     selectedStackId,
     availableStacks = [],
     defaultMachineTypeId = '',
     defaultMachineTypeIdOfOSs = {},
-    initialMachineTypeId,
     selectedMachineTypeId,
     availableMachineTypes = [],
     hasDedicatedMachine,
@@ -79,28 +75,39 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     selectedMachineType: createMachineType(),
     availableStackOptions: availableStacks.map(StackService.toStackOption),
     availableMachineTypeOptions: availableMachineTypes.map(MachineTypeService.toMachineOption),
-    isInvalidInitialStack: false,
-    isInvalidInitialMachineType: false,
+    isInvalidStack: false,
+    isInvalidMachineType: false,
     isMachineTypeSelectionDisabled: false,
   };
 
-  const initialStack = StackService.getStackById(availableStacks, initialStackId);
   const defaultStack = StackService.getStackById(availableStacks, defaultStackId);
   const selectedStack = StackService.getStackById(availableStacks, selectedStackId);
 
-  const isAnotherStackSelected = initialStackId !== selectedStackId;
-  const isInvalidInitialStack = !!initialStackId && !initialStack && !isAnotherStackSelected;
+  // Push the default stack to the beginning of the available options
+  if (defaultStack) {
+    result.availableStackOptions = [
+      {
+        value: '',
+        label: `Default (${defaultStack.name})`,
+      },
+      ...result.availableStackOptions,
+    ];
+  }
 
-  if (isInvalidInitialStack) {
+  const isInvalidStack = !!selectedStackId && !selectedStack;
+
+  if (isInvalidStack) {
+    result.isInvalidStack = true;
+    // Create the invalid dummy Stack object
     result.selectedStack = createStack({
-      id: initialStackId,
-      name: initialStackId,
-      value: initialStackId,
+      id: selectedStackId,
+      name: selectedStackId,
+      value: selectedStackId,
     });
-    result.isInvalidInitialStack = isInvalidInitialStack;
+    // Add the invalid stack to the available options
     result.availableStackOptions.push({
-      label: initialStackId,
-      value: initialStackId,
+      value: selectedStackId,
+      label: selectedStackId,
     });
   } else if (selectedStack) {
     result.selectedStack = { ...selectedStack, value: selectedStack.id };
@@ -108,74 +115,70 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     result.selectedStack = { ...defaultStack, value: '' };
   }
 
-  if (defaultStack) {
-    const defaultStackOption = {
-      label: `Default (${defaultStack.name})`,
-      value: '',
-    };
-    result.availableStackOptions = [defaultStackOption, ...result.availableStackOptions];
+  const isSelfHostedPoolSelected = StackService.isSelfHosted(result.selectedStack);
+  if (isSelfHostedPoolSelected) {
+    result.isMachineTypeSelectionDisabled = true;
+    result.availableMachineTypeOptions = [{ label: 'Self-Hosted Runner', value: '' }];
+    return result;
   }
 
   if (hasDedicatedMachine) {
     result.isMachineTypeSelectionDisabled = true;
     result.availableMachineTypeOptions = [{ label: 'Dedicated Machine', value: '' }];
-  } else {
-    const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
+    return result;
+  }
 
-    const initialMachineType = MachineTypeService.getMachineById(availableMachineTypes, initialMachineTypeId);
-    const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
-    const selectedMachineType = MachineTypeService.getMachineById(selectableMachines, selectedMachineTypeId);
+  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
 
-    const selectedStackOS = StackService.getOsOfStack(
-      !result.selectedStack.id && defaultStack ? defaultStack : result.selectedStack,
-    );
-    const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
-    const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
+  const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
+  const selectedMachineType = MachineTypeService.getMachineById(selectableMachines, selectedMachineTypeId);
 
-    const isSelfHostedPoolSelected = StackService.isSelfHosted(result.selectedStack);
-    const isAnotherMachineTypeSelected = initialMachineTypeId !== selectedMachineTypeId;
-    const isInvalidInitialMachineType = !!initialMachineTypeId && !initialMachineType && !isAnotherMachineTypeSelected;
+  const selectedStackOS = StackService.getOsOfStack(result.selectedStack);
+  const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
+  const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
 
-    result.isMachineTypeSelectionDisabled = isSelfHostedPoolSelected;
-    result.availableMachineTypeOptions = isSelfHostedPoolSelected
-      ? [{ label: 'Self-Hosted Runner', value: '' }]
-      : selectableMachines.map(MachineTypeService.toMachineOption);
+  const isInvalidMachineType = !!selectedMachineTypeId && !selectedMachineType;
 
-    if (isInvalidInitialMachineType) {
-      result.selectedMachineType = createMachineType({
-        id: initialMachineTypeId,
-        name: initialMachineTypeId,
-        value: initialMachineTypeId,
-      });
-      result.isInvalidInitialMachineType = isInvalidInitialMachineType;
-      result.availableMachineTypeOptions.push({
-        label: initialMachineTypeId,
-        value: initialMachineTypeId,
-      });
-    } else if (selectedMachineType) {
-      result.selectedMachineType = {
-        ...selectedMachineType,
-        value: selectedMachineType.id,
-      };
-    } else if (defaultMachineType) {
-      result.selectedMachineType = { ...defaultMachineType, value: '' };
-    } else if (defaultMachineTypeOfOS) {
-      result.selectedMachineType = { ...defaultMachineTypeOfOS, value: '' };
-    }
-
-    if (defaultMachineType) {
-      const defaultMachineTypeOption = {
+  // Machine type options
+  result.availableMachineTypeOptions = selectableMachines.map(MachineTypeService.toMachineOption);
+  if (defaultMachineType) {
+    result.availableMachineTypeOptions = [
+      {
+        value: '',
         label: `Default (${defaultMachineType.name})`,
+      },
+      ...result.availableMachineTypeOptions,
+    ];
+  } else if (defaultMachineTypeOfOS) {
+    result.availableMachineTypeOptions = [
+      {
         value: '',
-      };
-      result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
-    } else if (defaultMachineTypeOfOS) {
-      const defaultMachineTypeOption = {
         label: `Default (${defaultMachineTypeOfOS.name})`,
-        value: '',
-      };
-      result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
-    }
+      },
+      ...result.availableMachineTypeOptions,
+    ];
+  }
+
+  if (isInvalidMachineType) {
+    result.isInvalidMachineType = true;
+    result.selectedMachineType = createMachineType({
+      id: selectedMachineTypeId,
+      name: selectedMachineTypeId,
+      value: selectedMachineTypeId,
+    });
+    result.availableMachineTypeOptions.push({
+      label: selectedMachineTypeId,
+      value: selectedMachineTypeId,
+    });
+  } else if (selectedMachineType) {
+    result.selectedMachineType = {
+      ...selectedMachineType,
+      value: selectedMachineType.id,
+    };
+  } else if (defaultMachineType) {
+    result.selectedMachineType = { ...defaultMachineType, value: '' };
+  } else if (defaultMachineTypeOfOS) {
+    result.selectedMachineType = { ...defaultMachineTypeOfOS, value: '' };
   }
 
   return result;
@@ -208,6 +211,5 @@ function changeStackAndMachine({
 
 export default {
   changeStackAndMachine,
-  createMachineType,
-  selectStackAndMachine,
+  prepareStackAndMachineSelectionData,
 };

@@ -39,14 +39,12 @@ const StackAndMachineCard = () => {
     selectedMachineType,
     availableStackOptions,
     availableMachineTypeOptions,
-    isInvalidInitialStack,
-    isInvalidInitialMachineType,
+    isInvalidStack,
+    isInvalidMachineType,
     isMachineTypeSelectionDisabled,
-  } = StackAndMachineService.selectStackAndMachine({
+  } = StackAndMachineService.prepareStackAndMachineSelectionData({
     ...data,
-    initialStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
     selectedStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
-    initialMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
     selectedMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
   });
 
@@ -70,7 +68,7 @@ const StackAndMachineCard = () => {
           label="Stack"
           isLoading={isLoading}
           value={selectedStack.value}
-          errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
+          errorText={isInvalidStack ? 'Invalid stack' : undefined}
           onChange={(e) => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
               stackId: e.target.value,
@@ -97,7 +95,7 @@ const StackAndMachineCard = () => {
           isLoading={isLoading}
           value={selectedMachineType.value}
           isDisabled={isMachineTypeSelectionDisabled}
-          errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
+          errorText={isInvalidMachineType ? 'Invalid machine type' : undefined}
           onChange={(e) => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
               stackId: selectedStack.value,
