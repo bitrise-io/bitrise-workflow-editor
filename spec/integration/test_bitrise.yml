@@ -321,8 +321,7 @@ workflows:
     steps:
     - git::https://github.com/bitrise-steplib/steps-script:
         title: A script step referenced by git URL
-        summary: All non-overwritten attributes should be the step's default value
-          from step.yml in the step's repository.
+        summary: All non-overwritten attributes should be the step's default value from step.yml in the step's repository.
         inputs:
         - content: |
             #!/usr/bin/env bash
@@ -370,6 +369,9 @@ workflows:
             environment: website
           ship.bitrise.io:
             summary: Step config part for the Ship add-on.
+    meta:
+      bitrise.io:
+        machine_type_id: invalid
   wf3:
     summary: Third workflow
     description: The wf3 test workflow

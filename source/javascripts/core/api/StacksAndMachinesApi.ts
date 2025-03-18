@@ -11,7 +11,14 @@ type StacksAndMachinesResponse = {
   available_stacks: {
     [stackId: string]: {
       title: string;
+      description?: string;
+      'description-link'?: string;
+      'description-link-gen2'?: string;
+      'description-link-gen2-applesilicon'?: string;
       available_machines?: string[];
+      rollback_version?: {
+        [machineTypeId: string]: { free?: string; paying?: string };
+      };
     };
   };
   available_machines: {
@@ -46,13 +53,20 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const availableMachineTypes: MachineType[] = [];
   const defaultMachineTypeIdOfOSs: { [key: string]: string } = {};
 
-  mapValues(response.available_stacks, ({ title, available_machines = [] }, id) => {
-    availableStacks.push({
-      id: String(id),
-      name: title,
-      machineTypes: available_machines,
-    });
-  });
+  mapValues(
+    response.available_stacks,
+    ({ title, description = '', available_machines = [], rollback_version, ...rest }, id) => {
+      availableStacks.push({
+        id: String(id),
+        name: title,
+        description,
+        descriptionUrl:
+          rest['description-link-gen2-applesilicon'] || rest['description-link-gen2'] || rest['description-link'],
+        machineTypes: available_machines,
+        rollbackVersion: rollback_version,
+      });
+    },
+  );
 
   mapValues(response.available_machines, ({ machine_types, default_machine_type }, os) => {
     defaultMachineTypeIdOfOSs[os] = default_machine_type;
@@ -61,15 +75,11 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
       availableMachineTypes.push({
         id: String(id),
         name: machine.name,
-        creditCost: machine.credit_per_min,
-        specs: {
-          ram: machine.ram,
-          cpu: {
-            chip: machine.chip,
-            cpuCount: machine.cpu_count,
-            cpuDescription: machine.cpu_description,
-          },
-        },
+        ram: machine.ram,
+        chip: machine.chip,
+        cpuCount: machine.cpu_count,
+        cpuDescription: machine.cpu_description,
+        creditPerMinute: machine.credit_per_min,
       });
     });
   });
