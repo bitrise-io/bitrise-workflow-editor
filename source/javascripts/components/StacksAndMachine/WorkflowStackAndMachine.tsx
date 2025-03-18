@@ -1,5 +1,6 @@
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
-import useWorkflow from '@/hooks/useWorkflow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
 
 type Props = {
   workflowId: string;
@@ -7,20 +8,18 @@ type Props = {
 };
 
 const WorkflowStackAndMachine = ({ workflowId, orientation = 'vertical' }: Props) => {
-  const workflow = useWorkflow(workflowId);
-  const stackId = workflow?.userValues.meta?.['bitrise.io']?.stack || '';
-  const machineTypeId = workflow?.userValues.meta?.['bitrise.io']?.machine_type_id || '';
+  const { stackId, machineTypeId } = useWorkflowStackAndMachine({ workflowId });
+  const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
   return (
     <StackAndMachine
       orientation={orientation}
       stackId={stackId}
       machineTypeId={machineTypeId}
-      onChange={(s, m) => {
-        console.log(`Set workflow stack and machine type`, {
-          workflowId,
-          stackId: s,
-          machineTypeId: m,
+      onChange={(stack, machine_type_id) => {
+        updateWorkflowMeta(workflowId, {
+          stack,
+          machine_type_id,
         });
       }}
     />
