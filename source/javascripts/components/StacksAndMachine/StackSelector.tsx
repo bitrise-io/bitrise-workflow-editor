@@ -5,9 +5,13 @@ import { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ stackId, description }: { stackId: string; description: string }) => {
   return (
-    <Box>
-      {description && <Text>{description}</Text>}
-      <Text>
+    <>
+      {description && (
+        <Text as="span" display="block">
+          {description}
+        </Text>
+      )}
+      <Text as="span" display="block">
         {stackId && (
           <Link colorScheme="purple" href={`https://stacks.bitrise.io/stack_reports/${stackId}`} isExternal>
             Pre-installed tools
@@ -22,7 +26,7 @@ const StackHelperText = ({ stackId, description }: { stackId: string; descriptio
           Stack Update Policy
         </Link>
       </Text>
-    </Box>
+    </>
   );
 };
 
