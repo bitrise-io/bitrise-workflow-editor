@@ -3,7 +3,7 @@ import { Box, Checkbox, Icon, Link, Select, Text, Toggletip } from '@bitrise/bit
 import { StackOption } from '@/core/models/Stack';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
 
-const StackHelperText = ({ stackId, description }: { stackId: string; description: string }) => {
+const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {
   return (
     <>
       {description && (
@@ -12,12 +12,12 @@ const StackHelperText = ({ stackId, description }: { stackId: string; descriptio
         </Text>
       )}
       <Text as="span" display="block">
-        {stackId && (
-          <Link colorScheme="purple" href={`https://stacks.bitrise.io/stack_reports/${stackId}`} isExternal>
+        {descriptionUrl && (
+          <Link colorScheme="purple" href={descriptionUrl} isExternal>
             Pre-installed tools
           </Link>
         )}
-        {stackId && ' • '}
+        {descriptionUrl && ' • '}
         <Link
           colorScheme="purple"
           href="https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html"
@@ -56,7 +56,7 @@ const StackSelector = ({ isLoading, isInvalid, stack, options, onChange }: Props
         isLoading={isLoading}
         value={stack.value}
         errorText={isInvalid ? 'Invalid stack' : undefined}
-        helperText={<StackHelperText stackId={stack.id} description={stack.description} />}
+        helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
         onChange={(e) => onChange(e.target.value, false)}
       >
         {options.map(({ value, label }) => (

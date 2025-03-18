@@ -12,6 +12,9 @@ type StacksAndMachinesResponse = {
     [stackId: string]: {
       title: string;
       description?: string;
+      'description-link'?: string;
+      'description-link-gen2'?: string;
+      'description-link-gen2-applesilicon'?: string;
       available_machines?: string[];
       rollback_version?: {
         [machineTypeId: string]: { free?: string; paying?: string };
@@ -50,15 +53,20 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const availableMachineTypes: MachineType[] = [];
   const defaultMachineTypeIdOfOSs: { [key: string]: string } = {};
 
-  mapValues(response.available_stacks, ({ title, description = '', available_machines = [], rollback_version }, id) => {
-    availableStacks.push({
-      id: String(id),
-      name: title,
-      description,
-      machineTypes: available_machines,
-      rollbackVersion: rollback_version,
-    });
-  });
+  mapValues(
+    response.available_stacks,
+    ({ title, description = '', available_machines = [], rollback_version, ...rest }, id) => {
+      availableStacks.push({
+        id: String(id),
+        name: title,
+        description,
+        descriptionUrl:
+          rest['description-link-gen2-applesilicon'] || rest['description-link-gen2'] || rest['description-link'],
+        machineTypes: available_machines,
+        rollbackVersion: rollback_version,
+      });
+    },
+  );
 
   mapValues(response.available_machines, ({ machine_types, default_machine_type }, os) => {
     defaultMachineTypeIdOfOSs[os] = default_machine_type;

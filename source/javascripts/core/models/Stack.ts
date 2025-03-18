@@ -2,6 +2,7 @@ export type Stack = {
   id: string;
   name: string;
   description: string;
+  descriptionUrl?: string;
   machineTypes: string[];
   rollbackVersion?: Record<string, unknown>;
 };
