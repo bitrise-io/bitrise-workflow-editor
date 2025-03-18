@@ -15,7 +15,7 @@ const WorkflowsTab = () => {
             {workflowId}
           </Text>
           <Card>
-            <WorkflowStackAndMachine key={workflowId} workflowId={workflowId} orientation="horizontal" />
+            <WorkflowStackAndMachine key={workflowId} workflowId={workflowId} />
           </Card>
         </Box>
       ))}
