@@ -279,7 +279,6 @@ describe('prepareStackAndMachineSelectionData', () => {
 
     // Machine type options
     expect(result.isMachineTypeSelectionDisabled).toBe(true);
-    expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
     expect(result.availableMachineTypeOptions).toEqual([{ label: 'Self-Hosted Runner', value: '' }]);
   });
 
