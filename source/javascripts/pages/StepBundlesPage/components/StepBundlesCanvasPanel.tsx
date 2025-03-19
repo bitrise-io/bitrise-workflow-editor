@@ -48,9 +48,9 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const handleSelectStep = useCallback<
     (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
   >(
-    ({ isMultiple, stepIndex, stepBundleId: bundleId = '', type }) => {
+    ({ isMultiple, stepIndex, stepBundleId: parentStepBundleId = '', type }) => {
       const newSelectionParent: SelectionParent = {
-        id: bundleId,
+        id: parentStepBundleId,
         type: 'stepBundle',
       };
       if (isMultiple) {
@@ -70,14 +70,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           type: StepBundlesPageDialogType.STEP_BUNDLE,
           selectedStepIndices: [stepIndex],
           selectionParent: newSelectionParent,
-          stepBundleId: bundleId,
+          stepBundleId: parentStepBundleId,
         })();
       } else {
         openDialog({
           type: StepBundlesPageDialogType.STEP_CONFIG,
           selectedStepIndices: [stepIndex],
           selectionParent: newSelectionParent,
-          stepBundleId: bundleId,
+          stepBundleId: parentStepBundleId,
         })();
       }
     },
@@ -100,10 +100,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   );
 
   const handleCloneStep = useCallback(
-    (bundleId: string, stepIndex: number) => {
-      cloneStepInStepBundle(bundleId, stepIndex);
+    (parentStepBundleId: string, stepIndex: number) => {
+      cloneStepInStepBundle(parentStepBundleId, stepIndex);
 
-      if (selectionParent?.id === bundleId) {
+      if (selectionParent?.id === parentStepBundleId) {
         // Adjust index of the selected steps
         setSelectedStepIndices(moveStepIndices('clone', selectedStepIndices, stepIndex));
       }
@@ -112,10 +112,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   );
 
   const handleDeleteStep = useCallback(
-    (bundleId: string, stepIndices: number[], cvs?: string) => {
-      deleteStepInStepBundle(bundleId, stepIndices);
+    (parentStepBundleId: string, stepIndices: number[], cvs?: string) => {
+      deleteStepInStepBundle(parentStepBundleId, stepIndices);
 
-      if (selectionParent?.id === bundleId) {
+      if (selectionParent?.id === parentStepBundleId) {
         // Close the dialog if the selected step is deleted
         if (selectedStepIndices.includes(stepIndices[0])) {
           closeDialog();
@@ -151,10 +151,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   );
 
   const handleMoveStep = useCallback(
-    (bundleId: string, stepIndex: number, targetIndex: number) => {
-      moveStepInStepBundle(bundleId, stepIndex, targetIndex);
+    (parentStepBundleId: string, stepIndex: number, targetIndex: number) => {
+      moveStepInStepBundle(parentStepBundleId, stepIndex, targetIndex);
 
-      if (selectionParent?.id === bundleId) {
+      if (selectionParent?.id === parentStepBundleId) {
         // Adjust index of the selected steps
         setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
       }
