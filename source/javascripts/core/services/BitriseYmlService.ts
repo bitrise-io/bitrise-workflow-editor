@@ -351,8 +351,8 @@ function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: numbe
 }
 
 function groupStepsToStepBundle(
-  workflowId: string | undefined,
-  stepBundleId: string | undefined,
+  parentWorkflowId: string | undefined,
+  parentStepBundleId: string | undefined,
   newStepBundleId: string,
   selectedStepIndices: number[],
   yml: BitriseYml,
@@ -361,11 +361,11 @@ function groupStepsToStepBundle(
 
   // If there aren't any selected steps or steps are missing in the YML, just return the YML
   let stepsInEntity;
-  if (workflowId) {
-    stepsInEntity = copy.workflows?.[workflowId]?.steps;
+  if (parentWorkflowId) {
+    stepsInEntity = copy.workflows?.[parentWorkflowId]?.steps;
   }
-  if (stepBundleId) {
-    stepsInEntity = copy.step_bundles?.[stepBundleId]?.steps;
+  if (parentStepBundleId) {
+    stepsInEntity = copy.step_bundles?.[parentStepBundleId]?.steps;
   }
   if (!selectedStepIndices.length || !stepsInEntity) {
     return copy;

@@ -96,8 +96,8 @@ type BitriseYmlStoreState = {
   deleteStepBundle: (stepBundleId: string) => void;
   deleteStepInStepBundle: (stepBundleId: string, selectedStepIndices: number[]) => void;
   groupStepsToStepBundle: (
-    workflowId: string | undefined,
-    stepBundleId: string | undefined,
+    parentWorkflowId: string | undefined,
+    parentStepBundleId: string | undefined,
     newStepBundleId: string,
     selectedStepIndices: number[],
   ) => void;
@@ -457,12 +457,12 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    groupStepsToStepBundle(workflowId, stepBundleId, newStepBundleId, selectedStepIndices) {
+    groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, selectedStepIndices) {
       return set((state) => {
         return {
           yml: BitriseYmlService.groupStepsToStepBundle(
-            workflowId,
-            stepBundleId,
+            parentWorkflowId,
+            parentStepBundleId,
             newStepBundleId,
             selectedStepIndices,
             state.yml,
