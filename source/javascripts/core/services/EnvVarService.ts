@@ -28,7 +28,7 @@ function toYmlValue(value: unknown) {
       return Boolean(value === 'true');
     }
 
-    if (value && !Number.isNaN(Number(value))) {
+    if (value && !value.trim().startsWith('+') && !Number.isNaN(Number(value))) {
       return Number(value);
     }
   }

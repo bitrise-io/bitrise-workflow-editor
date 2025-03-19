@@ -10,18 +10,29 @@ export const getStacksAndMachines = (options?: Options) => {
   return http.get(StacksAndMachinesApi.getStacksAndMachinesPath(':appSlug'), async () => {
     await delay();
 
-    const availableStacks: Record<string, { title: string; available_machines?: string[] }> = {
-      'osx-stack': {
-        title: 'OSX Stack',
-        available_machines: ['machine-0', 'machine-1'],
+    const availableStacks: Record<string, { title: string; description?: string; available_machines?: string[] }> = {
+      'osx-xcode-16': {
+        title: 'Xcode 16.0.x',
+        description:
+          'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
+        available_machines: ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large'],
       },
-      'linux-stack': {
-        title: 'Linux Stack',
-        available_machines: ['machine-2', 'machine-3'],
+      'osx-xcode-15': {
+        title: 'Xcode 15.0.x',
+        description:
+          'Xcode 15.0 based on macOS 14.1 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
+        available_machines: ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+      },
+      'linux-ubuntu-22.04': {
+        title: 'Ubuntu 22.04 with Android SDK',
+        description:
+          'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
+        available_machines: ['intel.medium', 'intel.large', 'amd.medium', 'amd.large', 'amd.x-large'],
       },
       'mixed-stack': {
         title: 'Mixed Stack',
-        available_machines: ['machine-0', 'machine-1', 'machine-2', 'machine-3'],
+        description: 'This is purely fictional stack, with mixed machine types.',
+        available_machines: ['m2.medium', 'm2.large', 'm2.x-large', 'amd.medium', 'amd.large', 'amd.x-large'],
       },
     };
 
@@ -34,49 +45,97 @@ export const getStacksAndMachines = (options?: Options) => {
     return HttpResponse.json({
       has_dedicated_machine: Boolean(options?.hasDedicatedMachine),
       has_self_hosted_runner: Boolean(options?.hasSelfHostedRunner),
-      default_stack_id: 'linux-stack',
-      default_machine_id: 'machine-3',
+      default_stack_id: 'linux-ubuntu-22.04',
+      default_machine_id: 'amd.large',
       available_stacks: availableStacks,
       available_machines: {
         osx: {
-          default_machine_type: 'machine-1',
+          default_machine_type: 'm2.medium',
           machine_types: {
-            'machine-0': {
-              chip: 'apple',
-              cpu_count: '2 vCPU',
-              cpu_description: '2.8GHz',
-              credit_per_min: 2,
-              name: 'Machine 0',
-              ram: '4 GB RAM',
-            },
-            'machine-1': {
+            'm1.medium': {
+              name: 'M1 Medium',
               chip: 'apple',
               cpu_count: '4 vCPU',
               cpu_description: '3.2GHz',
+              ram: '6 GB RAM',
+              credit_per_min: 2,
+            },
+            'm1.large': {
+              name: 'M1 Large',
+              chip: 'apple',
+              cpu_count: '8 vCPU',
+              cpu_description: '3.2GHz',
+              ram: '12 GB RAM',
               credit_per_min: 4,
-              name: 'Machine 1',
-              ram: '8 GB RAM',
+            },
+            'm2.medium': {
+              name: 'M2 Pro Medium',
+              chip: 'apple',
+              cpu_count: '4 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '6 GB RAM',
+              credit_per_min: 3,
+            },
+            'm2.large': {
+              name: 'M2 Pro Large',
+              chip: 'apple',
+              cpu_count: '6 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '14 GB RAM',
+              credit_per_min: 5,
+            },
+            'm2.x-large': {
+              name: 'M2 Pro X Large',
+              chip: 'apple',
+              cpu_count: '12 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '28 GB RAM',
+              credit_per_min: 9,
             },
           },
         },
         linux: {
-          default_machine_type: 'machine-2',
+          default_machine_type: 'amd.large',
           machine_types: {
-            'machine-2': {
+            'intel.medium': {
+              name: 'Intel Medium',
+              chip: 'intel',
+              cpu_count: '4 vCPU',
+              cpu_description: '3.1GHz',
+              ram: '16 GB RAM',
+              credit_per_min: 1,
+            },
+            'intel.large': {
+              name: 'Intel Large',
               chip: 'intel',
               cpu_count: '8 vCPU',
-              cpu_description: '3.4GHz',
-              credit_per_min: 8,
-              name: 'Machine 2',
-              ram: '12 GB RAM',
+              cpu_description: '3.1GHz',
+              ram: '32 GB RAM',
+              credit_per_min: 2,
             },
-            'machine-3': {
-              chip: 'intel',
-              cpu_count: '16 vCPU',
-              cpu_description: '3.4GHz',
-              credit_per_min: 16,
-              name: 'Machine 3',
+            'amd.medium': {
+              name: 'EPYC Zen4 Medium',
+              chip: 'amd',
+              cpu_count: '4 vCPU',
+              cpu_description: '3.7GHz',
               ram: '16 GB RAM',
+              credit_per_min: 1,
+            },
+            'amd.large': {
+              name: 'EPYC Zen4 Large',
+              chip: 'amd',
+              cpu_count: '8 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '32 GB RAM',
+              credit_per_min: 3,
+            },
+            'amd.x-large': {
+              name: 'EPYC Zen4 X Large',
+              chip: 'amd',
+              cpu_count: '16 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '64 GB RAM',
+              credit_per_min: 5,
             },
           },
         },
