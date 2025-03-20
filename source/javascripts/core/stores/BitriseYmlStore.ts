@@ -50,7 +50,7 @@ function create(yml: BitriseYml, defaultMeta?: Meta) {
           };
         });
       },
-      createPipeline(pipelineId: string, basePipelineId: string) {
+      createPipeline(pipelineId: string, basePipelineId?: string) {
         return set((state) => {
           return {
             yml: BitriseYmlService.createPipeline(pipelineId, state.yml, basePipelineId),
@@ -174,7 +174,7 @@ function create(yml: BitriseYml, defaultMeta?: Meta) {
           };
         });
       },
-      createWorkflow(workflowId: string, baseWorkflowId: string) {
+      createWorkflow(workflowId: string, baseWorkflowId?: string) {
         return set((state) => {
           return {
             yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
@@ -357,7 +357,7 @@ function create(yml: BitriseYml, defaultMeta?: Meta) {
           };
         });
       },
-      createStepBundle(stepBundleId: string, baseStepBundleId: string, baseWorkflowId: string) {
+      createStepBundle(stepBundleId: string, baseStepBundleId?: string, baseWorkflowId?: string) {
         return set((state) => {
           return {
             yml: BitriseYmlService.createStepBundle(stepBundleId, state.yml, baseStepBundleId, baseWorkflowId),
@@ -475,4 +475,4 @@ function create(yml: BitriseYml, defaultMeta?: Meta) {
   );
 }
 
-export default create;
+export default { create };
