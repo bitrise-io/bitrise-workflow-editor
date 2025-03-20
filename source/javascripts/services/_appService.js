@@ -91,6 +91,38 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
           variableConfigs = _.union(variableConfigs, config.app.envs);
         }
 
+        if (config.services) {
+          _.each(config.services, function (aServiceConfig) {
+            if (aServiceConfig.credentials && _.isEmpty(aServiceConfig.credentials)) {
+              delete aServiceConfig.credentials;
+            }
+          });
+        }
+
+        if (config.containers) {
+          _.each(config.containers, function (aContainerConfig) {
+            if (aContainerConfig.credentials && _.isEmpty(aContainerConfig.credentials)) {
+              delete aContainerConfig.credentials;
+            }
+          });
+        }
+
+        if (config.pipelines) {
+          _.each(config.pipelines, function (aPipelineConfig) {
+            if (aPipelineConfig.triggers && _.isEmpty(aPipelineConfig.triggers)) {
+              delete aPipelineConfig.triggers;
+            }
+
+            if (aPipelineConfig.workflows) {
+              _.each(aPipelineConfig.workflows, function (aWorkflowConfig) {
+                if (aWorkflowConfig.run_if && _.isEmpty(aWorkflowConfig.run_if)) {
+                  delete aWorkflowConfig.run_if;
+                }
+              });
+            }
+          });
+        }
+
         if (config.workflows) {
           _.each(config.workflows, function (aWorkflowConfig, aWorkflowID) {
             if (!aWorkflowConfig) {
@@ -120,6 +152,10 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
               variableConfigs = _.union(variableConfigs, stepConfig.inputs);
             });
+
+            if (aWorkflowConfig.triggers && _.isEmpty(aWorkflowConfig.triggers)) {
+              delete aWorkflowConfig.triggers;
+            }
           });
         }
 
@@ -506,7 +542,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
         if (workflow) {
           stack = workflow.stack();
-          machineType = workflow.machineType(stack.type, undefined, MachineType.all, isPaying);
+          machineType = workflow.machineType(stack?.type, undefined, MachineType.all, isPaying);
         }
 
         if (!stack || !machineType) {

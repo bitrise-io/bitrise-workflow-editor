@@ -21,8 +21,8 @@ const StepBundleConfigurationTab = () => {
   const categories = useStepBundleInputs({
     inputs: stepBundle?.userValues.inputs,
     stepIndex: context.stepIndex,
-    parentStepBundleId: context.stepBundleId,
-    parentWorkflowId: context.workflowId,
+    parentStepBundleId: context.parentStepBundleId,
+    parentWorkflowId: context.parentWorkflowId,
   });
 
   const handeAddInput = (category?: string) => {
@@ -30,14 +30,14 @@ const StepBundleConfigurationTab = () => {
     setSelectedInputIndex(stepBundle?.userValues.inputs?.length || 0);
   };
 
-  const handlChange = (key: string, newValue: string, index: number) => {
+  const handleChange = (key: string, newValue: string, index: number) => {
     const input = stepBundle?.userValues.inputs?.[index];
-    if (context.stepBundleId || context.workflowId) {
+    if (context.parentStepBundleId || context.parentWorkflowId) {
       updateStepBundleInputInstanceValue(
         key,
         newValue,
-        context.stepBundleId,
-        context.workflowId,
+        context.parentStepBundleId,
+        context.parentWorkflowId,
         stepBundle?.cvs || `bundle::${stepBundle?.id}`,
         context.stepIndex,
       );
@@ -95,7 +95,7 @@ const StepBundleConfigurationTab = () => {
         category={category !== 'uncategorized' ? category : undefined}
         items={items}
         onAdd={handeAddInput}
-        onChange={handlChange}
+        onChange={handleChange}
         onDelete={handleDelete}
         onEdit={handleEdit}
       />

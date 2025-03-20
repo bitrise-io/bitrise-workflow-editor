@@ -3665,6 +3665,53 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
+    it('should create a step bundle based on a utility workflow', () => {
+      const workflows = {
+        _util: {
+          steps: [{ 'script@1': {} }],
+          before_run: [],
+          after_run: [],
+          meta: {},
+          triggers: {},
+          envs: [
+            {
+              foo: 'bar',
+              opts: {
+                is_expand: true,
+              },
+            },
+          ],
+        },
+      };
+
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows,
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows,
+        step_bundles: {
+          bundle1: {
+            steps: [{ 'script@1': {} }],
+            inputs: [
+              {
+                foo: 'bar',
+                opts: {
+                  is_expand: true,
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.createStepBundle('bundle1', sourceYml, undefined, '_util');
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
     it('should create an empty step bundle if the baseStepBundleId does not exist', () => {
       const sourceYml: BitriseYml = {
         format_version: '',

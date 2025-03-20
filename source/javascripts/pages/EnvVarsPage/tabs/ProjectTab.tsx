@@ -1,5 +1,6 @@
-import TabHeader from '../components/TabHeader';
-import TabContainer from '../components/TabContainer';
+import TabHeader from '@/components/tabs/TabHeader';
+import TabContainer from '@/components/tabs/TabContainer';
+
 import PrivateInfoNotification from '../components/PrivateInfoNotification';
 import EnvVarsTable from '../components/EnvVarsTable/EnvVarsTable';
 

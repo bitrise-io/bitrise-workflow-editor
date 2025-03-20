@@ -8,15 +8,15 @@ import SelectableStepBundleCard from './SelectableStepBundleCard';
 
 type StepBundleListProps = {
   onSelectStep: SelectStepHandlerFn;
-  targetStepBundleId?: string;
+  excludedStepBundleId?: string;
 };
 
-const StepBundleList = ({ onSelectStep, targetStepBundleId }: StepBundleListProps) => {
+const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListProps) => {
   const stepBundles = useStepBundles();
   const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
   const bundleIds = Object.keys(stepBundles).filter((id) => {
-    if (targetStepBundleId) {
-      return !stepBundleChains[id].includes(targetStepBundleId);
+    if (excludedStepBundleId) {
+      return !stepBundleChains[id].includes(excludedStepBundleId);
     }
     return true;
   });

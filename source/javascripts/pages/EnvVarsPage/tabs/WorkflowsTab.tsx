@@ -1,10 +1,10 @@
 import { Fragment } from 'react/jsx-runtime';
 import { Divider, Text } from '@bitrise/bitkit';
 
+import TabHeader from '@/components/tabs/TabHeader';
+import TabContainer from '@/components/tabs/TabContainer';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import TabHeader from '../components/TabHeader';
-import TabContainer from '../components/TabContainer';
 import PrivateInfoNotification from '../components/PrivateInfoNotification';
 import EnvVarsTable from '../components/EnvVarsTable/EnvVarsTable';
 

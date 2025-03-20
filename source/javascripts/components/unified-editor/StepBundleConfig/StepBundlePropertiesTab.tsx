@@ -11,7 +11,7 @@ import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
 
 type StepBundlePropertiesTabProps = {
-  onDelete?: (id: string) => void;
+  onDelete?: () => void;
   onRename?: (newStepBundleId: string) => void;
 };
 
@@ -29,9 +29,9 @@ const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   });
   const rename = useRenameStepBundle(stepBundle?.id, onRename);
 
-  const handleNameChange = (newValue: string) => {
-    if (newValue !== stepBundle?.id) {
-      rename(newValue);
+  const handleNameChange = (newStepBundleId: string) => {
+    if (newStepBundleId !== stepBundle?.id) {
+      rename(newStepBundleId);
     }
   };
 

@@ -4,7 +4,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = Omit<DialogProps, 'title'> & {
   stepBundleId: string;
-  onDeleteStepBundle?: (stepBundleId: string) => void;
+  onDeleteStepBundle?: () => void;
 };
 
 const DeleteStepBundleDialog = ({ stepBundleId, onDeleteStepBundle, onClose, ...dialogProps }: Props) => {
@@ -12,7 +12,7 @@ const DeleteStepBundleDialog = ({ stepBundleId, onDeleteStepBundle, onClose, ...
 
   const handleDelete = useCallback(() => {
     deleteStepBundle(stepBundleId);
-    onDeleteStepBundle?.(stepBundleId);
+    onDeleteStepBundle?.();
     onClose();
   }, [deleteStepBundle, stepBundleId, onDeleteStepBundle, onClose]);
 

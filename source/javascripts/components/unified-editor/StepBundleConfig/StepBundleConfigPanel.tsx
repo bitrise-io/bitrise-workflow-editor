@@ -6,15 +6,15 @@ import StepBundleConfigHeader from './StepBundleConfigHeader';
 import StepBundleConfigProvider from './StepBundleConfig.context';
 
 type Props = {
-  id: string;
+  stepBundleId: string;
 };
 
-const StepBundleConfigPanel = ({ id }: Props) => {
+const StepBundleConfigPanel = ({ stepBundleId }: Props) => {
   const { closeDialog } = useStepBundlesPageStore();
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
   return (
-    <StepBundleConfigProvider id={id} stepIndex={-1}>
+    <StepBundleConfigProvider stepBundleId={stepBundleId} stepIndex={-1}>
       <Tabs display="flex" flexDirection="column" borderLeft="1px solid" borderColor="border/regular">
         <StepBundleConfigHeader variant="panel" />
         <StepBundleConfigContent

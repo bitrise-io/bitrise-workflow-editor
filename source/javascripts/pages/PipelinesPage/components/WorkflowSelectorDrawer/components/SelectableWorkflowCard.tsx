@@ -1,11 +1,10 @@
 import { memo } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
-import useStacksAndMachines from '@/components/unified-editor/WorkflowConfig/hooks/useStacksAndMachines';
-import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/services/WorkflowService';
 import { WorkflowCard } from '@/components/unified-editor';
+import useStackName from '@/hooks/useStackName';
 
 type Props = {
   id: string;
@@ -14,7 +13,7 @@ type Props = {
 
 const SelectableWorkflowCard = ({ id, onClick }: Props) => {
   const workflow = useWorkflow(id);
-  const { data: stackAndMachines } = useStacksAndMachines();
+  const stackName = useStackName(workflow?.userValues.meta?.['bitrise.io']?.stack || '');
 
   const usedInPipelinesText = useBitriseYmlStore(({ yml: { pipelines, stages } }) => {
     const count = WorkflowService.countInPipelines(id, pipelines, stages);
@@ -28,17 +27,6 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
     }
 
     return `Used in ${count} Pipelines`;
-  });
-
-  const stack = workflow?.userValues.meta?.['bitrise.io']?.stack || '';
-  const machineTypeId = workflow?.userValues.meta?.['bitrise.io']?.machine_type_id || '';
-
-  const { selectedStack } = StackAndMachineService.selectStackAndMachine({
-    ...stackAndMachines,
-    initialStackId: stack,
-    selectedStackId: stack,
-    initialMachineTypeId: machineTypeId,
-    selectedMachineTypeId: machineTypeId,
   });
 
   return (
@@ -56,7 +44,7 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
           <Text textStyle="body/sm/regular" color="text/secondary">
             {usedInPipelinesText}
             {' • '}
-            {selectedStack.name || stack || 'Unknown stack'}
+            {stackName || 'Unknown stack'}
           </Text>
         </Card>
       </PopoverTrigger>

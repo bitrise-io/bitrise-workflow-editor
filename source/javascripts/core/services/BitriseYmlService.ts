@@ -236,13 +236,44 @@ function cloneStepInStepBundle(stepBundleId: string, stepIndex: number, yml: Bit
   return copy;
 }
 
-function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
+function createStepBundle(
+  stepBundleId: string,
+  yml: BitriseYml,
+  baseStepBundleId?: string,
+  baseWorkflowId?: string,
+): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
+
+  let baseContent: WorkflowModel & { inputs?: EnvModel } = {};
+
+  if (baseStepBundleId) {
+    baseContent = deepCloneSimpleObject(copy.step_bundles?.[baseStepBundleId] ?? {});
+  }
+
+  if (baseWorkflowId) {
+    baseContent = deepCloneSimpleObject(copy.workflows?.[baseWorkflowId] ?? {});
+    if (baseContent.before_run) {
+      delete baseContent.before_run;
+    }
+    if (baseContent.after_run) {
+      delete baseContent.after_run;
+    }
+    if (baseContent.meta) {
+      delete baseContent.meta;
+    }
+    if (baseContent.triggers) {
+      delete baseContent.triggers;
+    }
+    if (baseContent.envs) {
+      baseContent.inputs = baseContent.envs;
+      delete baseContent.envs;
+    }
+  }
 
   copy.step_bundles = {
     ...copy.step_bundles,
     ...{
-      [stepBundleId]: baseStepBundleId ? (copy.step_bundles?.[baseStepBundleId] ?? {}) : {},
+      [stepBundleId]: baseContent,
     },
   };
 
@@ -320,8 +351,8 @@ function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: numbe
 }
 
 function groupStepsToStepBundle(
-  workflowId: string | undefined,
-  stepBundleId: string | undefined,
+  parentWorkflowId: string | undefined,
+  parentStepBundleId: string | undefined,
   newStepBundleId: string,
   selectedStepIndices: number[],
   yml: BitriseYml,
@@ -330,11 +361,11 @@ function groupStepsToStepBundle(
 
   // If there aren't any selected steps or steps are missing in the YML, just return the YML
   let stepsInEntity;
-  if (workflowId) {
-    stepsInEntity = copy.workflows?.[workflowId]?.steps;
+  if (parentWorkflowId) {
+    stepsInEntity = copy.workflows?.[parentWorkflowId]?.steps;
   }
-  if (stepBundleId) {
-    stepsInEntity = copy.step_bundles?.[stepBundleId]?.steps;
+  if (parentStepBundleId) {
+    stepsInEntity = copy.step_bundles?.[parentStepBundleId]?.steps;
   }
   if (!selectedStepIndices.length || !stepsInEntity) {
     return copy;
@@ -1259,7 +1290,11 @@ function updateStepBundleInputInstanceValue(
 function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  copy.trigger_map = newTriggerMap;
+  if (newTriggerMap.length) {
+    copy.trigger_map = newTriggerMap;
+  } else {
+    delete copy.trigger_map;
+  }
 
   return copy;
 }

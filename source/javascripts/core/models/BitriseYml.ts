@@ -152,6 +152,7 @@ export type Meta = {
     stack?: string;
     machine_type_id?: string;
     license_pool_id?: string;
+    stack_rollback_version?: string;
   };
   sensitivity?: string;
 };
