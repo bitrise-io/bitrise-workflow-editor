@@ -186,7 +186,13 @@ import { datadogRum } from '@datadog/browser-rum';
         return;
       }
 
-      const machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+      const machineType = this.machineType(stack.type, undefined, machineTypes);
+      if (!machineType) {
+        const error = new Error('Workflow.setRollbackVersion: can not get machine type');
+        console.warn(error, machineTypes);
+        datadogRum.addError(error, { stack, machineTypes, meta: this.workflowConfig.meta });
+        return;
+      }
 
       if (!this.workflowConfig.meta) {
         this.workflowConfig.meta = {};
@@ -196,7 +202,7 @@ import { datadogRum } from '@datadog/browser-rum';
       }
 
       this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version = stack.getRollbackVersion(
-        machineTypeId,
+        machineType.id,
         isPaying,
         accountSlug,
       );
@@ -229,9 +235,15 @@ import { datadogRum } from '@datadog/browser-rum';
         return false;
       }
 
-      const machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+      const machineType = this.machineType(stack.type, undefined, machineTypes);
+      if (!machineType) {
+        const error = new Error('Workflow.isRollbackVersionInBitriseYmlNoLongerAvailable: can not get machine type');
+        console.warn(error, machineTypes);
+        datadogRum.addError(error, { stack, machineTypes, meta: this.workflowConfig.meta });
+        return false;
+      }
 
-      const rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
+      const rollbackVersion = stack.getRollbackVersion(machineType.id, isPaying, accountSlug);
       const rollbackVersionInYml = this.getRollbackVersion();
 
       return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
