@@ -1,4 +1,4 @@
-import { createStore } from 'zustand';
+import { createStore, ExtractState } from 'zustand';
 import { combine } from 'zustand/middleware';
 
 import {
@@ -18,6 +18,8 @@ import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+
+export type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
 
 function create(yml: BitriseYml, defaultMeta?: Meta) {
   return createStore(
