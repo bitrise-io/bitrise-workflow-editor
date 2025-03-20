@@ -4,7 +4,7 @@ import useWorkflow from '@/hooks/useWorkflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/services/WorkflowService';
 import { WorkflowCard } from '@/components/unified-editor';
-import useStackName from '@/hooks/useStackName';
+import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
 type Props = {
   id: string;
@@ -13,7 +13,7 @@ type Props = {
 
 const SelectableWorkflowCard = ({ id, onClick }: Props) => {
   const workflow = useWorkflow(id);
-  const stackName = useStackName(workflow?.userValues.meta?.['bitrise.io']?.stack || '');
+  const stackName = useWorkflowStackName(id);
 
   const usedInPipelinesText = useBitriseYmlStore(({ yml: { pipelines, stages } }) => {
     const count = WorkflowService.countInPipelines(id, pipelines, stages);
@@ -44,7 +44,7 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
           <Text textStyle="body/sm/regular" color="text/secondary">
             {usedInPipelinesText}
             {' • '}
-            {stackName || 'Unknown stack'}
+            {stackName}
           </Text>
         </Card>
       </PopoverTrigger>

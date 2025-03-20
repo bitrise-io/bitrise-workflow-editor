@@ -7,7 +7,7 @@ type Props = {
 };
 
 const WorkflowStackAndMachine = ({ workflowId }: Props) => {
-  const { stackId, machineTypeId } = useWorkflowStackAndMachine({ workflowId });
+  const { stackId, machineTypeId } = useWorkflowStackAndMachine(workflowId);
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
   return (

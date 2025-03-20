@@ -45,8 +45,8 @@ export const getStacksAndMachines = (options?: Options) => {
     return HttpResponse.json({
       has_dedicated_machine: Boolean(options?.hasDedicatedMachine),
       has_self_hosted_runner: Boolean(options?.hasSelfHostedRunner),
-      default_stack_id: 'linux-ubuntu-22.04',
-      default_machine_id: 'amd.large',
+      default_stack_id: 'osx-xcode-16',
+      default_machine_id: 'm2.x-large',
       available_stacks: availableStacks,
       available_machines: {
         osx: {
