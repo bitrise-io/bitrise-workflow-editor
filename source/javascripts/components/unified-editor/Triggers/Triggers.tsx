@@ -246,7 +246,7 @@ const Triggers = (props: TriggersProps) => {
       <Box display={triggerType !== undefined ? 'none' : 'block'}>
         {metaDataValue === null && (
           <Notification status="info" onClose={() => updateMetaData('true')} marginBlockEnd="24">
-            <Text textStyle="heading/h4">Target-based triggers</Text>
+            <Text textStyle="heading/h4">Triggers</Text>
             <Text>
               Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
               targets.{' '}

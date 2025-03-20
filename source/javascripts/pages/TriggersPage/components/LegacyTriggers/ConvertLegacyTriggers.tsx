@@ -91,7 +91,7 @@ const ConvertLegacyTriggers = (props: Props) => {
       isClosable: true,
       status: 'success',
       title: 'Successful convertion',
-      description: 'Triggers converted to target-based.',
+      description: 'Legacy triggers converted to new format.',
     });
   };
 
@@ -105,7 +105,7 @@ const ConvertLegacyTriggers = (props: Props) => {
       status="info"
     >
       <Text as="h4" textStyle="comp/notification/title">
-        Convert legacy triggers to target-based
+        Convert legacy triggers to the new format
       </Text>
       Make sure to check the converted triggers before saving.
     </Notification>
