@@ -143,7 +143,7 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
       ) : (
         <EmptyState
           iconName="Trigger"
-          title="An overview of your target based triggers will appear here"
+          title="An overview of your triggers will appear here"
           maxHeight="208"
           marginBlockEnd="24"
         >
