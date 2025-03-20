@@ -6,13 +6,15 @@
   <title>Bitrise Workflow Editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <base href="/" target="_parent" />
-  <link href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/favicon.ico" rel="icon" sizes="32x32"
-    crossorigin="anonymous" />
-  <link href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/apple-touch-icon.png" rel="apple-touch-icon"
-    crossorigin="anonymous" />
+
+  <link href="/stylesheets/main.css" rel="stylesheet" crossorigin="anonymous" />
+  <link href="/images/favicons/favicon.ico" rel="icon" sizes="32x32" crossorigin="anonymous" />
+  <link href="/images/favicons/apple-touch-icon.png" rel="apple-touch-icon" crossorigin="anonymous" />
+
+  <script src="/javascripts/index.js" crossorigin="anonymous" type="module"></script>
 </head>
 
-<body ng-app="BitriseWorkflowEditor" ng-cloak>
+<body ng-cloak>
   <r-root-component></r-root-component>
 
   <div class="layout" ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()" style="display: contents">

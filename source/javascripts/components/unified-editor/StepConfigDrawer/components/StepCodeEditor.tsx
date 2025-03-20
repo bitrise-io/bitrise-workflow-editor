@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Label } from '@bitrise/bitkit';
-import { editor } from 'monaco-editor';
 import { Editor, Monaco } from '@monaco-editor/react';
 import { useEnvVarsAndSecretsCompletionProvider } from '@/hooks/useMonacoCompletionProvider';
+import monaco from '@/monaco';
 
 const EDITOR_OPTIONS = {
   fontSize: 13,
@@ -24,7 +24,7 @@ type Props = {
 
 const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
   const [monacoInstance, setMonaco] = useState<Monaco>();
-  const [editorInstance, setEditor] = useState<editor.IStandaloneCodeEditor>();
+  const [editorInstance, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
 
   useEnvVarsAndSecretsCompletionProvider({
     monaco: monacoInstance,
