@@ -2,6 +2,7 @@ import { Box } from '@bitrise/bitkit';
 import { set } from 'es-toolkit/compat';
 import { Meta, StoryObj } from '@storybook/react';
 
+import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import PipelinesPage from './PipelinesPage';
 
 export default {
@@ -16,6 +17,9 @@ export default {
   },
   parameters: {
     layout: 'fullscreen',
+    msw: {
+      handlers: [getStacksAndMachines()],
+    },
   },
   decorators: [
     (Story) => {
@@ -27,7 +31,6 @@ export default {
     },
   ],
   beforeEach: () => {
-    process.env.MODE = 'cli';
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
   },
 } as Meta<typeof PipelinesPage>;

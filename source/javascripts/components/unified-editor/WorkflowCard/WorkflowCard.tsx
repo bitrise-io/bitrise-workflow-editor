@@ -4,7 +4,7 @@ import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclo
 import useWorkflow from '@/hooks/useWorkflow';
 import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
-import useStackName from '@/hooks/useStackName';
+import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 import WorkflowEmptyState from '../WorkflowEmptyState';
 
 import WorkflowStepList from './components/WorkflowStepList';
@@ -65,7 +65,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
 
   const containerRef = useRef(null);
   const workflow = useWorkflow(workflowId);
-  const stackName = useStackName(workflow?.userValues.meta?.['bitrise.io']?.stack || '');
+  const stackName = useWorkflowStackName(workflowId);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
@@ -111,7 +111,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <WorkflowName parallel={parallel}>{uses ? id : workflow.userValues.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {uses ? `Uses ${uses}` : stackName || 'Unknown stack'}
+            {uses ? `Uses ${uses}` : stackName}
           </Text>
         </Box>
 
