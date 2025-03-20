@@ -31,9 +31,9 @@ pipelines:
       - branch: main
     workflows:
       tmp:
-        parallel: '4'
         depends_on:
         - wf1
+        parallel: "4"
       wf1: {}
       wf2:
         depends_on:
@@ -94,6 +94,10 @@ stages:
     - wf3: {}
 workflows:
   custom-steplib-steps:
+    triggers:
+      push:
+      - priority: 0
+        branch: "1"
     steps:
     - https://github.com/my-bitrise-steps/custom-steplib.git::script:
         title: Custom GitHub (org) steplib
@@ -317,8 +321,7 @@ workflows:
     steps:
     - git::https://github.com/bitrise-steplib/steps-script:
         title: A script step referenced by git URL
-        summary: All non-overwritten attributes should be the step's default value
-          from step.yml in the step's repository.
+        summary: All non-overwritten attributes should be the step's default value from step.yml in the step's repository.
         inputs:
         - content: |
             #!/usr/bin/env bash
@@ -366,6 +369,9 @@ workflows:
             environment: website
           ship.bitrise.io:
             summary: Step config part for the Ship add-on.
+    meta:
+      bitrise.io:
+        machine_type_id: invalid
   wf3:
     summary: Third workflow
     description: The wf3 test workflow
@@ -471,6 +477,26 @@ workflows:
         - postgres
 step_bundles:
   install_deps:
+    inputs:
+    - opts:
+        category: myFirstCategory
+        description: '...'
+        is_required: true
+        summary: Xcode Project (`.xcodeproj`) or Workspace (`.xcworkspace`) path.
+        title: Project path
+      project_path: null
+    - foo: bar
+      opts: {}
+    - distribution_method: development
+      opts:
+        is_required: true
+        summary: Describes how Xcode should export the archive.
+        title: Distribution method
+        value_options:
+        - development
+        - app-store
+        - ad-hoc
+        - enterprise
     envs:
     - CACHE_KEY: npm-cache-{{ checksum }}
     - NPM_COMMAND: install

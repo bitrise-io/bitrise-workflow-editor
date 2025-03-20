@@ -2,12 +2,10 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import useWorkflow from '@/hooks/useWorkflow';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import StackAndMachineService from '@/core/services/StackAndMachineService';
 import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 
+import useStackName from '@/hooks/useStackName';
 import WorkflowEmptyState from '../WorkflowEmptyState';
-import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
 
 import WorkflowStepList from './components/WorkflowStepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
@@ -24,8 +22,7 @@ type ContentProps = {
 };
 
 const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
-  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
-  const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
+  const shouldDisplayAsParallelWorkflow = Boolean(parallel);
 
   if (!shouldDisplayAsParallelWorkflow) {
     return (
@@ -68,7 +65,8 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
 
   const containerRef = useRef(null);
   const workflow = useWorkflow(workflowId);
-  const { data: stacksAndMachines } = useStacksAndMachines();
+  const stackName = useStackName(workflow?.userValues.meta?.['bitrise.io']?.stack || '');
+
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
@@ -93,14 +91,6 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
   }
 
-  const { selectedStack: stack } = StackAndMachineService.selectStackAndMachine({
-    ...stacksAndMachines,
-    initialStackId: workflow.userValues.meta?.['bitrise.io']?.stack || '',
-    selectedStackId: workflow.userValues.meta?.['bitrise.io']?.stack || '',
-    initialMachineTypeId: '',
-    selectedMachineTypeId: '',
-  });
-
   return (
     <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
@@ -121,7 +111,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <WorkflowName parallel={parallel}>{uses ? id : workflow.userValues.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {uses ? `Uses ${uses}` : stack.name || 'Unknown stack'}
+            {uses ? `Uses ${uses}` : stackName || 'Unknown stack'}
           </Text>
         </Box>
 

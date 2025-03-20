@@ -119,6 +119,7 @@ export type WorkflowModel = {
   timeout_in_minutes?: number;
   triggers?: TriggersModel;
   status_report_name?: string;
+  priority?: number;
 };
 
 export type TriggerMapItemModel = {
@@ -142,6 +143,7 @@ export type TriggerMapItemModel = {
 export type WithModel = {
   container?: string;
   services?: string[];
+  inputs?: EnvModel;
   steps: Steps;
 };
 
@@ -150,6 +152,7 @@ export type Meta = {
     stack?: string;
     machine_type_id?: string;
     license_pool_id?: string;
+    stack_rollback_version?: string;
   };
   sensitivity?: string;
 };
@@ -192,6 +195,7 @@ export type PipelineModel = {
   summary?: string;
   description?: string;
   triggers?: TriggersModel;
+  priority?: number;
   status_report_name?: string;
   stages?: PipelineStages;
   workflows?: PipelineWorkflows;
@@ -217,6 +221,7 @@ export type GraphPipelineWorkflowModel = {
 
 export type PushTriggerModel = {
   enabled?: boolean;
+  priority?: number;
   branch?: TriggerMapItemModelRegexCondition;
   commit_message?: TriggerMapItemModelRegexCondition;
   changed_files?: TriggerMapItemModelRegexCondition;
@@ -224,6 +229,7 @@ export type PushTriggerModel = {
 
 export type PullrequestTriggerModel = {
   enabled?: boolean;
+  priority?: number;
   draft_enabled?: boolean;
   source_branch?: TriggerMapItemModelRegexCondition;
   target_branch?: TriggerMapItemModelRegexCondition;
@@ -235,6 +241,7 @@ export type PullrequestTriggerModel = {
 
 export type TagTriggerModel = {
   enabled?: boolean;
+  priority?: number;
   name?: TriggerMapItemModelRegexCondition;
 };
 

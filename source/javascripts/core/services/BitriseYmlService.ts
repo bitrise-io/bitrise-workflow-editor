@@ -236,13 +236,44 @@ function cloneStepInStepBundle(stepBundleId: string, stepIndex: number, yml: Bit
   return copy;
 }
 
-function createStepBundle(stepBundleId: string, yml: BitriseYml, baseStepBundleId?: string): BitriseYml {
+function createStepBundle(
+  stepBundleId: string,
+  yml: BitriseYml,
+  baseStepBundleId?: string,
+  baseWorkflowId?: string,
+): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
+
+  let baseContent: WorkflowModel & { inputs?: EnvModel } = {};
+
+  if (baseStepBundleId) {
+    baseContent = deepCloneSimpleObject(copy.step_bundles?.[baseStepBundleId] ?? {});
+  }
+
+  if (baseWorkflowId) {
+    baseContent = deepCloneSimpleObject(copy.workflows?.[baseWorkflowId] ?? {});
+    if (baseContent.before_run) {
+      delete baseContent.before_run;
+    }
+    if (baseContent.after_run) {
+      delete baseContent.after_run;
+    }
+    if (baseContent.meta) {
+      delete baseContent.meta;
+    }
+    if (baseContent.triggers) {
+      delete baseContent.triggers;
+    }
+    if (baseContent.envs) {
+      baseContent.inputs = baseContent.envs;
+      delete baseContent.envs;
+    }
+  }
 
   copy.step_bundles = {
     ...copy.step_bundles,
     ...{
-      [stepBundleId]: baseStepBundleId ? (copy.step_bundles?.[baseStepBundleId] ?? {}) : {},
+      [stepBundleId]: baseContent,
     },
   };
 
@@ -320,8 +351,8 @@ function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: numbe
 }
 
 function groupStepsToStepBundle(
-  workflowId: string | undefined,
-  stepBundleId: string | undefined,
+  parentWorkflowId: string | undefined,
+  parentStepBundleId: string | undefined,
   newStepBundleId: string,
   selectedStepIndices: number[],
   yml: BitriseYml,
@@ -330,11 +361,11 @@ function groupStepsToStepBundle(
 
   // If there aren't any selected steps or steps are missing in the YML, just return the YML
   let stepsInEntity;
-  if (workflowId) {
-    stepsInEntity = copy.workflows?.[workflowId]?.steps;
+  if (parentWorkflowId) {
+    stepsInEntity = copy.workflows?.[parentWorkflowId]?.steps;
   }
-  if (stepBundleId) {
-    stepsInEntity = copy.step_bundles?.[stepBundleId]?.steps;
+  if (parentStepBundleId) {
+    stepsInEntity = copy.step_bundles?.[parentStepBundleId]?.steps;
   }
   if (!selectedStepIndices.length || !stepsInEntity) {
     return copy;
@@ -560,9 +591,9 @@ function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseY
 function updateWorkflow(workflowId: string, workflow: WorkflowModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  mapValues(workflow, (value: string, key: never) => {
+  mapValues(workflow, (value: string | number, key: never) => {
     if (copy.workflows?.[workflowId]) {
-      if (value) {
+      if (value || (value === 0 && key === 'priority')) {
         copy.workflows[workflowId][key] = value as never;
       } else if (shouldRemoveField(value, yml.workflows?.[workflowId]?.[key])) {
         delete copy.workflows[workflowId][key];
@@ -756,9 +787,9 @@ function renamePipeline(pipelineId: string, newPipelineId: string, yml: BitriseY
 function updatePipeline(pipelineId: string, pipeline: PipelineModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  mapValues(pipeline, (value: string, key: never) => {
+  mapValues(pipeline, (value: string | number, key: never) => {
     if (copy.pipelines?.[pipelineId]) {
-      if (value) {
+      if (value || (value === 0 && key === 'priority')) {
         copy.pipelines[pipelineId][key] = value as never;
       } else if (shouldRemoveField(value, yml.pipelines?.[pipelineId]?.[key])) {
         delete copy.pipelines[pipelineId][key];
@@ -1101,7 +1132,10 @@ function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel,
     return copy;
   }
 
-  copy.step_bundles[bundleId].inputs = [...(copy.step_bundles[bundleId].inputs ?? []), newInput];
+  copy.step_bundles[bundleId].inputs = [
+    ...(copy.step_bundles[bundleId].inputs ?? []),
+    StepBundleService.sanitizeInputOpts(newInput),
+  ];
 
   return copy;
 }
@@ -1167,25 +1201,88 @@ function updateStepBundleInput(
         return undefined;
       },
     );
-  }
-
-  if (!isEmpty(oldInput.opts)) {
-    oldInput.opts = omitBy(oldInput.opts, (value) => {
-      if (!value) {
-        return true;
+    Object.entries(newInput.opts).forEach(([key, value]) => {
+      if (oldInput.opts && !oldInput.opts[key as keyof EnvironmentItemOptionsModel]) {
+        oldInput.opts[key as keyof EnvironmentItemOptionsModel] = value as any;
       }
-      if (Array.isArray(value) && value.length === 0) {
-        return true;
-      }
-      return false;
     });
   }
+
+  oldInput = StepBundleService.sanitizeInputOpts(oldInput);
 
   if (isEmpty(oldInput.opts)) {
     delete oldInput.opts;
   }
 
   copy.step_bundles[bundleId].inputs[index] = oldInput;
+
+  return copy;
+}
+
+function updateStepBundleInputInstanceValue(
+  key: string,
+  newValue: string,
+  parentStepBundleId: string | undefined,
+  parentWorkflowId: string | undefined,
+  cvs: string,
+  stepIndex: number,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (parentStepBundleId && parentWorkflowId) {
+    throw new Error('parentStepBundleId and parentWorkflowId cannot be set at the same time');
+  }
+
+  let isParentExists = false;
+  if (parentStepBundleId) {
+    isParentExists = !!copy.step_bundles?.[parentStepBundleId];
+  }
+  if (parentWorkflowId) {
+    isParentExists = !!copy.workflows?.[parentWorkflowId];
+  }
+
+  const originalInputs = copy.step_bundles?.[StepBundleService.cvsToId(cvs)]?.inputs || [];
+  const isOriginalInputExists = originalInputs?.findIndex(({ opts, ...i }) => Object.keys(i)[0] === key) > -1;
+
+  if (!isParentExists || key === 'opts' || !isOriginalInputExists) {
+    return copy;
+  }
+
+  let inputs: EnvModel = [];
+  if (parentWorkflowId && copy.workflows?.[parentWorkflowId]?.steps?.[stepIndex]) {
+    inputs = copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs || [];
+  }
+  if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex]) {
+    inputs = copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs || [];
+  }
+
+  const inputIndex = inputs?.findIndex(({ opts, ...i }) => Object.keys(i)[0] === key);
+  if (newValue) {
+    if (inputIndex === -1) {
+      inputs.push({ [key]: newValue });
+    } else {
+      inputs[inputIndex] = { ...inputs[inputIndex], [key]: newValue };
+    }
+  } else {
+    inputs.splice(inputIndex, 1);
+  }
+
+  if (parentWorkflowId && copy.workflows?.[parentWorkflowId].steps?.[stepIndex]) {
+    if (inputs.length) {
+      copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs = inputs.length ? inputs : undefined;
+    } else {
+      delete copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs;
+    }
+  }
+
+  if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId].steps?.[stepIndex]) {
+    if (inputs.length) {
+      copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs = inputs;
+    } else {
+      delete copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs;
+    }
+  }
 
   return copy;
 }
@@ -1677,4 +1774,5 @@ export default {
   appendStepBundleInput,
   deleteStepBundleInput,
   updateStepBundleInput,
+  updateStepBundleInputInstanceValue,
 };

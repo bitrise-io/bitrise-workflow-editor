@@ -37,13 +37,6 @@ const extendDecorators = (storyObj: Story, newDecorators: Story['decorators']) =
   return { ...storyObj, decorators };
 };
 
-const withStepBundleUI = (storyObj: Story) => {
-  set(storyObj, 'args.showStepBundles', true);
-  return extendBeforeEach(storyObj, () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-wfe-step-bundles-ui', true);
-  });
-};
-
 const withStepLimit = (storyObj: Story, limit = 3) => {
   let copy = { ...storyObj };
 
@@ -102,4 +95,3 @@ export const Error: Story = {
 };
 
 export const WithStepLimit: Story = withStepLimit(Default);
-export const WithStepBundleUI: Story = withStepBundleUI(Default);

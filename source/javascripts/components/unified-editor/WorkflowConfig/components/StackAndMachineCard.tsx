@@ -1,7 +1,9 @@
 import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
+
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useStacksAndMachines from '../hooks/useStacksAndMachines';
+import useStacksAndMachines from '@/hooks/useStacksAndMachines';
+
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type ButtonContentProps = {
@@ -37,14 +39,12 @@ const StackAndMachineCard = () => {
     selectedMachineType,
     availableStackOptions,
     availableMachineTypeOptions,
-    isInvalidInitialStack,
-    isInvalidInitialMachineType,
+    isInvalidStack,
+    isInvalidMachineType,
     isMachineTypeSelectionDisabled,
-  } = StackAndMachineService.selectStackAndMachine({
+  } = StackAndMachineService.prepareStackAndMachineSelectionData({
     ...data,
-    initialStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
     selectedStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
-    initialMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
     selectedMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
   });
 
@@ -67,12 +67,13 @@ const StackAndMachineCard = () => {
           isRequired
           label="Stack"
           isLoading={isLoading}
-          value={selectedStack.id}
-          errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
+          value={selectedStack.value}
+          errorText={isInvalidStack ? 'Invalid stack' : undefined}
           onChange={(e) => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
               stackId: e.target.value,
-              machineTypeId: selectedMachineType.id,
+              machineTypeId: selectedMachineType.value,
+              defaultStackId: data?.defaultStackId || '',
               availableStacks: data?.availableStacks,
               availableMachineTypes: data?.availableMachineTypes,
             });
@@ -92,13 +93,14 @@ const StackAndMachineCard = () => {
           isRequired
           label="Machine type"
           isLoading={isLoading}
-          value={selectedMachineType.id}
+          value={selectedMachineType.value}
           isDisabled={isMachineTypeSelectionDisabled}
-          errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
+          errorText={isInvalidMachineType ? 'Invalid machine type' : undefined}
           onChange={(e) => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
-              stackId: selectedStack.id,
+              stackId: selectedStack.value,
               machineTypeId: e.target.value,
+              defaultStackId: data?.defaultStackId || '',
               availableStacks: data?.availableStacks,
               availableMachineTypes: data?.availableMachineTypes,
             });

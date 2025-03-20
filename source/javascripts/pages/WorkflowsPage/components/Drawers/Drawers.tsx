@@ -4,6 +4,7 @@ import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   StartBuildDialog,
+  StepBundleConfigDrawer,
   StepConfigDrawer,
   StepSelectorDrawer,
   WithGroupDrawer,
@@ -12,7 +13,6 @@ import {
 import StepService from '@/core/services/StepService';
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
-import StepBundleConfigDrawer from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigDrawer';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 
 const Drawers = ({ children }: PropsWithChildren) => {
@@ -144,9 +144,9 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onRename={handleRenameStepBundle}
-          workflowId={workflowId}
+          parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
-          stepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 
@@ -158,7 +158,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
-          targetStepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 

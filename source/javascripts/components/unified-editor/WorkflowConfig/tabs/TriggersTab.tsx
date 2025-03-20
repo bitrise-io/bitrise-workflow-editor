@@ -21,6 +21,7 @@ const TriggersTab = () => {
       triggers={workflow.userValues.triggers}
       updateTriggers={updateWorkflowTriggers}
       updateTriggersEnabled={updateWorkflowTriggersEnabled}
+      entity="Workflow"
     />
   );
 };

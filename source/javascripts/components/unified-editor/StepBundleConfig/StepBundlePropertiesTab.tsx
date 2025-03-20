@@ -7,32 +7,31 @@ import { useStepBundles } from '@/hooks/useStepBundles';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundleModel } from '@/core/models/BitriseYml';
 import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
-import { useStepBundleConfigContext } from './StepBundlesConfig.context';
+import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
 
 type StepBundlePropertiesTabProps = {
-  onDelete?: (id: string) => void;
+  onDelete?: () => void;
   onRename?: (newStepBundleId: string) => void;
 };
 
 const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
   const { onDelete, onRename } = props;
-  const stepBundle = useStepBundleConfigContext();
+  const { stepBundle } = useStepBundleConfigContext();
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
   const stepBundles = useStepBundles();
   const stepBundleIds = Object.keys(stepBundles);
   const updateStepBundle = useBitriseYmlStore((s) => s.updateStepBundle);
   const debouncedUpdateStepBundle = useDebounceCallback(updateStepBundle, 100);
-
   const [{ summary, description }, setValues] = useState({
     summary: stepBundle?.userValues.summary || '',
     description: stepBundle?.userValues.description || '',
   });
   const rename = useRenameStepBundle(stepBundle?.id, onRename);
 
-  const handleNameChange = (newValue: string) => {
-    if (newValue !== stepBundle?.id) {
-      rename(newValue);
+  const handleNameChange = (newStepBundleId: string) => {
+    if (newStepBundleId !== stepBundle?.id) {
+      rename(newStepBundleId);
     }
   };
 

@@ -8,8 +8,8 @@ import WorkflowConfigDrawer from './WorkflowConfig/WorkflowConfigDrawer';
 import WorkflowConfigPanel from './WorkflowConfig/WorkflowConfigPanel';
 import ChainWorkflowDrawer from './ChainWorkflowDrawer/ChainWorkflowDrawer';
 import WithGroupDrawer from './WithGroupDrawer/WithGroupDrawer';
-import StepBundleConfigDrawer from './StepBundlesConfig/StepBundleConfigDrawer';
 import DeleteWorkflowDialog from './DeleteWorkflowDialog/DeleteWorkflowDialog';
+import StepBundleConfigDrawer from './StepBundleConfig/StepBundleConfigDrawer';
 
 export {
   CreateWorkflowDialog,

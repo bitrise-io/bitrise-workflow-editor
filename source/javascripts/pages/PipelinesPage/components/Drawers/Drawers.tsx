@@ -4,13 +4,13 @@ import {
   ChainWorkflowDrawer,
   StartBuildDialog,
   StepConfigDrawer,
+  StepBundleConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
 } from '@/components/unified-editor';
 import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
-import StepBundleConfigDrawer from '@/components/unified-editor/StepBundlesConfig/StepBundleConfigDrawer';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -154,9 +154,9 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onRename={handleRenameStepBundle}
-          workflowId={workflowId}
+          parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
-          stepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 
@@ -167,7 +167,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
-          targetStepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 

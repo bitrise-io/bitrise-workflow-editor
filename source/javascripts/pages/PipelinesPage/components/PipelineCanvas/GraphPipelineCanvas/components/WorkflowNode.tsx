@@ -5,7 +5,6 @@ import { useHover, useResizeObserver } from 'usehooks-ts';
 import { isEqual } from 'es-toolkit';
 
 import { LibraryType } from '@/core/models/Step';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import { WorkflowCard } from '@/components/unified-editor';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -87,7 +86,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
-  const enableParallelWorkflow = useFeatureFlag('enable-wfe-parallel-workflow');
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
@@ -126,7 +124,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   const uses = 'uses' in data ? data.uses : undefined;
   const parallel = 'parallel' in data ? data.parallel : undefined;
-  const shouldDisplayAsParallelWorkflow = enableParallelWorkflow && Boolean(parallel);
+  const shouldDisplayAsParallelWorkflow = Boolean(parallel);
 
   const {
     handleAddStep,
@@ -371,24 +369,24 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleGroupStepsToStepBundle: (
-        workflowId: string | undefined,
-        stepBundleId: string | undefined,
+        parentWorkflowId: string | undefined,
+        parentStepBundleId: string | undefined,
         newStepBundleId: string,
         stepIndices: number[],
       ) => {
-        groupStepsToStepBundle(workflowId, stepBundleId, newStepBundleId, stepIndices);
+        groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, stepIndices);
         setSelectedStepIndices([Math.min(...stepIndices)]);
-        if (workflowId) {
+        if (parentWorkflowId) {
           openDialog({
             type: PipelinesPageDialogType.STEP_BUNDLE,
-            workflowId,
+            workflowId: parentWorkflowId,
             stepBundleId: newStepBundleId,
             selectedStepIndices: [Math.min(...stepIndices)],
           })();
-        } else if (stepBundleId) {
+        } else if (parentStepBundleId) {
           openDialog({
             type: PipelinesPageDialogType.STEP_BUNDLE,
-            stepBundleId,
+            stepBundleId: parentStepBundleId,
             newStepBundleId,
             selectedStepIndices: [Math.min(...stepIndices)],
           })();

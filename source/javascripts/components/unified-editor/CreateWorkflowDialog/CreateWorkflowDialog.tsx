@@ -1,8 +1,12 @@
+import { useEffect } from 'react';
 import { DialogProps } from '@bitrise/bitkit';
+
+import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';
-import { useWorkflows } from '@/hooks/useWorkflows';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
+import { useWorkflows } from '@/hooks/useWorkflows';
+
+import CreateEntityDialog from '../CreateEntityDialog/CreateEntityDialog';
 
 type Props = Omit<DialogProps, 'title'> & {
   onCreateWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
@@ -13,6 +17,17 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
   const workflowIds = Object.keys(workflows);
   const [, setSelectedWorkflow] = useSelectedWorkflow();
 
+  useEffect(() => {
+    if (props.isOpen) {
+      trackCreateWorkflowDialogShown(workflowIds.length ? 'workflow_selector' : 'workflow_empty_state');
+    }
+  }, [props.isOpen, workflowIds.length]);
+
+  const handleCreateWorkflow = (workflowId: string, baseWorkflowId?: string) => {
+    onCreateWorkflow(workflowId, baseWorkflowId);
+    trackWorkflowCreated(workflowId, baseWorkflowId);
+  };
+
   const handleCloseComplete = (workflowId: string) => {
     if (workflowId) {
       setSelectedWorkflow(workflowId);
@@ -22,11 +37,11 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
 
   return (
     <CreateEntityDialog
-      baseEntityIds={workflowIds}
+      baseEntities={[{ ids: workflowIds }]}
       entityName="Workflow"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
-      onCreateEntity={onCreateWorkflow}
+      onCreateEntity={handleCreateWorkflow}
       sanitizer={WorkflowService.sanitizeName}
       validator={(v) => WorkflowService.validateName(v, workflowIds)}
       {...props}

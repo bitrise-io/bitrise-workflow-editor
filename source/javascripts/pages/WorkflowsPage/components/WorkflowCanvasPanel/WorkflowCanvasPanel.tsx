@@ -357,20 +357,25 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   );
 
   const handleGroupStepsToStepBundle = useCallback(
-    (wfId: string | undefined, stepBundleId: string | undefined, newStepBundleId: string, stepIndices: number[]) => {
-      groupStepsToStepBundle(wfId, stepBundleId, newStepBundleId, stepIndices);
+    (
+      parentWorkflowId: string | undefined,
+      parentStepBundleId: string | undefined,
+      newStepBundleId: string,
+      stepIndices: number[],
+    ) => {
+      groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, stepIndices);
       setSelectedStepIndices([Math.min(...stepIndices)]);
-      if (wfId) {
+      if (parentWorkflowId) {
         openDialog({
           type: WorkflowsPageDialogType.STEP_BUNDLE,
-          workflowId: wfId,
+          workflowId: parentWorkflowId,
           stepBundleId: newStepBundleId,
           selectedStepIndices: [Math.min(...stepIndices)],
         })();
-      } else if (stepBundleId) {
+      } else if (parentStepBundleId) {
         openDialog({
           type: WorkflowsPageDialogType.STEP_BUNDLE,
-          stepBundleId,
+          stepBundleId: parentStepBundleId,
           newStepBundleId,
           selectedStepIndices: [Math.min(...stepIndices)],
         })();
