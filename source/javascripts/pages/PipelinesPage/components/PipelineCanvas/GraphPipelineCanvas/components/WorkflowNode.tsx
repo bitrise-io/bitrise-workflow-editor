@@ -369,24 +369,24 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleGroupStepsToStepBundle: (
-        workflowId: string | undefined,
-        stepBundleId: string | undefined,
+        parentWorkflowId: string | undefined,
+        parentStepBundleId: string | undefined,
         newStepBundleId: string,
         stepIndices: number[],
       ) => {
-        groupStepsToStepBundle(workflowId, stepBundleId, newStepBundleId, stepIndices);
+        groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, stepIndices);
         setSelectedStepIndices([Math.min(...stepIndices)]);
-        if (workflowId) {
+        if (parentWorkflowId) {
           openDialog({
             type: PipelinesPageDialogType.STEP_BUNDLE,
-            workflowId,
+            workflowId: parentWorkflowId,
             stepBundleId: newStepBundleId,
             selectedStepIndices: [Math.min(...stepIndices)],
           })();
-        } else if (stepBundleId) {
+        } else if (parentStepBundleId) {
           openDialog({
             type: PipelinesPageDialogType.STEP_BUNDLE,
-            stepBundleId,
+            stepBundleId: parentStepBundleId,
             newStepBundleId,
             selectedStepIndices: [Math.min(...stepIndices)],
           })();

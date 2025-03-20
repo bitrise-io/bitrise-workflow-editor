@@ -77,7 +77,7 @@ const Drawers = () => {
           onClose={closeDialog}
           onSelectStep={handleAddStepToStepBundle}
           onCloseComplete={unmountDialog}
-          targetStepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 
@@ -87,9 +87,8 @@ const Drawers = () => {
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          workflowId=""
           stepIndex={selectedStepIndices[0]}
-          stepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
     </>

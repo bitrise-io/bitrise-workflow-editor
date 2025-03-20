@@ -144,9 +144,9 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onRename={handleRenameStepBundle}
-          workflowId={workflowId}
+          parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
-          stepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 
@@ -158,7 +158,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
-          targetStepBundleId={stepBundleId}
+          parentStepBundleId={stepBundleId}
         />
       )}
 

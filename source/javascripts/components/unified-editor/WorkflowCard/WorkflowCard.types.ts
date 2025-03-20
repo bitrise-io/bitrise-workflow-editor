@@ -34,8 +34,8 @@ export type StepActions = {
   onCloneStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
   onDeleteStepInStepBundle?: (stepBundleId: string, selectedStepIndices: number[], cvs?: string) => void;
   onGroupStepsToStepBundle?: (
-    workflowId: string | undefined,
-    stepBundleId: string | undefined,
+    parentWorkflowId: string | undefined,
+    parentStepBundleId: string | undefined,
     newStepBundleId: string,
     selectedStepIndices: number[],
   ) => void;

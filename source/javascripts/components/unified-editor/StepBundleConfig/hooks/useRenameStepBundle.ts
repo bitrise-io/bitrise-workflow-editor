@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const useRenameStepBundle = (selectedStepBundleId: string = '', onChange?: (newStepBundleId: string) => void) => {
+const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundleId: string) => void) => {
   const stepBundleIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);
-  const [nextStepBundleId, setNextStepBundleId] = useState(selectedStepBundleId);
-  const [prevStepBundleId, setPrevStepBundleId] = useState(selectedStepBundleId);
+  const [nextStepBundleId, setNextStepBundleId] = useState(stepBundleId);
+  const [prevStepBundleId, setPrevStepBundleId] = useState(stepBundleId);
 
   const { createStepBundle, renameStepBundle, deleteStepBundle } = useBitriseYmlStore((s) => ({
     createStepBundle: s.createStepBundle,
@@ -15,7 +15,7 @@ const useRenameStepBundle = (selectedStepBundleId: string = '', onChange?: (newS
   }));
 
   const isNewStepBundlePersisted = stepBundleIdsInTheStore.includes(nextStepBundleId);
-  const isNewStepBundleSelected = nextStepBundleId === selectedStepBundleId;
+  const isNewStepBundleSelected = nextStepBundleId === stepBundleId;
 
   const shouldRunOnChange = isRenaming && isNewStepBundlePersisted && !isNewStepBundleSelected;
   const shouldFinishRenaming = isRenaming && isNewStepBundlePersisted && isNewStepBundleSelected;
@@ -35,17 +35,17 @@ const useRenameStepBundle = (selectedStepBundleId: string = '', onChange?: (newS
 
   return useCallback(
     (newStepBundleId: string) => {
-      if (selectedStepBundleId) {
+      if (stepBundleId) {
         setIsRenaming(true);
 
-        renameStepBundle(selectedStepBundleId, newStepBundleId);
-        createStepBundle(selectedStepBundleId, newStepBundleId);
+        renameStepBundle(stepBundleId, newStepBundleId);
+        createStepBundle(stepBundleId, newStepBundleId);
 
         setNextStepBundleId(newStepBundleId);
-        setPrevStepBundleId(selectedStepBundleId);
+        setPrevStepBundleId(stepBundleId);
       }
     },
-    [createStepBundle, renameStepBundle, selectedStepBundleId],
+    [createStepBundle, renameStepBundle, stepBundleId],
   );
 };
 
