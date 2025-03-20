@@ -1,4 +1,4 @@
-import { createStore, ExtractState } from 'zustand';
+import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
 import {
@@ -19,7 +19,9 @@ import EnvVarService from '@/core/services/EnvVarService';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 
-export type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
+type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
+
+type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 
 function create(yml: BitriseYml, defaultMeta?: Meta) {
   return createStore(
@@ -474,5 +476,7 @@ function create(yml: BitriseYml, defaultMeta?: Meta) {
     })),
   );
 }
+
+export { BitriseYmlStore, BitriseYmlStoreState };
 
 export default { create };
