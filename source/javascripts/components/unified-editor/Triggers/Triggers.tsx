@@ -16,7 +16,6 @@ import { isEqual } from 'es-toolkit';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition, TriggersModel } from '@/core/models/BitriseYml';
-import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -118,8 +117,8 @@ type TriggersProps = {
   additionalTrackingData: Record<string, string>;
   id: string;
   triggers?: TriggersModel;
-  updateTriggers: BitriseYmlStoreState['updateWorkflowTriggers'];
-  updateTriggersEnabled: BitriseYmlStoreState['updateWorkflowTriggersEnabled'];
+  updateTriggers: (workflowId: string, triggers: TriggersModel) => void;
+  updateTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
   entity: 'Workflow' | 'Pipeline';
 };
 
