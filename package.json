@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "1.5.13582",
+  "version": "1.5.13586",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -102,7 +102,7 @@
     "@storybook/addon-interactions": "^8.6.2",
     "@storybook/addon-links": "^8.6.2",
     "@storybook/addon-queryparams": "^7.0.1",
-    "@storybook/addon-webpack5-compiler-swc": "^2.1.0",
+    "@storybook/addon-webpack5-compiler-swc": "^3.0.0",
     "@storybook/blocks": "^8.6.2",
     "@storybook/react": "^8.6.2",
     "@storybook/react-webpack5": "^8.6.2",
