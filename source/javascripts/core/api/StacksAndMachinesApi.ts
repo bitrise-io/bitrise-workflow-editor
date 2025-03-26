@@ -30,8 +30,8 @@ type StacksAndMachinesResponse = {
           name: string;
           chip: string;
           cpu_count: string;
-          credit_per_min: number;
           cpu_description: string;
+          credit_per_min?: number;
         };
       };
     };

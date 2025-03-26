@@ -5,7 +5,7 @@ export type MachineType = {
   chip: string;
   cpuCount: string;
   cpuDescription: string;
-  creditPerMinute: number;
+  creditPerMinute?: number;
 };
 
 export type MachineTypeOption = {

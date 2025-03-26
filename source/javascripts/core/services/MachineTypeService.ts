@@ -15,7 +15,11 @@ function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType
 
 function toMachineOption(machine: MachineType) {
   const { name, ram, cpuCount, cpuDescription, creditPerMinute } = machine;
-  const label = `${name} ${cpuCount} @ ${cpuDescription} ${ram} (${creditPerMinute} credits/min)`;
+  let label = `${name} ${cpuCount} @ ${cpuDescription} ${ram}`;
+
+  if (creditPerMinute) {
+    label += ` (${creditPerMinute} credits/min)`;
+  }
 
   return {
     value: machine.id,
