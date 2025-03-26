@@ -22,7 +22,7 @@ const MachineTypeSelector = ({ machineType, options, isLoading, isDisabled, isIn
         value={machineType.value}
         isDisabled={isDisabled}
         errorText={isInvalid ? 'Invalid machine type' : undefined}
-        helperText={`${machineType.creditPerMinute} credits/min`}
+        helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
         onChange={(e) => onChange(e.target.value)}
       >
         {options.map(({ value, label }) => (
