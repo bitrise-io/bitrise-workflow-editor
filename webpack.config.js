@@ -10,6 +10,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
 
 const { version } = require('./package.json');
 
@@ -94,6 +95,7 @@ module.exports = {
     filename: 'javascripts/[name].js',
     path: OUTPUT_FOLDER,
     publicPath,
+    crossOriginLoading: 'anonymous',
   },
 
   /* --- Development --- */
@@ -274,5 +276,6 @@ module.exports = {
       scriptLoading: 'blocking',
       template: 'index.html',
     }),
+    new SubresourceIntegrityPlugin(),
   ],
 };
