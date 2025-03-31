@@ -67,7 +67,6 @@ angular
     register(Header, [
       'appName',
       'workspacePath',
-      'isDiffEditorEnabled',
       'onDiffClick',
       'isDiffDisabled',
       'onSaveClick',
