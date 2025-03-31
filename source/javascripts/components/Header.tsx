@@ -6,7 +6,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 type Props = {
   appName: string;
   workspacePath: string;
-  isDiffEditorEnabled: boolean;
   onDiffClick: () => void;
   isDiffDisabled: boolean;
   onSaveClick: () => void;
@@ -19,7 +18,6 @@ type Props = {
 const Header = ({
   appName = '',
   workspacePath = '/workspace',
-  isDiffEditorEnabled,
   onDiffClick,
   isDiffDisabled,
   onSaveClick,
@@ -66,11 +64,9 @@ const Header = ({
         flexDir={['column', 'row']}
         alignSelf={['stretch', 'flex-end']}
       >
-        {isDiffEditorEnabled && (
-          <Button size="sm" className="diff" variant="secondary" onClick={onDiffClick} isDisabled={isDiffDisabled}>
-            Show diff
-          </Button>
-        )}
+        <Button size="sm" className="diff" variant="secondary" onClick={onDiffClick} isDisabled={isDiffDisabled}>
+          Show diff
+        </Button>
         <Button
           isDanger
           size="sm"
