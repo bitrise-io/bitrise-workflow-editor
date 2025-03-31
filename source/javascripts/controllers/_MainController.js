@@ -6,7 +6,6 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { safeDigest } from '@/services/react-compat';
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
@@ -124,7 +123,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         viewModel.shouldAllowYMLMenuWithoutDiscard = false;
         viewModel.lastWorkflowEditedDate = undefined;
 
-        viewModel.isDiffEditorEnabled = false;
         viewModel.isDiffDialogOpen = false;
         viewModel.originalYaml = '';
         viewModel.modifiedYaml = '';
@@ -905,8 +903,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           appService.getAppConfig();
 
           $q(function (resolve, reject) {
-            viewModel.isDiffEditorEnabled = useFeatureFlag('enable-wfe-diff-editor');
-
             if (RuntimeUtils.isLocalMode()) {
               resolve();
               return;
