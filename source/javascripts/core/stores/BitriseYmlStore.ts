@@ -254,8 +254,6 @@ function create(yml: BitriseYml, defaultMeta?: Meta) {
       // Meta related actions
       updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io']) {
         return set((state) => {
-          console.log(BitriseYmlService.updateStacksAndMachinesMeta(newValues, state.yml));
-
           return {
             yml: BitriseYmlService.updateStacksAndMachinesMeta(newValues, state.yml),
           };

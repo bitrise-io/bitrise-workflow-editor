@@ -8,9 +8,7 @@ const DefaultStackAndMachine = () => {
   const { stackId, machineTypeId } = useDefaultStackAndMachine();
   const updateStacksAndMachinesMeta = useBitriseYmlStore((s) => s.updateStacksAndMachinesMeta);
 
-  // TODO implement writing the changes to the YML
   const updateDefaultMeta = (stack?: string, machine_type_id?: string) => {
-    console.log({ machine_type_id, stack });
     updateStacksAndMachinesMeta({
       stack,
       machine_type_id,

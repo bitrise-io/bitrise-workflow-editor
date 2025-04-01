@@ -202,7 +202,6 @@ function changeStackAndMachine({
 
   const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, newStack ?? defaultStack);
   const currentMachine = MachineTypeService.getMachineById(selectableMachines, machineTypeId);
-  console.log({ currentMachine });
   return {
     stackId: newStack?.id ?? '',
     machineTypeId: currentMachine?.id ?? '',
