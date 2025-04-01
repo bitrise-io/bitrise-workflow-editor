@@ -38,8 +38,11 @@ const StackAndMachine = ({ stackId, machineTypeId, onChange }: Props) => {
     selectedMachineTypeId: machineTypeId,
   });
 
+  console.log({ selectedMachineType });
+
   const handleChange = useCallback(
     (selectedStackId: string, selectedMachineTypeId: string) => {
+      console.log({ selectedStackId, selectedMachineTypeId });
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,
         machineTypeId: selectedMachineTypeId,
