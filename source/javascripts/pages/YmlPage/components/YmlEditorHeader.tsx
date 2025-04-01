@@ -1,17 +1,12 @@
 import { useState } from 'react';
-import { Box, Button, DataWidget, DataWidgetItem, Notification, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useUserMetaData from '@/hooks/useUserMetaData';
 
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
-
-const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
-const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
-const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
 export type YmlEditorHeaderProps = {
   ciConfigYml: string;
@@ -29,26 +24,10 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   const defaultBranch = PageProps.app()?.defaultBranch || '';
   const gitRepoSlug = PageProps.app()?.gitRepoSlug || '';
 
-  const {
-    isModularYamlSupported,
-    isYmlSplit,
-    lastModified,
-    lines,
-    usesRepositoryYml: initialUsesRepositoryYml,
-    ymlRootPath,
-  } = ymlSettings;
+  const { isYmlSplit, lastModified, ymlRootPath } = ymlSettings;
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!ymlSettings?.usesRepositoryYml);
-
-  const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
-    SPLITTED_METADATA_KEY,
-    isWebsiteMode && !!isYmlSplit && !!initialUsesRepositoryYml,
-  );
-  const { value: splitMetaDataValue, update: updateSplitMetaData } = useUserMetaData(
-    isModularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
-    isWebsiteMode && !isYmlSplit && lines > 500,
-  );
 
   let infoLabel;
   if (usesRepositoryYml) {
@@ -79,7 +58,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
         gap="16"
         alignItems={['flex-start', 'center']}
         marginBlockEnd="24"
-        minHeight="40"
+        paddingInline="32"
       >
         <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
           Configuration YAML
@@ -124,31 +103,6 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           </DataWidget>
         )}
       </Box>
-      {splitMetaDataValue === null && (
-        <Notification
-          status="info"
-          action={{
-            href: 'https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html',
-            label: 'Learn more',
-            target: '_blank',
-          }}
-          onClose={() => updateSplitMetaData('true')}
-          marginBlockEnd="24"
-        >
-          <Text textStyle="heading/h4">Optimize your configuration file</Text>
-          <Text>
-            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance.{' '}
-            {isModularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
-          </Text>
-        </Notification>
-      )}
-      {splittedMetaDataValue === null && (
-        <Notification status="info" onClose={() => updateSplittedMetaData('true')} marginBlockEnd="24">
-          Your configuration in the Git repository is split across multiple files, but on this page you can see it as
-          one merged YAML.
-        </Notification>
-      )}
       {!!ymlSettings && (
         <ConfigurationYmlSourceDialog
           isOpen={isOpen}

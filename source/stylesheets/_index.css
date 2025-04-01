@@ -71,6 +71,10 @@
 	height: 100%;
 }
 
+.new-layout > .main:has(.tab-yml) {
+	padding: 32px 0 0;
+}
+
 .new-layout > .main:has(.tab-yml) .tab-content,
 .new-layout > .main:has(.tab-yml) .tab-content > .tab-yml {
 	height: 100%;
