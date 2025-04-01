@@ -1,3 +1,4 @@
+import { Card } from '@bitrise/bitkit';
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
@@ -12,6 +13,7 @@ const WorkflowStackAndMachine = ({ workflowId }: Props) => {
 
   return (
     <StackAndMachine
+      as={Card}
       stackId={stackId}
       machineTypeId={machineTypeId}
       onChange={(stack, machine_type_id) => {

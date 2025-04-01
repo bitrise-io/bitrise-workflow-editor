@@ -1,4 +1,4 @@
-import { Box, Card, Text } from '@bitrise/bitkit';
+import { Card, Text } from '@bitrise/bitkit';
 
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
 import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
@@ -16,14 +16,12 @@ const DefaultStackAndMachine = () => {
   };
 
   return (
-    <Box>
+    <div>
       <Text as="h4" textStyle="heading/h4" mb="12">
         Default stack & machine
       </Text>
-      <Card>
-        <StackAndMachine stackId={stackId} machineTypeId={machineTypeId} onChange={updateDefaultMeta} />
-      </Card>
-    </Box>
+      <StackAndMachine as={Card} stackId={stackId} machineTypeId={machineTypeId} onChange={updateDefaultMeta} />
+    </div>
   );
 };
 

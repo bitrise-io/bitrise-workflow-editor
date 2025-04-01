@@ -1,5 +1,5 @@
 import { RefObject, useCallback, useRef } from 'react';
-import { Box } from '@bitrise/bitkit';
+import { Box, BoxProps } from '@bitrise/bitkit';
 
 import { useResizeObserver } from 'usehooks-ts';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
@@ -14,12 +14,13 @@ const useOrientation = (ref: RefObject<HTMLDivElement>) => {
 };
 
 type Props = {
+  as?: BoxProps['as'];
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string) => void;
 };
 
-const StackAndMachine = ({ stackId, machineTypeId, onChange }: Props) => {
+const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -53,7 +54,7 @@ const StackAndMachine = ({ stackId, machineTypeId, onChange }: Props) => {
   );
 
   return (
-    <Box ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
+    <Box as={as} ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
       <StackSelector
         stack={selectedStack}
         isLoading={isLoading}
