@@ -5131,10 +5131,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(
-        { stack: '', machine_type_id: 'my-machine' },
-        sourceYml,
-      );
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta({ stack: undefined }, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
