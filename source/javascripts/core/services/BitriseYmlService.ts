@@ -1737,25 +1737,19 @@ function updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io'], ym
   }
 
   const copyBitriseIoMeta = copy.meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
+
   copyBitriseIoMeta.stack = newValues.stack;
+
   if (newValues.machine_type_id !== undefined) {
     copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
+  } else {
+    delete copyBitriseIoMeta.machine_type_id;
   }
+
   if (newValues.stack_rollback_version !== undefined) {
     copyBitriseIoMeta.stack_rollback_version = newValues.stack_rollback_version;
-  }
-
-  const newMeta = copy.meta as Meta | undefined;
-  const ymlMeta = yml.meta as Meta | undefined;
-
-  if (shouldRemoveField(newMeta?.['bitrise.io']?.machine_type_id, ymlMeta?.['bitrise.io']?.machine_type_id)) {
-    delete newMeta?.['bitrise.io']?.machine_type_id;
-  }
-
-  if (
-    shouldRemoveField(newMeta?.['bitrise.io']?.stack_rollback_version, ymlMeta?.['bitrise.io']?.stack_rollback_version)
-  ) {
-    delete newMeta?.['bitrise.io']?.stack_rollback_version;
+  } else {
+    delete copyBitriseIoMeta.stack_rollback_version;
   }
 
   return copy;
