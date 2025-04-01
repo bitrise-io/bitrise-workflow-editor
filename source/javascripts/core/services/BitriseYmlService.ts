@@ -1722,7 +1722,7 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
 function updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io'], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (!newValues.stack) {
+  if (newValues.stack === undefined) {
     return copy;
   }
 

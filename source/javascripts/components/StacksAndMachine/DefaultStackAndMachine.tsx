@@ -20,7 +20,13 @@ const DefaultStackAndMachine = () => {
       <Text as="h4" textStyle="heading/h4" mb="12">
         Default stack & machine
       </Text>
-      <StackAndMachine as={Card} stackId={stackId} machineTypeId={machineTypeId} onChange={updateDefaultMeta} />
+      <StackAndMachine
+        as={Card}
+        stackId={stackId}
+        machineTypeId={machineTypeId}
+        onChange={updateDefaultMeta}
+        withoutDefaultStack
+      />
     </div>
   );
 };

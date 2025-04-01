@@ -18,9 +18,10 @@ type Props = {
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string) => void;
+  withoutDefaultStack?: boolean;
 };
 
-const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props) => {
+const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange, withoutDefaultStack }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -37,6 +38,7 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props
     ...data,
     selectedStackId: stackId,
     selectedMachineTypeId: machineTypeId,
+    withoutDefaultStack,
   });
 
   const handleChange = useCallback(
