@@ -8,9 +8,9 @@ const DefaultStackAndMachine = () => {
   const { stackId, machineTypeId } = useDefaultStackAndMachine();
   const updateStacksAndMachinesMeta = useBitriseYmlStore((s) => s.updateStacksAndMachinesMeta);
 
-  const updateDefaultMeta = (stack?: string, machine_type_id?: string) => {
+  const updateDefaultMeta = (stack: string, machine_type_id: string, defaultStackId?: string) => {
     updateStacksAndMachinesMeta({
-      stack,
+      stack: stack || defaultStackId || '',
       machine_type_id,
     });
   };
@@ -20,13 +20,7 @@ const DefaultStackAndMachine = () => {
       <Text as="h4" textStyle="heading/h4" mb="12">
         Default stack & machine
       </Text>
-      <StackAndMachine
-        as={Card}
-        stackId={stackId}
-        machineTypeId={machineTypeId}
-        onChange={updateDefaultMeta}
-        withoutDefaultStack
-      />
+      <StackAndMachine as={Card} stackId={stackId} machineTypeId={machineTypeId} onChange={updateDefaultMeta} />
     </div>
   );
 };

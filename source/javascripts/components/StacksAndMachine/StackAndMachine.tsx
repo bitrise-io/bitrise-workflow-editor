@@ -17,11 +17,10 @@ type Props = {
   as?: BoxProps['as'];
   stackId: string;
   machineTypeId: string;
-  onChange: (stackId: string, machineTypeId: string) => void;
-  withoutDefaultStack?: boolean;
+  onChange: (stackId: string, machineTypeId: string, defaultStackId?: string) => void;
 };
 
-const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange, withoutDefaultStack }: Props) => {
+const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -38,7 +37,6 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange, without
     ...data,
     selectedStackId: stackId,
     selectedMachineTypeId: machineTypeId,
-    withoutDefaultStack,
   });
 
   const handleChange = useCallback(
@@ -50,7 +48,7 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange, without
         availableStacks: data?.availableStacks,
         availableMachineTypes: data?.availableMachineTypes,
       });
-      onChange(result.stackId, result.machineTypeId);
+      onChange(result.stackId, result.machineTypeId, data?.defaultStackId);
     },
     [data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
   );

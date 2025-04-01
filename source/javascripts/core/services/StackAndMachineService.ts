@@ -19,7 +19,6 @@ export type MachineTypeWithValue = MachineType & {
 type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>> & {
   selectedStackId: string;
   selectedMachineTypeId: string;
-  withoutDefaultStack?: boolean;
 };
 
 type SelectStackAndMachineResult = {
@@ -69,7 +68,6 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     selectedMachineTypeId,
     availableMachineTypes = [],
     hasDedicatedMachine,
-    withoutDefaultStack = false,
   } = props;
 
   const result: SelectStackAndMachineResult = {
@@ -86,7 +84,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   const selectedStack = StackService.getStackById(availableStacks, selectedStackId);
 
   // Push the default stack to the beginning of the available options
-  if (defaultStack && !withoutDefaultStack) {
+  if (defaultStack) {
     result.availableStackOptions = [
       {
         value: '',
