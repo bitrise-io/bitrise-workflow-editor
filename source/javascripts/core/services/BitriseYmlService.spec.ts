@@ -5062,6 +5062,245 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
+  describe('updateStacksAndMachinesMeta', () => {
+    it("when meta doesn't exist, should add meta with bitrise.io, and stack and machine definition", () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'my-stack',
+            machine_type_id: 'my-machine',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(
+        { stack: 'my-stack', machine_type_id: 'my-machine' },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when meta exist, should add bitrise.io, and stack and machine definition', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {},
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'my-stack',
+            machine_type_id: 'my-machine',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(
+        { stack: 'my-stack', machine_type_id: 'my-machine' },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('when no stack is provided, should return the original YML without modifications', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'my-stack',
+            machine_type_id: 'my-machine',
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'my-stack',
+            machine_type_id: 'my-machine',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta({ stack: undefined }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update stack when new value is provided', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const newValues = { stack: 'new-stack', machine_type_id: 'existing-machine' };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'new-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(newValues, sourceYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update machine_type_id when new value is provided', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const newValues = { stack: 'existing-stack', machine_type_id: 'new-machine' };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'new-machine',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(newValues, sourceYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update stack_rollback_version when new value is provided', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const newValues = {
+        stack: 'existing-stack',
+        machine_type_id: 'existing-machine',
+        stack_rollback_version: '1.84.1',
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+            stack_rollback_version: '1.84.1',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(newValues, sourceYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should not modify existing values when new values are undefined', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const newValues = { stack: undefined };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(newValues, sourceYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove machine_type_id when the new machine_type_id is undefined', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            machine_type_id: 'existing-machine',
+          },
+        },
+      };
+
+      const newValues = { stack: 'new-stack' };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'new-stack',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(newValues, sourceYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove machine_type_id when the new stack_rollback_version is undefined', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'existing-stack',
+            stack_rollback_version: '1.84.1',
+          },
+        },
+      };
+
+      const newValues = { stack: 'new-stack' };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        meta: {
+          'bitrise.io': {
+            stack: 'new-stack',
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStacksAndMachinesMeta(newValues, sourceYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
 });
 
 declare module 'expect' {

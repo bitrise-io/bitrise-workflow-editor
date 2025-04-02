@@ -1719,6 +1719,42 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
   return copy;
 }
 
+function updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io'], yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (newValues.stack === undefined) {
+    return copy;
+  }
+
+  if (!copy.meta) {
+    copy.meta = { 'bitrise.io': newValues };
+    return copy;
+  }
+
+  if (!copy.meta?.['bitrise.io']) {
+    copy.meta = { ...copy.meta, 'bitrise.io': newValues };
+    return copy;
+  }
+
+  const copyBitriseIoMeta = copy.meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
+
+  copyBitriseIoMeta.stack = newValues.stack;
+
+  if (newValues.machine_type_id !== undefined) {
+    copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
+  } else {
+    delete copyBitriseIoMeta.machine_type_id;
+  }
+
+  if (newValues.stack_rollback_version !== undefined) {
+    copyBitriseIoMeta.stack_rollback_version = newValues.stack_rollback_version;
+  } else {
+    delete copyBitriseIoMeta.stack_rollback_version;
+  }
+
+  return copy;
+}
+
 export default {
   addStep,
   moveStep,
@@ -1775,4 +1811,5 @@ export default {
   deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleInputInstanceValue,
+  updateStacksAndMachinesMeta,
 };

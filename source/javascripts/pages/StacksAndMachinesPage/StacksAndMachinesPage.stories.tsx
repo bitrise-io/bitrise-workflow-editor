@@ -14,7 +14,11 @@ const meta: Meta<typeof StacksAndMachinesPage> = {
   },
   parameters: {
     layout: 'fullscreen',
-    msw: [getStacksAndMachines({ hasSelfHostedRunner: true })],
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ hasSelfHostedRunner: true })],
+      },
+    },
   },
 };
 
