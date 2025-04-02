@@ -10,7 +10,10 @@ export const getStacksAndMachines = (options?: Options) => {
   return http.get(StacksAndMachinesApi.getStacksAndMachinesPath(':appSlug'), async () => {
     await delay();
 
-    const availableStacks: Record<string, { title: string; description?: string; available_machines?: string[] }> = {
+    const availableStacks: Record<
+      string,
+      { title: string; description?: string; available_machines?: string[]; rollback_version?: any }
+    > = {
       'osx-xcode-16': {
         title: 'Xcode 16.0.x',
         description:
@@ -22,6 +25,22 @@ export const getStacksAndMachines = (options?: Options) => {
         description:
           'Xcode 15.0 based on macOS 14.1 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
         available_machines: ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+        rollback_version: {
+          'm1.medium': {
+            paying: '2-82-0',
+          },
+          'm1.large': {
+            paying: '2-82-0',
+          },
+          'm2.medium': {
+            free: '2-82-0',
+            paying: '2-82-0',
+          },
+          'm2.large': {
+            free: '2-82-0',
+            paying: '2-82-0',
+          },
+        },
       },
       'linux-ubuntu-22.04': {
         title: 'Ubuntu 22.04 with Android SDK',

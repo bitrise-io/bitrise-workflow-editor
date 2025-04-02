@@ -53,6 +53,8 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props
     [data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
   );
 
+  console.log(selectedStack.rollbackVersion?.[selectedMachineType.id]);
+
   return (
     <Box as={as} ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
       <StackSelector
