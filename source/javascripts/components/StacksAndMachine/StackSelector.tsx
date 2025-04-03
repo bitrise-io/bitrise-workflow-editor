@@ -65,7 +65,7 @@ const StackSelector = ({
         label="Stack"
         isLoading={isLoading}
         value={stack.value}
-        errorText={isInvalid ? 'Invalid stack' : undefined}
+        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
         onChange={(e) => onChange(e.target.value)}
       >
