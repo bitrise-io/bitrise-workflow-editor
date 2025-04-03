@@ -5,8 +5,6 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 
-import PageProps from '@/core/utils/PageProps';
-
 import DefaultTab from './tabs/DefaultTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
 
@@ -22,7 +20,6 @@ const useTabs = create(
 );
 
 const StacksAndMachinesPageContent = () => {
-  console.log(PageProps.app()?.isOwnerPaying);
   return (
     <Tabs {...useTabs()} isLazy>
       <Text as="h2" textStyle="heading/h2" p="32">

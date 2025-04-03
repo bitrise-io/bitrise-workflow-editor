@@ -2,6 +2,9 @@ import { RefObject, useCallback, useRef } from 'react';
 import { Box, BoxProps } from '@bitrise/bitkit';
 
 import { useResizeObserver } from 'usehooks-ts';
+
+import PageProps from '@/core/utils/PageProps';
+
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
@@ -17,13 +20,24 @@ type Props = {
   as?: BoxProps['as'];
   stackId: string;
   machineTypeId: string;
-  onChange: (stackId: string, machineTypeId: string, defaultStackId?: string) => void;
+  onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
+  useRollbackVersion?: boolean;
+  withoutDefaultStack?: boolean;
 };
 
-const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props) => {
+const StackAndMachine = ({
+  as = 'div',
+  stackId,
+  machineTypeId,
+  onChange,
+  useRollbackVersion,
+  withoutDefaultStack,
+}: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
+
+  const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
 
   const {
     selectedStack,
@@ -37,10 +51,16 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props
     ...data,
     selectedStackId: stackId,
     selectedMachineTypeId: machineTypeId,
+    withoutDefaultStack,
   });
 
+  const availableRollbackVersion =
+    selectedStack.rollbackVersion?.[selectedMachineType.id as keyof typeof selectedStack.rollbackVersion]?.[
+      rollbackType
+    ] || '';
+
   const handleChange = useCallback(
-    (selectedStackId: string, selectedMachineTypeId: string) => {
+    (selectedStackId: string, selectedMachineTypeId: string, useRollbackVersionChecked?: boolean) => {
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,
         machineTypeId: selectedMachineTypeId,
@@ -48,12 +68,10 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props
         availableStacks: data?.availableStacks,
         availableMachineTypes: data?.availableMachineTypes,
       });
-      onChange(result.stackId, result.machineTypeId, data?.defaultStackId);
+      onChange(result.stackId, result.machineTypeId, useRollbackVersionChecked ? availableRollbackVersion : '');
     },
-    [data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
+    [availableRollbackVersion, data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
   );
-
-  console.log(selectedStack.rollbackVersion?.[selectedMachineType.id]);
 
   return (
     <Box as={as} ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24" p="16">
@@ -62,7 +80,11 @@ const StackAndMachine = ({ as = 'div', stackId, machineTypeId, onChange }: Props
         isLoading={isLoading}
         isInvalid={isInvalidStack}
         options={availableStackOptions}
-        onChange={(selectedStackValue) => handleChange(selectedStackValue, selectedMachineType.value)}
+        onChange={(selectedStackValue, useRollbackVersionChecked) =>
+          handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
+        }
+        isRollbackVersionAvailable={!!availableRollbackVersion}
+        useRollbackVersion={useRollbackVersion}
       />
       <MachineTypeSelector
         machineType={selectedMachineType}
