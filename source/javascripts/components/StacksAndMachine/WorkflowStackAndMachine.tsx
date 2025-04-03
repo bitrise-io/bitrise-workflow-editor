@@ -8,7 +8,7 @@ type Props = {
 };
 
 const WorkflowStackAndMachine = ({ workflowId }: Props) => {
-  const { stackId, machineTypeId } = useWorkflowStackAndMachine(workflowId);
+  const { stackId, machineTypeId, stackRollbackVersion } = useWorkflowStackAndMachine(workflowId);
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
   return (
@@ -16,12 +16,14 @@ const WorkflowStackAndMachine = ({ workflowId }: Props) => {
       as={Card}
       stackId={stackId}
       machineTypeId={machineTypeId}
-      onChange={(stack, machine_type_id) => {
+      onChange={(stack, machine_type_id, stack_rollback_version) => {
         updateWorkflowMeta(workflowId, {
           stack,
           machine_type_id,
+          stack_rollback_version,
         });
       }}
+      useRollbackVersion={!!stackRollbackVersion}
     />
   );
 };
