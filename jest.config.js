@@ -1,7 +1,7 @@
 module.exports = {
   rootDir: '.',
   roots: ['./source'],
-  testEnvironment: 'node',
+  testEnvironment: 'allure-jest/node',
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
   },

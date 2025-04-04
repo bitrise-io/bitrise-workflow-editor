@@ -192,3 +192,15 @@ workflows:
             - content: |-
                 npm run e2e:ci
 
+
+
+  jest-with-allure:
+    title: Run Jest with allure reporter
+    steps:
+      - script:
+          title: Run Jest with allure reporter
+          inputs:
+            - content: |-
+                npm run test:jest
+                allure generate --clean
+                cp -r allure-report $BITRISE_HTML_REPORT_DIR

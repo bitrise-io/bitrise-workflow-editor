@@ -27,3 +27,5 @@ ld.local.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+allure-*
