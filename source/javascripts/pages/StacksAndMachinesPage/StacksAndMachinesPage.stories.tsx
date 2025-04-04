@@ -4,14 +4,6 @@ import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StacksAndMachinesPage from './StacksAndMachinesPage';
 
 type Story = StoryObj<typeof StacksAndMachinesPage>;
-/*
-  args: {
-    yml: set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
-      uses: 'wf3',
-      depends_on: ['wf1'],
-    }),
-  },
-*/
 
 const meta: Meta<typeof StacksAndMachinesPage> = {
   component: StacksAndMachinesPage,
@@ -39,6 +31,16 @@ export const PayingUser: Story = {};
 export const FreeUser: Story = {
   beforeEach: () => {
     set(window, 'parent.pageProps.project.isOwnerPaying', false);
+  },
+};
+
+export const WithInvalidPreviousStackVersion: Story = {
+  args: {
+    yml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+      stack: 'osx-xcode-15',
+      machine_type_id: 'm2.large',
+      stack_rollback_version: '1.0.0',
+    }),
   },
 };
 

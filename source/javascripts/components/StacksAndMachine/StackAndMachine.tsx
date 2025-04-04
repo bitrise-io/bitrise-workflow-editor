@@ -71,24 +71,24 @@ const StackAndMachine = ({ stackId, machineTypeId, onChange, stackRollbackVersio
         <StackSelector
           stack={selectedStack}
           isLoading={isLoading}
-          isInvalid={isInvalidStack}
+          isInvalid={isInvalidStack && !isLoading}
           options={availableStackOptions}
           onChange={(selectedStackValue, useRollbackVersionChecked) =>
             handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
           }
           isRollbackVersionAvailable={!!availableRollbackVersion}
-          useRollbackVersion={!!stackRollbackVersion}
+          useRollbackVersion={stackRollbackVersion === availableRollbackVersion}
         />
         <MachineTypeSelector
           machineType={selectedMachineType}
           isLoading={isLoading}
-          isInvalid={isInvalidMachineType}
+          isInvalid={isInvalidMachineType && !isLoading}
           isDisabled={isMachineTypeSelectionDisabled}
           options={availableMachineTypeOptions}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
         />
       </Box>
-      {!!stackRollbackVersion && !!availableRollbackVersion && (
+      {stackRollbackVersion === availableRollbackVersion && (
         <Notification flex="0" marginBlockStart="12" status="warning">
           Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in
           mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once
