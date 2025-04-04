@@ -1,5 +1,5 @@
 import { RefObject, useCallback, useRef } from 'react';
-import { Box, Card, Link, Notification } from '@bitrise/bitkit';
+import { Box, Card, Link, Notification, NotificationProps } from '@bitrise/bitkit';
 
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -22,9 +22,17 @@ type Props = {
   onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
   stackRollbackVersion?: string;
   withoutDefaultStack?: boolean;
+  notificationProps?: NotificationProps;
 };
 
-const StackAndMachine = ({ stackId, machineTypeId, onChange, stackRollbackVersion, withoutDefaultStack }: Props) => {
+const StackAndMachine = ({
+  stackId,
+  machineTypeId,
+  onChange,
+  stackRollbackVersion,
+  withoutDefaultStack,
+  notificationProps,
+}: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -105,6 +113,7 @@ const StackAndMachine = ({ stackId, machineTypeId, onChange, stackRollbackVersio
           </Link>
         </Notification>
       )}
+      {!!notificationProps && <Notification marginBlockStart="12" {...notificationProps} />}
     </Card>
   );
 };
