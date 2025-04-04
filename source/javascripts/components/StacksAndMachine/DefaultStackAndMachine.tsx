@@ -1,4 +1,4 @@
-import { Card, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
 
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
 import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
@@ -22,11 +22,10 @@ const DefaultStackAndMachine = () => {
         Default stack & machine
       </Text>
       <StackAndMachine
-        as={Card}
         stackId={stackId}
         machineTypeId={machineTypeId}
         onChange={updateDefaultMeta}
-        useRollbackVersion={!!stackRollbackVersion}
+        stackRollbackVersion={stackRollbackVersion}
         withoutDefaultStack
       />
     </div>

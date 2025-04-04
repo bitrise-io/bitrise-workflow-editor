@@ -4,6 +4,14 @@ import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StacksAndMachinesPage from './StacksAndMachinesPage';
 
 type Story = StoryObj<typeof StacksAndMachinesPage>;
+/*
+  args: {
+    yml: set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
+      uses: 'wf3',
+      depends_on: ['wf1'],
+    }),
+  },
+*/
 
 const meta: Meta<typeof StacksAndMachinesPage> = {
   component: StacksAndMachinesPage,
