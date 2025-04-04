@@ -46,7 +46,15 @@ export const getStacksAndMachines = (options?: Options) => {
         title: 'Ubuntu 22.04 with Android SDK',
         description:
           'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
-        available_machines: ['intel.medium', 'intel.large', 'amd.medium', 'amd.large', 'amd.x-large', 'machine-x'],
+        available_machines: [
+          'standard',
+          'intel.medium',
+          'intel.large',
+          'amd.medium',
+          'amd.large',
+          'amd.x-large',
+          'machine-x',
+        ],
       },
       'mixed-stack': {
         title: 'Mixed Stack',
@@ -116,6 +124,14 @@ export const getStacksAndMachines = (options?: Options) => {
         linux: {
           default_machine_type: 'amd.large',
           machine_types: {
+            standard: {
+              name: 'Medium',
+              chip: 'intel',
+              cpu_count: '4 vCPU',
+              cpu_description: '3.1GHz',
+              ram: '16 GB RAM',
+              credit_per_min: 1,
+            },
             'intel.medium': {
               name: 'Intel Medium',
               chip: 'intel',

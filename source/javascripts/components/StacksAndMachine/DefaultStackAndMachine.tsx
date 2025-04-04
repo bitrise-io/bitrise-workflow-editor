@@ -7,8 +7,11 @@ import PageProps from '@/core/utils/PageProps';
 import { DeprecatedMachinesReplacementConfig } from '@/core/models/MachineType';
 import GlobalProps from '@/core/utils/GlobalProps';
 
-const getDeprecatedMachinesProps = (deprecatedMachinesReplacementConfig?: DeprecatedMachinesReplacementConfig) => {
-  if (!deprecatedMachinesReplacementConfig) {
+const getDeprecatedMachinesProps = (
+  deprecatedMachinesReplacementConfig?: DeprecatedMachinesReplacementConfig,
+  isEnabled?: boolean,
+) => {
+  if (!deprecatedMachinesReplacementConfig || !isEnabled) {
     return undefined;
   }
   const { gracePeriodStartedAt, gracePeriodEndedAt } = deprecatedMachinesReplacementConfig;
@@ -82,7 +85,6 @@ const DefaultStackAndMachine = () => {
       stack_rollback_version,
     });
   };
-
   return (
     <div>
       <Text as="h4" textStyle="heading/h4" mb="12">
@@ -94,7 +96,10 @@ const DefaultStackAndMachine = () => {
         onChange={updateDefaultMeta}
         stackRollbackVersion={stackRollbackVersion}
         withoutDefaultStack
-        notificationProps={getDeprecatedMachinesProps(PageProps.app()?.deprecatedMachinesReplacementConfig)}
+        notificationProps={getDeprecatedMachinesProps(
+          PageProps.app()?.deprecatedMachinesReplacementConfig,
+          ['standard', 'elite', 'elite-xl'].includes(machineTypeId),
+        )}
       />
     </div>
   );

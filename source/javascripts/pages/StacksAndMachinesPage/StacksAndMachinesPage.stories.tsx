@@ -75,7 +75,7 @@ export const WithDeprecatedMachines: Story = {
     deprecatedMachinesPeriod: 'in',
     yml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
       stack: 'linux-ubuntu-22.04',
-      machine_type_id: 'amd.x-large',
+      machine_type_id: 'standard',
     }),
   },
   beforeEach: ({ args }) => {
