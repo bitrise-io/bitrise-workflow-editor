@@ -52,12 +52,10 @@ const App = () => {
               <Box flex="1" overflowX="hidden" overflowY="auto">
                 <Router>
                   <Switch>
-                    <Switch>
-                      {routes.map(({ path, component }) => (
-                        <LazyRoute key={path} path={path} component={component} />
-                      ))}
-                      <Redirect to={paths.pipelines} replace />
-                    </Switch>
+                    {routes.map(({ path, component }) => (
+                      <LazyRoute key={path} path={path} component={component} />
+                    ))}
+                    <Redirect to={paths.pipelines} replace />
                   </Switch>
                 </Router>
               </Box>
