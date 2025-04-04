@@ -204,3 +204,4 @@ workflows:
                 npm run test:jest
                 allure generate --clean
                 cp -r allure-report $BITRISE_HTML_REPORT_DIR
+      - deploy-to-bitrise-io: {}
