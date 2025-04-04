@@ -19,7 +19,7 @@ const useTabs = create(
   })),
 );
 
-const StacksAndMachinesPageContent = () => {
+export const StacksAndMachinesPageContent = () => {
   return (
     <Tabs {...useTabs()} isLazy>
       <Text as="h2" textStyle="heading/h2" p="32">

@@ -9,7 +9,7 @@ import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundle
 import Drawers from './components/Drawers';
 import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
 
-const StepBundlesPageContent = () => {
+export const StepBundlesPageContent = () => {
   const stepBundles = useStepBundles();
   const stepBundlesIds = Object.keys(stepBundles);
   const { openDialog } = useStepBundlesPageStore();

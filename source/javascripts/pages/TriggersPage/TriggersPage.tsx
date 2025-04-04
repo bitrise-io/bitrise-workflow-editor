@@ -11,7 +11,7 @@ import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTri
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
-const TriggersPageContent = () => {
+export const TriggersPageContent = () => {
   const { yml } = useBitriseYmlStore();
 
   const appSlug = PageProps.appSlug();

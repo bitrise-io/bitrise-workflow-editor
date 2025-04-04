@@ -17,6 +17,10 @@ type YmlPageProps = {
   ymlSettings: BitriseYmlSettings;
 };
 
+export const YmlPageContent = () => {
+  return <span>Configuration YML</span>;
+};
+
 const YmlPage = (props: YmlPageProps) => {
   const { ciConfigYml, isEditorLoading, onConfigSourceChangeSaved, onEditorChange, ymlSettings } = props;
 

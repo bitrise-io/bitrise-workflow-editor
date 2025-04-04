@@ -39,7 +39,7 @@ const PipelinesPage = ({ yml, onChange }: Props) => {
   );
 };
 
-const PipelinesPageContent = () => {
+export const PipelinesPageContent = () => {
   const { keys } = usePipelineSelector();
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
 

@@ -15,7 +15,7 @@ type Props = {
 
 const useTabs = create(combine({ index: 0 }, (set) => ({ onChange: (index: number) => set({ index }) })));
 
-const EnvVarsPageContent = () => {
+export const EnvVarsPageContent = () => {
   return (
     <Tabs {...useTabs()} isLazy>
       <Text as="h2" textStyle="heading/h2" p="32">
