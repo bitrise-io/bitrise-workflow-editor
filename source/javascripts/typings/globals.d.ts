@@ -56,6 +56,7 @@ declare global {
         defaultBranch?: string;
         buildTriggerToken?: string;
         gitRepoSlug?: string;
+        isOwnerPaying?: boolean;
       };
       settings?: {
         statusReport?: {

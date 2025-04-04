@@ -4,7 +4,7 @@ export type Stack = {
   description: string;
   descriptionUrl?: string;
   machineTypes: string[];
-  rollbackVersion?: Record<string, unknown>;
+  rollbackVersion?: Record<string, { free?: string; paying?: string }>;
 };
 
 export type StackOption = {

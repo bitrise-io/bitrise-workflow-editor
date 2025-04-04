@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { set } from 'es-toolkit/compat';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StacksAndMachinesPage from './StacksAndMachinesPage';
 
@@ -20,8 +21,17 @@ const meta: Meta<typeof StacksAndMachinesPage> = {
       },
     },
   },
+  beforeEach: () => {
+    set(window, 'parent.pageProps.project.isOwnerPaying', true);
+  },
 };
 
-export const Default: Story = {};
+export const PayingUser: Story = {};
+
+export const FreeUser: Story = {
+  beforeEach: () => {
+    set(window, 'parent.pageProps.project.isOwnerPaying', false);
+  },
+};
 
 export default meta;

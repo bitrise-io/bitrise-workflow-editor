@@ -5,13 +5,14 @@ import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const DefaultStackAndMachine = () => {
-  const { stackId, machineTypeId } = useDefaultStackAndMachine();
+  const { stackId, machineTypeId, stackRollbackVersion } = useDefaultStackAndMachine();
   const updateStacksAndMachinesMeta = useBitriseYmlStore((s) => s.updateStacksAndMachinesMeta);
 
-  const updateDefaultMeta = (stack: string, machine_type_id: string, defaultStackId?: string) => {
+  const updateDefaultMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
     updateStacksAndMachinesMeta({
-      stack: stack || defaultStackId || '',
+      stack,
       machine_type_id,
+      stack_rollback_version,
     });
   };
 
@@ -20,7 +21,14 @@ const DefaultStackAndMachine = () => {
       <Text as="h4" textStyle="heading/h4" mb="12">
         Default stack & machine
       </Text>
-      <StackAndMachine as={Card} stackId={stackId} machineTypeId={machineTypeId} onChange={updateDefaultMeta} />
+      <StackAndMachine
+        as={Card}
+        stackId={stackId}
+        machineTypeId={machineTypeId}
+        onChange={updateDefaultMeta}
+        useRollbackVersion={!!stackRollbackVersion}
+        withoutDefaultStack
+      />
     </div>
   );
 };

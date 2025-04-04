@@ -1044,6 +1044,9 @@ function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitri
     if (newValues.machine_type_id !== undefined) {
       copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
     }
+    if (newValues.stack_rollback_version !== undefined) {
+      copyBitriseIoMeta.stack_rollback_version = newValues.stack_rollback_version;
+    }
     if (newValues.license_pool_id !== undefined) {
       copyBitriseIoMeta.license_pool_id = newValues.license_pool_id;
     }
@@ -1064,6 +1067,12 @@ function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitri
 
   if (shouldRemoveField(newMeta?.['bitrise.io']?.machine_type_id, ymlMeta?.['bitrise.io']?.machine_type_id)) {
     delete newMeta?.['bitrise.io']?.machine_type_id;
+  }
+
+  if (
+    shouldRemoveField(newMeta?.['bitrise.io']?.stack_rollback_version, ymlMeta?.['bitrise.io']?.stack_rollback_version)
+  ) {
+    delete newMeta?.['bitrise.io']?.stack_rollback_version;
   }
 
   if (shouldRemoveField(newMeta?.['bitrise.io']?.license_pool_id, ymlMeta?.['bitrise.io']?.license_pool_id)) {
@@ -1727,26 +1736,24 @@ function updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io'], ym
   }
 
   if (!copy.meta) {
-    copy.meta = { 'bitrise.io': newValues };
-    return copy;
+    copy.meta = { 'bitrise.io': {} };
   }
 
   if (!copy.meta?.['bitrise.io']) {
-    copy.meta = { ...copy.meta, 'bitrise.io': newValues };
-    return copy;
+    copy.meta = { ...copy.meta, 'bitrise.io': {} };
   }
 
   const copyBitriseIoMeta = copy.meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
 
   copyBitriseIoMeta.stack = newValues.stack;
 
-  if (newValues.machine_type_id !== undefined) {
+  if (newValues.machine_type_id !== undefined && newValues.machine_type_id !== '') {
     copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
   } else {
     delete copyBitriseIoMeta.machine_type_id;
   }
 
-  if (newValues.stack_rollback_version !== undefined) {
+  if (newValues.stack_rollback_version !== undefined && newValues.stack_rollback_version !== '') {
     copyBitriseIoMeta.stack_rollback_version = newValues.stack_rollback_version;
   } else {
     delete copyBitriseIoMeta.stack_rollback_version;

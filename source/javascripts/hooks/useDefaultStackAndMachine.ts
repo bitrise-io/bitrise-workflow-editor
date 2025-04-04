@@ -9,10 +9,10 @@ const useDefaultStackAndMachine = () => {
   return useMemo(
     () => ({
       stackId: meta?.stack ?? (data?.defaultStackId || ''),
-      machineTypeId: meta?.machine_type_id ?? (data?.defaultMachineTypeId || ''),
+      machineTypeId: meta?.machine_type_id || '',
       stackRollbackVersion: meta?.stack_rollback_version || '',
     }),
-    [meta, data?.defaultStackId, data?.defaultMachineTypeId],
+    [meta, data?.defaultStackId],
   );
 };
 

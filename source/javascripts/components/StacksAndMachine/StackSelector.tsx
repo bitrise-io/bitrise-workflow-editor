@@ -42,12 +42,22 @@ const PreviousStackVersionTip = () => (
 type Props = {
   isLoading: boolean;
   isInvalid: boolean;
+  isRollbackVersionAvailable: boolean;
+  useRollbackVersion?: boolean;
   stack: StackWithValue;
   options: StackOption[];
   onChange: (stackId: string, useRollbackVersion?: boolean) => void;
 };
 
-const StackSelector = ({ isLoading, isInvalid, stack, options, onChange }: Props) => {
+const StackSelector = ({
+  isLoading,
+  isInvalid,
+  isRollbackVersionAvailable,
+  useRollbackVersion,
+  stack,
+  options,
+  onChange,
+}: Props) => {
   return (
     <Box flex="1">
       <Select
@@ -55,9 +65,9 @@ const StackSelector = ({ isLoading, isInvalid, stack, options, onChange }: Props
         label="Stack"
         isLoading={isLoading}
         value={stack.value}
-        errorText={isInvalid ? 'Invalid stack' : undefined}
+        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
-        onChange={(e) => onChange(e.target.value, false)}
+        onChange={(e) => onChange(e.target.value)}
       >
         {options.map(({ value, label }) => (
           <option key={value} value={value}>
@@ -65,7 +75,12 @@ const StackSelector = ({ isLoading, isInvalid, stack, options, onChange }: Props
           </option>
         ))}
       </Select>
-      <Checkbox mt="16">
+      <Checkbox
+        isDisabled={!isRollbackVersionAvailable}
+        isChecked={isRollbackVersionAvailable && useRollbackVersion}
+        onChange={(e) => onChange(stack.value, e.target.checked)}
+        mt="16"
+      >
         Use previous stack version <PreviousStackVersionTip />
       </Checkbox>
     </Box>
