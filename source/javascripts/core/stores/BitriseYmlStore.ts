@@ -23,9 +23,9 @@ type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 
-function create(yml: BitriseYml, defaultMeta?: Meta) {
+function create(yml: BitriseYml) {
   return createStore(
-    combine({ yml, defaultMeta }, (set, get) => ({
+    combine({ yml }, (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
       },
