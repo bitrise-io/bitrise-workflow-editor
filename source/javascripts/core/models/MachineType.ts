@@ -12,3 +12,8 @@ export type MachineTypeOption = {
   value: string;
   label: string;
 };
+
+export type DeprecatedMachinesReplacementConfig = {
+  gracePeriodStartedAt: string;
+  gracePeriodEndedAt: string;
+};

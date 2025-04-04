@@ -1,4 +1,4 @@
-import { Box, Checkbox, Icon, Link, Select, Text, Toggletip } from '@bitrise/bitkit';
+import { Box, Checkbox, Icon, Link, Select, Text, Tooltip } from '@bitrise/bitkit';
 
 import { StackOption } from '@/core/models/Stack';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
@@ -31,12 +31,9 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
 };
 
 const PreviousStackVersionTip = () => (
-  <Toggletip
-    label="Enable this rollback option if your builds are failing after a Stack Update. Available for 2-3 days after a Stack Update. Once the Stack has been removed, your build will run on the latest Stable Stack."
-    learnMoreUrl="https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack"
-  >
+  <Tooltip label="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
     <Icon size="16" name="QuestionCircle" color="icon/tertiary" />
-  </Toggletip>
+  </Tooltip>
 );
 
 type Props = {
