@@ -7,7 +7,7 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useGetLicensePoolsQuery } from '@/hooks/useLicensePools';
 
-const LicensesPageContent = () => {
+export const LicensesPageContent = () => {
   const workspaceSlug = GlobalProps.workspaceSlug();
 
   const workflows = useWorkflows();

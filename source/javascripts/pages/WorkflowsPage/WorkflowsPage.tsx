@@ -14,7 +14,7 @@ type Props = {
   onChange: (yml: BitriseYml) => void;
 };
 
-const WorkflowsPageContent = () => {
+export const WorkflowsPageContent = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);

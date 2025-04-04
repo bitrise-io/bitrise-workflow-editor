@@ -12,6 +12,10 @@ type SecretsPageProps = {
   onSecretsChange: (secrets: Secret[]) => void;
 };
 
+export const SecretsPageContent = () => {
+  return <span>Secrets</span>;
+};
+
 const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
   const appSlug = PageProps.appSlug();
   const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/secrets`;
