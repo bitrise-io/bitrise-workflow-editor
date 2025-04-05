@@ -1,36 +1,31 @@
 import { lazy } from 'react';
-import { mapValues } from 'es-toolkit';
 
-function decorateWithVersion<T extends Record<string, string> = Record<string, string>>(paths: T) {
-  return mapValues(paths, (path) => `/${process.env.WFE_VERSION}/${path}`) as T;
-}
-
-export const paths = decorateWithVersion({
-  pipelines: 'pipelines',
-  workflows: 'workflows',
-  stepBundles: 'step-bundles',
-  secrets: 'secrets',
-  envVars: 'env-vars',
-  triggers: 'triggers',
-  stacksAndMachines: 'stacks-and-machines',
-  licenses: 'licenses',
-  yml: 'yml',
-});
+export const paths = {
+  pipelines: '/pipelines',
+  workflows: '/workflows',
+  stepBundles: '/step_bundles',
+  secrets: '/secrets',
+  envVars: '/env_vars',
+  triggers: '/triggers',
+  stacksAndMachines: '/stacks',
+  licenses: '/licenses',
+  yml: '/yml',
+};
 
 export const routes = [
-  {
-    path: paths.pipelines,
-    component: lazy(() =>
-      import('./pages/PipelinesPage/PipelinesPage').then((module) => ({
-        default: module.PipelinesPageContent,
-      })),
-    ),
-  },
   {
     path: paths.workflows,
     component: lazy(() =>
       import('./pages/WorkflowsPage/WorkflowsPage').then((module) => ({
         default: module.WorkflowsPageContent,
+      })),
+    ),
+  },
+  {
+    path: paths.pipelines,
+    component: lazy(() =>
+      import('./pages/PipelinesPage/PipelinesPage').then((module) => ({
+        default: module.PipelinesPageContent,
       })),
     ),
   },

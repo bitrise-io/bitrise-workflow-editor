@@ -1,4 +1,4 @@
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren } from 'react';
 import {
   Sidebar,
   SidebarContainer,
@@ -11,30 +11,23 @@ import {
   TypeIconName,
   useResponsive,
 } from '@bitrise/bitkit';
-import { Link, useRoute, useSearch } from 'wouter';
 
 import { paths } from '@/routes';
+import useHashLocation from '@/hooks/useHashLocation';
 
 type Props = Omit<SidebarProps, 'children'>;
 type NavigationItemProps = PropsWithChildren<{ path: string; icon: TypeIconName }>;
 
 const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
-  const search = useSearch();
   const { isMobile } = useResponsive();
-  const [isSelected] = useRoute(new RegExp(`${path}$`));
-
-  const pathWithSearchParams = useMemo(() => {
-    if (!search) return path;
-    return `${path}?${search}`;
-  }, [path, search]);
+  const [hashPath, navigate] = useHashLocation();
+  const isSelected = hashPath.startsWith(path);
 
   return (
-    <Link to={pathWithSearchParams} asChild>
-      <SidebarItem selected={Boolean(isSelected)}>
-        <SidebarItemIcon name={icon} />
-        {!isMobile && <SidebarItemLabel>{children}</SidebarItemLabel>}
-      </SidebarItem>
-    </Link>
+    <SidebarItem selected={Boolean(isSelected)} onClick={() => navigate(path)}>
+      <SidebarItemIcon name={icon} />
+      {!isMobile && <SidebarItemLabel>{children}</SidebarItemLabel>}
+    </SidebarItem>
   );
 };
 
@@ -44,11 +37,11 @@ const Navigation = (props: Props) => {
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
       <SidebarContainer>
-        <NavigationItem path={paths.pipelines} icon="WorkflowFlow">
-          Pipelines
-        </NavigationItem>
         <NavigationItem path={paths.workflows} icon="Workflow">
           Workflows
+        </NavigationItem>
+        <NavigationItem path={paths.pipelines} icon="WorkflowFlow">
+          Pipelines
         </NavigationItem>
         <NavigationItem path={paths.stepBundles} icon="Steps">
           Step Bundles

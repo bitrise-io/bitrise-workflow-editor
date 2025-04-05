@@ -39,6 +39,7 @@ export const WorkflowsPageContent = () => {
     <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
       <WorkflowCanvasPanel workflowId={selectedWorkflowId} />
       <WorkflowConfigPanel workflowId={selectedWorkflowId} />
+      <Drawers />
     </Box>
   );
 };
@@ -48,7 +49,6 @@ const WorkflowsPage = ({ yml, onChange }: Props) => {
     <ReactFlowProvider>
       <BitriseYmlProvider yml={yml} onChange={onChange}>
         <WorkflowsPageContent />
-        <Drawers />
       </BitriseYmlProvider>
     </ReactFlowProvider>
   );

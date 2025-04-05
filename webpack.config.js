@@ -166,6 +166,10 @@ module.exports = {
         use: 'ignore-loader',
       },
       {
+        test: /main\.tsx$/i,
+        use: 'ignore-loader',
+      },
+      {
         test: /\.tsx?$/i,
         use: {
           loader: 'swc-loader',

@@ -10,3 +10,4 @@ release
 **/*.spec.js
 source/javascripts/clarity.js
 karma.conf.js
+webpack.config.react.js

@@ -234,10 +234,7 @@ module.exports = {
     }),
     new MonacoWebpackPlugin(MonacoPluginOptions),
     new CopyPlugin({
-      patterns: [
-        { from: 'images/favicons/*', to: OUTPUT_FOLDER },
-        { from: 'templates/*', to: OUTPUT_FOLDER },
-      ],
+      patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
     new EnvironmentPlugin({
       ANALYTICS: 'false',

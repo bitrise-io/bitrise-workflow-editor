@@ -13,6 +13,8 @@ import LazyRoute from './components/LazyRoute';
 import BitriseYmlProvider from './contexts/BitriseYmlProvider';
 import { useGetCiConfigQuery } from './hooks/useCiConfig';
 import PageProps from './core/utils/PageProps';
+import useHashLocation from './hooks/useHashLocation';
+import useHashSearch from './hooks/useHashSearch';
 
 const Providers = ({ children }: PropsWithChildren) => {
   const { data: yml } = useGetCiConfigQuery({ projectSlug: PageProps.appSlug() });
@@ -50,12 +52,12 @@ const App = () => {
             <Box display="flex" flex="1" alignItems="stretch">
               <Navigation borderRight="1px solid" borderColor="border/regular" />
               <Box flex="1" overflowX="hidden" overflowY="auto">
-                <Router>
+                <Router hook={useHashLocation} searchHook={useHashSearch}>
                   <Switch>
                     {routes.map(({ path, component }) => (
-                      <LazyRoute key={path} path={path} component={component} />
+                      <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
                     ))}
-                    <Redirect to={paths.pipelines} replace />
+                    <Redirect to={paths.workflows} replace />
                   </Switch>
                 </Router>
               </Box>
