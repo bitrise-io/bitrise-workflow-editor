@@ -14,6 +14,7 @@ import {
 
 import { paths } from '@/routes';
 import useHashLocation from '@/hooks/useHashLocation';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 type Props = Omit<SidebarProps, 'children'>;
 type NavigationItemProps = PropsWithChildren<{ path: string; icon: TypeIconName }>;
@@ -55,12 +56,16 @@ const Navigation = (props: Props) => {
         <NavigationItem path={paths.triggers} icon="Trigger">
           Triggers
         </NavigationItem>
-        <NavigationItem path={paths.stacksAndMachines} icon="Stack">
-          Stacks & Machines
-        </NavigationItem>
-        <NavigationItem path={paths.licenses} icon="Key">
-          Licenses
-        </NavigationItem>
+        {RuntimeUtils.isWebsiteMode() && (
+          <NavigationItem path={paths.stacksAndMachines} icon="Stack">
+            Stacks & Machines
+          </NavigationItem>
+        )}
+        {RuntimeUtils.isWebsiteMode() && (
+          <NavigationItem path={paths.licenses} icon="Key">
+            Licenses
+          </NavigationItem>
+        )}
         <SidebarDivider />
         <NavigationItem path={paths.yml} icon="Code">
           Configuration YAML
