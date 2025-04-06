@@ -24,6 +24,7 @@ import {
   WorkflowsPage,
   YmlPage,
 } from './pages';
+import StacksAndMachinesPage from './pages/StacksAndMachinesPage/StacksAndMachinesPage';
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -42,7 +43,8 @@ angular
     'rYmlPage',
     register(YmlPage, ['ciConfigYml', 'isEditorLoading', 'onConfigSourceChangeSaved', 'onEditorChange', 'ymlSettings']),
   )
-  .component('rLicensesPage', register(LicensesPage, ['yml', 'onChange']));
+  .component('rLicensesPage', register(LicensesPage, ['yml', 'onChange']))
+  .component('rStacksAndMachinesPage', register(StacksAndMachinesPage, ['yml', 'onChange']));
 
 // Components
 angular
