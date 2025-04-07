@@ -3,7 +3,6 @@ import { NotificationProps, Link, Text } from '@bitrise/bitkit';
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
 import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import PageProps from '@/core/utils/PageProps';
 import { DeprecatedMachinesReplacementConfig } from '@/core/models/MachineType';
 import GlobalProps from '@/core/utils/GlobalProps';
 
@@ -97,7 +96,7 @@ const DefaultStackAndMachine = () => {
         stackRollbackVersion={stackRollbackVersion}
         withoutDefaultStack
         notificationProps={getDeprecatedMachinesProps(
-          PageProps.app()?.deprecatedMachinesReplacementConfig,
+          GlobalProps.workspace()?.useReplacementForDeprecatedMachines,
           ['standard', 'elite', 'elite-xl'].includes(machineTypeId),
         )}
       />
