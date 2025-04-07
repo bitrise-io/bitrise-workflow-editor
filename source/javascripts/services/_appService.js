@@ -15,7 +15,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         appConfigYML: undefined,
         savedAppConfigYML: undefined,
         savedAppConfigYMLVersion: undefined,
-        remoteAppConfigYML: undefined,
 
         appDetails: undefined,
         secrets: undefined,
@@ -24,7 +23,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         savedStack: undefined,
         defaultMachineType: undefined,
         savedDefaultMachineType: undefined,
-        initialRollbackVersion: undefined,
         rollbackVersion: undefined,
         savedRollbackVersion: undefined,
         dockerImage: undefined,
@@ -35,13 +33,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         accountFeatures: undefined,
         hasTriggers: undefined,
         ownerPlanData: undefined,
-        allowedStepIds: undefined,
         orgBetaTags: undefined,
-        publicApi: undefined,
-      };
-
-      appService.reachedStepLimit = function () {
-        return Boolean(appService.allowedStepIds);
       };
 
       appService.getAppDetails = function (shouldForceReload, requestConfig) {
@@ -256,12 +248,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         });
       }
 
-      appService.appConfigHasDeprecatedTriggerMap = function () {
-        return _.any(appService.appConfig.trigger_map, function (aTriggerConfig) {
-          return aTriggerConfig.pattern !== undefined;
-        });
-      };
-
       appService.validateAppConfig = function () {
         let variables = [];
         // Remove empty app env vars
@@ -381,10 +367,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         });
       };
 
-      function normalizeSecretConfigs(secretConfigs) {
-        _.each(secretConfigs, Variable.minimizeVariableConfig);
-      }
-
       appService.saveSecrets = function () {
         appService.secrets = appService.secrets.filter(
           (aSecretVar) => !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()),
@@ -444,180 +426,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
       };
 
-      appService.getDefaultMachineType = function () {
-        if (appService.stack.isAgentPoolStack()) {
-          return $q.when();
-        }
-
-        const metaMachineTypeID =
-          appService.appConfig &&
-          appService.appConfig.meta &&
-          appService.appConfig.meta['bitrise.io'] &&
-          appService.appConfig.meta['bitrise.io'].machine_type_id;
-
-        const defaultMachineTypeID =
-          metaMachineTypeID || appService.appDetails.appMachineTypeIdWithoutDeprecatedMachineReplacement;
-        appService.defaultMachineType = _.find(MachineType.all, {
-          id: defaultMachineTypeID,
-          stackType: appService.stack.type,
-        });
-        if (!appService.defaultMachineType) {
-          return $q.reject(new Error('Invalid machine type set in bitrise.yml meta'));
-        }
-
-        appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
-
-        return $q.when();
-      };
-
-      appService.defaultMachineTypeHasUnsavedChanges = function () {
-        return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
-      };
-
-      appService.rollbackVersionHasUnsavedChanges = function () {
-        return !angular.equals(appService.rollbackVersion, appService.savedRollbackVersion);
-      };
-
-      appService.discardDefaultMachineTypeChanges = function () {
-        appService.defaultMachineType = appService.savedDefaultMachineType;
-        appService.rollbackVersion = appService.savedRollbackVersion;
-      };
-
-      appService.getStackAndDockerImage = function (shouldForceReload, requestConfig) {
-        if (!shouldForceReload && appService.stack && appService.dockerImage) {
-          return $q.when();
-        }
-
-        let stackID;
-        let dockerImage;
-        if (appService.appConfig.meta && appService.appConfig.meta['bitrise.io']) {
-          stackID = appService.appConfig.meta['bitrise.io'].stack;
-          dockerImage = appService.appConfig.meta['bitrise.io'].docker_image;
-        }
-        const stackIDAndDockerImageFetchPromise =
-          stackID && dockerImage
-            ? $q.when()
-            : requestService.getStackAndDockerImage(requestConfig).then(function (data) {
-                if (!stackID) {
-                  stackID = data.stackID;
-                }
-                if (!dockerImage) {
-                  dockerImage = data.dockerImage;
-                }
-              });
-
-        return stackIDAndDockerImageFetchPromise.then(function () {
-          appService.stack = Stack.getPotentiallyInvalidStack(stackID);
-          appService.savedStack = angular.copy(appService.stack);
-          appService.dockerImage = appService.savedDockerImage = dockerImage;
-          appService.setRollbackVersionFromBitriseYml();
-        });
-      };
-
-      appService.setRollbackVersionFromBitriseYml = function () {
-        if (appService.appConfig.meta && appService.appConfig.meta['bitrise.io']) {
-          const rollbackVersionFromBitriseYml = appService.appConfig.meta['bitrise.io'].stack_rollback_version;
-          if (appService.getStackRollbackVersion() === rollbackVersionFromBitriseYml) {
-            appService.rollbackVersion = rollbackVersionFromBitriseYml;
-            appService.savedRollbackVersion = rollbackVersionFromBitriseYml;
-          } else {
-            appService.rollbackVersion = undefined;
-            appService.savedRollbackVersion = undefined;
-          }
-        }
-      };
-
-      appService.getRollbackVersionFromBitriseYml = function () {
-        if (!appService.appConfig.meta || !appService.appConfig.meta['bitrise.io']) {
-          return undefined;
-        }
-
-        return appService.appConfig.meta['bitrise.io'].stack_rollback_version;
-      };
-
-      appService.getStackRollbackVersion = function (workflow) {
-        let { stack } = appService;
-        let machineType = appService.defaultMachineType;
-        const isPaying = appService.isOwnerPaying();
-
-        if (workflow) {
-          stack = workflow.stack();
-          machineType = workflow.machineType(stack?.type, undefined, MachineType.all, isPaying);
-        }
-
-        if (!stack || !machineType) {
-          return undefined;
-        }
-
-        return stack.getRollbackVersion(machineType.id, isPaying, appService.appDetails.ownerData.slug);
-      };
-
-      appService.isOwnerPaying = function () {
-        if (!appService.appDetails || !appService.appDetails.ownerData) {
-          return false;
-        }
-
-        return appService.appDetails.ownerData.isPaying;
-      };
-
-      appService.availableStacks = function () {
-        if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
-          return undefined;
-        }
-
-        if (appService.appDetails.projectTypeID === 'other') {
-          return [...Stack.all];
-        }
-        return _.filter(Stack.all, function (aStack) {
-          if (aStack.id.startsWith('agent-pool-')) {
-            return true;
-          }
-          return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
-        });
-      };
-
-      appService.stackHasUnsavedChanges = function () {
-        return (
-          !angular.equals(appService.stack, appService.savedStack) ||
-          appService.dockerImage !== appService.savedDockerImage
-        );
-      };
-
-      appService.saveStackAndDockerImage = function (tabOpenDuringSave, appConfig, version) {
-        if (!appConfig.meta) {
-          appConfig.meta = {};
-        }
-        const BITRISE_META_KEY = 'bitrise.io';
-        if (!appConfig.meta[BITRISE_META_KEY]) {
-          appConfig.meta[BITRISE_META_KEY] = {};
-        }
-        appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
-        if (appService.dockerImage) {
-          appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
-        } else {
-          delete appConfig.meta[BITRISE_META_KEY].docker_image;
-        }
-
-        if (appService.rollbackVersion) {
-          appConfig.meta[BITRISE_META_KEY].stack_rollback_version = appService.rollbackVersion;
-        } else {
-          delete appConfig.meta[BITRISE_META_KEY].stack_rollback_version;
-        }
-
-        return appService.saveAppConfig(tabOpenDuringSave, appConfig, version).then(function () {
-          appService.savedStack = angular.copy(appService.stack);
-          appService.savedDockerImage = appService.dockerImage;
-          appService.savedRollbackVersion = appService.rollbackVersion;
-        });
-      };
-
-      appService.discardStackChanges = function () {
-        appService.discardAppConfigChanges();
-
-        appService.stack = Stack.getPotentiallyInvalidStack(appService.savedStack.id);
-        appService.dockerImage = appService.savedDockerImage;
-      };
-
       appService.getOwnerPlanData = function () {
         if (appService.ownerPlanData) {
           return $q.when();
@@ -654,20 +462,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
         }
         appService.orgBetaTags = null;
         return $q.when();
-      };
-
-      appService.getWithBlockImage = function (containerId) {
-        if (containerId && appService.appConfig.containers) {
-          return appService.appConfig.containers[containerId]?.image || '';
-        }
-        return '';
-      };
-
-      appService.getWithBlockServices = function (serviceIds) {
-        if (Array.isArray(serviceIds) && serviceIds.length > 0 && appService.appConfig.services) {
-          return serviceIds.map((id) => appService.appConfig.services[id].image);
-        }
-        return [];
       };
 
       appService.getNormalizedAppConfig = function (requestConfig) {

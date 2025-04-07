@@ -24,27 +24,6 @@
     Stack.all = undefined;
     Stack.invalidStacks = [];
 
-    Stack.getAll = function () {
-      if (Stack.all) {
-        return $q.when();
-      }
-
-      return requestService.getStacks().then(function (data) {
-        Stack.all = _.map(data.stackDatas, function (aStackData) {
-          return new Stack(
-            aStackData.id,
-            aStackData.name,
-            aStackData.description,
-            aStackData.descriptionURL,
-            aStackData.descriptionURLGen2,
-            aStackData.descriptionURLGen2AppleSilicon,
-            aStackData.projectTypes,
-            aStackData.rollbackVersions,
-          );
-        });
-      });
-    };
-
     Stack.getPotentiallyInvalidStack = function (stackId) {
       let stack = _.find(Stack.all, {
         id: stackId,

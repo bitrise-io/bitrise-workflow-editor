@@ -228,26 +228,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
           $q(function (resolve, reject) {
             switch (viewModel.currentMenu.id) {
-              case 'pipelines': {
-                const loadPromises = [appService.getAppConfig()];
-
-                if (RuntimeUtils.isWebsiteMode()) {
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-
-                $q.all(loadPromises).then(() => {
-                  if (RuntimeUtils.isWebsiteMode()) {
-                    return Stack.getAll().then(appService.getStackAndDockerImage).then(resolve, reject);
-                  }
-
-                  return resolve();
-                }, reject);
-
-                break;
-              }
+              case 'pipelines':
               case 'workflows':
               case 'step_bundles':
+              case 'env-vars':
               case 'triggers':
+              case 'stack':
               case 'licenses': {
                 const loadPromises = [appService.getAppConfig()];
                 if (RuntimeUtils.isWebsiteMode()) {
@@ -258,45 +244,8 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
                 break;
               }
-              case 'env-vars': {
-                const loadPromises = [appService.getAppConfig()];
-                if (RuntimeUtils.isWebsiteMode()) {
-                  loadPromises.push(Stack.getAll());
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-                let loadPromise = $q.all(loadPromises);
-                if (RuntimeUtils.isWebsiteMode()) {
-                  loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
-                    if (appService.appDetails.isMachineTypeSelectorAvailable) {
-                      return MachineType.getAll().then(appService.getDefaultMachineType);
-                    }
-                  });
-                }
-
-                loadPromise.then(
-                  function () {
-                    resolve();
-                  },
-                  function (error) {
-                    reject(error);
-                  },
-                );
-                break;
-              }
               case 'secrets':
                 resolve();
-                break;
-              case 'stack':
-                appService.getAppConfigYML();
-                $q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll()])
-                  .then(appService.getStackAndDockerImage)
-                  .then(function () {
-                    if (appService.appDetails.isMachineTypeSelectorAvailable) {
-                      return MachineType.getAll().then(appService.getDefaultMachineType);
-                    }
-                  })
-                  .then(resolve, reject);
-
                 break;
               case 'yml':
                 appService.getAppConfigYML().then(
@@ -492,23 +441,13 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             case 'pipelines':
             case 'step_bundles':
             case 'triggers':
+            case 'stack':
+            case 'licenses':
+            case 'yml':
               result = appService.appConfigHasUnsavedChanges();
               break;
             case 'secrets':
               result = false;
-              break;
-            case 'stack':
-              result =
-                appService.appConfigHasUnsavedChanges() ||
-                appService.stackHasUnsavedChanges() ||
-                appService.defaultMachineTypeHasUnsavedChanges() ||
-                appService.rollbackVersionHasUnsavedChanges();
-              break;
-            case 'licenses':
-              result = appService.appConfigHasUnsavedChanges();
-              break;
-            case 'yml':
-              result = appService.appConfigYMLHasUnsavedChanges();
               break;
           }
 
@@ -654,10 +593,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
                 const data = finalYaml || appService.appConfigYML;
                 return appService.saveAppConfigYML(viewModel.currentMenu.id, data, remoteVersion);
               },
-              stack: () => {
-                const data = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
-                return appService.saveStackAndDockerImage(viewModel.currentMenu.id, data, remoteVersion);
-              },
               secrets: () => {
                 return Promise.resolve();
               },
@@ -741,16 +676,8 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
            */
           async function endSavingProcess(method) {
             if (method !== 'cancel') {
-              const isStackAndMachinesMenu = viewModel.currentMenu.id === 'stack';
-              if (isStackAndMachinesMenu) {
-                viewModel.loadDataProgress.start('Loading, wait a sec...');
-              }
-
               try {
                 await Promise.all([appService.getAppConfig(true), appService.getAppConfigYML(true)]);
-                if (isStackAndMachinesMenu) {
-                  await appService.getStackAndDockerImage(true);
-                }
               } finally {
                 viewModel.loadDataProgress.reset();
               }
@@ -835,24 +762,12 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             case 'step_bundles':
             case 'env-vars':
             case 'triggers':
+            case 'licenses':
+            case 'stack':
+            case 'yml':
               appService.discardAppConfigChanges();
-
               break;
             case 'secrets':
-              break;
-            case 'licenses':
-              appService.discardAppConfigChanges();
-
-              break;
-            case 'stack':
-              appService.discardAppConfigChanges();
-              appService.discardStackChanges();
-              appService.discardDefaultMachineTypeChanges();
-
-              break;
-            case 'yml':
-              appService.discardAppConfigYMLChanges();
-
               break;
           }
 
