@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LogsPublicApi } from '@datadog/browser-logs/cjs/boot/logsPublicApi';
 import { BitriseYml } from '@/core/models/BitriseYml';
+import { DeprecatedMachinesReplacementConfig } from '@/core/models/MachineType';
 
 export {};
 
@@ -57,6 +58,7 @@ declare global {
         buildTriggerToken?: string;
         gitRepoSlug?: string;
         isOwnerPaying?: boolean;
+        deprecatedMachinesReplacementConfig?: DeprecatedMachinesReplacementConfig;
       };
       settings?: {
         statusReport?: {
