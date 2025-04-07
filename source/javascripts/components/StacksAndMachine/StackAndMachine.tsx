@@ -8,6 +8,7 @@ import PageProps from '@/core/utils/PageProps';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
+import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
 import MachineTypeSelector from './MachineTypeSelector';
 import StackSelector from './StackSelector';
 
@@ -36,6 +37,7 @@ const StackAndMachine = ({
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
+  const { stackId: defaultStackId, machineTypeId: defaultMachineTypeId } = useDefaultStackAndMachine();
 
   const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
 
@@ -49,6 +51,8 @@ const StackAndMachine = ({
     isMachineTypeSelectionDisabled,
   } = StackAndMachineService.prepareStackAndMachineSelectionData({
     ...data,
+    defaultStackId,
+    defaultMachineTypeId,
     selectedStackId: stackId,
     selectedMachineTypeId: machineTypeId,
     withoutDefaultStack,
