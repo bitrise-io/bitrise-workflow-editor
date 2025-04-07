@@ -32,6 +32,7 @@ declare global {
         slug: string;
         name: string;
         sharedResourcesAvailable?: boolean;
+        useReplacementForDeprecatedMachines?: DeprecatedMachinesReplacementConfig;
       };
       env?: {
         SEGMENT_JS_WRITE_KEY_NEW: string;

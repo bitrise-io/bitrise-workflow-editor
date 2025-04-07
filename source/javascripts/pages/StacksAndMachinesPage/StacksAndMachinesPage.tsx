@@ -8,7 +8,7 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import DefaultTab from './tabs/DefaultTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
 
-type Props = {
+export type StacksAndMachinesPageProps = {
   yml: BitriseYml;
   onChange: (yml: BitriseYml) => void;
 };
@@ -41,7 +41,7 @@ export const StacksAndMachinesPageContent = () => {
   );
 };
 
-const StacksAndMachinesPage = ({ yml, onChange }: Props) => {
+const StacksAndMachinesPage = ({ yml, onChange }: StacksAndMachinesPageProps) => {
   return (
     <BitriseYmlProvider yml={yml} onChange={onChange}>
       <StacksAndMachinesPageContent />
