@@ -81,7 +81,7 @@ export const WithDeprecatedMachines: Story = {
   beforeEach: ({ args }) => {
     set(
       window,
-      'parent.pageProps.project.deprecatedMachinesReplacementConfig',
+      'parent.globalProps.account.useReplacementForDeprecatedMachines',
       getGracePeriod(args.deprecatedMachinesPeriod || 'in'),
     );
   },
