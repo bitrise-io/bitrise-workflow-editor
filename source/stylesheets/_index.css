@@ -83,3 +83,7 @@
 .new-layout > .main > :not(:first-child) {
 	margin-top: 20px;
 }
+
+.new-layout > .main:has(.stacks-page) {
+	padding: 0;
+}
