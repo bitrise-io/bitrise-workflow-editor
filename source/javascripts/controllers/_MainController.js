@@ -7,6 +7,7 @@ import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { safeDigest } from '@/services/react-compat';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
 
 (function () {
@@ -656,6 +657,10 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
               },
               stack: () => {
                 const data = finalYaml ? BitriseYmlApi.fromYml(finalYaml) : appService.appConfig;
+                const enableWfeReactStacksPage = useFeatureFlag('enable-wfe-react-stacks-and-machines-page');
+                if (enableWfeReactStacksPage) {
+                  return appService.saveAppConfig(viewModel.currentMenu.id, data, remoteVersion);
+                }
                 return appService.saveStackAndDockerImage(viewModel.currentMenu.id, data, remoteVersion);
               },
               secrets: () => {
