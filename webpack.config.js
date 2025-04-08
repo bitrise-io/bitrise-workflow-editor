@@ -1,6 +1,6 @@
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { ProvidePlugin, DefinePlugin, EnvironmentPlugin } = require('webpack');
+const { DefinePlugin, EnvironmentPlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPLugin = require('terser-webpack-plugin');
@@ -71,25 +71,12 @@ const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM }
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
-const isClarityEnabled = CLARITY === 'true';
-const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
-
-const entry = {
-  vendor: './javascripts/vendor.js',
-  main: './javascripts/index.js',
-};
-if (isClarityEnabled) {
-  entry.clarity = './javascripts/clarity.js';
-}
-if (isDataDogRumEnabled) {
-  entry.datadogrum = './javascripts/datadog-rum.js';
-}
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
   context: CODEBASE,
-  entry,
+  entry: './javascripts/main.tsx',
   mode: isProd ? 'production' : 'development',
   output: {
     filename: 'javascripts/[name].js',
@@ -166,10 +153,6 @@ module.exports = {
         use: 'ignore-loader',
       },
       {
-        test: /main\.tsx$/i,
-        use: 'ignore-loader',
-      },
-      {
         test: /\.tsx?$/i,
         use: {
           loader: 'swc-loader',
@@ -238,15 +221,8 @@ module.exports = {
       filename: 'stylesheets/[name].css',
     }),
     new MonacoWebpackPlugin(MonacoPluginOptions),
-    new ProvidePlugin({
-      'window.jQuery': 'jquery',
-      'window._': 'underscore',
-    }),
     new CopyPlugin({
-      patterns: [
-        { from: 'images/favicons/*', to: OUTPUT_FOLDER },
-        { from: 'templates/*', to: OUTPUT_FOLDER },
-      ],
+      patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
     new EnvironmentPlugin({
       ANALYTICS: 'false',
@@ -277,8 +253,8 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       publicPath,
-      scriptLoading: 'blocking',
       template: 'index.html',
+      scriptLoading: 'blocking',
     }),
     new SubresourceIntegrityPlugin(),
   ],
