@@ -1,10 +1,9 @@
 <div ng-controller="StackController as stackCtrl" ng-init="stackCtrl.init()">
-  <div ng-if="stackCtrl.enableWfeReactStacksPage" class="env-vars-page">
+  <div ng-if="stackCtrl.enableWfeReactStacksPage" class="stacks-page">
     <r-stacks-and-machines-page yml="stackCtrl.yml" on-change="stackCtrl.onChangeYml"></>
   </div>
 
-<div ng-if="!stackCtrl.enableWfeReactStacksPage" ng-init="stackCtrl.configureWithMode('env-vars')"
-    class="tab-stack menu-content-padding">
+<div ng-if="!stackCtrl.enableWfeReactStacksPage" class="tab-stack menu-content-padding">
     <section class="cardo stack-settings default">
       <header>
         <h2>
