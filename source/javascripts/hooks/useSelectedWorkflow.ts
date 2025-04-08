@@ -4,10 +4,22 @@ import { Workflow } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 import useSearchParams from './useSearchParams';
 
+const GENERATED_WORKFLOW_ID_REGEX = /_[\d]+$/g;
+
 function selectValidWorkflowId(workflowIds: string[], requestedId?: string | null): string {
-  if (requestedId && workflowIds.includes(requestedId)) {
-    return requestedId;
+  if (requestedId) {
+    if (workflowIds.includes(requestedId)) {
+      return requestedId;
+    }
+
+    // Check if the requested ID is a generated variant of an existing workflow ID (parallel workflow)
+    // e.g., if the requested ID is "sharded-tests_13", check if "sharded-tests" exists
+    const originalId = requestedId.replace(GENERATED_WORKFLOW_ID_REGEX, '');
+    if (workflowIds.includes(originalId)) {
+      return originalId;
+    }
   }
+
   const runnableWorkflowIds = workflowIds.filter((id) => !id.startsWith('_'));
   return runnableWorkflowIds.length ? runnableWorkflowIds[0] : workflowIds[0];
 }
