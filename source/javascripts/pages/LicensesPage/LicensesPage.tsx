@@ -1,4 +1,4 @@
-import { Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Box, Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
@@ -19,7 +19,7 @@ export const LicensesPageContent = () => {
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
   return (
-    <>
+    <Box p="32">
       <Text as="h2" textStyle="heading/h2" marginBlockEnd="4">
         Licenses
       </Text>
@@ -84,7 +84,7 @@ export const LicensesPageContent = () => {
           </Tbody>
         </Table>
       )}
-    </>
+    </Box>
   );
 };
 

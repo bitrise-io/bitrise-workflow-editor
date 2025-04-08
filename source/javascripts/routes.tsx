@@ -39,11 +39,7 @@ export const routes = [
   },
   {
     path: paths.secrets,
-    component: lazy(() =>
-      import('./pages/SecretsPage/SecretsPage').then((module) => ({
-        default: module.SecretsPageContent,
-      })),
-    ),
+    component: lazy(() => import('./pages/SecretsPage/SecretsPage')),
   },
   {
     path: paths.envVars,
