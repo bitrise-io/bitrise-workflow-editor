@@ -71,12 +71,24 @@ const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM }
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
+const isClarityEnabled = CLARITY === 'true';
+const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
+
+const entry = {
+  main: './javascripts/main.tsx',
+};
+if (isClarityEnabled) {
+  entry.clarity = './javascripts/lib/clarity.js';
+}
+if (isDataDogRumEnabled) {
+  entry.datadogrum = './javascripts/lib/datadog-rum.js';
+}
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
   context: CODEBASE,
-  entry: './javascripts/main.tsx',
+  entry,
   mode: isProd ? 'production' : 'development',
   output: {
     filename: 'javascripts/[name].js',
