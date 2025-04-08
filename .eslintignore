@@ -8,5 +8,5 @@ node_modules
 rails
 release
 **/*.spec.js
-source/javascripts/clarity.js
+source/javascripts/lib/*.js
 karma.conf.js

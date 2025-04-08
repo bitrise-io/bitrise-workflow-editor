@@ -16,6 +16,18 @@ import PageProps from './core/utils/PageProps';
 import useHashLocation from './hooks/useHashLocation';
 import useHashSearch from './hooks/useHashSearch';
 
+if (process.env.CLARITY === 'true') {
+  import('./lib/clarity').then(({ initClarity }) => {
+    initClarity();
+  });
+}
+
+if (process.env.DATADOG_RUM === 'true') {
+  import('./lib/datadog-rum').then(({ initDatadogRum }) => {
+    initDatadogRum();
+  });
+}
+
 const Providers = ({ children }: PropsWithChildren) => {
   const { data: yml } = useGetCiConfigQuery({ projectSlug: PageProps.appSlug() });
 
