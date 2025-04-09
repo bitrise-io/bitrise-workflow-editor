@@ -5,6 +5,8 @@ import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { DeprecatedMachinesReplacementConfig } from '@/core/models/MachineType';
 import GlobalProps from '@/core/utils/GlobalProps';
+import useStacksAndMachines from '@/hooks/useStacksAndMachines';
+import StackAndMachineService from '@/core/services/StackAndMachineService';
 
 const getDeprecatedMachinesProps = (
   deprecatedMachinesReplacementConfig?: DeprecatedMachinesReplacementConfig,
@@ -74,13 +76,21 @@ const getDeprecatedMachinesProps = (
 };
 
 const DefaultStackAndMachine = () => {
-  const { stackId, machineTypeId, stackRollbackVersion, defaultMachineTypeIdForStack } = useDefaultStackAndMachine();
+  const { data } = useStacksAndMachines();
+  const { stackId, machineTypeId, stackRollbackVersion } = useDefaultStackAndMachine();
   const updateStacksAndMachinesMeta = useBitriseYmlStore((s) => s.updateStacksAndMachinesMeta);
 
   const updateDefaultMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
+    const finalMachineTypeId = StackAndMachineService.selectFinalMachineTypeId({
+      ...data,
+      defaultMachineTypeId: machineTypeId,
+      selectedStackId: stack,
+      selectedMachineTypeId: machine_type_id,
+    });
+
     updateStacksAndMachinesMeta({
       stack,
-      machine_type_id: machine_type_id || defaultMachineTypeIdForStack,
+      machine_type_id: finalMachineTypeId,
       stack_rollback_version,
     });
   };

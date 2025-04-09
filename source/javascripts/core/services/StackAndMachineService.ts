@@ -32,6 +32,8 @@ type SelectStackAndMachineResult = {
   isMachineTypeSelectionDisabled: boolean;
 };
 
+type SelectFinalMachineTypeIdProps = SelectStackAndMachineProps;
+
 function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
   const base: StackWithValue = {
     id: '',
@@ -57,6 +59,30 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
   };
 
   return toMerged(base, override || {}) as MachineTypeWithValue;
+}
+
+function selectFinalMachineTypeId(props: SelectFinalMachineTypeIdProps): string {
+  const {
+    availableMachineTypes = [],
+    availableStacks = [],
+    defaultMachineTypeId = '',
+    defaultMachineTypeIdOfOSs = {},
+    selectedMachineTypeId,
+    selectedStackId,
+  } = props;
+
+  const selectedStack = StackService.getStackById(availableStacks, selectedStackId) || createStack();
+  const selectedStackOS = StackService.getOsOfStack(selectedStack);
+
+  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, selectedStack);
+
+  const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
+  const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
+  const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
+
+  return (
+    selectedMachineTypeId || defaultMachineType?.id || defaultMachineTypeOfOS?.id || selectableMachines[0].id || ''
+  );
 }
 
 function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
@@ -215,5 +241,6 @@ function changeStackAndMachine({
 
 export default {
   changeStackAndMachine,
+  selectFinalMachineTypeId,
   prepareStackAndMachineSelectionData,
 };
