@@ -537,3 +537,31 @@ describe('changeStackAndMachine', () => {
     });
   });
 });
+
+describe('selectFinalMachineTypeId', () => {
+  it('returns selectedMachineTypeId if not empty', () => {
+    const result = StackAndMachineService.selectFinalMachineTypeId({
+      selectedStackId: 'osx-xcode-16',
+      selectedMachineTypeId: 'mac-m2',
+      availableStacks: stacks,
+      availableMachineTypes: machines,
+      defaultStackId: 'osx-xcode-16',
+      defaultMachineTypeId: 'mac-m1',
+    });
+
+    expect(result).toBe('mac-m2');
+  });
+
+  it('returns defaultMachineTypeId if selectedMachineTypeId is empty', () => {
+    const result = StackAndMachineService.selectFinalMachineTypeId({
+      selectedStackId: 'osx-xcode-16',
+      selectedMachineTypeId: '',
+      availableStacks: stacks,
+      availableMachineTypes: machines,
+      defaultStackId: 'osx-xcode-16',
+      defaultMachineTypeId: 'mac-m1',
+    });
+
+    expect(result).toBe('mac-m1');
+  });
+});
