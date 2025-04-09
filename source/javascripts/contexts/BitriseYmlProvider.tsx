@@ -1,6 +1,6 @@
 import { ComponentType, createContext, PropsWithChildren, useEffect, useRef } from 'react';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import BitriseYmlStoreFactory, { BitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, BitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 
 type BitriseYmlProviderProps = PropsWithChildren<{
   yml: BitriseYml;
@@ -10,7 +10,7 @@ type BitriseYmlProviderProps = PropsWithChildren<{
 const BitriseYmlContext = createContext<BitriseYmlStore | null>(null);
 
 const BitriseYmlProvider = ({ yml, children, onChange }: BitriseYmlProviderProps) => {
-  const store = useRef(BitriseYmlStoreFactory.create(yml)).current;
+  const store = useRef(bitriseYmlStore).current;
 
   useEffect(() => {
     const unsubsribe = store.subscribe(({ yml: currentYml }, { yml: previousYml }) => {

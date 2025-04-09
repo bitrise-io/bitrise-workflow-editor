@@ -1,40 +1,50 @@
-import { useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
+import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
-type GetQueryProps = { enabled?: boolean; projectSlug: string; readFromRepo?: boolean };
-
-const useGetCiConfigQuery = (props: GetQueryProps) => {
-  const { enabled, projectSlug, readFromRepo } = props;
-
-  return useQuery<BitriseYml, ClientError>({
-    enabled,
-    queryKey: [BitriseYmlApi.getBitriseYmlPath({ projectSlug }), readFromRepo],
-    queryFn: ({ signal }) => BitriseYmlApi.getBitriseYml({ projectSlug, readFromRepo, signal }),
-    staleTime: Infinity,
-  });
-};
-
-type GetMutationProps = Omit<GetQueryProps, 'enabled'>;
-
-const useGetCiConfigMutation = (options?: UseMutationOptions<BitriseYml, ClientError, GetMutationProps>) => {
-  return useMutation({
-    mutationFn: ({ projectSlug, readFromRepo }) => BitriseYmlApi.getBitriseYml({ projectSlug, readFromRepo }),
-    ...options,
-  });
-};
-
-type PostMutationProps = {
-  model: BitriseYml;
+type UseGetCiConfigProps = {
   projectSlug: string;
+  forceToReadFromRepo?: boolean;
 };
 
-const usePostCiConfigMutation = (options: UseMutationOptions<unknown, ClientError, PostMutationProps>) => {
-  return useMutation({
-    mutationFn: ({ projectSlug, model }) => BitriseYmlApi.updateBitriseYml({ projectSlug, model }),
+type UseSaveCiConfigProps<T> = {
+  data: T;
+  projectSlug: string;
+  tabOpenDuringSave?: string;
+};
+
+type UseGetCiConfigOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientError>, 'queryKey' | 'queryFn'>;
+type UseSaveCiConfigOptions<T> = UseMutationOptions<void, ClientError, UseSaveCiConfigProps<T>>;
+
+export function useGetCiConfigYml(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<string>) {
+  return useQuery({
+    queryKey: [BitriseYmlApi.ciConfigPath({ format: 'yml', ...props })],
+    queryFn: ({ signal }) => BitriseYmlApi.getCiConfig({ ...props, format: 'yml', signal }),
+    staleTime: Infinity,
     ...options,
   });
-};
+}
 
-export { useGetCiConfigQuery, useGetCiConfigMutation, usePostCiConfigMutation };
+export function useGetCiConfigJson(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<BitriseYml>) {
+  return useQuery({
+    queryKey: [BitriseYmlApi.ciConfigPath({ format: 'json', ...props })],
+    queryFn: ({ signal }) => BitriseYmlApi.getCiConfig({ ...props, format: 'json', signal }),
+    staleTime: Infinity,
+    ...options,
+  });
+}
+
+export function useSaveCiConfigJson(options?: UseSaveCiConfigOptions<BitriseYml>) {
+  return useMutation({
+    mutationFn: BitriseYmlApi.saveCiConfig,
+    ...options,
+  });
+}
+
+export function useSaveCiConfigYml(options?: UseSaveCiConfigOptions<string>) {
+  return useMutation({
+    mutationFn: BitriseYmlApi.saveCiConfig,
+    ...options,
+  });
+}

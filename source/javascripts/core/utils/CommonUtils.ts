@@ -23,4 +23,14 @@ function findScrollContainer(element?: HTMLElement | null) {
   return document.documentElement;
 }
 
-export { generateUniqueEntityId, findScrollContainer };
+function download(content: string, fileName: string, type: string) {
+  const blob = new Blob([content], { type });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export { generateUniqueEntityId, findScrollContainer, download };

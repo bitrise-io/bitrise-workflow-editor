@@ -21,8 +21,7 @@ import {
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import { useGetCiConfigMutation, usePostCiConfigMutation } from '@/hooks/useCiConfig';
+import { useGetCiConfigYml, useSaveCiConfigYml } from '@/hooks/useCiConfig';
 import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
 import DateFormatter from '@/utils/dateFormatter';
 
@@ -39,6 +38,7 @@ type ConfigurationYmlSourceDialogProps = {
   ciConfigYml: string;
 };
 
+// TODO: Refactor this component please
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
   const {
     defaultBranch,
@@ -53,7 +53,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     ciConfigYml,
   } = props;
 
-  const ciConfigFromRepo = useRef<BitriseYml>();
+  const ciConfigFromRepo = useRef<string>();
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
@@ -79,7 +79,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     error: postCiConfigError,
     isPending: isPostCiConfigPending,
     mutate: postCiConfigMutate,
-  } = usePostCiConfigMutation({
+  } = useSaveCiConfigYml({
     onSuccess,
   });
 
@@ -91,7 +91,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     onSuccess: () => {
       if (!usesRepositoryYml && configurationSource === 'git' && ciConfigFromRepo.current) {
         postCiConfigMutate({
-          model: ciConfigFromRepo.current,
+          data: ciConfigFromRepo.current,
           projectSlug,
         });
       } else {
@@ -103,19 +103,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const {
     error: getCiConfigError,
     isPending: isGetCiConfigPending,
-    mutate: getCiConfigMutate,
-  } = useGetCiConfigMutation({
-    onSuccess: (data) => {
-      ciConfigFromRepo.current = data;
-      putCiConfigSettingsMutate({
-        model: {
-          usesRepositoryYml,
-          ymlRootPath,
-        },
-        projectSlug,
-      });
-    },
-  });
+    refetch: getCiConfigFromRepo,
+  } = useGetCiConfigYml({ projectSlug, forceToReadFromRepo: true }, { enabled: false });
 
   const toast = useToast();
 
@@ -147,7 +136,18 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       });
     } else {
       if (configurationSource === 'git') {
-        getCiConfigMutate({ projectSlug, readFromRepo: true });
+        getCiConfigFromRepo().then((response) => {
+          if (response.data) {
+            ciConfigFromRepo.current = response.data;
+            putCiConfigSettingsMutate({
+              model: {
+                usesRepositoryYml,
+                ymlRootPath,
+              },
+              projectSlug,
+            });
+          }
+        });
       }
       if (configurationSource === 'bitrise') {
         putCiConfigSettingsMutate({

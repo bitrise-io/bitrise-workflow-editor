@@ -5,13 +5,13 @@ import {
   Meta,
   EnvModel,
   StepModel,
-  BitriseYml,
   TriggerMap,
   PipelineModel,
   TriggersModel,
   WorkflowModel,
   StepBundleModel,
   EnvironmentItemModel,
+  BitriseYml,
 } from '@/core/models/BitriseYml';
 
 import { EnvVar } from '@/core/models/EnvVar';
@@ -19,13 +19,19 @@ import EnvVarService from '@/core/services/EnvVarService';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 
-type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
+type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 
-function create(yml: BitriseYml) {
-  return createStore(
-    combine({ yml }, (set, get) => ({
+export const bitriseYmlStore = createStore(
+  combine(
+    {
+      yml: {} as BitriseYml,
+      savedYml: {} as BitriseYml,
+      ymlString: '',
+      savedYmlString: '',
+    },
+    (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
       },
@@ -482,10 +488,8 @@ function create(yml: BitriseYml) {
           };
         });
       },
-    })),
-  );
-}
+    }),
+  ),
+);
 
 export { BitriseYmlStore, BitriseYmlStoreState };
-
-export default { create };

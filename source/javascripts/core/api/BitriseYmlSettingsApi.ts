@@ -3,7 +3,7 @@ import Client from './client';
 
 // DTOs
 export type BitriseYmlSettingsResponse = {
-  last_modified: string;
+  last_modified: string | null;
   lines: number;
   split: boolean;
   uses_repository_yml: boolean;
@@ -24,7 +24,7 @@ function toYmlSettings(response: BitriseYmlSettingsResponse): BitriseYmlSettings
     isYmlSplit: response.split,
     isModularYamlSupported: response.modular_yaml_supported,
     usesRepositoryYml: response.uses_repository_yml,
-    ymlRootPath: response.yml_root_path || '',
+    ymlRootPath: response.yml_root_path,
   };
 }
 
