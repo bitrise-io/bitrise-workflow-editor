@@ -1,7 +1,5 @@
 import { Box, Link, Notification, Text } from '@bitrise/bitkit';
 
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -11,14 +9,11 @@ import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTri
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
-export const TriggersPageContent = () => {
+const TriggersPage = () => {
   const { yml } = useBitriseYmlStore();
-
   const appSlug = PageProps.appSlug();
-
-  const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
-
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 
   const { value: metaDataValue, update: updateMetaData } = useUserMetaData(
     TRIGGERS_CONFIGURED_METADATA_KEY,
@@ -54,19 +49,6 @@ export const TriggersPageContent = () => {
       <TargetBasedTriggers yml={yml} />
       {!!yml.trigger_map && <LegacyTriggers yml={yml} />}
     </Box>
-  );
-};
-
-type Props = {
-  onChange: (yml: BitriseYml) => void;
-  yml: BitriseYml;
-};
-
-const TriggersPage = ({ onChange, yml }: Props) => {
-  return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <TriggersPageContent />
-    </BitriseYmlProvider>
   );
 };
 

@@ -1,7 +1,9 @@
 import { Box, Link, Notification, Text } from '@bitrise/bitkit';
-import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
+import { noop } from 'es-toolkit';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlSettings from '@/hooks/useBitriseYmlSettings';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import YmlEditor from './components/YmlEditor';
 import YmlEditorHeader from './components/YmlEditorHeader';
 
@@ -9,22 +11,11 @@ const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
 const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
-type YmlPageProps = {
-  ciConfigYml: string;
-  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
-  onEditorChange: (changedText?: string) => void;
-  isEditorLoading: boolean;
-  ymlSettings: BitriseYmlSettings;
-};
-
-export const YmlPageContent = () => {
-  return <span>Configuration YML</span>;
-};
-
-const YmlPage = (props: YmlPageProps) => {
-  const { ciConfigYml, isEditorLoading, onConfigSourceChangeSaved, onEditorChange, ymlSettings } = props;
-
+// TODO: implement onConfigSourceChangeSaved and onEditorChange functions
+const YmlPage = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const { data: ymlSettings } = useBitriseYmlSettings();
+  const ciConfigYml = useBitriseYmlStore((s) => s.ymlString);
 
   const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
     SPLITTED_METADATA_KEY,
@@ -37,11 +28,7 @@ const YmlPage = (props: YmlPageProps) => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
-      <YmlEditorHeader
-        ciConfigYml={ciConfigYml}
-        onConfigSourceChangeSaved={onConfigSourceChangeSaved}
-        ymlSettings={ymlSettings || {}}
-      />
+      <YmlEditorHeader ciConfigYml={ciConfigYml} onConfigSourceChangeSaved={noop} ymlSettings={ymlSettings || {}} />
       <Box flexGrow="1" flexShrink="1" paddingBlock="12" backgroundColor="#1e1e1e" position="relative">
         {(splitMetaDataValue === null || splittedMetaDataValue === null) && (
           <Notification
@@ -85,12 +72,7 @@ const YmlPage = (props: YmlPageProps) => {
             )}
           </Notification>
         )}
-        <YmlEditor
-          ciConfigYml={ciConfigYml}
-          isLoading={isEditorLoading}
-          readOnly={!!ymlSettings?.usesRepositoryYml}
-          onEditorChange={onEditorChange}
-        />
+        <YmlEditor ciConfigYml={ciConfigYml} readOnly={!!ymlSettings?.usesRepositoryYml} onEditorChange={noop} />
       </Box>
     </Box>
   );

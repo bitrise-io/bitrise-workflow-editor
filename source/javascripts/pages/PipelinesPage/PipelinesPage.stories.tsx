@@ -7,14 +7,6 @@ import PipelinesPage from './PipelinesPage';
 
 export default {
   component: PipelinesPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
-  argTypes: {
-    onChange: {
-      type: 'function',
-    },
-  },
   parameters: {
     layout: 'fullscreen',
     msw: {

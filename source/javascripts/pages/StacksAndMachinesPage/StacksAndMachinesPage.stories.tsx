@@ -1,11 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import StacksAndMachinesPage, { StacksAndMachinesPageProps } from './StacksAndMachinesPage';
+import StacksAndMachinesPage from './StacksAndMachinesPage';
 
-type Props = StacksAndMachinesPageProps & { deprecatedMachinesPeriod?: 'before' | 'in' | 'after' };
-
-const getGracePeriod = (deprecatedMachinesPeriod: Props['deprecatedMachinesPeriod']) => {
+const getGracePeriod = (deprecatedMachinesPeriod?: 'before' | 'in' | 'after') => {
   let shiftDays = 1;
 
   if (deprecatedMachinesPeriod === 'before') {
@@ -25,19 +23,15 @@ const getGracePeriod = (deprecatedMachinesPeriod: Props['deprecatedMachinesPerio
   };
 };
 
-type Story = StoryObj<Props>;
+type Story = StoryObj<typeof StacksAndMachinesPage>;
 
-const meta: Meta<Props> = {
+const meta: Meta<typeof StacksAndMachinesPage> = {
   component: StacksAndMachinesPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
   argTypes: {
     deprecatedMachinesPeriod: {
       control: 'inline-radio',
       options: ['before', 'in', 'after'],
     },
-    onChange: { type: 'function' },
   },
   parameters: {
     layout: 'fullscreen',
@@ -78,7 +72,7 @@ export const WithDeprecatedMachines: Story = {
       machine_type_id: 'standard',
     }),
   },
-  beforeEach: ({ args }) => {
+  beforeEach: ({ args }: any) => {
     set(
       window,
       'parent.globalProps.account.useReplacementForDeprecatedMachines',

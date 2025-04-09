@@ -1,4 +1,4 @@
-import { ComponentType, createContext, PropsWithChildren, useEffect, useRef } from 'react';
+import { ComponentType, createContext, PropsWithChildren, useEffect } from 'react';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import { bitriseYmlStore, BitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 
@@ -10,19 +10,21 @@ type BitriseYmlProviderProps = PropsWithChildren<{
 const BitriseYmlContext = createContext<BitriseYmlStore | null>(null);
 
 const BitriseYmlProvider = ({ yml, children, onChange }: BitriseYmlProviderProps) => {
-  const store = useRef(bitriseYmlStore).current;
+  useEffect(() => {
+    bitriseYmlStore.setState({ yml, savedYml: yml });
+  }, [yml]);
 
   useEffect(() => {
-    const unsubsribe = store.subscribe(({ yml: currentYml }, { yml: previousYml }) => {
+    const unsubsribe = bitriseYmlStore.subscribe(({ yml: currentYml }, { yml: previousYml }) => {
       if (onChange && JSON.stringify(currentYml) !== JSON.stringify(previousYml)) {
         onChange(currentYml);
       }
     });
 
     return unsubsribe;
-  }, [store, onChange]);
+  }, [onChange]);
 
-  return <BitriseYmlContext.Provider value={store}>{children}</BitriseYmlContext.Provider>;
+  return <BitriseYmlContext.Provider value={bitriseYmlStore}>{children}</BitriseYmlContext.Provider>;
 };
 
 function withBitriseYml(yml: BitriseYml, Component: ComponentType) {

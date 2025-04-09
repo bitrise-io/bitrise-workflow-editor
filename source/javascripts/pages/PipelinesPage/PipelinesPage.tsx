@@ -2,10 +2,7 @@ import '@xyflow/react/dist/style.css';
 
 import { useMemo } from 'react';
 import { Box } from '@bitrise/bitkit';
-import { ReactFlowProvider } from '@xyflow/react';
 
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
 
@@ -17,26 +14,7 @@ import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.
 import ReactivatePlanEmptyState from './components/EmptyStates/ReactivatePlanEmptyState';
 import CreateFirstGraphPipelineEmptyState from './components/EmptyStates/CreateFirstGraphPipelineEmptyState';
 
-type Props = {
-  yml: BitriseYml;
-  onChange: (yml: BitriseYml) => void;
-};
-
-const PipelinesPage = ({ yml, onChange }: Props) => {
-  if (!yml) {
-    return null;
-  }
-
-  return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <ReactFlowProvider>
-        <PipelinesPageContent />
-      </ReactFlowProvider>
-    </BitriseYmlProvider>
-  );
-};
-
-export const PipelinesPageContent = () => {
+const PipelinesPage = () => {
   const { keys } = usePipelineSelector();
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
 

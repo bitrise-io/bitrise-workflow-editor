@@ -4,9 +4,6 @@ import SecretsPage from './SecretsPage';
 
 export default {
   component: SecretsPage,
-  args: {
-    onSecretsChange: console.log,
-  },
   parameters: {
     msw: {
       handlers: [getSecrets(), getSecretsFromLocal()],

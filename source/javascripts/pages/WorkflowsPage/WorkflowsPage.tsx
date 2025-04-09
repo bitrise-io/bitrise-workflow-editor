@@ -1,20 +1,12 @@
 import { useEffect } from 'react';
 import { Box } from '@bitrise/bitkit';
-import { ReactFlowProvider } from '@xyflow/react';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { WorkflowConfigPanel, WorkflowEmptyState } from '@/components/unified-editor';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
 import Drawers from './components/Drawers/Drawers';
 
-type Props = {
-  yml: BitriseYml;
-  onChange: (yml: BitriseYml) => void;
-};
-
-export const WorkflowsPageContent = () => {
+const WorkflowsPage = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
@@ -41,16 +33,6 @@ export const WorkflowsPageContent = () => {
       <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       <Drawers />
     </Box>
-  );
-};
-
-const WorkflowsPage = ({ yml, onChange }: Props) => {
-  return (
-    <ReactFlowProvider>
-      <BitriseYmlProvider yml={yml} onChange={onChange}>
-        <WorkflowsPageContent />
-      </BitriseYmlProvider>
-    </ReactFlowProvider>
   );
 };
 

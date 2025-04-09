@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
@@ -9,7 +7,7 @@ import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundle
 import Drawers from './components/Drawers';
 import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
 
-export const StepBundlesPageContent = () => {
+const StepBundlesPage = () => {
   const stepBundles = useStepBundles();
   const stepBundlesIds = Object.keys(stepBundles);
   const { openDialog } = useStepBundlesPageStore();
@@ -49,20 +47,6 @@ export const StepBundlesPageContent = () => {
       {content}
       <Drawers />
     </>
-  );
-};
-
-type StepBundlesPageProps = {
-  yml: BitriseYml;
-  onChange: (yml: BitriseYml) => void;
-};
-
-const StepBundlesPage = (props: StepBundlesPageProps) => {
-  const { yml, onChange } = props;
-  return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <StepBundlesPageContent />
-    </BitriseYmlProvider>
   );
 };
 

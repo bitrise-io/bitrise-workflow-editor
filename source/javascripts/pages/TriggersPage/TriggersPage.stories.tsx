@@ -33,12 +33,6 @@ const makeNotificationMetadataEndpoint = () => {
 
 export default {
   component: TriggersPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
-  argTypes: {
-    onChange: { type: 'function' },
-  },
   parameters: {
     msw: {
       handlers: [...makeNotificationMetadataEndpoint()],
