@@ -301,6 +301,82 @@ describe('prepareStackAndMachineSelectionData', () => {
     expect(result.isMachineTypeSelectionDisabled).toBe(true);
     expect(result.availableMachineTypeOptions).toEqual([{ label: 'Dedicated Machine', value: '' }]);
   });
+
+  describe('withoutDefaults', () => {
+    it('returns the default stack and machine type when empty stack and machine type values are selected', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        defaultStackId: 'osx-xcode-16',
+        defaultMachineTypeId: 'mac-m1',
+        withoutDefaults: true,
+      });
+
+      // Stack
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({
+          value: 'osx-xcode-16',
+          id: 'osx-xcode-16',
+          name: 'Xcode 16',
+        }),
+      );
+
+      // Stack options
+      expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+
+      // Machine type
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
+      );
+
+      // Machine type options
+      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    });
+
+    it('returns the selected stack and the default machine type of the stack', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: 'osx-xcode-16',
+        selectedMachineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        defaultStackId: 'linux-ubuntu-22',
+        defaultMachineTypeId: 'elite',
+        defaultMachineTypeIdOfOSs: {
+          linux: 'elite',
+          osx: 'mac-m1',
+        },
+        withoutDefaults: true,
+      });
+
+      // Stack
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({
+          value: 'osx-xcode-16',
+          id: 'osx-xcode-16',
+          name: 'Xcode 16',
+        }),
+      );
+
+      // Stack options
+      expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+
+      // Machine type
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
+      );
+
+      // Machine type options
+      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    });
+  });
 });
 
 describe('changeStackAndMachine', () => {

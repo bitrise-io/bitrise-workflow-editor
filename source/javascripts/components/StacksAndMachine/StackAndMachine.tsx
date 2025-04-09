@@ -22,7 +22,7 @@ type Props = {
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
   stackRollbackVersion?: string;
-  withoutDefaultStack?: boolean;
+  withoutDefaults?: boolean;
   notificationProps?: NotificationProps;
 };
 
@@ -31,7 +31,7 @@ const StackAndMachine = ({
   machineTypeId,
   onChange,
   stackRollbackVersion,
-  withoutDefaultStack,
+  withoutDefaults,
   notificationProps,
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -55,7 +55,7 @@ const StackAndMachine = ({
     defaultMachineTypeId,
     selectedStackId: stackId,
     selectedMachineTypeId: machineTypeId,
-    withoutDefaultStack,
+    withoutDefaults,
   });
 
   const availableRollbackVersion =

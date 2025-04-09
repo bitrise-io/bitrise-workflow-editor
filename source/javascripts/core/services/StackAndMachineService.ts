@@ -19,7 +19,7 @@ export type MachineTypeWithValue = MachineType & {
 type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>> & {
   selectedStackId: string;
   selectedMachineTypeId: string;
-  withoutDefaultStack?: boolean;
+  withoutDefaults?: boolean;
 };
 
 type SelectStackAndMachineResult = {
@@ -69,7 +69,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     selectedMachineTypeId,
     availableMachineTypes = [],
     hasDedicatedMachine,
-    withoutDefaultStack = false,
+    withoutDefaults = false,
   } = props;
 
   const result: SelectStackAndMachineResult = {
@@ -86,7 +86,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   const selectedStack = StackService.getStackById(availableStacks, selectedStackId);
 
   // Push the default stack to the beginning of the available options
-  if (defaultStack && !withoutDefaultStack) {
+  if (defaultStack && !withoutDefaults) {
     result.availableStackOptions = [
       {
         value: '',
@@ -114,7 +114,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   } else if (selectedStack) {
     result.selectedStack = { ...selectedStack, value: selectedStack.id };
   } else if (defaultStack) {
-    result.selectedStack = { ...defaultStack, value: '' };
+    result.selectedStack = { ...defaultStack, value: withoutDefaults ? defaultStack.id : '' };
   }
 
   const isSelfHostedPoolSelected = StackService.isSelfHosted(result.selectedStack);
@@ -143,22 +143,24 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
 
   // Machine type options
   result.availableMachineTypeOptions = selectableMachines.map(MachineTypeService.toMachineOption);
-  if (defaultMachineType) {
-    result.availableMachineTypeOptions = [
-      {
-        value: '',
-        label: `Default (${defaultMachineType.name})`,
-      },
-      ...result.availableMachineTypeOptions,
-    ];
-  } else if (defaultMachineTypeOfOS) {
-    result.availableMachineTypeOptions = [
-      {
-        value: '',
-        label: `Default (${defaultMachineTypeOfOS.name})`,
-      },
-      ...result.availableMachineTypeOptions,
-    ];
+  if (!withoutDefaults) {
+    if (defaultMachineType) {
+      result.availableMachineTypeOptions = [
+        {
+          value: '',
+          label: `Default (${defaultMachineType.name})`,
+        },
+        ...result.availableMachineTypeOptions,
+      ];
+    } else if (defaultMachineTypeOfOS) {
+      result.availableMachineTypeOptions = [
+        {
+          value: '',
+          label: `Default (${defaultMachineTypeOfOS.name})`,
+        },
+        ...result.availableMachineTypeOptions,
+      ];
+    }
   }
 
   if (isInvalidMachineType) {
@@ -178,9 +180,9 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       value: selectedMachineType.id,
     };
   } else if (defaultMachineType) {
-    result.selectedMachineType = { ...defaultMachineType, value: '' };
+    result.selectedMachineType = { ...defaultMachineType, value: withoutDefaults ? defaultMachineType.id : '' };
   } else if (defaultMachineTypeOfOS) {
-    result.selectedMachineType = { ...defaultMachineTypeOfOS, value: '' };
+    result.selectedMachineType = { ...defaultMachineTypeOfOS, value: withoutDefaults ? defaultMachineTypeOfOS.id : '' };
   }
 
   return result;

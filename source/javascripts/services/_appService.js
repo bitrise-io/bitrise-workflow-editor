@@ -1,5 +1,6 @@
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 (function () {
   angular
@@ -312,11 +313,13 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
           });
         }
 
+        const enableWfeReactStacksPage = useFeatureFlag('enable-wfe-react-stacks-and-machines-page');
         // Populate the meta with the default machine type if necessary
         if (
           RuntimeUtils.isWebsiteMode() &&
           appService.appDetails.isMachineTypeSelectorAvailable &&
-          appService.defaultMachineType
+          appService.defaultMachineType &&
+          !enableWfeReactStacksPage
         ) {
           if (!appService.appConfig.meta) {
             appService.appConfig.meta = {};

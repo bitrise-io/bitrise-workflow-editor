@@ -74,13 +74,13 @@ const getDeprecatedMachinesProps = (
 };
 
 const DefaultStackAndMachine = () => {
-  const { stackId, machineTypeId, stackRollbackVersion } = useDefaultStackAndMachine();
+  const { stackId, machineTypeId, stackRollbackVersion, defaultMachineTypeIdForStack } = useDefaultStackAndMachine();
   const updateStacksAndMachinesMeta = useBitriseYmlStore((s) => s.updateStacksAndMachinesMeta);
 
   const updateDefaultMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
     updateStacksAndMachinesMeta({
       stack,
-      machine_type_id,
+      machine_type_id: machine_type_id || defaultMachineTypeIdForStack,
       stack_rollback_version,
     });
   };
@@ -94,7 +94,7 @@ const DefaultStackAndMachine = () => {
         machineTypeId={machineTypeId}
         onChange={updateDefaultMeta}
         stackRollbackVersion={stackRollbackVersion}
-        withoutDefaultStack
+        withoutDefaults
         notificationProps={getDeprecatedMachinesProps(
           GlobalProps.workspace()?.useReplacementForDeprecatedMachines,
           ['standard', 'elite', 'elite-xl'].includes(machineTypeId),
