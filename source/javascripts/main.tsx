@@ -2,7 +2,6 @@ import { PropsWithChildren, StrictMode, useEffect } from 'react';
 import { Box, Provider as BitkitProvider } from '@bitrise/bitkit';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
-import { noop } from 'es-toolkit';
 import { Redirect, Router, Switch } from 'wouter';
 import { ReactFlowProvider } from '@xyflow/react';
 import { queryClient } from './utils/withQueryClientProvider';
@@ -57,17 +56,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 const Layout = () => {
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
-      <Header
-        appName=""
-        workspacePath=""
-        isDiffDisabled
-        isSaveDisabled
-        isDiscardDisabled
-        isSaveInProgress={false}
-        onDiffClick={noop}
-        onSaveClick={noop}
-        onDiscardClick={noop}
-      />
+      <Header />
       <Box display="flex" flex="1" alignItems="stretch">
         <Navigation borderRight="1px solid" borderColor="border/regular" />
         <Box flex="1" overflowX="hidden" overflowY="auto">
