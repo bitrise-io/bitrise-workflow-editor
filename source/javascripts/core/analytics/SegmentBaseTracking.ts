@@ -65,7 +65,7 @@ const baseProperties: SegmentEventProperties = {
   page_url: window.location.href,
   platform: 'website',
   source_service_name: 'workflow-editor',
-  source_service_version: window.serviceVersion,
+  source_service_version: process.env.WFE_VERSION || '',
   tracking_type: 'client_side',
   workspace_slug: GlobalProps.workspaceSlug(),
 };
