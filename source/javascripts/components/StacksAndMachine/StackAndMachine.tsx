@@ -21,6 +21,7 @@ type Props = {
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
+  shouldFallbackToDefault?: boolean;
   stackRollbackVersion?: string;
   withoutDefaults?: boolean;
   notificationProps?: NotificationProps;
@@ -30,6 +31,7 @@ const StackAndMachine = ({
   stackId,
   machineTypeId,
   onChange,
+  shouldFallbackToDefault,
   stackRollbackVersion,
   withoutDefaults,
   notificationProps,
@@ -68,13 +70,25 @@ const StackAndMachine = ({
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,
         machineTypeId: selectedMachineTypeId,
-        defaultStackId: data?.defaultStackId || '',
+        defaultStackId,
+        defaultMachineTypeId,
         availableStacks: data?.availableStacks,
         availableMachineTypes: data?.availableMachineTypes,
+        defaultMachineTypeIdOfOSs: data?.defaultMachineTypeIdOfOSs,
+        shouldFallbackToDefault,
       });
       onChange(result.stackId, result.machineTypeId, useRollbackVersionChecked ? availableRollbackVersion : '');
     },
-    [availableRollbackVersion, data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
+    [
+      availableRollbackVersion,
+      data?.availableMachineTypes,
+      data?.availableStacks,
+      data?.defaultMachineTypeIdOfOSs,
+      defaultMachineTypeId,
+      defaultStackId,
+      onChange,
+      shouldFallbackToDefault,
+    ],
   );
 
   const useRollbackVersion =

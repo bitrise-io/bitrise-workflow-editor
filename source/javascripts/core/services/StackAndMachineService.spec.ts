@@ -387,6 +387,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -399,6 +400,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'mac-m1',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -411,6 +413,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'standard',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -423,6 +426,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -435,6 +439,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'mac-m1',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -450,6 +455,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'mac-m4',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -462,6 +468,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -474,6 +481,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'mac-m1',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -489,6 +497,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'standard',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -497,16 +506,31 @@ describe('changeStackAndMachine', () => {
   });
 
   describe('stack OS changes', () => {
-    it('keeps a specific stack with the default machine type', () => {
+    it('keeps a specific stack with empty machine type', () => {
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: 'linux-ubuntu-22',
         machineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
       expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
+    });
+
+    it('keeps a specific stack with default machine type', () => {
+      const result = StackAndMachineService.changeStackAndMachine({
+        stackId: 'linux-ubuntu-22',
+        machineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        defaultMachineTypeId: '',
+        defaultStackId: 'osx-xcode-16',
+        shouldFallbackToDefault: true,
+      });
+
+      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'standard' });
     });
 
     it('keeps a specific stack with a compatible machine type', () => {
@@ -515,6 +539,7 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'joker',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
@@ -530,38 +555,11 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'mac-m4',
         availableStacks: stacks,
         availableMachineTypes: machines,
+        defaultMachineTypeId: '',
         defaultStackId: 'osx-xcode-16',
       });
 
       expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
     });
-  });
-});
-
-describe('selectFinalMachineTypeId', () => {
-  it('returns selectedMachineTypeId if not empty', () => {
-    const result = StackAndMachineService.selectFinalMachineTypeId({
-      selectedStackId: 'osx-xcode-16',
-      selectedMachineTypeId: 'mac-m2',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      defaultStackId: 'osx-xcode-16',
-      defaultMachineTypeId: 'mac-m1',
-    });
-
-    expect(result).toBe('mac-m2');
-  });
-
-  it('returns defaultMachineTypeId if selectedMachineTypeId is empty', () => {
-    const result = StackAndMachineService.selectFinalMachineTypeId({
-      selectedStackId: 'osx-xcode-16',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      defaultStackId: 'osx-xcode-16',
-      defaultMachineTypeId: 'mac-m1',
-    });
-
-    expect(result).toBe('mac-m1');
   });
 });

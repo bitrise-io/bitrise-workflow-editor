@@ -74,6 +74,7 @@ const StackAndMachineCard = () => {
               stackId: e.target.value,
               machineTypeId: selectedMachineType.value,
               defaultStackId: data?.defaultStackId || '',
+              defaultMachineTypeId: data?.defaultMachineTypeId || '',
               availableStacks: data?.availableStacks,
               availableMachineTypes: data?.availableMachineTypes,
             });
@@ -101,6 +102,7 @@ const StackAndMachineCard = () => {
               stackId: selectedStack.value,
               machineTypeId: e.target.value,
               defaultStackId: data?.defaultStackId || '',
+              defaultMachineTypeId: data?.defaultMachineTypeId || '',
               availableStacks: data?.availableStacks,
               availableMachineTypes: data?.availableMachineTypes,
             });
