@@ -1,31 +1,22 @@
 import { ComponentType, useEffect } from "react";
-import { BitriseYml } from "../source/javascripts/core/models/BitriseYml";
-import { bitriseYmlStore } from "../source/javascripts/core/stores/BitriseYmlStore";
-import { stringify } from "yaml";
+import {
+  bitriseYmlStore,
+  BitriseYmlStoreState,
+} from "../source/javascripts/core/stores/BitriseYmlStore";
 
 export const withBitriseYml = (
-  initialYml: BitriseYml,
+  initialState: BitriseYmlStoreState,
   Story: ComponentType,
 ) => {
   useEffect(() => {
     // Initialize the store with the provided YAML
-    bitriseYmlStore.setState({
-      yml: initialYml,
-      savedYml: initialYml,
-      ymlString: stringify(initialYml),
-      savedYmlString: stringify(initialYml),
-    });
+    bitriseYmlStore.setState(initialState);
 
     // Reset the store when the story unmounts
     return () => {
-      bitriseYmlStore.setState({
-        yml: {} as BitriseYml,
-        savedYml: {} as BitriseYml,
-        ymlString: "",
-        savedYmlString: "",
-      });
+      bitriseYmlStore.setState(bitriseYmlStore.getInitialState());
     };
-  }, [initialYml]);
+  }, [initialState]);
 
   return <Story />;
 };

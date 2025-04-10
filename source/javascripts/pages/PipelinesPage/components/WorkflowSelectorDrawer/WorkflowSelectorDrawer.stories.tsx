@@ -25,9 +25,8 @@ export const Default: Story = {};
 
 export const WithoutWorkflows: Story = {
   parameters: {
-    bitriseYml: {
-      ...TEST_BITRISE_YML,
-      workflows: {},
+    bitriseYmlStore: {
+      yml: { ...TEST_BITRISE_YML, workflows: {} },
     },
   },
 };

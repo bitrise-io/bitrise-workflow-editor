@@ -31,13 +31,13 @@ type Story = StoryObj<typeof PipelinesPage>;
 
 export const CreateFirstGraphPipeline: Story = {
   parameters: {
-    bitriseYml: { format_version: '2' },
+    bitriseYmlStore: { yml: { format_version: '2' } },
   },
 };
 
 export const UpgradePlan: Story = {
   parameters: {
-    bitriseYml: { format_version: '2' },
+    bitriseYmlStore: { yml: { format_version: '2' } },
   },
   beforeEach: () => {
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', false);
@@ -54,20 +54,23 @@ export const GraphPipelineWithEditing: Story = {};
 
 export const WithWorkflowOverride: Story = {
   parameters: {
-    bitriseYml: set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
-      uses: 'wf3',
-      depends_on: ['wf1'],
-    }),
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
+        uses: 'wf3',
+        depends_on: ['wf1'],
+      });
+      return { yml: TEST_BITRISE_YML };
+    })(),
   },
 };
 
 export const WithParallelWorkflowCollision: Story = {
   parameters: {
-    bitriseYml: (() => {
+    bitriseYmlStore: (() => {
       const yml = TEST_BITRISE_YML;
       set(yml, 'workflows.tmp_3', {});
       set(yml, 'pipelines["graph-pipeline"].workflows.tmp_2', { uses: 'tmp' });
-      return yml;
+      return { yml };
     })(),
   },
 };

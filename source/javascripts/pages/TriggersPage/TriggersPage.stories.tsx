@@ -42,7 +42,7 @@ export default {
 
 export const TriggersPageEmptyState: StoryObj<typeof TriggersPage> = {
   parameters: {
-    bitriseYml: { ...TEST_BITRISE_YML, trigger_map: undefined },
+    bitriseYmlStore: { yml: { ...TEST_BITRISE_YML, trigger_map: undefined } },
   },
 };
 

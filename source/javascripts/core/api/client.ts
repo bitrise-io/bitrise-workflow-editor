@@ -23,9 +23,9 @@ class ClientError extends Error {
 
   public statusText?: string;
 
-  public data?: unknown;
+  public data?: Record<string, any>;
 
-  constructor(error: Error, response?: Response, data?: unknown) {
+  constructor(error: Error, response?: Response, data?: Record<string, any>) {
     super(error.message);
     this.name = 'ClientError';
     this.error = error;
@@ -33,6 +33,10 @@ class ClientError extends Error {
     this.status = response?.status;
     this.statusText = response?.statusText;
     this.data = data;
+  }
+
+  getResponseErrorMessage(): string {
+    return this.data?.error_msg || this.data?.error;
   }
 }
 
@@ -89,6 +93,10 @@ async function client(url: string, options?: ClientOpts) {
 
     return response;
   } catch (error) {
+    if (error instanceof ClientError) {
+      throw error;
+    }
+
     const clientError = new ClientError(error as Error, response);
     if ((error as Error).name === 'AbortError') {
       clientError.message = `Request was aborted: ${(error as Error).message}`;

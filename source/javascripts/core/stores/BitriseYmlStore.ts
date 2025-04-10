@@ -1,27 +1,24 @@
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
-
-import { dequal } from 'dequal';
-import { isEmpty } from 'es-toolkit/compat';
 import { parse } from 'yaml';
 import {
-  Meta,
+  BitriseYml,
+  EnvironmentItemModel,
   EnvModel,
+  Meta,
+  PipelineModel,
+  StepBundleModel,
   StepModel,
   TriggerMap,
-  PipelineModel,
   TriggersModel,
   WorkflowModel,
-  StepBundleModel,
-  EnvironmentItemModel,
-  BitriseYml,
 } from '@/core/models/BitriseYml';
 
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
-import BitriseYmlApi from '../api/BitriseYmlApi';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
 export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
@@ -42,86 +39,90 @@ export const bitriseYmlStore = createStore(
 
       // Project related actions
       updateProjectEnvVars(envVars: EnvVar[]) {
-        set((state) => ({
-          yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),
-        }));
+        set((state) =>
+          syncYmlState({
+            yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),
+          }),
+        );
       },
 
       // Pipeline related actions
       addPipelineWorkflowDependency(pipelineId: string, workflowId: string, dependencyId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.addPipelineWorkflowDependency(pipelineId, workflowId, dependencyId, state.yml),
-          };
+          });
         });
       },
       addWorkflowToPipeline(pipelineId: string, workflowId: string, parentWorkflowId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.addWorkflowToPipeline(pipelineId, workflowId, state.yml, parentWorkflowId),
-          };
+          });
         });
       },
       createPipeline(pipelineId: string, basePipelineId?: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.createPipeline(pipelineId, state.yml, basePipelineId),
-          };
+          });
         });
       },
       deletePipeline(pipelineId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deletePipeline(pipelineId, state.yml),
-          };
+          });
         });
       },
       deletePipelines(pipelineIds: string[]) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deletePipelines(pipelineIds, state.yml),
-          };
+          });
         });
       },
       removePipelineWorkflowDependency: (pipelineId: string, workflowId: string, dependencyId: string) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.removePipelineWorkflowDependency(pipelineId, workflowId, dependencyId, state.yml),
-          };
+          });
         });
       },
       removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.removeWorkflowFromPipeline(pipelineId, workflowId, state.yml),
-          };
+          });
         });
       },
       renamePipeline(pipelineId: string, newPipelineId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.renamePipeline(pipelineId, newPipelineId, state.yml),
-          };
+          });
         });
       },
       updatePipeline(pipelineId: string, pipeline: PipelineModel) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updatePipeline(pipelineId, pipeline, state.yml),
-          };
+          });
         });
       },
       updatePipelineTriggers(pipelineId: string, triggers: TriggersModel) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updatePipelineTriggers(pipelineId, triggers, state.yml),
-          };
+          });
         });
       },
       updatePipelineTriggersEnabled(pipelineId: string, isEnabled: boolean) {
-        return set((state) => ({
-          yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
-        }));
+        return set((state) =>
+          syncYmlState({
+            yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
+          }),
+        );
       },
       updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(
         pipelineId: string,
@@ -129,82 +130,82 @@ export const bitriseYmlStore = createStore(
         abortPipelineOnFailureEnabled: boolean,
       ) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
               pipelineId,
               workflowId,
               abortPipelineOnFailureEnabled,
               state.yml,
             ),
-          };
+          });
         });
       },
       updatePipelineWorkflowConditionRunIfExpression(pipelineId: string, workflowId: string, runIfExpression: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
               pipelineId,
               workflowId,
               runIfExpression,
               state.yml,
             ),
-          };
+          });
         });
       },
       updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId: string, workflowId: string, shouldAlwaysRun: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updatePipelineWorkflowConditionShouldAlwaysRun(
               pipelineId,
               workflowId,
               shouldAlwaysRun,
               state.yml,
             ),
-          };
+          });
         });
       },
       updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, parallel: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updatePipelineWorkflowParallel(pipelineId, workflowId, parallel, state.yml),
-          };
+          });
         });
       },
 
       // Workflow related actions
       addChainedWorkflow(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainableWorkflowId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.addChainedWorkflow(parentWorkflowId, placement, chainableWorkflowId, state.yml),
-          };
+          });
         });
       },
       appendWorkflowEnvVar(workflowId: string, envVar: EnvVar) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.appendWorkflowEnvVar(workflowId, EnvVarService.parseEnvVar(envVar), state.yml),
-          };
+          });
         });
       },
       createWorkflow(workflowId: string, baseWorkflowId?: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
-          };
+          });
         });
       },
       deleteWorkflow(workflowId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deleteWorkflow(workflowId, state.yml),
-          };
+          });
         });
       },
       deleteWorkflows(workflowIds: string[]) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deleteWorkflows(workflowIds, state.yml),
-          };
+          });
         });
       },
       removeChainedWorkflow(
@@ -214,7 +215,7 @@ export const bitriseYmlStore = createStore(
         chainedWorkflowIndex: number,
       ) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.removeChainedWorkflow(
               parentWorkflowId,
               placement,
@@ -222,188 +223,188 @@ export const bitriseYmlStore = createStore(
               chainedWorkflowIndex,
               state.yml,
             ),
-          };
+          });
         });
       },
       renameWorkflow(workflowId: string, newWorkflowId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.renameWorkflow(workflowId, newWorkflowId, state.yml),
-          };
+          });
         });
       },
       setChainedWorkflows(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.setChainedWorkflows(parentWorkflowId, placement, chainedWorkflowIds, state.yml),
-          };
+          });
         });
       },
       updateWorkflow(workflowId: string, workflow: WorkflowModel) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateWorkflow(workflowId, workflow, state.yml),
-          };
+          });
         });
       },
       updateWorkflowEnvVars(workflowId: string, envVars: EnvVar[]) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateWorkflowEnvVars(workflowId, envVars.map(EnvVarService.parseEnvVar), state.yml),
-          };
+          });
         });
       },
       updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitrise.io']) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateWorkflowMeta(workflowId, newValues, state.yml),
-          };
+          });
         });
       },
 
       // Meta related actions
       updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io']) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStacksAndMachinesMeta(newValues, state.yml),
-          };
+          });
         });
       },
 
       // Step related actions
       addStep(workflowId: string, cvs: string, to: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.addStep(workflowId, cvs, to, state.yml),
-          };
+          });
         });
       },
       changeStepVersion: (workflowId: string, stepIndex: number, version: string) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.changeStepVersion(workflowId, stepIndex, version, state.yml),
-          };
+          });
         });
       },
       cloneStep(workflowId: string, stepIndex: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.cloneStep(workflowId, stepIndex, state.yml),
-          };
+          });
         });
       },
       deleteStep(workflowId: string, selectedStepIndices: number[]) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deleteStep(workflowId, selectedStepIndices, state.yml),
-          };
+          });
         });
       },
       moveStep(workflowId: string, stepIndex: number, to: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.moveStep(workflowId, stepIndex, to, state.yml),
-          };
+          });
         });
       },
       updateLicensePoolId(workflowId: string, licensePoolId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
-          };
+          });
         });
       },
       updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepModel, 'inputs' | 'outputs'>) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStep(workflowId, stepIndex, newValues, state.yml),
-          };
+          });
         });
       },
       updateStepInputs: (workflowId: string, stepIndex: number, inputs: EnvModel) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStepInputs(workflowId, stepIndex, inputs, state.yml),
-          };
+          });
         });
       },
       updateTriggerMap(triggerMap: TriggerMap) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateTriggerMap(triggerMap, state.yml),
-          };
+          });
         });
       },
       updateWorkflowTriggers(workflowId: string, triggers: TriggersModel) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateWorkflowTriggers(workflowId, triggers, state.yml),
-          };
+          });
         });
       },
       updateWorkflowTriggersEnabled(workflowId: string, isEnabled: boolean) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateWorkflowTriggersEnabled(workflowId, isEnabled, state.yml),
-          };
+          });
         });
       },
 
       // Step Bundle related actions
       addStepToStepBundle(stepBundleId: string, cvs: string, to: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.addStepToStepBundle(stepBundleId, cvs, to, state.yml),
-          };
+          });
         });
       },
       appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.appendStepBundleInput(bundleId, newInput, state.yml),
-          };
+          });
         });
       },
       changeStepVersionInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.changeStepVersionInStepBundle(stepBundleId, stepIndex, version, state.yml),
-          };
+          });
         });
       },
       cloneStepInStepBundle(stepBundleId: string, stepIndex: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.cloneStepInStepBundle(stepBundleId, stepIndex, state.yml),
-          };
+          });
         });
       },
       createStepBundle(stepBundleId: string, baseStepBundleId?: string, baseWorkflowId?: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.createStepBundle(stepBundleId, state.yml, baseStepBundleId, baseWorkflowId),
-          };
+          });
         });
       },
       deleteStepBundle(stepBundleId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deleteStepBundle(stepBundleId, state.yml),
-          };
+          });
         });
       },
       deleteStepBundleInput(bundleId: string, index: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deleteStepBundleInput(bundleId, index, state.yml),
-          };
+          });
         });
       },
       deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: number[]) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.deleteStepInStepBundle(stepBundleId, selectedStepIndices, state.yml),
-          };
+          });
         });
       },
       groupStepsToStepBundle(
@@ -413,7 +414,7 @@ export const bitriseYmlStore = createStore(
         selectedStepIndices: number[],
       ) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.groupStepsToStepBundle(
               parentWorkflowId,
               parentStepBundleId,
@@ -421,35 +422,35 @@ export const bitriseYmlStore = createStore(
               selectedStepIndices,
               state.yml,
             ),
-          };
+          });
         });
       },
       moveStepInStepBundle(stepBundleId: string, stepIndex: number, to: number) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.moveStepInStepBundle(stepBundleId, stepIndex, to, state.yml),
-          };
+          });
         });
       },
       renameStepBundle(stepBundleId: string, newStepBundleId: string) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.renameStepBundle(stepBundleId, newStepBundleId, state.yml),
-          };
+          });
         });
       },
       updateStepBundle: (stepBundleId: string, stepBundle: StepBundleModel) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStepBundle(stepBundleId, stepBundle, state.yml),
-          };
+          });
         });
       },
       updateStepBundleInput(bundleId: string, index: number, newInput: EnvironmentItemModel) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStepBundleInput(bundleId, index, newInput, state.yml),
-          };
+          });
         });
       },
       updateStepBundleInputInstanceValue(
@@ -461,7 +462,7 @@ export const bitriseYmlStore = createStore(
         stepIndex: number,
       ) {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStepBundleInputInstanceValue(
               key,
               newValue,
@@ -471,7 +472,7 @@ export const bitriseYmlStore = createStore(
               stepIndex,
               state.yml,
             ),
-          };
+          });
         });
       },
       updateStepInStepBundle: (
@@ -480,34 +481,31 @@ export const bitriseYmlStore = createStore(
         newValues: Omit<StepModel, 'inputs' | 'outputs'>,
       ) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, state.yml),
-          };
+          });
         });
       },
       updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: EnvModel) => {
         return set((state) => {
-          return {
+          return syncYmlState({
             yml: BitriseYmlService.updateStepInputsInStepBundle(stepBundleId, stepIndex, inputs, state.yml),
-          };
+          });
         });
       },
     }),
   ),
 );
 
-bitriseYmlStore.subscribe((currentState, previousState) => {
-  if (!isEmpty(previousState.yml) && !dequal(currentState.yml, previousState.yml)) {
-    bitriseYmlStore.setState({ ymlString: BitriseYmlApi.toYml(currentState.yml) });
-  }
-});
+export function syncYmlState({ yml }: Partial<BitriseYmlStoreState>): Partial<BitriseYmlStoreState> {
+  return { yml, ymlString: BitriseYmlApi.toYml(yml) };
+}
 
 export function updateYmlString(ymlString?: string) {
-  bitriseYmlStore.setState({ ymlString });
-
   try {
-    bitriseYmlStore.setState({ yml: parse(ymlString || '') });
+    bitriseYmlStore.setState({ ymlString, yml: parse(ymlString || '') });
   } catch {
-    // NOTE: Monaco edtior will show error if the yml is invalid
+    // NOTE: Monaco editor will show error if the yml is invalid
+    bitriseYmlStore.setState({ ymlString });
   }
 }

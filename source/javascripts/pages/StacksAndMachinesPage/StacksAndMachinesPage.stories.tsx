@@ -56,11 +56,14 @@ export const FreeUser: Story = {
 
 export const WithInvalidPreviousStackVersion: Story = {
   parameters: {
-    bitriseYml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-      stack: 'osx-xcode-15',
-      machine_type_id: 'm2.large',
-      stack_rollback_version: '1.0.0',
-    }),
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'osx-xcode-15',
+        machine_type_id: 'm2.large',
+        stack_rollback_version: '1.0.0',
+      });
+      return { yml: TEST_BITRISE_YML };
+    })(),
   },
 };
 
@@ -69,10 +72,13 @@ export const WithDeprecatedMachines: Story = {
     deprecatedMachinesPeriod: 'in',
   },
   parameters: {
-    bitriseYml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-      stack: 'linux-ubuntu-22.04',
-      machine_type_id: 'standard',
-    }),
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'linux-ubuntu-22.04',
+        machine_type_id: 'standard',
+      });
+      return { yml: TEST_BITRISE_YML };
+    })(),
   },
   beforeEach: ({ args }: any) => {
     set(

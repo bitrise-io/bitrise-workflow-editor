@@ -20,9 +20,8 @@ export const Default: StoryObj = {};
 
 export const Empty: StoryObj = {
   parameters: {
-    bitriseYml: {
-      ...TEST_BITRISE_YML,
-      workflows: {},
+    bitriseYmlStore: {
+      yml: { ...TEST_BITRISE_YML, workflows: {} },
     },
   },
 };

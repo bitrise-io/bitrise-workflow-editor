@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive } from '@bitrise/bitkit';
+import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
 
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -11,15 +11,21 @@ import useHashLocation from '@/hooks/useHashLocation';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
 
 const onSuccess = () => {
-  bitriseYmlStore.setState((s) => ({ savedYml: s.yml, savedYmlString: s.ymlString }));
+  bitriseYmlStore.setState((s) => ({
+    savedYml: s.yml,
+    savedYmlString: s.ymlString,
+  }));
 };
 
 const onDiscard = () => {
-  bitriseYmlStore.setState((s) => ({ yml: s.savedYml, ymlString: s.savedYmlString }));
+  bitriseYmlStore.setState((s) => ({
+    yml: s.savedYml,
+    ymlString: s.savedYmlString,
+  }));
 };
 
-// TODO: open diff viewer
 const Header = () => {
+  const toast = useToast();
   const isYmlPage = useIsYmlPage();
   const { isMobile } = useResponsive();
   const [pathWithSearchParams] = useHashLocation();
@@ -31,10 +37,28 @@ const Header = () => {
 
   const { isPending: ciConfigYmlIsSaving, mutate: saveCiConfigYml } = useSaveCiConfigYml({
     onSuccess,
+    onError: (error) => {
+      toast({
+        title: 'Failed to save changes',
+        description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
+        status: 'error',
+        duration: null,
+        isClosable: true,
+      });
+    },
   });
 
   const { isPending: ciConfigJsonIsSaving, mutate: saveCiConfigJson } = useSaveCiConfigJson({
     onSuccess,
+    onError: (error) => {
+      toast({
+        title: 'Failed to save changes',
+        description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
+        status: 'error',
+        duration: null,
+        isClosable: true,
+      });
+    },
   });
 
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
@@ -46,9 +70,17 @@ const Header = () => {
 
   const saveCIConfig = useCallback(() => {
     if (isYmlPage) {
-      saveCiConfigYml({ projectSlug: appSlug, data: bitriseYmlStore.getState().ymlString, tabOpenDuringSave });
+      saveCiConfigYml({
+        projectSlug: appSlug,
+        data: bitriseYmlStore.getState().ymlString,
+        tabOpenDuringSave,
+      });
     } else {
-      saveCiConfigJson({ projectSlug: appSlug, data: bitriseYmlStore.getState().yml, tabOpenDuringSave });
+      saveCiConfigJson({
+        projectSlug: appSlug,
+        data: bitriseYmlStore.getState().yml,
+        tabOpenDuringSave,
+      });
     }
   }, [appSlug, isYmlPage, saveCiConfigJson, saveCiConfigYml, tabOpenDuringSave]);
 
