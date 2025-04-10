@@ -6,7 +6,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TerserPLugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -17,56 +16,6 @@ const { version } = require('./package.json');
 const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
-const MonacoPluginOptions = {
-  languages: ['yaml'],
-  customLanguages: [
-    {
-      label: 'yaml',
-      entry: 'monaco-yaml',
-      worker: {
-        id: 'monaco-yaml/yamlWorker',
-        entry: 'monaco-yaml/yaml.worker',
-      },
-    },
-  ],
-  features: [
-    '!accessibilityHelp',
-    '!bracketMatching',
-    '!caretOperations',
-    '!clipboard',
-    '!codeAction',
-    '!codelens',
-    '!colorDetector',
-    '!contextmenu',
-    '!cursorUndo',
-    '!dnd',
-    '!fontZoom',
-    '!format',
-    '!gotoError',
-    '!gotoSymbol',
-    '!hover',
-    '!iPadShowKeyboard',
-    '!inPlaceReplace',
-    '!inspectTokens',
-    '!links',
-    '!multicursor',
-    '!parameterHints',
-    '!quickCommand',
-    '!quickOutline',
-    '!referenceSearch',
-    '!rename',
-    '!smartSelect',
-    '!snippets',
-    '!suggest',
-    '!toggleHighContrast',
-    '!toggleTabFocusMode',
-    '!transpose',
-    '!wordHighlighter',
-    '!wordOperations',
-    '!wordPartOperations',
-  ],
-};
-
 const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
@@ -171,7 +120,7 @@ module.exports = {
           options: {
             sourceMaps: true,
             jsc: {
-              target: 'es5',
+              target: 'es2020',
               parser: {
                 tsx: true,
                 decorators: true,
@@ -232,7 +181,6 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'stylesheets/[name].css',
     }),
-    new MonacoWebpackPlugin(MonacoPluginOptions),
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),

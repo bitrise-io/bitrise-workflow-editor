@@ -1,41 +1,22 @@
-import { useState } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
-import useMonacoYaml from '@/hooks/useMonacoYaml';
+import Editor from '@monaco-editor/react';
+import MonacoUtils from '@/core/utils/MonacoUtils';
+import useBitriseYmlSettings from '@/hooks/useBitriseYmlSettings';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { updateYmlString } from '@/core/stores/BitriseYmlStore';
 
-const EDITOR_OPTIONS = {
-  roundedSelection: false,
-  scrollBeyondLastLine: false,
-  stickyScroll: {
-    enabled: true,
-  },
-};
-
-type YmlEditorProps = {
-  ciConfigYml: string;
-  isLoading?: boolean;
-  readOnly: boolean;
-  onEditorChange: (changedText?: string) => void;
-};
-
-const YmlEditor = (props: YmlEditorProps) => {
-  const { ciConfigYml, isLoading, readOnly, onEditorChange } = props;
-
-  const [monacoInstance, setMonaco] = useState<Monaco>();
-
-  useMonacoYaml(monacoInstance);
-  // useEnvVarsAndSecretsCompletionProvider({
-  //   monaco: monacoInstance,
-  //   language: 'yaml',
-  // });
+const YmlEditor = () => {
+  const { data: ymlSettings } = useBitriseYmlSettings();
+  const value = useBitriseYmlStore((s) => s.ymlString);
 
   return (
     <Editor
+      value={value}
       theme="vs-dark"
       language="yaml"
-      onChange={onEditorChange}
-      value={isLoading ? 'Loading...' : ciConfigYml}
-      options={{ ...EDITOR_OPTIONS, readOnly: readOnly || isLoading }}
-      beforeMount={setMonaco}
+      keepCurrentModel
+      onChange={updateYmlString}
+      options={{ readOnly: ymlSettings.usesRepositoryYml }}
+      beforeMount={(monaco) => MonacoUtils.configureForYaml(monaco)}
     />
   );
 };

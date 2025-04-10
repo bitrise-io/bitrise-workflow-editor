@@ -1,6 +1,5 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
 
-import { useRoute } from 'wouter';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import PageProps from '@/core/utils/PageProps';
@@ -9,6 +8,7 @@ import useFormattedYml from '@/hooks/useFormattedYml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useGetCiConfigJson, useGetCiConfigYml } from '@/hooks/useCiConfig';
 import { download } from '@/core/utils/CommonUtils';
+import useIsYmlPage from '@/hooks/useIsYmlPage';
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type Props = {
@@ -18,8 +18,8 @@ type Props = {
 
 const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const toast = useToast();
+  const isOpenedOnTheYmlPage = useIsYmlPage();
   const [, copyToClipboard] = useCopyToClipboard();
-  const [isOpenedOnTheYmlPage] = useRoute(/^\/yml/);
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const dataToSave = useBitriseYmlStore(({ yml, ymlString }) => (isOpenedOnTheYmlPage ? ymlString : yml));
 

@@ -1,6 +1,9 @@
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
+import { dequal } from 'dequal';
+import { isEmpty } from 'es-toolkit/compat';
+import { parse } from 'yaml';
 import {
   Meta,
   EnvModel,
@@ -18,10 +21,11 @@ import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import BitriseYmlApi from '../api/BitriseYmlApi';
 
-type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
+export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
-type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
+export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 
 export const bitriseYmlStore = createStore(
   combine(
@@ -492,4 +496,18 @@ export const bitriseYmlStore = createStore(
   ),
 );
 
-export { BitriseYmlStore, BitriseYmlStoreState };
+bitriseYmlStore.subscribe((currentState, previousState) => {
+  if (!isEmpty(previousState.yml) && !dequal(currentState.yml, previousState.yml)) {
+    bitriseYmlStore.setState({ ymlString: BitriseYmlApi.toYml(currentState.yml) });
+  }
+});
+
+export function updateYmlString(ymlString?: string) {
+  bitriseYmlStore.setState({ ymlString });
+
+  try {
+    bitriseYmlStore.setState({ yml: parse(ymlString || '') });
+  } catch {
+    // NOTE: Monaco edtior will show error if the yml is invalid
+  }
+}

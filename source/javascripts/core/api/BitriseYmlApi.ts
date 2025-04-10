@@ -1,7 +1,12 @@
+import { map } from 'traverse';
+import { cloneDeep } from 'es-toolkit';
 import { parse, stringify } from 'yaml';
+import { isEmpty } from 'es-toolkit/compat';
+
 import { BitriseYml } from '@/core/models/BitriseYml';
-import RuntimeUtils from '../utils/RuntimeUtils';
-import Client from './client'; // TRANSFORMATIONS
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
+import Client from './client';
 
 // TRANSFORMATIONS
 function toYml(model?: unknown): string {
@@ -22,6 +27,14 @@ function fromYml(yml: string): unknown {
   }
 
   return parse(yml);
+}
+
+function normalize(yml: BitriseYml): BitriseYml {
+  return map(cloneDeep(yml), function walker(value) {
+    if (['opts', 'run_if', 'triggers', 'credentials'].includes(this.key || '') && isEmpty(value)) {
+      this.delete();
+    }
+  });
 }
 
 type GetCiConfigOptions = {
@@ -56,7 +69,7 @@ async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<
   const path = ciConfigPath(options);
 
   if (options.format === 'json') {
-    return Client.get<BitriseYml>(path, { signal });
+    return Client.get<BitriseYml>(path, { signal }).then(normalize);
   }
 
   return Client.text(path, { signal });

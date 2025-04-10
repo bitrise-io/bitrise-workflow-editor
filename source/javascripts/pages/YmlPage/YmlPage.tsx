@@ -11,7 +11,7 @@ const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
 const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
-// TODO: implement onConfigSourceChangeSaved and onEditorChange functions
+// TODO: implement onConfigSourceChangeSaved function
 const YmlPage = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const { data: ymlSettings } = useBitriseYmlSettings();
@@ -72,7 +72,7 @@ const YmlPage = () => {
             )}
           </Notification>
         )}
-        <YmlEditor ciConfigYml={ciConfigYml} readOnly={!!ymlSettings?.usesRepositoryYml} onEditorChange={noop} />
+        <YmlEditor />
       </Box>
     </Box>
   );
