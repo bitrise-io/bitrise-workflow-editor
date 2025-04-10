@@ -1,5 +1,5 @@
 import { toMerged } from 'es-toolkit';
-import getCookie from '@/utils/cookies';
+import { getCookie } from '../utils/CommonUtils';
 
 const DEFAULT_TIMEOUT = 60_000;
 const DEFAULT_HEADERS = {
@@ -19,11 +19,20 @@ class ClientError extends Error {
 
   public response?: Response;
 
-  constructor(error: Error, response?: Response) {
+  public status?: number;
+
+  public statusText?: string;
+
+  public data?: unknown;
+
+  constructor(error: Error, response?: Response, data?: unknown) {
     super(error.message);
     this.name = 'ClientError';
     this.error = error;
     this.response = response;
+    this.status = response?.status;
+    this.statusText = response?.statusText;
+    this.data = data;
   }
 }
 
@@ -34,11 +43,19 @@ async function client(url: string, options?: ClientOpts) {
   });
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort('TimeoutError'), options?.timeout ?? DEFAULT_TIMEOUT);
-  options?.signal?.addEventListener('abort', () => {
-    controller.abort();
-    clearTimeout(timeoutId);
-  });
+  const timeoutId = setTimeout(
+    () => controller.abort(`Request timeout after ${options?.timeout ?? DEFAULT_TIMEOUT}ms`),
+    options?.timeout ?? DEFAULT_TIMEOUT,
+  );
+
+  options?.signal?.addEventListener(
+    'abort',
+    () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    },
+    { once: true },
+  );
 
   let response: Response | undefined;
 
@@ -51,15 +68,43 @@ async function client(url: string, options?: ClientOpts) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error('Response was not 2xx');
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (jsonParseError) {
+        errorData = undefined;
+      }
+
+      if (!errorData) {
+        try {
+          errorData = await response.text();
+        } catch (textParseError) {
+          errorData = 'Could not parse error response';
+        }
+      }
+
+      throw new ClientError(new Error(`HTTP Error: ${response.status} ${response.statusText}`), response, errorData);
     }
 
     return response;
   } catch (error) {
-    throw new ClientError(error as Error, response);
+    const clientError = new ClientError(error as Error, response);
+    if ((error as Error).name === 'AbortError') {
+      clientError.message = `Request was aborted: ${(error as Error).message}`;
+    } else if ((error as Error).name === 'TypeError' && (error as Error).message.includes('Failed to fetch')) {
+      clientError.message = `Network error: Could not connect to server (${(error as Error).message})`;
+    }
+    throw clientError;
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+async function parseResponse<T>(response: Response): Promise<T | undefined> {
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return undefined;
+  }
+  return (await response.json()) as T;
 }
 
 async function get<T>(url: string, options?: ClientOpts) {
@@ -69,48 +114,33 @@ async function get<T>(url: string, options?: ClientOpts) {
 
 async function post<T>(url: string, options?: ClientOpts) {
   const response = await client(url, { ...options, method: 'POST' });
-
-  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
-    return undefined;
-  }
-
-  return (await response.json()) as T;
+  return parseResponse<T>(response);
 }
 
 async function put<T>(url: string, options?: ClientOpts) {
   const response = await client(url, { ...options, method: 'PUT' });
-
-  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
-    return;
-  }
-
-  return (await response.json()) as T;
+  return parseResponse<T>(response);
 }
 
 async function patch<T>(url: string, options?: ClientOpts) {
   const response = await client(url, { ...options, method: 'PATCH' });
-
-  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
-    return;
-  }
-
-  return (await response.json()) as T;
+  return parseResponse<T>(response);
 }
 
 async function del<T>(url: string, options?: ClientOpts) {
   const response = await client(url, { ...options, method: 'DELETE' });
-
-  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
-    return;
-  }
-
-  return (await response.json()) as T;
+  return parseResponse<T>(response);
 }
 
 async function text(url: string, options?: ClientOpts) {
   const response = await client(url, {
     method: 'GET',
     ...options,
+    headers: {
+      Accept: 'text/plain,*/*',
+      'Content-Type': 'text/plain', // Override the default JSON content type
+      ...options?.headers,
+    },
   });
   return response.text();
 }

@@ -4,7 +4,7 @@
     "outDir": "./build",
     "typeRoots": [
       "./node_modules/@types",
-      "source/javascripts/typings"
+      "./source/javascripts/typings"
     ],
     "paths": {
       "@/*": [
@@ -38,15 +38,13 @@
     "experimentalDecorators": true
   },
   "include": [
-    "tests/**/*.ts",
+    "spec/**/*.ts",
     "playwright.config.ts",
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
-    "source/javascripts/**/*.tsx",
-    "spec/mocks.js"
+    "source/javascripts/**/*.tsx"
   ],
   "exclude": [
-    ".ruby-lsp",
     ".storybook",
     "_bin",
     "_scripts",
@@ -54,7 +52,6 @@
     "build",
     "cmd",
     "node_modules",
-    "rails",
     "release",
     "version"
   ]

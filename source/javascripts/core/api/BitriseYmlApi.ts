@@ -1,7 +1,7 @@
 import { parse, stringify } from 'yaml';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '../utils/RuntimeUtils';
-import Client from './client';
+import Client from './client'; // TRANSFORMATIONS
 
 // TRANSFORMATIONS
 function toYml(model?: unknown): string {
@@ -65,7 +65,10 @@ async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<
 async function saveCiConfig(options: SaveCiConfigOptions<string>): Promise<void>;
 async function saveCiConfig(options: SaveCiConfigOptions<BitriseYml>): Promise<void>;
 async function saveCiConfig<T = never>({ data, tabOpenDuringSave, ...options }: SaveCiConfigOptions<T>) {
-  const path = ciConfigPath({ format: typeof data === 'string' ? 'yml' : 'json', ...options });
+  const path = ciConfigPath({
+    format: typeof data === 'string' ? 'yml' : 'json',
+    ...options,
+  });
 
   if (RuntimeUtils.isWebsiteMode()) {
     return Client.post(path, {

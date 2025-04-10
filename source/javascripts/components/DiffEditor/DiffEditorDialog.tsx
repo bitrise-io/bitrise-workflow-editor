@@ -1,7 +1,7 @@
 import { useRef } from 'react';
-import { Box, Dialog, DialogBody, useDisclosure } from '@bitrise/bitkit';
+import { Box, Dialog, DialogBody, Notification, useDisclosure } from '@bitrise/bitkit';
 import { UseDisclosureProps } from '@chakra-ui/react';
-import Notification from '@/components/Notification';
+
 import DiffEditor from './DiffEditor';
 
 type Props = UseDisclosureProps & {
@@ -22,10 +22,9 @@ const DiffEditorDialog = ({ originalText, modifiedText, onChange, ...disclosureP
   return (
     <Dialog title="View and edit YAML changes" isOpen={isOpen} onClose={handleClose} size="full">
       <DialogBody>
-        <Notification
-          status="info"
-          message="You can edit the right side of the diff view, and your changes will be saved"
-        />
+        <Notification status="info">
+          You can edit the right side of the diff view, and your changes will be saved
+        </Notification>
         <Box mt="16" height="calc(100% - 96px)">
           <DiffEditor
             originalText={originalText}

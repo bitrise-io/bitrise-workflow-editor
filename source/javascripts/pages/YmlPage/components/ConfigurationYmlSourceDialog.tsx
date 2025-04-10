@@ -23,7 +23,7 @@ import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfig
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { useGetCiConfigYml, useSaveCiConfigYml } from '@/hooks/useCiConfig';
 import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
-import DateFormatter from '@/utils/dateFormatter';
+import { getFormattedDate } from '@/core/utils/CommonUtils';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
@@ -164,7 +164,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   let lastModifiedFormatted;
   if (lastModified && lastModified !== null) {
     const date = new Date(lastModified);
-    lastModifiedFormatted = DateFormatter.getFormattedDate(date);
+    lastModifiedFormatted = getFormattedDate(date);
   }
 
   const isDialogDisabled = isGetCiConfigPending || isPutCiConfigSettingsPending || isPostCiConfigPending;

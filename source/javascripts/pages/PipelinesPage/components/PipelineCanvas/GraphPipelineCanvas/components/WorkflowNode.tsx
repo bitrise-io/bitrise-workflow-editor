@@ -9,15 +9,15 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 import { WorkflowCard } from '@/components/unified-editor';
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import { moveStepIndices } from '@/core/services/StepService';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
-import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
+import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 
 import { LeftHandle, RightHandle } from './Handles';
