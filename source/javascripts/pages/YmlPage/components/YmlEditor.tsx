@@ -1,10 +1,5 @@
 import { useState } from 'react';
 import Editor, { Monaco } from '@monaco-editor/react';
-
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { useEnvVarsAndSecretsCompletionProvider } from '@/hooks/useMonacoCompletionProvider';
 import useMonacoYaml from '@/hooks/useMonacoYaml';
 
 const EDITOR_OPTIONS = {
@@ -28,10 +23,10 @@ const YmlEditor = (props: YmlEditorProps) => {
   const [monacoInstance, setMonaco] = useState<Monaco>();
 
   useMonacoYaml(monacoInstance);
-  useEnvVarsAndSecretsCompletionProvider({
-    monaco: monacoInstance,
-    language: 'yaml',
-  });
+  // useEnvVarsAndSecretsCompletionProvider({
+  //   monaco: monacoInstance,
+  //   language: 'yaml',
+  // });
 
   return (
     <Editor
@@ -45,11 +40,4 @@ const YmlEditor = (props: YmlEditorProps) => {
   );
 };
 
-const WrappedYmlEditor = (props: YmlEditorProps) => (
-  // eslint-disable-next-line react/destructuring-assignment
-  <BitriseYmlProvider yml={BitriseYmlApi.fromYml(props.ciConfigYml) as BitriseYml}>
-    <YmlEditor {...props} />
-  </BitriseYmlProvider>
-);
-
-export default WrappedYmlEditor;
+export default YmlEditor;

@@ -28,7 +28,7 @@ const YmlPage = () => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
-      <YmlEditorHeader ciConfigYml={ciConfigYml} onConfigSourceChangeSaved={noop} ymlSettings={ymlSettings || {}} />
+      <YmlEditorHeader ciConfigYml={ciConfigYml} onConfigSourceChangeSaved={noop} ymlSettings={ymlSettings} />
       <Box flexGrow="1" flexShrink="1" paddingBlock="12" backgroundColor="#1e1e1e" position="relative">
         {(splitMetaDataValue === null || splittedMetaDataValue === null) && (
           <Notification

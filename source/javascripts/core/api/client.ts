@@ -69,15 +69,16 @@ async function client(url: string, options?: ClientOpts) {
 
     if (!response.ok) {
       let errorData;
+
       try {
-        errorData = await response.json();
+        errorData = await response.clone().json();
       } catch (jsonParseError) {
         errorData = undefined;
       }
 
       if (!errorData) {
         try {
-          errorData = await response.text();
+          errorData = await response.clone().text();
         } catch (textParseError) {
           errorData = 'Could not parse error response';
         }

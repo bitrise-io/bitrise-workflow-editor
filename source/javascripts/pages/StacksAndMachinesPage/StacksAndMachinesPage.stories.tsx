@@ -55,8 +55,8 @@ export const FreeUser: Story = {
 };
 
 export const WithInvalidPreviousStackVersion: Story = {
-  args: {
-    yml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+  parameters: {
+    bitriseYml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
       stack: 'osx-xcode-15',
       machine_type_id: 'm2.large',
       stack_rollback_version: '1.0.0',
@@ -67,7 +67,9 @@ export const WithInvalidPreviousStackVersion: Story = {
 export const WithDeprecatedMachines: Story = {
   args: {
     deprecatedMachinesPeriod: 'in',
-    yml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+  },
+  parameters: {
+    bitriseYml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
       stack: 'linux-ubuntu-22.04',
       machine_type_id: 'standard',
     }),

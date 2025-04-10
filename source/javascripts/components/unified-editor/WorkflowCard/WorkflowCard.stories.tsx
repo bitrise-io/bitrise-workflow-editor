@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import WorkflowCard from './WorkflowCard';
 
 export default {
@@ -28,7 +27,6 @@ export default {
     id: 'wf1',
     isCollapsable: true,
   },
-  decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
 } as Meta<typeof WorkflowCard>;
 
 type Story = StoryObj<typeof WorkflowCard>;

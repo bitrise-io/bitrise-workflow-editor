@@ -41,8 +41,8 @@ export default {
 } as Meta<typeof TriggersPage>;
 
 export const TriggersPageEmptyState: StoryObj<typeof TriggersPage> = {
-  args: {
-    yml: { ...TEST_BITRISE_YML, trigger_map: undefined },
+  parameters: {
+    bitriseYml: { ...TEST_BITRISE_YML, trigger_map: undefined },
   },
 };
 

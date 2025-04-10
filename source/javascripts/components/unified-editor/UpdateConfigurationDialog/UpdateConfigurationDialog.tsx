@@ -28,17 +28,17 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const {
     error: errorCiConfigYml,
     refetch: refetchCiConfigYml,
-    isPending: isPendingCiConfigYml,
+    isLoading: isLoadingCiConfigYml,
   } = useGetCiConfigYml({ projectSlug: PageProps.appSlug() }, { enabled: false });
 
   const {
     error: errorGetCiConfigJson,
     refetch: refetchCiConfigJson,
-    isPending: isPendingGetCiConfigJson,
+    isLoading: isLoadingGetCiConfigJson,
   } = useGetCiConfigJson({ projectSlug: PageProps.appSlug() }, { enabled: false });
 
   const error = errorFormatYml || errorCiConfigYml || errorGetCiConfigJson;
-  const isPending = isPendingFormatYml || isPendingCiConfigYml || isPendingGetCiConfigJson;
+  const isPending = isPendingFormatYml || isLoadingCiConfigYml || isLoadingGetCiConfigJson;
 
   const handleCopyToClipboard = () => {
     formatYml(dataToSave, {

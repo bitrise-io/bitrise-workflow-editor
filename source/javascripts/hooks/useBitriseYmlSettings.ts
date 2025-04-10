@@ -24,7 +24,6 @@ export default function useBitriseYmlSettings(options?: UseBitriseYmlSettingsOpt
   return useQuery({
     queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(projectSlug)],
     queryFn: ({ signal }) => BitriseYmlSettingsApi.getYmlSettings({ projectSlug, signal }),
-    staleTime: Infinity,
     enabled: !!projectSlug,
     initialData: defaultInitialData,
     ...options,
