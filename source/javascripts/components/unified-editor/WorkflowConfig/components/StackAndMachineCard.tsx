@@ -4,6 +4,7 @@ import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type ButtonContentProps = {
@@ -31,6 +32,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
 
 const StackAndMachineCard = () => {
   const workflow = useWorkflowConfigContext();
+  const { projectMachineTypeId, projectStackId } = useProjectStackAndMachine();
   const { data, isLoading } = useStacksAndMachines();
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
 
@@ -46,6 +48,8 @@ const StackAndMachineCard = () => {
     ...data,
     selectedStackId: workflow?.userValues.meta?.['bitrise.io']?.stack ?? '',
     selectedMachineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id ?? '',
+    projectStackId,
+    projectMachineTypeId,
   });
 
   const isDefault = !selectedStack.id && !selectedMachineType.id;
@@ -73,9 +77,9 @@ const StackAndMachineCard = () => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
               stackId: e.target.value,
               machineTypeId: selectedMachineType.value,
-              defaultStackId: data?.defaultStackId || '',
-              availableStacks: data?.availableStacks,
-              availableMachineTypes: data?.availableMachineTypes,
+              projectStackId,
+              availableStacks: data?.availableStacks || [],
+              availableMachineTypes: data?.availableMachineTypes || [],
             });
             updateWorkflowMeta(workflow?.id || '', {
               stack: stackId,
@@ -100,9 +104,9 @@ const StackAndMachineCard = () => {
             const { stackId, machineTypeId } = StackAndMachineService.changeStackAndMachine({
               stackId: selectedStack.value,
               machineTypeId: e.target.value,
-              defaultStackId: data?.defaultStackId || '',
-              availableStacks: data?.availableStacks,
-              availableMachineTypes: data?.availableMachineTypes,
+              projectStackId,
+              availableStacks: data?.availableStacks || [],
+              availableMachineTypes: data?.availableMachineTypes || [],
             });
             updateWorkflowMeta(workflow?.id || '', {
               stack: stackId,

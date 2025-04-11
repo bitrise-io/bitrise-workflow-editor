@@ -1,7 +1,7 @@
 import { NotificationProps, Link, Text } from '@bitrise/bitkit';
 
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
-import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { DeprecatedMachinesReplacementConfig } from '@/core/models/MachineType';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -74,7 +74,7 @@ const getDeprecatedMachinesProps = (
 };
 
 const DefaultStackAndMachine = () => {
-  const { stackId, machineTypeId, stackRollbackVersion } = useDefaultStackAndMachine();
+  const { projectStackId, projectMachineTypeId, projectStackRollbackVersion } = useProjectStackAndMachine();
   const updateStacksAndMachinesMeta = useBitriseYmlStore((s) => s.updateStacksAndMachinesMeta);
 
   const updateDefaultMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
@@ -90,14 +90,15 @@ const DefaultStackAndMachine = () => {
         Default stack & machine
       </Text>
       <StackAndMachine
-        stackId={stackId}
-        machineTypeId={machineTypeId}
+        stackId={projectStackId}
+        machineTypeId={projectMachineTypeId}
         onChange={updateDefaultMeta}
-        stackRollbackVersion={stackRollbackVersion}
-        withoutDefaultStack
+        withMachineFallbacks
+        stackRollbackVersion={projectStackRollbackVersion}
+        withoutDefaultOptions
         notificationProps={getDeprecatedMachinesProps(
           GlobalProps.workspace()?.useReplacementForDeprecatedMachines,
-          ['standard', 'elite', 'elite-xl'].includes(machineTypeId),
+          ['standard', 'elite', 'elite-xl'].includes(projectMachineTypeId),
         )}
       />
     </div>

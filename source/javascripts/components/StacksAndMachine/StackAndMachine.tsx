@@ -8,7 +8,7 @@ import PageProps from '@/core/utils/PageProps';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
-import useDefaultStackAndMachine from '@/hooks/useDefaultStackAndMachine';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import MachineTypeSelector from './MachineTypeSelector';
 import StackSelector from './StackSelector';
 
@@ -21,8 +21,9 @@ type Props = {
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
+  withMachineFallbacks?: boolean;
   stackRollbackVersion?: string;
-  withoutDefaultStack?: boolean;
+  withoutDefaultOptions?: boolean;
   notificationProps?: NotificationProps;
 };
 
@@ -30,14 +31,15 @@ const StackAndMachine = ({
   stackId,
   machineTypeId,
   onChange,
+  withMachineFallbacks,
   stackRollbackVersion,
-  withoutDefaultStack,
+  withoutDefaultOptions,
   notificationProps,
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
-  const { stackId: defaultStackId, machineTypeId: defaultMachineTypeId } = useDefaultStackAndMachine();
+  const { projectStackId, projectMachineTypeId } = useProjectStackAndMachine();
 
   const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
 
@@ -51,11 +53,11 @@ const StackAndMachine = ({
     isMachineTypeSelectionDisabled,
   } = StackAndMachineService.prepareStackAndMachineSelectionData({
     ...data,
-    defaultStackId,
-    defaultMachineTypeId,
+    projectStackId,
+    projectMachineTypeId,
     selectedStackId: stackId,
     selectedMachineTypeId: machineTypeId,
-    withoutDefaultStack,
+    withoutDefaultOptions,
   });
 
   const availableRollbackVersion =
@@ -68,13 +70,28 @@ const StackAndMachine = ({
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,
         machineTypeId: selectedMachineTypeId,
-        defaultStackId: data?.defaultStackId || '',
-        availableStacks: data?.availableStacks,
-        availableMachineTypes: data?.availableMachineTypes,
+        projectStackId,
+        machineFallbackOptions: withMachineFallbacks
+          ? {
+              defaultMachineTypeIdOfOSs: data?.defaultMachineTypeIdOfOSs || {},
+              projectMachineTypeId,
+            }
+          : undefined,
+        availableStacks: data?.availableStacks || [],
+        availableMachineTypes: data?.availableMachineTypes || [],
       });
       onChange(result.stackId, result.machineTypeId, useRollbackVersionChecked ? availableRollbackVersion : '');
     },
-    [availableRollbackVersion, data?.availableMachineTypes, data?.availableStacks, data?.defaultStackId, onChange],
+    [
+      availableRollbackVersion,
+      data?.availableMachineTypes,
+      data?.availableStacks,
+      data?.defaultMachineTypeIdOfOSs,
+      onChange,
+      projectMachineTypeId,
+      projectStackId,
+      withMachineFallbacks,
+    ],
   );
 
   const useRollbackVersion =
