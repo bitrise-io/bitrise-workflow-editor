@@ -498,7 +498,13 @@ export const bitriseYmlStore = createStore(
 );
 
 export function updateYmlAndSyncYmlString({ yml }: Partial<BitriseYmlStoreState>): Partial<BitriseYmlStoreState> {
-  return { yml, ymlString: BitriseYmlApi.toYml(yml) };
+  const { ymlString: previousYmlString } = bitriseYmlStore.getState();
+  let ymlString = BitriseYmlApi.toYml(yml);
+  if (previousYmlString.startsWith('---')) {
+    ymlString = `---\n${ymlString}`;
+  }
+
+  return { yml, ymlString };
 }
 
 export function updateYmlStringAndSyncYml(ymlString?: string) {
