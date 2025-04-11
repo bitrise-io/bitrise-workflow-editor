@@ -588,7 +588,6 @@ describe('changeStackAndMachine', () => {
         machineTypeId: 'mac-m4',
         availableStacks: stacks,
         availableMachineTypes: machines,
-
         projectStackId: 'osx-xcode-16',
       });
 
