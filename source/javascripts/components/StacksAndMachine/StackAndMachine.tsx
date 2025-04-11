@@ -21,7 +21,7 @@ type Props = {
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
-  shouldFallbackToDefault?: boolean;
+  withMachineFallbacks?: boolean;
   stackRollbackVersion?: string;
   withoutDefaultOptions?: boolean;
   notificationProps?: NotificationProps;
@@ -31,7 +31,7 @@ const StackAndMachine = ({
   stackId,
   machineTypeId,
   onChange,
-  shouldFallbackToDefault,
+  withMachineFallbacks,
   stackRollbackVersion,
   withoutDefaultOptions,
   notificationProps,
@@ -71,7 +71,7 @@ const StackAndMachine = ({
         stackId: selectedStackId,
         machineTypeId: selectedMachineTypeId,
         projectStackId,
-        machineFallbackOptions: shouldFallbackToDefault
+        machineFallbackOptions: withMachineFallbacks
           ? {
               defaultMachineTypeIdOfOSs: data?.defaultMachineTypeIdOfOSs || {},
               projectMachineTypeId,
@@ -90,7 +90,7 @@ const StackAndMachine = ({
       onChange,
       projectMachineTypeId,
       projectStackId,
-      shouldFallbackToDefault,
+      withMachineFallbacks,
     ],
   );
 

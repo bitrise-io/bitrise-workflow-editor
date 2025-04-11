@@ -747,7 +747,8 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
           async function endSavingProcess(method) {
             if (method !== 'cancel') {
               const isStackAndMachinesMenu = viewModel.currentMenu.id === 'stack';
-              if (isStackAndMachinesMenu) {
+              const enableWfeReactStacksPage = useFeatureFlag('enable-wfe-react-stacks-and-machines-page');
+              if (isStackAndMachinesMenu && !enableWfeReactStacksPage) {
                 viewModel.loadDataProgress.start('Loading, wait a sec...');
               }
 

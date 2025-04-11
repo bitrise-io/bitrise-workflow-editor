@@ -509,6 +509,35 @@ describe('changeStackAndMachine', () => {
       expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
     });
 
+    it('keeps a specific stack with a compatible machine type', () => {
+      const result = StackAndMachineService.changeStackAndMachine({
+        stackId: 'linux-ubuntu-22',
+        machineTypeId: 'joker',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+      });
+
+      expect(result).toEqual({
+        stackId: 'linux-ubuntu-22',
+        machineTypeId: 'joker',
+      });
+    });
+
+    it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
+      const result = StackAndMachineService.changeStackAndMachine({
+        stackId: 'linux-ubuntu-22',
+        machineTypeId: 'mac-m4',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+      });
+
+      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
+    });
+  });
+
+  describe('machineFallbackOptions', () => {
     it('keeps a specific stack with project machine type', () => {
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: 'osx-xcode-15',
@@ -564,34 +593,6 @@ describe('changeStackAndMachine', () => {
       });
 
       expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'standard' });
-    });
-
-    it('keeps a specific stack with a compatible machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: 'joker',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: 'joker',
-      });
-    });
-
-    it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: 'mac-m4',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
     });
   });
 });

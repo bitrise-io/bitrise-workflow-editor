@@ -425,7 +425,7 @@ import PageProps from '@/core/utils/PageProps';
         $scope.$on(
           '$destroy',
           $rootScope.$on('MainController::saveSuccess', (_event, { forceReload, menu }) => {
-            const shouldReload = forceReload || menu !== 'env-vars';
+            const shouldReload = forceReload || menu !== 'stacks';
 
             if (shouldReload) {
               replaceAndReloadYml(appService.appConfig);

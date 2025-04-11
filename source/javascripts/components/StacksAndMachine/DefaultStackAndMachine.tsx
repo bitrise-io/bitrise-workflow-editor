@@ -93,7 +93,7 @@ const DefaultStackAndMachine = () => {
         stackId={projectStackId}
         machineTypeId={projectMachineTypeId}
         onChange={updateDefaultMeta}
-        shouldFallbackToDefault
+        withMachineFallbacks
         stackRollbackVersion={projectStackRollbackVersion}
         withoutDefaultOptions
         notificationProps={getDeprecatedMachinesProps(
