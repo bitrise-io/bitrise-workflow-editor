@@ -303,7 +303,7 @@ describe('prepareStackAndMachineSelectionData', () => {
   });
 
   describe('withoutDefaultOptions', () => {
-    it('returns the default stack and machine type when empty stack and machine type values are selected', () => {
+    it('returns the project stack and machine type when empty stack and machine type values are selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
