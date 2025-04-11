@@ -4,11 +4,8 @@ import LicensesPage from './LicensesPage';
 
 export default {
   component: LicensesPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
-  argTypes: {
-    onChange: { type: 'function' },
+  parameters: {
+    layout: 'fullscreen',
   },
 } as Meta<typeof LicensesPage>;
 

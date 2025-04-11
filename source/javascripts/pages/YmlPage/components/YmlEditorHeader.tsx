@@ -51,58 +51,49 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   };
 
   return (
-    <>
-      <Box
-        display="flex"
-        flexDirection={['column', 'row']}
-        gap="16"
-        alignItems={['flex-start', 'center']}
-        marginBlockEnd="24"
-        paddingInline="32"
-      >
-        <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
-          Configuration YAML
-        </Text>
-        {!usesRepositoryYml && isWebsiteMode && (
-          <Button
-            as="a"
-            href={`/api/app/${appSlug}/config.yml?is_download=1`}
-            leftIconName="Download"
-            size="sm"
-            target="_blank"
-            variant="tertiary"
-            onClick={onDownloadClick}
-          >
-            Download
-          </Button>
-        )}
-        {isWebsiteMode && (
-          <DataWidget
-            additionalElement={
-              <Tooltip
-                isDisabled={isRepositoryYmlAvailable}
-                label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
+    <Box display="flex" flexDirection={['column', 'row']} gap="16" alignItems={['flex-start', 'center']} p="32">
+      <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
+        Configuration YAML
+      </Text>
+      {!usesRepositoryYml && isWebsiteMode && (
+        <Button
+          as="a"
+          href={`/api/app/${appSlug}/config.yml?is_download=1`}
+          leftIconName="Download"
+          size="sm"
+          target="_blank"
+          variant="tertiary"
+          onClick={onDownloadClick}
+        >
+          Download
+        </Button>
+      )}
+      {isWebsiteMode && (
+        <DataWidget
+          additionalElement={
+            <Tooltip
+              isDisabled={isRepositoryYmlAvailable}
+              label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
+            >
+              <Button
+                isDisabled={!isRepositoryYmlAvailable}
+                onClick={onYmlSourceChangeClick}
+                size="sm"
+                variant="tertiary"
               >
-                <Button
-                  isDisabled={!isRepositoryYmlAvailable}
-                  onClick={onYmlSourceChangeClick}
-                  size="sm"
-                  variant="tertiary"
-                >
-                  Change
-                </Button>
-              </Tooltip>
-            }
-            infoLabel={infoLabel}
-          >
-            <DataWidgetItem
-              label="Source:"
-              labelTooltip="The source is where your configuration file is stored and managed."
-              value={usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
-            />
-          </DataWidget>
-        )}
-      </Box>
+                Change
+              </Button>
+            </Tooltip>
+          }
+          infoLabel={infoLabel}
+        >
+          <DataWidgetItem
+            label="Source:"
+            labelTooltip="The source is where your configuration file is stored and managed."
+            value={usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
+          />
+        </DataWidget>
+      )}
       {!!ymlSettings && (
         <ConfigurationYmlSourceDialog
           isOpen={isOpen}
@@ -120,7 +111,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           ciConfigYml={ciConfigYml}
         />
       )}
-    </>
+    </Box>
   );
 };
 

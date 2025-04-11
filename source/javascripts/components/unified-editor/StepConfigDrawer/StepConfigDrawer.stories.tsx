@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import StepConfigDrawer from './StepConfigDrawer';
 
 type Story = StoryObj<typeof StepConfigDrawer>;
@@ -19,7 +18,6 @@ const meta: Meta<typeof StepConfigDrawer> = {
       mapping: { 'active-ssh-key': 0, 'git-clone': 1 },
     },
   },
-  decorators: [(Story) => withBitriseYml(TEST_BITRISE_YML, Story)],
 };
 
 export default meta;

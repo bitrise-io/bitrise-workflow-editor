@@ -33,12 +33,6 @@ const makeNotificationMetadataEndpoint = () => {
 
 export default {
   component: TriggersPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
-  argTypes: {
-    onChange: { type: 'function' },
-  },
   parameters: {
     msw: {
       handlers: [...makeNotificationMetadataEndpoint()],
@@ -47,8 +41,8 @@ export default {
 } as Meta<typeof TriggersPage>;
 
 export const TriggersPageEmptyState: StoryObj<typeof TriggersPage> = {
-  args: {
-    yml: { ...TEST_BITRISE_YML, trigger_map: undefined },
+  parameters: {
+    bitriseYmlStore: { yml: { ...TEST_BITRISE_YML, trigger_map: undefined } },
   },
 };
 

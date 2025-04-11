@@ -19,8 +19,8 @@ import { TriggerMapItemModelRegexCondition, TriggersModel } from '@/core/models/
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
+import { deepCloneSimpleObject } from '@/core/utils/CommonUtils';
 import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';

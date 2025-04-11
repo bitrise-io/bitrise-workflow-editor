@@ -15,13 +15,10 @@ const formatYml = () => {
 export default {
   component: UpdateConfigurationDialog,
   args: {
-    appSlug: '123',
-    defaultBranch: 'main',
-    gitRepoSlug: 'VoyagerGitRepo',
-    getDataToSave: () => {
-      return 'key: value';
-    },
-    onComplete: () => {},
+    isOpen: true,
+  },
+  argTypes: {
+    onClose: { type: 'function' },
   },
   parameters: {
     msw: {

@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import DeleteStepBundleDialog from './DeleteStepBundleDialog';
 
 export default {
@@ -13,7 +12,6 @@ export default {
     onClose: { type: 'function' },
     onDeleteStepBundle: { type: 'function' },
   },
-  decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
 } as Meta<typeof DeleteStepBundleDialog>;
 
 export const Default: StoryObj = {};

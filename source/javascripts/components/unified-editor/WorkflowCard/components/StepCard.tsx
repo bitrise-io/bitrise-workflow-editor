@@ -1,17 +1,17 @@
 import { memo, MouseEvent, ReactNode, useMemo } from 'react';
-
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 import { Avatar, Box, Card, CardProps, ColorButton, Icon, Skeleton, SkeletonBox, Text, Tooltip } from '@bitrise/bitkit';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from '@chakra-ui/react';
 import { useLocalStorage } from 'usehooks-ts';
+
 import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import defaultIcon from '@/../images/step/icon-default.svg';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import StepService from '@/core/services/StepService';
 import { Step } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
+import defaultIcon from '@/../images/step/icon-default.svg';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import { SortableStepItem } from '../WorkflowCard.types';

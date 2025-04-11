@@ -99,7 +99,7 @@ module.exports = {
       },
     },
     {
-      files: ['./tests/*.spec.ts'],
+      files: ['./spec/*.spec.ts'],
       rules: {
         'testing-library/prefer-screen-queries': 'off',
       },

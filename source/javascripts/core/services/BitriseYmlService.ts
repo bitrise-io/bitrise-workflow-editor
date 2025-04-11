@@ -1,8 +1,6 @@
 import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } from 'es-toolkit';
 
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-
 import {
   BitriseYml,
   EnvironmentItemModel,
@@ -25,6 +23,7 @@ import {
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 
+import { deepCloneSimpleObject } from '../utils/CommonUtils';
 import StepService from './StepService';
 import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';

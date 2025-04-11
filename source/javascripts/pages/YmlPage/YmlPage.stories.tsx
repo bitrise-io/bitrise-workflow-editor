@@ -1,23 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { http, HttpResponse } from 'msw';
 import YmlPage from './YmlPage';
 
 type StoryType = StoryObj<typeof YmlPage>;
 
 export default {
   component: YmlPage,
-  args: {
-    ciConfigYml: BitriseYmlApi.toYml(TEST_BITRISE_YML),
-    ymlSettings: {
-      isModularYamlSupported: true,
-      isYmlSplit: false,
-      lastModified: '2024-12-03',
-      lines: 5000,
-      usesRepositoryYml: false,
-      ymlRootPath: '',
-    },
-  },
   beforeEach: () => {
     window.parent.pageProps = {
       ...window.parent.pageProps,
@@ -38,6 +27,22 @@ export default {
       </Box>
     ),
   ],
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('app/:projectSlug/pipeline_config', () => {
+          return HttpResponse.json({
+            is_modular_yaml_supported: true,
+            is_yml_split: false,
+            last_modified: '2024-12-03',
+            lines: 5000,
+            uses_repository_yml: false,
+            yml_root_path: '',
+          });
+        }),
+      ],
+    },
+  },
 } as Meta<typeof YmlPage>;
 
 export const CliMode: StoryType = {
@@ -58,14 +63,20 @@ export const RepositoryYmlAvailableLimitIsFalse: StoryType = {
 };
 
 export const YmlStoredOnGit: StoryType = {
-  args: {
-    ymlSettings: {
-      isModularYamlSupported: true,
-      isYmlSplit: false,
-      lastModified: '2024-12-03',
-      lines: 5000,
-      usesRepositoryYml: true,
-      ymlRootPath: '',
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('app/:projectSlug/pipeline_config', () => {
+          return HttpResponse.json({
+            is_modular_yaml_supported: true,
+            is_yml_split: false,
+            last_modified: '2024-12-03',
+            lines: 5000,
+            uses_repository_yml: true,
+            yml_root_path: '',
+          });
+        }),
+      ],
     },
   },
 };

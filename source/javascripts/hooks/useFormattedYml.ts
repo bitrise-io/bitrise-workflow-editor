@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { ClientError } from '@/core/api/client';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
 const useFormattedYml = () => {
-  return useMutation({
-    mutationFn: (ciConfig: BitriseYml) => BitriseYmlApi.formatYml(ciConfig),
+  return useMutation<string, ClientError, BitriseYml | string>({
+    mutationFn: BitriseYmlApi.formatCiConfig,
   });
 };
 

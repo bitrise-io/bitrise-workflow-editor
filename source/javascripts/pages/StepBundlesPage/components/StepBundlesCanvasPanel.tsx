@@ -5,11 +5,11 @@ import { useShallow } from '@/hooks/useShallow';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { moveStepIndices } from '@/utils/stepSelectionHandlers';
 import { LibraryType } from '@/core/models/Step';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import StepBundleService from '@/core/services/StepBundleService';
+import { moveStepIndices } from '@/core/services/StepService';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 

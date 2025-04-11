@@ -8,12 +8,6 @@ const meta: Meta<typeof EnvVarsPage> = {
   parameters: {
     layout: 'fullscreen',
   },
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
-  argTypes: {
-    onChange: { type: 'function' },
-  },
 };
 
 export const Default: Story = {};

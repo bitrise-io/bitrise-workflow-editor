@@ -4,9 +4,6 @@ import StepBundlesPage from './StepBundlesPage';
 
 export default {
   component: StepBundlesPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
   parameters: {
     layout: 'fullscreen',
   },
@@ -17,4 +14,6 @@ export default {
   ),
 } as Meta<typeof StepBundlesPage>;
 
-export const Default: StoryObj = {};
+type Story = StoryObj<typeof StepBundlesPage>;
+
+export const Default: Story = {};
