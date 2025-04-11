@@ -16,10 +16,15 @@ export type MachineTypeWithValue = MachineType & {
   value: string;
 };
 
-type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>> & {
+type SelectStackAndMachineProps = Omit<
+  Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>>,
+  'defaultMachineTypeId' | 'defaultStackId'
+> & {
+  projectStackId: string;
+  projectMachineTypeId: string;
   selectedStackId: string;
   selectedMachineTypeId: string;
-  withoutDefaults?: boolean;
+  withoutDefaultOptions?: boolean;
 };
 
 type SelectStackAndMachineResult = {
@@ -61,15 +66,15 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
 
 function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
   const {
-    defaultStackId = '',
+    projectStackId = '',
     selectedStackId,
     availableStacks = [],
-    defaultMachineTypeId = '',
+    projectMachineTypeId = '',
     defaultMachineTypeIdOfOSs = {},
     selectedMachineTypeId,
     availableMachineTypes = [],
     hasDedicatedMachine,
-    withoutDefaults = false,
+    withoutDefaultOptions = false,
   } = props;
 
   const result: SelectStackAndMachineResult = {
@@ -82,11 +87,11 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     isMachineTypeSelectionDisabled: false,
   };
 
-  const defaultStack = StackService.getStackById(availableStacks, defaultStackId);
+  const defaultStack = StackService.getStackById(availableStacks, projectStackId);
   const selectedStack = StackService.getStackById(availableStacks, selectedStackId);
 
   // Push the default stack to the beginning of the available options
-  if (defaultStack && !withoutDefaults) {
+  if (defaultStack && !withoutDefaultOptions) {
     result.availableStackOptions = [
       {
         value: '',
@@ -114,7 +119,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   } else if (selectedStack) {
     result.selectedStack = { ...selectedStack, value: selectedStack.id };
   } else if (defaultStack) {
-    result.selectedStack = { ...defaultStack, value: withoutDefaults ? defaultStack.id : '' };
+    result.selectedStack = { ...defaultStack, value: withoutDefaultOptions ? defaultStack.id : '' };
   }
 
   const isSelfHostedPoolSelected = StackService.isSelfHosted(result.selectedStack);
@@ -132,7 +137,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
 
   const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
 
-  const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
+  const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, projectMachineTypeId);
   const selectedMachineType = MachineTypeService.getMachineById(selectableMachines, selectedMachineTypeId);
 
   const selectedStackOS = StackService.getOsOfStack(result.selectedStack);
@@ -143,7 +148,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
 
   // Machine type options
   result.availableMachineTypeOptions = selectableMachines.map(MachineTypeService.toMachineOption);
-  if (!withoutDefaults) {
+  if (!withoutDefaultOptions) {
     if (defaultMachineType) {
       result.availableMachineTypeOptions = [
         {
@@ -180,9 +185,12 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       value: selectedMachineType.id,
     };
   } else if (defaultMachineType) {
-    result.selectedMachineType = { ...defaultMachineType, value: withoutDefaults ? defaultMachineType.id : '' };
+    result.selectedMachineType = { ...defaultMachineType, value: withoutDefaultOptions ? defaultMachineType.id : '' };
   } else if (defaultMachineTypeOfOS) {
-    result.selectedMachineType = { ...defaultMachineTypeOfOS, value: withoutDefaults ? defaultMachineTypeOfOS.id : '' };
+    result.selectedMachineType = {
+      ...defaultMachineTypeOfOS,
+      value: withoutDefaultOptions ? defaultMachineTypeOfOS.id : '',
+    };
   }
 
   return result;
@@ -191,40 +199,42 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
 function changeStackAndMachine({
   stackId,
   machineTypeId,
-  defaultMachineTypeId = '',
-  defaultStackId,
-  availableStacks = [],
-  availableMachineTypes = [],
-  defaultMachineTypeIdOfOSs = {},
-  shouldFallbackToDefault = false,
+  projectStackId,
+  availableStacks,
+  availableMachineTypes,
+  machineFallbackOptions,
 }: {
   stackId: string;
   machineTypeId: string;
-  defaultMachineTypeId: string;
-  defaultStackId: string;
-  availableStacks?: Stack[];
-  availableMachineTypes?: MachineType[];
-  defaultMachineTypeIdOfOSs?: {
-    [key: string]: string;
+  projectStackId: string;
+  availableStacks: Stack[];
+  availableMachineTypes: MachineType[];
+  machineFallbackOptions?: {
+    defaultMachineTypeIdOfOSs: {
+      [key: string]: string;
+    };
+    projectMachineTypeId: string;
   };
-  shouldFallbackToDefault?: boolean;
 }) {
   const newStack = StackService.getStackById(availableStacks, stackId);
-  const defaultStack = StackService.getStackById(availableStacks, defaultStackId);
-  const newStackOS = StackService.getOsOfStack(newStack || defaultStack || createStack());
+  const projectStack = StackService.getStackById(availableStacks, projectStackId);
+  const newStackOS = StackService.getOsOfStack(newStack || projectStack || createStack());
 
-  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, newStack ?? defaultStack);
+  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, newStack ?? projectStack);
   const currentMachine = MachineTypeService.getMachineById(selectableMachines, machineTypeId);
 
-  const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
-  const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[newStackOS];
+  const projectMachineType = MachineTypeService.getMachineById(
+    selectableMachines,
+    machineFallbackOptions?.projectMachineTypeId,
+  );
+  const defaultMachineTypeIdOfOS = machineFallbackOptions?.defaultMachineTypeIdOfOSs[newStackOS];
   const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
 
-  const fallbackMachineIds = defaultMachineType?.id || defaultMachineTypeOfOS?.id || selectableMachines?.[0]?.id || '';
+  const fallbackMachineIds = projectMachineType?.id || defaultMachineTypeOfOS?.id || selectableMachines?.[0]?.id || '';
 
   return {
     stackId: newStack?.id ?? '',
-    machineTypeId: currentMachine?.id ?? (shouldFallbackToDefault ? fallbackMachineIds : ''),
+    machineTypeId: currentMachine?.id ?? (machineFallbackOptions ? fallbackMachineIds : ''),
   };
 }
 
