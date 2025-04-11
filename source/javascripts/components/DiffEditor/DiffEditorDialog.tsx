@@ -1,7 +1,7 @@
 import { Box, Dialog, DialogBody, DialogProps, Notification } from '@bitrise/bitkit';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { updateYmlString } from '@/core/stores/BitriseYmlStore';
+import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
 import DiffEditor from './DiffEditor';
 
 const DiffEditorDialog = (props: Omit<DialogProps, 'title'>) => {
@@ -15,7 +15,7 @@ const DiffEditorDialog = (props: Omit<DialogProps, 'title'>) => {
           You can edit the right side of the diff view, and your changes will be saved
         </Notification>
         <Box mt="16" height="calc(100% - 96px)">
-          <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={updateYmlString} />
+          <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={updateYmlStringAndSyncYml} />
         </Box>
       </DialogBody>
     </Dialog>
