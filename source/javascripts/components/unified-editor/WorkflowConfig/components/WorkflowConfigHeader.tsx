@@ -19,22 +19,15 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   return (
     <>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        p={variant === 'panel' ? '16px 24px 0px 24px' : '0'}
-      >
-        <Box>
-          <Text as="h3" textStyle="heading/h3">
-            {userValues?.title || id || 'Workflow'}
+      <Box p={variant === 'panel' ? '16px 24px 0px 24px' : '0'}>
+        <Text as="h3" textStyle="heading/h3">
+          {userValues?.title || id || 'Workflow'}
+        </Text>
+        {showSubTitle && (
+          <Text textStyle="body/sm/regular" color="text/secondary">
+            {WorkflowService.getUsedByText(dependants)}
           </Text>
-          {showSubTitle && (
-            <Text textStyle="body/sm/regular" color="text/secondary">
-              {WorkflowService.getUsedByText(dependants)}
-            </Text>
-          )}
-        </Box>
+        )}
       </Box>
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
