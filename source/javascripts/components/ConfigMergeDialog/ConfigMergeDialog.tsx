@@ -11,13 +11,11 @@ import {
   Notification,
   Text,
 } from '@bitrise/bitkit';
-import * as monaco from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
-import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
+import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { useShallow } from '@/hooks/useShallow';
+import monaco from '@/monaco';
 import { configMergeDialog, useConfigMergeDialog } from './ConfigMergeDialog.store';
-
-loader.config({ monaco });
 
 type Props = Omit<DialogProps, 'title' | 'isOpen' | 'onClose'> & {
   onSave: VoidFunction;

@@ -5,14 +5,20 @@ import './_serviceRegister';
 
 import '../stylesheets/main.css';
 
-const ctxs = [
-  // app
-  require.context('./controllers', true),
-  require.context('./components', true),
-  require.context('./services', true),
-  require.context('./directives', true),
-];
+import.meta.glob('./vendor.js', { eager: true });
 
-ctxs.forEach(function (ctx) {
-  ctx.keys().forEach(ctx);
+const loadModules = async () => {
+  await Promise.all([
+    ...Object.values(import.meta.glob('./services/*.js')).map((load) => load()),
+    ...Object.values(import.meta.glob('./components/*.js')).map((load) => load()),
+    ...Object.values(import.meta.glob('./directives/*.js')).map((load) => load()),
+  ]);
+
+  await Promise.all(Object.values(import.meta.glob('./controllers/*.js')).map((load) => load()));
+};
+
+$(() => {
+  loadModules().then(async () => {
+    angular.bootstrap(document, ['BitriseWorkflowEditor']);
+  });
 });

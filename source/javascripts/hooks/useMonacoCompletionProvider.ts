@@ -1,17 +1,17 @@
 import { useEffect, useMemo } from 'react';
-import { languages } from 'monaco-editor';
 import { Monaco } from '@monaco-editor/react';
 import useEnvVarsAndSecrets from '@/hooks/useEnvVarsAndSecrets';
+import monaco from '@/monaco';
 
 type Props = {
   monaco: Monaco | undefined;
   language: string;
 };
 
-const useEnvVarsAndSecretsCompletionProvider = ({ monaco, language }: Props) => {
+const useEnvVarsAndSecretsCompletionProvider = ({ monaco: monacoInstance, language }: Props) => {
   const items = useEnvVarsAndSecrets();
 
-  const provider: languages.CompletionItemProvider = useMemo(
+  const provider: monaco.languages.CompletionItemProvider = useMemo(
     () => ({
       triggerCharacters: ['$'],
       provideCompletionItems: (model, position) => {
@@ -37,11 +37,11 @@ const useEnvVarsAndSecretsCompletionProvider = ({ monaco, language }: Props) => 
           endColumn,
         };
 
-        const suggestions: languages.CompletionItem[] = items.map((item) => ({
+        const suggestions: monaco.languages.CompletionItem[] = items.map((item) => ({
           label: item.key,
           insertText: item.key,
           detail: item.source,
-          kind: languages.CompletionItemKind.Variable,
+          kind: monaco.languages.CompletionItemKind.Variable,
           range,
         }));
 
@@ -52,9 +52,9 @@ const useEnvVarsAndSecretsCompletionProvider = ({ monaco, language }: Props) => 
   );
 
   useEffect(() => {
-    const disposable = monaco?.languages.registerCompletionItemProvider(language, provider);
+    const disposable = monacoInstance?.languages.registerCompletionItemProvider(language, provider);
     return disposable?.dispose;
-  }, [monaco, language, provider]);
+  }, [monacoInstance, language, provider]);
 };
 
 export { useEnvVarsAndSecretsCompletionProvider };
