@@ -9,9 +9,21 @@ import {
   getFileStorageDocuments,
   getProvProfiles,
 } from '@/core/api/EnvVarsApi.mswMocks';
+import BuildApiMswMocks from '@/core/api/BuildApi.mswMocks';
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;
+
+const mswHandlers = [
+  getSecrets(),
+  getCertificates(),
+  getProvProfiles(),
+  getStacksAndMachines(),
+  getFileStorageDocuments(),
+  getDefaultOutputs(':appSlug'),
+  BuildApiMswMocks.startBuild(),
+  StepApiMocks.getLocalStep({ status: 'success' }),
+];
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
@@ -26,14 +38,7 @@ const meta: Meta<typeof WorkflowsPage> = {
   parameters: {
     layout: 'fullscreen',
     msw: {
-      handlers: [
-        StepApiMocks.getLocalStep({ status: 'success' }),
-        getCertificates(),
-        getProvProfiles(),
-        getStacksAndMachines(),
-        getFileStorageDocuments(),
-        getDefaultOutputs(':appSlug'),
-      ],
+      handlers: mswHandlers,
     },
   },
   decorators: (Story) => (
@@ -52,12 +57,7 @@ const cliStory: Story = {
   parameters: {
     layout: 'fullscreen',
     msw: {
-      handlers: [
-        StepApiMocks.getLocalStep({ status: 'success' }),
-        getSecretsFromLocal(),
-        getDefaultOutputs(),
-        getStacksAndMachines(),
-      ],
+      handlers: [getDefaultOutputs(), getSecretsFromLocal(), ...mswHandlers],
     },
   },
 };
@@ -66,18 +66,7 @@ export const CliMode: Story = {
   ...cliStory,
 };
 
-export const WebsiteMode: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        StepApiMocks.getLocalStep({ status: 'success' }),
-        getSecrets(),
-        getDefaultOutputs(),
-        getStacksAndMachines(),
-      ],
-    },
-  },
-};
+export const WebsiteMode: Story = {};
 
 export const UniqueStepLimit: Story = {
   beforeEach: () => {
@@ -90,13 +79,17 @@ export const UniqueStepLimit: Story = {
 
 export const DedicatedMachine: Story = {
   parameters: {
-    msw: { handlers: [getStacksAndMachines({ hasDedicatedMachine: true })] },
+    msw: {
+      handlers: [getStacksAndMachines({ hasDedicatedMachine: true }), ...mswHandlers],
+    },
   },
 };
 
 export const SelfHostedRunner: Story = {
   parameters: {
-    msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
+    msw: {
+      handlers: [getStacksAndMachines({ hasSelfHostedRunner: true }), ...mswHandlers],
+    },
   },
 };
 
