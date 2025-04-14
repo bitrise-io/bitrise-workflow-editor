@@ -1,5 +1,5 @@
 import { RefObject, useCallback, useRef } from 'react';
-import { Box, Card, Link, Notification, NotificationProps } from '@bitrise/bitkit';
+import { Box, Card, Link, Notification } from '@bitrise/bitkit';
 
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -11,6 +11,7 @@ import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import MachineTypeSelector from './MachineTypeSelector';
 import StackSelector from './StackSelector';
+import DeprecatedMachineNotification from './DeprecatedMachineNotification';
 
 const useOrientation = (ref: RefObject<HTMLDivElement>) => {
   const { width } = useResizeObserver({ ref, box: 'border-box' });
@@ -24,7 +25,6 @@ type Props = {
   withMachineFallbacks?: boolean;
   stackRollbackVersion?: string;
   withoutDefaultOptions?: boolean;
-  notificationProps?: NotificationProps;
 };
 
 const StackAndMachine = ({
@@ -34,7 +34,6 @@ const StackAndMachine = ({
   withMachineFallbacks,
   stackRollbackVersion,
   withoutDefaultOptions,
-  notificationProps,
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
@@ -134,7 +133,7 @@ const StackAndMachine = ({
           </Link>
         </Notification>
       )}
-      {!!notificationProps && <Notification marginBlockStart="12" {...notificationProps} />}
+      <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
     </Card>
   );
 };
