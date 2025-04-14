@@ -1,10 +1,10 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Box, Dialog, DialogBody, DialogProps, Notification, Text } from '@bitrise/bitkit';
-import { parse } from 'yaml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import DiffEditor from './DiffEditor';
 
 const DiffEditorDialogBody = forwardRef((_, ref) => {
@@ -16,7 +16,7 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
 
   const trySaveChanges = () => {
     try {
-      parse(modifiedText);
+      BitriseYmlApi.fromYml(modifiedText);
       updateYmlStringAndSyncYml(modifiedText);
       return modifiedText;
     } catch (error) {

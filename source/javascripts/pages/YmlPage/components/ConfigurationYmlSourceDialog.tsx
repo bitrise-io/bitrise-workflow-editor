@@ -19,12 +19,12 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 
-import { parse } from 'yaml';
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
 import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
 import { getFormattedDate } from '@/core/utils/CommonUtils';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
@@ -93,7 +93,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       if (!usesRepositoryYml && configurationSource === 'git' && ciConfigFromRepo.current) {
         postCiConfigMutate({
           projectSlug,
-          yml: parse(ciConfigFromRepo.current),
+          yml: BitriseYmlApi.fromYml(ciConfigFromRepo.current),
         });
       } else {
         onSuccess();

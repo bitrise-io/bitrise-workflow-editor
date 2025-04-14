@@ -22,14 +22,15 @@ function toYml(model?: unknown): string {
 
   return stringify(model, {
     version: '1.1',
-    aliasDuplicateObjects: false,
     indentSeq: false,
+    schema: 'yaml-1.1',
+    aliasDuplicateObjects: false,
   });
 }
 
-function fromYml(yml: string): unknown {
+function fromYml(yml: string): BitriseYml {
   if (!yml) {
-    return {};
+    return { format_version: '' };
   }
 
   return parse(yml);
@@ -130,8 +131,9 @@ async function saveCiConfig<T = never>({ data, version, tabOpenDuringSave, ...op
   });
 }
 
-async function formatCiConfig(data: string): Promise<string> {
+async function formatCiConfig(data: string, signal?: AbortSignal): Promise<string> {
   const response = await Client.text(FORMAT_YML_PATH, {
+    signal,
     body: JSON.stringify({
       app_config_datastore_yaml: data,
     }),

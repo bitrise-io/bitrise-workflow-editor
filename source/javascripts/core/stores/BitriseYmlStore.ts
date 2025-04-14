@@ -1,6 +1,5 @@
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
-import { parse } from 'yaml';
 import {
   BitriseYml,
   EnvironmentItemModel,
@@ -18,6 +17,7 @@ import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import BitriseYmlApi from '../api/BitriseYmlApi';
 
 export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
@@ -496,7 +496,7 @@ export const bitriseYmlStore = createStore(
 
 export function updateYmlStringAndSyncYml(ymlString?: string) {
   try {
-    bitriseYmlStore.setState({ ymlString, yml: parse(ymlString || '') });
+    bitriseYmlStore.setState({ ymlString, yml: BitriseYmlApi.fromYml(ymlString || '') });
   } catch {
     // NOTE: Monaco editor will show error if the yml is invalid
     bitriseYmlStore.setState({ ymlString });
@@ -505,8 +505,8 @@ export function updateYmlStringAndSyncYml(ymlString?: string) {
 
 export function initFromServerResponse({ ymlString, version }: { ymlString: string; version: string }) {
   bitriseYmlStore.setState({
-    yml: parse(ymlString),
-    savedYml: parse(ymlString),
+    yml: BitriseYmlApi.fromYml(ymlString),
+    savedYml: BitriseYmlApi.fromYml(ymlString),
     ymlString,
     savedYmlString: ymlString,
     savedYmlVersion: version,
