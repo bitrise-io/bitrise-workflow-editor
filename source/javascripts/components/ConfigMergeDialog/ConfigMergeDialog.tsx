@@ -18,13 +18,12 @@ import { useQuery } from '@tanstack/react-query';
 import GlobalProps from '@/core/utils/GlobalProps';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import useCurrentPage from '@/hooks/useCurrentPage';
 
 loader.config({ monaco });
 
-type Props = Omit<DialogProps, 'title' | 'onClose'> & {
-  onSave: VoidFunction;
-  onClose: (method: 'close_button' | 'cancel_button') => void;
-};
+type Props = Omit<DialogProps, 'title'>;
 
 const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
   automaticLayout: true,
@@ -51,7 +50,9 @@ function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];
   const decorations: monaco.editor.IModelDeltaDecoration[] = [];
 
-  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, { stringSeparator: '\n' }).forEach((region) => {
+  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, {
+    stringSeparator: '\n',
+  }).forEach((region) => {
     if (region.ok) {
       rows.push(...region.ok);
     } else if (region.conflict) {
@@ -107,6 +108,7 @@ function useRemoteCiConfig() {
 }
 
 const ConfigMergeDialogBody = () => {
+  const currentPage = useCurrentPage();
   const [baseYml, setBaseYml] = useState<string>(bitriseYmlStore.getState().savedYmlString);
   const [yourYml, setYourYml] = useState<string>(bitriseYmlStore.getState().ymlString);
   const [finalYml, setFinalYml] = useState<string>('');
@@ -157,6 +159,14 @@ const ConfigMergeDialogBody = () => {
   useEffect(() => {
     setFinalYml(mergedYml);
   }, [mergedYml]);
+
+  const handleSave = () => {
+    segmentTrack('Workflow Editor Config Merge Popup Save Results Button Clicked', {
+      tab_name: currentPage,
+    });
+
+    // TODO: Save the merged YML
+  };
 
   return (
     <>
@@ -239,8 +249,16 @@ const ConfigMergeDialogBody = () => {
   );
 };
 
-const ConfigMergeDialog = ({ isOpen, onSave, onClose, ...props }: Props) => {
+const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
+  const currentPage = useCurrentPage();
   const { isFetching: isLoading } = useRemoteCiConfig();
+
+  const handleClose = (method: 'close_button' | 'cancel_button') => {
+    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
+      tab_name: currentPage,
+      popup_step_dismiss_method: method,
+    });
+  };
 
   return (
     <>
@@ -250,7 +268,7 @@ const ConfigMergeDialog = ({ isOpen, onSave, onClose, ...props }: Props) => {
         title="Review changes"
         isClosable={!isLoading}
         minHeight={['100dvh', 'unset']}
-        onClose={() => onClose('close_button')}
+        onClose={() => handleClose('close_button')}
         {...props}
       >
         <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
@@ -258,7 +276,7 @@ const ConfigMergeDialog = ({ isOpen, onSave, onClose, ...props }: Props) => {
         </DialogBody>
         <DialogFooter>
           <ButtonGroup spacing={16}>
-            <Button variant="secondary" isDisabled={isLoading} onClick={() => onClose('cancel_button')}>
+            <Button variant="secondary" isDisabled={isLoading} onClick={() => handleClose('cancel_button')}>
               Cancel
             </Button>
             <Button variant="primary" isLoading={isLoading} onClick={onSave}>

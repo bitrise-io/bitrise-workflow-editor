@@ -9,9 +9,6 @@ type Story = StoryObj<typeof ConfigMergeDialog>;
 const meta: Meta<typeof ConfigMergeDialog> = {
   component: ConfigMergeDialog,
   argTypes: {
-    onSave: {
-      type: 'function',
-    },
     onClose: {
       type: 'function',
     },

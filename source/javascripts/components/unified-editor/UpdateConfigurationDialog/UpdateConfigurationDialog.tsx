@@ -6,9 +6,10 @@ import PageProps from '@/core/utils/PageProps';
 import useFormattedYml from '@/hooks/useFormattedYml';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useGetCiConfigJson, useGetCiConfigYml } from '@/hooks/useCiConfig';
 import { download } from '@/core/utils/CommonUtils';
 import useIsYmlPage from '@/hooks/useIsYmlPage';
+import { useGetCiConfig } from '@/hooks/useCiConfig';
+import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type Props = {
@@ -29,16 +30,10 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
     error: errorCiConfigYml,
     refetch: refetchCiConfigYml,
     isLoading: isLoadingCiConfigYml,
-  } = useGetCiConfigYml({ projectSlug: PageProps.appSlug() }, { enabled: false });
+  } = useGetCiConfig({ projectSlug: PageProps.appSlug() }, { enabled: false });
 
-  const {
-    error: errorGetCiConfigJson,
-    refetch: refetchCiConfigJson,
-    isLoading: isLoadingGetCiConfigJson,
-  } = useGetCiConfigJson({ projectSlug: PageProps.appSlug() }, { enabled: false });
-
-  const error = errorFormatYml || errorCiConfigYml || errorGetCiConfigJson;
-  const isPending = isPendingFormatYml || isLoadingCiConfigYml || isLoadingGetCiConfigJson;
+  const error = errorFormatYml || errorCiConfigYml;
+  const isPending = isPendingFormatYml || isLoadingCiConfigYml;
 
   const handleCopyToClipboard = () => {
     formatYml(dataToSave, {
@@ -85,7 +80,11 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   };
 
   const handleDoneClick = () => {
-    Promise.all([refetchCiConfigYml(), refetchCiConfigJson()]).then(onClose);
+    refetchCiConfigYml().then(({ data }) => {
+      if (data) {
+        initFromServerResponse({ ymlString: data.data, version: data.version });
+      }
+    });
   };
 
   return (

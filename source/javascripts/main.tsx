@@ -7,9 +7,9 @@ import { ErrorBoundary } from '@datadog/browser-rum-react';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import Client from '@/core/api/client';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
-import { useGetCiConfigJson, useGetCiConfigYml } from '@/hooks/useCiConfig';
+import { useGetCiConfig } from '@/hooks/useCiConfig';
 import MainLayout from '@/layouts/MainLayout';
 
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
@@ -63,28 +63,21 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const isLoaded = useRef(false);
 
   // TODO: Handle errors
-  const { data: initialCiConfigYml } = useGetCiConfigYml({
-    projectSlug: PageProps.appSlug(),
-  });
-  const { data: initialCiConfigJson } = useGetCiConfigJson({
+  const { data: initialCiConfigYml } = useGetCiConfig({
     projectSlug: PageProps.appSlug(),
   });
 
   useEffect(() => {
-    if (!isLoaded.current && initialCiConfigYml && initialCiConfigJson) {
-      bitriseYmlStore.setState({
-        yml: initialCiConfigJson.data,
-        savedYml: initialCiConfigJson.data,
-        savedYmlVersion: initialCiConfigJson.version,
+    if (!isLoaded.current && initialCiConfigYml) {
+      initFromServerResponse({
         ymlString: initialCiConfigYml.data,
-        savedYmlString: initialCiConfigYml.data,
-        savedYmlStringVersion: initialCiConfigYml.version,
+        version: initialCiConfigYml.version,
       });
       isLoaded.current = true;
     }
-  }, [initialCiConfigYml, initialCiConfigJson]);
+  }, [initialCiConfigYml]);
 
-  if (!initialCiConfigYml || !initialCiConfigJson) {
+  if (!initialCiConfigYml) {
     // TODO: Loading state
     return null;
   }

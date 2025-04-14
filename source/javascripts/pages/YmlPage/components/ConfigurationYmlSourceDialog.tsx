@@ -19,9 +19,10 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 
+import { parse } from 'yaml';
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { useGetCiConfigYml, useSaveCiConfigYml } from '@/hooks/useCiConfig';
+import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
 import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
 import { getFormattedDate } from '@/core/utils/CommonUtils';
 
@@ -79,7 +80,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     error: postCiConfigError,
     isPending: isPostCiConfigPending,
     mutate: postCiConfigMutate,
-  } = useSaveCiConfigYml({
+  } = useSaveCiConfig({
     onSuccess,
   });
 
@@ -91,8 +92,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     onSuccess: () => {
       if (!usesRepositoryYml && configurationSource === 'git' && ciConfigFromRepo.current) {
         postCiConfigMutate({
-          data: ciConfigFromRepo.current,
           projectSlug,
+          yml: parse(ciConfigFromRepo.current),
         });
       } else {
         onSuccess();
@@ -104,7 +105,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     error: getCiConfigError,
     isPending: isGetCiConfigPending,
     refetch: getCiConfigFromRepo,
-  } = useGetCiConfigYml({ projectSlug, forceToReadFromRepo: true }, { enabled: false });
+  } = useGetCiConfig({ projectSlug, forceToReadFromRepo: true }, { enabled: false });
 
   const toast = useToast();
 
