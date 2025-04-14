@@ -8,6 +8,8 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import Client from './client';
 
+const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
+
 // TRANSFORMATIONS
 function toYml(model?: unknown): string {
   if (!model) {
@@ -18,7 +20,7 @@ function toYml(model?: unknown): string {
     return model;
   }
 
-  return stringify(model, { version: '1.1', aliasDuplicateObjects: false });
+  return stringify(model, { version: '1.1', aliasDuplicateObjects: false, indentSeq: false });
 }
 
 function fromYml(yml: string): unknown {
@@ -44,8 +46,19 @@ type GetCiConfigOptions = {
   forceToReadFromRepo?: boolean;
 };
 
+type GetCiConfigResultYml = {
+  data: string;
+  version: string;
+};
+
+type GetCiConfigResultJson = {
+  data: BitriseYml;
+  version: string;
+};
+
 type SaveCiConfigOptions<T> = {
   data: T;
+  version?: string;
   projectSlug: string;
   tabOpenDuringSave?: string;
 };
@@ -63,28 +76,41 @@ function ciConfigPath({ format, projectSlug, forceToReadFromRepo }: Omit<GetCiCo
   return [basePath, forceToReadFromRepo ? '?is_force_from_repo=1' : ''].join('');
 }
 
-async function getCiConfig(options: GetCiConfigOptions & { format: 'json' }): Promise<BitriseYml>;
-async function getCiConfig(options: GetCiConfigOptions & { format: 'yml' }): Promise<string>;
-async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<BitriseYml | string> {
+async function getCiConfig(options: GetCiConfigOptions & { format: 'json' }): Promise<GetCiConfigResultJson>;
+async function getCiConfig(options: GetCiConfigOptions & { format: 'yml' }): Promise<GetCiConfigResultYml>;
+async function getCiConfig({
+  signal,
+  ...options
+}: GetCiConfigOptions): Promise<GetCiConfigResultJson | GetCiConfigResultYml> {
   const path = ciConfigPath(options);
+  const response = await Client.raw(path, { signal, method: 'GET' });
 
   if (options.format === 'json') {
-    return Client.get<BitriseYml>(path, { signal }).then(normalize);
+    return {
+      data: normalize(await response.json()),
+      version: response.headers.get(CI_CONFIG_VERSION_HEADER) || '',
+    };
   }
 
-  return Client.text(path, { signal });
+  return {
+    data: await response.text(),
+    version: response.headers.get(CI_CONFIG_VERSION_HEADER) || '',
+  };
 }
 
 async function saveCiConfig(options: SaveCiConfigOptions<string>): Promise<void>;
 async function saveCiConfig(options: SaveCiConfigOptions<BitriseYml>): Promise<void>;
-async function saveCiConfig<T = never>({ data, tabOpenDuringSave, ...options }: SaveCiConfigOptions<T>) {
+async function saveCiConfig<T = never>({ data, version, tabOpenDuringSave, ...options }: SaveCiConfigOptions<T>) {
   const path = ciConfigPath({
     format: typeof data === 'string' ? 'yml' : 'json',
     ...options,
   });
 
+  const headers: HeadersInit = version ? { [CI_CONFIG_VERSION_HEADER]: version } : {};
+
   if (RuntimeUtils.isWebsiteMode()) {
     return Client.post(path, {
+      headers,
       body: JSON.stringify({
         app_config_datastore_yaml: data,
         tab_open_during_save: tabOpenDuringSave,
@@ -93,6 +119,7 @@ async function saveCiConfig<T = never>({ data, tabOpenDuringSave, ...options }: 
   }
 
   return Client.post(path, {
+    headers,
     body: JSON.stringify({
       bitrise_yml: data,
     }),
@@ -112,6 +139,8 @@ async function formatCiConfig(data: BitriseYml | string): Promise<string> {
 
   return response || toYml(data);
 }
+
+export type { GetCiConfigResultJson, GetCiConfigResultYml };
 
 export default {
   toYml,

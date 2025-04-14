@@ -8,9 +8,10 @@ const DEFAULT_HEADERS = {
 };
 
 type ExtraOpts = {
-  excludeCSRF?: boolean;
   timeout?: number;
+  excludeCSRF?: boolean;
 };
+
 type ClientOpts = RequestInit & ExtraOpts;
 
 /* eslint-disable no-underscore-dangle */
@@ -162,4 +163,5 @@ export default {
   patch,
   del,
   text,
+  raw: client,
 };

@@ -138,7 +138,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       if (configurationSource === 'git') {
         getCiConfigFromRepo().then((response) => {
           if (response.data) {
-            ciConfigFromRepo.current = response.data;
+            ciConfigFromRepo.current = response.data.data;
             putCiConfigSettingsMutate({
               model: {
                 usesRepositoryYml,

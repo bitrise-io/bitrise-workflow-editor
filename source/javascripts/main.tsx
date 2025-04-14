@@ -1,4 +1,4 @@
-import { ComponentProps, PropsWithChildren, StrictMode, useEffect } from 'react';
+import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from 'react';
 import { Provider as BitkitProvider } from '@bitrise/bitkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
@@ -60,6 +60,8 @@ const App = () => {
 };
 
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
+  const isLoaded = useRef(false);
+
   // TODO: Handle errors
   const { data: initialCiConfigYml } = useGetCiConfigYml({
     projectSlug: PageProps.appSlug(),
@@ -69,12 +71,17 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    bitriseYmlStore.setState({
-      yml: initialCiConfigJson,
-      savedYml: initialCiConfigJson,
-      ymlString: initialCiConfigYml,
-      savedYmlString: initialCiConfigYml,
-    });
+    if (!isLoaded.current && initialCiConfigYml && initialCiConfigJson) {
+      bitriseYmlStore.setState({
+        yml: initialCiConfigJson.data,
+        savedYml: initialCiConfigJson.data,
+        savedYmlVersion: initialCiConfigJson.version,
+        ymlString: initialCiConfigYml.data,
+        savedYmlString: initialCiConfigYml.data,
+        savedYmlStringVersion: initialCiConfigYml.version,
+      });
+      isLoaded.current = true;
+    }
   }, [initialCiConfigYml, initialCiConfigJson]);
 
   if (!initialCiConfigYml || !initialCiConfigJson) {

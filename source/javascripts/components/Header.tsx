@@ -1,88 +1,106 @@
 import { useCallback, useEffect } from 'react';
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
 
+import { cloneDeep, noop } from 'es-toolkit';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
-import { useSaveCiConfigJson, useSaveCiConfigYml } from '@/hooks/useCiConfig';
-import useIsYmlPage from '@/hooks/useIsYmlPage';
+import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import { useGetCiConfigYml, useSaveCiConfigYml } from '@/hooks/useCiConfig';
 import useHashLocation from '@/hooks/useHashLocation';
+import { ClientError } from '@/core/api/client';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import useFormattedYml from '@/hooks/useFormattedYml';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
-
-const onSuccess = () => {
-  bitriseYmlStore.setState((s) => ({
-    savedYml: s.yml,
-    savedYmlString: s.ymlString,
-  }));
-};
+import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 
 const onDiscard = () => {
   bitriseYmlStore.setState((s) => ({
-    yml: s.savedYml,
+    yml: cloneDeep(s.savedYml),
     ymlString: s.savedYmlString,
   }));
 };
 
 const Header = () => {
   const toast = useToast();
-  const isYmlPage = useIsYmlPage();
   const { isMobile } = useResponsive();
   const [pathWithSearchParams] = useHashLocation();
-  const { isOpen, onClose, onOpen: openDiffViewer } = useDisclosure();
+  const { isOpen: isDiffViewerOpen, onClose: closeDiffViewer, onOpen: openDiffViewer } = useDisclosure();
+  const { isOpen: isMergeDialogOpen, onClose: closeMergeDialog, onOpen: openMergeDialog } = useDisclosure();
 
   const hasChanges = useBitriseYmlStore((s) => {
     return JSON.stringify(s.yml) !== JSON.stringify(s.savedYml) || s.ymlString !== s.savedYmlString;
   });
 
-  const { isPending: ciConfigYmlIsSaving, mutate: saveCiConfigYml } = useSaveCiConfigYml({
-    onSuccess,
-    onError: (error) => {
-      toast({
-        title: 'Failed to save changes',
-        description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
-        status: 'error',
-        duration: null,
-        isClosable: true,
-      });
-    },
-  });
+  const { isRefetching, refetch: refetchCiConfig } = useGetCiConfigYml(
+    { projectSlug: PageProps.appSlug() },
+    { enabled: false },
+  );
 
-  const { isPending: ciConfigJsonIsSaving, mutate: saveCiConfigJson } = useSaveCiConfigJson({
-    onSuccess,
-    onError: (error) => {
-      toast({
-        title: 'Failed to save changes',
-        description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
-        status: 'error',
-        duration: null,
-        isClosable: true,
-      });
+  const onSaveSuccess = () => {
+    // TODO: handle error
+    refetchCiConfig().then(({ data }) => {
+      if (data) {
+        initFromServerResponse({ version: data.version, ymlString: data.data });
+      }
+    });
+  };
+
+  const onError = useCallback(
+    (error: ClientError) => {
+      if (error.status === 409) {
+        openMergeDialog();
+      } else {
+        toast({
+          title: 'Failed to save changes',
+          description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
+          status: 'error',
+          duration: null,
+          isClosable: true,
+        });
+      }
     },
+    [toast, openMergeDialog],
+  );
+
+  const { isPending: formatYmlIsPending, mutate: formatYml } = useFormattedYml();
+
+  const { isPending: ciConfigYmlIsSaving, mutate: saveCiConfigYml } = useSaveCiConfigYml({
+    onSuccess: onSaveSuccess,
+    onError,
   });
 
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const appSlug = PageProps.appSlug();
   const appName = PageProps.app()?.name ?? '';
   const appPath = isWebsiteMode ? `/app/${appSlug}` : '';
-  const isSaving = ciConfigYmlIsSaving || ciConfigJsonIsSaving;
+  const isSaving = formatYmlIsPending || ciConfigYmlIsSaving || isRefetching;
   const tabOpenDuringSave = pathWithSearchParams.split('?')[0].split('/').pop();
 
   const saveCIConfig = useCallback(() => {
-    if (isYmlPage) {
-      saveCiConfigYml({
-        projectSlug: appSlug,
-        data: bitriseYmlStore.getState().ymlString,
-        tabOpenDuringSave,
-      });
-    } else {
-      saveCiConfigJson({
-        projectSlug: appSlug,
-        data: bitriseYmlStore.getState().yml,
-        tabOpenDuringSave,
-      });
-    }
-  }, [appSlug, isYmlPage, saveCiConfigJson, saveCiConfigYml, tabOpenDuringSave]);
+    formatYml(BitriseYmlApi.toYml(bitriseYmlStore.getState().yml), {
+      onError,
+      onSuccess: (formattedYml) => {
+        bitriseYmlStore.setState({ ymlString: formattedYml });
+        saveCiConfigYml({
+          data: formattedYml,
+          projectSlug: appSlug,
+          version: bitriseYmlStore.getState().savedYmlStringVersion,
+          tabOpenDuringSave,
+        });
+      },
+    });
+  }, [appSlug, saveCiConfigYml, formatYml, onError, tabOpenDuringSave]);
+
+  const onCloseConfigMergeDialog = (method: 'close_button' | 'cancel_button') => {
+    closeMergeDialog();
+
+    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
+      tab_name: tabOpenDuringSave,
+      popup_step_dismiss_method: method,
+    });
+  };
 
   useEffect(() => {
     const handler = (e: KeyboardEvent): void => {
@@ -159,7 +177,8 @@ const Header = () => {
           Save changes
         </Button>
       </Box>
-      <DiffEditorDialog isOpen={isOpen} onClose={onClose} />
+      <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      <ConfigMergeDialog isOpen={isMergeDialogOpen} onSave={noop} onClose={onCloseConfigMergeDialog} />
     </Box>
   );
 };

@@ -1,5 +1,5 @@
 import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import BitriseYmlApi, { GetCiConfigResultJson, GetCiConfigResultYml } from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
@@ -10,6 +10,7 @@ type UseGetCiConfigProps = {
 
 type UseSaveCiConfigProps<T> = {
   data: T;
+  version?: string;
   projectSlug: string;
   tabOpenDuringSave?: string;
 };
@@ -17,7 +18,7 @@ type UseSaveCiConfigProps<T> = {
 type UseGetCiConfigOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientError>, 'queryKey' | 'queryFn'>;
 type UseSaveCiConfigOptions<T> = UseMutationOptions<void, ClientError, UseSaveCiConfigProps<T>>;
 
-export function useGetCiConfigYml(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<string>) {
+export function useGetCiConfigYml(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<GetCiConfigResultYml>) {
   return useQuery({
     queryKey: [BitriseYmlApi.ciConfigPath({ format: 'yml', ...props })],
     queryFn: ({ signal }) => BitriseYmlApi.getCiConfig({ ...props, format: 'yml', signal }),
@@ -26,7 +27,7 @@ export function useGetCiConfigYml(props: UseGetCiConfigProps, options?: UseGetCi
   });
 }
 
-export function useGetCiConfigJson(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<BitriseYml>) {
+export function useGetCiConfigJson(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<GetCiConfigResultJson>) {
   return useQuery({
     queryKey: [BitriseYmlApi.ciConfigPath({ format: 'json', ...props })],
     queryFn: ({ signal }) => BitriseYmlApi.getCiConfig({ ...props, format: 'json', signal }),
