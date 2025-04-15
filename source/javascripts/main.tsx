@@ -13,6 +13,7 @@ import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import MainLayout from '@/layouts/MainLayout';
 
+import useCiConfiSettings from '@/hooks/useCiConfiSettings';
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
 
@@ -66,6 +67,7 @@ const App = () => {
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const isLoaded = useRef(false);
 
+  useCiConfiSettings();
   const {
     data: initialCiConfig,
     isLoading,

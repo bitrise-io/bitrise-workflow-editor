@@ -22,7 +22,7 @@ import {
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
-import { usePutCiConfigSettingsMutation } from '@/hooks/useCiConfigSettings';
+import { usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { getFormattedDate } from '@/core/utils/CommonUtils';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
@@ -88,7 +88,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     error: putCiConfigSettingsError,
     isPending: isPutCiConfigSettingsPending,
     mutate: putCiConfigSettingsMutate,
-  } = usePutCiConfigSettingsMutation({
+  } = usePutCiConfigSettings({
     onSuccess: () => {
       if (!usesRepositoryYml && configurationSource === 'git' && ciConfigFromRepo.current) {
         postCiConfigMutate({

@@ -1,11 +1,11 @@
 import Editor from '@monaco-editor/react';
 import MonacoUtils from '@/core/utils/MonacoUtils';
-import useBitriseYmlSettings from '@/hooks/useBitriseYmlSettings';
+import useCiConfiSettings from '@/hooks/useCiConfiSettings';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
 
 const YmlEditor = () => {
-  const { data: ymlSettings } = useBitriseYmlSettings();
+  const { data: ymlSettings } = useCiConfiSettings();
   const value = useBitriseYmlStore((s) => s.ymlString);
 
   return (

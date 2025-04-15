@@ -16,7 +16,7 @@ import { paths } from '@/routes';
 import useHashLocation from '@/hooks/useHashLocation';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import useBitriseYmlSettings from '@/hooks/useBitriseYmlSettings';
+import useCiConfiSettings from '@/hooks/useCiConfiSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -41,7 +41,7 @@ const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
 const Navigation = (props: Props) => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
-  const { data } = useBitriseYmlSettings();
+  const { data } = useCiConfiSettings();
   const isDefaultTabRef = useRef(true);
 
   useEffect(() => {

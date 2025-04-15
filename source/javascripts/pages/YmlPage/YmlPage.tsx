@@ -2,7 +2,7 @@ import { Box, Link, Notification, Text } from '@bitrise/bitkit';
 import { noop } from 'es-toolkit';
 import useUserMetaData from '@/hooks/useUserMetaData';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBitriseYmlSettings from '@/hooks/useBitriseYmlSettings';
+import useCiConfiSettings from '@/hooks/useCiConfiSettings';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import YmlEditor from './components/YmlEditor';
 import YmlEditorHeader from './components/YmlEditorHeader';
@@ -14,7 +14,7 @@ const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 // TODO: implement onConfigSourceChangeSaved function
 const YmlPage = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-  const { data: ymlSettings } = useBitriseYmlSettings();
+  const { data: ymlSettings } = useCiConfiSettings();
   const ciConfigYml = useBitriseYmlStore((s) => s.ymlString);
 
   const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
