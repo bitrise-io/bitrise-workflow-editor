@@ -83,7 +83,7 @@ const Header = () => {
         projectSlug: appSlug,
         tabOpenDuringSave: currentPage,
         yml: bitriseYmlStore.getState().yml,
-        version: bitriseYmlStore.getState().savedYmlStringVersion,
+        version: bitriseYmlStore.getState().savedYmlVersion,
       });
     },
     [appSlug, currentPage, save],

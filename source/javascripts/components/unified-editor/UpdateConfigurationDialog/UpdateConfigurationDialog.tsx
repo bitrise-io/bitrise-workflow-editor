@@ -3,13 +3,13 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@
 import { useCopyToClipboard } from 'usehooks-ts';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import PageProps from '@/core/utils/PageProps';
-import useFormattedYml from '@/hooks/useFormattedYml';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import useIsYmlPage from '@/hooks/useIsYmlPage';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import useFormattedYml from '@/hooks/useFormattedYml';
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type Props = {
@@ -17,14 +17,14 @@ type Props = {
   onClose: () => void;
 };
 
-const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
+const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   const toast = useToast();
   const isOpenedOnTheYmlPage = useIsYmlPage();
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const dataToSave = useBitriseYmlStore(({ yml, ymlString }) => (isOpenedOnTheYmlPage ? ymlString : yml));
 
-  const { isPending: isPendingFormatYml, error: errorFormatYml, mutate: formatYml } = useFormattedYml();
+  const { data: formattedYml, isLoading: isPendingFormatYml, error: errorFormatYml } = useFormattedYml(dataToSave);
 
   const {
     error: errorCiConfigYml,
@@ -35,48 +35,44 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const error = errorFormatYml || errorCiConfigYml;
   const isPending = isPendingFormatYml || isLoadingCiConfigYml;
 
-  const handleCopyToClipboard = () => {
-    formatYml(dataToSave, {
-      onSuccess: async (formattedYml) => {
-        const isYmlCopiedSuccessfully = await copyToClipboard(formattedYml);
-        if (isYmlCopiedSuccessfully) {
-          toast({
-            title: 'Copied to clipboard',
-            description:
-              "Commit the content of the current configuration YAML file to the project's repository before updating the setting.",
-            status: 'success',
-            isClosable: true,
-          });
-        } else {
-          toast({
-            title: 'Error',
-            description: 'Something went wrong while copying the yml.',
-            status: 'error',
-            isClosable: true,
-          });
-        }
-      },
-      onSettled: () => {
-        segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
-          yml_source: 'bitrise',
-          source: 'update_configuration_yml_modal',
-        });
-      },
+  const handleCopyToClipboard = async () => {
+    if (!formattedYml) {
+      return;
+    }
+
+    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'update_configuration_yml_modal',
     });
+    const isYmlCopiedSuccessfully = await copyToClipboard(formattedYml);
+    if (isYmlCopiedSuccessfully) {
+      toast({
+        title: 'Copied to clipboard',
+        description:
+          "Commit the content of the current configuration YAML file to the project's repository before updating the setting.",
+        status: 'success',
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Something went wrong while copying the yml.',
+        status: 'error',
+        isClosable: true,
+      });
+    }
   };
 
   const handleDownloadClick = () => {
-    formatYml(dataToSave, {
-      onSuccess: (formattedYml) => {
-        download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8');
-      },
-      onSettled: () => {
-        segmentTrack('Workflow Editor Download Yml Button Clicked', {
-          yml_source: 'bitrise',
-          source: 'update_configuration_yml_modal',
-        });
-      },
+    if (!formattedYml) {
+      return;
+    }
+
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'update_configuration_yml_modal',
     });
+    download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
   const handleDoneClick = () => {
@@ -88,7 +84,7 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Update configuration YAML">
+    <>
       <DialogBody>
         <Text marginBlockEnd="24">
           If you would like to apply these changes to your configuration, depending on your setup, you need to do the
@@ -106,6 +102,7 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
             variant="tertiary"
             width="fit-content"
             leftIconName="Download"
+            isDisabled={isPendingFormatYml || !!error}
             onClick={handleDownloadClick}
           >
             Download changed version
@@ -115,6 +112,7 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
             variant="tertiary"
             width="fit-content"
             leftIconName="Duplicate"
+            isDisabled={isPendingFormatYml || !!error}
             onClick={handleCopyToClipboard}
           >
             Copy changed configuration
@@ -124,16 +122,24 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-        {!!error?.response && <YmlDialogErrorNotification response={error.response} />}
+        {error && <YmlDialogErrorNotification error={error} />}
       </DialogBody>
       <DialogFooter>
         <Button isLoading={isPending} variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button isLoading={isPending} onClick={handleDoneClick}>
+        <Button isLoading={isPending} isDisabled={!!error} onClick={handleDoneClick}>
           Done
         </Button>
       </DialogFooter>
+    </>
+  );
+};
+
+const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
+  return (
+    <Dialog isOpen={isOpen} onClose={onClose} title="Update configuration YAML">
+      <DialogContent onClose={onClose} />
     </Dialog>
   );
 };

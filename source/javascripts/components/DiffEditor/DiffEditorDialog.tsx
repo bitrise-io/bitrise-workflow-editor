@@ -1,30 +1,47 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Box, Dialog, DialogBody, DialogProps, Notification, Text } from '@bitrise/bitkit';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import useFormattedYml from '@/hooks/useFormattedYml';
+import LoadingState from '@/components/LoadingState';
 import DiffEditor from './DiffEditor';
 
 const DiffEditorDialogBody = forwardRef((_, ref) => {
   useImperativeHandle(ref, () => ({ trySaveChanges }));
   const currentPage = useCurrentPage();
   const originalText = useBitriseYmlStore((s) => s.savedYmlString);
-  const [modifiedText, setModifiedText] = useState(useBitriseYmlStore((s) => s.ymlString));
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const modifiedYml = useBitriseYmlStore((s) => s.yml);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const {
+    data: modifiedText,
+    isLoading: isFormattedYmlLoading,
+    error: formattedYmlError,
+  } = useFormattedYml(modifiedYml);
+
+  useEffect(() => {
+    if (formattedYmlError) {
+      setErrorMessage(`Failed to format YML: ${formattedYmlError.message}`);
+    }
+  }, [formattedYmlError]);
 
   const trySaveChanges = () => {
     try {
+      if (modifiedText === undefined) {
+        return true;
+      }
       BitriseYmlApi.fromYml(modifiedText);
       updateYmlStringAndSyncYml(modifiedText);
-      return modifiedText;
+      return true;
     } catch (error) {
       setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);
       segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
         tab_name: currentPage,
         source: 'diff',
       });
+      return false;
     }
   };
 
@@ -41,7 +58,10 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
           </Notification>
         )}
         <Box flex="1">
-          <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={setModifiedText} />
+          {isFormattedYmlLoading && <LoadingState />}
+          {originalText && modifiedText && (
+            <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={updateYmlStringAndSyncYml} />
+          )}
         </Box>
       </Box>
     </DialogBody>
@@ -51,8 +71,7 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
 const DiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
   const bodyRef = useRef<{ trySaveChanges: () => string | undefined }>(null);
   const handleClose = () => {
-    const result = bodyRef.current?.trySaveChanges();
-    if (result) {
+    if (bodyRef.current?.trySaveChanges()) {
       onClose?.();
     }
   };

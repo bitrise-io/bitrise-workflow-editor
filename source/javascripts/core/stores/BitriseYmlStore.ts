@@ -29,10 +29,9 @@ export const bitriseYmlStore = createStore(
       discardKey: Date.now(),
       yml: {} as BitriseYml,
       savedYml: {} as BitriseYml,
-      savedYmlVersion: '',
       ymlString: '',
       savedYmlString: '',
-      savedYmlStringVersion: '',
+      savedYmlVersion: '',
     },
     (set, get) => ({
       getUniqueStepIds() {
@@ -514,6 +513,5 @@ export function initFromServerResponse({ ymlString, version }: { ymlString: stri
     ymlString,
     savedYmlString: ymlString,
     savedYmlVersion: version,
-    savedYmlStringVersion: version,
   });
 }

@@ -1,20 +1,19 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { Notification, NotificationProps, Text } from '@bitrise/bitkit';
+import { ClientError } from '@/core/api/client';
 
 type Props = {
-  response: Response | undefined;
+  error: ClientError | undefined;
 };
 
 const YmlDialogErrorNotification = (props: Props) => {
-  const { response } = props;
-  const [parsedErrorResponse, setParsedErrorResponse] = useState<Record<'error_msg', string> | undefined>(undefined);
-
-  const message = parsedErrorResponse?.error_msg || 'Unknown error';
+  const { error } = props;
+  const message = error?.getResponseErrorMessage() || error?.message || 'Unknown error occurred';
 
   let action: NotificationProps['action'];
   let content: ReactNode = message;
 
-  if (response?.status === 404) {
+  if (error?.status === 404) {
     content =
       "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.";
   } else if (message && message.includes('Split configuration requires an Enterprise plan')) {
@@ -30,16 +29,6 @@ const YmlDialogErrorNotification = (props: Props) => {
       target: '_blank',
     };
   }
-
-  useEffect(() => {
-    const parse = async (resp: Response) => {
-      const parsedJson = await resp.json();
-      setParsedErrorResponse(parsedJson);
-    };
-    if (response) {
-      parse(response);
-    }
-  }, [response]);
 
   return (
     <Notification marginBlockStart="24" status="error" action={action}>

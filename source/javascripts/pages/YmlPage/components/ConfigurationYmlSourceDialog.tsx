@@ -63,7 +63,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const onSuccess = () => {
     onClose();
     toast({
-      title: 'Source succesfully changed',
+      title: 'Source successfully changed',
       description: usesRepositoryYml
         ? `From now you can manage your Configuration YAML in the project's git repository.`
         : 'From now you can manage your Configuration YAML on bitrise.io.',
@@ -103,7 +103,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const {
     error: getCiConfigError,
-    isPending: isGetCiConfigPending,
+    isLoading: isGetCiConfigLoading,
     refetch: getCiConfigFromRepo,
   } = useGetCiConfig({ projectSlug, forceToReadFromRepo: true }, { enabled: false });
 
@@ -168,7 +168,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     lastModifiedFormatted = getFormattedDate(date);
   }
 
-  const isDialogDisabled = isGetCiConfigPending || isPutCiConfigSettingsPending || isPostCiConfigPending;
+  const isDialogDisabled = isGetCiConfigLoading || isPutCiConfigSettingsPending || isPostCiConfigPending;
 
   const onCopyClick = () => {
     toast({
@@ -388,16 +388,14 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             </List>
           </>
         )}
-        {isGetCiConfigPending && (
+        {isGetCiConfigLoading && (
           <Notification status="progress" marginBlockStart="24">
             Looking for a configuration file in the app’s repository.
           </Notification>
         )}
-        {!!getCiConfigError?.response && <YmlDialogErrorNotification response={getCiConfigError.response} />}
-        {!!putCiConfigSettingsError?.response && (
-          <YmlDialogErrorNotification response={putCiConfigSettingsError.response} />
-        )}
-        {!!postCiConfigError?.response && <YmlDialogErrorNotification response={postCiConfigError.response} />}
+        {!!getCiConfigError && <YmlDialogErrorNotification error={getCiConfigError} />}
+        {!!putCiConfigSettingsError && <YmlDialogErrorNotification error={putCiConfigSettingsError} />}
+        {!!postCiConfigError && <YmlDialogErrorNotification error={postCiConfigError} />}
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>

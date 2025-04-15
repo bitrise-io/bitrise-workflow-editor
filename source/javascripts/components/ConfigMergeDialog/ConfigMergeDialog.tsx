@@ -25,6 +25,7 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import LoadingState from '@/components/LoadingState';
 
 loader.config({ monaco });
 
@@ -112,7 +113,11 @@ function useInitialCiConfigs() {
       return {
         yourYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().yml), signal),
         baseYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().savedYml), signal),
-        ...(await BitriseYmlApi.getCiConfig({ projectSlug, format: 'yml', signal }).then((res) => ({
+        ...(await BitriseYmlApi.getCiConfig({
+          projectSlug,
+          format: 'yml',
+          signal,
+        }).then((res) => ({
           remoteYml: res.data,
           remoteVersion: res.version,
         }))),
@@ -140,7 +145,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   });
 
   if (isFetching) {
-    return null; // TODO: Loading state
+    return <LoadingState />;
   }
 
   if (initialError || !data) {
