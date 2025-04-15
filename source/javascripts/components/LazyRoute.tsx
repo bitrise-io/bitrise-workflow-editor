@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
 import { Route, RouteProps } from 'wouter';
+import LoadingState from '@/components/LoadingState';
 
 const LazyRoute = (props: RouteProps) => {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingState />}>
       <Route {...props} />
     </Suspense>
   );
