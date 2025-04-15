@@ -16,7 +16,7 @@ import { paths } from '@/routes';
 import useHashLocation from '@/hooks/useHashLocation';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import useCiConfiSettings from '@/hooks/useCiConfiSettings';
+import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -41,11 +41,11 @@ const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
 const Navigation = (props: Props) => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
-  const { data } = useCiConfiSettings();
+  const { data } = useCiConfigSettings();
   const isDefaultTabRef = useRef(true);
 
   useEffect(() => {
-    if (data?.usesRepositoryYml !== undefined) {
+    if (data?.usesRepositoryYml) {
       segmentTrack('Workflow Editor Tab Displayed', {
         tab_name: currentPage,
         is_default_tab: isDefaultTabRef.current,
@@ -53,7 +53,7 @@ const Navigation = (props: Props) => {
       });
       isDefaultTabRef.current = false;
     }
-  }, [currentPage, data.usesRepositoryYml]);
+  }, [currentPage, data?.usesRepositoryYml]);
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>

@@ -9,7 +9,7 @@ containers:
     image: ruby:3.2
 app:
   envs:
-  - ACCESS_KEY: "120"
+  - ACCESS_KEY: "125"
   - GITHUB_TOKEN: GITHUB_TOKEN
     opts:
       is_expand: false

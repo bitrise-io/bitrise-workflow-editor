@@ -3,19 +3,14 @@ import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
 export const getConfig = () => {
-  return http.get(BitriseYmlApi.ciConfigPath({ format: 'json', projectSlug: ':slug' }), async () => {
+  return http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
     await delay(2000);
-    return HttpResponse.json(
-      { config: 'value' },
-      {
-        status: 200,
-      },
-    );
+    return HttpResponse.text('format_version: "13"', { status: 200 });
   });
 };
 
 export const getConfigFailed = () => {
-  return http.get(BitriseYmlApi.ciConfigPath({ format: 'json', projectSlug: ':slug' }), async () => {
+  return http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
     await delay(1000);
     return HttpResponse.json(
       {
@@ -48,7 +43,7 @@ export const putPipelineConfigFailed = () => {
 };
 
 export const postConfig = () => {
-  return http.post(BitriseYmlApi.ciConfigPath({ format: 'json', projectSlug: ':slug' }), async () => {
+  return http.post(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
     await delay();
     return new HttpResponse(null, {
       status: 200,

@@ -115,10 +115,9 @@ function useInitialCiConfigs() {
         baseYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().savedYml), signal),
         ...(await BitriseYmlApi.getCiConfig({
           projectSlug,
-          format: 'yml',
           signal,
         }).then((res) => ({
-          remoteYml: res.data,
+          remoteYml: res.ymlString,
           remoteVersion: res.version,
         }))),
       };
@@ -138,7 +137,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
     mutate: saveCiConfig,
     isPending: isSaving,
   } = useSaveCiConfig({
-    onSuccess: ({ data: ymlString, version }) => {
+    onSuccess: ({ ymlString, version }) => {
       onClose();
       initFromServerResponse({ ymlString, version });
     },

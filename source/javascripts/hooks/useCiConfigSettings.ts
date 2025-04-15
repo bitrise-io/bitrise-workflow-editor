@@ -1,38 +1,17 @@
-import {
-  DefinedInitialDataOptions,
-  useMutation,
-  UseMutationOptions,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, UseMutationOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import BitriseYmlSettingsApi, { BitriseYmlSettingsResponse } from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import PageProps from '@/core/utils/PageProps';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
-type UseBitriseYmlSettingsOptions = Omit<
-  DefinedInitialDataOptions<BitriseYmlSettings, ClientError>,
-  'queryKey' | 'queryFn'
->;
-
-const defaultInitialData: BitriseYmlSettings = {
-  lastModified: null,
-  lines: 0,
-  isYmlSplit: false,
-  isModularYamlSupported: false,
-  usesRepositoryYml: false,
-  ymlRootPath: null,
-};
-
-function useCiConfigSettings(options?: UseBitriseYmlSettingsOptions) {
+function useCiConfigSettings() {
   const projectSlug = PageProps.appSlug();
 
   return useQuery({
     queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(projectSlug)],
     queryFn: ({ signal }) => BitriseYmlSettingsApi.getYmlSettings({ projectSlug, signal }),
     enabled: !!projectSlug,
-    initialData: defaultInitialData,
-    ...options,
   });
 }
 
@@ -48,6 +27,9 @@ function usePutCiConfigSettings(
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
         queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(projectSlug)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [BitriseYmlApi.ciConfigPath({ projectSlug })],
       });
       onSuccess?.(...args);
     },

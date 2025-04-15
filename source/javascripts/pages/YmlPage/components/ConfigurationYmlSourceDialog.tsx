@@ -87,7 +87,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const {
     error: putCiConfigSettingsError,
     isPending: isPutCiConfigSettingsPending,
-    mutate: putCiConfigSettingsMutate,
+    mutate: putCiConfigSettings,
   } = usePutCiConfigSettings({
     onSuccess: () => {
       if (!usesRepositoryYml && configurationSource === 'git' && ciConfigFromRepo.current) {
@@ -127,39 +127,24 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       eventProps.selected_yml_source = configurationSource;
     }
     segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
-    if (usesRepositoryYml === true) {
-      putCiConfigSettingsMutate({
-        model: {
+    if (usesRepositoryYml === true || configurationSource === 'bitrise') {
+      putCiConfigSettings({
+        usesRepositoryYml,
+        ymlRootPath,
+      });
+      return;
+    }
+
+    // configurationSource === 'git'
+    getCiConfigFromRepo().then((response) => {
+      if (response.data) {
+        ciConfigFromRepo.current = response.data.ymlString;
+        putCiConfigSettings({
           usesRepositoryYml,
           ymlRootPath,
-        },
-        projectSlug,
-      });
-    } else {
-      if (configurationSource === 'git') {
-        getCiConfigFromRepo().then((response) => {
-          if (response.data) {
-            ciConfigFromRepo.current = response.data.data;
-            putCiConfigSettingsMutate({
-              model: {
-                usesRepositoryYml,
-                ymlRootPath,
-              },
-              projectSlug,
-            });
-          }
         });
       }
-      if (configurationSource === 'bitrise') {
-        putCiConfigSettingsMutate({
-          model: {
-            usesRepositoryYml,
-            ymlRootPath,
-          },
-          projectSlug,
-        });
-      }
-    }
+    });
   };
 
   let lastModifiedFormatted;

@@ -78,7 +78,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   const handleDoneClick = () => {
     refetchCiConfigYml().then(({ data }) => {
       if (data) {
-        initFromServerResponse({ ymlString: data.data, version: data.version });
+        initFromServerResponse(data);
       }
     });
   };

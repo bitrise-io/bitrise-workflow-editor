@@ -50,9 +50,7 @@ const Header = () => {
   });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
-    onSuccess: ({ data: ymlString, version }) => {
-      initFromServerResponse({ ymlString, version });
-    },
+    onSuccess: initFromServerResponse,
     onError: (error: ClientError) => {
       if (error.status === 409) {
         openMergeDialog();
