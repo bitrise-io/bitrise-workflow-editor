@@ -9,20 +9,24 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
+import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 const Header = () => {
   const appSlug = PageProps.appSlug();
   const appName = PageProps.app()?.name ?? '';
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const appPath = isWebsiteMode ? `/app/${appSlug}` : '';
+  const { data: ciConfigSettings } = useCiConfigSettings();
 
   const toast = useToast();
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
+
   const {
     isOpen: isDiffViewerOpen,
     onOpen: openDiffViewer,
@@ -34,6 +38,7 @@ const Header = () => {
       });
     },
   });
+
   const {
     isOpen: isMergeDialogOpen,
     onOpen: openMergeDialog,
@@ -43,6 +48,16 @@ const Header = () => {
       segmentTrack('Workflow Editor Config Merge Popup Shown', {
         tab_name: currentPage,
       });
+    },
+  });
+
+  const {
+    isOpen: isUpdateConfigDialogOpen,
+    onOpen: openUpdateConfigDialog,
+    onClose: closeUpdateConfigDialog,
+  } = useDisclosure({
+    onOpen: () => {
+      // TODO: analytics
     },
   });
 
@@ -78,6 +93,12 @@ const Header = () => {
         source,
         tab_name: currentPage,
       });
+
+      if (ciConfigSettings?.usesRepositoryYml) {
+        openUpdateConfigDialog();
+        return;
+      }
+
       save({
         projectSlug: appSlug,
         tabOpenDuringSave: currentPage,
@@ -85,7 +106,7 @@ const Header = () => {
         version: bitriseYmlStore.getState().savedYmlVersion,
       });
     },
-    [appSlug, currentPage, save],
+    [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],
   );
 
   const onDiscard = () => {
@@ -167,15 +188,16 @@ const Header = () => {
           size="sm"
           className="save"
           variant="primary"
-          onClick={() => saveCIConfig('save_changes_button')}
           isLoading={isSaving}
           isDisabled={!hasChanges}
+          onClick={() => saveCIConfig('save_changes_button')}
         >
           Save changes
         </Button>
       </Box>
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
       <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />
+      <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
     </Box>
   );
 };

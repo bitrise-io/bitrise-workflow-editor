@@ -2,7 +2,7 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -79,6 +79,8 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
     refetchCiConfigYml().then(({ data }) => {
       if (data) {
         initFromServerResponse(data);
+        // TODO: Remove this when we have a better way to force the editor to re-render
+        bitriseYmlStore.setState({ discardKey: Date.now() });
       }
     });
   };

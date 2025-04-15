@@ -2,6 +2,7 @@ import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure }
 import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -91,15 +92,19 @@ const YmlEditorHeader = () => {
       {formattedYml && (
         <ConfigurationYmlSourceDialog
           isOpen={isOpen}
-          onClose={onClose}
-          initialUsesRepositoryYml={usesRepositoryYml}
           projectSlug={appSlug}
-          onConfigSourceChangeSaved={(newValue: boolean) => setUsesRepositoryYml(newValue)}
-          defaultBranch={defaultBranch}
           gitRepoSlug={gitRepoSlug}
+          ciConfigYml={formattedYml}
+          defaultBranch={defaultBranch}
           lastModified={lastModified || null}
           initialYmlRootPath={ymlRootPath || null}
-          ciConfigYml={formattedYml}
+          initialUsesRepositoryYml={usesRepositoryYml}
+          onClose={onClose}
+          onConfigSourceChangeSaved={(newValue: boolean) => {
+            setUsesRepositoryYml(newValue);
+            // NOTE: It is hacky, but we need to force the YML editor to re-render
+            bitriseYmlStore.setState({ discardKey: Date.now() });
+          }}
         />
       )}
     </Box>
