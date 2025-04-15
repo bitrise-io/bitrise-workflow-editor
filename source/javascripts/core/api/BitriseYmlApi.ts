@@ -104,6 +104,7 @@ async function formatCiConfig(data: string, signal?: AbortSignal): Promise<strin
     }),
     headers: {
       Accept: 'application/x-yaml, application/json',
+      'Content-Type': 'application/json',
     },
     method: 'POST',
   });
