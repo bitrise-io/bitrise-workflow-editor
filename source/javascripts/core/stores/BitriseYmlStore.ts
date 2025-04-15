@@ -26,6 +26,7 @@ export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 export const bitriseYmlStore = createStore(
   combine(
     {
+      discardKey: Date.now(),
       yml: {} as BitriseYml,
       savedYml: {} as BitriseYml,
       savedYmlVersion: '',
@@ -496,7 +497,10 @@ export const bitriseYmlStore = createStore(
 
 export function updateYmlStringAndSyncYml(ymlString?: string) {
   try {
-    bitriseYmlStore.setState({ ymlString, yml: BitriseYmlApi.fromYml(ymlString || '') });
+    bitriseYmlStore.setState({
+      ymlString,
+      yml: BitriseYmlApi.fromYml(ymlString || ''),
+    });
   } catch {
     // NOTE: Monaco editor will show error if the yml is invalid
     bitriseYmlStore.setState({ ymlString });

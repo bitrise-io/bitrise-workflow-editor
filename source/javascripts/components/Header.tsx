@@ -94,6 +94,7 @@ const Header = () => {
       tab_name: currentPage,
     });
     bitriseYmlStore.setState((s) => ({
+      discardKey: Date.now(),
       yml: cloneDeep(s.savedYml),
       ymlString: s.savedYmlString,
     }));
