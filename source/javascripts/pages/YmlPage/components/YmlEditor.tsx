@@ -8,6 +8,8 @@ import useFormattedYml from '@/hooks/useFormattedYml';
 
 const YmlEditor = () => {
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
+  // NOTE: Don't subscribe to the store here, because it will send a format request on every character change
+  // When switching to a different page, this will be unmounted, and on reopen the yml will be read from the store again
   const { data: formattedYml, isLoading: isLoadingFormattedYml } = useFormattedYml(bitriseYmlStore.getState().yml);
 
   if (isLoadingSetting || isLoadingFormattedYml) {

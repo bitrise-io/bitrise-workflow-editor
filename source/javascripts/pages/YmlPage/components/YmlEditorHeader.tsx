@@ -18,7 +18,7 @@ const YmlEditorHeader = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const isRepositoryYmlAvailable = PageProps.limits()?.isRepositoryYmlAvailable;
 
-  const { data: ymlSettings } = useCiConfigSettings();
+  const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
   const { data: formattedYml } = useFormattedYml(useBitriseYmlStore((s) => s.yml));
 
   const { isYmlSplit, lastModified, ymlRootPath } = ymlSettings || {};
@@ -57,7 +57,7 @@ const YmlEditorHeader = () => {
       <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
         Configuration YAML
       </Text>
-      {isWebsiteMode && !usesRepositoryYml && (
+      {isWebsiteMode && !isYmlSettingsLoading && !usesRepositoryYml && (
         <Button leftIconName="Download" size="sm" variant="tertiary" onClick={onDownloadClick}>
           Download
         </Button>
