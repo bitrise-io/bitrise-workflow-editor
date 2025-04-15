@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect, useRef } from 'react';
 import {
   Sidebar,
   SidebarContainer,
@@ -15,9 +15,15 @@ import {
 import { paths } from '@/routes';
 import useHashLocation from '@/hooks/useHashLocation';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import useBitriseYmlSettings from '@/hooks/useBitriseYmlSettings';
+import useCurrentPage from '@/hooks/useCurrentPage';
 
 type Props = Omit<SidebarProps, 'children'>;
-type NavigationItemProps = PropsWithChildren<{ path: string; icon: TypeIconName }>;
+type NavigationItemProps = PropsWithChildren<{
+  path: string;
+  icon: TypeIconName;
+}>;
 
 const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
   const { isMobile } = useResponsive();
@@ -34,6 +40,20 @@ const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
 
 const Navigation = (props: Props) => {
   const { isMobile } = useResponsive();
+  const currentPage = useCurrentPage();
+  const { data } = useBitriseYmlSettings();
+  const isDefaultTabRef = useRef(true);
+
+  useEffect(() => {
+    if (data?.usesRepositoryYml !== undefined) {
+      segmentTrack('Workflow Editor Tab Displayed', {
+        tab_name: currentPage,
+        is_default_tab: isDefaultTabRef.current,
+        yml_source: data.usesRepositoryYml ? 'git' : 'bitrise',
+      });
+      isDefaultTabRef.current = false;
+    }
+  }, [currentPage, data.usesRepositoryYml]);
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
