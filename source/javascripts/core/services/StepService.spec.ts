@@ -1,7 +1,6 @@
 import { StepApiResult } from '@/core/api/StepApi';
 
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, Step } from '../models/Step';
-
 import StepService from './StepService';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');

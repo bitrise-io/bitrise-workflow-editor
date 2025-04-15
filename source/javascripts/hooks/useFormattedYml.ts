@@ -1,7 +1,8 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { BitriseYml } from '@/core/models/BitriseYml'; // Prepare the YAML string for formatting
 import { ClientError } from '@/core/api/client';
+import { BitriseYml } from '@/core/models/BitriseYml'; // Prepare the YAML string for formatting
 
 const prepareYml = (data: string | BitriseYml): string => {
   if (typeof data === 'string') {

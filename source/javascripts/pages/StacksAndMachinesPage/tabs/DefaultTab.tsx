@@ -1,5 +1,5 @@
-import TabContainer from '@/components/tabs/TabContainer';
 import DefaultStackAndMachine from '@/components/StacksAndMachine/DefaultStackAndMachine';
+import TabContainer from '@/components/tabs/TabContainer';
 
 const DefaultTab = () => {
   return (

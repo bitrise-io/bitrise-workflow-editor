@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+
 import WorkflowSelectorDrawer from './WorkflowSelectorDrawer';
 
 type Story = StoryObj<typeof WorkflowSelectorDrawer>;

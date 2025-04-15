@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
+
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+
 import StacksAndMachinesPage from './StacksAndMachinesPage';
 
 const getGracePeriod = (deprecatedMachinesPeriod?: 'before' | 'in' | 'after') => {
@@ -80,6 +82,7 @@ export const WithDeprecatedMachines: Story = {
       return { yml: TEST_BITRISE_YML };
     })(),
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   beforeEach: ({ args }: any) => {
     set(
       window,

@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
 import { DialogProps } from '@bitrise/bitkit';
+import { useEffect } from 'react';
 
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
 import { trackCreatePipelineDialogShown, trackPipelineCreated } from '@/core/analytics/PipelineAnalytics';
 import PipelineService from '@/core/services/PipelineService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
 import usePipelineSelector from '../../hooks/usePipelineSelector';

@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
+
 import {
   getConfig,
   getConfigFailed,
@@ -7,6 +7,7 @@ import {
   putPipelineConfig,
   putPipelineConfigFailed,
 } from './ConfigurationYmlSource.mswMocks';
+import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
 export default {
   component: ConfigurationYmlSourceDialog,

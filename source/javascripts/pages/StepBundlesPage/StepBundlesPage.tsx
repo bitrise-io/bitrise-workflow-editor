@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
-import { useStepBundles } from '@/hooks/useStepBundles';
-import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { useEffect } from 'react';
+
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
-import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundlesPage.store';
+import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { useStepBundles } from '@/hooks/useStepBundles';
+
 import Drawers from './components/Drawers';
 import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundlesPage.store';
 
 const StepBundlesPage = () => {
   const stepBundles = useStepBundles();

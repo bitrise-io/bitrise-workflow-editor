@@ -1,5 +1,6 @@
 import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react';
+
 import DiffEditorDialog from '@/components/DiffEditor/DiffEditorDialog';
 
 type Story = StoryObj<typeof DiffEditorDialog>;

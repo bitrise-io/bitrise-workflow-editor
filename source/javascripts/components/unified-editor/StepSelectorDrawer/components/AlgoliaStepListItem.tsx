@@ -1,8 +1,9 @@
-import { MouseEventHandler, useRef } from 'react';
 import { Avatar, Box, Card, CardProps, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
-import { Maintainer } from '@/core/models/Step';
+
 import StepBadge from '@/components/StepBadge';
+import { Maintainer } from '@/core/models/Step';
 import useIsTruncated from '@/hooks/useIsTruncated';
 
 type Props = CardProps & {

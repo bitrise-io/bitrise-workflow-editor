@@ -1,8 +1,9 @@
 import { Box } from '@bitrise/bitkit';
-import { set } from 'es-toolkit/compat';
 import { Meta, StoryObj } from '@storybook/react';
+import { set } from 'es-toolkit/compat';
 
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+
 import PipelinesPage from './PipelinesPage';
 
 export default {

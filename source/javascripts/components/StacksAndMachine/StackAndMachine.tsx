@@ -1,14 +1,12 @@
-import { RefObject, useCallback, useRef } from 'react';
 import { Box, Card, Link, Notification, NotificationProps } from '@bitrise/bitkit';
-
+import { RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
-import PageProps from '@/core/utils/PageProps';
-
 import StackAndMachineService from '@/core/services/StackAndMachineService';
+import PageProps from '@/core/utils/PageProps';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
-import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import MachineTypeSelector from './MachineTypeSelector';
 import StackSelector from './StackSelector';
 

@@ -1,19 +1,12 @@
-import semver from 'semver';
-import { isEmpty } from 'es-toolkit/compat';
 import { compact, uniq } from 'es-toolkit';
+import { isEmpty } from 'es-toolkit/compat';
+import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
-import type { StepApiResult } from '@/core/api/StepApi';
 import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
+import type { StepApiResult } from '@/core/api/StepApi';
 import VersionUtils from '@/core/utils/VersionUtils';
 
-import {
-  BITRISE_STEP_LIBRARY_SSH_URL,
-  BITRISE_STEP_LIBRARY_URL,
-  LibraryType,
-  Step,
-  StepLikeYmlObject,
-} from '../models/Step';
 import {
   EnvironmentItemModel,
   EnvironmentItemOptionsModel,
@@ -21,6 +14,13 @@ import {
   StepModel,
   WithModel,
 } from '../models/BitriseYml';
+import {
+  BITRISE_STEP_LIBRARY_SSH_URL,
+  BITRISE_STEP_LIBRARY_URL,
+  LibraryType,
+  Step,
+  StepLikeYmlObject,
+} from '../models/Step';
 
 // https://devcenter.bitrise.io/en/references/steps-reference/step-reference-id-format.html
 // <step_lib_source>::<step-id>@<version>:

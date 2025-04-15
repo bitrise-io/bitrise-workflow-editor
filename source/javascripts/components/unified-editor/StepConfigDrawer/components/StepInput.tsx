@@ -1,15 +1,17 @@
-import { FocusEventHandler, useState } from 'react';
 import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
+import { FocusEventHandler, useState } from 'react';
+
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
-import { useUpsertSecret } from '@/hooks/useSecrets';
 import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useUpsertSecret } from '@/hooks/useSecrets';
+
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import StepHelperText from './StepHelperText';
-import SensitiveBadge from './SensitiveBadge';
-import InsertSecretPopover from './InsertSecretPopover/InsertSecretPopover';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
+import InsertSecretPopover from './InsertSecretPopover/InsertSecretPopover';
+import SensitiveBadge from './SensitiveBadge';
+import StepHelperText from './StepHelperText';
 
 type Props = Omit<AutoGrowableInputProps, 'helperText' | 'onChange'> & {
   helperText?: string;

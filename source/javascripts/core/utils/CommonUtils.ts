@@ -60,4 +60,4 @@ function getCookie(cname: string): string {
   return '';
 }
 
-export { deepCloneSimpleObject, generateUniqueEntityId, findScrollContainer, download, getFormattedDate, getCookie };
+export { deepCloneSimpleObject, download, findScrollContainer, generateUniqueEntityId, getCookie, getFormattedDate };

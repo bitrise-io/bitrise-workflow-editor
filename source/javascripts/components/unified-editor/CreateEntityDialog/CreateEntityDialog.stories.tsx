@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import CreateEntityDialog from './CreateEntityDialog';
 
 export default {

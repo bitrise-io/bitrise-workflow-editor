@@ -1,4 +1,5 @@
 import { TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -6,11 +7,12 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import WorkflowConfigProvider from './WorkflowConfig.context';
+
+import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
-import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import TriggersTab from './tabs/TriggersTab';
+import WorkflowConfigProvider from './WorkflowConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;

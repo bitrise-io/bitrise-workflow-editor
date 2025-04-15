@@ -1,5 +1,5 @@
-import { useRef } from 'react';
 import { dequal } from 'dequal';
+import { useRef } from 'react';
 
 /**
  * This hook is an extended version of the Zustand useShallow hook. In Zustand v5,

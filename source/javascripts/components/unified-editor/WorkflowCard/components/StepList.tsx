@@ -1,17 +1,15 @@
 /* eslint-disable import/no-cycle */
+import { Box, Button, EmptyState } from '@bitrise/bitkit';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
-import { Box, Button, EmptyState } from '@bitrise/bitkit';
-import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-
-import { SortableStepItem } from '../WorkflowCard.types';
 import { dndKitMeasuring } from '../WorkflowCard.const';
-
-import StepListItem from './StepListItem';
+import { SortableStepItem } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
 import ScaledDragOverlay from './ScaledDragOverlay';
+import StepListItem from './StepListItem';
 
 type Props = {
   stepBundleId?: string;

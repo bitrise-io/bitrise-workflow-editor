@@ -1,5 +1,7 @@
 import { Meta } from '@storybook/react';
+
 import LicensePoolsApiMswMocks from '@/core/api/LicensePoolsApi.mswMocks';
+
 import LicensesPage from './LicensesPage';
 
 export default {

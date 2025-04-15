@@ -1,5 +1,8 @@
 import { Meta } from '@storybook/react';
+import { set } from 'es-toolkit/compat';
+
 import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+
 import SecretsPage from './SecretsPage';
 
 export default {
@@ -21,12 +24,7 @@ export const Secrets = {};
 
 export const SecretsShared = {
   beforeEach: () => {
-    window.parent.globalProps = {
-      account: {
-        sharedResourcesAvailable: true,
-      },
-    } as any;
-
+    set(window, 'parent.globalProps.account.sharedResourcesAvailable', true);
     return () => {
       window.parent.globalProps = undefined;
     };

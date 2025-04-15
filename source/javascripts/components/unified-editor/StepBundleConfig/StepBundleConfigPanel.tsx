@@ -1,9 +1,11 @@
 import { Tabs } from '@bitrise/bitkit';
-import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+
+import StepBundleConfigProvider from './StepBundleConfig.context';
 import StepBundleConfigContent from './StepBundleConfigContent';
 import StepBundleConfigHeader from './StepBundleConfigHeader';
-import StepBundleConfigProvider from './StepBundleConfig.context';
 
 type Props = {
   stepBundleId: string;

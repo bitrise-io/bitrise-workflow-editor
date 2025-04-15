@@ -1,5 +1,6 @@
 import { EnvModel } from '@/core/models/BitriseYml';
 import useStep from '@/hooks/useStep';
+
 import { InputListItem } from '../types/StepBundle.types';
 import { expandInput } from '../utils/StepBundle.utils';
 

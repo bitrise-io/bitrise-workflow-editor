@@ -1,5 +1,3 @@
-import { useRef, useState } from 'react';
-
 import {
   Box,
   Button,
@@ -12,20 +10,20 @@ import {
   Notification,
   Text,
 } from '@bitrise/bitkit';
-
-import * as monaco from 'monaco-editor';
-import { toMerged } from 'es-toolkit';
-import { diff3Merge } from 'node-diff3';
-import { useQuery } from '@tanstack/react-query';
 import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
+import { useQuery } from '@tanstack/react-query';
+import { toMerged } from 'es-toolkit';
+import * as monaco from 'monaco-editor';
+import { diff3Merge } from 'node-diff3';
+import { useRef, useState } from 'react';
 
-import PageProps from '@/core/utils/PageProps';
-import useCurrentPage from '@/hooks/useCurrentPage';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { useSaveCiConfig } from '@/hooks/useCiConfig';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import LoadingState from '@/components/LoadingState';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import PageProps from '@/core/utils/PageProps';
+import { useSaveCiConfig } from '@/hooks/useCiConfig';
+import useCurrentPage from '@/hooks/useCurrentPage';
 
 loader.config({ monaco });
 

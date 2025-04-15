@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo } from 'react';
 import { Ribbon } from '@bitrise/bitkit';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import {
   trackConvertPipelineBannerCtaClicked,
@@ -9,9 +9,9 @@ import {
 import PipelineService from '@/core/services/PipelineService';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 
-import usePipelineSelector from '../../hooks/usePipelineSelector';
-import usePipelineConversionSignposting from '../../hooks/usePipelineConversionSignposting';
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
+import usePipelineConversionSignposting from '../../hooks/usePipelineConversionSignposting';
+import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 const PipelineConversionSignposting = () => {
   const { selectedPipeline, onSelectPipeline } = usePipelineSelector();

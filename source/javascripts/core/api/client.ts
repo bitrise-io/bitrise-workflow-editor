@@ -1,4 +1,5 @@
 import { toMerged } from 'es-toolkit';
+
 import { getCookie } from '../utils/CommonUtils';
 
 const DEFAULT_TIMEOUT = 60_000;

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { DialogProps } from '@bitrise/bitkit';
+import { useEffect } from 'react';
 
 import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';

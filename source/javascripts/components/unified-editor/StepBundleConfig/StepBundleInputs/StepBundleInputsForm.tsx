@@ -12,11 +12,13 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import { useController, useForm } from 'react-hook-form';
+
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import StepBundleService from '@/core/services/StepBundleService';
+
 import StepInput from '../../StepConfigDrawer/components/StepInput';
-import { FormItems, FormMode } from '../types/StepBundle.types';
 import StepSelectInput from '../../StepConfigDrawer/components/StepSelectInput';
+import { FormItems, FormMode } from '../types/StepBundle.types';
 import { expandInput } from '../utils/StepBundle.utils';
 
 type StepBundleInputsFormProps = {

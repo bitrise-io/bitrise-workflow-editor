@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from 'react';
-import { languages } from 'monaco-editor';
 import { Monaco } from '@monaco-editor/react';
+import { languages } from 'monaco-editor';
+import { useEffect, useMemo } from 'react';
+
 import useEnvVarsAndSecrets from '@/hooks/useEnvVarsAndSecrets';
 
 type Props = {

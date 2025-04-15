@@ -1,5 +1,7 @@
 import { delay, http, HttpResponse } from 'msw';
+
 import { Maintainer } from '@/core/models/Step';
+
 import { AlgoliaStepResponse } from './AlgoliaApi';
 
 export const AlgoliaSteps: AlgoliaStepResponse[] = [

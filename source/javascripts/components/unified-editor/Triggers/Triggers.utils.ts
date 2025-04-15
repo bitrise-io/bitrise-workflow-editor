@@ -1,12 +1,14 @@
 import { isObject } from 'es-toolkit/compat';
+
 import { BitriseYml } from '@/core/models/BitriseYml';
 import WorkflowService from '@/core/services/WorkflowService';
+
 import {
-  DecoratedPipelineableTriggerItem,
-  TriggerType,
-  TargetBasedTriggerItem,
   Condition,
   ConditionType,
+  DecoratedPipelineableTriggerItem,
+  TargetBasedTriggerItem,
+  TriggerType,
 } from './Triggers.types';
 
 const looper = (

@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import { Mode } from '../../hooks/useMultiModePopover';
 import InsertEnvVarPopover from './InsertEnvVarPopover';
 

@@ -1,12 +1,12 @@
-import aa from 'search-insights';
-import { sortBy, uniqBy } from 'es-toolkit';
 import { algoliasearch } from 'algoliasearch';
+import { sortBy, uniqBy } from 'es-toolkit';
+import aa from 'search-insights';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
-import { Maintainer } from '../models/Step';
 import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
+import { Maintainer } from '../models/Step';
 
 type AlgoliaStepResponse = {
   readonly objectID: string;
@@ -133,4 +133,4 @@ export default {
   trackStepSelected,
 };
 
-export type { AlgoliaStepResponse, AlgoliaStepInputResponse, AlgoliaStepInfo };
+export type { AlgoliaStepInfo, AlgoliaStepInputResponse, AlgoliaStepResponse };

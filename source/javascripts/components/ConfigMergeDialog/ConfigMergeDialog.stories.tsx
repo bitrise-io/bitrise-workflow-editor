@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import ConfigMergeDialog from './ConfigMergeDialog';
-import { configMergeDialog } from './ConfigMergeDialog.store';
 import { baseYaml, remoteYaml, yourYaml } from './ConfigMergeDialog.mocks';
+import { configMergeDialog } from './ConfigMergeDialog.store';
 
 type Story = StoryObj<typeof ConfigMergeDialog>;
 

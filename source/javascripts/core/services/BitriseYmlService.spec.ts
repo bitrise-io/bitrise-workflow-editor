@@ -2,9 +2,8 @@
 import { expect } from '@jest/globals';
 import type { MatcherFunction } from 'expect';
 
-import { ChainedWorkflowPlacement } from '../models/Workflow';
 import { BitriseYml, EnvironmentItemModel } from '../models/BitriseYml';
-
+import { ChainedWorkflowPlacement } from '../models/Workflow';
 import BitriseYmlService from './BitriseYmlService';
 
 const toMatchBitriseYml: MatcherFunction<[expected: BitriseYml]> = function m(actual, expected) {

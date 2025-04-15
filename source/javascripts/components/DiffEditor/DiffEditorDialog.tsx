@@ -1,16 +1,17 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Box, Dialog, DialogBody, DialogProps, Notification, Text } from '@bitrise/bitkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import useCurrentPage from '@/hooks/useCurrentPage';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import useFormattedYml from '@/hooks/useFormattedYml';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+
 import LoadingState from '@/components/LoadingState';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useCurrentPage from '@/hooks/useCurrentPage';
+import useFormattedYml from '@/hooks/useFormattedYml';
+
 import DiffEditor from './DiffEditor';
 
 const DiffEditorDialogBody = forwardRef((_, ref) => {
-  useImperativeHandle(ref, () => ({ trySaveChanges }));
   const currentPage = useCurrentPage();
   const originalText = useBitriseYmlStore((s) => s.savedYmlString);
   const modifiedYml = useBitriseYmlStore((s) => s.yml);
@@ -44,6 +45,8 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
       return false;
     }
   };
+
+  useImperativeHandle(ref, () => ({ trySaveChanges }));
 
   return (
     <DialogBody>

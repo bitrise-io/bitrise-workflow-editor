@@ -1,18 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
-import { useShallow } from '@/hooks/useShallow';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { WorkflowCard } from '@/components/unified-editor';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import WorkflowService from '@/core/services/WorkflowService';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
-import { useWorkflows } from '@/hooks/useWorkflows';
-import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
-import { useStepBundles } from '@/hooks/useStepBundles';
 import StepBundleService from '@/core/services/StepBundleService';
 import { moveStepIndices } from '@/core/services/StepService';
+import WorkflowService from '@/core/services/WorkflowService';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useShallow } from '@/hooks/useShallow';
+import { useStepBundles } from '@/hooks/useStepBundles';
+import { useWorkflows } from '@/hooks/useWorkflows';
+
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 

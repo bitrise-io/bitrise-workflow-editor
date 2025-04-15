@@ -1,7 +1,9 @@
-import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
+import { useState } from 'react';
+
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
+
 import StepSelectorDrawer from './StepSelectorDrawer';
 
 type Story = StoryObj<typeof StepSelectorDrawer>;

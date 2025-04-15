@@ -1,6 +1,6 @@
+import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
-import { TabList, Tabs, Text, Tab, TabPanels, TabPanel } from '@bitrise/bitkit';
 
 import ProjectTab from './tabs/ProjectTab';
 import WorkflowsTab from './tabs/WorkflowsTab';

@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+
 import PipelineConditionsCard from './PipelineConditionsCard';
 
 export default {

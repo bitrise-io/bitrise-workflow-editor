@@ -1,5 +1,6 @@
 import { omitBy, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
+
 import { EnvironmentItemModel, StepBundles, Workflows } from '../models/BitriseYml';
 
 function getDirectDependants(workflows: Workflows, cvs: string) {

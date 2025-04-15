@@ -1,10 +1,10 @@
-import { NotificationProps, Link, Text } from '@bitrise/bitkit';
+import { Link, NotificationProps, Text } from '@bitrise/bitkit';
 
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
-import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { DeprecatedMachinesReplacementConfig } from '@/core/models/MachineType';
 import GlobalProps from '@/core/utils/GlobalProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 
 const getDeprecatedMachinesProps = (
   deprecatedMachinesReplacementConfig?: DeprecatedMachinesReplacementConfig,

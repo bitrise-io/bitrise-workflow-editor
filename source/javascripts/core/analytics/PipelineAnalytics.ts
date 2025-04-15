@@ -1,5 +1,6 @@
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+
 import { segmentTrack } from './SegmentBaseTracking';
 
 export function trackCreatePipelineDialogShown(source: 'pipeline_empty_state' | 'pipeline_selector') {

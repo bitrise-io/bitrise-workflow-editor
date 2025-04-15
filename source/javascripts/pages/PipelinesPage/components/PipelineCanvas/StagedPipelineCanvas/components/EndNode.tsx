@@ -1,5 +1,6 @@
 import { Box, Icon } from '@bitrise/bitkit';
 import { NodeProps, Position } from '@xyflow/react';
+
 import { ICON_STAGE_WIDTH } from '../StagedPipelineCanvas.const';
 import InvisibleHandle from './InvisibleHandle';
 

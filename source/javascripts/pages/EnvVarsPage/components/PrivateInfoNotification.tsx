@@ -1,5 +1,6 @@
-import { MouseEventHandler } from 'react';
 import { Link, Notification, Text } from '@bitrise/bitkit';
+import { MouseEventHandler } from 'react';
+
 import useNavigation from '@/hooks/useNavigation';
 
 const SecretsLink = () => {

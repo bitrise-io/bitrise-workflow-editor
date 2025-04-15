@@ -1,11 +1,11 @@
-import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Fragment } from 'react';
 
 import { EnvModel } from '@/core/models/BitriseYml';
 import StepVariableService from '@/core/services/StepVariableService';
 
-import StepInput from './StepInput';
 import StepCodeEditor from './StepCodeEditor';
+import StepInput from './StepInput';
 import StepSelectInput from './StepSelectInput';
 
 type Props = {

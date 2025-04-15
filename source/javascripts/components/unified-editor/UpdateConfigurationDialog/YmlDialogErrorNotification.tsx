@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
 import { Notification, NotificationProps, Text } from '@bitrise/bitkit';
+import { ReactNode } from 'react';
+
 import { ClientError } from '@/core/api/client';
 
 type Props = {

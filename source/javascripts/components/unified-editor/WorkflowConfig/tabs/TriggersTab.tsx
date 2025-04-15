@@ -1,6 +1,6 @@
+import Triggers from '@/components/unified-editor/Triggers/Triggers';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import Triggers from '@/components/unified-editor/Triggers/Triggers';
 
 const TriggersTab = () => {
   const workflow = useWorkflowConfigContext();

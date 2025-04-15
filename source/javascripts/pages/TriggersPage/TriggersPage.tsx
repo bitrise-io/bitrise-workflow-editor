@@ -4,6 +4,7 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useUserMetaData from '@/hooks/useUserMetaData';
+
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
 

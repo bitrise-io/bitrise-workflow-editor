@@ -1,15 +1,15 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
-
 import { useCopyToClipboard } from 'usehooks-ts';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import PageProps from '@/core/utils/PageProps';
 
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { download } from '@/core/utils/CommonUtils';
-import useIsYmlPage from '@/hooks/useIsYmlPage';
-import { useGetCiConfig } from '@/hooks/useCiConfig';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import { download } from '@/core/utils/CommonUtils';
+import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useGetCiConfig } from '@/hooks/useCiConfig';
 import useFormattedYml from '@/hooks/useFormattedYml';
+import useIsYmlPage from '@/hooks/useIsYmlPage';
+
 import YmlDialogErrorNotification from './YmlDialogErrorNotification';
 
 type Props = {

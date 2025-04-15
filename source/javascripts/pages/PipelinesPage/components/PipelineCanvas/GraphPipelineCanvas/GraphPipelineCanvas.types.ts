@@ -1,4 +1,5 @@
 import { Edge, Node } from '@xyflow/react';
+
 import { PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
 
 export type WorkflowNodeType = Node<{

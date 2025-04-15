@@ -2,9 +2,9 @@ import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
 
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
-import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type ButtonContentProps = {

@@ -1,14 +1,14 @@
-import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-
-import useFormattedYml from '@/hooks/useFormattedYml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
-import { download } from '@/core/utils/CommonUtils';
+import useFormattedYml from '@/hooks/useFormattedYml';
+
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
 const YmlEditorHeader = () => {

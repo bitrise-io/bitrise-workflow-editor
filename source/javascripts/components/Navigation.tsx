@@ -1,4 +1,3 @@
-import { PropsWithChildren, useEffect, useRef } from 'react';
 import {
   Sidebar,
   SidebarContainer,
@@ -11,13 +10,14 @@ import {
   TypeIconName,
   useResponsive,
 } from '@bitrise/bitkit';
+import { PropsWithChildren, useEffect, useRef } from 'react';
 
-import { paths } from '@/routes';
-import useHashLocation from '@/hooks/useHashLocation';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useHashLocation from '@/hooks/useHashLocation';
+import { paths } from '@/routes';
 
 type Props = Omit<SidebarProps, 'children'>;
 type NavigationItemProps = PropsWithChildren<{

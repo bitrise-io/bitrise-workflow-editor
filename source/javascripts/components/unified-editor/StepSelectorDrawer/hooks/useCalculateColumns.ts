@@ -1,7 +1,6 @@
 import { RefObject } from 'react';
-
-import { create } from 'zustand';
 import { useResizeObserver } from 'usehooks-ts';
+import { create } from 'zustand';
 
 type State = {
   columns: number;

@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
 import { Box } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+
 import { WorkflowConfigPanel, WorkflowEmptyState } from '@/components/unified-editor';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+
+import Drawers from './components/Drawers/Drawers';
 import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
-import Drawers from './components/Drawers/Drawers';
 
 const WorkflowsPage = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();

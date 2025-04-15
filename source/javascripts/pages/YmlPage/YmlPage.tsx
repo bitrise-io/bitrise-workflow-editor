@@ -1,7 +1,9 @@
 import { Box, Link, Notification, Text } from '@bitrise/bitkit';
-import useUserMetaData from '@/hooks/useUserMetaData';
+
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useUserMetaData from '@/hooks/useUserMetaData';
+
 import YmlEditor from './components/YmlEditor';
 import YmlEditorHeader from './components/YmlEditorHeader';
 

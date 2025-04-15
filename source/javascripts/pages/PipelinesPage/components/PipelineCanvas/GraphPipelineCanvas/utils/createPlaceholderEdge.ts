@@ -1,4 +1,5 @@
 import { Edge } from '@xyflow/react';
+
 import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_ID } from '../GraphPipelineCanvas.const';
 
 function createPlaceholderEdge(source: string) {

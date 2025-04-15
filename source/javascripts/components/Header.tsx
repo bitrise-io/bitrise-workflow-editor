@@ -1,17 +1,18 @@
-import { useCallback, useEffect } from 'react';
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
-
 import { cloneDeep } from 'es-toolkit';
+import { useCallback, useEffect } from 'react';
+
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { ClientError } from '@/core/api/client';
+import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
-import { ClientError } from '@/core/api/client';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
+import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
 
 const Header = () => {
   const appSlug = PageProps.appSlug();

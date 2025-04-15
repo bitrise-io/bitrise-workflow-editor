@@ -1,18 +1,18 @@
 import '@xyflow/react/dist/style.css';
 
-import { useMemo } from 'react';
 import { Box } from '@bitrise/bitkit';
+import { useMemo } from 'react';
 
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 
 import Drawers from './components/Drawers/Drawers';
-import usePipelineSelector from './hooks/usePipelineSelector';
-import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
-import UpgradePlanEmptyState from './components/EmptyStates/UpgradePlanEmptyState';
-import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.store';
-import ReactivatePlanEmptyState from './components/EmptyStates/ReactivatePlanEmptyState';
 import CreateFirstGraphPipelineEmptyState from './components/EmptyStates/CreateFirstGraphPipelineEmptyState';
+import ReactivatePlanEmptyState from './components/EmptyStates/ReactivatePlanEmptyState';
+import UpgradePlanEmptyState from './components/EmptyStates/UpgradePlanEmptyState';
+import PipelineCanvas from './components/PipelineCanvas/PipelineCanvas';
+import usePipelineSelector from './hooks/usePipelineSelector';
+import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.store';
 
 const PipelinesPage = () => {
   const { keys } = usePipelineSelector();

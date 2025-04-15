@@ -1,6 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
+import { Meta, StoryObj } from '@storybook/react';
 import { http, HttpResponse } from 'msw';
+
 import YmlPage from './YmlPage';
 
 type StoryType = StoryObj<typeof YmlPage>;

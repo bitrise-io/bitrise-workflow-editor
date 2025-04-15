@@ -2,8 +2,8 @@ import { useCallback, useMemo } from 'react';
 import { useSessionStorage } from 'usehooks-ts';
 
 import PipelineService from '@/core/services/PipelineService';
-import PageProps from '@/core/utils/PageProps';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import PageProps from '@/core/utils/PageProps';
 
 const usePipelineConversionSignposting = () => {
   const key = ['pipeline-conversion-signposting', PageProps.appSlug() || 'cli'].join('-');

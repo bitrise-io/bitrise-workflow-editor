@@ -1,4 +1,4 @@
-import { ChangeEventHandler, LegacyRef, ReactNode, useRef } from 'react';
+import { forwardRef } from '@bitrise/bitkit';
 import {
   Box,
   FormControl,
@@ -13,7 +13,7 @@ import {
   Textarea,
   TextareaProps,
 } from '@chakra-ui/react';
-import { forwardRef } from '@bitrise/bitkit';
+import { ChangeEventHandler, LegacyRef, ReactNode, useRef } from 'react';
 
 type AutoGrowableInputProps = TextareaProps & {
   label?: ReactNode;

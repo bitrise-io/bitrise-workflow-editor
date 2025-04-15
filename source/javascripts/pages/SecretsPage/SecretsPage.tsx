@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 
 import SecretCard from './SecretCard';

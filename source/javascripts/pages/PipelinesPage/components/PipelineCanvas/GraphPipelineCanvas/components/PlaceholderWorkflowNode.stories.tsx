@@ -1,8 +1,8 @@
 import '@xyflow/react/dist/style.css';
 
+import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react';
 import { Node, ReactFlow } from '@xyflow/react';
-import { Box } from '@bitrise/bitkit';
 
 import { PLACEHOLDER_NODE_TYPE } from '../GraphPipelineCanvas.const';
 import PlaceholderNode from './PlaceholderWorkflowNode';

@@ -7,9 +7,9 @@ import usePipelineSelector from '../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import Toolbar from '../Toolbar/Toolbar';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
-import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 import PipelineConversionNotification from './PipelineConversionNotification';
 import PipelineConversionSignposting from './PipelineConversionSignposting';
+import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 
 const PipelineCanvas = () => {
   const { selectedPipeline } = usePipelineSelector();

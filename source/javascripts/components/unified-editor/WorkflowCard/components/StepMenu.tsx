@@ -1,9 +1,10 @@
 import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
+
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { Step } from '@/core/models/Step';
 import { generateUniqueEntityId } from '@/core/utils/CommonUtils';
 import VersionUtils from '@/core/utils/VersionUtils';
-import { Step } from '@/core/models/Step';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type StepMenuProps = {
   isHighlighted?: boolean;

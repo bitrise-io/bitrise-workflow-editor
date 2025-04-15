@@ -1,4 +1,5 @@
 import { Box } from '@bitrise/bitkit';
+
 import AddNewButton from '../AddNewButton';
 
 type Props = {

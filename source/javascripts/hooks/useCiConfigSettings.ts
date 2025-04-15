@@ -1,9 +1,10 @@
 import { useMutation, UseMutationOptions, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi, { BitriseYmlSettingsResponse } from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
 import PageProps from '@/core/utils/PageProps';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
 function useCiConfigSettings() {
   const projectSlug = PageProps.appSlug();

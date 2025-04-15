@@ -1,6 +1,7 @@
 import { delay, http, HttpResponse } from 'msw';
-import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
+
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 
 export const getConfig = () => {
   return http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {

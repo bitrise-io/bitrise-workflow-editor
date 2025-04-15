@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import LicensePoolsApi from '@/core/api/LicensePoolsApi';
+
 import { ClientError } from '@/core/api/client';
+import LicensePoolsApi from '@/core/api/LicensePoolsApi';
 import { LicensePool } from '@/core/models/LicensePool';
 
 type GetQueryProps = { workspaceSlug: string };

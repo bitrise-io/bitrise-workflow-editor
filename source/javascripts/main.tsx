@@ -1,19 +1,19 @@
-import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from 'react';
 import { Box, Button, Image, Link, Provider as BitkitProvider, Text } from '@bitrise/bitkit';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createRoot } from 'react-dom/client';
-import { ReactFlowProvider } from '@xyflow/react';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactFlowProvider } from '@xyflow/react';
+import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from 'react';
+import { createRoot } from 'react-dom/client';
 
 import LoadingState from '@/components/LoadingState';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import Client from '@/core/api/client';
 import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
+import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import MainLayout from '@/layouts/MainLayout';
 
-import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
 

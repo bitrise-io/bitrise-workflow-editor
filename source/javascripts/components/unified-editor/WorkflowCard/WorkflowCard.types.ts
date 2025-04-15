@@ -1,5 +1,5 @@
-import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import { LibraryType } from '@/core/models/Step';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;

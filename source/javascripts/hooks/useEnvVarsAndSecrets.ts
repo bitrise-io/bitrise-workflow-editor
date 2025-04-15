@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 
 import { EnvVar } from '@/core/models/EnvVar';
 import PageProps from '@/core/utils/PageProps';
-import { useWorkflows } from '@/hooks/useWorkflows';
-import { useStepBundles } from '@/hooks/useStepBundles';
 import useEnvVars from '@/hooks/useEnvVars';
 import { useSecrets } from '@/hooks/useSecrets';
+import { useStepBundles } from '@/hooks/useStepBundles';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
 const useEnvVarsAndSecrets = () => {
   const workflows = useWorkflows();

@@ -1,5 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
+import { Meta, StoryObj } from '@storybook/react';
+
 import StepBundlesPage from './StepBundlesPage';
 
 export default {

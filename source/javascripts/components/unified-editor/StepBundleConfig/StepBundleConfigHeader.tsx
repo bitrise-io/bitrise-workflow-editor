@@ -1,6 +1,8 @@
 import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
-import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+
 import StepBundleService from '@/core/services/StepBundleService';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type HeaderProps = {

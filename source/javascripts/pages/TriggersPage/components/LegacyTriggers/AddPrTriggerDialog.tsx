@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,6 +13,7 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
 import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
@@ -23,6 +23,7 @@ import {
   LegacyPrConditionType,
   TriggerItem,
 } from '@/components/unified-editor/Triggers/Triggers.types';
+
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 type DialogProps = {

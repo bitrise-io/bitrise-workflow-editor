@@ -1,5 +1,5 @@
-import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 import { isBoolean, isEqual, isNull, mapKeys, mapValues, omit, omitBy, pickBy } from 'es-toolkit';
+import { isEmpty, isNumber, keys } from 'es-toolkit/compat';
 
 import {
   BitriseYml,
@@ -19,15 +19,13 @@ import {
   WorkflowModel,
   Workflows,
 } from '../models/BitriseYml';
-
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
-
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
-import StepService from './StepService';
+import GraphPipelineWorkflowService from './GraphPipelineWorkflowService';
 import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
-import GraphPipelineWorkflowService from './GraphPipelineWorkflowService';
+import StepService from './StepService';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);

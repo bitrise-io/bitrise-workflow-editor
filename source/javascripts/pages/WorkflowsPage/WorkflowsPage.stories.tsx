@@ -1,14 +1,16 @@
-import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
-import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
-import StepApiMocks from '@/core/api/StepApi.mswMocks';
+import { Meta, StoryObj } from '@storybook/react';
+
 import {
   getCertificates,
   getDefaultOutputs,
   getFileStorageDocuments,
   getProvProfiles,
 } from '@/core/api/EnvVarsApi.mswMocks';
+import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+import StepApiMocks from '@/core/api/StepApi.mswMocks';
+
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;

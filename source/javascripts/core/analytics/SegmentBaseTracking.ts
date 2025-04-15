@@ -1,8 +1,8 @@
-import { toMerged } from 'es-toolkit';
 import { AnalyticsBrowser } from '@segment/analytics-next';
+import { toMerged } from 'es-toolkit';
 
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 

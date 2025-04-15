@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-import { useFormContext, Controller, FieldArrayWithId } from 'react-hook-form';
 import {
   Button,
   Card,
@@ -17,6 +15,9 @@ import {
   Tr,
 } from '@bitrise/bitkit';
 import { Tfoot } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
+
 import { Condition, FormItems } from '../../Triggers.types';
 
 type ConditionCardProps = {

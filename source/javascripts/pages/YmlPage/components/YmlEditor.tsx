@@ -1,9 +1,10 @@
 import Editor from '@monaco-editor/react';
-import MonacoUtils from '@/core/utils/MonacoUtils';
+
+import LoadingState from '@/components/LoadingState';
 import { bitriseYmlStore, updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
+import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFormattedYml from '@/hooks/useFormattedYml';
-import LoadingState from '@/components/LoadingState';
 
 const YmlEditor = () => {
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();

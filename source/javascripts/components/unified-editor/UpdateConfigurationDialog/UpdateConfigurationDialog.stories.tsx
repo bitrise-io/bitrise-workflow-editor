@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { delay, http, HttpResponse } from 'msw';
+
 import { getConfig, getConfigFailed } from '@/pages/YmlPage/components/ConfigurationYmlSource.mswMocks';
+
 import UpdateConfigurationDialog from './UpdateConfigurationDialog';
 
 const formatYml = () => {

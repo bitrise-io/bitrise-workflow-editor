@@ -1,11 +1,12 @@
 import { Box } from '@bitrise/bitkit';
 import { Redirect, Router, Switch } from 'wouter';
+
 import Header from '@/components/Header';
+import LazyRoute from '@/components/LazyRoute';
 import Navigation from '@/components/Navigation';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import { paths, routes } from '@/routes';
-import LazyRoute from '@/components/LazyRoute';
 
 const MainLayout = () => {
   return (

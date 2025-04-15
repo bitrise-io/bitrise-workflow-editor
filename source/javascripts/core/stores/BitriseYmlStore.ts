@@ -1,5 +1,6 @@
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
+
 import {
   BitriseYml,
   EnvironmentItemModel,
@@ -12,11 +13,11 @@ import {
   TriggersModel,
   WorkflowModel,
 } from '@/core/models/BitriseYml';
-
 import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/services/EnvVarService';
-import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import BitriseYmlService from '@/core/services/BitriseYmlService';
+import EnvVarService from '@/core/services/EnvVarService';
+
 import BitriseYmlApi from '../api/BitriseYmlApi';
 
 export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;

@@ -117,6 +117,7 @@
     "eslint": "^8.57.1",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-jasmine": "^4.2.2",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "glob": "^11.0.1",
     "html-webpack-plugin": "^5.6.3",

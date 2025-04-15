@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import StepConfigDrawer from './StepConfigDrawer';
 
 type Story = StoryObj<typeof StepConfigDrawer>;

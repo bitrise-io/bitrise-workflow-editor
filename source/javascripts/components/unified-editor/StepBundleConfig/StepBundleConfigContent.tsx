@@ -1,4 +1,5 @@
 import { TabPanel, TabPanelProps, TabPanels } from '@bitrise/bitkit';
+
 import StepBundleConfigurationTab from './StepBundleConfigurationTab';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
