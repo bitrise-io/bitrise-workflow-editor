@@ -237,14 +237,14 @@ import PageProps from '@/core/utils/PageProps';
           const currentDate = new Date();
           if (currentDate < startDate) {
             return {
-              message: `Upgrading to faster Pro Medium/Large/X Large, with no extra costs. Medium/Large/X Large machines will be deprecated and your Workflows will automatically run on Pro Medium/Large/X Large machines from the ${dateService.toLocaleMonthDayDateString(startDate)}.`,
+              message: `Upgrading to newer generation M/2M/4L Linux machines, with no extra costs. Medium/Large/X Large machines will be deprecated and your Workflows will automatically run on newer generation M/2M/4L Linux machines from the ${dateService.toLocaleMonthDayDateString(startDate)}.`,
               linkUrl: machineUpgradeAnnouncementUrl,
               linkLabel: 'Read announcement.',
             };
           }
           if (currentDate >= startDate && currentDate <= endDate) {
             return {
-              message: `Your Workflows were automatically switched to faster Pro Medium/Large/X Large, with no extra costs. To continue using the deprecated Medium/Large/X Large machines until the ${dateService.toLocaleMonthDayDateString(endDate)}, opt to extend the transition period in the`,
+              message: `Your Workflows were automatically switched to newer generation M/2M/4L Linux machines, with no extra costs. To continue using the deprecated Medium/Large/X Large machines until the ${dateService.toLocaleMonthDayDateString(endDate)}, opt to extend the transition period in the`,
               linkUrl: `/workspaces/${appService.appDetails.ownerData.slug}/settings/apps`,
               linkLabel: 'Workspace settings.',
             };
@@ -252,7 +252,7 @@ import PageProps from '@/core/utils/PageProps';
           if (currentDate > endDate) {
             return {
               message:
-                'Your Workflows are now running on faster Pro Medium/Large/X Large, with no extra costs. If you’d like to keep using the deprecated Medium/Large/X Large machines, reach out to support.',
+                'Your Workflows are now running on newer generation M/2M/4L Linux machines, with no extra costs. If you’d like to keep using the deprecated Medium/Large/X Large machines, reach out to support.',
               linkUrl: machineUpgradeAnnouncementUrl,
               linkLabel: 'Read announcement.',
             };
