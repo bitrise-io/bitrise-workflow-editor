@@ -15,10 +15,14 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
+import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
+import { ClientError } from '@/core/api/client';
 import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
 import { download, getFormattedDate } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
@@ -265,11 +269,15 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
   const [selectedSource, setSelectedSource] = useState<'bitrise' | 'git'>('bitrise');
   const [gitToBitriseSource, setGitToBitriseSource] = useState<'bitrise' | 'git'>('git');
 
+  const [asyncError, setAsyncError] = useState<ClientError | null>(null);
+  const [isPendingGetCiConfig, setIsPendingGetCiConfig] = useState(false);
+
+  const queryClient = useQueryClient();
   const currentPage = useCurrentPage();
-  const { mutateAsync: saveCiConfig } = useSaveCiConfig();
-  const { mutate: putCiConfigSettings } = usePutCiConfigSettings();
   const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
-  const { refetch: getCiConfigFromRepo } = useGetCiConfig(
+  const { mutate: saveCiConfig, isPending: isPendingSaveCiConfig } = useSaveCiConfig();
+  const { mutate: saveYmlSettings, isPending: isPendingSaveYmlSettings } = usePutCiConfigSettings();
+  const { refetch: getCiConfigFromRepo, isRefetching: isPendingGetCiConfigFromRepo } = useGetCiConfig(
     { projectSlug: PageProps.appSlug(), forceToReadFromRepo: true },
     { enabled: false },
   );
@@ -285,6 +293,10 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
     }
   }, [ymlSettings]);
 
+  useEffect(() => {
+    setAsyncError(null);
+  }, [selectedSource, gitToBitriseSource]);
+
   const toolTip =
     selectedSource === 'git'
       ? 'You are already storing your configuration in a Git repository.'
@@ -297,41 +309,68 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
   const isSourceChanged = (ymlSettings?.usesRepositoryYml ? 'git' : 'bitrise') !== selectedSource;
   const isValidateAndSaveDisabled = isYmlSettingsLoading || (!isSourceChanged && !isYmlRootPathChanged);
   const lastModifiedFormatted = ymlSettings?.lastModified ? getFormattedDate(new Date(ymlSettings.lastModified)) : null;
+  const isValidateAndSaveLoading =
+    isPendingSaveYmlSettings || isPendingGetCiConfig || isPendingSaveCiConfig || isPendingGetCiConfigFromRepo;
+
+  const initializeStoreAndClose = (data: { ymlString: string; version: string }) => {
+    onClose();
+    initializeStore(data);
+    setIsPendingGetCiConfig(false);
+    queryClient.invalidateQueries({ queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(PageProps.appSlug())] });
+  };
+
+  const handleAsyncError = (error: ClientError | null) => {
+    setAsyncError(error);
+    if (error) setIsPendingGetCiConfig(false);
+  };
 
   const onValidateAndSave = () => {
+    setAsyncError(null);
+    setIsPendingGetCiConfig(false);
+
     if (switchGitToBitrise) {
       switch (gitToBitriseSource) {
         case 'bitrise':
-          putCiConfigSettings(
+          saveYmlSettings(
             {
               usesRepositoryYml: false,
             },
             {
               onSuccess: async () => {
-                const { data } = await getCiConfigFromBitrise();
-                if (data) initializeStore({ ymlString: data.ymlString, version: data.version ?? '' });
+                setIsPendingGetCiConfig(true);
+                const { data, error } = await getCiConfigFromBitrise();
+                handleAsyncError(error);
+                if (data) initializeStoreAndClose({ ymlString: data.ymlString, version: data.version ?? '' });
               },
+              onError: handleAsyncError,
             },
           );
           break;
         case 'git':
-          putCiConfigSettings(
+          saveYmlSettings(
             {
               usesRepositoryYml: false,
             },
             {
               onSuccess: async () => {
-                const { data } = await getCiConfigFromBitrise();
+                setIsPendingGetCiConfig(true);
+                const { data, error } = await getCiConfigFromRepo();
+                handleAsyncError(error);
                 if (data) {
-                  initializeStore(
-                    await saveCiConfig({
+                  saveCiConfig(
+                    {
                       yml: BitriseYmlApi.fromYml(data.ymlString),
                       projectSlug: PageProps.appSlug(),
                       tabOpenDuringSave: currentPage,
-                    }),
+                    },
+                    {
+                      onSuccess: initializeStoreAndClose,
+                      onError: handleAsyncError,
+                    },
                   );
                 }
               },
+              onError: handleAsyncError,
             },
           );
           break;
@@ -341,16 +380,19 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
     }
 
     if (switchBitriseToGit) {
-      putCiConfigSettings(
+      saveYmlSettings(
         {
           ymlRootPath,
           usesRepositoryYml: true,
         },
         {
           onSuccess: async () => {
-            const { data } = await getCiConfigFromRepo();
-            if (data) initializeStore({ ymlString: data.ymlString, version: data.version ?? '' });
+            setIsPendingGetCiConfig(true);
+            const { data, error } = await getCiConfigFromRepo();
+            handleAsyncError(error);
+            if (data) initializeStoreAndClose({ ymlString: data.ymlString, version: data.version ?? '' });
           },
+          onError: handleAsyncError,
         },
       );
 
@@ -358,15 +400,18 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
     }
 
     if (isYmlRootPathChanged) {
-      putCiConfigSettings(
+      saveYmlSettings(
         {
           ymlRootPath,
         },
         {
           onSuccess: async () => {
-            const { data } = await getCiConfigFromRepo();
-            if (data) initializeStore({ ymlString: data.ymlString, version: data.version ?? '' });
+            setIsPendingGetCiConfig(true);
+            const { data, error } = await getCiConfigFromRepo();
+            handleAsyncError(error);
+            if (data) initializeStoreAndClose({ ymlString: data.ymlString, version: data.version ?? '' });
           },
+          onError: handleAsyncError,
         },
       );
     }
@@ -394,13 +439,19 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
             lastModifiedFormatted={lastModifiedFormatted}
           />
         )}
+
+        {asyncError && <YmlDialogErrorNotification error={asyncError} />}
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
         <Tooltip label={toolTip} isDisabled={isSourceChanged}>
-          <Button onClick={onValidateAndSave} isDisabled={isValidateAndSaveDisabled}>
+          <Button
+            onClick={onValidateAndSave}
+            isLoading={isValidateAndSaveLoading}
+            isDisabled={isValidateAndSaveDisabled}
+          >
             Validate and save
           </Button>
         </Tooltip>

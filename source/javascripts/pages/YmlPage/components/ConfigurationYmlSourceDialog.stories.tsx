@@ -38,6 +38,22 @@ export const StoredOnGitRepository: Story = {
   },
 };
 
+export const SaveCIConfigSettingsFailed: Story = {
+  parameters: {
+    msw: {
+      handlers: [putYmlSettings('Save CI config settings failed.'), ...defaultMswHandlers],
+    },
+  },
+};
+
+export const FetchCIConfigFailed: Story = {
+  parameters: {
+    msw: {
+      handlers: [getCiConfig('Get CI confit from Git repository failed.'), ...defaultMswHandlers],
+    },
+  },
+};
+
 // export const StoredOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
 //   args: {
 //     initialUsesRepositoryYml: false,

@@ -4,7 +4,6 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi, { BitriseYmlSettingsResponse } from '@/core/api/BitriseYmlSettingsApi';
 
 export const getCiConfig = (error?: string) => {
-  console.log(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }));
   return http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
     await delay();
 
