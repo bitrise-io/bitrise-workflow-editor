@@ -13,7 +13,8 @@ const DeprecatedMachineNotification = (props: Props) => {
   if (!deprecatedMachinesReplacementConfig || !['standard', 'elite', 'elite-xl'].includes(machineTypeId)) {
     return null;
   }
-  const { gracePeriodStartedAt, gracePeriodEndedAt } = deprecatedMachinesReplacementConfig;
+  const { grace_period_started_at: gracePeriodStartedAt, grace_period_ended_at: gracePeriodEndedAt } =
+    deprecatedMachinesReplacementConfig;
   if (!gracePeriodStartedAt || !gracePeriodEndedAt) {
     return null;
   }
