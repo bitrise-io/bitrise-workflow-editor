@@ -1,9 +1,11 @@
-import semver from 'semver';
 import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import StepBadge from '@/components/StepBadge';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import semver from 'semver';
+
 import defaultIcon from '@/../images/step/icon-default.svg';
+import StepBadge from '@/components/StepBadge';
 import VersionUtils from '@/core/utils/VersionUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -11,10 +13,10 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import ConfigurationTab from './tabs/ConfigurationTab';
-import PropertiesTab from './tabs/PropertiesTab';
-import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
+import ConfigurationTab from './tabs/ConfigurationTab';
+import OutputVariablesTab from './tabs/OutputVariablesTab';
+import PropertiesTab from './tabs/PropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepBundleId?: string;

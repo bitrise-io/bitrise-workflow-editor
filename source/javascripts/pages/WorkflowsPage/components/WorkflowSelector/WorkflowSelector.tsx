@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+
+import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
 const WorkflowSelector = () => {
   const workflows = useWorkflows();

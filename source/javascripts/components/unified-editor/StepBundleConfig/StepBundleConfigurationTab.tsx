@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
 import { Button, EmptyState } from '@bitrise/bitkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import { useEffect, useState } from 'react';
+
 import useStepBundleInputs from '@/components/unified-editor/StepBundleConfig/hooks/useStepBundleInputs';
+import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
-import { FormMode } from './types/StepBundle.types';
 import StepBundleInputsCategoryCard from './StepBundleInputs/StepBundleInputsCategoryCard';
 import StepBundleInputsForm from './StepBundleInputs/StepBundleInputsForm';
+import { FormMode } from './types/StepBundle.types';
 
 const StepBundleConfigurationTab = () => {
   const [preselectedCategory, setPreselectedCategory] = useState<string>();

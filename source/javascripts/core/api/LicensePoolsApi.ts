@@ -1,4 +1,5 @@
 import { pick } from 'es-toolkit';
+
 import { LicensePool, LicensePoolKind } from '../models/LicensePool';
 import Client from './client';
 

@@ -1,4 +1,5 @@
 import { delay, http, HttpResponse } from 'msw';
+
 import StacksAndMachinesApi, { StacksAndMachinesResponse } from './StacksAndMachinesApi';
 
 type Options = {

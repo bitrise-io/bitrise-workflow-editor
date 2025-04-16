@@ -1,5 +1,7 @@
 import { Node, Position } from '@xyflow/react';
+
 import { Stage } from '@/core/models/Stage';
+
 import {
   CANVAS_PADDING,
   ICON_STAGE_WIDTH,

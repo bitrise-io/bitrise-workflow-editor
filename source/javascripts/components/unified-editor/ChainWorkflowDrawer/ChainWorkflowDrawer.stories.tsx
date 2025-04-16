@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+
 import ChainWorkflowDrawer from './ChainWorkflowDrawer';
 
 export default {
@@ -15,11 +15,14 @@ export default {
     onClose: { type: 'function' },
     onChainWorkflow: { type: 'function' },
   },
-  decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
 } as Meta<typeof ChainWorkflowDrawer>;
 
 export const Default: StoryObj = {};
 
 export const Empty: StoryObj = {
-  decorators: (Story) => withBitriseYml({ ...TEST_BITRISE_YML, workflows: {} }, Story),
+  parameters: {
+    bitriseYmlStore: {
+      yml: { ...TEST_BITRISE_YML, workflows: {} },
+    },
+  },
 };

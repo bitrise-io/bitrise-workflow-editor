@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react';
+import { Icon } from '@bitrise/bitkit';
 import {
   CloseButtonProps,
   Drawer,
@@ -17,7 +17,7 @@ import {
   ModalOverlayProps,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { Icon } from '@bitrise/bitkit';
+import { createContext, useContext, useMemo } from 'react';
 
 type FloatingDrawerProps = Omit<DrawerProps, 'size'> & {
   size?: 'md' | 'lg';
@@ -117,13 +117,13 @@ const FloatingDrawerFooter = (props: ModalFooterProps) => {
 };
 
 export {
-  FloatingDrawerProps,
-  FloatingDrawerOverlay,
+  FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
-  FloatingDrawerHeader,
-  FloatingDrawerBody,
   FloatingDrawerFooter,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
 };
 
 export default FloatingDrawer;

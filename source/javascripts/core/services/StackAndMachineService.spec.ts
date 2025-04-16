@@ -1,8 +1,8 @@
-import { Stack } from '@/core/models/Stack';
 import { MachineType } from '@/core/models/MachineType';
+import { Stack } from '@/core/models/Stack';
+import MachineTypeService from '@/core/services/MachineTypeService';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import StackService from '@/core/services/StackService';
-import MachineTypeService from '@/core/services/MachineTypeService';
 
 const stacks: Stack[] = [
   {

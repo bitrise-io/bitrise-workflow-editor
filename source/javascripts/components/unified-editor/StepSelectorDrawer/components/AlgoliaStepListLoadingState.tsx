@@ -1,6 +1,7 @@
-import { useRef } from 'react';
 import { Box, Card, Skeleton, SkeletonBox } from '@bitrise/bitkit';
 import { range } from 'es-toolkit';
+import { useRef } from 'react';
+
 import useCalculateColumns from '../hooks/useCalculateColumns';
 import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from './AlgoliaStepList.const';
 

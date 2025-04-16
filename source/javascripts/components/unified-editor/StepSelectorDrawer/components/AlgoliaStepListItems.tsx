@@ -1,15 +1,13 @@
-import { useEffect, useRef } from 'react';
-
 import { Box, Text } from '@bitrise/bitkit';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useEffect, useRef } from 'react';
 
 import { AlgoliaStepResponse } from '@/core/api/AlgoliaApi';
-
 import { findScrollContainer } from '@/core/utils/CommonUtils';
-import useVirtualItems from '../hooks/useVirtualItems';
-import useCalculateColumns from '../hooks/useCalculateColumns';
-import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from './AlgoliaStepList.const';
 
+import useCalculateColumns from '../hooks/useCalculateColumns';
+import useVirtualItems from '../hooks/useVirtualItems';
+import { CATEGORY_HEIGHT, GAP, STEP_HEIGHT } from './AlgoliaStepList.const';
 import AlgoliaStepListItem from './AlgoliaStepListItem';
 
 type Props = {

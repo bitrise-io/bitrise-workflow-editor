@@ -1,5 +1,5 @@
-import { EnvVar } from '../models/EnvVar';
 import { EnvironmentItemModel } from '../models/BitriseYml';
+import { EnvVar } from '../models/EnvVar';
 
 function validateKey(key?: string) {
   if (!key || !String(key).trim()) {

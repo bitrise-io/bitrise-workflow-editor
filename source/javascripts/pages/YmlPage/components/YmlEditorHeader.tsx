@@ -1,46 +1,44 @@
-import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { useToast } from '@chakra-ui/react';
+import { useMemo } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { useFormatYml } from '@/hooks/useFormattedYml';
 
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
-export type YmlEditorHeaderProps = {
-  ciConfigYml: string;
-  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
-  ymlSettings: BitriseYmlSettings;
-};
-const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
-  const { ciConfigYml, onConfigSourceChangeSaved, ymlSettings } = props;
-
+const YmlEditorHeader = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
+  const { isRepositoryYmlAvailable } = PageProps.limits() ?? {};
 
-  const isRepositoryYmlAvailable = PageProps.limits()?.isRepositoryYmlAvailable;
-
-  const appSlug = PageProps.appSlug() || '';
-  const defaultBranch = PageProps.app()?.defaultBranch || '';
-  const gitRepoSlug = PageProps.app()?.gitRepoSlug || '';
-
-  const { isYmlSplit, lastModified, ymlRootPath } = ymlSettings;
-
+  const toast = useToast();
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!ymlSettings?.usesRepositoryYml);
+  const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
+  const { mutate: formatYml, isPending: isFormattingYml } = useFormatYml();
 
-  let infoLabel;
-  if (usesRepositoryYml) {
-    infoLabel = isYmlSplit
-      ? `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`
-      : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
-  }
+  const infoLabel = useMemo(() => {
+    if (isYmlSettingsLoading || !ymlSettings?.usesRepositoryYml) {
+      return undefined;
+    }
+
+    if (ymlSettings?.isYmlSplit) {
+      return `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`;
+    }
+
+    return `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
+  }, [defaultBranch, gitRepoSlug, isYmlSettingsLoading, ymlSettings?.isYmlSplit, ymlSettings?.usesRepositoryYml]);
 
   const onYmlSourceChangeClick = () => {
-    onOpen();
     segmentTrack('Change Configuration Yml Source Button Clicked', {
-      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
+      yml_source: ymlSettings?.usesRepositoryYml ? 'git' : 'bitrise',
     });
+    onOpen();
   };
 
   const onDownloadClick = () => {
@@ -48,79 +46,65 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
       yml_source: 'bitrise',
       source: 'yml_editor_header',
     });
+    formatYml(bitriseYmlStore.getState().yml, {
+      onSuccess: (formattedYml) => {
+        download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8');
+      },
+      onError: () => {
+        toast({
+          title: 'Failed to download',
+          description: 'Something went wrong while preparing the configuration YAML file for download.',
+          status: 'error',
+          isClosable: true,
+        });
+      },
+    });
   };
 
   return (
-    <>
-      <Box
-        display="flex"
-        flexDirection={['column', 'row']}
-        gap="16"
-        alignItems={['flex-start', 'center']}
-        marginBlockEnd="24"
-        paddingInline="32"
-      >
-        <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
-          Configuration YAML
-        </Text>
-        {!usesRepositoryYml && isWebsiteMode && (
-          <Button
-            as="a"
-            href={`/api/app/${appSlug}/config.yml?is_download=1`}
-            leftIconName="Download"
-            size="sm"
-            target="_blank"
-            variant="tertiary"
-            onClick={onDownloadClick}
-          >
-            Download
-          </Button>
-        )}
-        {isWebsiteMode && (
-          <DataWidget
-            additionalElement={
-              <Tooltip
-                isDisabled={isRepositoryYmlAvailable}
-                label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
-              >
-                <Button
-                  isDisabled={!isRepositoryYmlAvailable}
-                  onClick={onYmlSourceChangeClick}
-                  size="sm"
-                  variant="tertiary"
-                >
-                  Change
-                </Button>
-              </Tooltip>
-            }
-            infoLabel={infoLabel}
-          >
-            <DataWidgetItem
-              label="Source:"
-              labelTooltip="The source is where your configuration file is stored and managed."
-              value={usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
-            />
-          </DataWidget>
-        )}
-      </Box>
-      {!!ymlSettings && (
-        <ConfigurationYmlSourceDialog
-          isOpen={isOpen}
-          onClose={onClose}
-          initialUsesRepositoryYml={usesRepositoryYml}
-          projectSlug={appSlug}
-          onConfigSourceChangeSaved={(newValue: boolean, newYmlRootPath: string) => {
-            onConfigSourceChangeSaved(newValue, newYmlRootPath);
-            setUsesRepositoryYml(newValue);
-          }}
-          defaultBranch={defaultBranch}
-          gitRepoSlug={gitRepoSlug}
-          lastModified={lastModified}
-          initialYmlRootPath={ymlRootPath}
-          ciConfigYml={ciConfigYml}
-        />
+    <Box display="flex" flexDirection={['column', 'row']} gap="16" alignItems={['flex-start', 'center']} p="32">
+      <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
+        Configuration YAML
+      </Text>
+      {isWebsiteMode && !isYmlSettingsLoading && !ymlSettings?.usesRepositoryYml && (
+        <Button
+          leftIconName="Download"
+          size="sm"
+          variant="tertiary"
+          isLoading={isFormattingYml}
+          onClick={onDownloadClick}
+        >
+          Download
+        </Button>
       )}
-    </>
+      {isWebsiteMode && !isYmlSettingsLoading && (
+        <DataWidget
+          additionalElement={
+            <Tooltip
+              isDisabled={isRepositoryYmlAvailable}
+              label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
+            >
+              <Button
+                isDisabled={!isRepositoryYmlAvailable || isYmlSettingsLoading}
+                onClick={onYmlSourceChangeClick}
+                size="sm"
+                variant="tertiary"
+              >
+                Change
+              </Button>
+            </Tooltip>
+          }
+          infoLabel={infoLabel}
+        >
+          <DataWidgetItem
+            label="Source:"
+            labelTooltip="The source is where your configuration file is stored and managed."
+            value={ymlSettings?.usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
+          />
+        </DataWidget>
+      )}
+      <ConfigurationYmlSourceDialog isOpen={isOpen} onClose={onClose} />
+    </Box>
   );
 };
 

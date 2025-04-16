@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Button,
   EmptyState,
@@ -13,15 +12,15 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import {
-  DndContext,
   closestCenter,
-  DragOverlay,
-  useSensors,
+  DndContext,
   DragEndEvent,
+  DragOverlay,
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import {
@@ -30,17 +29,20 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useState } from 'react';
+
+import { TriggerItem, TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useUserMetaData from '@/hooks/useUserMetaData';
-import { TriggerType, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
-import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../../TriggersPage.utils';
+
+import { convertItemsToTriggerMap, convertTriggerMapToItems } from '../../TriggersPage.utils';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
-import TriggerCard from './TriggerCard';
 import ConvertLegacyTriggers from './ConvertLegacyTriggers';
+import TriggerCard from './TriggerCard';
 
 type LegacyTriggersProps = {
   yml: BitriseYml;

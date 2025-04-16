@@ -1,5 +1,5 @@
-import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 import { ButtonGroup, ControlButton, Input, InputProps } from '@bitrise/bitkit';
+import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 
 type Props = InputProps & {
   onCommit?: (value: string) => void;

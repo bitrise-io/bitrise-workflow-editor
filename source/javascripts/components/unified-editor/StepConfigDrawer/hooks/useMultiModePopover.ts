@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'react';
 import { useDisclosure } from '@bitrise/bitkit';
+import { useCallback, useState } from 'react';
+
 import useFilterableActionList, { FilterableActionListResult } from './useFilterableActionList';
 
 export enum Mode {

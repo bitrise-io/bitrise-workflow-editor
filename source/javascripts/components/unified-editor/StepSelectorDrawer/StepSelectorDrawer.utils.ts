@@ -1,6 +1,8 @@
 import { capitalize } from 'es-toolkit';
-import { Step } from '@/core/models/Step';
+
 import { StepApiResult } from '@/core/api/StepApi';
+import { Step } from '@/core/models/Step';
+
 import { CategoryRowItem, StepsRowItem, VirtualizedListItem } from './StepSelectorDrawer.types';
 
 export const isCategoryRow = (item: VirtualizedListItem): item is CategoryRowItem => item.type === 'category';

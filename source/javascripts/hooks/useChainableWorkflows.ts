@@ -1,5 +1,5 @@
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowService from '@/core/services/WorkflowService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
   id: string;

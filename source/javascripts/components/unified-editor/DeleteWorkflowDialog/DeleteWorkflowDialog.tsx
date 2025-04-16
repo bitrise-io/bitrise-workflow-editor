@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { useCallback } from 'react';
+
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = Omit<DialogProps, 'title'> & {

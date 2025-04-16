@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   Box,
   Collapse,
@@ -11,10 +10,13 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
+
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 type StepVersionProps = {

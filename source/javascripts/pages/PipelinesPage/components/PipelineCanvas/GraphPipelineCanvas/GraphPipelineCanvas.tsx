@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from 'react';
 import {
   applyNodeChanges,
   EdgeMouseHandler,
@@ -15,20 +14,22 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
-import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
-import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
+import { useCallback, useEffect, useState } from 'react';
+
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import GraphPipelineCanvasEmptyState from '../../EmptyStates/GraphPipelineCanvasEmptyState';
-import WorkflowNode from './components/WorkflowNode';
-import validateConnection from './utils/validateConnection';
-import usePipelineWorkflows from './hooks/usePipelineWorkflows';
-import PlaceholderNode from './components/PlaceholderWorkflowNode';
-import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
-import transformWorkflowsToGraphEntities from './utils/transformWorkflowsToGraphEntities';
-import { GraphPipelineEdgeType, GraphPipelineNodeType } from './GraphPipelineCanvas.types';
+import PlaceholderNode from './components/PlaceholderWorkflowNode';
+import WorkflowNode from './components/WorkflowNode';
 import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
+import { GraphPipelineEdgeType, GraphPipelineNodeType } from './GraphPipelineCanvas.types';
+import usePipelineWorkflows from './hooks/usePipelineWorkflows';
+import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
+import transformWorkflowsToGraphEntities from './utils/transformWorkflowsToGraphEntities';
+import validateConnection from './utils/validateConnection';
 
 const nodeTypes: NodeTypes = {
   [WORKFLOW_NODE_TYPE]: WorkflowNode,

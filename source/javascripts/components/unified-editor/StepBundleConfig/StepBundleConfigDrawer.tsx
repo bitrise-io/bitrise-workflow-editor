@@ -1,4 +1,5 @@
 import { Tabs } from '@bitrise/bitkit';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -6,9 +7,9 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import StepBundleConfigHeader from './StepBundleConfigHeader';
 import StepBundleConfigProvider from './StepBundleConfig.context';
 import StepBundleConfigContent from './StepBundleConfigContent';
+import StepBundleConfigHeader from './StepBundleConfigHeader';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   onRename?: (name: string) => void;

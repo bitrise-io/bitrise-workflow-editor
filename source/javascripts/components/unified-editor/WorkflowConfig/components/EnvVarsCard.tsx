@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react';
-
-import { omit } from 'es-toolkit';
-import { CSS } from '@dnd-kit/utilities';
-import { useDebounceCallback } from 'usehooks-ts';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { omit } from 'es-toolkit';
+import { useEffect, useState } from 'react';
+import { useDebounceCallback } from 'usehooks-ts';
 
-import { EnvVar } from '@/core/models/EnvVar';
+import AutoGrowableInput from '@/components/AutoGrowableInput';
+import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvModel } from '@/core/models/BitriseYml';
+import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import DragHandle from '@/components/DragHandle/DragHandle';
-import AutoGrowableInput from '@/components/AutoGrowableInput';
 
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 

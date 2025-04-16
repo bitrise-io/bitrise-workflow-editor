@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, useToast } from '@bitrise/bitkit';
+import { useCallback, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
 

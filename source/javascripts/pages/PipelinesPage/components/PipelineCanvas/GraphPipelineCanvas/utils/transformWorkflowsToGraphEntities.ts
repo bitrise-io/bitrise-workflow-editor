@@ -1,4 +1,5 @@
 import { PipelineWorkflow } from '@/core/models/Workflow';
+
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 import createGraphPipelineEdge from './createGraphPipelineEdge';
 import createWorkflowNode from './createWorkflowNode';

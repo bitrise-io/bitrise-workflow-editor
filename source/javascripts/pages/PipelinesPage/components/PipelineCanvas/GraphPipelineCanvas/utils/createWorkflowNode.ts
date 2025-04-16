@@ -1,4 +1,5 @@
 import { PipelineWorkflow } from '@/core/models/Workflow';
+
 import {
   DEFAULT_WORKFLOW_NODE_ZINDEX,
   WORKFLOW_NODE_HEIGHT,

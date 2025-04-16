@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import EditableInput from './EditableInput';
 
 type Story = StoryObj<typeof EditableInput>;

@@ -1,7 +1,6 @@
 import { StepApiResult } from '@/core/api/StepApi';
 
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, Step } from '../models/Step';
-
 import StepService from './StepService';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
@@ -1096,6 +1095,43 @@ describe('StepService', () => {
       const opts = {};
       const result = StepService.toYmlInput('name', 'new_name', opts);
       expect(result).toEqual({ name: 'new_name' });
+    });
+  });
+
+  describe('moveStepIndices', () => {
+    test('move a not selected before a selected', () => {
+      const result = StepService.moveStepIndices('move', [0, 2], 3, 1);
+      expect(result).toEqual([0, 3]);
+    });
+
+    test('move a selected after a selected', () => {
+      const result = StepService.moveStepIndices('move', [0, 1], 0, 4);
+      expect(result).toEqual([4, 0]);
+    });
+
+    test('move a selected before a not selected', () => {
+      const result = StepService.moveStepIndices('move', [1, 2], 2, 0);
+      expect(result).toEqual([2, 0]);
+    });
+
+    test('remove a selected', () => {
+      const result = StepService.moveStepIndices('remove', [0, 2], 0);
+      expect(result).toEqual([-1, 1]);
+    });
+
+    test('remove a not selected', () => {
+      const result = StepService.moveStepIndices('remove', [0, 2], 1);
+      expect(result).toEqual([0, 1]);
+    });
+
+    test('clone a selected', () => {
+      const result = StepService.moveStepIndices('clone', [1], 1);
+      expect(result).toEqual([2]);
+    });
+
+    test('clone a not selected', () => {
+      const result = StepService.moveStepIndices('clone', [1], 0);
+      expect(result).toEqual([2]);
     });
   });
 });

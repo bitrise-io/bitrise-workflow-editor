@@ -1,6 +1,6 @@
 import { Box, Notification, SearchInput, Text } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -8,6 +8,8 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+
 import ChainableWorkflowList from './components/ChainableWorkflowList';
 
 type FormValues = {

@@ -1,9 +1,11 @@
 import { Box } from '@bitrise/bitkit';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 import WorkflowService from '@/core/services/WorkflowService';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 import EnvVarsCard from '../components/EnvVarsCard';
-import StackAndMachineCard from '../components/StackAndMachineCard';
 import PipelineConditionsCard from '../components/PipelineConditionsCard';
+import StackAndMachineCard from '../components/StackAndMachineCard';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type ConfigurationTabProps = {

@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react';
 import {
   Badge,
   Box,
@@ -19,10 +18,11 @@ import {
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
+
 import { Secret } from '@/core/models/Secret';
+import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
 
 interface SecretCardProps extends CardProps {
   appSlug: string;

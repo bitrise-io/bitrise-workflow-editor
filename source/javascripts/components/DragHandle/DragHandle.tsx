@@ -1,4 +1,5 @@
 import { Box, BoxProps, forwardRef } from '@bitrise/bitkit';
+
 import DragHandleIcon from './DragHandleIcon';
 
 type Props = BoxProps & {

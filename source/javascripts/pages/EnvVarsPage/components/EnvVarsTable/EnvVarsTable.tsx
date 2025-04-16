@@ -1,17 +1,16 @@
-import { useState } from 'react';
 import { Box, Card } from '@bitrise/bitkit';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useState } from 'react';
 
 import { EnvModel } from '@/core/models/BitriseYml';
 import EnvVarService from '@/core/services/EnvVarService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { EnvVarWithUniqueId } from '../../EnvVarsPage.types';
-
-import EnvVarsTableHeader from './EnvVarsTableHeader';
 import EnvVarsTableFooter from './EnvVarsTableFooter';
+import EnvVarsTableHeader from './EnvVarsTableHeader';
 import EnvVarsTableItem from './EnvVarsTableItem';
 
 type Props = {

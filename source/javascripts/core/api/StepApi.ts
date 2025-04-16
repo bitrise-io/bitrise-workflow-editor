@@ -1,4 +1,7 @@
 import { parse } from 'yaml';
+
+import Client from '@/core/api/client';
+import { EnvironmentItemModel, EnvModel, StepModel } from '@/core/models/BitriseYml';
 import {
   BITRISE_STEP_LIBRARY_SSH_URL,
   BITRISE_STEP_LIBRARY_URL,
@@ -6,11 +9,10 @@ import {
   Maintainer,
   Step,
 } from '@/core/models/Step';
-import VersionUtils from '@/core/utils/VersionUtils';
 import StepService from '@/core/services/StepService';
-import Client from '@/core/api/client';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import { EnvironmentItemModel, EnvModel, StepModel } from '@/core/models/BitriseYml';
+import VersionUtils from '@/core/utils/VersionUtils';
+
 import AlgoliaApi, { AlgoliaStepInfo, AlgoliaStepInputResponse, AlgoliaStepResponse } from './AlgoliaApi';
 
 type StepApiResult = Required<Omit<Step, 'userValues' | 'mergedValues'>> | undefined;

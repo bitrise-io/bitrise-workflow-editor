@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
+
 import StackService from '@/core/services/StackService';
 import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
-import useStacksAndMachines from './useStacksAndMachines';
+
 import useProjectStackAndMachine from './useProjectStackAndMachine';
+import useStacksAndMachines from './useStacksAndMachines';
 
 const useWorkflowStackName = (workflowId: string = '') => {
   const { data } = useStacksAndMachines();

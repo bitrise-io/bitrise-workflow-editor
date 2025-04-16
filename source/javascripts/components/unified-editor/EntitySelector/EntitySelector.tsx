@@ -1,4 +1,3 @@
-import { useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -9,6 +8,7 @@ import {
   DropdownSearch,
   EmptyState,
 } from '@bitrise/bitkit';
+import { useMemo, useRef, useState } from 'react';
 
 export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
   entityIds: string[];

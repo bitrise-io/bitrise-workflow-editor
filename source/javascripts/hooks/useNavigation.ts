@@ -1,6 +1,10 @@
+import useHashLocation from './useHashLocation';
+
 const useNavigation = () => {
+  const [, navigate] = useHashLocation();
+
   const replace = (path: string, params?: Record<string, string>) => {
-    window.parent.dispatchEvent(new CustomEvent('navigation.replace', { detail: { path, params } }));
+    navigate(`${path}${params ? `?${new URLSearchParams(params).toString()}` : ''}`);
   };
 
   return { replace };

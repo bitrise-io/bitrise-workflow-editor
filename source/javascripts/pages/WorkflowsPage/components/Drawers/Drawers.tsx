@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
@@ -10,9 +10,11 @@ import {
   WithGroupDrawer,
   WorkflowConfigDrawer,
 } from '@/components/unified-editor';
-import StepService from '@/core/services/StepService';
-import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
+import StepService from '@/core/services/StepService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useSearchParams from '@/hooks/useSearchParams';
+
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 
 const Drawers = ({ children }: PropsWithChildren) => {

@@ -1,8 +1,7 @@
 import { omit, uniq } from 'es-toolkit';
 
-import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
-
+import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import StepService from './StepService';
 import WorkflowService from './WorkflowService';
 

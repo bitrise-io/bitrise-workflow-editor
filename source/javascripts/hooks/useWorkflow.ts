@@ -1,5 +1,5 @@
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { Workflow } from '@/core/models/Workflow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const useWorkflow = (id: string): Workflow | undefined => {
   return useBitriseYmlStore(({ yml }) => {

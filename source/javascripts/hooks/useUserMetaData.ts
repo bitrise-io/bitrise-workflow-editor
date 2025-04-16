@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+
 import UserApi from '../core/api/UserApi';
 
 const useUserMetaData = (key: string, enabled: boolean) => {

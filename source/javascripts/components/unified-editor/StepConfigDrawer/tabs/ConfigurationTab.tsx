@@ -1,6 +1,6 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
-import { useDebounceCallback } from 'usehooks-ts';
 import { cloneDeep } from 'es-toolkit';
+import { useDebounceCallback } from 'usehooks-ts';
 
 import { EnvModel, StepModel } from '@/core/models/BitriseYml';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';

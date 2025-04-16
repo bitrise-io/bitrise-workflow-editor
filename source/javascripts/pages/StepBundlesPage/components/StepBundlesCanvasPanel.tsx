@@ -1,15 +1,17 @@
-import { useCallback } from 'react';
 import { Box } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
-import { useShallow } from '@/hooks/useShallow';
+import { useCallback } from 'react';
+
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { moveStepIndices } from '@/utils/stepSelectionHandlers';
-import { LibraryType } from '@/core/models/Step';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
-import { useStepBundles } from '@/hooks/useStepBundles';
+import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
+import { moveStepIndices } from '@/core/services/StepService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useShallow } from '@/hooks/useShallow';
+import { useStepBundles } from '@/hooks/useStepBundles';
+
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 import StepBundlesSelector from './StepBundlesSelector';
 

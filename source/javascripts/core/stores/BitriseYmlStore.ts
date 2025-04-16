@@ -2,30 +2,39 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
 import {
-  Meta,
-  EnvModel,
-  StepModel,
   BitriseYml,
-  TriggerMap,
+  EnvironmentItemModel,
+  EnvModel,
+  Meta,
   PipelineModel,
+  StepBundleModel,
+  StepModel,
+  TriggerMap,
   TriggersModel,
   WorkflowModel,
-  StepBundleModel,
-  EnvironmentItemModel,
 } from '@/core/models/BitriseYml';
-
 import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/services/EnvVarService';
-import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import BitriseYmlService from '@/core/services/BitriseYmlService';
+import EnvVarService from '@/core/services/EnvVarService';
 
-type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
+import BitriseYmlApi from '../api/BitriseYmlApi';
 
-type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
+export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
-function create(yml: BitriseYml) {
-  return createStore(
-    combine({ yml }, (set, get) => ({
+export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
+
+export const bitriseYmlStore = createStore(
+  combine(
+    {
+      discardKey: Date.now(),
+      yml: {} as BitriseYml,
+      savedYml: {} as BitriseYml,
+      ymlString: '',
+      savedYmlString: '',
+      savedYmlVersion: '',
+    },
+    (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
       },
@@ -482,10 +491,28 @@ function create(yml: BitriseYml) {
           };
         });
       },
-    })),
-  );
+    }),
+  ),
+);
+
+export function updateYmlStringAndSyncYml(ymlString?: string) {
+  try {
+    bitriseYmlStore.setState({
+      ymlString,
+      yml: BitriseYmlApi.fromYml(ymlString || ''),
+    });
+  } catch {
+    // NOTE: Monaco editor will show error if the yml is invalid
+    bitriseYmlStore.setState({ ymlString });
+  }
 }
 
-export { BitriseYmlStore, BitriseYmlStoreState };
-
-export default { create };
+export function initializeStore({ ymlString, version }: { ymlString: string; version: string }) {
+  bitriseYmlStore.setState({
+    yml: BitriseYmlApi.fromYml(ymlString),
+    savedYml: BitriseYmlApi.fromYml(ymlString),
+    ymlString,
+    savedYmlString: ymlString,
+    savedYmlVersion: version,
+  });
+}

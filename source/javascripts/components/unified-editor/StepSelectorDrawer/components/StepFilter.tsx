@@ -1,4 +1,3 @@
-import { memo, useCallback, useMemo } from 'react';
 import {
   Box,
   BoxProps,
@@ -9,10 +8,12 @@ import {
   SelectableTagGroup,
   TypeIconName,
 } from '@bitrise/bitkit';
-
 import { capitalize, startCase } from 'es-toolkit';
-import { useAlgoliaSteps } from '@/hooks/useAlgolia';
+import { memo, useCallback, useMemo } from 'react';
+
 import StepService from '@/core/services/StepService';
+import { useAlgoliaSteps } from '@/hooks/useAlgolia';
+
 import useSearch from '../hooks/useSearch';
 
 const MAINTAINERS: Array<{

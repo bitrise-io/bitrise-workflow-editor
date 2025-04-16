@@ -1,6 +1,7 @@
-import { useStepBundles } from '@/hooks/useStepBundles';
 import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
+import { useStepBundles } from '@/hooks/useStepBundles';
+
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const StepBundlesSelector = () => {

@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { omit } from 'es-toolkit';
-import { CSS } from '@dnd-kit/utilities';
-import { useSortable } from '@dnd-kit/sortable';
 import { Box, Checkbox, ControlButton, Input, Text } from '@bitrise/bitkit';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { omit } from 'es-toolkit';
+import { useState } from 'react';
 
-import EnvVarService from '@/core/services/EnvVarService';
-import DragHandle from '@/components/DragHandle/DragHandle';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
+import DragHandle from '@/components/DragHandle/DragHandle';
+import EnvVarService from '@/core/services/EnvVarService';
 
 import { EnvVarWithUniqueId } from '../../EnvVarsPage.types';
 

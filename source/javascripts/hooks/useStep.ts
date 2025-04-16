@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toMerged } from 'es-toolkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useMemo } from 'react';
+
+import StepApi, { StepApiResult } from '@/core/api/StepApi';
 import { Step, StepBundle, StepLike, StepLikeYmlObject, WithGroup } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
-import StepApi, { StepApiResult } from '@/core/api/StepApi';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 type YmlStepResult = {

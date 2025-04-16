@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Box, Label } from '@bitrise/bitkit';
-import { editor } from 'monaco-editor';
 import { Editor, Monaco } from '@monaco-editor/react';
+import { editor } from 'monaco-editor';
+import { useCallback, useEffect, useState } from 'react';
+
 import { useEnvVarsAndSecretsCompletionProvider } from '@/hooks/useMonacoCompletionProvider';
 
 const EDITOR_OPTIONS = {

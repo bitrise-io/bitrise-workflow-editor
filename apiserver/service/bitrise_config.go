@@ -218,14 +218,14 @@ func PostFormatHandler(w http.ResponseWriter, r *http.Request) {
 
 	yaml.FutureLineWrap()
 
-	bitriseDataModel := models.BitriseDataModel{}
-	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &bitriseDataModel); err != nil {
+	var model *yaml.MapSlice
+	if err := yaml.Unmarshal([]byte(reqObj.BitriseYML), &model); err != nil {
 		log.Errorf("Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
 		return
 	}
 
-	formattedBitriseYML, err := yaml.Marshal(bitriseDataModel)
+	formattedBitriseYML, err := yaml.Marshal(model)
 	if err != nil {
 		log.Errorf("Failed to serialize bitrise_yml as YAML, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)

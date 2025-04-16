@@ -1,5 +1,5 @@
-import { PropsWithChildren } from 'react';
 import { Box } from '@bitrise/bitkit';
+import { PropsWithChildren } from 'react';
 
 const TabContainer = ({ children }: PropsWithChildren) => {
   return (

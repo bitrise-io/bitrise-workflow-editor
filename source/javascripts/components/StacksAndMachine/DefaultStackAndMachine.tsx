@@ -1,8 +1,8 @@
 import { Text } from '@bitrise/bitkit';
 
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
-import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 
 const DefaultStackAndMachine = () => {
   const { projectStackId, projectMachineTypeId, projectStackRollbackVersion } = useProjectStackAndMachine();
@@ -15,6 +15,7 @@ const DefaultStackAndMachine = () => {
       stack_rollback_version,
     });
   };
+
   return (
     <div>
       <Text as="h4" textStyle="heading/h4" mb="12">

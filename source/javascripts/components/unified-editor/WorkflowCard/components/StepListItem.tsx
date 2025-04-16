@@ -3,8 +3,8 @@ import { memo } from 'react';
 
 import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import StepBundleCard from '../../StepSelectorDrawer/components/StepBundleCard';
 
+import StepBundleCard from '../../StepSelectorDrawer/components/StepBundleCard';
 import StepCard, { StepCardProps } from './StepCard';
 
 const StepListItem = (props: StepCardProps) => {

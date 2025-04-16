@@ -1,13 +1,15 @@
-import { useCallback } from 'react';
 import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import PipelineService from '@/core/services/PipelineService';
+import { useCallback } from 'react';
+
 import EditableInput from '@/components/EditableInput/EditableInput';
+import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
+import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
+import PipelineService from '@/core/services/PipelineService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
-import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
-import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
+
 import DeletePipelineDialog from '../components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = {

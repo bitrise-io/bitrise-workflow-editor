@@ -9,7 +9,7 @@ containers:
     image: ruby:3.2
 app:
   envs:
-  - ACCESS_KEY: "120"
+  - ACCESS_KEY: "125"
   - GITHUB_TOKEN: GITHUB_TOKEN
     opts:
       is_expand: false
@@ -22,7 +22,7 @@ trigger_map:
   workflow: wf2
   push_branch: release
 - type: pull_request
-  workflow: wf3
+  workflow: wf5
   pull_request_target_branch: '*'
 pipelines:
   graph-pipeline:

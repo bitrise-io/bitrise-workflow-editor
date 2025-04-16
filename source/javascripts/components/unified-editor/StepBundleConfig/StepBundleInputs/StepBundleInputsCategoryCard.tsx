@@ -1,11 +1,12 @@
-import { Fragment } from 'react';
 import { Box, Button, Card, Divider, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
-
+import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
-import StepSelectInput from '@/components/unified-editor/StepConfigDrawer/components/StepSelectInput';
+
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
-import { expandInput } from '../utils/StepBundle.utils';
+import StepSelectInput from '@/components/unified-editor/StepConfigDrawer/components/StepSelectInput';
+
 import { InputListItem } from '../types/StepBundle.types';
+import { expandInput } from '../utils/StepBundle.utils';
 
 type Props = {
   category?: string;

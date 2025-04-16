@@ -1,5 +1,5 @@
-import { ChangeEventHandler, useState } from 'react';
 import { Box, CodeSnippet, Input, Link, Text } from '@bitrise/bitkit';
+import { ChangeEventHandler, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
 

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button, IconButton, Text } from '@bitrise/bitkit';
 import {
   List,
@@ -10,14 +9,17 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
+import { useState } from 'react';
+
 import { Secret } from '@/core/models/Secret';
-import { useSecrets } from '@/hooks/useSecrets';
 import PageProps from '@/core/utils/PageProps';
+import { useSecrets } from '@/hooks/useSecrets';
+
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
-import { HandlerFn } from './types';
-import LoadingState from './components/LoadingState';
 import CreateSecret from './components/CreateSecret';
+import LoadingState from './components/LoadingState';
+import { HandlerFn } from './types';
 
 type Props = {
   size: 'sm' | 'md';

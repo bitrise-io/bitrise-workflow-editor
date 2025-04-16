@@ -1,19 +1,21 @@
 import { memo, PropsWithChildren } from 'react';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import {
   ChainWorkflowDrawer,
   StartBuildDialog,
-  StepConfigDrawer,
   StepBundleConfigDrawer,
+  StepConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
 } from '@/components/unified-editor';
-import useSearchParams from '@/hooks/useSearchParams';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useSearchParams from '@/hooks/useSearchParams';
+
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
-import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
+import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 
 const Drawers = ({ children }: PropsWithChildren) => {

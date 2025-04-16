@@ -2,8 +2,8 @@ import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 import TriggerConditions from '@/components/unified-editor/Triggers/components/TriggerConditions';
+import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 
 interface TriggerCardProps extends CardProps {

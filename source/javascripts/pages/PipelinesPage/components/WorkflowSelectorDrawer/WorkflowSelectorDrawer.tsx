@@ -1,4 +1,5 @@
 import { Text } from '@bitrise/bitkit';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -6,6 +7,7 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+
 import WorkflowsList from './components/WorkflowsList';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { configureMonacoYaml, MonacoYaml } from 'monaco-yaml';
 import { Monaco } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
+import { configureMonacoYaml, MonacoYaml } from 'monaco-yaml';
+import { useEffect, useState } from 'react';
 
 const useMonacoYaml = (monaco: Monaco | undefined) => {
   const { data: schema } = useQuery({

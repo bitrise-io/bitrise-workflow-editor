@@ -1,7 +1,9 @@
-import { memo } from 'react';
 import { Box, BoxProps } from '@bitrise/bitkit';
 import { useDroppable } from '@dnd-kit/core';
+import { memo } from 'react';
+
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 
 type Props = BoxProps & {

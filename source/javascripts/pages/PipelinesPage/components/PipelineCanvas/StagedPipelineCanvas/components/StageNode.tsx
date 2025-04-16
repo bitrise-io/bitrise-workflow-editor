@@ -1,7 +1,9 @@
 import { Box, Text } from '@bitrise/bitkit';
-import { NodeProps, Position, Node } from '@xyflow/react';
-import { Stage } from '@/core/models/Stage';
+import { Node, NodeProps, Position } from '@xyflow/react';
+
 import { WorkflowCard } from '@/components/unified-editor';
+import { Stage } from '@/core/models/Stage';
+
 import { STAGE_WIDTH } from '../StagedPipelineCanvas.const';
 import InvisibleHandle from './InvisibleHandle';
 

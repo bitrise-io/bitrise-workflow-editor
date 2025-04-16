@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {

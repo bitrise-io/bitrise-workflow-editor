@@ -1,5 +1,6 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react';
+
 import DiffEditor from './DiffEditor';
 
 type Story = StoryObj<typeof DiffEditor>;

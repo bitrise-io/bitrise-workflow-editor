@@ -1,5 +1,6 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { pick } from 'es-toolkit';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
+
 import {
   SelectionParent,
   StepActions,
@@ -115,4 +116,4 @@ const useStepActions = (): StepActions => {
   );
 };
 
-export { WorkflowCardContextProvider, useWorkflowActions, useStepActions, useSelection };
+export { useSelection, useStepActions, useWorkflowActions, WorkflowCardContextProvider };

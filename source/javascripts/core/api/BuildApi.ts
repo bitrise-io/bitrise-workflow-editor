@@ -1,5 +1,5 @@
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 
 import Client from './client';
 
@@ -84,5 +84,5 @@ function startBuild({
   });
 }
 
-export type { StartBuildRequestBody, StartBuildResponse, StartBuildErrorResponse };
+export type { StartBuildErrorResponse, StartBuildRequestBody, StartBuildResponse };
 export default { getStartBuildPath, startBuild };

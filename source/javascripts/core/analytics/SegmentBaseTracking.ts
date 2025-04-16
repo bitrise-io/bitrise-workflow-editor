@@ -1,8 +1,8 @@
-import { toMerged } from 'es-toolkit';
 import { AnalyticsBrowser } from '@segment/analytics-next';
+import { toMerged } from 'es-toolkit';
 
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 
@@ -65,7 +65,7 @@ const baseProperties: SegmentEventProperties = {
   page_url: window.location.href,
   platform: 'website',
   source_service_name: 'workflow-editor',
-  source_service_version: window.serviceVersion,
+  source_service_version: process.env.WFE_VERSION || '',
   tracking_type: 'client_side',
   workspace_slug: GlobalProps.workspaceSlug(),
 };

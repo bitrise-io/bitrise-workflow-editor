@@ -1,9 +1,8 @@
 import { Text } from '@bitrise/bitkit';
 
-import WorkflowService from '@/core/services/WorkflowService';
-
-import TabContainer from '@/components/tabs/TabContainer';
 import WorkflowStackAndMachine from '@/components/StacksAndMachine/WorkflowStackAndMachine';
+import TabContainer from '@/components/tabs/TabContainer';
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const WorkflowsTab = () => {

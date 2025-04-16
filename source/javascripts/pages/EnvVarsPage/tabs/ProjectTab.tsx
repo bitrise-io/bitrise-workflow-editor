@@ -1,8 +1,8 @@
-import TabHeader from '@/components/tabs/TabHeader';
 import TabContainer from '@/components/tabs/TabContainer';
+import TabHeader from '@/components/tabs/TabHeader';
 
-import PrivateInfoNotification from '../components/PrivateInfoNotification';
 import EnvVarsTable from '../components/EnvVarsTable/EnvVarsTable';
+import PrivateInfoNotification from '../components/PrivateInfoNotification';
 
 const ProjectTab = () => {
   return (

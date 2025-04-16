@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
+import { memo } from 'react';
 
 type Props = BoxProps;
 

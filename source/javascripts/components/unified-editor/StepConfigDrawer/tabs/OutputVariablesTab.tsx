@@ -1,9 +1,10 @@
-import { Fragment } from 'react';
 import { Box, Divider, IconButton, Input, Text } from '@bitrise/bitkit';
-import { useCopyToClipboard } from 'usehooks-ts';
 import { FormControl } from '@chakra-ui/react';
-import { useStepDrawerContext } from '../StepConfigDrawer.context';
+import { Fragment } from 'react';
+import { useCopyToClipboard } from 'usehooks-ts';
+
 import StepHelperText from '../components/StepHelperText';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 const OutputVariablesTab = () => {
   const [, copy] = useCopyToClipboard();

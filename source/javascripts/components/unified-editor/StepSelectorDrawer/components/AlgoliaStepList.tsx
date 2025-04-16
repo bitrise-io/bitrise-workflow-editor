@@ -1,11 +1,11 @@
 import AlgoliaApi from '@/core/api/AlgoliaApi';
-import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
 
 import useSearchAlgoliaSteps from '../hooks/useSearchAlgoliaSteps';
-import AlgoliaStepListLoadingState from './AlgoliaStepListLoadingState';
-import AlgoliaStepListErrorState from './AlgoliaStepListErrorState';
+import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
 import AlgoliaStepListEmptyState from './AlgoliaStepListEmptyState';
+import AlgoliaStepListErrorState from './AlgoliaStepListErrorState';
 import AlgoliaStepListItems from './AlgoliaStepListItems';
+import AlgoliaStepListLoadingState from './AlgoliaStepListLoadingState';
 
 type Props = {
   enabledSteps?: Set<string>;

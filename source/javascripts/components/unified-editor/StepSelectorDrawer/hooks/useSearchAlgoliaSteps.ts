@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import AlgoliaApi from '@/core/api/AlgoliaApi';
 
 import useDebouncedFilter from './useDebouncedFilter';

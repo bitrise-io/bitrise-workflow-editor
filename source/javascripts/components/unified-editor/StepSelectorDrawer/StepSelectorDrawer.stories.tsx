@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
+import { useState } from 'react';
+
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+
 import StepSelectorDrawer from './StepSelectorDrawer';
 
 type Story = StoryObj<typeof StepSelectorDrawer>;
@@ -76,7 +77,6 @@ export default {
     onClose: { type: 'function' },
     onSelectStep: { type: 'function' },
   },
-  decorators: [(Story) => withBitriseYml(TEST_BITRISE_YML, Story)],
   parameters: {
     msw: {
       handlers: [StepApiMocks.getAlgoliaSteps({ status: 'success' })],

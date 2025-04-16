@@ -1,4 +1,3 @@
-import { CSSProperties, useEffect, useMemo } from 'react';
 import {
   BaseEdge,
   ConnectionLineComponentProps,
@@ -7,6 +6,7 @@ import {
   Position,
   useReactFlow,
 } from '@xyflow/react';
+import { CSSProperties, useEffect, useMemo } from 'react';
 
 import {
   DEFAULT_GRAPH_EDGE_ZINDEX,
