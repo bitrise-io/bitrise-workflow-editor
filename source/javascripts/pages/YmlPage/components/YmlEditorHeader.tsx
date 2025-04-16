@@ -1,56 +1,64 @@
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
-import { useState } from 'react';
+import { useToast } from '@chakra-ui/react';
+import { useMemo } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
-import useFormattedYml from '@/hooks/useFormattedYml';
+import { useFormatYml } from '@/hooks/useFormattedYml';
 
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
 const YmlEditorHeader = () => {
-  const appSlug = PageProps.appSlug() || '';
-  const defaultBranch = PageProps.app()?.defaultBranch || '';
-  const gitRepoSlug = PageProps.app()?.gitRepoSlug || '';
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-  const isRepositoryYmlAvailable = PageProps.limits()?.isRepositoryYmlAvailable;
+  const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
+  const { isRepositoryYmlAvailable } = PageProps.limits() ?? {};
 
-  const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
-  const { data: formattedYml } = useFormattedYml(useBitriseYmlStore((s) => s.yml));
-
-  const { isYmlSplit, lastModified, ymlRootPath } = ymlSettings || {};
-
+  const toast = useToast();
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!ymlSettings?.usesRepositoryYml);
+  const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
+  const { mutate: formatYml, isPending: isFormattingYml } = useFormatYml();
 
-  let infoLabel;
-  if (usesRepositoryYml) {
-    infoLabel = isYmlSplit
-      ? `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`
-      : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
-  }
+  const infoLabel = useMemo(() => {
+    if (isYmlSettingsLoading || !ymlSettings?.usesRepositoryYml) {
+      return undefined;
+    }
+
+    if (ymlSettings?.isYmlSplit) {
+      return `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`;
+    }
+
+    return `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
+  }, [defaultBranch, gitRepoSlug, isYmlSettingsLoading, ymlSettings?.isYmlSplit, ymlSettings?.usesRepositoryYml]);
 
   const onYmlSourceChangeClick = () => {
-    onOpen();
     segmentTrack('Change Configuration Yml Source Button Clicked', {
-      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
+      yml_source: ymlSettings?.usesRepositoryYml ? 'git' : 'bitrise',
     });
+    onOpen();
   };
 
   const onDownloadClick = () => {
-    if (!formattedYml) {
-      return;
-    }
-
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
       yml_source: 'bitrise',
       source: 'yml_editor_header',
     });
-    download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8');
+    formatYml(bitriseYmlStore.getState().yml, {
+      onSuccess: (formattedYml) => {
+        download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8');
+      },
+      onError: () => {
+        toast({
+          title: 'Failed to download',
+          description: 'Something went wrong while preparing the configuration YAML file for download.',
+          status: 'error',
+          isClosable: true,
+        });
+      },
+    });
   };
 
   return (
@@ -58,12 +66,18 @@ const YmlEditorHeader = () => {
       <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
         Configuration YAML
       </Text>
-      {isWebsiteMode && !isYmlSettingsLoading && !usesRepositoryYml && (
-        <Button leftIconName="Download" size="sm" variant="tertiary" onClick={onDownloadClick}>
+      {isWebsiteMode && !isYmlSettingsLoading && !ymlSettings?.usesRepositoryYml && (
+        <Button
+          leftIconName="Download"
+          size="sm"
+          variant="tertiary"
+          isLoading={isFormattingYml}
+          onClick={onDownloadClick}
+        >
           Download
         </Button>
       )}
-      {isWebsiteMode && (
+      {isWebsiteMode && !isYmlSettingsLoading && (
         <DataWidget
           additionalElement={
             <Tooltip
@@ -71,7 +85,7 @@ const YmlEditorHeader = () => {
               label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
             >
               <Button
-                isDisabled={!isRepositoryYmlAvailable}
+                isDisabled={!isRepositoryYmlAvailable || isYmlSettingsLoading}
                 onClick={onYmlSourceChangeClick}
                 size="sm"
                 variant="tertiary"
@@ -85,28 +99,11 @@ const YmlEditorHeader = () => {
           <DataWidgetItem
             label="Source:"
             labelTooltip="The source is where your configuration file is stored and managed."
-            value={usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
+            value={ymlSettings?.usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
           />
         </DataWidget>
       )}
-      {formattedYml && (
-        <ConfigurationYmlSourceDialog
-          isOpen={isOpen}
-          projectSlug={appSlug}
-          gitRepoSlug={gitRepoSlug}
-          ciConfigYml={formattedYml}
-          defaultBranch={defaultBranch}
-          lastModified={lastModified || null}
-          initialYmlRootPath={ymlRootPath || null}
-          initialUsesRepositoryYml={usesRepositoryYml}
-          onClose={onClose}
-          onConfigSourceChangeSaved={(newValue: boolean) => {
-            setUsesRepositoryYml(newValue);
-            // NOTE: It is hacky, but we need to force the YML editor to re-render
-            bitriseYmlStore.setState({ discardKey: Date.now() });
-          }}
-        />
-      )}
+      <ConfigurationYmlSourceDialog isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };

@@ -20,7 +20,7 @@ import { useRef, useState } from 'react';
 import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -137,7 +137,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   } = useSaveCiConfig({
     onSuccess: ({ ymlString, version }) => {
       onClose();
-      initFromServerResponse({ ymlString, version });
+      initializeStore({ ymlString, version });
     },
   });
 

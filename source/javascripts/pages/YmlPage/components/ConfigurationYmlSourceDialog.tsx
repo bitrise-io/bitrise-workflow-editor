@@ -14,75 +14,85 @@ import {
   RadioGroup,
   Text,
   Tooltip,
-  useToast,
 } from '@bitrise/bitkit';
-import { useRef, useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import { useToast } from '@chakra-ui/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCopyToClipboard } from 'usehooks-ts';
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { getFormattedDate } from '@/core/utils/CommonUtils';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { download, getFormattedDate } from '@/core/utils/CommonUtils';
+import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
-import { usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { useCiConfigSettings, usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { useFormatYml } from '@/hooks/useFormattedYml';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
   onClose: () => void;
-  initialUsesRepositoryYml: boolean;
-  projectSlug: string;
-  onConfigSourceChangeSaved: (usesRepositoryYml: boolean, ymlRootPath: string) => void;
-  defaultBranch: string;
-  gitRepoSlug: string;
-  lastModified: string | null;
-  initialYmlRootPath: string | null;
-  ciConfigYml: string;
 };
 
-// TODO: Refactor this component please
-const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
+const ConfigSourceGroup = () => {
+  return (
+    <>
+      <Text textStyle="body/md/semibold" marginBlockEnd="12">
+        Source
+      </Text>
+      <RadioGroup
+        onChange={(value: 'bitrise' | 'git') => {
+          setUsesRepositoryYml(value === 'git');
+        }}
+        value={usesRepositoryYml ? 'git' : 'bitrise'}
+        isDisabled={isYmlSettingsLoading || isPutCiConfigSettingsPending}
+      >
+        <Radio helperText="Store and manage all your configuration on bitrise.io." marginBlockEnd="12" value="bitrise">
+          bitrise.io
+        </Radio>
+        <Radio
+          helperText="The configuration is stored, versioned, and maintained in your Git repository."
+          marginBlockEnd="24"
+          value="git"
+        >
+          Git repository
+        </Radio>
+      </RadioGroup>
+    </>
+  );
+};
+
+const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onClose'>) => {
+  const projectSlug = PageProps.appSlug() || '';
+  const defaultBranch = PageProps.app()?.defaultBranch || '';
+  const gitRepoSlug = PageProps.app()?.gitRepoSlug || '';
+
+  const toast = useToast();
+  const [, copyToClipboard] = useCopyToClipboard();
+  const { mutate: formatYml, isPending: isFormattingYml } = useFormatYml();
   const {
-    defaultBranch,
-    gitRepoSlug,
-    isOpen,
-    onClose,
-    initialUsesRepositoryYml,
-    projectSlug,
-    onConfigSourceChangeSaved,
-    lastModified,
-    initialYmlRootPath,
-    ciConfigYml,
-  } = props;
+    data: ciConfigYmlFromRepo,
+    error: getCiConfigError,
+    isLoading: isGetCiConfigLoading,
+    refetch: getCiConfigFromRepo,
+  } = useGetCiConfig({ projectSlug, forceToReadFromRepo: true }, { enabled: false });
+  const { error: postCiConfigError, isPending: isPostCiConfigPending, mutate: postCiConfigMutate } = useSaveCiConfig();
 
-  const ciConfigFromRepo = useRef<string>();
-
+  const [usesRepositoryYml, setUsesRepositoryYml] = useState(false);
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
-  const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
-  const [ymlRootPath, setYmlRootPath] = useState(initialYmlRootPath || '');
+  const [ymlRootPath, setYmlRootPath] = useState('');
 
-  const onSuccess = () => {
-    onClose();
-    toast({
-      title: 'Source successfully changed',
-      description: usesRepositoryYml
-        ? `From now you can manage your Configuration YAML in the project's git repository.`
-        : 'From now you can manage your Configuration YAML on bitrise.io.',
-      status: 'success',
-      isClosable: true,
-    });
-    onConfigSourceChangeSaved(usesRepositoryYml, ymlRootPath);
-    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
-      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
-    });
-  };
+  const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
+  const initialUsesRepositoryYml = ymlSettings?.usesRepositoryYml;
+  const isSourceSelected = initialUsesRepositoryYml !== usesRepositoryYml;
 
-  const {
-    error: postCiConfigError,
-    isPending: isPostCiConfigPending,
-    mutate: postCiConfigMutate,
-  } = useSaveCiConfig({
-    onSuccess,
-  });
+  useEffect(() => {
+    if (ymlSettings) {
+      setUsesRepositoryYml(ymlSettings.usesRepositoryYml);
+      setConfigurationSource(ymlSettings.usesRepositoryYml ? 'git' : 'bitrise');
+      setYmlRootPath(ymlSettings.ymlRootPath || '');
+    }
+  }, [ymlSettings]);
 
   const {
     error: putCiConfigSettingsError,
@@ -101,23 +111,89 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     },
   });
 
-  const {
-    error: getCiConfigError,
-    isLoading: isGetCiConfigLoading,
-    refetch: getCiConfigFromRepo,
-  } = useGetCiConfig({ projectSlug, forceToReadFromRepo: true }, { enabled: false });
+  const copy = useCallback(
+    async (text: string) => {
+      if (await copyToClipboard(text)) {
+        toast({
+          title: 'Copied to clipboard',
+          description:
+            "Commit the content of the current configuration YAML file to the project's repository before updating the setting.",
+          status: 'success',
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Failed to copy to clipboard',
+          description: 'Something went wrong while copying the configuration YAML content.',
+          status: 'error',
+          isClosable: true,
+        });
+      }
+    },
+    [copyToClipboard, toast],
+  );
 
-  const toast = useToast();
+  const onCopyClick = () => {
+    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'configuration_yml_source',
+    });
 
-  const isSourceSelected = initialUsesRepositoryYml !== usesRepositoryYml;
+    formatYml(bitriseYmlStore.getState().yml, {
+      onSuccess: copy,
+      onError: () => {
+        toast({
+          title: 'Failed to copy to clipboard',
+          description: 'Something went wrong while copying the configuration YAML content.',
+          status: 'error',
+          isClosable: true,
+        });
+      },
+    });
+  };
 
-  let toolTip;
-  if (!usesRepositoryYml) {
-    toolTip = 'You are already storing your configuration on bitrise.io';
-  }
-  if (usesRepositoryYml) {
-    toolTip = 'You are already storing your configuration in a Git repository.';
-  }
+  const onDownloadClick = () => {
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'configuration_yml_source',
+    });
+
+    formatYml(bitriseYmlStore.getState().yml, {
+      onSuccess: (data) => download(data, 'bitrise.yml', 'application/yaml;charset=utf-8'),
+      onError: () => {
+        toast({
+          title: 'Failed to download',
+          description: 'Something went wrong while downloading the configuration YAML file.',
+          status: 'error',
+          isClosable: true,
+        });
+      },
+    });
+  };
+
+  const onSuccess = () => {
+    toast({
+      title: 'Source successfully changed',
+      description: usesRepositoryYml
+        ? `From now you can manage your Configuration YAML in the project's git repository.`
+        : 'From now you can manage your Configuration YAML on bitrise.io.',
+      status: 'success',
+      isClosable: true,
+    });
+    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
+      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
+    });
+
+    // NOTE: It is hacky, but we need to force the YML editor to re-render
+    bitriseYmlStore.setState({ discardKey: Date.now() });
+    onClose();
+  };
+
+  const toolTip = useMemo(() => {
+    return usesRepositoryYml
+      ? 'You are already storing your configuration in a Git repository.'
+      : 'You are already storing your configuration on bitrise.io';
+  }, [usesRepositoryYml]);
 
   const onValidateAndSave = () => {
     const eventProps: Record<string, string> = {
@@ -153,57 +229,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     lastModifiedFormatted = getFormattedDate(date);
   }
 
-  const isDialogDisabled = isGetCiConfigLoading || isPutCiConfigSettingsPending || isPostCiConfigPending;
-
-  const onCopyClick = () => {
-    toast({
-      title: ' Copied to clipboard',
-      description:
-        'Commit the content of the current configuration YAML file to the project’s repository before updating the setting. ',
-      status: 'success',
-      isClosable: true,
-    });
-    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'configuration_yml_source',
-    });
-  };
-
-  const onDownloadClick = () => {
-    segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'configuration_yml_source',
-    });
-  };
-
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
+    <>
       <DialogBody>
-        <Text textStyle="body/md/semibold" marginBlockEnd="12">
-          Source
-        </Text>
-        <RadioGroup
-          onChange={(value: 'bitrise' | 'git') => {
-            setUsesRepositoryYml(value === 'git');
-          }}
-          value={usesRepositoryYml ? 'git' : 'bitrise'}
-          isDisabled={isDialogDisabled}
-        >
-          <Radio
-            helperText="Store and manage all your configuration on bitrise.io."
-            marginBlockEnd="12"
-            value="bitrise"
-          >
-            bitrise.io
-          </Radio>
-          <Radio
-            helperText="The configuration is stored, versioned, and maintained in your Git repository."
-            marginBlockEnd="24"
-            value="git"
-          >
-            Git repository
-          </Radio>
-        </RadioGroup>
         {usesRepositoryYml && (
           <>
             <Input
@@ -327,17 +355,15 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   >
                     Download bitrise.yml
                   </Button>
-                  <CopyToClipboard text={ciConfigYml} onCopy={onCopyClick}>
-                    <Button
-                      variant="secondary"
-                      leftIconName="Duplicate"
-                      width="fit-content"
-                      size="sm"
-                      marginBlockEnd="24"
-                    >
-                      Copy YML contents
-                    </Button>
-                  </CopyToClipboard>
+                  <Button
+                    variant="secondary"
+                    leftIconName="Duplicate"
+                    width="fit-content"
+                    size="sm"
+                    marginBlockEnd="24"
+                  >
+                    Copy YML contents
+                  </Button>
                 </Box>
               </ListItem>
               <ListItem>
@@ -396,6 +422,14 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           </Button>
         </Tooltip>
       </DialogFooter>
+    </>
+  );
+};
+
+const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlSourceDialogProps) => {
+  return (
+    <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
+      <DialogContent />
     </Dialog>
   );
 };

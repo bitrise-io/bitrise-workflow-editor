@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -66,7 +66,7 @@ const Header = () => {
   });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
-    onSuccess: initFromServerResponse,
+    onSuccess: initializeStore,
     onError: (error: ClientError) => {
       if (error.status === 409) {
         openMergeDialog();
