@@ -507,7 +507,7 @@ export function updateYmlStringAndSyncYml(ymlString?: string) {
   }
 }
 
-export function initFromServerResponse({ ymlString, version }: { ymlString: string; version: string }) {
+export function initializeStore({ ymlString, version }: { ymlString: string; version: string }) {
   bitriseYmlStore.setState({
     yml: BitriseYmlApi.fromYml(ymlString),
     savedYml: BitriseYmlApi.fromYml(ymlString),

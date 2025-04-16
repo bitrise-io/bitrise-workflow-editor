@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client';
 
 import LoadingState from '@/components/LoadingState';
 import Client from '@/core/api/client';
-import { initFromServerResponse } from '@/core/stores/BitriseYmlStore';
+import { initializeStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
@@ -79,7 +79,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (!isLoaded.current && initialCiConfig) {
-      initFromServerResponse(initialCiConfig);
+      initializeStore(initialCiConfig);
       isLoaded.current = true;
     }
   }, [initialCiConfig]);
@@ -102,7 +102,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         height="100vh"
         marginX="auto"
         px="5%"
-        background="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
+        backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
       >
         <Box display="flex" flexDir="column" gap="32" textColor="text/on-color" maxWidth="50%">
           <Link href="/" title="Go to Dashboard">
@@ -111,7 +111,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
           <Box>
             <Text size="3" fontFamily="Source Code Pro, monospace" textTransform="uppercase" mb="16">
               {error.status && error.statusText
-                ? `${error} - ${error.statusText}`
+                ? `${error.status} - ${error.statusText}`
                 : 'Error - Failed to load the bitrise.yml'}
             </Text>
             <Text textStyle="heading/h2" fontWeight="bold" fontSize="48" lineHeight="1.2">
