@@ -37,12 +37,48 @@ class ClientError extends Error {
     this.data = data;
   }
 
+  toString(): string {
+    return this.getResponseErrorMessage() || super.toString();
+  }
+
   getResponseErrorMessage(): string {
     return this.data?.error_msg || this.data?.error;
   }
 }
 
-async function client(url: string, options?: ClientOpts) {
+function mapToErrorMessage(status: number): string {
+  let errorMessage = '';
+  switch (status) {
+    case 400:
+      errorMessage = 'The request was malformed or invalid';
+      break;
+    case 401:
+      errorMessage = 'You are not authorized to access this resource';
+      break;
+    case 403:
+      errorMessage = 'You do not have permission to access this resource';
+      break;
+    case 404:
+      errorMessage = 'The resource you are looking for was not found';
+      break;
+    case 408:
+      errorMessage = 'The request took too long to process';
+      break;
+    case 429:
+      errorMessage = 'The server rate-limited your request';
+      break;
+    case 500:
+      errorMessage = 'The server encountered an internal error';
+      break;
+    default:
+      errorMessage = `The server couldn't process your request.`;
+      break;
+  }
+
+  return errorMessage;
+}
+
+async function raw(url: string, options?: ClientOpts) {
   const headers = toMerged(DEFAULT_HEADERS, {
     ...options?.headers,
     ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') }),
@@ -90,7 +126,7 @@ async function client(url: string, options?: ClientOpts) {
         }
       }
 
-      throw new ClientError(new Error(`HTTP Error: ${response.status} ${response.statusText}`), response, errorData);
+      throw new ClientError(new Error(mapToErrorMessage(response.status)), response, errorData);
     }
 
     return response;
@@ -119,32 +155,32 @@ async function parseResponse<T>(response: Response): Promise<T | undefined> {
 }
 
 async function get<T>(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'GET' });
+  const response = await raw(url, { ...options, method: 'GET' });
   return (await response.json()) as T;
 }
 
 async function post<T>(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'POST' });
+  const response = await raw(url, { ...options, method: 'POST' });
   return parseResponse<T>(response);
 }
 
 async function put<T>(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'PUT' });
+  const response = await raw(url, { ...options, method: 'PUT' });
   return parseResponse<T>(response);
 }
 
 async function patch<T>(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'PATCH' });
+  const response = await raw(url, { ...options, method: 'PATCH' });
   return parseResponse<T>(response);
 }
 
 async function del<T>(url: string, options?: ClientOpts) {
-  const response = await client(url, { ...options, method: 'DELETE' });
+  const response = await raw(url, { ...options, method: 'DELETE' });
   return parseResponse<T>(response);
 }
 
 async function text(url: string, options?: ClientOpts) {
-  const response = await client(url, {
+  const response = await raw(url, {
     method: 'GET',
     ...options,
     headers: {
@@ -164,5 +200,5 @@ export default {
   patch,
   del,
   text,
-  raw: client,
+  raw,
 };
