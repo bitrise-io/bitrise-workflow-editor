@@ -17,11 +17,10 @@ const getGracePeriod = (deprecatedMachinesPeriod: Props['deprecatedMachinesPerio
 
   const oneDay = 86400000; // 24 hours in milliseconds
   const actualTs = Date.now() + oneDay * shiftDays;
-  const gracePeriodStartedAt = new Date(actualTs - oneDay * 3).toISOString().split('T')[0];
-  const gracePeriodEndedAt = new Date(actualTs + oneDay * 3).toISOString().split('T')[0];
+
   return {
-    gracePeriodStartedAt,
-    gracePeriodEndedAt,
+    grace_period_started_at: new Date(actualTs - oneDay * 3).toISOString().split('T')[0],
+    grace_period_ended_at: new Date(actualTs + oneDay * 3).toISOString().split('T')[0],
   };
 };
 
