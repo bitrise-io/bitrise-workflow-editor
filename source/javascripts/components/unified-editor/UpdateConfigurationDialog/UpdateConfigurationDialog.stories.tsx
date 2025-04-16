@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { delay, http, HttpResponse } from 'msw';
 
-import { getConfig, getConfigFailed } from '@/pages/YmlPage/components/ConfigurationYmlSource.mswMocks';
+import { getCiConfig } from '@/pages/YmlPage/components/ConfigurationYmlSource.mswMocks';
 
 import UpdateConfigurationDialog from './UpdateConfigurationDialog';
 
@@ -24,7 +24,7 @@ export default {
   },
   parameters: {
     msw: {
-      handlers: [formatYml(), getConfig()],
+      handlers: [formatYml(), getCiConfig()],
     },
   },
 } as Meta<typeof UpdateConfigurationDialog>;
@@ -34,7 +34,12 @@ export const Default: StoryObj = {};
 export const Failed: StoryObj = {
   parameters: {
     msw: {
-      handlers: [formatYml(), getConfigFailed()],
+      handlers: [
+        formatYml(),
+        getCiConfig(
+          'config (/tmp/config20241207-26-5782vz.yaml) is not valid: trigger item #1: non-existent workflow defined as trigger target: primary',
+        ),
+      ],
     },
   },
 };

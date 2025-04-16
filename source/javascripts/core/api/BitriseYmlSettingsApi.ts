@@ -37,7 +37,7 @@ function toYmlSettingUpdateModel(model: Partial<BitriseYmlSettings>): BitriseYml
 }
 
 // API CALLS
-const YML_SETTINGS_PATH = 'app/:projectSlug/pipeline_config';
+const YML_SETTINGS_PATH = '/app/:projectSlug/pipeline_config';
 
 function getYmlSettingsPath(projectSlug: string): string {
   return YML_SETTINGS_PATH.replace(':projectSlug', projectSlug);

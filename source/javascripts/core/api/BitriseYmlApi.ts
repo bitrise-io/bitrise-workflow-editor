@@ -121,4 +121,5 @@ export default {
   ciConfigPath,
   saveCiConfig,
   formatCiConfig,
+  FORMAT_YML_PATH,
 };

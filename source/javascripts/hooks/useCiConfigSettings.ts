@@ -1,6 +1,5 @@
 import { useMutation, UseMutationOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi, { BitriseYmlSettingsResponse } from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
@@ -17,7 +16,7 @@ function useCiConfigSettings() {
 }
 
 function usePutCiConfigSettings(
-  options: UseMutationOptions<BitriseYmlSettingsResponse | undefined, ClientError, Partial<BitriseYmlSettings>>,
+  options?: UseMutationOptions<BitriseYmlSettingsResponse | undefined, ClientError, Partial<BitriseYmlSettings>>,
 ) {
   const projectSlug = PageProps.appSlug();
   const queryClient = useQueryClient();
@@ -28,9 +27,6 @@ function usePutCiConfigSettings(
     onSuccess: (...args) => {
       queryClient.invalidateQueries({
         queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(projectSlug)],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [BitriseYmlApi.ciConfigPath({ projectSlug })],
       });
       onSuccess?.(...args);
     },

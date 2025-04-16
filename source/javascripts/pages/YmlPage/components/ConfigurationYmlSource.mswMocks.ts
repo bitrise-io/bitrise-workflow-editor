@@ -1,53 +1,74 @@
 import { delay, http, HttpResponse } from 'msw';
 
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
+import BitriseYmlSettingsApi, { BitriseYmlSettingsResponse } from '@/core/api/BitriseYmlSettingsApi';
 
-export const getConfig = () => {
+export const getCiConfig = (error?: string) => {
+  console.log(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }));
   return http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
-    await delay(2000);
+    await delay();
+
+    if (error) {
+      return HttpResponse.json({ error_msg: error }, { status: 422 });
+    }
+
     return HttpResponse.text('format_version: "13"', { status: 200 });
   });
 };
 
-export const getConfigFailed = () => {
-  return http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
-    await delay(1000);
+export const postCiConfig = (error?: string) => {
+  return http.post(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
+    await delay();
+    if (error) {
+      return HttpResponse.json({ error_msg: error }, { status: 400 });
+    }
+    return new HttpResponse(null, { status: 204 });
+  });
+};
+
+export const getYmlSettings = (override?: Partial<BitriseYmlSettingsResponse>, error?: string) => {
+  return http.get(BitriseYmlSettingsApi.getYmlSettingsPath(':slug'), async () => {
+    await delay();
+
+    if (error) {
+      return HttpResponse.json({ error_msg: error }, { status: 400 });
+    }
+
     return HttpResponse.json(
       {
-        error_msg:
-          'config (/tmp/config20241207-26-5782vz.yaml) is not valid: trigger item #1: non-existent workflow defined as trigger target: primary',
-      },
+        last_modified: new Date().toISOString(),
+        lines: Math.round(Math.random() * 1000),
+        split: false,
+        uses_repository_yml: false,
+        modular_yaml_supported: true,
+        yml_root_path: null,
+        ...override,
+      } satisfies BitriseYmlSettingsResponse,
       {
-        status: 422,
+        status: 200,
       },
     );
   });
 };
 
-export const putPipelineConfig = () => {
+export const putYmlSettings = (error?: string) => {
   return http.put(BitriseYmlSettingsApi.getYmlSettingsPath(':slug'), async () => {
     await delay();
-    return new HttpResponse(null, {
-      status: 200,
-    });
+    if (error) {
+      return HttpResponse.json({ error_msg: error }, { status: 400 });
+    }
+    return new HttpResponse(null, { status: 204 });
   });
 };
 
-export const putPipelineConfigFailed = () => {
-  return http.put(BitriseYmlSettingsApi.getYmlSettingsPath(':slug'), async () => {
+export const postFormatYml = (error?: string) => {
+  return http.post(BitriseYmlApi.FORMAT_YML_PATH, async ({ request }) => {
     await delay();
-    return new HttpResponse(null, {
-      status: 400,
-    });
-  });
-};
-
-export const postConfig = () => {
-  return http.post(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
-    await delay();
-    return new HttpResponse(null, {
-      status: 200,
-    });
+    if (error) {
+      return HttpResponse.json({ error_msg: error }, { status: 400 });
+    }
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { app_config_datastore_yaml } = (await request.json()) as { app_config_datastore_yaml: string };
+    return HttpResponse.text(app_config_datastore_yaml, { status: 200 });
   });
 };

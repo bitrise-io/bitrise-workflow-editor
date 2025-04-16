@@ -14,6 +14,8 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 3 } },
 });
 
+process.env.MODE = "website";
+
 const preview: Preview = {
   beforeEach: () => {
     queryClient.clear();
