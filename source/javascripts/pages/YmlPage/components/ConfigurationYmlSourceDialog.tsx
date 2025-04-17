@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
@@ -127,6 +128,10 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
   const defaultBranch = PageProps.app()?.defaultBranch;
 
   const onCopyClick = () => {
+    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'configuration_yml_source',
+    });
     formatYml(bitriseYmlStore.getState().yml, {
       onSuccess: async (formattedYml) => {
         const isCopied = await copyToClipboard(formattedYml);
@@ -155,6 +160,10 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
   };
 
   const onDownloadClick = () => {
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'configuration_yml_source',
+    });
     formatYml(bitriseYmlStore.getState().yml, {
       onSuccess: (formattedYml) => download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8'),
       onError: () => {
@@ -298,6 +307,7 @@ const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitT
 };
 
 const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onClose'>) => {
+  const toast = useToast();
   const [ymlRootPath, setYmlRootPath] = useState('');
   const [selectedSource, setSelectedSource] = useState<CiConfigSource>('bitrise');
   const [gitToBitriseSource, setGitToBitriseSource] = useState<NewCiConfigSource>('git-ci-config');
@@ -350,11 +360,31 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
     queryClient.invalidateQueries({
       queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(PageProps.appSlug())],
     });
+
+    toast({
+      status: 'success',
+      title: 'Source successfully changed',
+      description:
+        selectedSource === 'git'
+          ? `From now you can manage your Configuration YAML in the project's git repository.`
+          : 'From now you can manage your Configuration YAML on bitrise.io.',
+      isClosable: true,
+    });
+    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
+      yml_source: selectedSource,
+    });
   };
 
   const onValidateAndSave = () => {
-    setAsyncError(null);
+    const eventProps: Record<string, string> = {
+      yml_source: selectedSource,
+    };
+    if (switchGitToBitrise) {
+      eventProps.selected_yml_source = gitToBitriseSource;
+    }
+    segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
 
+    setAsyncError(null);
     if (switchGitToBitrise) {
       switch (gitToBitriseSource) {
         case 'bitrise-ci-config':
@@ -366,11 +396,12 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
               onSuccess: async () => {
                 const { data, error } = await getCiConfigFromBitrise();
                 setAsyncError(error);
-                if (data)
+                if (data) {
                   initializeStoreAndClose({
                     ymlString: data.ymlString,
                     version: data.version ?? '',
                   });
+                }
               },
               onError: setAsyncError,
             },
@@ -418,11 +449,12 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
           onSuccess: async () => {
             const { data, error } = await getCiConfigFromRepo();
             setAsyncError(error);
-            if (data)
+            if (data) {
               initializeStoreAndClose({
                 ymlString: data.ymlString,
                 version: data.version ?? '',
               });
+            }
           },
           onError: setAsyncError,
         },
