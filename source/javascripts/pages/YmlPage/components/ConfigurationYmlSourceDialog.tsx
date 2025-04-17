@@ -14,6 +14,7 @@ import {
   RadioGroup,
   Text,
   Tooltip,
+  useToast,
 } from '@bitrise/bitkit';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -36,10 +37,11 @@ type ConfigurationYmlSourceDialogProps = {
   onClose: () => void;
 };
 
+type CiConfigSource = 'bitrise' | 'git';
 type ConfigSourceGroupProps = {
   isDisabled?: boolean;
-  value: 'bitrise' | 'git';
-  onChange: (value: 'bitrise' | 'git') => void;
+  value: CiConfigSource;
+  onChange: (value: CiConfigSource) => void;
 };
 
 const ConfigSourceGroup = (props: ConfigSourceGroupProps) => {
@@ -117,6 +119,7 @@ type BitriseToGitSectionProps = {
 };
 
 const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) => {
+  const toast = useToast();
   const [, copyToClipboard] = useCopyToClipboard();
   const { mutate: formatYml, isPending } = useFormatYml();
 
@@ -125,13 +128,42 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
 
   const onCopyClick = () => {
     formatYml(bitriseYmlStore.getState().yml, {
-      onSuccess: copyToClipboard,
+      onSuccess: async (formattedYml) => {
+        const isCopied = await copyToClipboard(formattedYml);
+        if (isCopied) {
+          toast({
+            status: 'success',
+            description: 'Copied to clipboard',
+            isClosable: true,
+          });
+        } else {
+          toast({
+            status: 'error',
+            description: 'Copy to clipboard failed',
+            isClosable: true,
+          });
+        }
+      },
+      onError: () => {
+        toast({
+          status: 'error',
+          description: 'Copy preparation failed',
+          isClosable: true,
+        });
+      },
     });
   };
 
   const onDownloadClick = () => {
     formatYml(bitriseYmlStore.getState().yml, {
       onSuccess: (formattedYml) => download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8'),
+      onError: () => {
+        toast({
+          status: 'error',
+          description: 'Download preparation failed',
+          isClosable: true,
+        });
+      },
     });
   };
 
@@ -221,11 +253,12 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
   );
 };
 
+type NewCiConfigSource = 'bitrise-ci-config' | 'git-ci-config';
 type GitToBitriseSectionProps = {
-  value: 'bitrise' | 'git';
+  value: NewCiConfigSource;
   isDisabled?: boolean;
   lastModifiedFormatted?: string | null;
-  onChange: (value: 'bitrise' | 'git') => void;
+  onChange: (value: NewCiConfigSource) => void;
 };
 
 const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitToBitriseSectionProps) => {
@@ -236,7 +269,7 @@ const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitT
         Set configuration file
       </Text>
       <Text marginBlockEnd="24">Choose which configuration file should be used on bitrise.io from now.</Text>
-      <RadioGroup {...props} onChange={(v) => onChange(v as 'bitrise' | 'git')}>
+      <RadioGroup {...props} onChange={(v) => onChange(v as NewCiConfigSource)}>
         <Radio
           value="git"
           marginBlockEnd="12"
@@ -266,22 +299,21 @@ const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitT
 
 const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onClose'>) => {
   const [ymlRootPath, setYmlRootPath] = useState('');
-  const [selectedSource, setSelectedSource] = useState<'bitrise' | 'git'>('bitrise');
-  const [gitToBitriseSource, setGitToBitriseSource] = useState<'bitrise' | 'git'>('git');
+  const [selectedSource, setSelectedSource] = useState<CiConfigSource>('bitrise');
+  const [gitToBitriseSource, setGitToBitriseSource] = useState<NewCiConfigSource>('git-ci-config');
 
   const [asyncError, setAsyncError] = useState<ClientError | null>(null);
-  const [isPendingGetCiConfig, setIsPendingGetCiConfig] = useState(false);
 
   const queryClient = useQueryClient();
   const currentPage = useCurrentPage();
   const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
   const { mutate: saveCiConfig, isPending: isPendingSaveCiConfig } = useSaveCiConfig();
   const { mutate: saveYmlSettings, isPending: isPendingSaveYmlSettings } = usePutCiConfigSettings();
-  const { refetch: getCiConfigFromRepo, isRefetching: isPendingGetCiConfigFromRepo } = useGetCiConfig(
+  const { refetch: getCiConfigFromRepo, isFetching: isFetchingCiConfigFromRepo } = useGetCiConfig(
     { projectSlug: PageProps.appSlug(), forceToReadFromRepo: true },
     { enabled: false },
   );
-  const { refetch: getCiConfigFromBitrise } = useGetCiConfig(
+  const { refetch: getCiConfigFromBitrise, isFetching: isFetchingCiConfigFromBitrise } = useGetCiConfig(
     { projectSlug: PageProps.appSlug(), forceToReadFromRepo: false },
     { enabled: false },
   );
@@ -310,52 +342,49 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
   const isValidateAndSaveDisabled = isYmlSettingsLoading || (!isSourceChanged && !isYmlRootPathChanged);
   const lastModifiedFormatted = ymlSettings?.lastModified ? getFormattedDate(new Date(ymlSettings.lastModified)) : null;
   const isValidateAndSaveLoading =
-    isPendingSaveYmlSettings || isPendingGetCiConfig || isPendingSaveCiConfig || isPendingGetCiConfigFromRepo;
+    isPendingSaveYmlSettings || isFetchingCiConfigFromRepo || isFetchingCiConfigFromBitrise || isPendingSaveCiConfig;
 
   const initializeStoreAndClose = (data: { ymlString: string; version: string }) => {
     onClose();
     initializeStore(data);
-    setIsPendingGetCiConfig(false);
-    queryClient.invalidateQueries({ queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(PageProps.appSlug())] });
-  };
-
-  const handleAsyncError = (error: ClientError | null) => {
-    setAsyncError(error);
-    if (error) setIsPendingGetCiConfig(false);
+    queryClient.invalidateQueries({
+      queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(PageProps.appSlug())],
+    });
   };
 
   const onValidateAndSave = () => {
     setAsyncError(null);
-    setIsPendingGetCiConfig(false);
 
     if (switchGitToBitrise) {
       switch (gitToBitriseSource) {
-        case 'bitrise':
+        case 'bitrise-ci-config':
           saveYmlSettings(
             {
               usesRepositoryYml: false,
             },
             {
               onSuccess: async () => {
-                setIsPendingGetCiConfig(true);
                 const { data, error } = await getCiConfigFromBitrise();
-                handleAsyncError(error);
-                if (data) initializeStoreAndClose({ ymlString: data.ymlString, version: data.version ?? '' });
+                setAsyncError(error);
+                if (data)
+                  initializeStoreAndClose({
+                    ymlString: data.ymlString,
+                    version: data.version ?? '',
+                  });
               },
-              onError: handleAsyncError,
+              onError: setAsyncError,
             },
           );
           break;
-        case 'git':
+        case 'git-ci-config':
           saveYmlSettings(
             {
               usesRepositoryYml: false,
             },
             {
               onSuccess: async () => {
-                setIsPendingGetCiConfig(true);
                 const { data, error } = await getCiConfigFromRepo();
-                handleAsyncError(error);
+                setAsyncError(error);
                 if (data) {
                   saveCiConfig(
                     {
@@ -365,12 +394,12 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
                     },
                     {
                       onSuccess: initializeStoreAndClose,
-                      onError: handleAsyncError,
+                      onError: setAsyncError,
                     },
                   );
                 }
               },
-              onError: handleAsyncError,
+              onError: setAsyncError,
             },
           );
           break;
@@ -387,12 +416,15 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
         },
         {
           onSuccess: async () => {
-            setIsPendingGetCiConfig(true);
             const { data, error } = await getCiConfigFromRepo();
-            handleAsyncError(error);
-            if (data) initializeStoreAndClose({ ymlString: data.ymlString, version: data.version ?? '' });
+            setAsyncError(error);
+            if (data)
+              initializeStoreAndClose({
+                ymlString: data.ymlString,
+                version: data.version ?? '',
+              });
           },
-          onError: handleAsyncError,
+          onError: setAsyncError,
         },
       );
 
@@ -406,12 +438,15 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
         },
         {
           onSuccess: async () => {
-            setIsPendingGetCiConfig(true);
             const { data, error } = await getCiConfigFromRepo();
-            handleAsyncError(error);
-            if (data) initializeStoreAndClose({ ymlString: data.ymlString, version: data.version ?? '' });
+            setAsyncError(error);
+            if (data)
+              initializeStoreAndClose({
+                ymlString: data.ymlString,
+                version: data.version ?? '',
+              });
           },
-          onError: handleAsyncError,
+          onError: setAsyncError,
         },
       );
     }
@@ -425,6 +460,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
         {showYmlRootPathSection && (
           <GitYmlRootPathSection
             value={ymlRootPath}
+            isDisabled={isYmlSettingsLoading}
             defaultValue={ymlSettings?.ymlRootPath}
             onChange={setYmlRootPath}
           />
@@ -435,6 +471,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
         {switchGitToBitrise && (
           <GitToBitriseSection
             value={gitToBitriseSource}
+            isDisabled={isYmlSettingsLoading}
             onChange={setGitToBitriseSource}
             lastModifiedFormatted={lastModifiedFormatted}
           />
