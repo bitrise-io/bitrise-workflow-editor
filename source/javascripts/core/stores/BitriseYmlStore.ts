@@ -1,3 +1,4 @@
+import { omitBy } from 'es-toolkit';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
@@ -501,10 +502,24 @@ export function updateYmlInStore(ymlString?: string) {
   }
 }
 
-export function initializeStore({ ymlString, version }: { ymlString: string; version: string }) {
-  bitriseYmlStore.setState({
-    yml: BitriseYmlApi.fromYml(ymlString),
-    savedYml: BitriseYmlApi.fromYml(ymlString),
-    savedYmlVersion: version,
-  });
+export function initializeStore({
+  version,
+  ymlString,
+  discardKey,
+}: {
+  version: string;
+  ymlString: string;
+  discardKey?: number;
+}) {
+  bitriseYmlStore.setState(
+    omitBy(
+      {
+        discardKey,
+        yml: BitriseYmlApi.fromYml(ymlString),
+        savedYml: BitriseYmlApi.fromYml(ymlString),
+        savedYmlVersion: version,
+      },
+      (value) => value === undefined,
+    ),
+  );
 }

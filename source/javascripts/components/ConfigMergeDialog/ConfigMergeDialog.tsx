@@ -137,7 +137,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   } = useSaveCiConfig({
     onSuccess: ({ ymlString, version }) => {
       onClose();
-      initializeStore({ ymlString, version });
+      initializeStore({ ymlString, version, discardKey: Date.now() });
     },
   });
 
