@@ -13,20 +13,29 @@ import DiffEditor from './DiffEditor';
 
 const DiffEditorDialogBody = forwardRef((_, ref) => {
   const currentPage = useCurrentPage();
-  const originalText = useBitriseYmlStore((s) => s.savedYmlString);
+  const originalYml = useBitriseYmlStore((s) => BitriseYmlApi.fromYml(s.savedYmlString));
   const modifiedYml = useBitriseYmlStore((s) => s.yml);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const {
+    data: originalText,
+    error: originalYmlFormatError,
+    isLoading: isOriginalYmlFormatLoading,
+  } = useFormattedYml(originalYml);
+
   const {
     data: modifiedText,
-    isLoading: isFormattedYmlLoading,
-    error: formattedYmlError,
+    error: modifiedYmlFormatError,
+    isLoading: isModifiedYmlFormatLoading,
   } = useFormattedYml(modifiedYml);
 
   useEffect(() => {
-    if (formattedYmlError) {
-      setErrorMessage(`Failed to format YML: ${formattedYmlError.message}`);
+    if (modifiedYmlFormatError) {
+      setErrorMessage(`Failed to format modified YML: ${modifiedYmlFormatError.message}`);
+    } else if (originalYmlFormatError) {
+      setErrorMessage(`Failed to format original YML: ${originalYmlFormatError.message}`);
     }
-  }, [formattedYmlError]);
+  }, [modifiedYmlFormatError, originalYmlFormatError]);
 
   const trySaveChanges = () => {
     try {
@@ -48,6 +57,8 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
 
   useImperativeHandle(ref, () => ({ trySaveChanges }));
 
+  const isLoading = isModifiedYmlFormatLoading || isOriginalYmlFormatLoading;
+
   return (
     <DialogBody>
       <Box display="flex" gap="16" flexDirection="column" height="calc(100% - 32px)">
@@ -61,7 +72,7 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
           </Notification>
         )}
         <Box flex="1">
-          {isFormattedYmlLoading && <LoadingState />}
+          {isLoading && <LoadingState />}
           {originalText && modifiedText && (
             <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={updateYmlStringAndSyncYml} />
           )}
