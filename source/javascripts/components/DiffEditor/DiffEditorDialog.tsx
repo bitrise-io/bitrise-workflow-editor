@@ -3,9 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 
 import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { bitriseYmlStore, updateYmlInStore } from '@/core/stores/BitriseYmlStore';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFormattedYml from '@/hooks/useFormattedYml';
 
@@ -13,21 +11,20 @@ import DiffEditor from './DiffEditor';
 
 const DiffEditorDialogBody = forwardRef((_, ref) => {
   const currentPage = useCurrentPage();
-  const originalYml = useBitriseYmlStore((s) => BitriseYmlApi.fromYml(s.savedYmlString));
-  const modifiedYml = useBitriseYmlStore((s) => s.yml);
+  const [currentText, setCurrentText] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     data: originalText,
     error: originalYmlFormatError,
     isLoading: isOriginalYmlFormatLoading,
-  } = useFormattedYml(originalYml);
+  } = useFormattedYml(bitriseYmlStore.getState().savedYml);
 
   const {
     data: modifiedText,
     error: modifiedYmlFormatError,
     isLoading: isModifiedYmlFormatLoading,
-  } = useFormattedYml(modifiedYml);
+  } = useFormattedYml(bitriseYmlStore.getState().yml);
 
   useEffect(() => {
     if (modifiedYmlFormatError) {
@@ -39,11 +36,10 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
 
   const trySaveChanges = () => {
     try {
-      if (modifiedText === undefined) {
+      if (currentText === undefined) {
         return true;
       }
-      BitriseYmlApi.fromYml(modifiedText);
-      updateYmlStringAndSyncYml(modifiedText);
+      updateYmlInStore(currentText);
       return true;
     } catch (error) {
       setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);
@@ -74,7 +70,7 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
         <Box flex="1">
           {isLoading && <LoadingState />}
           {originalText && modifiedText && (
-            <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={updateYmlStringAndSyncYml} />
+            <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={setCurrentText} />
           )}
         </Box>
       </Box>

@@ -62,7 +62,7 @@ const Header = () => {
   });
 
   const hasChanges = useBitriseYmlStore((s) => {
-    return JSON.stringify(s.yml) !== JSON.stringify(s.savedYml) || s.ymlString !== s.savedYmlString;
+    return JSON.stringify(s.yml) !== JSON.stringify(s.savedYml);
   });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
@@ -116,7 +116,6 @@ const Header = () => {
     bitriseYmlStore.setState((s) => ({
       discardKey: Date.now(),
       yml: cloneDeep(s.savedYml),
-      ymlString: s.savedYmlString,
     }));
   };
 

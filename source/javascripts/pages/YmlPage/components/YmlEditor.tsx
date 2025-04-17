@@ -1,7 +1,7 @@
 import Editor from '@monaco-editor/react';
 
 import LoadingState from '@/components/LoadingState';
-import { bitriseYmlStore, updateYmlStringAndSyncYml } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, updateYmlInStore } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFormattedYml from '@/hooks/useFormattedYml';
@@ -16,13 +16,21 @@ const YmlEditor = () => {
     return <LoadingState />;
   }
 
+  const handleEditorChange = (modifiedYmlString?: string) => {
+    try {
+      updateYmlInStore(modifiedYmlString);
+    } catch (error) {
+      // TODO: Should we show a notification here? This happens when the YML is invalid while typing.
+    }
+  };
+
   return (
     <Editor
       value={formattedYml || 'Loading...'}
       theme="vs-dark"
       language="yaml"
       keepCurrentModel
-      onChange={updateYmlStringAndSyncYml}
+      onChange={handleEditorChange}
       options={{
         readOnly: isLoadingSetting || isLoadingFormattedYml || ymlSettings?.usesRepositoryYml,
       }}

@@ -30,8 +30,6 @@ export const bitriseYmlStore = createStore(
       discardKey: Date.now(),
       yml: {} as BitriseYml,
       savedYml: {} as BitriseYml,
-      ymlString: '',
-      savedYmlString: '',
       savedYmlVersion: '',
     },
     (set, get) => ({
@@ -495,15 +493,11 @@ export const bitriseYmlStore = createStore(
   ),
 );
 
-export function updateYmlStringAndSyncYml(ymlString?: string) {
-  try {
+export function updateYmlInStore(ymlString?: string) {
+  if (ymlString) {
     bitriseYmlStore.setState({
-      ymlString,
-      yml: BitriseYmlApi.fromYml(ymlString || ''),
+      yml: BitriseYmlApi.fromYml(ymlString),
     });
-  } catch {
-    // NOTE: Monaco editor will show error if the yml is invalid
-    bitriseYmlStore.setState({ ymlString });
   }
 }
 
@@ -511,8 +505,6 @@ export function initializeStore({ ymlString, version }: { ymlString: string; ver
   bitriseYmlStore.setState({
     yml: BitriseYmlApi.fromYml(ymlString),
     savedYml: BitriseYmlApi.fromYml(ymlString),
-    ymlString,
-    savedYmlString: ymlString,
     savedYmlVersion: version,
   });
 }
