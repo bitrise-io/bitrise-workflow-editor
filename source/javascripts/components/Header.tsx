@@ -7,10 +7,10 @@ import { ClientError } from '@/core/api/client';
 import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
@@ -26,6 +26,7 @@ const Header = () => {
   const toast = useToast();
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
+  const hasChanges = useYmlHasChanges();
 
   const {
     isOpen: isDiffViewerOpen,
@@ -59,10 +60,6 @@ const Header = () => {
     onOpen: () => {
       // TODO: analytics
     },
-  });
-
-  const hasChanges = useBitriseYmlStore((s) => {
-    return JSON.stringify(s.yml) !== JSON.stringify(s.savedYml);
   });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({

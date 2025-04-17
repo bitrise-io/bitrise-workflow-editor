@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
 import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
+import { useEventListener } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
 import Client from '@/core/api/client';
@@ -16,6 +17,7 @@ import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
+import useYmlHasChanges from './hooks/useYmlHasChanges';
 
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   // NOTE: The API server running in local mode, has a built-in termination timer
@@ -46,43 +48,23 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
   return null;
 };
 
-const App = () => {
-  return (
-    <StrictMode>
-      <ErrorBoundary fallback={PassThroughFallback}>
-        <QueryClientProvider client={DefaultQueryClient}>
-          <ReactFlowProvider>
-            <BitkitProvider>
-              <InitialDataLoader>
-                <MainLayout />
-              </InitialDataLoader>
-            </BitkitProvider>
-          </ReactFlowProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </StrictMode>
-  );
-};
-
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const isLoaded = useRef(false);
+  const hasChanges = useYmlHasChanges();
 
-  useCiConfigSettings();
-  const {
-    data: initialCiConfig,
-    isLoading,
-    error,
-    refetch,
-  } = useGetCiConfig({
+  const { data, isLoading, error, refetch } = useGetCiConfig({
     projectSlug: PageProps.appSlug(),
   });
 
+  useCiConfigSettings();
+  useEventListener('beforeunload', (e) => RuntimeUtils.isProduction() && hasChanges && e.preventDefault());
+
   useEffect(() => {
-    if (!isLoaded.current && initialCiConfig) {
-      initializeStore(initialCiConfig);
+    if (!isLoaded.current && data) {
+      initializeStore(data);
       isLoaded.current = true;
     }
-  }, [initialCiConfig]);
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -95,13 +77,13 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   if (error) {
     return (
       <Box
-        display="flex"
-        alignItems="center"
+        px="5%"
         gap="3rem"
         width="100vw"
         height="100vh"
+        display="flex"
         marginX="auto"
-        px="5%"
+        alignItems="center"
         backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
       >
         <Box display="flex" flexDir="column" gap="32" textColor="text/on-color" maxWidth="50%">
@@ -130,6 +112,24 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   }
 
   return <>{children}</>;
+};
+
+const App = () => {
+  return (
+    <StrictMode>
+      <ErrorBoundary fallback={PassThroughFallback}>
+        <QueryClientProvider client={DefaultQueryClient}>
+          <ReactFlowProvider>
+            <BitkitProvider>
+              <InitialDataLoader>
+                <MainLayout />
+              </InitialDataLoader>
+            </BitkitProvider>
+          </ReactFlowProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </StrictMode>
+  );
 };
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
