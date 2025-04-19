@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { DefinePlugin, EnvironmentPlugin } = require('webpack');
+const { DefinePlugin, EnvironmentPlugin, HotModuleReplacementPlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
-const TerserPLugin = require('terser-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 const { version } = require('./package.json');
 
@@ -49,9 +51,18 @@ module.exports = {
   /* --- Development --- */
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
-    watchFiles: './source/**/*',
+    hot: true,
+    liveReload: false,
+    historyApiFallback: true,
     port: DEV_SERVER_PORT || 4567,
     allowedHosts: ['host.docker.internal', 'localhost'],
+    client: {
+      webSocketURL: {
+        pathname: '/ws',
+        hostname: 'localhost',
+        port: DEV_SERVER_PORT || 4567,
+      },
+    },
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
@@ -79,7 +90,7 @@ module.exports = {
   optimization: {
     minimize: isProd,
     minimizer: [
-      new TerserPLugin({
+      new TerserPlugin({
         extractComments: true,
         parallel: true,
         terserOptions: {
@@ -129,6 +140,7 @@ module.exports = {
               transform: {
                 react: {
                   runtime: 'automatic',
+                  refresh: !isProd,
                 },
               },
             },
@@ -217,5 +229,6 @@ module.exports = {
       scriptLoading: 'blocking',
     }),
     new SubresourceIntegrityPlugin(),
+    ...(isProd ? [] : [new HotModuleReplacementPlugin(), new ReactRefreshWebpackPlugin()]),
   ],
 };
