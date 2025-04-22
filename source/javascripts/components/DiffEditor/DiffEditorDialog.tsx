@@ -39,7 +39,7 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
       if (currentText === undefined) {
         return true;
       }
-      updateYmlInStore(currentText);
+      updateYmlInStore(currentText, Date.now());
       return true;
     } catch (error) {
       setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);

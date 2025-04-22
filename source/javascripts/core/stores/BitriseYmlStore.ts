@@ -494,11 +494,13 @@ export const bitriseYmlStore = createStore(
   ),
 );
 
-export function updateYmlInStore(ymlString?: string) {
+export function updateYmlInStore(ymlString?: string, discardKey?: number) {
+  if (ymlString && discardKey) {
+    return bitriseYmlStore.setState({ yml: BitriseYmlApi.fromYml(ymlString), discardKey });
+  }
+
   if (ymlString) {
-    bitriseYmlStore.setState({
-      yml: BitriseYmlApi.fromYml(ymlString),
-    });
+    return bitriseYmlStore.setState({ yml: BitriseYmlApi.fromYml(ymlString) });
   }
 }
 

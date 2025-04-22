@@ -99,6 +99,44 @@ async function getAllStepsById(id: string) {
   return results;
 }
 
+async function getStepsByMultipleCvs(cvss: string[], attributesToRetrieve?: string[]) {
+  // NOTE: Using searchSingleIndex instead of browseObjects to cache the results
+  const response = await client.searchSingleIndex<AlgoliaStepResponse>({
+    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+    searchParams: {
+      filters: cvss.map((cvs) => `cvs:${cvs}`).join(' OR '),
+      analytics: false,
+      clickAnalytics: false,
+      attributesToRetrieve,
+    },
+  });
+
+  return response.hits;
+}
+
+async function getAllAvailableVersionsByIds(ids: string[]) {
+  const results: Map<string, Set<string>> = new Map();
+
+  // NOTE: Using searchSingleIndex instead of browseObjects to cache the results
+  const response = await client.searchSingleIndex<AlgoliaStepResponse>({
+    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+    searchParams: {
+      filters: ids.map((id) => `id:${id}`).join(' OR '),
+      analytics: false,
+      clickAnalytics: false,
+      attributesToRetrieve: ['id', 'version'],
+    },
+  });
+
+  response.hits.forEach((hit) => {
+    const versions = results.get(hit.id) ?? new Set<string>();
+    versions.add(hit.version);
+    results.set(hit.id, versions);
+  });
+
+  return results;
+}
+
 async function getStepInputsByCvs(cvs: string) {
   const results: AlgoliaStepInputResponse[] = [];
 
@@ -129,8 +167,10 @@ export default {
   searchSteps,
   getAllSteps,
   getAllStepsById,
-  getStepInputsByCvs,
   trackStepSelected,
+  getStepInputsByCvs,
+  getStepsByMultipleCvs,
+  getAllAvailableVersionsByIds,
 };
 
 export type { AlgoliaStepInfo, AlgoliaStepInputResponse, AlgoliaStepResponse };

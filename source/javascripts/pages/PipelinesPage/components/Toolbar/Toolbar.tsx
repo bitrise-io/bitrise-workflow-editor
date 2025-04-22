@@ -1,9 +1,10 @@
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
@@ -14,8 +15,8 @@ type Props = BoxProps & {
   onCreatePipelineClick?: () => void;
 };
 
-// TODO: Enable buttons when the feature is ready
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+  const hasUnsavedChanges = useYmlHasChanges();
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
@@ -35,7 +36,6 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return true;
   });
 
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
@@ -60,16 +60,6 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
     return [ids];
   }, [debouncedSearch, keys]);
-
-  useEffect(() => {
-    const listener = (event: CustomEvent<boolean>) => {
-      setHasUnsavedChanges(event.detail);
-    };
-
-    window.addEventListener('main::yml::has-unsaved-changes' as never, listener);
-
-    return () => window.removeEventListener('main::yml::has-unsaved-changes' as never, listener);
-  }, []);
 
   const runButtonAriaLabel = useMemo(() => {
     if (hasUnsavedChanges) {

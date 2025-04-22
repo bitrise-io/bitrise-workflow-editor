@@ -44,7 +44,10 @@ const YmlEditor = () => {
       keepCurrentModel
       onChange={handleEditorChange}
       onMount={handleEditorDidMount}
-      beforeMount={MonacoUtils.configureForYaml}
+      beforeMount={(monaco) => {
+        MonacoUtils.configureForYaml(monaco);
+        MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+      }}
       options={{
         readOnly: isLoadingSetting || isLoadingFormattedYml || ymlSettings?.usesRepositoryYml,
       }}

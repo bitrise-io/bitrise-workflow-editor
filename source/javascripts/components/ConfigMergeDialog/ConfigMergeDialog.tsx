@@ -10,10 +10,10 @@ import {
   Notification,
   Text,
 } from '@bitrise/bitkit';
-import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
+import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { toMerged } from 'es-toolkit';
-import * as monaco from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
 import { useRef, useState } from 'react';
 
@@ -21,15 +21,14 @@ import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
+import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
 
-loader.config({ monaco });
-
 type Props = Omit<DialogProps, 'title'>;
 
-const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
+const diffEditorOptions: DiffEditorProps['options'] = {
   automaticLayout: true,
   roundedSelection: false,
   renderSideBySide: false,
@@ -45,14 +44,14 @@ const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
   },
 };
 
-const readOnlyDiffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
+const readOnlyDiffEditorOptions: DiffEditorProps['options'] = {
   ...diffEditorOptions,
   readOnly: true,
 };
 
 function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];
-  const decorations: monaco.editor.IModelDeltaDecoration[] = [];
+  const decorations: editor.IModelDeltaDecoration[] = [];
 
   diff3Merge<string>(yourYaml, baseYaml, remoteYaml, {
     stringSeparator: '\n',
@@ -237,6 +236,9 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 options={readOnlyDiffEditorOptions}
                 keepCurrentModifiedModel
                 keepCurrentOriginalModel
+                beforeMount={(monaco) => {
+                  MonacoUtils.configureForYaml(monaco);
+                }}
               />
             </Box>
           </Box>
@@ -257,6 +259,10 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 keepCurrentModifiedModel
                 keepCurrentOriginalModel
                 onMount={onFinalYmlEditorMount}
+                beforeMount={(monaco) => {
+                  MonacoUtils.configureForYaml(monaco);
+                  MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+                }}
               />
             </Box>
           </Box>
@@ -276,6 +282,9 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 options={readOnlyDiffEditorOptions}
                 keepCurrentModifiedModel
                 keepCurrentOriginalModel
+                beforeMount={(monaco) => {
+                  MonacoUtils.configureForYaml(monaco);
+                }}
               />
             </Box>
           </Box>

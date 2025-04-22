@@ -1335,6 +1335,34 @@ function getUniqueStepIds(yml: BitriseYml) {
   return Array.from(ids);
 }
 
+function getUniqueStepCvss(yml: BitriseYml) {
+  const cvss = new Set<string>();
+  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+
+  mapValues(yml.workflows || {}, (workflow) => {
+    workflow.steps?.forEach((stepLikeObject) => {
+      mapValues(stepLikeObject, (stepLike, cvsLike) => {
+        if (StepService.isStep(String(cvsLike), defaultStepLibrary, stepLike)) {
+          cvss.add(String(cvsLike));
+        }
+
+        if (
+          StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
+          StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
+        ) {
+          stepLike.steps?.forEach((stepObj) => {
+            mapValues(stepObj, (_, cvs) => {
+              cvss.add(String(cvs));
+            });
+          });
+        }
+      });
+    });
+  });
+
+  return Array.from(cvss);
+}
+
 function updateWorkflowTriggers(workflowId: string, triggers: TriggersModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1765,6 +1793,7 @@ export default {
   cloneStep,
   updateStep,
   getUniqueStepIds,
+  getUniqueStepCvss,
   changeStepVersion,
   updateStepInputs,
   deleteStep,
