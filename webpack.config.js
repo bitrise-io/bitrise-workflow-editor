@@ -233,7 +233,7 @@ module.exports = {
           },
         },
       ],
-      filename: 'js/[name].worker.js',
+      filename: 'javascripts/[name].worker.js',
       features: [
         '!bracketMatching',
         '!caretOperations',

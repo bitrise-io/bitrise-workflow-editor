@@ -14,13 +14,17 @@ import VersionUtils from './VersionUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
+const WFE_VERSION = process.env.WFE_VERSION || '';
+const PUBLIC_URL_ROOT = process.env.PUBLIC_URL_ROOT || '';
+
 window.MonacoEnvironment = {
+  globalAPI: false,
   getWorker(_, label) {
     switch (label) {
       case 'editorWorkerService':
-        return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url));
+        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/editor.worker.js`);
       case 'yaml':
-        return new Worker(new URL('monaco-yaml/yaml.worker', import.meta.url));
+        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/yaml.worker.js`);
       default:
         throw new Error(`Unknown label ${label}`);
     }
