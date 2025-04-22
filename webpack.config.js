@@ -9,6 +9,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
 
@@ -220,5 +221,63 @@ module.exports = {
       scriptLoading: 'blocking',
     }),
     new SubresourceIntegrityPlugin(),
+    new MonacoWebpackPlugin({
+      languages: ['shell', 'yaml'],
+      customLanguages: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml',
+          worker: {
+            id: 'monaco-yaml/yamlWorker',
+            entry: 'monaco-yaml/yaml.worker',
+          },
+        },
+      ],
+      filename: 'js/[name].worker.js',
+      features: [
+        '!bracketMatching',
+        '!caretOperations',
+        '!clipboard',
+        '!codeAction',
+        '!codelens',
+        '!colorPicker',
+        '!comment',
+        '!contextmenu',
+        '!cursorUndo',
+        '!dnd',
+        '!folding',
+        '!fontZoom',
+        '!format',
+        '!gotoError',
+        '!gotoLine',
+        '!gotoSymbol',
+        '!hover',
+        '!iPadShowKeyboard',
+        '!inPlaceReplace',
+        '!inlayHints',
+        'inlineCompletions',
+        '!inspectTokens',
+        '!linesOperations',
+        '!links',
+        '!multicursor',
+        '!parameterHints',
+        '!quickCommand',
+        '!quickHelp',
+        '!quickOutline',
+        '!referenceSearch',
+        '!rename',
+        '!smartSelect',
+        '!snippet',
+        '!suggest',
+        '!toggleHighContrast',
+        '!toggleTabFocusMode',
+        '!tokenization',
+        '!unicodeHighlighter',
+        '!unusualLineTerminators',
+        '!wordHighlighter',
+        '!wordOperations',
+        '!wordPartOperations',
+      ],
+    }),
   ],
 };
