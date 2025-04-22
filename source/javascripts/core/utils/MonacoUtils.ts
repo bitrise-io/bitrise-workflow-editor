@@ -1,5 +1,5 @@
-import type { EditorProps } from '@monaco-editor/react';
-import type { languages } from 'monaco-editor';
+import { type EditorProps, loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
 
 import AlgoliaApi from '../api/AlgoliaApi';
@@ -17,8 +17,9 @@ type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 const WFE_VERSION = process.env.WFE_VERSION || '';
 const PUBLIC_URL_ROOT = process.env.PUBLIC_URL_ROOT || '';
 
+loader.config({ monaco });
+
 window.MonacoEnvironment = {
-  globalAPI: false,
   getWorker(_, label) {
     switch (label) {
       case 'editorWorkerService':
@@ -33,12 +34,12 @@ window.MonacoEnvironment = {
 
 let isConfiguredForYaml = false;
 
-const configureForYaml: BeforeMountHandler = (monaco) => {
+const configureForYaml: BeforeMountHandler = (monacoInstance) => {
   if (isConfiguredForYaml) {
     return;
   }
 
-  configureMonacoYaml(monaco, {
+  configureMonacoYaml(monacoInstance, {
     hover: true,
     format: true,
     validate: true,
@@ -52,12 +53,12 @@ const configureForYaml: BeforeMountHandler = (monaco) => {
 
 let isConfiguredForEnvVarsCompletionProvider = false;
 
-const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
+const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) => {
   if (isConfiguredForEnvVarsCompletionProvider) {
     return;
   }
 
-  monaco.languages.registerCompletionItemProvider(['yaml', 'shell'], {
+  monacoInstance.languages.registerCompletionItemProvider(['yaml', 'shell'], {
     triggerCharacters: ['$'],
     async provideCompletionItems(model, position, _, token) {
       const appSlug = PageProps.appSlug();
@@ -84,7 +85,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
 
       // Load project level env vars
       const projectLevelEnvVars = yml?.app?.envs || [];
-      const suggestions: languages.CompletionItem[] = projectLevelEnvVars.map(({ opts, ...env }) => {
+      const suggestions: monaco.languages.CompletionItem[] = projectLevelEnvVars.map(({ opts, ...env }) => {
         const key = Object.keys(env)[0];
 
         return {
@@ -93,8 +94,8 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
           insertText: key,
           sortText: `${key}`,
           detail: 'from project level env vars',
-          kind: monaco.languages.CompletionItemKind.Variable,
-        } satisfies languages.CompletionItem;
+          kind: monacoInstance.languages.CompletionItemKind.Variable,
+        } satisfies monaco.languages.CompletionItem;
       });
 
       // Load workflow level env vars
@@ -113,8 +114,8 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
             insertText: key,
             sortText: `${key}`,
             detail: `from ${workflowName} workflow`,
-            kind: monaco.languages.CompletionItemKind.Variable,
-          } satisfies languages.CompletionItem);
+            kind: monacoInstance.languages.CompletionItemKind.Variable,
+          } satisfies monaco.languages.CompletionItem);
         });
       });
 
@@ -134,8 +135,8 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
             insertText: key,
             sortText: `${key}`,
             detail: `from ${source}`,
-            kind: monaco.languages.CompletionItemKind.Variable,
-          } satisfies languages.CompletionItem);
+            kind: monacoInstance.languages.CompletionItemKind.Variable,
+          } satisfies monaco.languages.CompletionItem);
         });
       }
 
@@ -149,8 +150,8 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
             insertText: key,
             sortText: `${key}`,
             detail: 'from project level secrets',
-            kind: monaco.languages.CompletionItemKind.Variable,
-          } satisfies languages.CompletionItem);
+            kind: monacoInstance.languages.CompletionItemKind.Variable,
+          } satisfies monaco.languages.CompletionItem);
         });
       }
 
@@ -190,8 +191,8 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monaco) => {
               insertText: key,
               sortText: `${key}`,
               detail: `from ${id} step`,
-              kind: monaco.languages.CompletionItemKind.Variable,
-            } satisfies languages.CompletionItem);
+              kind: monacoInstance.languages.CompletionItemKind.Variable,
+            } satisfies monaco.languages.CompletionItem);
           });
         });
       }
