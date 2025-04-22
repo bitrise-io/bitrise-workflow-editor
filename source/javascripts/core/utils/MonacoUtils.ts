@@ -37,7 +37,7 @@ window.MonacoEnvironment = {
       // In production, load workers directly from the CDN
       const workerPath = label === 'yaml' ? 'yaml.worker.js' : 'editor.worker.js';
       console.log(`[MonacoUtils] Loading worker from CDN: ${workerBaseUrl}${workerPath}`);
-      return new Worker(`${workerBaseUrl}${workerPath}`, { type: 'module' });
+      return new Worker(`${workerBaseUrl}${workerPath}`, { type: 'module', credentials: 'omit' });
     }
 
     // In development, use the module URLs
