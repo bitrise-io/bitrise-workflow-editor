@@ -7,7 +7,6 @@ import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from
 import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
-import LoadingState from '@/components/LoadingState';
 import Client from '@/core/api/client';
 import { initializeStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
@@ -53,7 +52,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const isLoaded = useRef(false);
   const hasChanges = useYmlHasChanges();
 
-  const { data, isLoading, error, refetch } = useGetCiConfig({
+  const { data, error, refetch } = useGetCiConfig({
     projectSlug: PageProps.appSlug(),
   });
 
@@ -66,14 +65,6 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       isLoaded.current = true;
     }
   }, [data]);
-
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" width="100vw" height="100vh">
-        <LoadingState text="Loading bitrise.yml..." />
-      </Box>
-    );
-  }
 
   if (error) {
     return (
