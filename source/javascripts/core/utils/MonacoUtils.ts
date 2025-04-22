@@ -10,12 +10,37 @@ import BitriseYmlService from '../services/BitriseYmlService';
 import StepService from '../services/StepService';
 import { bitriseYmlStore } from '../stores/BitriseYmlStore';
 import PageProps from './PageProps';
+import RuntimeUtils from './RuntimeUtils';
 import VersionUtils from './VersionUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
+// Get the CDN URL based on environment variables
+const getWorkerBaseUrl = () => {
+  if (RuntimeUtils.isProduction()) {
+    // In production, use the CDN URLs from environment variables
+    const publicUrlRoot = process.env.PUBLIC_URL_ROOT || '';
+    const version = process.env.WFE_VERSION || '';
+    return `${publicUrlRoot}/${version}/javascripts/`;
+  }
+
+  // In development, use the import.meta.url approach
+  return '';
+};
+
+// Store the base URL to prevent recalculating it
+const workerBaseUrl = getWorkerBaseUrl();
+
 window.MonacoEnvironment = {
   getWorker(_, label) {
+    if (RuntimeUtils.isProduction()) {
+      // In production, load workers directly from the CDN
+      const workerPath = label === 'yaml' ? 'yaml.worker.js' : 'editor.worker.js';
+      console.log(`[MonacoUtils] Loading worker from CDN: ${workerBaseUrl}${workerPath}`);
+      return new Worker(`${workerBaseUrl}${workerPath}`, { type: 'module' });
+    }
+
+    // In development, use the module URLs
     switch (label) {
       case 'yaml':
         return new Worker(new URL('monaco-yaml/yaml.worker', import.meta.url), { type: 'module' });
@@ -34,16 +59,21 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
     return;
   }
 
-  configureMonacoYaml(monacoInstance, {
-    hover: true,
-    format: true,
-    validate: true,
-    completion: true,
-    enableSchemaRequest: true,
-    schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
-  });
+  try {
+    configureMonacoYaml(monacoInstance, {
+      hover: true,
+      format: true,
+      validate: true,
+      completion: true,
+      enableSchemaRequest: true,
+      schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
+    });
 
-  isConfiguredForYaml = true;
+    isConfiguredForYaml = true;
+    console.log('[MonacoUtils] YAML configuration successfully applied');
+  } catch (error) {
+    console.error('[MonacoUtils] Error configuring YAML:', error);
+  }
 };
 
 let isConfiguredForEnvVarsCompletionProvider = false;
