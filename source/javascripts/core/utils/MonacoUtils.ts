@@ -23,9 +23,9 @@ window.MonacoEnvironment = {
   getWorker(_, label) {
     switch (label) {
       case 'editorWorkerService':
-        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/editor.worker.js`);
+        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/editor.worker.js`, { type: 'module' });
       case 'yaml':
-        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/yaml.worker.js`);
+        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/yaml.worker.js`, { type: 'module' });
       default:
         throw new Error(`Unknown label ${label}`);
     }
