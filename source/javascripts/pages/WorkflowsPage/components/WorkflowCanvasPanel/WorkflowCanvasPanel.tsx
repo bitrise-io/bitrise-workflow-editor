@@ -1,6 +1,6 @@
 import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { WorkflowCard } from '@/components/unified-editor';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
@@ -14,6 +14,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
@@ -30,6 +31,7 @@ const containerProps: CardProps = {
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const workflows = useWorkflows();
   const stepBundles = useStepBundles();
+  const hasUnsavedChanges = useYmlHasChanges();
 
   const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
     useWorkflowsPageStore(
@@ -43,8 +45,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         setSelectedStepIndices: s.setSelectedStepIndices,
       })),
     );
-
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   const {
     moveStep,
@@ -71,16 +71,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     setChainedWorkflows: s.setChainedWorkflows,
     removeChainedWorkflow: s.removeChainedWorkflow,
   }));
-
-  useEffect(() => {
-    const listener = (event: CustomEvent<boolean>) => {
-      setHasUnsavedChanges(event.detail);
-    };
-
-    window.addEventListener('main::yml::has-unsaved-changes' as never, listener);
-
-    return () => window.removeEventListener('main::yml::has-unsaved-changes' as never, listener);
-  }, []);
 
   const runButtonAriaLabel = useMemo(() => {
     if (WorkflowService.isUtilityWorkflow(workflowId)) {
