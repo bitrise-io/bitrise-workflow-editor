@@ -38,7 +38,7 @@ const YmlEditor = () => {
 
   return (
     <Editor
-      value={formattedYml || 'Loading...'}
+      value={formattedYml}
       theme="vs-dark"
       language="yaml"
       keepCurrentModel

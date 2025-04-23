@@ -110,11 +110,8 @@ function useInitialCiConfigs() {
       return {
         yourYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().yml), signal),
         baseYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().savedYml), signal),
-        ...(await BitriseYmlApi.getCiConfig({
-          projectSlug,
-          signal,
-        }).then((res) => ({
-          remoteYml: res.ymlString,
+        ...(await BitriseYmlApi.getCiConfig({ projectSlug, signal }).then(async (res) => ({
+          remoteYml: await BitriseYmlApi.formatCiConfig(res.ymlString, signal),
           remoteVersion: res.version,
         }))),
       };
