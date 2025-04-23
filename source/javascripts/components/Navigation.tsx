@@ -10,13 +10,14 @@ import {
   TypeIconName,
   useResponsive,
 } from '@bitrise/bitkit';
-import { PropsWithChildren, useEffect, useRef } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
+import useSearchParams from '@/hooks/useSearchParams';
 import { paths } from '@/routes';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -24,6 +25,18 @@ type NavigationItemProps = PropsWithChildren<{
   path: string;
   icon: TypeIconName;
 }>;
+
+function usePathWithSearchParams() {
+  const [searchParams] = useSearchParams();
+
+  return useCallback(
+    (path: string) => {
+      const searchParamsString = new URLSearchParams(searchParams).toString();
+      return searchParamsString ? `${path}?${searchParamsString}` : path;
+    },
+    [searchParams],
+  );
+}
 
 const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
   const { isMobile } = useResponsive();
@@ -39,10 +52,11 @@ const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
 };
 
 const Navigation = (props: Props) => {
-  const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
-  const { data } = useCiConfigSettings();
+  const { isMobile } = useResponsive();
   const isDefaultTabRef = useRef(true);
+  const { data } = useCiConfigSettings();
+  const withSearchParams = usePathWithSearchParams();
 
   useEffect(() => {
     if (data?.usesRepositoryYml) {
@@ -58,36 +72,36 @@ const Navigation = (props: Props) => {
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
       <SidebarContainer>
-        <NavigationItem path={paths.workflows} icon="Workflow">
+        <NavigationItem path={withSearchParams(paths.workflows)} icon="Workflow">
           Workflows
         </NavigationItem>
-        <NavigationItem path={paths.pipelines} icon="WorkflowFlow">
+        <NavigationItem path={withSearchParams(paths.pipelines)} icon="WorkflowFlow">
           Pipelines
         </NavigationItem>
-        <NavigationItem path={paths.stepBundles} icon="Steps">
+        <NavigationItem path={withSearchParams(paths.stepBundles)} icon="Steps">
           Step Bundles
         </NavigationItem>
-        <NavigationItem path={paths.secrets} icon="Lock">
+        <NavigationItem path={withSearchParams(paths.secrets)} icon="Lock">
           Secrets
         </NavigationItem>
-        <NavigationItem path={paths.envVars} icon="Dollars">
+        <NavigationItem path={withSearchParams(paths.envVars)} icon="Dollars">
           Env Vars
         </NavigationItem>
-        <NavigationItem path={paths.triggers} icon="Trigger">
+        <NavigationItem path={withSearchParams(paths.triggers)} icon="Trigger">
           Triggers
         </NavigationItem>
         {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem path={paths.stacksAndMachines} icon="Stack">
+          <NavigationItem path={withSearchParams(paths.stacksAndMachines)} icon="Stack">
             Stacks & Machines
           </NavigationItem>
         )}
         {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem path={paths.licenses} icon="Key">
+          <NavigationItem path={withSearchParams(paths.licenses)} icon="Key">
             Licenses
           </NavigationItem>
         )}
         <SidebarDivider />
-        <NavigationItem path={paths.yml} icon="Code">
+        <NavigationItem path={withSearchParams(paths.yml)} icon="Code">
           Configuration YAML
         </NavigationItem>
       </SidebarContainer>
