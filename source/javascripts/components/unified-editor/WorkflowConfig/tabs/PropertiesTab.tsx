@@ -6,6 +6,7 @@ import EditableInput from '@/components/EditableInput/EditableInput';
 import DeleteWorkflowDialog from '@/components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import WorkflowService from '@/core/services/WorkflowService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import PriorityInput from '../../PriorityInput/PriorityInput';
@@ -85,6 +86,14 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
     workflow?.userValues.summary,
   ]);
 
+  const validateName = (value: string) => {
+    const keys = Object.keys(bitriseYmlStore.getState().yml.workflows ?? {});
+    return WorkflowService.validateName(
+      value,
+      keys.filter((key) => key !== workflow?.id),
+    );
+  };
+
   return (
     <Box gap="16" display="flex" flexDir="column">
       <EditableInput
@@ -93,7 +102,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
         label="Name"
         value={workflow?.id || ''}
         sanitize={WorkflowService.sanitizeName}
-        validate={WorkflowService.validateName}
+        validate={validateName}
         onCommit={handleNameChange}
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
