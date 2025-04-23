@@ -11,13 +11,13 @@
         "./source/javascripts/*"
       ]
     },
-    "target": "ES6",
+    "target": "ES2022",
     "lib": [
       "dom",
       "es2015",
-      "es2019"
+      "es2019",
     ],
-    "module": "CommonJS",
+    "module": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowJs": true,

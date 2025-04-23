@@ -84,8 +84,8 @@ module.exports = {
     minimize: isProd,
     minimizer: [
       new TerserPlugin({
-        extractComments: true,
         parallel: true,
+        extractComments: true,
         terserOptions: {
           mangle: false,
           safari10: true,
@@ -122,9 +122,9 @@ module.exports = {
         use: {
           loader: 'swc-loader',
           options: {
-            sourceMaps: true,
+            sourceMaps: false,
             jsc: {
-              target: 'es6',
+              target: 'ES2022',
               parser: {
                 tsx: true,
                 decorators: true,
@@ -218,9 +218,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       publicPath,
       template: 'index.html',
-      scriptLoading: 'blocking',
     }),
-    new SubresourceIntegrityPlugin(),
     new MonacoWebpackPlugin({
       languages: ['yaml'],
       filename: 'javascripts/[name].worker.js',
@@ -279,5 +277,6 @@ module.exports = {
         '!wordPartOperations',
       ],
     }),
+    new SubresourceIntegrityPlugin(),
   ],
 };
