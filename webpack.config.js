@@ -222,7 +222,9 @@ module.exports = {
     }),
     new SubresourceIntegrityPlugin(),
     new MonacoWebpackPlugin({
+      publicPath,
       languages: ['shell', 'yaml'],
+      filename: 'javascripts/[name].worker.js',
       customLanguages: [
         {
           label: 'yaml',
@@ -233,7 +235,6 @@ module.exports = {
           },
         },
       ],
-      filename: 'javascripts/[name].worker.js',
       features: [
         '!bracketMatching',
         '!caretOperations',

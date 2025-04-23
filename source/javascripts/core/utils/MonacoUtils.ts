@@ -10,42 +10,26 @@ import BitriseYmlService from '../services/BitriseYmlService';
 import StepService from '../services/StepService';
 import { bitriseYmlStore } from '../stores/BitriseYmlStore';
 import PageProps from './PageProps';
-import RuntimeUtils from './RuntimeUtils';
 import VersionUtils from './VersionUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
-// Get the CDN URL based on environment variables
-const getWorkerBaseUrl = () => {
-  if (RuntimeUtils.isProduction()) {
-    // In production, use the CDN URLs from environment variables
-    const publicUrlRoot = process.env.PUBLIC_URL_ROOT || '';
-    const version = process.env.WFE_VERSION || '';
-    return `${publicUrlRoot}/${version}/javascripts/`;
-  }
-
-  // In development, use the import.meta.url approach
-  return '';
-};
-
-// Store the base URL to prevent recalculating it
-const workerBaseUrl = getWorkerBaseUrl();
+const WFE_VERSION = process.env.WFE_VERSION || '';
+const PUBLIC_URL_ROOT = process.env.PUBLIC_URL_ROOT || '';
 
 window.MonacoEnvironment = {
   getWorker(_, label) {
-    if (RuntimeUtils.isProduction()) {
-      // In production, load workers directly from the CDN
-      const workerPath = label === 'yaml' ? 'yaml.worker.js' : 'editor.worker.js';
-      console.log(`[MonacoUtils] Loading worker from CDN: ${workerBaseUrl}${workerPath}`);
-      return new Worker(`${workerBaseUrl}${workerPath}`, { type: 'module', credentials: 'omit' });
-    }
-
-    // In development, use the module URLs
     switch (label) {
       case 'yaml':
-        return new Worker(new URL('monaco-yaml/yaml.worker', import.meta.url), { type: 'module' });
+        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/yaml.worker.js`, {
+          type: 'module',
+          credentials: 'omit',
+        });
       default:
-        return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url), { type: 'module' });
+        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/editor.worker.js`, {
+          type: 'module',
+          credentials: 'omit',
+        });
     }
   },
 };
