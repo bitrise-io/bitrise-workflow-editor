@@ -1,5 +1,5 @@
 import { ProgressBitbot } from '@bitrise/bitkit';
-import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
+import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
 
 import MonacoUtils from '@/core/utils/MonacoUtils';
 
@@ -8,6 +8,14 @@ type Props = {
   modifiedText: string;
   onChange: (changedText: string) => void;
   language?: string;
+};
+
+const diffEditorOptions: DiffEditorProps['options'] = {
+  diffWordWrap: 'off',
+  automaticLayout: true,
+  roundedSelection: false,
+  renderWhitespace: 'all',
+  ignoreTrimWhitespace: false,
 };
 
 const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', onChange }: Props) => {
@@ -26,9 +34,9 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
       language={language}
       original={originalText}
       modified={modifiedText}
+      options={diffEditorOptions}
       loading={<ProgressBitbot />}
       onMount={handleEditorDidMount}
-      options={{ renderWhitespace: 'all' }}
       keepCurrentModifiedModel
       keepCurrentOriginalModel
       beforeMount={(monaco) => {

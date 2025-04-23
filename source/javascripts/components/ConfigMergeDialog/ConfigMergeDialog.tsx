@@ -29,6 +29,7 @@ import useCurrentPage from '@/hooks/useCurrentPage';
 type Props = Omit<DialogProps, 'title'>;
 
 const diffEditorOptions: DiffEditorProps['options'] = {
+  diffWordWrap: 'off',
   automaticLayout: true,
   roundedSelection: false,
   renderSideBySide: false,
