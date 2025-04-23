@@ -12,7 +12,7 @@ const MainLayout = () => {
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
-      <Box display="flex" flex="1" alignItems="stretch">
+      <Box display="flex" flex="1" alignItems="stretch" minH={0}>
         <Navigation borderRight="1px solid" borderColor="border/regular" pt="24" />
         <Box flex="1" overflowX="hidden" overflowY="auto">
           <Router hook={useHashLocation} searchHook={useHashSearch}>
