@@ -1,4 +1,4 @@
-import { Box, Card, Link, Notification } from '@bitrise/bitkit';
+import { Box, Link, Notification } from '@bitrise/bitkit';
 import { RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -9,14 +9,16 @@ import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
 import DeprecatedMachineNotification from './DeprecatedMachineNotification';
 import MachineTypeSelector from './MachineTypeSelector';
+import StackAndMachineWrapper from './StackAndMachineWrapper';
 import StackSelector from './StackSelector';
 
 const useOrientation = (ref: RefObject<HTMLDivElement>) => {
   const { width } = useResizeObserver({ ref, box: 'border-box' });
-  return width && width < 768 ? 'vertical' : 'horizontal';
+  return width && width < 960 ? 'vertical' : 'horizontal';
 };
 
 type Props = {
+  isExpandable?: boolean;
   stackId: string;
   machineTypeId: string;
   onChange: (stackId: string, machineTypeId: string, rollbackVersion: string) => void;
@@ -26,6 +28,7 @@ type Props = {
 };
 
 const StackAndMachine = ({
+  isExpandable,
   stackId,
   machineTypeId,
   onChange,
@@ -95,7 +98,12 @@ const StackAndMachine = ({
     !!stackRollbackVersion && !!availableRollbackVersion && stackRollbackVersion === availableRollbackVersion;
 
   return (
-    <Card padding="16">
+    <StackAndMachineWrapper
+      isDefault={!stackId && !machineTypeId}
+      isExpandable={isExpandable}
+      machineTypeName={selectedMachineType.name}
+      stackName={selectedStack.name}
+    >
       <Box ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
         <StackSelector
           stack={selectedStack}
@@ -132,7 +140,7 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
-    </Card>
+    </StackAndMachineWrapper>
   );
 };
 

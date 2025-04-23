@@ -124,7 +124,7 @@ module.exports = {
           options: {
             sourceMaps: true,
             jsc: {
-              target: 'es2020',
+              target: 'es6',
               parser: {
                 tsx: true,
                 decorators: true,
@@ -222,8 +222,7 @@ module.exports = {
     }),
     new SubresourceIntegrityPlugin(),
     new MonacoWebpackPlugin({
-      publicPath,
-      languages: ['shell', 'yaml'],
+      languages: ['yaml'],
       filename: 'javascripts/[name].worker.js',
       customLanguages: [
         {

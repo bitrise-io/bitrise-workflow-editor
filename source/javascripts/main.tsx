@@ -52,11 +52,8 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const isLoaded = useRef(false);
   const hasChanges = useYmlHasChanges();
 
-  const { data, error, refetch } = useGetCiConfig({
-    projectSlug: PageProps.appSlug(),
-  });
-
   useCiConfigSettings();
+  const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug() });
   useEventListener('beforeunload', (e) => RuntimeUtils.isProduction() && hasChanges && e.preventDefault());
 
   useEffect(() => {

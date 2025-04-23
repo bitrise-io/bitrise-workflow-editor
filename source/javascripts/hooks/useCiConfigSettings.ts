@@ -8,7 +8,7 @@ import PageProps from '@/core/utils/PageProps';
 function useCiConfigSettings() {
   const projectSlug = PageProps.appSlug();
 
-  return useQuery({
+  return useQuery<BitriseYmlSettings, ClientError>({
     queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(projectSlug)],
     queryFn: ({ signal }) => BitriseYmlSettingsApi.getYmlSettings({ projectSlug, signal }),
     enabled: !!projectSlug,

@@ -1,5 +1,5 @@
 import { type EditorProps, loader } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor';
+import monaco, { type languages } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
 
 import AlgoliaApi from '../api/AlgoliaApi';
@@ -14,54 +14,58 @@ import VersionUtils from './VersionUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
-const WFE_VERSION = process.env.WFE_VERSION || '';
-const PUBLIC_URL_ROOT = process.env.PUBLIC_URL_ROOT || '';
+// const WFE_VERSION = process.env.WFE_VERSION || '';
+// const PUBLIC_URL_ROOT = process.env.PUBLIC_URL_ROOT || '';
 
-window.MonacoEnvironment = {
-  getWorker(_, label) {
-    switch (label) {
-      case 'yaml':
-        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/yaml.worker.js`, {
-          type: 'module',
-          credentials: 'omit',
-        });
-      default:
-        return new Worker(`${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/editor.worker.js`, {
-          type: 'module',
-          credentials: 'omit',
-        });
-    }
-  },
-};
+// const workerUrlCache: Record<string, string> = {};
+// async function preloadMonacoWorkers(): Promise<void> {
+//   const workerFiles = {
+//     yaml: 'yaml.worker.js',
+//     default: 'editor.worker.js',
+//   };
 
+//   await Promise.all(
+//     Object.entries(workerFiles).map(async ([label, file]) => {
+//       const workerFile = `${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/${file}`;
+//       const response = await fetch(workerFile, { credentials: 'omit' });
+//       const code = await response.text();
+//       const blob = new Blob([code], { type: 'application/javascript' });
+//       const blobUrl = URL.createObjectURL(blob);
+//       workerUrlCache[label] = blobUrl;
+//     }),
+//   );
+
+//   // Now we define MonacoEnvironment — must return NEW Worker
+//   window.MonacoEnvironment = {
+//     getWorker(_: string, label: string): Worker {
+//       const url = workerUrlCache[label] || workerUrlCache.default;
+//       return new Worker(url); // 👈 classic worker — no type specified
+//     },
+//   };
+// }
+
+// await preloadMonacoWorkers();
 loader.config({ monaco });
 
 let isConfiguredForYaml = false;
-
 const configureForYaml: BeforeMountHandler = (monacoInstance) => {
   if (isConfiguredForYaml) {
     return;
   }
 
-  try {
-    configureMonacoYaml(monacoInstance, {
-      hover: true,
-      format: true,
-      validate: true,
-      completion: true,
-      enableSchemaRequest: true,
-      schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
-    });
+  configureMonacoYaml(monacoInstance, {
+    hover: true,
+    format: true,
+    validate: true,
+    completion: true,
+    enableSchemaRequest: true,
+    schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
+  });
 
-    isConfiguredForYaml = true;
-    console.log('[MonacoUtils] YAML configuration successfully applied');
-  } catch (error) {
-    console.error('[MonacoUtils] Error configuring YAML:', error);
-  }
+  isConfiguredForYaml = true;
 };
 
 let isConfiguredForEnvVarsCompletionProvider = false;
-
 const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) => {
   if (isConfiguredForEnvVarsCompletionProvider) {
     return;
@@ -94,7 +98,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
 
       // Load project level env vars
       const projectLevelEnvVars = yml?.app?.envs || [];
-      const suggestions: monaco.languages.CompletionItem[] = projectLevelEnvVars.map(({ opts, ...env }) => {
+      const suggestions: languages.CompletionItem[] = projectLevelEnvVars.map(({ opts, ...env }) => {
         const key = Object.keys(env)[0];
 
         return {
@@ -104,7 +108,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
           sortText: `${key}`,
           detail: 'from project level env vars',
           kind: monacoInstance.languages.CompletionItemKind.Variable,
-        } satisfies monaco.languages.CompletionItem;
+        } satisfies languages.CompletionItem;
       });
 
       // Load workflow level env vars
@@ -124,7 +128,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
             sortText: `${key}`,
             detail: `from ${workflowName} workflow`,
             kind: monacoInstance.languages.CompletionItemKind.Variable,
-          } satisfies monaco.languages.CompletionItem);
+          } satisfies languages.CompletionItem);
         });
       });
 
@@ -145,7 +149,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
             sortText: `${key}`,
             detail: `from ${source}`,
             kind: monacoInstance.languages.CompletionItemKind.Variable,
-          } satisfies monaco.languages.CompletionItem);
+          } satisfies languages.CompletionItem);
         });
       }
 
@@ -160,7 +164,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
             sortText: `${key}`,
             detail: 'from project level secrets',
             kind: monacoInstance.languages.CompletionItemKind.Variable,
-          } satisfies monaco.languages.CompletionItem);
+          } satisfies languages.CompletionItem);
         });
       }
 
@@ -201,7 +205,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
               sortText: `${key}`,
               detail: `from ${id} step`,
               kind: monacoInstance.languages.CompletionItemKind.Variable,
-            } satisfies monaco.languages.CompletionItem);
+            } satisfies languages.CompletionItem);
           });
         });
       }
