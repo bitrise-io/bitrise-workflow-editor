@@ -280,7 +280,7 @@ const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitT
       <Text marginBlockEnd="24">Choose which configuration file should be used on bitrise.io from now.</Text>
       <RadioGroup {...props} onChange={(v) => onChange(v as NewCiConfigSource)}>
         <Radio
-          value="git"
+          value="git-ci-config"
           marginBlockEnd="12"
           helperText={
             <>
@@ -294,7 +294,7 @@ const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitT
           Use the configuration file stored in the Git repository
         </Radio>
         <Radio
-          value="bitrise"
+          value="bitrise-ci-config"
           helperText={
             lastModifiedFormatted ? <>The source setting was last changed on {lastModifiedFormatted}.</> : undefined
           }
