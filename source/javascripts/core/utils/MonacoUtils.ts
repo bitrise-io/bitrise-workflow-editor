@@ -14,37 +14,6 @@ import VersionUtils from './VersionUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
-// const WFE_VERSION = process.env.WFE_VERSION || '';
-// const PUBLIC_URL_ROOT = process.env.PUBLIC_URL_ROOT || '';
-
-// const workerUrlCache: Record<string, string> = {};
-// async function preloadMonacoWorkers(): Promise<void> {
-//   const workerFiles = {
-//     yaml: 'yaml.worker.js',
-//     default: 'editor.worker.js',
-//   };
-
-//   await Promise.all(
-//     Object.entries(workerFiles).map(async ([label, file]) => {
-//       const workerFile = `${PUBLIC_URL_ROOT}/${WFE_VERSION}/javascripts/${file}`;
-//       const response = await fetch(workerFile, { credentials: 'omit' });
-//       const code = await response.text();
-//       const blob = new Blob([code], { type: 'application/javascript' });
-//       const blobUrl = URL.createObjectURL(blob);
-//       workerUrlCache[label] = blobUrl;
-//     }),
-//   );
-
-//   // Now we define MonacoEnvironment — must return NEW Worker
-//   window.MonacoEnvironment = {
-//     getWorker(_: string, label: string): Worker {
-//       const url = workerUrlCache[label] || workerUrlCache.default;
-//       return new Worker(url); // 👈 classic worker — no type specified
-//     },
-//   };
-// }
-
-// await preloadMonacoWorkers();
 loader.config({ monaco });
 
 let isConfiguredForYaml = false;
