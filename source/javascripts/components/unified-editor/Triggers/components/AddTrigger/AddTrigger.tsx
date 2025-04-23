@@ -161,7 +161,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             {title}
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
-            Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this Pipeline should
+            Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this {entity} should
             run.
           </Text>
           <ConditionCard
