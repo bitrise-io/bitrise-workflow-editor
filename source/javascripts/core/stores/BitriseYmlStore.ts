@@ -2,16 +2,16 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
 import {
-  Meta,
-  EnvModel,
-  StepModel,
   BitriseYml,
-  TriggerMap,
+  EnvironmentItemModel,
+  EnvModel,
+  Meta,
   PipelineModel,
+  StepBundleModel,
+  StepModel,
+  TriggerMap,
   TriggersModel,
   WorkflowModel,
-  StepBundleModel,
-  EnvironmentItemModel,
 } from '@/core/models/BitriseYml';
 
 import { EnvVar } from '@/core/models/EnvVar';
@@ -31,6 +31,11 @@ function create(yml: BitriseYml) {
       },
 
       // Project related actions
+      appendProjectEnvVar(envVar: EnvVar) {
+        set((state) => ({
+          yml: BitriseYmlService.appendProjectEnvVar(EnvVarService.parseEnvVar(envVar), state.yml),
+        }));
+      },
       updateProjectEnvVars(envVars: EnvVar[]) {
         set((state) => ({
           yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),

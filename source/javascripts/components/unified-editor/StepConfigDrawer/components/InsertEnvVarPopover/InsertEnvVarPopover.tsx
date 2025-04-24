@@ -29,7 +29,7 @@ type Props = {
   onCreate: HandlerFn;
   onSelect: HandlerFn;
   stepBundleId?: string;
-  workflowId: string;
+  workflowId?: string;
 };
 
 const filterPredicate = (item: EnvVar, filter: string): boolean =>
@@ -48,7 +48,7 @@ const InsertEnvVarPopover = ({
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading: isLoadingEnvVars, envs } = useEnvVars({
     stepBundleIds: stepBundleId ? [stepBundleId] : [],
-    workflowIds: [workflowId],
+    workflowIds: workflowId ? [workflowId] : [],
     enabled: shouldLoadVars,
   });
   const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
