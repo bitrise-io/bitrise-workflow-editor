@@ -10,35 +10,54 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
-import { Secret } from '@/core/models/Secret';
-import { useSecrets } from '@/hooks/useSecrets';
+
+import { EnvVar } from '@/core/models/EnvVar';
 import PageProps from '@/core/utils/PageProps';
-import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
-import FilterInput from '../FilterInput/FilterInput';
-import { HandlerFn } from './types';
+import useEnvVars from '@/hooks/useEnvVars';
+import { useSecrets } from '@/hooks/useSecrets';
+
+import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
+import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
-import CreateSecret from './components/CreateSecret';
+import CreateEnvVar from './components/CreateEnvVar';
 
 type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  onCreate: HandlerFn;
-  onSelect: HandlerFn;
+  onCreate: (item: EnvVar) => void;
+  onSelect: (item: EnvVar) => void;
+  stepBundleId?: string;
+  workflowId?: string;
 };
 
-const filterPredicate = (item: Secret, filter: string): boolean =>
-  Boolean(
-    item.key.toUpperCase().includes(filter.toUpperCase()) || item.source?.toUpperCase().includes(filter.toUpperCase()),
-  );
+const filterPredicate = (item: EnvVar, filter: string): boolean =>
+  item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
-const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+const EnvVarPopover = ({
+  size,
+  onCreate,
+  onSelect,
+  isOpen: initialIsOpen,
+  mode: initialMode,
+  stepBundleId,
+  workflowId,
+}: Props) => {
   const appSlug = PageProps.appSlug();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
-  const { isLoading, data: secrets = [] } = useSecrets({
+  const { isLoading: isLoadingEnvVars, envs } = useEnvVars({
+    stepBundleIds: stepBundleId ? [stepBundleId] : [],
+    workflowIds: workflowId ? [workflowId] : [],
+    enabled: shouldLoadVars,
+  });
+  const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
     appSlug,
     options: { enabled: shouldLoadVars },
   });
+
+  const isLoading = isLoadingEnvVars || isLoadingSecrets;
+  const items = [...envs, ...secrets] as EnvVar[];
+  items.sort((a, b) => a.key.localeCompare(b.key));
 
   const {
     isOpen,
@@ -52,11 +71,11 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
     getFilterInputProps,
     getActionListItemProps,
   } = useMultiModePopover({
-    items: secrets,
+    items,
     mode: initialMode,
     isOpen: initialIsOpen,
-    onCreate,
     onSelect,
+    onCreate,
     filterPredicate,
     onOpen: () => setShouldLoadVars(true),
     onClose: () => setShouldLoadVars(false),
@@ -69,8 +88,8 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
           size={size}
           iconName="Dollars"
           variant="secondary"
-          aria-label="Insert secret"
-          tooltipProps={{ 'aria-label': 'Insert secret' }}
+          aria-label="Insert variable"
+          tooltipProps={{ 'aria-label': 'Insert variable' }}
         />
       </PopoverTrigger>
       <Portal>
@@ -83,10 +102,10 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
             alignItems="center"
             justifyContent="space-between"
           >
-            {isMode(Mode.CREATE) && <Text textStyle="heading/h4">Create secret</Text>}
+            {isMode(Mode.CREATE) && <Text textStyle="heading/h4">Create variable</Text>}
             {isMode(Mode.SELECT) && (
               <>
-                <Text textStyle="heading/h4">Insert secret</Text>
+                <Text textStyle="heading/h4">Insert variable</Text>
                 <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
                   Create
                 </Button>
@@ -94,7 +113,7 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
             )}
           </PopoverHeader>
           <PopoverBody>
-            {isMode(Mode.CREATE) && <CreateSecret {...getCreateFormProps()} />}
+            {isMode(Mode.CREATE) && <CreateEnvVar {...getCreateFormProps()} />}
             {isMode(Mode.SELECT) && (
               <>
                 <FilterInput
@@ -115,7 +134,7 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
                   >
                     {filteredItems.length === 0 && (
                       <Text marginTop="16" marginBottom="8">
-                        No secrets found
+                        No env vars found
                       </Text>
                     )}
                     {filteredItems.map((ev) => (
@@ -142,4 +161,4 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
   );
 };
 
-export default InsertSecretPopover;
+export default EnvVarPopover;

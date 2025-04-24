@@ -4,11 +4,10 @@ import { useForm } from 'react-hook-form';
 import { Secret } from '@/core/models/Secret';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import SecretService from '@/core/services/SecretService';
-import { CreateSecretFormValues, HandlerFn } from '../types';
 
 type Props = {
   items: Secret[];
-  onCreate: HandlerFn;
+  onCreate: (item: Secret) => void;
   onCancel: VoidFunction;
 };
 
@@ -18,7 +17,7 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<CreateSecretFormValues>();
+  } = useForm<Secret>();
 
   const handleCancel = () => {
     onCancel();

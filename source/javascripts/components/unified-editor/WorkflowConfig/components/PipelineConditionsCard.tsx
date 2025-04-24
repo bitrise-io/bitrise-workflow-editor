@@ -7,7 +7,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
-import InsertEnvVarPopover from '@/components/unified-editor/StepConfigDrawer/components/InsertEnvVarPopover/InsertEnvVarPopover';
+import { EnvVarPopover } from '@/components/VariablePopover';
 import { EnvVar } from '@/core/models/EnvVar';
 
 type PipelineConditionInputProps = {
@@ -191,7 +191,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
       onChange={handleChange}
       rightAddon={
         <Box paddingRight="4">
-          <InsertEnvVarPopover size="sm" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
+          <EnvVarPopover size="sm" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
         </Box>
       }
       rightAddonPlacement="inside"
