@@ -64,7 +64,7 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
       onCloseComplete={handleCloseComplete}
       onCreateEntity={handleCreatePipeline}
       sanitizer={PipelineService.sanitizeName}
-      validator={(v) => PipelineService.validateName(v, pipelineIds)}
+      validator={(name) => PipelineService.validateName(name, '', pipelineIds)}
       {...props}
     />
   );

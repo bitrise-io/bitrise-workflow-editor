@@ -43,7 +43,7 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
       onCloseComplete={handleCloseComplete}
       onCreateEntity={handleCreateWorkflow}
       sanitizer={WorkflowService.sanitizeName}
-      validator={(v) => WorkflowService.validateName(v, workflowIds)}
+      validator={(name) => WorkflowService.validateName(name, '', workflowIds)}
       {...props}
     />
   );

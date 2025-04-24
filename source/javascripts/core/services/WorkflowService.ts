@@ -2,8 +2,12 @@ import { Pipelines, Stages, Workflows } from '../models/BitriseYml';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
-function validateName(workflowName: string, workflowNames?: string[]) {
-  if (!String(workflowName).trim()) {
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function validateName(workflowName: string, initialWorkflowName: string, workflowNames: string[]) {
+  if (!workflowName.trim()) {
     return 'Workflow name is required';
   }
 
@@ -11,15 +15,11 @@ function validateName(workflowName: string, workflowNames?: string[]) {
     return 'Workflow name must only contain letters, numbers, dashes, underscores or periods';
   }
 
-  if (workflowNames?.includes(workflowName)) {
-    return 'Workflow name should be unique.';
+  if (workflowName !== initialWorkflowName && workflowNames?.includes(workflowName)) {
+    return 'Workflow name should be unique';
   }
 
   return true;
-}
-
-function sanitizeName(value: string) {
-  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
 }
 
 function isUtilityWorkflow(workflowId: string) {

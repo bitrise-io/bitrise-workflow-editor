@@ -3,6 +3,28 @@ import { isEmpty } from 'es-toolkit/compat';
 
 import { EnvironmentItemModel, StepBundles, Workflows } from '../models/BitriseYml';
 
+const STEP_BUNDLE_REGEX = /^[A-Za-z0-9-_.]+$/;
+
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function validateName(newStepBundleName: string, initStepBundleName: string, stepBundleNames: string[]) {
+  if (!String(newStepBundleName).trim()) {
+    return 'Step bundle name is required';
+  }
+
+  if (!STEP_BUNDLE_REGEX.test(newStepBundleName)) {
+    return 'Step bundle name must only contain letters, numbers, dashes, underscores or periods';
+  }
+
+  if (newStepBundleName !== initStepBundleName && stepBundleNames?.includes(newStepBundleName)) {
+    return 'Step bundle name should be unique';
+  }
+
+  return true;
+}
+
 function getDirectDependants(workflows: Workflows, cvs: string) {
   const directDependants: string[] = [];
   Object.entries(workflows ?? {}).forEach(([workflowId, workflow]) => {
@@ -41,28 +63,6 @@ function getUsedByText(count: number) {
     default:
       return `Used by ${count} Workflows`;
   }
-}
-
-function sanitizeName(value: string) {
-  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
-}
-
-function validateName(newStepBundleName: string, initStepBundleName: string, stepBundleNames?: string[]) {
-  const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
-
-  if (!String(newStepBundleName).trim()) {
-    return 'Step bundle name is required';
-  }
-
-  if (!WORKFLOW_NAME_REGEX.test(newStepBundleName)) {
-    return 'Step bundle name must only contain letters, numbers, dashes, underscores or periods';
-  }
-
-  if (newStepBundleName !== initStepBundleName && stepBundleNames?.includes(newStepBundleName)) {
-    return 'Step bundle name should be unique.';
-  }
-
-  return true;
 }
 
 function getStepBundleChain(stepBundles: StepBundles, id: string) {

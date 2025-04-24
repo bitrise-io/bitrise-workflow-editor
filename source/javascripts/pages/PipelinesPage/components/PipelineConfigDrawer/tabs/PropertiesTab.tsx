@@ -42,17 +42,6 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
     }
   };
 
-  const validateName = (value: string) => {
-    return PipelineService.validateName(
-      value,
-      keys.filter((key) => key !== pipelineId),
-    );
-  };
-
-  const sanitizeName = (value: string) => {
-    return PipelineService.sanitizeName(value);
-  };
-
   const onDeletePipeline = useCallback(
     (deletedId: string) => {
       onDelete();
@@ -68,8 +57,8 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
           isRequired
           name="name"
           label="Name"
-          sanitize={sanitizeName}
-          validate={validateName}
+          sanitize={PipelineService.sanitizeName}
+          validate={(name) => PipelineService.validateName(name, pipelineId, keys)}
           onCommit={onNameChange}
           defaultValue={pipelineId}
         />
@@ -92,7 +81,11 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
         />
         <GitStatusNameInput
           targetId={pipelineId}
-          onChange={(newStatusReportName) => updatePipeline(pipelineId, { status_report_name: newStatusReportName })}
+          onChange={(newStatusReportName) =>
+            updatePipeline(pipelineId, {
+              status_report_name: newStatusReportName,
+            })
+          }
           statusReportName={statusReportName}
         />
 

@@ -86,14 +86,6 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
     workflow?.userValues.summary,
   ]);
 
-  const validateName = (value: string) => {
-    const keys = Object.keys(bitriseYmlStore.getState().yml.workflows ?? {});
-    return WorkflowService.validateName(
-      value,
-      keys.filter((key) => key !== workflow?.id),
-    );
-  };
-
   return (
     <Box gap="16" display="flex" flexDir="column">
       <EditableInput
@@ -102,7 +94,13 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
         label="Name"
         value={workflow?.id || ''}
         sanitize={WorkflowService.sanitizeName}
-        validate={validateName}
+        validate={(name) =>
+          WorkflowService.validateName(
+            name,
+            workflow?.id || '',
+            Object.keys(bitriseYmlStore.getState().yml.workflows ?? {}),
+          )
+        }
         onCommit={handleNameChange}
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />

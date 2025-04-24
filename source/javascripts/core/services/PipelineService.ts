@@ -26,24 +26,24 @@ function getPipelineType(id: string, yml: BitriseYml): 'graph' | 'staged' | unde
   return isGraph(pipeline) ? 'graph' : 'staged';
 }
 
-function validateName(pipelineName: string, pipelineNames?: string[]) {
-  if (!String(pipelineName).trim()) {
-    return 'Pipeline name is required.';
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function validateName(pipelineName: string, initialPipelineName: string, pipelineNames: string[]) {
+  if (!pipelineName.trim()) {
+    return 'Pipeline name is required';
   }
 
   if (!PIPELINE_NAME_REGEX.test(pipelineName)) {
-    return 'Pipeline name must only contain letters, numbers, dashes, underscores or periods.';
+    return 'Pipeline name must only contain letters, numbers, dashes, underscores or periods';
   }
 
-  if (pipelineNames?.includes(pipelineName)) {
-    return 'Pipeline name should be unique.';
+  if (pipelineName !== initialPipelineName && pipelineNames?.includes(pipelineName)) {
+    return 'Pipeline name should be unique';
   }
 
   return true;
-}
-
-function sanitizeName(value: string) {
-  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
 }
 
 function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
