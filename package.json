@@ -37,6 +37,7 @@
     "build-storybook": "storybook build -c .storybook",
     "storybook": "storybook dev -p 6006",
     "test": "jest",
+    "test:jest": "jest",
     "test:smoke": "playwright test",
     "generate-theme-types": "chakra-cli tokens node_modules/@bitrise/bitkit/src/theme.ts",
     "prepare": "husky"
