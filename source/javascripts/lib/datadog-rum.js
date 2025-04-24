@@ -9,6 +9,12 @@ datadogRum.init({
   version: process.env.WFE_VERSION,
   sessionSampleRate: 100,
   sessionReplaySampleRate: 20,
-  trackInteractions: false,
+  trackLongTasks: true,
+  trackResources: true,
+  trackInteractions: true,
+  silentMultipleInit: true,
+  useCrossSiteSessionCookie: true,
+  trackSessionAcrossSubdomains: true,
+  allowedTracingUrls: [/^http(s)?:\/\/(.+)?bitrise\.(io|dev)/],
   plugins: [reactPlugin()],
 });
