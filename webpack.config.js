@@ -117,6 +117,12 @@ module.exports = {
         test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
       },
+
+      {
+        test: /\.ya?ml$/,
+        type: 'asset/source',
+      },
+
       {
         test: /\.tsx?$/i,
         use: {
