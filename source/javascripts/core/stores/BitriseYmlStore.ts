@@ -1,4 +1,5 @@
 import { omitBy } from 'es-toolkit';
+import { Document, parseDocument } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
@@ -20,17 +21,21 @@ import BitriseYmlService from '@/core/services/BitriseYmlService';
 import EnvVarService from '@/core/services/EnvVarService';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
-
-export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
+import YamlUtils from '../utils/YamlUtils';
 
 export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
+export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
+
+export type YamlMutator = (ctx: YamlMutatorCtx) => Document;
+export type YamlMutatorCtx = { doc: Document; paths: string[] };
 
 export const bitriseYmlStore = createStore(
   combine(
     {
       discardKey: Date.now(),
       yml: {} as BitriseYml,
-      savedYml: {} as BitriseYml,
+      ymlDocument: new Document(),
+      savedYmlDocument: new Document(),
       savedYmlVersion: '',
     },
     (set, get) => ({
@@ -499,16 +504,6 @@ export const bitriseYmlStore = createStore(
   ),
 );
 
-export function updateYmlInStore(ymlString?: string, discardKey?: number) {
-  if (ymlString && discardKey) {
-    return bitriseYmlStore.setState({ yml: BitriseYmlApi.fromYml(ymlString), discardKey });
-  }
-
-  if (ymlString) {
-    return bitriseYmlStore.setState({ yml: BitriseYmlApi.fromYml(ymlString) });
-  }
-}
-
 export function initializeStore({
   version,
   ymlString,
@@ -523,10 +518,34 @@ export function initializeStore({
       {
         discardKey,
         yml: BitriseYmlApi.fromYml(ymlString),
-        savedYml: BitriseYmlApi.fromYml(ymlString),
+        ymlDocument: parseDocument(ymlString),
+        savedYmlDocument: parseDocument(ymlString),
         savedYmlVersion: version,
       },
       (value) => value === undefined,
     ),
   );
+}
+
+bitriseYmlStore.subscribe((curr, prev) => {
+  if (!YamlUtils.areDocumentsEqual(curr.ymlDocument, prev.ymlDocument)) {
+    bitriseYmlStore.setState({ yml: curr.ymlDocument.toJSON() });
+  }
+});
+
+export function updateBitriseYmlDocument(mutator: YamlMutator /* , event = BitriseYmlEvent.Updated */) {
+  const doc = bitriseYmlStore.getState().ymlDocument.clone();
+  const paths = YamlUtils.collectPaths(bitriseYmlStore.getState().yml);
+
+  // clearYamlParseErrors();
+
+  const mutatedDocument = mutator({ doc, paths });
+  if (mutatedDocument.errors.length > 0) {
+    // setYamlParseErrors(mutatedDocument.errors);
+    return;
+  }
+
+  bitriseYmlStore.setState({ ymlDocument: mutatedDocument });
+
+  // dispatchBitriseYmlEvent(event);
 }

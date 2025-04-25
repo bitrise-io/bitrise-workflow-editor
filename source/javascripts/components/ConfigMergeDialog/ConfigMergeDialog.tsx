@@ -109,10 +109,10 @@ function useInitialCiConfigs() {
     queryKey: ['initial-ci-configs', projectSlug],
     queryFn: async ({ signal }) => {
       return {
-        yourYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().yml), signal),
-        baseYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().savedYml), signal),
+        yourYml: bitriseYmlStore.getState().ymlDocument.toString({ indentSeq: false, lineWidth: 0 }),
+        baseYml: bitriseYmlStore.getState().savedYmlDocument.toString({ indentSeq: false, lineWidth: 0 }),
         ...(await BitriseYmlApi.getCiConfig({ projectSlug, signal }).then(async (res) => ({
-          remoteYml: await BitriseYmlApi.formatCiConfig(res.ymlString, signal),
+          remoteYml: res.ymlString,
           remoteVersion: res.version,
         }))),
       };
