@@ -1,10 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
-import { Mode } from '../../hooks/useMultiModePopover';
-import InsertEnvVarPopover from './InsertEnvVarPopover';
+import { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
+import EnvVarPopover from './EnvVarPopover';
 
 export default {
-  component: InsertEnvVarPopover,
+  component: EnvVarPopover,
   args: {
     size: 'sm',
     isOpen: true,
@@ -25,11 +25,11 @@ export default {
     onSelect: { type: 'function', action: 'onSelect' },
   },
   decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
-} as Meta<typeof InsertEnvVarPopover>;
+} as Meta<typeof EnvVarPopover>;
 
-export const Select: StoryObj<typeof InsertEnvVarPopover> = {};
+export const Select: StoryObj<typeof EnvVarPopover> = {};
 
-export const Create: StoryObj<typeof InsertEnvVarPopover> = {
+export const Create: StoryObj<typeof EnvVarPopover> = {
   args: {
     ...Select.args,
     mode: Mode.CREATE,

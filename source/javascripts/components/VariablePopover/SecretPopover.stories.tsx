@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Secret } from '@/core/models/Secret';
-import { Mode } from '../../hooks/useMultiModePopover';
-import InsertSecretPopover from './InsertSecretPopover';
+import { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
+import SecretPopover from './SecretPopover';
 
 const defaultSecrets: Secret[] = [
   {
@@ -63,7 +63,7 @@ const defaultSecrets: Secret[] = [
 ];
 
 export default {
-  component: InsertSecretPopover,
+  component: SecretPopover,
   args: {
     size: 'sm',
     mode: Mode.SELECT,
@@ -85,11 +85,11 @@ export default {
     onSelect: { type: 'function', action: 'onSelect' },
     secrets: { control: 'object', type: 'symbol' },
   },
-} as Meta<typeof InsertSecretPopover>;
+} as Meta<typeof SecretPopover>;
 
-export const Select: StoryObj<typeof InsertSecretPopover> = {};
+export const Select: StoryObj<typeof SecretPopover> = {};
 
-export const Create: StoryObj<typeof InsertSecretPopover> = {
+export const Create: StoryObj<typeof SecretPopover> = {
   args: {
     ...Select.args,
     mode: Mode.CREATE,

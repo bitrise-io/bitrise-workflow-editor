@@ -1102,6 +1102,22 @@ function appendWorkflowEnvVar(workflowId: string, envVar: EnvironmentItemModel, 
   return copy;
 }
 
+function appendProjectEnvVar(envVar: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.app) {
+    copy.app = {};
+  }
+
+  if (!copy.app.envs) {
+    copy.app.envs = [];
+  }
+
+  copy.app.envs = [...copy.app.envs, envVar];
+
+  return copy;
+}
+
 function updateProjectEnvVars(envVars: EnvModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1807,6 +1823,7 @@ export default {
   updateWorkflowMeta,
   updateTriggerMap,
   appendWorkflowEnvVar,
+  appendProjectEnvVar,
   updateProjectEnvVars,
   updateWorkflowEnvVars,
   updateWorkflowTriggers,
