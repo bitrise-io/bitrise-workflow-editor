@@ -39,6 +39,11 @@ export const bitriseYmlStore = createStore(
       },
 
       // Project related actions
+      appendProjectEnvVar(envVar: EnvVar) {
+        set((state) => ({
+          yml: BitriseYmlService.appendProjectEnvVar(EnvVarService.parseEnvVar(envVar), state.yml),
+        }));
+      },
       updateProjectEnvVars(envVars: EnvVar[]) {
         set((state) => ({
           yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),

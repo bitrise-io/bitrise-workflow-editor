@@ -11,22 +11,21 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
+import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
 import { Secret } from '@/core/models/Secret';
 import PageProps from '@/core/utils/PageProps';
 import { useSecrets } from '@/hooks/useSecrets';
 
-import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
-import FilterInput from '../FilterInput/FilterInput';
 import CreateSecret from './components/CreateSecret';
+import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
-import { HandlerFn } from './types';
 
 type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  onCreate: HandlerFn;
-  onSelect: HandlerFn;
+  onCreate: (item: Secret) => void;
+  onSelect: (item: Secret) => void;
 };
 
 const filterPredicate = (item: Secret, filter: string): boolean =>
@@ -34,7 +33,7 @@ const filterPredicate = (item: Secret, filter: string): boolean =>
     item.key.toUpperCase().includes(filter.toUpperCase()) || item.source?.toUpperCase().includes(filter.toUpperCase()),
   );
 
-const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+const SecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
   const appSlug = PageProps.appSlug();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading, data: secrets = [] } = useSecrets({
@@ -144,4 +143,4 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
   );
 };
 
-export default InsertSecretPopover;
+export default SecretPopover;

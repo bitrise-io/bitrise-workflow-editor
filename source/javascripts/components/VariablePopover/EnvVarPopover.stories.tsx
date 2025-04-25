@@ -1,10 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { Mode } from '../../hooks/useMultiModePopover';
-import InsertEnvVarPopover from './InsertEnvVarPopover';
+import { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
+
+import EnvVarPopover from './EnvVarPopover';
 
 export default {
-  component: InsertEnvVarPopover,
+  component: EnvVarPopover,
   args: {
     size: 'sm',
     isOpen: true,
@@ -24,11 +25,11 @@ export default {
     onCreate: { type: 'function', action: 'onCreate' },
     onSelect: { type: 'function', action: 'onSelect' },
   },
-} as Meta<typeof InsertEnvVarPopover>;
+} as Meta<typeof EnvVarPopover>;
 
-export const Select: StoryObj<typeof InsertEnvVarPopover> = {};
+export const Select: StoryObj<typeof EnvVarPopover> = {};
 
-export const Create: StoryObj<typeof InsertEnvVarPopover> = {
+export const Create: StoryObj<typeof EnvVarPopover> = {
   args: {
     ...Select.args,
     mode: Mode.CREATE,

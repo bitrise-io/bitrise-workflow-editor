@@ -1,11 +1,11 @@
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import { EnvVarPopover } from '@/components/VariablePopover';
 import { EnvVar } from '@/core/models/EnvVar';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 import StepHelperText from './StepHelperText';
 
 type Props = Omit<DropdownProps<string | null>, 'onChange'> & {
@@ -63,7 +63,7 @@ const StepSelectInput = forwardRef(
           )}
         </Dropdown>
         <Box pt="24">
-          <InsertEnvVarPopover
+          <EnvVarPopover
             size="md"
             onCreate={createEnvVar}
             onSelect={({ key }) => insertVariable(key)}

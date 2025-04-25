@@ -2,14 +2,13 @@ import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
 import { FocusEventHandler, useState } from 'react';
 
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
+import { EnvVarPopover, SecretPopover } from '@/components/VariablePopover';
 import { EnvVar } from '@/core/models/EnvVar';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useUpsertSecret } from '@/hooks/useSecrets';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
-import InsertSecretPopover from './InsertSecretPopover/InsertSecretPopover';
 import SensitiveBadge from './SensitiveBadge';
 import StepHelperText from './StepHelperText';
 
@@ -109,10 +108,10 @@ const StepInput = forwardRef(
               />
             )}
             {isSensitive && (
-              <InsertSecretPopover size="sm" onCreate={createSecret} onSelect={({ key }) => insertVariable(key)} />
+              <SecretPopover size="sm" onCreate={createSecret} onSelect={({ key }) => insertVariable(key)} />
             )}
             {!isSensitive && (
-              <InsertEnvVarPopover
+              <EnvVarPopover
                 size="sm"
                 onCreate={createEnvVar}
                 onSelect={({ key }) => insertVariable(key)}

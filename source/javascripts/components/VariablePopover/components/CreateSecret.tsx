@@ -2,24 +2,22 @@ import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
-import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/services/EnvVarService';
-
-import { CreateEnvVarFormValues, HandlerFn } from '../types';
+import { Secret } from '@/core/models/Secret';
+import SecretService from '@/core/services/SecretService';
 
 type Props = {
-  items: EnvVar[];
-  onCreate: HandlerFn;
+  items: Secret[];
+  onCreate: (item: Secret) => void;
   onCancel: VoidFunction;
 };
 
-const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
+const CreateSecret = ({ onCreate, onCancel }: Props) => {
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<CreateEnvVarFormValues>();
+  } = useForm<Secret>();
 
   const handleCancel = () => {
     onCancel();
@@ -45,7 +43,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.key?.message}
             {...register('key', {
-              validate: EnvVarService.validateKey,
+              validate: SecretService.validateKey,
             })}
           />
           <Text pt="12">=</Text>
@@ -57,9 +55,14 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
             {...register('value')}
           />
         </Box>
-        <Checkbox isRequired={false} {...register('isExpand')} marginTop="16">
-          Replace variable in inputs
-        </Checkbox>
+        <Box display="flex" gap="24" marginTop="16">
+          <Checkbox {...register('isExpand')} flex="1">
+            Replace variables in inputs
+          </Checkbox>
+          <Checkbox {...register('isExpose')} flex="1">
+            Expose for Pull Requests
+          </Checkbox>
+        </Box>
       </Box>
       <ButtonGroup spacing="12">
         <Button size="sm" type="submit">
@@ -73,4 +76,4 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
   );
 };
 
-export default CreateEnvVar;
+export default CreateSecret;

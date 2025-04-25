@@ -2,24 +2,22 @@ import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
-import { Secret } from '@/core/models/Secret';
-import SecretService from '@/core/services/SecretService';
-
-import { CreateSecretFormValues, HandlerFn } from '../types';
+import { EnvVar } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/services/EnvVarService';
 
 type Props = {
-  items: Secret[];
-  onCreate: HandlerFn;
+  items: EnvVar[];
+  onCreate: (envVar: EnvVar) => void;
   onCancel: VoidFunction;
 };
 
-const CreateSecret = ({ onCreate, onCancel }: Props) => {
+const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<CreateSecretFormValues>();
+  } = useForm<EnvVar>();
 
   const handleCancel = () => {
     onCancel();
@@ -45,7 +43,7 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.key?.message}
             {...register('key', {
-              validate: SecretService.validateKey,
+              validate: EnvVarService.validateKey,
             })}
           />
           <Text pt="12">=</Text>
@@ -57,14 +55,9 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
             {...register('value')}
           />
         </Box>
-        <Box display="flex" gap="24" marginTop="16">
-          <Checkbox {...register('isExpand')} flex="1">
-            Replace variables in inputs
-          </Checkbox>
-          <Checkbox {...register('isExpose')} flex="1">
-            Expose for Pull Requests
-          </Checkbox>
-        </Box>
+        <Checkbox isRequired={false} {...register('isExpand')} marginTop="16">
+          Replace variable in inputs
+        </Checkbox>
       </Box>
       <ButtonGroup spacing="12">
         <Button size="sm" type="submit">
@@ -78,4 +71,4 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
   );
 };
 
-export default CreateSecret;
+export default CreateEnvVar;

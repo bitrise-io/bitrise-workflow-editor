@@ -11,31 +11,30 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
+import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
 import { EnvVar } from '@/core/models/EnvVar';
 import PageProps from '@/core/utils/PageProps';
 import useEnvVars from '@/hooks/useEnvVars';
 import { useSecrets } from '@/hooks/useSecrets';
 
-import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
-import FilterInput from '../FilterInput/FilterInput';
 import CreateEnvVar from './components/CreateEnvVar';
+import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
-import { HandlerFn } from './types';
 
 type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  onCreate: HandlerFn;
-  onSelect: HandlerFn;
+  onCreate: (item: EnvVar) => void;
+  onSelect: (item: EnvVar) => void;
   stepBundleId?: string;
-  workflowId: string;
+  workflowId?: string;
 };
 
 const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
-const InsertEnvVarPopover = ({
+const EnvVarPopover = ({
   size,
   onCreate,
   onSelect,
@@ -48,7 +47,7 @@ const InsertEnvVarPopover = ({
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading: isLoadingEnvVars, envs } = useEnvVars({
     stepBundleIds: stepBundleId ? [stepBundleId] : [],
-    workflowIds: [workflowId],
+    workflowIds: workflowId ? [workflowId] : [],
     enabled: shouldLoadVars,
   });
   const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
@@ -162,4 +161,4 @@ const InsertEnvVarPopover = ({
   );
 };
 
-export default InsertEnvVarPopover;
+export default EnvVarPopover;
