@@ -14,7 +14,7 @@ export type BitriseYml = {
   pipelines?: Pipelines;
   stages?: Stages;
   step_bundles?: StepBundles;
-  includes?: IncludeItemModel[];
+  include?: IncludeItemModel[];
 };
 
 export type EnvironmentItemOptionsModel = {
