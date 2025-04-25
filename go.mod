@@ -7,6 +7,7 @@ require (
 	github.com/bitrise-io/bitrise/v2 v2.29.4
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
+	github.com/bitrise-io/envman/v2 v2.5.3
 	github.com/bitrise-io/go-utils v1.0.13
 	github.com/bitrise-io/stepman v0.0.0-20240828074035-6ae1a5f5efde
 	github.com/gorilla/mux v1.8.1
