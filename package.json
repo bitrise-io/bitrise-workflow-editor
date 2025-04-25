@@ -68,6 +68,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
+    "react-lazy-with-preload": "^2.2.1",
     "remove-markdown": "^0.6.0",
     "search-insights": "^2.17.3",
     "semver": "^7.7.1",

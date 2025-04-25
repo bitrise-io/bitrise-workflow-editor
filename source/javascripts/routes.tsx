@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazyWithPreload } from 'react-lazy-with-preload';
 
 export const paths = {
   workflows: '/workflows',
@@ -15,38 +15,44 @@ export const paths = {
 export const routes = [
   {
     path: paths.workflows,
-    component: lazy(() => import('./pages/WorkflowsPage/WorkflowsPage')),
+    component: lazyWithPreload(() => import('./pages/WorkflowsPage/WorkflowsPage')),
   },
   {
     path: paths.pipelines,
-    component: lazy(() => import('./pages/PipelinesPage/PipelinesPage')),
+    component: lazyWithPreload(() => import('./pages/PipelinesPage/PipelinesPage')),
   },
   {
     path: paths.stepBundles,
-    component: lazy(() => import('./pages/StepBundlesPage/StepBundlesPage')),
+    component: lazyWithPreload(() => import('./pages/StepBundlesPage/StepBundlesPage')),
   },
   {
     path: paths.secrets,
-    component: lazy(() => import('./pages/SecretsPage/SecretsPage')),
+    component: lazyWithPreload(() => import('./pages/SecretsPage/SecretsPage')),
   },
   {
     path: paths.envVars,
-    component: lazy(() => import('./pages/EnvVarsPage/EnvVarsPage')),
+    component: lazyWithPreload(() => import('./pages/EnvVarsPage/EnvVarsPage')),
   },
   {
     path: paths.triggers,
-    component: lazy(() => import('./pages/TriggersPage/TriggersPage')),
+    component: lazyWithPreload(() => import('./pages/TriggersPage/TriggersPage')),
   },
   {
     path: paths.stacksAndMachines,
-    component: lazy(() => import('./pages/StacksAndMachinesPage/StacksAndMachinesPage')),
+    component: lazyWithPreload(() => import('./pages/StacksAndMachinesPage/StacksAndMachinesPage')),
   },
   {
     path: paths.licenses,
-    component: lazy(() => import('./pages/LicensesPage/LicensesPage')),
+    component: lazyWithPreload(() => import('./pages/LicensesPage/LicensesPage')),
   },
   {
     path: paths.yml,
-    component: lazy(() => import('./pages/YmlPage/YmlPage')),
+    component: lazyWithPreload(() => import('./pages/YmlPage/YmlPage')),
   },
 ];
+
+export function preloadRoutes() {
+  routes.forEach((route) => {
+    route.component.preload();
+  });
+}
