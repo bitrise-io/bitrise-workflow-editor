@@ -1,7 +1,7 @@
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import { memo } from 'react';
 
-import { WorkflowCard } from '@/components/unified-editor';
+import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useWorkflow from '@/hooks/useWorkflow';

@@ -1,6 +1,6 @@
 import { Box, Label } from '@bitrise/bitkit';
 import { Editor } from '@monaco-editor/react';
-import { editor } from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
 
 import MonacoUtils from '@/core/utils/MonacoUtils';

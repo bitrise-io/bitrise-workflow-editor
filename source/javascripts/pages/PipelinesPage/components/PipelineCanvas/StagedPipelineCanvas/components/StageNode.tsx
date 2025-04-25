@@ -1,7 +1,7 @@
 import { Box, Text } from '@bitrise/bitkit';
 import { Node, NodeProps, Position } from '@xyflow/react';
 
-import { WorkflowCard } from '@/components/unified-editor';
+import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { Stage } from '@/core/models/Stage';
 
 import { STAGE_WIDTH } from '../StagedPipelineCanvas.const';

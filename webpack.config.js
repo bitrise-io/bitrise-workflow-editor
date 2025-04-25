@@ -96,6 +96,32 @@ module.exports = {
       }),
       new CssMinimizerPlugin(),
     ],
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        // Create a monaco editor chunk
+        monaco: {
+          test: /[\\/]node_modules[\\/](monaco-editor|monaco-yaml)[\\/]/,
+          name: 'monaco',
+          chunks: 'all',
+          priority: 30,
+        },
+        // Create a Bitkit editor chunk
+        bitkit: {
+          test: /[\\/]node_modules[\\/]@bitrise[\\/]bitkit[\\/]/,
+          name: 'bitkit',
+          chunks: 'all',
+          priority: 20,
+        },
+        // Optional: create a chunk for vendor code
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 10,
+        },
+      },
+    },
   },
   performance: {
     hints: 'warning',

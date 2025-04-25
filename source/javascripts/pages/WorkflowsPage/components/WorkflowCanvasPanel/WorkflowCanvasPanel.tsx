@@ -2,7 +2,7 @@ import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
 
-import { WorkflowCard } from '@/components/unified-editor';
+import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
