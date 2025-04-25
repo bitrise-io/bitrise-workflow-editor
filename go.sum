@@ -18,12 +18,16 @@ github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPd
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
 github.com/bitrise-io/bitrise/v2 v2.29.4 h1:4Gpr98TjmsIu9EtQREN+lE/znNCSXv4JFXYE/A99GtE=
 github.com/bitrise-io/bitrise/v2 v2.29.4/go.mod h1:5fILc7gv/ItwbZlrEoUzldmuQ7US3dyLHUCeSwFgPg0=
+github.com/bitrise-io/bitrise/v2 v2.31.0 h1:L9+xXHItkB/3a77tbVhJnxvvHybegHeCrNPizHWE7XM=
+github.com/bitrise-io/bitrise/v2 v2.31.0/go.mod h1:GQv5foBoO8bmyyybHZIEqMeF9vxT9LfJmOASZ6RWKHI=
 github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 h1:vSHYT6kCL/iOT9BVuUPm0tVcbW57r5zldLWg0aB7qbQ=
 github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192/go.mod h1:CIHVcxZUvsG99XUJV6JlR7okNsMMGY81jMvPC20W+O0=
 github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92 h1:+alkNYr5sbvCpvu2YQC4SLddnIP2BeAIjr8/EsObonw=
 github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92/go.mod h1:jeK3Koe+wXMSwfl8t6M7kovGgXsayUJ5ybqo3gDJgts=
 github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599 h1:UaudsJR8LbzL7wjz5D2RVtxN7RYnTL0ZoX+lA9yuqDI=
 github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599/go.mod h1:7yJQdVdq8BxJYq2xjG0yViQf/aspJLJ/xqk/OnP6lGE=
+github.com/bitrise-io/envman/v2 v2.5.3 h1:ggnqYQOWTNCwdh1aGMiObu6mDKEiyjOvcTXy0W2icNE=
+github.com/bitrise-io/envman/v2 v2.5.3/go.mod h1:N+HmJ9EVvGgCyw2bZ1O+YLltSHHhWemKOcQTssSj7UY=
 github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 h1:HW9AueDVlrEN96riYgKAxwvn4VPZo15S0ooL6KC0Zts=
 github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28/go.mod h1:aS6TO1DpbWJoBuAlvmpS/I/FU97C71wv1F/+p+kVrCk=
 github.com/bitrise-io/go-utils v1.0.13 h1:1QENhTS/JlKH9F7+/nB+TtbTcor6jGrE6cQ4CJWfp5U=
@@ -34,6 +38,8 @@ github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef h1:R5FOa8RHjqZwMN
 github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef/go.mod h1:27ldH2bkCdYN5CEJ6x92EK+gkd5EcDBkA7dMrSKQFYU=
 github.com/bitrise-io/stepman v0.0.0-20240828074035-6ae1a5f5efde h1:LinFhZG5OdayDh1T1JO8QANsNwQWzqORZ0A9EGHQ0ps=
 github.com/bitrise-io/stepman v0.0.0-20240828074035-6ae1a5f5efde/go.mod h1:Lq9nEqKerBD35w3eSU8lf83F7uZPkXfmRSZEUDJN40w=
+github.com/bitrise-io/stepman v0.17.3 h1:9DaNEKG8pF1wvz7iAhObxwG+V1YG4oqr0PukUNRx9uQ=
+github.com/bitrise-io/stepman v0.17.3/go.mod h1:bAW8b6D61j+n8jHXmfTTRM9QXmDG7br917u05nztGDo=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/cloudflare/circl v1.3.7 h1:qlCDlTPz2n9fu58M0Nh1J/JzcFpfgkFHHX3O35r5vcU=
