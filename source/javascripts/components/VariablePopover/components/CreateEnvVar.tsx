@@ -3,11 +3,10 @@ import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
-import { CreateEnvVarFormValues, HandlerFn } from '../types';
 
 type Props = {
   items: EnvVar[];
-  onCreate: HandlerFn;
+  onCreate: (envVar: EnvVar) => void;
   onCancel: VoidFunction;
 };
 
@@ -17,7 +16,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<CreateEnvVarFormValues>();
+  } = useForm<EnvVar>();
 
   const handleCancel = () => {
     onCancel();

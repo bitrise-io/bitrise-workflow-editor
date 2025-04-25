@@ -1631,7 +1631,11 @@ describe('BitriseYmlService', () => {
 
       const actualYml = BitriseYmlService.updatePipeline(
         'pl1',
-        { title: '', description: 'description', status_report_name: 'Executing <target_id> for <project_title>' },
+        {
+          title: '',
+          description: 'description',
+          status_report_name: 'Executing <target_id> for <project_title>',
+        },
         sourceYml,
       );
 
@@ -2838,10 +2842,99 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('appendProjectEnvVar', () => {
+    it('should add an environment variable to the project', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [{ EXISTING_VAR: 'value1', opts: { is_expand: true } }],
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [{ EXISTING_VAR: 'value1', opts: { is_expand: true } }, { NEW_VAR: 'value2' }],
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendProjectEnvVar({ NEW_VAR: 'value2' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should add environment variable with opts if provided', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [{ EXISTING_VAR: 'value1' }],
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [{ EXISTING_VAR: 'value1' }, { NEW_VAR: 'value2', opts: { is_expand: true } }],
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendProjectEnvVar(
+        {
+          NEW_VAR: 'value2',
+          opts: { is_expand: true },
+        },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should create app.envs array if it does not exist', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: {},
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [{ NEW_VAR: 'value' }],
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendProjectEnvVar(
+        {
+          NEW_VAR: 'value',
+        },
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should create app section if it does not exist', () => {
+      const sourceYml: BitriseYml = { format_version: '' };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: {
+          envs: [{ NEW_VAR: 'value' }],
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendProjectEnvVar({ NEW_VAR: 'value' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('updateProjectEnvVars', () => {
     it('should add project envs if project is not exists in the yml', () => {
       const sourceYml: BitriseYml = { format_version: '' };
-      const expectedYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }] } };
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [{ ENV0: 'env0' }] },
+      };
       const actualYml = BitriseYmlService.updateProjectEnvVars([{ ENV0: 'env0' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
@@ -2849,15 +2942,24 @@ describe('BitriseYmlService', () => {
 
     it('should add project envs if project envs not exists in the yml', () => {
       const sourceYml: BitriseYml = { format_version: '', app: {} };
-      const expectedYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }] } };
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [{ ENV0: 'env0' }] },
+      };
       const actualYml = BitriseYmlService.updateProjectEnvVars([{ ENV0: 'env0' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
     it('should remove project envs field when the updated envs are empty', () => {
-      const sourceYml: BitriseYml = { format_version: '', app: { title: 'title', envs: [{ ENV0: 'env0' }] } };
-      const expectedYml: BitriseYml = { format_version: '', app: { title: 'title' } };
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: { title: 'title', envs: [{ ENV0: 'env0' }] },
+      };
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: { title: 'title' },
+      };
       const actualYml = BitriseYmlService.updateProjectEnvVars([], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
@@ -2866,12 +2968,16 @@ describe('BitriseYmlService', () => {
     it('should remove project env item', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
-        app: { envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }, { opts: { is_expand: true }, ENV2: 'env2' }] },
+        app: {
+          envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }, { opts: { is_expand: true }, ENV2: 'env2' }],
+        },
       };
 
       const expectedYml: BitriseYml = {
         format_version: '',
-        app: { envs: [{ ENV0: 'env0' }, { ENV2: 'env2', opts: { is_expand: true } }] },
+        app: {
+          envs: [{ ENV0: 'env0' }, { ENV2: 'env2', opts: { is_expand: true } }],
+        },
       };
 
       const actualYml = BitriseYmlService.updateProjectEnvVars(
@@ -2883,8 +2989,14 @@ describe('BitriseYmlService', () => {
     });
 
     it('should update existing project envs', () => {
-      const sourceYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }] } };
-      const expectedYml: BitriseYml = { format_version: '', app: { envs: [{ ENV0: 'env0' }, { ENV1: 'envX' }] } };
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }] },
+      };
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [{ ENV0: 'env0' }, { ENV1: 'envX' }] },
+      };
       const actualYml = BitriseYmlService.updateProjectEnvVars([{ ENV0: 'env0' }, { ENV1: 'envX' }], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
@@ -2934,7 +3046,10 @@ describe('BitriseYmlService', () => {
     });
 
     it('should keep originally empty envs field', () => {
-      const sourceAndExpectedYml: BitriseYml = { format_version: '', app: { envs: [] } };
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        app: { envs: [] },
+      };
       const actualYml = BitriseYmlService.updateProjectEnvVars([], sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
@@ -3884,7 +3999,9 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         workflows: {
-          wf1: { steps: [{ script: {} }, { 'bundle::step_bundle': {} }, { deploy: {} }] },
+          wf1: {
+            steps: [{ script: {} }, { 'bundle::step_bundle': {} }, { deploy: {} }],
+          },
         },
         step_bundles: {
           step_bundle: { steps: [{ clone: {} }] },
@@ -3907,7 +4024,9 @@ describe('BitriseYmlService', () => {
       const expectedYml: BitriseYml = {
         format_version: '',
         step_bundles: {
-          bundle1: { steps: [{ script: {} }, { 'bundle::new_bundle': {} }, { deploy: {} }] },
+          bundle1: {
+            steps: [{ script: {} }, { 'bundle::new_bundle': {} }, { deploy: {} }],
+          },
           new_bundle: { steps: [{ clone: {} }] },
         },
       };
@@ -4653,7 +4772,12 @@ describe('BitriseYmlService', () => {
           bundle1: {
             inputs: [
               {
-                opts: { title: 'oldTitle', is_required: true, value_options: ['foo'], category: 'category' },
+                opts: {
+                  title: 'oldTitle',
+                  is_required: true,
+                  value_options: ['foo'],
+                  category: 'category',
+                },
                 INPUT0: 'input0',
               },
             ],
@@ -4666,7 +4790,14 @@ describe('BitriseYmlService', () => {
         step_bundles: {
           bundle1: {
             inputs: [
-              { opts: { title: 'new long Title', value_options: ['bar'], category: 'category' }, INPUT0: 'input0' },
+              {
+                opts: {
+                  title: 'new long Title',
+                  value_options: ['bar'],
+                  category: 'category',
+                },
+                INPUT0: 'input0',
+              },
             ],
           },
         },
@@ -4677,7 +4808,12 @@ describe('BitriseYmlService', () => {
         0,
         {
           INPUT0: 'input0',
-          opts: { category: 'category', title: 'new long Title', value_options: ['bar'], is_required: false },
+          opts: {
+            category: 'category',
+            title: 'new long Title',
+            value_options: ['bar'],
+            is_required: false,
+          },
         },
         sourceYml,
       );
@@ -5147,7 +5283,10 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const newValues = { stack: 'new-stack', machine_type_id: 'existing-machine' };
+      const newValues = {
+        stack: 'new-stack',
+        machine_type_id: 'existing-machine',
+      };
 
       const expectedYml: BitriseYml = {
         format_version: '',
@@ -5174,7 +5313,10 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const newValues = { stack: 'existing-stack', machine_type_id: 'new-machine' };
+      const newValues = {
+        stack: 'existing-stack',
+        machine_type_id: 'new-machine',
+      };
 
       const expectedYml: BitriseYml = {
         format_version: '',
