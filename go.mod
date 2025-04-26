@@ -4,11 +4,11 @@ go 1.23.7
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise/v2 v2.29.4
+	github.com/bitrise-io/bitrise/v2 v2.31.0
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240828074035-6ae1a5f5efde
+	github.com/bitrise-io/stepman v0.17.3
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.10.0
@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/bitrise-io/envman/v2 v2.5.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
