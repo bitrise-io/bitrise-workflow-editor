@@ -35,7 +35,7 @@ const DeprecatedMachineNotification = (props: Props) => {
         Medium machines will be deprecated and your Workflows will automatically run on newer generation Apple Silicon
         machines from {startDate.toLocaleDateString()}.{' '}
         <Link
-          href="https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow"
+          href="https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE"
           isExternal
           isUnderlined
         >
@@ -62,7 +62,7 @@ const DeprecatedMachineNotification = (props: Props) => {
         Your Workflows are now running on newer generation Apple Silicon machines, with no extra costs. If you’d like to
         keep using the deprecated M2 Pro X Large, M2 Pro Large or M1 Medium machines, reach out to support.{' '}
         <Link
-          href="https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow"
+          href="https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE"
           isExternal
           isUnderlined
         >

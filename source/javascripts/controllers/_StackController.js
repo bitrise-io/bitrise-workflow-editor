@@ -29,7 +29,7 @@ import PageProps from '@/core/utils/PageProps';
         };
 
         const machineUpgradeAnnouncementUrl =
-          'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
+          'https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE';
 
         const availableStacks = appService.availableStacks();
         if (!availableStacks) {
