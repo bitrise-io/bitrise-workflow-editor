@@ -13,7 +13,7 @@ function validateKey(key?: string) {
   return true;
 }
 
-function parseYmlEnvVar({ opts, ...env }: EnvironmentItemModel, source = ''): EnvVar {
+function fromYml({ opts, ...env }: EnvironmentItemModel, source = ''): EnvVar {
   return {
     source,
     key: Object.keys(env)[0],
@@ -36,7 +36,7 @@ function toYmlValue(value: unknown) {
   return value;
 }
 
-function parseEnvVar(envVar: EnvVar): EnvironmentItemModel {
+function toYml(envVar: EnvVar): EnvironmentItemModel {
   let envVarYml = { [envVar.key]: toYmlValue(envVar.value) };
 
   if (envVar.isExpand !== undefined) {
@@ -48,7 +48,7 @@ function parseEnvVar(envVar: EnvVar): EnvironmentItemModel {
 
 export default {
   validateKey,
-  parseYmlEnvVar,
-  parseEnvVar,
+  fromYml,
+  toYml,
   toYmlValue,
 };

@@ -46,12 +46,12 @@ export const bitriseYmlStore = createStore(
       // Project related actions
       appendProjectEnvVar(envVar: EnvVar) {
         set((state) => ({
-          yml: BitriseYmlService.appendProjectEnvVar(EnvVarService.parseEnvVar(envVar), state.yml),
+          yml: BitriseYmlService.appendProjectEnvVar(EnvVarService.toYml(envVar), state.yml),
         }));
       },
       updateProjectEnvVars(envVars: EnvVar[]) {
         set((state) => ({
-          yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.parseEnvVar), state.yml),
+          yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.toYml), state.yml),
         }));
       },
 
@@ -190,7 +190,7 @@ export const bitriseYmlStore = createStore(
       appendWorkflowEnvVar(workflowId: string, envVar: EnvVar) {
         return set((state) => {
           return {
-            yml: BitriseYmlService.appendWorkflowEnvVar(workflowId, EnvVarService.parseEnvVar(envVar), state.yml),
+            yml: BitriseYmlService.appendWorkflowEnvVar(workflowId, EnvVarService.toYml(envVar), state.yml),
           };
         });
       },
@@ -257,7 +257,7 @@ export const bitriseYmlStore = createStore(
       updateWorkflowEnvVars(workflowId: string, envVars: EnvVar[]) {
         return set((state) => {
           return {
-            yml: BitriseYmlService.updateWorkflowEnvVars(workflowId, envVars.map(EnvVarService.parseEnvVar), state.yml),
+            yml: BitriseYmlService.updateWorkflowEnvVars(workflowId, envVars.map(EnvVarService.toYml), state.yml),
           };
         });
       },
