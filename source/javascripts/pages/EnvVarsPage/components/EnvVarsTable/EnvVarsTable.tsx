@@ -50,7 +50,7 @@ const EnvVarsTable = ({ source, sourceId }: Props) => {
   const [envs, setEnvs] = useState<EnvVarWithUniqueId[]>(
     ymlEnvVars.map((env) => ({
       uniqueId: crypto.randomUUID(),
-      ...EnvVarService.parseYmlEnvVar(env, sourceId),
+      ...EnvVarService.fromYml(env, sourceId),
     })),
   );
 

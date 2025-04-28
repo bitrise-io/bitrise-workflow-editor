@@ -35,7 +35,7 @@ function mapYmlEnvVarsToSortableEnvVars(envs?: EnvModel, workflowId?: string): S
   return (envs ?? []).map((env) => {
     return {
       uniqueId: crypto.randomUUID(),
-      ...EnvVarService.parseYmlEnvVar(env, workflowId),
+      ...EnvVarService.fromYml(env, workflowId),
     };
   });
 }
