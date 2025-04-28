@@ -246,7 +246,7 @@ module.exports = {
       template: 'index.html',
     }),
     new MonacoWebpackPlugin({
-      languages: ['yaml'],
+      languages: ['yaml', 'shell'],
       filename: 'javascripts/[name].worker.js',
       customLanguages: [
         {
