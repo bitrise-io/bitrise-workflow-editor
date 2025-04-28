@@ -31,9 +31,9 @@ const DeprecatedMachineNotification = (props: Props) => {
   if (currentDate < startDate) {
     return (
       <Notification {...notificationProps}>
-        Upgrading to newer generation M/2M/4L Linux machines, with no extra costs. Medium/Large/X Large machines will be
-        deprecated and your Workflows will automatically run on newer generation M/2M/4L Linux machines from{' '}
-        {startDate.toLocaleDateString()}.{' '}
+        Upgrading to newer generation Apple Silicon machines, with no extra costs. M2 Pro X Large, M2 Pro Large or M1
+        Medium machines will be deprecated and your Workflows will automatically run on newer generation Apple Silicon
+        machines from {startDate.toLocaleDateString()}.{' '}
         <Link
           href="https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow"
           isExternal
@@ -47,9 +47,9 @@ const DeprecatedMachineNotification = (props: Props) => {
   if (currentDate >= startDate && currentDate <= endDate) {
     return (
       <Notification {...notificationProps}>
-        Your Workflows were automatically switched to newer generation M/2M/4L Linux machines, with no extra costs. To
-        continue using the deprecated Medium/Large/X Large machines until {endDate.toLocaleDateString()}, opt to extend
-        the transition period in the {startDate.toLocaleDateString()}.{' '}
+        Your Workflows were automatically switched to newer generation Apple Silicon machines, with no extra costs. To
+        continue using the deprecated M2 Pro X Large, M2 Pro Large or M1 Medium machines until{' '}
+        {endDate.toLocaleDateString()}, opt to extend the transition period in the {startDate.toLocaleDateString()}.{' '}
         <Link href={`/workspaces/${GlobalProps.workspaceSlug()}/settings/apps`} isExternal isUnderlined>
           Workspace settings
         </Link>
@@ -59,8 +59,8 @@ const DeprecatedMachineNotification = (props: Props) => {
   if (currentDate > endDate) {
     return (
       <Notification {...notificationProps}>
-        Your Workflows are now running on newer generation M/2M/4L Linux machines, with no extra costs. If you’d like to
-        keep using the deprecated Medium/Large/X Large machines, reach out to support.{' '}
+        Your Workflows are now running on newer generation Apple Silicon machines, with no extra costs. If you’d like to
+        keep using the deprecated M2 Pro X Large, M2 Pro Large or M1 Medium machines, reach out to support.{' '}
         <Link
           href="https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow"
           isExternal
