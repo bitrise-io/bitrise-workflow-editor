@@ -10,6 +10,7 @@ datadogRum.init({
   sessionSampleRate: 100,
   sessionReplaySampleRate: 20,
   silentMultipleInit: true,
+  trackViewsManually: true,
   useSecureSessionCookie: true,
   trackSessionAcrossSubdomains: true,
   usePartitionedCrossSiteSessionCookie: true,

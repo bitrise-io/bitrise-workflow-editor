@@ -1,5 +1,6 @@
 import _ from 'underscore';
 
+import { datadogRum } from '@datadog/browser-rum';
 import { configMergeDialog } from '@/components/ConfigMergeDialog/ConfigMergeDialog.store';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
@@ -332,6 +333,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             return;
           }
 
+          datadogRum.startView({ name: menu.id });
           viewModel.menuProgress.start('Loading, wait a sec...');
 
           let shouldCallLoadAfterMenuChange = true;
