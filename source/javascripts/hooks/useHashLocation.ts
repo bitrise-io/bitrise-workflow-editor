@@ -13,6 +13,7 @@ const navigate = (to: Path, { state }: Options = {}): void => {
 
   window.parent.location.hash = targetUrl.hash;
   window.parent.history.replaceState(state, '', targetUrl);
+  window.DD_RUM?.startView(`/app/?/workflow_editor${targetUrl.hash?.split('?')?.[0] || '#!/workflows'}`);
 };
 
 const useHashLocation: BaseLocationHook = () => {
