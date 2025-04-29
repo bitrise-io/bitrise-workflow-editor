@@ -5,6 +5,7 @@ import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/Trigger
 import useSearchParams from '@/hooks/useSearchParams';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import datadogCustomRumTiming from '@/utils/datadogCustomRumTiming';
 
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
@@ -63,6 +64,10 @@ type Props = {
 };
 
 const WorkflowConfigPanel = ({ workflowId }: Props) => {
+  useEffect(() => {
+    datadogCustomRumTiming('wfe', 'workflow_config_panel_shown', true);
+  }, []);
+
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
       <WorkflowConfigPanelContent />

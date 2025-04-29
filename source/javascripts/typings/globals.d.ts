@@ -7,6 +7,8 @@ declare global {
   const TEST_BITRISE_YML: BitriseYml;
 
   interface Window {
+    DD_RUM: typeof import('@datadog/browser-rum').datadogRum | undefined;
+    // webpack.config.js
     localFeatureFlags: Partial<{
       [s: string]: string | number | boolean;
     }>;
