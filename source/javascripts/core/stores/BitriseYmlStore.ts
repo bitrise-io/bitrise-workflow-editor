@@ -15,10 +15,8 @@ import {
   TriggersModel,
   WorkflowModel,
 } from '@/core/models/BitriseYml';
-import { EnvVar } from '@/core/models/EnvVar';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
-import EnvVarService from '@/core/services/EnvVarService';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 import YamlUtils from '../utils/YamlUtils';
@@ -41,18 +39,6 @@ export const bitriseYmlStore = createStore(
     (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
-      },
-
-      // Project related actions
-      appendProjectEnvVar(envVar: EnvVar) {
-        set((state) => ({
-          yml: BitriseYmlService.appendProjectEnvVar(EnvVarService.toYml(envVar), state.yml),
-        }));
-      },
-      updateProjectEnvVars(envVars: EnvVar[]) {
-        set((state) => ({
-          yml: BitriseYmlService.updateProjectEnvVars(envVars.map(EnvVarService.toYml), state.yml),
-        }));
       },
 
       // Pipeline related actions
@@ -187,13 +173,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      appendWorkflowEnvVar(workflowId: string, envVar: EnvVar) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.appendWorkflowEnvVar(workflowId, EnvVarService.toYml(envVar), state.yml),
-          };
-        });
-      },
       createWorkflow(workflowId: string, baseWorkflowId?: string) {
         return set((state) => {
           return {
@@ -251,13 +230,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.updateWorkflow(workflowId, workflow, state.yml),
-          };
-        });
-      },
-      updateWorkflowEnvVars(workflowId: string, envVars: EnvVar[]) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateWorkflowEnvVars(workflowId, envVars.map(EnvVarService.toYml), state.yml),
           };
         });
       },

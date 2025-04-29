@@ -6,34 +6,32 @@ import { Document, isMap, isScalar, isSeq, YAMLMap, YAMLSeq } from 'yaml';
 
 type Args = { doc: Document; paths: string[] };
 
-function getSeqIn(doc: Document, path: unknown[], force = false) {
-  let seq = doc.getIn(path);
-
-  if (!seq && force) {
-    doc.setIn(path, doc.createNode([]));
-    seq = doc.getIn(path);
-  }
-
-  return seq as YAMLSeq;
+function toDotNotation(paths: (string | number)[]) {
+  return paths.join('.');
 }
 
-function getMapIn(doc: Document, path: unknown[], force = false) {
-  let map = doc.getIn(path);
+function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false) {
+  if (!doc.hasIn(path) && createIfNotExists) {
+    doc.setIn(path, doc.createNode([]));
+  }
 
-  if (!map && force) {
+  return doc.getIn(path) as YAMLSeq;
+}
+
+function getMapIn(doc: Document, path: unknown[], createIfNotExists = false) {
+  if (!doc.hasIn(path) && createIfNotExists) {
     doc.setIn(path, doc.createNode({}));
-    map = doc.getIn(path);
   }
 
   return doc.getIn(path) as YAMLMap;
 }
 
-function safeDeleteIn(doc: Document, path: unknown[], recursive = false) {
+function safeDeleteIn(doc: Document, path: unknown[], removeEmptyParents = false) {
   if (doc.hasIn(path)) {
     doc.deleteIn(path);
   }
 
-  if (recursive) {
+  if (removeEmptyParents) {
     const parentPath = path.slice(0, -1);
     const parent = doc.getIn(parentPath);
 
@@ -119,4 +117,5 @@ export default {
   updateMapKey,
   collectPaths,
   areDocumentsEqual,
+  toDotNotation,
 };
