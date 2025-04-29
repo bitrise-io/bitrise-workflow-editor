@@ -3,18 +3,16 @@ import { createContext, PropsWithChildren, useContext } from 'react';
 import { Workflow } from '@/core/models/Workflow';
 import useWorkflow from '@/hooks/useWorkflow';
 
-type State = Workflow | undefined;
-const Context = createContext<State>(undefined);
+const Context = createContext<Workflow | undefined>(undefined);
 
-type Props = PropsWithChildren<{ workflowId: string }>;
-const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
+const WorkflowConfigProvider = ({ workflowId, children }: PropsWithChildren<{ workflowId: string }>) => {
   const workflow = useWorkflow(workflowId);
 
   return <Context.Provider value={workflow}>{children}</Context.Provider>;
 };
 
 export const useWorkflowConfigContext = () => {
-  return useContext<State>(Context);
+  return useContext<Workflow | undefined>(Context);
 };
 
 export default WorkflowConfigProvider;

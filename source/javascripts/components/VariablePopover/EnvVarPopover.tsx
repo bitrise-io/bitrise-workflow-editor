@@ -9,10 +9,11 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
-import { EnvVar } from '@/core/models/EnvVar';
+import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/services/EnvVarService';
 import PageProps from '@/core/utils/PageProps';
 import useEnvVars from '@/hooks/useEnvVars';
 import { useSecrets } from '@/hooks/useSecrets';
@@ -25,7 +26,6 @@ type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  onCreate: (item: EnvVar) => void;
   onSelect: (item: EnvVar) => void;
   stepBundleId?: string;
   workflowId?: string;
@@ -36,7 +36,6 @@ const filterPredicate = (item: EnvVar, filter: string): boolean =>
 
 const EnvVarPopover = ({
   size,
-  onCreate,
   onSelect,
   isOpen: initialIsOpen,
   mode: initialMode,
@@ -59,6 +58,15 @@ const EnvVarPopover = ({
   const items = [...envs, ...secrets] as EnvVar[];
   items.sort((a, b) => a.key.localeCompare(b.key));
 
+  const handleOnCreate = useCallback(
+    (envVar: EnvVar) => {
+      window.dispatchEvent(new CustomEvent('workflow::envs::created', { detail: envVar }));
+      EnvVarService.append(envVar, EnvVarSource.Workflow, workflowId);
+      onSelect(envVar);
+    },
+    [onSelect, workflowId],
+  );
+
   const {
     isOpen,
     filteredItems,
@@ -75,7 +83,7 @@ const EnvVarPopover = ({
     mode: initialMode,
     isOpen: initialIsOpen,
     onSelect,
-    onCreate,
+    onCreate: handleOnCreate,
     filterPredicate,
     onOpen: () => setShouldLoadVars(true),
     onClose: () => setShouldLoadVars(false),
