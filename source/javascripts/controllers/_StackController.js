@@ -1,4 +1,3 @@
-import { datadogRum } from '@datadog/browser-rum';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { safeDigest } from '@/services/react-compat';
 
@@ -35,14 +34,14 @@ import PageProps from '@/core/utils/PageProps';
         if (!availableStacks) {
           const error = new Error('StackController: availableStacks is not available');
           console.warn(error.message, availableStacks);
-          datadogRum.addError(error, { availableStacks });
+          window.DD_RUM?.addError(error, { availableStacks });
         }
 
         viewModel.stackMachineMap = (availableStacks ?? []).reduce(function (result, stack) {
           if (!stack) {
             const error = new Error('StackController: stack is not a Stack instance');
             console.warn(error.message, stack);
-            datadogRum.addError(error, { stack });
+            window.DD_RUM?.addError(error, { stack });
             return result;
           }
 
@@ -326,7 +325,7 @@ import PageProps from '@/core/utils/PageProps';
             if (!stack) {
               const error = new Error('StackController.stackGetterSetterForWorkflow: stack is not a Stack instance');
               console.warn(error.message, stack);
-              datadogRum.addError(error, { stack });
+              window.DD_RUM?.addError(error, { stack });
             }
 
             return stack;

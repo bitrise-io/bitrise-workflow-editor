@@ -9,10 +9,14 @@ datadogRum.init({
   version: process.env.WFE_VERSION,
   sessionSampleRate: 100,
   sessionReplaySampleRate: 20,
-  silentMultipleInit: true,
   trackViewsManually: true,
   useSecureSessionCookie: true,
   trackSessionAcrossSubdomains: true,
   usePartitionedCrossSiteSessionCookie: true,
   plugins: [reactPlugin()],
+});
+
+datadogRum.onReady(() => {
+  console.debug('Datadog RUM is ready: ', datadogRum.getInternalContext());
+  datadogRum.startView(window.location.hash?.split('?')?.[0]?.replace(/[#!/]/g, '') || 'workflows');
 });

@@ -1,5 +1,3 @@
-import { datadogRum } from '@datadog/browser-rum';
-
 (function () {
   angular.module('BitriseWorkflowEditor').factory('Workflow', function (Step, Stack) {
     const BITRISE_META_KEY = 'bitrise.io';
@@ -182,7 +180,7 @@ import { datadogRum } from '@datadog/browser-rum';
       if (!stack) {
         const error = new Error('Workflow.setRollbackVersion: can not set rollback version without stack');
         console.warn(error, stack);
-        datadogRum.addError(error, { stack });
+        window.DD_RUM?.addError(error, { stack });
         return;
       }
 
@@ -190,7 +188,7 @@ import { datadogRum } from '@datadog/browser-rum';
       if (!machineType) {
         const error = new Error('Workflow.setRollbackVersion: can not get machine type');
         console.warn(error, { stack, machineTypes, meta: this.workflowConfig.meta });
-        datadogRum.addError(error, { stack, machineTypes, meta: this.workflowConfig.meta });
+        window.DD_RUM?.addError(error, { stack, machineTypes, meta: this.workflowConfig.meta });
         return;
       }
 
@@ -239,7 +237,7 @@ import { datadogRum } from '@datadog/browser-rum';
       if (!machineType) {
         const error = new Error('Workflow.isRollbackVersionInBitriseYmlNoLongerAvailable: can not get machine type');
         console.warn(error, { stack, machineTypes, meta: this.workflowConfig.meta });
-        datadogRum.addError(error, { stack, machineTypes, meta: this.workflowConfig.meta });
+        window.DD_RUM?.addError(error, { stack, machineTypes, meta: this.workflowConfig.meta });
         return false;
       }
 
