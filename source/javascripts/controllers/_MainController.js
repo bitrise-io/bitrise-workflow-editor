@@ -332,7 +332,7 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             return;
           }
 
-          window.DD_RUM?.startView({ name: menu.id });
+          window.DD_RUM?.startView(`/app/?/workflow_editor#!/${menu.id}`);
           viewModel.menuProgress.start('Loading, wait a sec...');
 
           let shouldCallLoadAfterMenuChange = true;
