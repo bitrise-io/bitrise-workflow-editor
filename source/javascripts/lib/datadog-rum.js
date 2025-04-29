@@ -15,7 +15,4 @@ datadogRum.init({
   plugins: [reactPlugin()],
 });
 
-datadogRum.onReady(() => {
-  console.debug('Datadog RUM is ready: ', datadogRum.getInternalContext());
-  datadogRum.startView(`/app/?/workflow_editor${window.location.hash?.split('?')?.[0] || '#!/workflows'}`);
-});
+datadogRum.startView(`/app/?/workflow_editor${window.location.hash?.split('?')?.[0] || '#!/workflows'}`);
