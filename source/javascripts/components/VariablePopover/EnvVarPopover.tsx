@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 
+import { dispatchEnvVarCreated } from '@/components/SortableEnvVars/SortableEnvVars.events';
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
 import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
@@ -60,7 +61,7 @@ const EnvVarPopover = ({
 
   const handleOnCreate = useCallback(
     (envVar: EnvVar) => {
-      window.dispatchEvent(new CustomEvent('workflow::envs::created', { detail: envVar }));
+      dispatchEnvVarCreated({ envVar, source: EnvVarSource.Workflow, sourceId: workflowId });
       EnvVarService.append(envVar, EnvVarSource.Workflow, workflowId);
       onSelect(envVar);
     },

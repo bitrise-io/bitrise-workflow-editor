@@ -3,8 +3,10 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { useEffect, useState } from 'react';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
-import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
+import { EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+
+import { listenToEnvVarCreated } from './SortableEnvVars.events';
 
 type UseSortableEnvVarsProps = {
   source: EnvVarSource;
@@ -26,16 +28,14 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
   }, [source, sourceId]);
 
   useEffect(() => {
-    if (!listenForExternalChanges || source !== EnvVarSource.Workflow) return;
+    if (!listenForExternalChanges) return;
 
-    const listener = (event: CustomEvent<EnvVar>) => {
-      setEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...event.detail }]);
-    };
-
-    window.addEventListener('workflow::envs::created' as never, listener);
-
-    return () => window.removeEventListener('workflow::envs::created' as never, listener);
-  }, [listenForExternalChanges, source]);
+    return listenToEnvVarCreated((event) => {
+      if (event.detail.source === source && event.detail.sourceId === sourceId) {
+        setEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...event.detail.envVar }]);
+      }
+    });
+  }, [listenForExternalChanges, source, sourceId]);
 
   const onDragStart = (event: DragStartEvent) => {
     setActiveItem(event.active.data.current as SortableEnvVar);
