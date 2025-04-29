@@ -250,6 +250,7 @@ module.exports = {
       NODE_ENV: 'development',
       PUBLIC_URL_ROOT: '',
       WFE_VERSION: version,
+      DATADOG_RUM: 'false',
     }),
     new DefinePlugin({
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
