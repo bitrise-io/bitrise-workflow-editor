@@ -10,9 +10,7 @@ datadogRum.init({
   sessionSampleRate: 100,
   sessionReplaySampleRate: 20,
   trackViewsManually: true,
-  useSecureSessionCookie: true,
-  trackSessionAcrossSubdomains: true,
-  usePartitionedCrossSiteSessionCookie: true,
+  sessionPersistence: 'local-storage',
   plugins: [reactPlugin()],
 });
 
