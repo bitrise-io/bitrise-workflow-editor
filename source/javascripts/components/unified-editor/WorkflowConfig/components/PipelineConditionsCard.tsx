@@ -4,7 +4,6 @@ import { ChangeEventHandler, useEffect, useState } from 'react';
 
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { EnvVarPopover } from '@/components/VariablePopover';
-import { EnvVar } from '@/core/models/EnvVar';
 import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
@@ -147,18 +146,11 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     ]);
   });
 
-  const appendProjectEnvVar = useBitriseYmlStore((s) => s.appendProjectEnvVar);
-
   const [value, setValue] = useState(initValue);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setValue(e.target.value);
-  };
-
-  const createEnvVar = (envVar: EnvVar) => {
-    appendProjectEnvVar(envVar);
-    insertVariable(envVar.key);
   };
 
   const insertVariable = (key: string) => {
@@ -191,7 +183,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
       onChange={handleChange}
       rightAddon={
         <Box paddingRight="4">
-          <EnvVarPopover size="sm" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
+          <EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />
         </Box>
       }
       rightAddonPlacement="inside"
