@@ -7,14 +7,15 @@ datadogRum.init({
   site: 'datadoghq.com',
   service: 'wfe',
   version: process.env.WFE_VERSION,
-  sessionSampleRate: 100,
-  sessionReplaySampleRate: 20,
   trackViewsManually: true,
-  sessionPersistence: 'local-storage',
+  sessionReplaySampleRate: 20,
+  useSecureSessionCookie: true,
+  trackSessionAcrossSubdomains: true,
+  usePartitionedCrossSiteSessionCookie: true,
   plugins: [reactPlugin()],
 });
 
 datadogRum.onReady(() => {
   console.debug('Datadog RUM is ready: ', datadogRum.getInternalContext());
-  datadogRum.startView(window.location.hash?.split('?')?.[0]?.replace(/[#!/]/g, '') || 'workflows');
+  datadogRum.startView(`/app/?/workflow_editor${window.location.hash?.split('?')?.[0] || '#!/workflows'}`);
 });
