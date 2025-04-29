@@ -332,7 +332,6 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
             return;
           }
 
-          window.DD_RUM?.startView(`/app/?/workflow_editor#!/${menu.id}`);
           viewModel.menuProgress.start('Loading, wait a sec...');
 
           let shouldCallLoadAfterMenuChange = true;
@@ -1065,11 +1064,16 @@ import datadogRumCustomTiming from '../utils/datadogCustomRumTiming';
         window.addEventListener('hashchange', (e) => {
           const oldHash = new URL(e.oldURL).hash;
           const newHash = new URL(e.newURL).hash;
+          const oldPath = oldHash.replace('#!/', '')?.split('?')[0];
+          const newPath = newHash.replace('#!/', '')?.split('?')[0];
+
+          if (oldPath && oldPath !== newPath) {
+            window.DD_RUM?.startView(`/app/?/workflow_editor#!/${newPath}`);
+          }
 
           if (oldHash !== newHash) {
-            const newMenuPath = newHash.replace('#!/', '')?.split('?')[0];
             const newParams = Object.fromEntries(new URLSearchParams(new URL(e.newURL).search));
-            const newMenu = viewModel.menus.find((m) => m.path === newMenuPath);
+            const newMenu = viewModel.menus.find((m) => m.path === newPath);
             viewModel.menuSelected(newMenu, newParams);
           }
         });
