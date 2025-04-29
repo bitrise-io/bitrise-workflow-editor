@@ -94,7 +94,7 @@ function getAppEnvs() {
 function getWorkflowEnvs(sourceId: '*'): EnvVar[];
 // Get all envs from a specific workflow
 function getWorkflowEnvs(sourceId: string): EnvVar[];
-function getWorkflowEnvs(sourceId?: string): EnvVar[] {
+function getWorkflowEnvs(sourceId: string): EnvVar[] {
   const { yml } = bitriseYmlStore.getState();
   const workflows = yml.workflows || {};
 
@@ -105,12 +105,8 @@ function getWorkflowEnvs(sourceId?: string): EnvVar[] {
     });
   }
 
-  if (sourceId !== undefined) {
-    const workflowEnvs = workflows[sourceId]?.envs || [];
-    return workflowEnvs.map((e) => fromYml(e, sourceId));
-  }
-
-  return EMPTY_ENVS_ARRAY;
+  const workflowEnvs = workflows[sourceId]?.envs || [];
+  return workflowEnvs.map((e) => fromYml(e, sourceId));
 }
 
 function getEnvVars(source?: EnvVarSource, sourceId?: string): EnvVar[] {
