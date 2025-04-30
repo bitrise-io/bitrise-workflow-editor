@@ -12,6 +12,7 @@ datadogRum.init({
   useSecureSessionCookie: true,
   trackSessionAcrossSubdomains: true,
   usePartitionedCrossSiteSessionCookie: true,
+  sessionPersistence: 'local-storage',
   plugins: [reactPlugin()],
 });
 
