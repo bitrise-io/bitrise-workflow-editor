@@ -1,3 +1,5 @@
+import { Scalar } from 'yaml';
+
 import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YamlUtils from '@/core/utils/YamlUtils';
 
@@ -246,7 +248,18 @@ function updateValue(value: string, index: number, key: string, source: EnvVarSo
       throw new Error(`Environment variable not found at path: ${path.join('.')}`);
     }
 
-    env.setIn([key], toYmlValue(value));
+    const ymlValue = toYmlValue(value);
+    const scalar = new Scalar(ymlValue);
+    scalar.type = Scalar.PLAIN;
+
+    // If value is number, set the minFractionDigits to the number of digits in the value
+    if (typeof ymlValue === 'number' && value.includes('.')) {
+      const digits = String(value).split('.')[1].length || 0;
+      scalar.minFractionDigits = digits;
+    }
+
+    env.setIn([key], scalar);
+
     return doc;
   });
 }

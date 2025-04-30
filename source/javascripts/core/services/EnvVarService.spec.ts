@@ -154,6 +154,15 @@ describe('EnvVarService', () => {
       });
     });
 
+    describe('semver', () => {
+      ['1.2.0', '1.2.3-alpha'].forEach((value) => {
+        it(`does not convert "${value}" to number, but keep as string`, () => {
+          const result = EnvVarService.toYmlValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
     describe('numbers', () => {
       // Integers
       [
@@ -161,9 +170,6 @@ describe('EnvVarService', () => {
         ['1', 1],
         ['+2', 2],
         ['-3', -3],
-        ['4.0', 4],
-        ['+5.0', 5],
-        ['-6.0', -6],
       ].forEach(([input, output]) => {
         it(`converts "${input}" to number ${output}`, () => {
           const result = EnvVarService.toYmlValue(input);
@@ -173,9 +179,16 @@ describe('EnvVarService', () => {
 
       // Floats
       [
+        ['4.0', 4.0],
+        ['+5.0', 5.0],
+        ['-6.0', -6.0],
         ['3.14', 3.14],
         ['+3.14', 3.14],
         ['-3.14', -3.14],
+        // eslint-disable-next-line prettier/prettier
+        ['100.0', 100.0],
+        // eslint-disable-next-line prettier/prettier
+        ['100.000', 100.000],
       ].forEach(([input, output]) => {
         it(`converts "${input}" to number ${output}`, () => {
           const result = EnvVarService.toYmlValue(input);
@@ -977,13 +990,13 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 1.2.3`,
         });
 
-        EnvVarService.updateValue('1.3', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        EnvVarService.updateValue('2.0', 0, 'SERVICE_VERSION', EnvVarSource.Project);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: 1.3
+            - SERVICE_VERSION: 2.0
         `);
       });
 
