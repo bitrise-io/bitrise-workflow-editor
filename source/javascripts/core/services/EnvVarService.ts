@@ -4,7 +4,6 @@ import YamlUtils from '@/core/utils/YamlUtils';
 import { EnvironmentItemModel } from '../models/BitriseYml';
 import { EnvVar, EnvVarSource } from '../models/EnvVar';
 
-const EMPTY_ENVS_ARRAY: EnvVar[] = [];
 const EMPTY_ENV_VAR: EnvVar = {
   key: '',
   value: '',
@@ -14,11 +13,11 @@ const EMPTY_ENV_VAR: EnvVar = {
 
 function validateKey(key?: string) {
   if (!key?.trim()) {
-    return 'Key is required.';
+    return 'Key is required';
   }
 
   if (!/^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i.test(key)) {
-    return 'Key should contain letters, numbers, underscores, should not begin with a number.';
+    return 'Key should contain letters, numbers, underscores, should not begin with a number';
   }
 
   return true;
@@ -35,16 +34,63 @@ function fromYml({ opts, ...env }: EnvironmentItemModel, source = ''): EnvVar {
 }
 
 function toYmlValue(value: unknown) {
-  if (typeof value === 'string') {
-    if (['true', 'false'].includes(value)) {
-      return Boolean(value === 'true');
-    }
+  if (typeof value !== 'string') {
+    // Only strings need conversion here
+    return value;
+  }
 
-    if (!value.trim().startsWith('+') && !Number.isNaN(Number(value))) {
-      return Number(value);
+  const trimmed = value.trim();
+  const lowerValue = trimmed.toLowerCase();
+
+  // 0. Handle empty string
+  if (trimmed === '') {
+    return '';
+  }
+
+  // 1. Null handling
+  const nullVals = ['null', '~', ''];
+  if (nullVals.includes(lowerValue)) {
+    return null;
+  }
+
+  // 2. Boolean handling
+  const trueVals = ['true', 'yes', 'on'];
+  const falseVals = ['false', 'no', 'off'];
+  if (trueVals.includes(lowerValue)) {
+    return true;
+  }
+  if (falseVals.includes(lowerValue)) {
+    return false;
+  }
+
+  // 3. Special floats (.inf, -.inf, .nan)
+  if (lowerValue === '.inf') return Infinity;
+  if (lowerValue === '-.inf') return -Infinity;
+  if (lowerValue === '.nan') return NaN;
+
+  // 4. Treat hex/octal/binary as strings
+  // i.e., if starts with 0x, 0o, 0b (case-insensitive), do NOT convert
+  if (/^0[xob]/i.test(lowerValue)) {
+    return value;
+  }
+
+  // 5. Leading zero handling
+  // i.e., if starts with 0 and is not a decimal do NOT convert
+  // "0123" remains a string, but "0.123" becomes a number
+  if (/^0\d+/.test(lowerValue) && !/^0(\.\d+)?$/.test(lowerValue)) {
+    return value;
+  }
+
+  // 6. Number parsing
+  const numberRegex = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+  if (numberRegex.test(lowerValue)) {
+    const number = Number(lowerValue);
+    if (!Number.isNaN(number)) {
+      return number;
     }
   }
 
+  // 6. Else return original string unchanged
   return value;
 }
 
@@ -52,13 +98,13 @@ function toYml(envVar: EnvVar): EnvironmentItemModel {
   const envVarYml: EnvironmentItemModel = { [envVar.key]: toYmlValue(envVar.value) };
 
   if (envVar.isExpand === false) {
-    envVarYml.opts = { is_expand: Boolean(envVar.isExpand) };
+    envVarYml.opts = { is_expand: false };
   }
 
   return envVarYml;
 }
 
-function getEnvVarPath(source: EnvVarSource, sourceId?: string, index?: number, key?: string) {
+function getPathParts(source: EnvVarSource, sourceId?: string, index?: number, key?: string) {
   let path: (string | number)[] = [];
 
   if (source === EnvVarSource.Workflow && !sourceId) {
@@ -87,44 +133,60 @@ function getEnvVarPath(source: EnvVarSource, sourceId?: string, index?: number, 
 function getAppEnvs() {
   const { yml } = bitriseYmlStore.getState();
   const appEnvs = yml.app?.envs || [];
-  return appEnvs.map((e) => fromYml(e));
+  return appEnvs.map((e) => fromYml(e, 'Project envs'));
 }
 
-// Get all envs from all workflows
-function getWorkflowEnvs(sourceId: '*'): EnvVar[];
-// Get all envs from a specific workflow
-function getWorkflowEnvs(sourceId: string): EnvVar[];
-function getWorkflowEnvs(sourceId: string): EnvVar[] {
+function getWorkflowEnvs(workflowId: string): EnvVar[] {
   const { yml } = bitriseYmlStore.getState();
   const workflows = yml.workflows || {};
 
-  if (sourceId === '*') {
-    return Object.entries(workflows).flatMap(([workflowId, workflow]) => {
+  // Return environment variables from all workflows
+  if (workflowId === '*') {
+    const allWorkflowEnvs: EnvVar[] = [];
+
+    Object.entries(workflows).forEach(([id, workflow]) => {
       const workflowEnvs = workflow.envs || [];
-      return workflowEnvs.map((e) => fromYml(e, workflowId));
+      workflowEnvs.forEach((envVar) => {
+        allWorkflowEnvs.push(fromYml(envVar, `Workflow: ${id}`));
+      });
     });
+
+    return allWorkflowEnvs;
   }
 
-  const workflowEnvs = workflows[sourceId]?.envs || [];
-  return workflowEnvs.map((e) => fromYml(e, sourceId));
+  // Return environment variables from a specific workflow
+  const workflowEnvs = workflows[workflowId]?.envs || [];
+  return workflowEnvs.map((envVar) => fromYml(envVar, `Workflow: ${workflowId}`));
 }
 
-function getEnvVars(source?: EnvVarSource, sourceId?: string): EnvVar[] {
+/**
+ * Get environment variables based on source and source ID
+ * @param source - Source of environment variables (Project or Workflow)
+ * @param sourceId - Specific Workflow ID or '*' for all workflows,
+ * @returns List of environment variables
+ */
+function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
+  // Get project-level environment variables
   if (source === EnvVarSource.Project) {
     return getAppEnvs();
   }
 
-  if (source === EnvVarSource.Workflow && sourceId) {
+  // Get workflow-specific environment variables
+  if (source === EnvVarSource.Workflow) {
+    if (!sourceId) {
+      throw new Error('sourceId is required when source is Workflow');
+    }
     return getWorkflowEnvs(sourceId);
   }
 
+  // Get all environment variables (both project and all workflows)
   return [...getAppEnvs(), ...getWorkflowEnvs('*')];
 }
 
 function append(envVar: EnvVar, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     const env = doc.createNode(toYml(envVar));
-    const envs = YamlUtils.getSeqIn(doc, getEnvVarPath(source, sourceId), true);
+    const envs = YamlUtils.getSeqIn(doc, getPathParts(source, sourceId), true);
     envs.add(env);
     return doc;
   });
@@ -136,32 +198,67 @@ function create(source: EnvVarSource, sourceId?: string): void {
 
 function remove(index: number, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    YamlUtils.safeDeleteIn(doc, getEnvVarPath(source, sourceId, index));
+    YamlUtils.safeDeleteIn(doc, getPathParts(source, sourceId, index), true);
     return doc;
   });
 }
 
-function updateKey(oldKey: string, newKey: string, index: number, source: EnvVarSource, sourceId?: string) {
+function reorder(newIndices: number[], source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const path = getEnvVarPath(source, sourceId, index);
+    const path = getPathParts(source, sourceId);
+    const envs = YamlUtils.getSeqIn(doc, path);
+
+    if (!envs) {
+      throw new Error(`Environment variables not found at path: ${path.join('.')}`);
+    }
+
+    if (newIndices.length !== envs.items.length) {
+      throw new Error(
+        `The number of indices (${newIndices.length}) does not match the number of environment variables (${envs.items.length})`,
+      );
+    }
+
+    envs.items = newIndices.map((i) => envs.get(i));
+    return doc;
+  });
+}
+
+function updateKey(newKey: string, index: number, oldKey: string, source: EnvVarSource, sourceId?: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const path = getPathParts(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
+
+    if (!env || !env.has(oldKey)) {
+      throw new Error(`Environment variable not found at path: ${[...path, oldKey].join('.')}`);
+    }
+
     YamlUtils.updateMapKey(env, oldKey, newKey);
     return doc;
   });
 }
 
-function updateValue(key: string, value: string, index: number, source: EnvVarSource, sourceId?: string) {
+function updateValue(value: string, index: number, key: string, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const env = YamlUtils.getMapIn(doc, getEnvVarPath(source, sourceId, index, key));
-    env.setIn([key], value);
+    const path = getPathParts(source, sourceId, index, key);
+    const env = YamlUtils.getMapIn(doc, path);
+
+    if (!env) {
+      throw new Error(`Environment variable not found at path: ${path.join('.')}`);
+    }
+
+    env.setIn([key], toYmlValue(value));
     return doc;
   });
 }
 
 function updateIsExpand(isExpand: boolean, index: number, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const path = getEnvVarPath(source, sourceId, index);
+    const path = getPathParts(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
+
+    if (!env) {
+      throw new Error(`Environment variable not found at path: ${path.join('.')}`);
+    }
 
     if (isExpand) {
       YamlUtils.safeDeleteIn(doc, [...path, 'opts', 'is_expand'], true);
@@ -173,20 +270,12 @@ function updateIsExpand(isExpand: boolean, index: number, source: EnvVarSource, 
   });
 }
 
-function reorder(newIndices: number[], source: EnvVarSource, sourceId?: string) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const envs = YamlUtils.getSeqIn(doc, getEnvVarPath(source, sourceId));
-    envs.items = newIndices.map((i) => envs.get(i));
-    return doc;
-  });
-}
-
 export default {
   validateKey,
   fromYml,
   toYml,
   toYmlValue,
-  getEnvVars,
+  getAll,
   create,
   append,
   remove,

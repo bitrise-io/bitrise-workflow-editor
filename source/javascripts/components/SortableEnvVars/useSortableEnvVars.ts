@@ -20,7 +20,7 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
 
   useEffect(() => {
     setEnvs(
-      EnvVarService.getEnvVars(source, sourceId || '').map((env) => ({
+      EnvVarService.getAll(source, sourceId || '').map((env) => ({
         ...env,
         uniqueId: crypto.randomUUID(),
       })),
@@ -79,12 +79,12 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
 
   const onKeyChange = (index: number) => (key: string) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, key } : env)));
-    EnvVarService.updateKey(envs[index].key, key, index, source, sourceId);
+    EnvVarService.updateKey(key, index, envs[index].key, source, sourceId);
   };
 
   const onValueChange = (index: number) => (value: string) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, value } : env)));
-    EnvVarService.updateValue(envs[index].key, value, index, source, sourceId);
+    EnvVarService.updateValue(value, index, envs[index].key, source, sourceId);
   };
 
   const onIsExpandChange = (index: number) => (isExpand: boolean) => {

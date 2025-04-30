@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 import { isMatch } from 'picomatch';
-import { Document, isMap, isScalar, isSeq, YAMLMap, YAMLSeq } from 'yaml';
+import { Document, isCollection, isMap, isScalar, isSeq, YAMLMap, YAMLSeq } from 'yaml';
 
 type Args = { doc: Document; paths: string[] };
 
@@ -10,17 +10,38 @@ function toDotNotation(paths: (string | number)[]) {
   return paths.join('.');
 }
 
-function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false) {
+function getSeqIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLSeq;
+function getSeqIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLSeq | undefined;
+function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLSeq | undefined {
   if (!doc.hasIn(path) && createIfNotExists) {
+    const parent = doc.getIn(path.slice(0, -1));
+    if (isCollection(parent) && parent.items.length === 0) {
+      parent.flow = false;
+    }
+
     doc.setIn(path, doc.createNode([]));
+  }
+
+  if (!doc.hasIn(path)) {
+    return undefined;
   }
 
   return doc.getIn(path) as YAMLSeq;
 }
 
-function getMapIn(doc: Document, path: unknown[], createIfNotExists = false) {
+function getMapIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLMap;
+function getMapIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLMap | undefined;
+function getMapIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLMap | undefined {
   if (!doc.hasIn(path) && createIfNotExists) {
+    const parent = doc.getIn(path.slice(0, -1));
+    if (isCollection(parent) && parent.items.length === 0) {
+      parent.flow = false;
+    }
     doc.setIn(path, doc.createNode({}));
+  }
+
+  if (!doc.hasIn(path)) {
+    return undefined;
   }
 
   return doc.getIn(path) as YAMLMap;
