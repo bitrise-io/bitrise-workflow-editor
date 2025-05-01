@@ -1,4 +1,3 @@
-import 'monaco-editor/esm/vs/editor/editor.api.js';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { safeDigest } from '@/services/react-compat';
 
