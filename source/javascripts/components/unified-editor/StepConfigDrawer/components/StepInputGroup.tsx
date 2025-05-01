@@ -9,17 +9,18 @@ import StepCodeEditor from './StepCodeEditor';
 import StepSelectInput from './StepSelectInput';
 
 type Props = {
-  title?: string;
-  stepId?: string;
-  inputs?: EnvModel;
-  defaults?: EnvModel;
-  onChange?: (name: string, value: string | null) => void;
+  title: string;
+  stepId: string;
+  inputs: EnvModel;
+  defaults: EnvModel;
+  onChange: (name: string, value: string | null) => void;
 };
 
-const StepInputGroup = ({ title, stepId, defaults = [], inputs = [], onChange }: Props) => {
+const StepInputGroup = ({ title, stepId, defaults, inputs, onChange }: Props) => {
   const content = (
     <>
-      {defaults?.map(({ opts, ...defaultInput }, index) => {
+      {defaults.map((defaultInput, index) => {
+        const { opts } = defaultInput;
         const name = StepVariableService.getName(defaultInput);
         const input = StepVariableService.findInput(inputs, name);
         const defaultValue = StepVariableService.getValue(defaultInput);
