@@ -1,8 +1,11 @@
 import { MachineType } from '@/core/models/MachineType';
 import { Stack } from '@/core/models/Stack';
 import MachineTypeService from '@/core/services/MachineTypeService';
-import StackAndMachineService from '@/core/services/StackAndMachineService';
+import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import StackService from '@/core/services/StackService';
+
+import BitriseYmlApi from '../api/BitriseYmlApi';
+import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 
 const stacks: Stack[] = [
   {
@@ -99,211 +102,9 @@ const machines: MachineType[] = [
   },
 ];
 
-describe('prepareStackAndMachineSelectionData', () => {
-  it('returns the default stack when empty stack value is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: '',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Stack
-    expect(result.isInvalidStack).toBe(false);
-    expect(result.selectedStack).toEqual(
-      expect.objectContaining({
-        value: '',
-        id: 'osx-xcode-16',
-        name: 'Xcode 16',
-      }),
-    );
-
-    // Stack options
-    const [defaultStack, ...stackOptions] = result.availableStackOptions;
-    expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-    expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
-  });
-
-  it('returns the selected stack when a valid stack is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: 'osx-xcode-15',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Stack
-    expect(result.isInvalidStack).toBe(false);
-    expect(result.selectedStack).toEqual(
-      expect.objectContaining({
-        value: 'osx-xcode-15',
-        id: 'osx-xcode-15',
-        name: 'Xcode 15',
-      }),
-    );
-
-    // Stack options
-    const [defaultStack, ...stackOptions] = result.availableStackOptions;
-    expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-    expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
-  });
-
-  it('returns the invalid stack when an invalid stack is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: 'osx-xcode-11',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Stack
-    expect(result.isInvalidStack).toBe(true);
-    expect(result.selectedStack).toEqual(
-      expect.objectContaining({
-        value: 'osx-xcode-11',
-        id: 'osx-xcode-11',
-        name: 'osx-xcode-11',
-      }),
-    );
-
-    // Stack options
-    const [defaultStack, ...stackOptions] = result.availableStackOptions;
-    expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-    expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackService.toStackOption));
-
-    // Invalid stack option
-    expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11' }]);
-  });
-
-  it('returns the default machine type when empty machine type value is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: '',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Machine type
-    expect(result.isInvalidMachineType).toBe(false);
-    expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
-
-    // Machine type options
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-    const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-    expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
-  });
-
-  it('returns the selected machine type when a valid machine type is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: '',
-      selectedMachineTypeId: 'mac-m2',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Machine type
-    expect(result.isInvalidMachineType).toBe(false);
-    expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: 'mac-m2', id: 'mac-m2', name: 'M2' }));
-
-    // Machine type options
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-    const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-    expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
-  });
-
-  it('returns the invalid machine type when an invalid machine type is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: '',
-      selectedMachineTypeId: 'mac-intel',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Machine type
-    expect(result.isInvalidMachineType).toBe(true);
-    expect(result.selectedMachineType).toEqual(
-      expect.objectContaining({
-        value: 'mac-intel',
-        id: 'mac-intel',
-        name: 'mac-intel',
-      }),
-    );
-
-    // Machine type options
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-    const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-    expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
-
-    // Invalid machine type option
-    expect(machineOptions.slice(-1)).toEqual([{ value: 'mac-intel', label: 'mac-intel' }]);
-  });
-
-  it('returns self-hosted runner when agent pool is selected', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: 'agent-pool-stack',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-    });
-
-    // Stack
-    expect(result.isInvalidStack).toBe(false);
-    expect(result.selectedStack).toEqual(
-      expect.objectContaining({
-        value: 'agent-pool-stack',
-        id: 'agent-pool-stack',
-        name: 'Self-hosted agent',
-      }),
-    );
-
-    // Machine type
-    expect(result.isInvalidMachineType).toBe(false);
-    expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
-
-    // Machine type options
-    expect(result.isMachineTypeSelectionDisabled).toBe(true);
-    expect(result.availableMachineTypeOptions).toEqual([{ label: 'Self-Hosted Runner', value: '' }]);
-  });
-
-  it('returns dedicated machine when dedicated machine is assigned', () => {
-    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-      selectedStackId: '',
-      selectedMachineTypeId: '',
-      availableStacks: stacks,
-      availableMachineTypes: machines,
-      projectStackId: 'osx-xcode-16',
-      projectMachineTypeId: 'mac-m1',
-      hasDedicatedMachine: true,
-    });
-
-    // Machine type
-    expect(result.isInvalidMachineType).toBe(false);
-    expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
-
-    // Machine type options
-    expect(result.isMachineTypeSelectionDisabled).toBe(true);
-    expect(result.availableMachineTypeOptions).toEqual([{ label: 'Dedicated Machine', value: '' }]);
-  });
-
-  describe('withoutDefaultOptions', () => {
-    it('returns the project stack and machine type when empty stack and machine type values are selected', () => {
+describe('StackAndMachineService', () => {
+  describe('prepareStackAndMachineSelectionData', () => {
+    it('returns the default stack when empty stack value is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
@@ -311,288 +112,1493 @@ describe('prepareStackAndMachineSelectionData', () => {
         availableMachineTypes: machines,
         projectStackId: 'osx-xcode-16',
         projectMachineTypeId: 'mac-m1',
-        withoutDefaultOptions: true,
       });
 
       // Stack
       expect(result.isInvalidStack).toBe(false);
       expect(result.selectedStack).toEqual(
         expect.objectContaining({
-          value: 'osx-xcode-16',
+          value: '',
           id: 'osx-xcode-16',
           name: 'Xcode 16',
         }),
       );
 
       // Stack options
-      expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
-
-      // Machine type
-      expect(result.isInvalidMachineType).toBe(false);
-      expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
-      );
-
-      // Machine type options
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-      expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      const [defaultStack, ...stackOptions] = result.availableStackOptions;
+      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
+      expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
     });
 
-    it('returns the selected stack and the default machine type of the stack', () => {
+    it('returns the selected stack when a valid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        selectedStackId: 'osx-xcode-16',
+        selectedStackId: 'osx-xcode-15',
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'linux-ubuntu-22',
-        projectMachineTypeId: 'elite',
-        defaultMachineTypeIdOfOSs: {
-          linux: 'elite',
-          osx: 'mac-m1',
-        },
-        withoutDefaultOptions: true,
+        projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
       });
 
       // Stack
       expect(result.isInvalidStack).toBe(false);
       expect(result.selectedStack).toEqual(
         expect.objectContaining({
-          value: 'osx-xcode-16',
-          id: 'osx-xcode-16',
-          name: 'Xcode 16',
+          value: 'osx-xcode-15',
+          id: 'osx-xcode-15',
+          name: 'Xcode 15',
         }),
       );
 
       // Stack options
-      expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+      const [defaultStack, ...stackOptions] = result.availableStackOptions;
+      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
+      expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
+    });
+
+    it('returns the invalid stack when an invalid stack is selected', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: 'osx-xcode-11',
+        selectedMachineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
+      });
+
+      // Stack
+      expect(result.isInvalidStack).toBe(true);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({
+          value: 'osx-xcode-11',
+          id: 'osx-xcode-11',
+          name: 'osx-xcode-11',
+        }),
+      );
+
+      // Stack options
+      const [defaultStack, ...stackOptions] = result.availableStackOptions;
+      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
+      expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackService.toStackOption));
+
+      // Invalid stack option
+      expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11' }]);
+    });
+
+    it('returns the default machine type when empty machine type value is selected', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
+      });
+
+      // Machine type
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
+
+      // Machine type options
+      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+      expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    });
+
+    it('returns the selected machine type when a valid machine type is selected', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: 'mac-m2',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
+      });
 
       // Machine type
       expect(result.isInvalidMachineType).toBe(false);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
+        expect.objectContaining({ value: 'mac-m2', id: 'mac-m2', name: 'M2' }),
       );
 
       // Machine type options
       const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-      expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+      expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
     });
-  });
-});
 
-describe('changeStackAndMachine', () => {
-  describe('stack OS remains the same', () => {
-    it('keeps the default stack and machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: '',
-        machineTypeId: '',
+    it('returns the invalid machine type when an invalid machine type is selected', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: 'mac-intel',
         availableStacks: stacks,
         availableMachineTypes: machines,
         projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
       });
 
-      expect(result).toEqual({ stackId: '', machineTypeId: '' });
+      // Machine type
+      expect(result.isInvalidMachineType).toBe(true);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({
+          value: 'mac-intel',
+          id: 'mac-intel',
+          name: 'mac-intel',
+        }),
+      );
+
+      // Machine type options
+      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+      expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+
+      // Invalid machine type option
+      expect(machineOptions.slice(-1)).toEqual([{ value: 'mac-intel', label: 'mac-intel' }]);
     });
 
-    it('keeps the default stack with a compatible machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: '',
-        machineTypeId: 'mac-m1',
+    it('returns self-hosted runner when agent pool is selected', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: 'agent-pool-stack',
+        selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
         projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
       });
 
-      expect(result).toEqual({ stackId: '', machineTypeId: 'mac-m1' });
+      // Stack
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({
+          value: 'agent-pool-stack',
+          id: 'agent-pool-stack',
+          name: 'Self-hosted agent',
+        }),
+      );
+
+      // Machine type
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
+
+      // Machine type options
+      expect(result.isMachineTypeSelectionDisabled).toBe(true);
+      expect(result.availableMachineTypeOptions).toEqual([{ label: 'Self-Hosted Runner', value: '' }]);
     });
 
-    it('keeps the default stack, but changes the incompatible machine type to default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: '',
-        machineTypeId: 'standard',
+    it('returns dedicated machine when dedicated machine is assigned', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
         projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
+        hasDedicatedMachine: true,
       });
 
-      expect(result).toEqual({ stackId: '', machineTypeId: '' });
+      // Machine type
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
+
+      // Machine type options
+      expect(result.isMachineTypeSelectionDisabled).toBe(true);
+      expect(result.availableMachineTypeOptions).toEqual([{ label: 'Dedicated Machine', value: '' }]);
     });
 
-    it('keeps a specific stack with the default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-15',
-        machineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: '' });
-    });
-
-    it('keeps a specific stack with a compatible machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-15',
-        machineTypeId: 'mac-m1',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({
-        stackId: 'osx-xcode-15',
-        machineTypeId: 'mac-m1',
-      });
-    });
-
-    it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-15',
-        machineTypeId: 'mac-m4',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: '' });
-    });
-
-    it('keeps the pinned default stack with the default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-16',
-        machineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'osx-xcode-16', machineTypeId: '' });
-    });
-
-    it('keeps the pinned default stack with a compatible machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-16',
-        machineTypeId: 'mac-m1',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({
-        stackId: 'osx-xcode-16',
-        machineTypeId: 'mac-m1',
-      });
-    });
-
-    it('keeps the pinned default stack, but changes the incompatible machine type to default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-16',
-        machineTypeId: 'standard',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'osx-xcode-16', machineTypeId: '' });
-    });
-  });
-
-  describe('stack OS changes', () => {
-    it('keeps a specific stack with empty machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
-    });
-
-    it('keeps a specific stack with a compatible machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: 'joker',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: 'joker',
-      });
-    });
-
-    it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: 'mac-m4',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-      });
-
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
-    });
-  });
-
-  describe('machineFallbackOptions', () => {
-    it('keeps a specific stack with project machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'osx-xcode-15',
-        machineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-        machineFallbackOptions: {
-          defaultMachineTypeIdOfOSs: {
-            linux: 'elite',
-            osx: 'mac-m2',
-          },
+    describe('withoutDefaultOptions', () => {
+      it('returns the project stack and machine type when empty stack and machine type values are selected', () => {
+        const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+          selectedStackId: '',
+          selectedMachineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
           projectMachineTypeId: 'mac-m1',
-        },
+          withoutDefaultOptions: true,
+        });
+
+        // Stack
+        expect(result.isInvalidStack).toBe(false);
+        expect(result.selectedStack).toEqual(
+          expect.objectContaining({
+            value: 'osx-xcode-16',
+            id: 'osx-xcode-16',
+            name: 'Xcode 16',
+          }),
+        );
+
+        // Stack options
+        expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+
+        // Machine type
+        expect(result.isInvalidMachineType).toBe(false);
+        expect(result.selectedMachineType).toEqual(
+          expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
+        );
+
+        // Machine type options
+        const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+        expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
       });
 
-      expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: 'mac-m1' });
-    });
-
-    it('keeps a specific stack with default machine type of OS', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-        machineFallbackOptions: {
+      it('returns the selected stack and the default machine type of the stack', () => {
+        const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+          selectedStackId: 'osx-xcode-16',
+          selectedMachineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'linux-ubuntu-22',
+          projectMachineTypeId: 'elite',
           defaultMachineTypeIdOfOSs: {
             linux: 'elite',
             osx: 'mac-m1',
           },
-          projectMachineTypeId: 'mac-m1',
-        },
+          withoutDefaultOptions: true,
+        });
+
+        // Stack
+        expect(result.isInvalidStack).toBe(false);
+        expect(result.selectedStack).toEqual(
+          expect.objectContaining({
+            value: 'osx-xcode-16',
+            id: 'osx-xcode-16',
+            name: 'Xcode 16',
+          }),
+        );
+
+        // Stack options
+        expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+
+        // Machine type
+        expect(result.isInvalidMachineType).toBe(false);
+        expect(result.selectedMachineType).toEqual(
+          expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
+        );
+
+        // Machine type options
+        const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+        expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      });
+    });
+  });
+
+  describe('changeStackAndMachine', () => {
+    describe('stack OS remains the same', () => {
+      it('keeps the default stack and machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: '',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: '', machineTypeId: '' });
       });
 
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'elite' });
+      it('keeps the default stack with a compatible machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: '',
+          machineTypeId: 'mac-m1',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: '', machineTypeId: 'mac-m1' });
+      });
+
+      it('keeps the default stack, but changes the incompatible machine type to default machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: '',
+          machineTypeId: 'standard',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: '', machineTypeId: '' });
+      });
+
+      it('keeps a specific stack with the default machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-15',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: '' });
+      });
+
+      it('keeps a specific stack with a compatible machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-15',
+          machineTypeId: 'mac-m1',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({
+          stackId: 'osx-xcode-15',
+          machineTypeId: 'mac-m1',
+        });
+      });
+
+      it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-15',
+          machineTypeId: 'mac-m4',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: '' });
+      });
+
+      it('keeps the pinned default stack with the default machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-16',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: 'osx-xcode-16', machineTypeId: '' });
+      });
+
+      it('keeps the pinned default stack with a compatible machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-16',
+          machineTypeId: 'mac-m1',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({
+          stackId: 'osx-xcode-16',
+          machineTypeId: 'mac-m1',
+        });
+      });
+
+      it('keeps the pinned default stack, but changes the incompatible machine type to default machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-16',
+          machineTypeId: 'standard',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: 'osx-xcode-16', machineTypeId: '' });
+      });
     });
 
-    it('keeps a specific stack with the first available machine type', () => {
-      const result = StackAndMachineService.changeStackAndMachine({
-        stackId: 'linux-ubuntu-22',
-        machineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
-        machineFallbackOptions: {
-          defaultMachineTypeIdOfOSs: {
-            linux: 'large',
-            osx: 'mac-m2',
-          },
-          projectMachineTypeId: 'mac-m1',
-        },
+    describe('stack OS changes', () => {
+      it('keeps a specific stack with empty machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
       });
 
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'standard' });
+      it('keeps a specific stack with a compatible machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: 'joker',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: 'joker',
+        });
+      });
+
+      it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: 'mac-m4',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+        });
+
+        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
+      });
+    });
+
+    describe('machineFallbackOptions', () => {
+      it('keeps a specific stack with project machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'osx-xcode-15',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+          machineFallbackOptions: {
+            defaultMachineTypeIdOfOSs: {
+              linux: 'elite',
+              osx: 'mac-m2',
+            },
+            projectMachineTypeId: 'mac-m1',
+          },
+        });
+
+        expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: 'mac-m1' });
+      });
+
+      it('keeps a specific stack with default machine type of OS', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+          machineFallbackOptions: {
+            defaultMachineTypeIdOfOSs: {
+              linux: 'elite',
+              osx: 'mac-m1',
+            },
+            projectMachineTypeId: 'mac-m1',
+          },
+        });
+
+        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'elite' });
+      });
+
+      it('keeps a specific stack with the first available machine type', () => {
+        const result = StackAndMachineService.changeStackAndMachine({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: '',
+          availableStacks: stacks,
+          availableMachineTypes: machines,
+          projectStackId: 'osx-xcode-16',
+          machineFallbackOptions: {
+            defaultMachineTypeIdOfOSs: {
+              linux: 'large',
+              osx: 'mac-m2',
+            },
+            projectMachineTypeId: 'mac-m1',
+          },
+        });
+
+        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'standard' });
+      });
+    });
+  });
+
+  describe('updateStackId', () => {
+    describe('root-level', () => {
+      it('updates stack ID at meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-16
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+        `);
+      });
+
+      it('creates meta.[bitrise.io] when it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`format_version: ''`,
+        });
+
+        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          format_version: ''
+          meta:
+            bitrise.io:
+              stack: osx-xcode-16
+        `);
+      });
+
+      it('removes stack ID at meta.[bitrise.io] when stack ID is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackId('', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+        `);
+      });
+
+      it('removes meta.[bitrise.io] when stack ID is empty and it is the only key', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            format_version: ''
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+          `,
+        });
+
+        StackAndMachineService.updateStackId('', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toBe(yaml`format_version: ''`);
+      });
+    });
+
+    describe('workflow-level override', () => {
+      it('updates stack ID at workflows.[id].meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow, 'primary');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-16
+                  machine_type_id: mac-m1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('creates workflows.[id].meta.[bitrise.io] when it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []
+          `,
+        });
+
+        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow, 'deploy');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-16
+        `);
+      });
+
+      it('removes stack ID at workflows.[id].meta.[bitrise.io] when stack ID is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackId('', StackAndMachineSource.Workflow, 'primary');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  machine_type_id: mac-m1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('removes workflow.[id].meta.[bitrise.io], but keeps workflow.[id] when stack ID is empty and it is the only key', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+        StackAndMachineService.updateStackId('', StackAndMachineSource.Workflow, 'test');
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+            test: {}
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('throws an error when source is Workflow and sourceId is not provided', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        expect(() => {
+          StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow);
+        }).toThrow('sourceId is required when source is Workflow');
+      });
+
+      it('throws an error if the workflow does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        expect(() => {
+          StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
+    });
+  });
+
+  describe('updateMachineTypeId', () => {
+    describe('project-level default', () => {
+      it('updates machine type ID at meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m2
+              stack_rollback_version: v1
+        `);
+      });
+
+      it('creates meta.[bitrise.io] when it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`format_version: ''`,
+        });
+
+        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          format_version: ''
+          meta:
+            bitrise.io:
+              machine_type_id: mac-m2
+        `);
+      });
+
+      it('removes machine type ID at meta.[bitrise.io] when machine type ID is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              stack_rollback_version: v1
+        `);
+      });
+
+      it('removes meta.[bitrise.io] when machine type ID is empty and it is the only key', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            format_version: ''
+            meta:
+              bitrise.io:
+                machine_type_id: mac-m1
+          `,
+        });
+
+        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toBe(yaml`format_version: ''`);
+      });
+    });
+
+    describe('workflow-level override', () => {
+      it('updates machine type ID at workflows.[id].meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow, 'primary');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m2
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('creates workflows.[id].meta.[bitrise.io] if it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []
+          `,
+        });
+
+        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow, 'deploy');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+              meta:
+                bitrise.io:
+                  machine_type_id: mac-m2
+        `);
+      });
+
+      it('removes machine type ID at workflows.[id].meta.[bitrise.io] when machine type ID is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Workflow, 'primary');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('removes the workflows.[id].meta.[bitrise.io], but keeps workflow.[id] when machine type ID is empty and it is the only key', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    machine_type_id: mac-m1
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Workflow, 'test');
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+            test: {}
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('throws an error when source is Workflow and sourceId is not provided', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        expect(() => {
+          StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow);
+        }).toThrow('sourceId is required when source is Workflow');
+      });
+
+      it('throws an error if the workflow does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        expect(() => {
+          StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
+    });
+  });
+
+  describe('updateStackRollbackVersion', () => {
+    describe('project-level default', () => {
+      it('updates stack rollback version at meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v2
+        `);
+      });
+
+      it('creates meta.[bitrise.io] when it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`format_version: ''`,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          format_version: ''
+          meta:
+            bitrise.io:
+              stack_rollback_version: v2
+        `);
+      });
+
+      it('removes stack rollback version at meta.[bitrise.io] when stack rollback version is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+        `);
+      });
+
+      it('removes meta.[bitrise.io] when stack rollback version is empty and it is the only key', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            format_version: ''
+            meta:
+              bitrise.io:
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toBe(yaml`format_version: ''`);
+      });
+    });
+
+    describe('workflow-level override', () => {
+      it('updates stack rollback version at workflows.[id].meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow, 'primary');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+                  stack_rollback_version: v2
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('creates workflows.[id].meta.[bitrise.io] when it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []
+          `,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow, 'deploy');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+                  stack_rollback_version: v1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+              meta:
+                bitrise.io:
+                  stack_rollback_version: v2
+        `);
+      });
+
+      it('removes stack rollback version at workflows.[id].meta.[bitrise.io] when stack rollback version is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Workflow, 'primary');
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('removes the workflows.[id].meta.[bitrise.io], but keeps workflow.[id] when stack rollback version is empty and it is the only key', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack_rollback_version: v1
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Workflow, 'test');
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+                  stack_rollback_version: v1
+            test: {}
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('throws an error when source is Workflow and sourceId is not provided', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        expect(() => {
+          StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow);
+        }).toThrow('sourceId is required when source is Workflow');
+      });
+
+      it('throws an error if the workflow does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        expect(() => {
+          StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
     });
   });
 });

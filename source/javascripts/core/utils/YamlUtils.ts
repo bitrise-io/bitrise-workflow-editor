@@ -2,11 +2,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 import { isMatch } from 'picomatch';
-import { Document, isCollection, isMap, isScalar, isSeq, YAMLMap, YAMLSeq } from 'yaml';
+import { Document, isCollection, isMap, isScalar, YAMLMap, YAMLSeq } from 'yaml';
 
 type Args = { doc: Document; paths: string[] };
 
-function toDotNotation(paths: (string | number)[]) {
+function toDotNotation(paths: unknown[]) {
   return paths.join('.');
 }
 
@@ -47,17 +47,26 @@ function getMapIn(doc: Document, path: unknown[], createIfNotExists = false): YA
   return doc.getIn(path) as YAMLMap;
 }
 
-function safeDeleteIn(doc: Document, path: unknown[], removeEmptyParents = false) {
+function safeDeleteIn(doc: Document, path: unknown[], removeEmptyParent: boolean | unknown[] = false) {
   if (doc.hasIn(path)) {
     doc.deleteIn(path);
   }
 
-  if (removeEmptyParents) {
+  if (removeEmptyParent === true) {
     const parentPath = path.slice(0, -1);
     const parent = doc.getIn(parentPath);
 
-    if ((isSeq(parent) || isMap(parent)) && parent.items.length === 0) {
+    if (isCollection(parent) && parent.items.length === 0) {
       safeDeleteIn(doc, parentPath, parentPath.length > 1);
+    }
+  } else if (Array.isArray(removeEmptyParent) && removeEmptyParent.length > 0) {
+    const parentPath = path.slice(0, -1);
+    const parent = doc.getIn(parentPath);
+    const parentKey = toDotNotation(parentPath);
+    const removeKey = toDotNotation(removeEmptyParent);
+
+    if (isCollection(parent) && parent.items.length === 0 && parentKey.endsWith(removeKey)) {
+      safeDeleteIn(doc, parentPath, removeEmptyParent.slice(0, -1));
     }
   }
 }

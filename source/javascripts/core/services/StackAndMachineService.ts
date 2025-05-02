@@ -2,16 +2,26 @@ import { toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
+import { Meta } from '../models/BitriseYml';
 import { MachineType, MachineTypeOption } from '../models/MachineType';
 import { Stack, StackOption } from '../models/Stack';
+import { isWorkflowExists, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import YamlUtils from '../utils/YamlUtils';
 import MachineTypeService from './MachineTypeService';
 import StackService from './StackService';
 
-export type StackWithValue = Stack & {
+type FieldKeys = keyof Required<Meta>['bitrise.io'];
+
+enum StackAndMachineSource {
+  Root = 'root',
+  Workflow = 'workflow',
+}
+
+type StackWithValue = Stack & {
   value: string;
 };
 
-export type MachineTypeWithValue = MachineType & {
+type MachineTypeWithValue = MachineType & {
   value: string;
 };
 
@@ -237,7 +247,62 @@ function changeStackAndMachine({
   };
 }
 
+function validateSourceId(source?: StackAndMachineSource, sourceId?: string) {
+  if (source === StackAndMachineSource.Workflow && !sourceId) {
+    throw new Error('sourceId is required when source is Workflow');
+  }
+
+  if (source === StackAndMachineSource.Workflow && sourceId && !isWorkflowExists(sourceId)) {
+    throw new Error(`Workflow is not found at path: workflows.${sourceId}`);
+  }
+}
+
+function getMetaPath(source: StackAndMachineSource, sourceId?: string, field?: FieldKeys) {
+  const path = ['meta', 'bitrise.io'];
+
+  if (source === StackAndMachineSource.Workflow && sourceId) {
+    path.unshift('workflows', sourceId);
+  }
+
+  if (field) {
+    path.push(field);
+  }
+  return path;
+}
+
+function updateFieldValue(field: FieldKeys, value: string, source: StackAndMachineSource, sourceId?: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    validateSourceId(source, sourceId);
+    const path = getMetaPath(source, sourceId);
+    const meta = YamlUtils.getMapIn(doc, path, true);
+
+    if (value) {
+      meta.setIn([field], value);
+    } else {
+      YamlUtils.safeDeleteIn(doc, path.concat(field), ['meta', 'bitrise.io']);
+    }
+
+    return doc;
+  });
+}
+
+function updateStackId(stackId: string, source: StackAndMachineSource, sourceId?: string) {
+  updateFieldValue('stack', stackId, source, sourceId);
+}
+
+function updateMachineTypeId(machineTypeId: string, source: StackAndMachineSource, sourceId?: string) {
+  updateFieldValue('machine_type_id', machineTypeId, source, sourceId);
+}
+
+function updateStackRollbackVersion(stackRollbackVersion: string, source: StackAndMachineSource, sourceId?: string) {
+  updateFieldValue('stack_rollback_version', stackRollbackVersion, source, sourceId);
+}
+
+export { MachineTypeWithValue, StackAndMachineSource, StackWithValue };
 export default {
   changeStackAndMachine,
   prepareStackAndMachineSelectionData,
+  updateStackId,
+  updateMachineTypeId,
+  updateStackRollbackVersion,
 };
