@@ -681,7 +681,7 @@ describe('EnvVarService', () => {
           `);
       });
 
-      it('removes workflows.[id].envs when removing last env_var', () => {
+      it('removes workflows.[id].envs when removing last env_var, but keeps workflows.[id]', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -704,7 +704,8 @@ describe('EnvVarService', () => {
               envs:
               - NODE_VERSION: lts
               - PROJECT_NAME: Mando
-          `);
+            wf2: {}
+        `);
       });
 
       it('throws an error when env_var is not found at index', () => {

@@ -111,10 +111,8 @@ function validateSourceId(source?: EnvVarSource, sourceId?: string) {
     throw new Error('sourceId is required when source is Workflow');
   }
 
-  if (source === EnvVarSource.Workflow && sourceId) {
-    if (!isWorkflowExists(sourceId)) {
-      throw new Error(`Workflow is not found at path: workflows.${sourceId}`);
-    }
+  if (source === EnvVarSource.Workflow && sourceId && !isWorkflowExists(sourceId)) {
+    throw new Error(`Workflow is not found at path: workflows.${sourceId}`);
   }
 }
 
@@ -224,7 +222,7 @@ function remove(index: number, source: EnvVarSource, sourceId?: string) {
       throw new Error(`Environment variable is not found at path: ${path.join('.')}`);
     }
 
-    YamlUtils.safeDeleteIn(doc, path, true);
+    YamlUtils.safeDeleteIn(doc, path, source === EnvVarSource.Project ? ['app', 'envs'] : ['envs']);
     return doc;
   });
 }

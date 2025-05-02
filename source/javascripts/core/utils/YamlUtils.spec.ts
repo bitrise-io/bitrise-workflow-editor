@@ -149,4 +149,114 @@ describe('YamlUtils', () => {
       `);
     });
   });
+
+  describe('safeDeleteIn', () => {
+    it('should delete the specified path', () => {
+      YamlUtils.safeDeleteIn(ctx.doc, asArr('safe_delete_root.safe_delete_mapping.meta.nested.name'));
+      expect(stringify(ctx.doc.get('safe_delete_root'))).toEqual(yaml`
+        safe_delete_mapping:
+          meta:
+            nested: {}
+      `);
+    });
+
+    it('should not delete anything when the path does not exist', () => {
+      YamlUtils.safeDeleteIn(ctx.doc, asArr('complex_mapping.nonexistent'));
+      expect(ctx.doc.hasIn(asArr('complex_mapping.nonexistent'))).toBe(false);
+    });
+
+    it('should remove empty parent when removeEmptyParent is true', () => {
+      YamlUtils.safeDeleteIn(ctx.doc, asArr('safe_delete_root.safe_delete_mapping.meta.nested.name'), true);
+      expect(ctx.doc.hasIn(asArr('safe_delete_root'))).toBe(false);
+    });
+
+    it('should remove empty parent, when removeEmptyParent is a path of deletable parents', () => {
+      YamlUtils.safeDeleteIn(
+        ctx.doc,
+        asArr('safe_delete_root.safe_delete_mapping.meta.nested.name'),
+        asArr('meta.nested'),
+      );
+      expect(stringify(ctx.doc.get('safe_delete_root'))).toEqual(yaml`
+        safe_delete_mapping: {}
+      `);
+    });
+  });
+
+  describe('collectPaths', () => {
+    it('should collect paths for simple objects', () => {
+      const obj = {
+        a: 1,
+        b: 'string',
+        c: true,
+      };
+      const paths = YamlUtils.collectPaths(obj);
+      expect(paths).toEqual(['a', 'b', 'c']);
+    });
+
+    it('should collect paths for nested objects', () => {
+      const obj = {
+        a: {
+          b: {
+            c: 1,
+          },
+          d: 2,
+        },
+        e: 3,
+      };
+      const paths = YamlUtils.collectPaths(obj);
+      expect(paths).toContain('a');
+      expect(paths).toContain('a.b');
+      expect(paths).toContain('a.b.c');
+      expect(paths).toContain('a.d');
+      expect(paths).toContain('e');
+      expect(paths).toHaveLength(5);
+    });
+
+    it('should collect paths for arrays', () => {
+      const obj = {
+        arr: [1, 2, 3],
+      };
+      const paths = YamlUtils.collectPaths(obj);
+      expect(paths).toContain('arr');
+      expect(paths).toContain('arr.0');
+      expect(paths).toContain('arr.1');
+      expect(paths).toContain('arr.2');
+      expect(paths).toHaveLength(4);
+    });
+
+    it('should collect paths for complex nested structures', () => {
+      const obj = {
+        a: [{ b: 1 }, { c: 2, d: [3, 4] }],
+        e: {
+          f: [{ g: 5 }],
+        },
+      };
+      const paths = YamlUtils.collectPaths(obj);
+
+      expect(paths).toContain('a');
+      expect(paths).toContain('a.0');
+      expect(paths).toContain('a.0.b');
+      expect(paths).toContain('a.1');
+      expect(paths).toContain('a.1.c');
+      expect(paths).toContain('a.1.d');
+      expect(paths).toContain('a.1.d.0');
+      expect(paths).toContain('a.1.d.1');
+      expect(paths).toContain('e');
+      expect(paths).toContain('e.f');
+      expect(paths).toContain('e.f.0');
+      expect(paths).toContain('e.f.0.g');
+    });
+
+    it('should work with primitive values', () => {
+      expect(YamlUtils.collectPaths(1, 'prefix')).toEqual(['prefix']);
+      expect(YamlUtils.collectPaths('string', 'prefix')).toEqual(['prefix']);
+      expect(YamlUtils.collectPaths(true, 'prefix')).toEqual(['prefix']);
+      expect(YamlUtils.collectPaths(null, 'prefix')).toEqual(['prefix']);
+    });
+
+    it('should handle empty objects and arrays', () => {
+      expect(YamlUtils.collectPaths({}, 'obj')).toEqual(['obj']);
+      expect(YamlUtils.collectPaths([], 'arr')).toEqual(['arr']);
+    });
+  });
 });

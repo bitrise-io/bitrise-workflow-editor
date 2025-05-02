@@ -172,6 +172,12 @@ flow_root:
   flow_mapping: {}
   flow_sequence: []
 
+safe_delete_root:
+  safe_delete_mapping:
+    meta:
+      nested:
+        name: "Delete Me"
+
 # Final demo entry
 final_entry:
   project: "YAML Documentation"
