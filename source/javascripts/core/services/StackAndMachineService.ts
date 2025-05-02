@@ -298,6 +298,10 @@ function updateStackRollbackVersion(stackRollbackVersion: string, source: StackA
   updateFieldValue('stack_rollback_version', stackRollbackVersion, source, sourceId);
 }
 
+function updateLicensePoolId(licensePoolId: string, source: StackAndMachineSource, sourceId?: string) {
+  updateFieldValue('license_pool_id', licensePoolId, source, sourceId);
+}
+
 export { MachineTypeWithValue, StackAndMachineSource, StackWithValue };
 export default {
   changeStackAndMachine,
@@ -305,4 +309,5 @@ export default {
   updateStackId,
   updateMachineTypeId,
   updateStackRollbackVersion,
+  updateLicensePoolId,
 };

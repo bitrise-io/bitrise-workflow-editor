@@ -1025,68 +1025,6 @@ function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, 
   return copy;
 }
 
-function updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitrise.io'], yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  if (copy.workflows[workflowId].meta?.['bitrise.io']) {
-    const copyBitriseIoMeta = copy.workflows[workflowId].meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
-    if (newValues.stack !== undefined) {
-      copyBitriseIoMeta.stack = newValues.stack;
-    }
-    if (newValues.machine_type_id !== undefined) {
-      copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
-    }
-    if (newValues.stack_rollback_version !== undefined) {
-      copyBitriseIoMeta.stack_rollback_version = newValues.stack_rollback_version;
-    }
-    if (newValues.license_pool_id !== undefined) {
-      copyBitriseIoMeta.license_pool_id = newValues.license_pool_id;
-    }
-    copy.workflows[workflowId].meta['bitrise.io'] = copyBitriseIoMeta;
-  } else {
-    copy.workflows[workflowId].meta = {
-      ...copy.workflows[workflowId].meta,
-      'bitrise.io': newValues,
-    };
-  }
-
-  const newMeta = copy.workflows[workflowId].meta as Meta | undefined;
-  const ymlMeta = yml.workflows?.[workflowId]?.meta as Meta | undefined;
-
-  if (shouldRemoveField(newMeta?.['bitrise.io']?.stack, ymlMeta?.['bitrise.io']?.stack)) {
-    delete newMeta?.['bitrise.io']?.stack;
-  }
-
-  if (shouldRemoveField(newMeta?.['bitrise.io']?.machine_type_id, ymlMeta?.['bitrise.io']?.machine_type_id)) {
-    delete newMeta?.['bitrise.io']?.machine_type_id;
-  }
-
-  if (
-    shouldRemoveField(newMeta?.['bitrise.io']?.stack_rollback_version, ymlMeta?.['bitrise.io']?.stack_rollback_version)
-  ) {
-    delete newMeta?.['bitrise.io']?.stack_rollback_version;
-  }
-
-  if (shouldRemoveField(newMeta?.['bitrise.io']?.license_pool_id, ymlMeta?.['bitrise.io']?.license_pool_id)) {
-    delete newMeta?.['bitrise.io']?.license_pool_id;
-  }
-
-  if (shouldRemoveField(newMeta?.['bitrise.io'], ymlMeta?.['bitrise.io'])) {
-    delete newMeta?.['bitrise.io'];
-  }
-
-  if (shouldRemoveField(copy.workflows[workflowId].meta, yml.workflows?.[workflowId]?.meta)) {
-    delete copy.workflows[workflowId].meta;
-  }
-
-  return copy;
-}
-
 function appendWorkflowEnvVar(workflowId: string, envVar: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1769,40 +1707,6 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
   return copy;
 }
 
-function updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io'], yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (newValues.stack === undefined) {
-    return copy;
-  }
-
-  if (!copy.meta) {
-    copy.meta = { 'bitrise.io': {} };
-  }
-
-  if (!copy.meta?.['bitrise.io']) {
-    copy.meta = { ...copy.meta, 'bitrise.io': {} };
-  }
-
-  const copyBitriseIoMeta = copy.meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
-
-  copyBitriseIoMeta.stack = newValues.stack;
-
-  if (newValues.machine_type_id !== undefined && newValues.machine_type_id !== '') {
-    copyBitriseIoMeta.machine_type_id = newValues.machine_type_id;
-  } else {
-    delete copyBitriseIoMeta.machine_type_id;
-  }
-
-  if (newValues.stack_rollback_version !== undefined && newValues.stack_rollback_version !== '') {
-    copyBitriseIoMeta.stack_rollback_version = newValues.stack_rollback_version;
-  } else {
-    delete copyBitriseIoMeta.stack_rollback_version;
-  }
-
-  return copy;
-}
-
 export default {
   addStep,
   moveStep,
@@ -1846,7 +1750,6 @@ export default {
   updatePipelineWorkflowConditionShouldAlwaysRun,
   updatePipelineWorkflowConditionRunIfExpression,
   updatePipelineWorkflowParallel,
-  updateWorkflowMeta,
   updateTriggerMap,
   appendWorkflowEnvVar,
   appendProjectEnvVar,
@@ -1861,5 +1764,4 @@ export default {
   deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleInputInstanceValue,
-  updateStacksAndMachinesMeta,
 };

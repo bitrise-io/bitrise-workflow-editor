@@ -6,7 +6,7 @@ import type { Preview } from "@storybook/react";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { withBitriseYml } from "./withBitriseYml";
-import { stringify } from "yaml";
+import { parseDocument } from "yaml";
 
 initialize({ serviceWorker: { url: "./mockServiceWorker.js" } });
 
@@ -53,9 +53,9 @@ const preview: Preview = {
             {withBitriseYml(
               {
                 yml: TEST_BITRISE_YML,
-                savedYml: TEST_BITRISE_YML,
-                ymlString: stringify(TEST_BITRISE_YML),
-                savedYmlString: stringify(TEST_BITRISE_YML),
+                ymlDocument: parseDocument(JSON.stringify(TEST_BITRISE_YML)),
+                savedYmlDocument: parseDocument(JSON.stringify(TEST_BITRISE_YML)),
+                savedYmlVersion: '1.0',
                 ...context.parameters.bitriseYmlStore,
               },
               Story,
