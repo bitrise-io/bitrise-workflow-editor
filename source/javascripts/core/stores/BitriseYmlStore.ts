@@ -7,7 +7,6 @@ import {
   BitriseYml,
   EnvironmentItemModel,
   EnvModel,
-  Meta,
   PipelineModel,
   StepBundleModel,
   StepModel,
@@ -230,22 +229,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.updateWorkflow(workflowId, workflow, state.yml),
-          };
-        });
-      },
-      updateWorkflowMeta(workflowId: string, newValues: Required<Meta>['bitrise.io']) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateWorkflowMeta(workflowId, newValues, state.yml),
-          };
-        });
-      },
-
-      // Meta related actions
-      updateStacksAndMachinesMeta(newValues: Required<Meta>['bitrise.io']) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStacksAndMachinesMeta(newValues, state.yml),
           };
         });
       },
