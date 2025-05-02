@@ -1,4 +1,4 @@
-import { parseDocument } from 'yaml';
+import { parseDocument, stringify } from 'yaml';
 
 import { YamlMutatorCtx } from '../stores/BitriseYmlStore';
 import YamlUtils from './YamlUtils';
@@ -35,6 +35,11 @@ describe('YamlUtils', () => {
       expect(ctx.doc.getIn(asArr('complex_mapping.country.states.0.name'))).toBe('California');
       expect(ctx.doc.getIn(asArr('complex_mapping.country.states.1.name'))).toBe('new value');
     });
+
+    it('should not update when the path is not found', () => {
+      YamlUtils.updateValue(ctx, 'nonexistent', 'new value');
+      expect(ctx.doc.hasIn(asArr('nonexistent'))).toBe(false);
+    });
   });
 
   describe('updateKey', () => {
@@ -61,6 +66,87 @@ describe('YamlUtils', () => {
       YamlUtils.updateKey(ctx, 'mapping_example.nested_mapping', 'new_key');
       expect(ctx.doc.hasIn(asArr('mapping_example.new_key'))).toBe(true);
       expect(ctx.doc.hasIn(asArr('mapping_example.nested_mapping'))).toBe(false);
+    });
+
+    it('should not update when the path is not found', () => {
+      YamlUtils.updateKey(ctx, 'nonexistent', 'new_key');
+      expect(ctx.doc.hasIn(asArr('nonexistent'))).toBe(false);
+    });
+  });
+
+  describe('getSeqIn', () => {
+    it('should return the sequence at the specified path', () => {
+      const seq = ctx.doc.getIn(asArr('complex_mapping.country.states'));
+      expect(seq).toBeDefined();
+      expect(YamlUtils.getSeqIn(ctx.doc, asArr('complex_mapping.country.states'))).toBe(seq);
+    });
+
+    it('should return undefined when path does not exist', () => {
+      expect(YamlUtils.getSeqIn(ctx.doc, asArr('complex_mapping.nonexistent'))).toBeUndefined();
+    });
+
+    it('should create and return sequence when createIfNotExists is true', () => {
+      expect(ctx.doc.hasIn(asArr('new_root.new_mapping.new_sequence'))).toBe(false);
+
+      const seq = YamlUtils.getSeqIn(ctx.doc, asArr('new_root.new_mapping.new_sequence'), true);
+
+      expect(seq).toBeDefined();
+      expect(seq?.items.length).toBe(0);
+      expect(ctx.doc.getIn(asArr('new_root.new_mapping.new_sequence'))).toBe(seq);
+    });
+
+    it('should create and return sequence and change parent flow to false when createIfNotExists is true and parent is empty', () => {
+      expect(ctx.doc.hasIn(asArr('flow_root.flow_mapping.new_seq'))).toBe(false);
+
+      YamlUtils.getSeqIn(ctx.doc, asArr('flow_root.flow_mapping.new_seq'), true);
+
+      const seq = YamlUtils.getSeqIn(ctx.doc, asArr('flow_root.flow_mapping.new_seq'), true);
+
+      expect(seq).toBeDefined();
+      expect(seq?.items.length).toBe(0);
+      expect(stringify(ctx.doc.get('flow_root'))).toEqual(yaml`
+        flow_mapping:
+          new_seq: []
+        flow_sequence: []
+      `);
+    });
+  });
+
+  describe('getMapIn', () => {
+    it('should return the map at the specified path', () => {
+      const map = ctx.doc.getIn(asArr('mapping_example'));
+      expect(map).toBeDefined();
+      expect(YamlUtils.getMapIn(ctx.doc, asArr('mapping_example'))).toBe(map);
+    });
+
+    it('should return undefined when path does not exist', () => {
+      expect(YamlUtils.getMapIn(ctx.doc, asArr('complex_mapping.nonexistent'))).toBeUndefined();
+    });
+
+    it('should create and return map when createIfNotExists is true', () => {
+      expect(ctx.doc.hasIn(asArr('new_root.new_mapping.new_map'))).toBe(false);
+
+      const map = YamlUtils.getMapIn(ctx.doc, asArr('new_root.new_mapping.new_map'), true);
+
+      expect(map).toBeDefined();
+      expect(map?.items.length).toBe(0);
+      expect(ctx.doc.getIn(asArr('new_root.new_mapping.new_map'))).toBe(map);
+    });
+
+    it('should create and return map and change parent flow to false when createIfNotExists is true and parent is empty', () => {
+      expect(ctx.doc.hasIn(asArr('flow_root.flow_mapping.new_map'))).toBe(false);
+
+      YamlUtils.getMapIn(ctx.doc, asArr('flow_root.flow_mapping.new_map'), true);
+
+      const map = YamlUtils.getMapIn(ctx.doc, asArr('flow_root.flow_mapping.new_map'), true);
+
+      expect(map).toBeDefined();
+      expect(map?.items.length).toBe(0);
+      expect(stringify(ctx.doc.get('flow_root'))).toEqual(yaml`
+        flow_mapping:
+          new_map: {}
+        flow_sequence: []
+      `);
     });
   });
 });

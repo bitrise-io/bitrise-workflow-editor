@@ -168,6 +168,10 @@ long_description: >
   on the next line and keeps going
   to provide detailed information.
 
+flow_root:
+  flow_mapping: {}
+  flow_sequence: []
+
 # Final demo entry
 final_entry:
   project: "YAML Documentation"

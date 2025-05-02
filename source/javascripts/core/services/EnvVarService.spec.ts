@@ -37,7 +37,7 @@ describe('EnvVarService', () => {
   });
 
   describe('fromYml', () => {
-    it('converts yml to env var with isExpand: false', () => {
+    it('converts yaml to EnvVar when isExpand: false', () => {
       const result = EnvVarService.fromYml(
         {
           SERVICE_VERSION: '1.2.3',
@@ -54,7 +54,7 @@ describe('EnvVarService', () => {
       });
     });
 
-    it('converts yml to env var with isExpand: true', () => {
+    it('converts yaml to EnvVar when isExpand: true', () => {
       const result = EnvVarService.fromYml(
         {
           SERVICE_VERSION: '1.2.3',
@@ -71,7 +71,7 @@ describe('EnvVarService', () => {
       });
     });
 
-    it('converts yml to env var with isExpand: undefined', () => {
+    it('converts yaml to EnvVar when isExpand: undefined', () => {
       const result = EnvVarService.fromYml(
         {
           SERVICE_VERSION: '1.2.3',
@@ -211,7 +211,7 @@ describe('EnvVarService', () => {
   });
 
   describe('toYml', () => {
-    it('converts env var with isExpand: false to yaml', () => {
+    it('converts EnvVar to yaml when isExpand: false', () => {
       const result = EnvVarService.toYml({
         key: 'SERVICE_VERSION',
         value: '1.2.3',
@@ -225,7 +225,7 @@ describe('EnvVarService', () => {
       });
     });
 
-    it('converts env var with isExpand: true to yaml', () => {
+    it('converts EnvVar to yaml when isExpand: true', () => {
       const result = EnvVarService.toYml({
         key: 'SERVICE_VERSION',
         value: '1.2.3',
@@ -238,7 +238,7 @@ describe('EnvVarService', () => {
       });
     });
 
-    it('converts env var with isExpand: undefined to yaml', () => {
+    it('converts EnvVar to yaml when isExpand: undefined', () => {
       const result = EnvVarService.toYml({
         key: 'SERVICE_VERSION',
         value: '1.2.3',
@@ -275,7 +275,7 @@ describe('EnvVarService', () => {
       });
     });
 
-    it('returns all project and workflow vars from the yml', () => {
+    it('returns all project and all workflow env_vars from the yml', () => {
       const result = EnvVarService.getAll();
       expect(result).toEqual([
         { key: 'SERVICE_VERSION', value: '1.2.3', source: 'Project envs' },
@@ -286,7 +286,7 @@ describe('EnvVarService', () => {
       ]);
     });
 
-    it('returns all env vars from app.envs', () => {
+    it('returns all env_vars from app.envs', () => {
       const result = EnvVarService.getAll(EnvVarSource.Project);
       expect(result).toEqual([
         { key: 'SERVICE_VERSION', value: '1.2.3', source: 'Project envs' },
@@ -294,7 +294,7 @@ describe('EnvVarService', () => {
       ]);
     });
 
-    it('returns all env vars all workflows', () => {
+    it('returns all env_vars from all workflows', () => {
       const result = EnvVarService.getAll(EnvVarSource.Workflow, '*');
       expect(result).toEqual([
         { key: 'NODE_VERSION', value: 'lts', source: 'Workflow: wf1', isExpand: false },
@@ -303,7 +303,7 @@ describe('EnvVarService', () => {
       ]);
     });
 
-    it('returns all env vars from wf1', () => {
+    it('returns all env_vars from a specific workflow', () => {
       const result = EnvVarService.getAll(EnvVarSource.Workflow, 'wf1');
       expect(result).toEqual([
         { key: 'NODE_VERSION', value: 'lts', source: 'Workflow: wf1', isExpand: false },
@@ -311,21 +311,22 @@ describe('EnvVarService', () => {
       ]);
     });
 
-    it('returns an empty array when workflow is not found', () => {
-      const result = EnvVarService.getAll(EnvVarSource.Workflow, 'nonexistent');
-      expect(result).toEqual([]);
-    });
-
-    it('throws an error when source is Workflow andsourceId is not provided', () => {
+    it('throws an error when source is Workflow and sourceId is not provided', () => {
       expect(() => {
         EnvVarService.getAll(EnvVarSource.Workflow);
       }).toThrow('sourceId is required when source is Workflow');
+    });
+
+    it('throws an error when workflow is not found', () => {
+      expect(() => {
+        EnvVarService.getAll(EnvVarSource.Workflow, 'nonexistent');
+      }).toThrow('Workflow is not found at path: workflows.nonexistent');
     });
   });
 
   describe('create', () => {
     describe('project-level envs', () => {
-      it('creates an empty env var at the end of app.envs', () => {
+      it('creates an empty env_var at the end of app.envs', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -347,7 +348,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('creates app.envs if it does not exist', () => {
+      it('creates app.envs when it does not exist', () => {
         initializeStore({
           version: '',
           ymlString: '',
@@ -367,7 +368,7 @@ describe('EnvVarService', () => {
     });
 
     describe('workflow-level envs', () => {
-      it('appends an empty env var to the end of workflow.[id].envs', () => {
+      it('appends an empty env_var to the end of workflows.[id].envs', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -397,7 +398,7 @@ describe('EnvVarService', () => {
           `);
       });
 
-      it('creates workflow.[id].envs if it does not exist', () => {
+      it('creates workflows.[id].envs when it does not exist', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -441,12 +442,30 @@ describe('EnvVarService', () => {
           EnvVarService.create(EnvVarSource.Workflow);
         }).toThrow('sourceId is required when source is Workflow');
       });
+
+      it('throws an error when workflow is not found', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts
+              wf2:
+                envs:
+                - PARALLEL: 4`,
+        });
+
+        expect(() => {
+          EnvVarService.create(EnvVarSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
     });
   });
 
   describe('append', () => {
     describe('project-level envs', () => {
-      it('appends env var to the end of app.envs', () => {
+      it('appends env_var to the end of app.envs', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -470,7 +489,7 @@ describe('EnvVarService', () => {
           `);
       });
 
-      it('creates app.envs if it does not exist', () => {
+      it('creates app.envs when it does not exist', () => {
         initializeStore({ version: '', ymlString: '' });
 
         EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'app' }, EnvVarSource.Project);
@@ -485,7 +504,7 @@ describe('EnvVarService', () => {
     });
 
     describe('workflow-level envs', () => {
-      it('appends env var to the end of the workflow.[id].envs', () => {
+      it('appends env_var to the end of workflows.[id].envs', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -514,7 +533,7 @@ describe('EnvVarService', () => {
           `);
       });
 
-      it('creates workflow.[id].envs if it does not exist', () => {
+      it('creates workflows.[id].envs when it does not exist', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -554,12 +573,32 @@ describe('EnvVarService', () => {
           EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' }, EnvVarSource.Workflow);
         }).toThrow('sourceId is required when source is Workflow');
       });
+
+      it('throws an error when workflow is not found', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts
+          `,
+        });
+
+        expect(() => {
+          EnvVarService.append(
+            { key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' },
+            EnvVarSource.Workflow,
+            'nonexistent',
+          );
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
     });
   });
 
   describe('remove', () => {
     describe('project-level envs', () => {
-      it('removes the env var from app.envs', () => {
+      it('removes env_var at app.envs.[index]', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -579,7 +618,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('removes app.envs when removing the last env var', () => {
+      it('removes app.envs when removing last env_var', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -597,7 +636,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('do not remove anything if the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -607,33 +646,14 @@ describe('EnvVarService', () => {
               - PROJECT_NAME: Mando`,
         });
 
-        EnvVarService.remove(3, EnvVarSource.Project);
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          app:
-            envs:
-            - SERVICE_VERSION: 1.2.3
-            - PROJECT_NAME: Mando
-        `);
-      });
-
-      it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            app:
-              envs:
-              - SERVICE_VERSION: 1.2.3`,
-        });
-
         expect(() => {
-          EnvVarService.remove(0, EnvVarSource.Workflow);
-        }).toThrow('sourceId is required when source is Workflow');
+          EnvVarService.remove(3, EnvVarSource.Project);
+        }).toThrow('Environment variable is not found at path: app.envs.3');
       });
     });
 
     describe('workflow-level envs', () => {
-      it('removes the env var from workflow.[id].envs', () => {
+      it('removes env_var at workflows.[id].envs.[index]', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -661,7 +681,7 @@ describe('EnvVarService', () => {
           `);
       });
 
-      it('removes workflow.[id].envs when removing the last env var', () => {
+      it('removes workflows.[id].envs when removing last env_var', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -687,7 +707,7 @@ describe('EnvVarService', () => {
           `);
       });
 
-      it('do not remove anything if the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -701,18 +721,9 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.remove(3, EnvVarSource.Workflow, 'wf1');
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          workflows:
-            wf1:
-              envs:
-              - NODE_VERSION: lts
-              - PROJECT_NAME: Mando
-            wf2:
-              envs:
-              - PARALLEL: 4
-        `);
+        expect(() => {
+          EnvVarService.remove(3, EnvVarSource.Workflow, 'wf1');
+        }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
@@ -730,12 +741,28 @@ describe('EnvVarService', () => {
           EnvVarService.remove(0, EnvVarSource.Workflow);
         }).toThrow('sourceId is required when source is Workflow');
       });
+
+      it('throws an error when workflow is not found', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts
+                - PROJECT_NAME: Mando`,
+        });
+
+        expect(() => {
+          EnvVarService.remove(0, EnvVarSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
     });
   });
 
   describe('reorder', () => {
     describe('project-level envs', () => {
-      it('reorders the env var in app.envs', () => {
+      it('reorders env_vars at app.envs', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -758,7 +785,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error if the number of indices does not match the number of env vars', () => {
+      it('throws an error when indices.length != envs.length', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -775,7 +802,7 @@ describe('EnvVarService', () => {
     });
 
     describe('workflow-level envs', () => {
-      it('reorders the env var in workflow.[id].envs', () => {
+      it('reorders env_vars at workflows.[id].envs', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -806,6 +833,22 @@ describe('EnvVarService', () => {
         `);
       });
 
+      it('throws an error when indices.length != envs.length', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts
+                - PROJECT_NAME: Mando`,
+        });
+
+        expect(() => {
+          EnvVarService.reorder([0, 1, 2], EnvVarSource.Workflow, 'wf1');
+        }).toThrow('The number of indices (3) does not match the number of environment variables (2)');
+      });
+
       it('throws an error when source is Workflow and sourceId is not provided', () => {
         initializeStore({
           version: '',
@@ -822,7 +865,7 @@ describe('EnvVarService', () => {
         }).toThrow('sourceId is required when source is Workflow');
       });
 
-      it('throws an error when the sourceId is not found', () => {
+      it('throws an error when workflow is not found', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -835,30 +878,14 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.reorder([0, 1], EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Environment variables not found at path: workflows.nonexistent.envs');
-      });
-
-      it('throws an error if the number of indices does not match the number of env vars', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            workflows:
-              wf1:
-                envs:
-                - NODE_VERSION: lts
-                - PROJECT_NAME: Mando`,
-        });
-
-        expect(() => {
-          EnvVarService.reorder([0, 1, 2], EnvVarSource.Workflow, 'wf1');
-        }).toThrow('The number of indices (3) does not match the number of environment variables (2)');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
       });
     });
   });
 
   describe('updateKey', () => {
     describe('project-level envs', () => {
-      it('updates the key of the env var', () => {
+      it('updates env_var key at app.envs.[index]', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -877,7 +904,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -889,10 +916,10 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 3, 'SERVICE_VERSION', EnvVarSource.Project);
-        }).toThrow('Environment variable not found at path: app.envs.3.SERVICE_VERSION');
+        }).toThrow('Environment variable is not found at path: app.envs.3');
       });
 
-      it('throws an error when the old key is not matching at index', () => {
+      it('throws an error when env_var key mismatch at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -904,12 +931,12 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 1, 'SERVICE_VERSION', EnvVarSource.Project);
-        }).toThrow('Environment variable not found at path: app.envs.1.SERVICE_VERSION');
+        }).toThrow('Environment variable key mismatch "SERVICE_VERSION" at path: app.envs.1');
       });
     });
 
     describe('workflow-level envs', () => {
-      it('should update the key of the env var', () => {
+      it('updates env_var key at workflows.[id].envs.[index]', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -930,7 +957,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -943,10 +970,10 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateKey('NODE', 3, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
-        }).toThrow('Environment variable not found at path: workflows.wf1.envs.3.NODE_VERSION');
+        }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
-      it('throws an error when the old key is not matching at index', () => {
+      it('throws an error when env_var key mismatch at index', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -959,7 +986,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateKey('NODE', 1, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
-        }).toThrow('Environment variable not found at path: workflows.wf1.envs.1.NODE_VERSION');
+        }).toThrow('Environment variable key mismatch "NODE_VERSION" at path: workflows.wf1.envs.1');
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
@@ -976,12 +1003,27 @@ describe('EnvVarService', () => {
           EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflow);
         }).toThrow('sourceId is required when source is Workflow');
       });
+
+      it('throws an error when workflow is not found', () => {
+        initializeStore({
+          version: '1',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts`,
+        });
+
+        expect(() => {
+          EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
     });
   });
 
   describe('updateValue', () => {
     describe('project-level envs', () => {
-      it('should update the value of the env var', () => {
+      it('updates env_var value at app.envs.[index]', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1000,7 +1042,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1012,10 +1054,10 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateValue('2.0', 3, 'SERVICE_VERSION', EnvVarSource.Project);
-        }).toThrow('Environment variable not found at path: app.envs.3.SERVICE_VERSION');
+        }).toThrow('Environment variable is not found at path: app.envs.3');
       });
 
-      it('throws an error when the old key is not matching at index', () => {
+      it('throws an error when env_var key mismatch at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1027,12 +1069,12 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateValue('2.0', 1, 'SERVICE_VERSION', EnvVarSource.Project);
-        }).toThrow('Environment variable not found at path: app.envs.1.SERVICE_VERSION');
+        }).toThrow('Environment variable key mismatch "SERVICE_VERSION" at path: app.envs.1');
       });
     });
 
     describe('workflow-level envs', () => {
-      it('should update the value of the env var', () => {
+      it('updates env_var value at workflows.[id].envs.[index]', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -1053,7 +1095,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -1066,10 +1108,10 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateValue('22', 3, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
-        }).toThrow('Environment variable not found at path: workflows.wf1.envs.3.NODE_VERSION');
+        }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
-      it('throws an error when the old key is not matching at index', () => {
+      it('throws an error when env_var key mismatch at index', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -1082,7 +1124,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateValue('22', 1, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
-        }).toThrow('Environment variable not found at path: workflows.wf1.envs.1.NODE_VERSION');
+        }).toThrow('Environment variable key mismatch "NODE_VERSION" at path: workflows.wf1.envs.1');
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
@@ -1099,12 +1141,27 @@ describe('EnvVarService', () => {
           EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflow);
         }).toThrow('sourceId is required when source is Workflow');
       });
+
+      it('throws an error when workflow is not found', () => {
+        initializeStore({
+          version: '1',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts`,
+        });
+
+        expect(() => {
+          EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      });
     });
   });
 
   describe('updateIsExpand', () => {
     describe('project-level envs', () => {
-      it('updates the isExpand property of the env var with false', () => {
+      it('updates the isExpand property of the env_var with false', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1127,7 +1184,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('updates the isExpand property of the env var with true', () => {
+      it('updates the isExpand property of the env_var with true', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1150,7 +1207,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1162,12 +1219,12 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateIsExpand(false, 3, EnvVarSource.Project);
-        }).toThrow('Environment variable not found at path: app.envs.3');
+        }).toThrow('Environment variable is not found at path: app.envs.3');
       });
     });
 
     describe('workflow-level envs', () => {
-      it('updates the isExpand property of the env var with false', () => {
+      it('updates the isExpand property of the env_var with false', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -1198,7 +1255,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('updates the isExpand property of the env var with true', () => {
+      it('updates the isExpand property of the env_var with true', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -1229,7 +1286,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when the index is out of bounds', () => {
+      it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '1',
           ymlString: yaml`
@@ -1242,7 +1299,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateIsExpand(false, 3, EnvVarSource.Workflow, 'wf1');
-        }).toThrow('Environment variable not found at path: workflows.wf1.envs.3');
+        }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
@@ -1258,6 +1315,21 @@ describe('EnvVarService', () => {
         expect(() => {
           EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflow);
         }).toThrow('sourceId is required when source is Workflow');
+      });
+
+      it('throws an error when workflow is not found', () => {
+        initializeStore({
+          version: '1',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts`,
+        });
+
+        expect(() => {
+          EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflow, 'nonexistent');
+        }).toThrow('Workflow is not found at path: workflows.nonexistent');
       });
     });
   });

@@ -1,6 +1,6 @@
 import { Scalar } from 'yaml';
 
-import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, isWorkflowExists, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YamlUtils from '@/core/utils/YamlUtils';
 
 import { EnvironmentItemModel } from '../models/BitriseYml';
@@ -106,12 +106,20 @@ function toYml(envVar: EnvVar): EnvironmentItemModel {
   return envVarYml;
 }
 
-function getPathParts(source: EnvVarSource, sourceId?: string, index?: number, key?: string) {
-  let path: (string | number)[] = [];
-
+function validateSourceId(source?: EnvVarSource, sourceId?: string) {
   if (source === EnvVarSource.Workflow && !sourceId) {
     throw new Error('sourceId is required when source is Workflow');
   }
+
+  if (source === EnvVarSource.Workflow && sourceId) {
+    if (!isWorkflowExists(sourceId)) {
+      throw new Error(`Workflow is not found at path: workflows.${sourceId}`);
+    }
+  }
+}
+
+function getEnvPath(source: EnvVarSource, sourceId?: string, index?: number, key?: string) {
+  let path: (string | number)[] = [];
 
   if (source === EnvVarSource.Project) {
     path = ['app', 'envs'];
@@ -156,6 +164,8 @@ function getWorkflowEnvs(workflowId: string): EnvVar[] {
     return allWorkflowEnvs;
   }
 
+  validateSourceId(EnvVarSource.Workflow, workflowId);
+
   // Return environment variables from a specific workflow
   const workflowEnvs = workflows[workflowId]?.envs || [];
   return workflowEnvs.map((envVar) => fromYml(envVar, `Workflow: ${workflowId}`));
@@ -168,16 +178,17 @@ function getWorkflowEnvs(workflowId: string): EnvVar[] {
  * @returns List of environment variables
  */
 function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
+  if (sourceId !== '*') {
+    validateSourceId(source, sourceId);
+  }
+
   // Get project-level environment variables
   if (source === EnvVarSource.Project) {
     return getAppEnvs();
   }
 
   // Get workflow-specific environment variables
-  if (source === EnvVarSource.Workflow) {
-    if (!sourceId) {
-      throw new Error('sourceId is required when source is Workflow');
-    }
+  if (source === EnvVarSource.Workflow && sourceId) {
     return getWorkflowEnvs(sourceId);
   }
 
@@ -187,9 +198,13 @@ function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
 
 function append(envVar: EnvVar, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
+    validateSourceId(source, sourceId);
+
+    const path = getEnvPath(source, sourceId);
+    const envs = YamlUtils.getSeqIn(doc, path, true);
     const env = doc.createNode(toYml(envVar));
-    const envs = YamlUtils.getSeqIn(doc, getPathParts(source, sourceId), true);
     envs.add(env);
+
     return doc;
   });
 }
@@ -200,14 +215,25 @@ function create(source: EnvVarSource, sourceId?: string): void {
 
 function remove(index: number, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    YamlUtils.safeDeleteIn(doc, getPathParts(source, sourceId, index), true);
+    validateSourceId(source, sourceId);
+
+    const path = getEnvPath(source, sourceId, index);
+    const envs = YamlUtils.getSeqIn(doc, path);
+
+    if (!envs) {
+      throw new Error(`Environment variable is not found at path: ${path.join('.')}`);
+    }
+
+    YamlUtils.safeDeleteIn(doc, path, true);
     return doc;
   });
 }
 
 function reorder(newIndices: number[], source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const path = getPathParts(source, sourceId);
+    validateSourceId(source, sourceId);
+
+    const path = getEnvPath(source, sourceId);
     const envs = YamlUtils.getSeqIn(doc, path);
 
     if (!envs) {
@@ -227,11 +253,17 @@ function reorder(newIndices: number[], source: EnvVarSource, sourceId?: string) 
 
 function updateKey(newKey: string, index: number, oldKey: string, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const path = getPathParts(source, sourceId, index);
+    validateSourceId(source, sourceId);
+
+    const path = getEnvPath(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
 
-    if (!env || !env.has(oldKey)) {
-      throw new Error(`Environment variable not found at path: ${[...path, oldKey].join('.')}`);
+    if (!env) {
+      throw new Error(`Environment variable is not found at path: ${path.join('.')}`);
+    }
+
+    if (!env.has(oldKey)) {
+      throw new Error(`Environment variable key mismatch "${oldKey}" at path: ${path.join('.')}`);
     }
 
     YamlUtils.updateMapKey(env, oldKey, newKey);
@@ -241,11 +273,17 @@ function updateKey(newKey: string, index: number, oldKey: string, source: EnvVar
 
 function updateValue(value: string, index: number, key: string, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const path = getPathParts(source, sourceId, index, key);
+    validateSourceId(source, sourceId);
+
+    const path = getEnvPath(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
 
     if (!env) {
-      throw new Error(`Environment variable not found at path: ${path.join('.')}`);
+      throw new Error(`Environment variable is not found at path: ${path.join('.')}`);
+    }
+
+    if (!env.has(key)) {
+      throw new Error(`Environment variable key mismatch "${key}" at path: ${path.join('.')}`);
     }
 
     const ymlValue = toYmlValue(value);
@@ -266,11 +304,13 @@ function updateValue(value: string, index: number, key: string, source: EnvVarSo
 
 function updateIsExpand(isExpand: boolean, index: number, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const path = getPathParts(source, sourceId, index);
+    validateSourceId(source, sourceId);
+
+    const path = getEnvPath(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
 
     if (!env) {
-      throw new Error(`Environment variable not found at path: ${path.join('.')}`);
+      throw new Error(`Environment variable is not found at path: ${path.join('.')}`);
     }
 
     if (isExpand) {
