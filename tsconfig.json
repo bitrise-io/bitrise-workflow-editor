@@ -4,7 +4,7 @@
     "outDir": "./build",
     "typeRoots": [
       "./node_modules/@types",
-      "source/javascripts/typings"
+      "./source/javascripts/typings"
     ],
     "paths": {
       "@/*": [
