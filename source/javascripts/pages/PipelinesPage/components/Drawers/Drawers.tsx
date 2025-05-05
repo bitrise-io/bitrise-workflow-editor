@@ -8,6 +8,7 @@ import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/S
 import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -34,9 +35,8 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setStepBundleId,
   } = usePipelinesPageStore();
 
-  const { addStep, addStepToStepBundle, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } =
+  const { addStepToStepBundle, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } =
     useBitriseYmlStore((s) => ({
-      addStep: s.addStep,
       addStepToStepBundle: s.addStepToStepBundle,
       createPipeline: s.createPipeline,
       getUniqueStepIds: s.getUniqueStepIds,
@@ -49,7 +49,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
     if (library === LibraryType.BUNDLE) {
       if (workflowId) {
-        addStep(workflowId, cvs, selectedStepIndices[0]);
+        WorkflowService.addStep(workflowId, cvs, selectedStepIndices[0]);
       } else {
         addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
       }
@@ -60,7 +60,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
         selectedStepIndices,
       })();
     } else if (workflowId) {
-      addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      WorkflowService.addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
       openDialog({
         type: PipelinesPageDialogType.STEP_CONFIG,
         pipelineId,

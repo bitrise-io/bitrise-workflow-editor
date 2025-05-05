@@ -234,13 +234,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Step related actions
-      addStep(workflowId: string, cvs: string, to: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.addStep(workflowId, cvs, to, state.yml),
-          };
-        });
-      },
       changeStepVersion: (workflowId: string, stepIndex: number, version: string) => {
         return set((state) => {
           return {

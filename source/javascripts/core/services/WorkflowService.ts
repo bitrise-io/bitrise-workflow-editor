@@ -1,4 +1,6 @@
 import { Pipelines, Stages, Workflows } from '../models/BitriseYml';
+import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import YamlUtils from '../utils/YamlUtils';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -139,7 +141,23 @@ function countInPipelines(id: string, pipelines?: Pipelines, stages?: Stages) {
   return pipelineIdsWhereWorkflowIsUsed.size;
 }
 
+function addStep(workflowId: string, cvs: string, to: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const workflow = doc.getIn(['workflows', workflowId]);
+
+    if (!workflow) {
+      throw new Error(`Workflow with ID ${workflowId} not found`);
+    }
+
+    const steps = YamlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps'], true);
+    steps.items.splice(to, 0, { [cvs]: {} });
+
+    return doc;
+  });
+}
+
 export default {
+  addStep,
   validateName,
   sanitizeName,
   isUtilityWorkflow,

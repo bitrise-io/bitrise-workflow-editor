@@ -27,21 +27,6 @@ import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
-function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  const steps = copy.workflows[workflowId].steps ?? [];
-  steps.splice(to, 0, { [cvs]: {} });
-  copy.workflows[workflowId].steps = steps;
-
-  return copy;
-}
-
 function moveStep(workflowId: string, stepIndex: number, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1708,7 +1693,6 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
 }
 
 export default {
-  addStep,
   moveStep,
   cloneStep,
   updateStep,
