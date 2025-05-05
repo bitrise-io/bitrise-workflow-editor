@@ -1,4 +1,6 @@
-import { StepBundleConfigDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
+import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig/StepBundleConfigDrawer';
+import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
+import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';

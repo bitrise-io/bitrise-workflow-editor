@@ -18,7 +18,7 @@ import { Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
-import { Condition, FormItems } from '../../Triggers.types';
+import { FormItems } from '../../Triggers.types';
 
 type ConditionCardProps = {
   fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
@@ -38,11 +38,11 @@ const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { fields, append, optionsMap, remove } = props;
-  const { control, watch, setValue } = useFormContext();
+  const { control, watch, setValue } = useFormContext<FormItems>();
   const { conditions } = watch();
 
   const isTagCondition = useMemo(() => {
-    return conditions.some((condition: Condition) => condition.type === 'name');
+    return conditions.some((condition) => condition.type === 'name');
   }, [conditions]);
 
   return (
@@ -69,10 +69,8 @@ const ConditionCard = (props: ConditionCardProps) => {
                     render={({ field }) => (
                       <Select placeholder="Select a condition type" size="md" {...field}>
                         {Object.entries(optionsMap).map(([optionType, text]) => {
-                          const isConditionTypeUsed = conditions.some(
-                            (condition: Condition) => condition.type === optionType,
-                          );
-                          const isTypeOfCurrentCard = optionType === conditions[index].type;
+                          const isConditionTypeUsed = conditions.some((condition) => condition.type === optionType);
+                          const isTypeOfCurrentCard = optionType === type;
 
                           if (isConditionTypeUsed && !isTypeOfCurrentCard) {
                             return undefined;
@@ -97,7 +95,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                         isRequired={type !== 'target_branch' && type !== 'source_branch' && type !== 'name'}
                         onChange={(e) => field.onChange(e.target.value.trimStart())}
                         placeholder={isRegex ? '.*' : '*'}
-                        helperText={CONDITION_HELPERTEXT_MAP[type] || ''}
+                        helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
                         size="md"
                       />
                     )}

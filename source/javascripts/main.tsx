@@ -18,6 +18,7 @@ import MainLayout from '@/layouts/MainLayout';
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
+import { preloadRoutes } from './routes';
 
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   // NOTE: The API server running in local mode, has a built-in termination timer
@@ -59,6 +60,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (!isLoaded.current && data) {
       initializeStore(data);
+      setTimeout(preloadRoutes, 1000);
       isLoaded.current = true;
     }
   }, [data]);

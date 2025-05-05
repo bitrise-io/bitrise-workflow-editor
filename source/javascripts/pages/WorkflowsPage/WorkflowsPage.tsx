@@ -1,7 +1,8 @@
 import { Box } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
-import { WorkflowConfigPanel, WorkflowEmptyState } from '@/components/unified-editor';
+import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
+import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';

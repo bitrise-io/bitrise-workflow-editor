@@ -2,22 +2,13 @@ import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { cloneDeep } from 'es-toolkit';
 import { useDebounceCallback } from 'usehooks-ts';
 
-import { EnvModel, StepModel } from '@/core/models/BitriseYml';
+import { StepModel } from '@/core/models/BitriseYml';
+import StepVariableService from '@/core/services/StepVariableService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import StepInput from '../components/StepInput';
 import StepInputGroup from '../components/StepInputGroup';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
-
-function groupStepInputs(inputs?: EnvModel) {
-  return inputs?.reduce<Record<string, EnvModel>>((groups, input) => {
-    const category = input.opts?.category ?? '';
-    return {
-      ...groups,
-      ...{ [category]: [...(groups[category] ?? []), input] },
-    };
-  }, {});
-}
 
 const ConfigurationTab = () => {
   const { data, workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
@@ -107,16 +98,17 @@ const ConfigurationTab = () => {
         />
       </ExpandableCard>
 
-      {Object.entries(groupStepInputs(defaultValues.inputs) ?? {}).map(([title, defaults]) => (
-        <StepInputGroup
-          key={title}
-          stepId={data?.id}
-          title={title}
-          defaults={defaults}
-          inputs={userValues.inputs}
-          onChange={onInputValueChange}
-        />
-      ))}
+      {data?.id &&
+        Object.entries(StepVariableService.group(defaultValues.inputs)).map(([title, defaults]) => (
+          <StepInputGroup
+            key={title}
+            title={title}
+            stepId={data.id}
+            defaults={defaults}
+            inputs={userValues.inputs ?? []}
+            onChange={onInputValueChange}
+          />
+        ))}
     </Box>
   );
 };

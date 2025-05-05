@@ -1,15 +1,13 @@
 import { PropsWithChildren } from 'react';
 
-import {
-  ChainWorkflowDrawer,
-  CreateWorkflowDialog,
-  StartBuildDialog,
-  StepBundleConfigDrawer,
-  StepConfigDrawer,
-  StepSelectorDrawer,
-  WithGroupDrawer,
-  WorkflowConfigDrawer,
-} from '@/components/unified-editor';
+import ChainWorkflowDrawer from '@/components/unified-editor/ChainWorkflowDrawer/ChainWorkflowDrawer';
+import CreateWorkflowDialog from '@/components/unified-editor/CreateWorkflowDialog/CreateWorkflowDialog';
+import StartBuildDialog from '@/components/unified-editor/StartBuildDialog/StartBuildDialog';
+import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig/StepBundleConfigDrawer';
+import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
+import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
+import WithGroupDrawer from '@/components/unified-editor/WithGroupDrawer/WithGroupDrawer';
+import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
