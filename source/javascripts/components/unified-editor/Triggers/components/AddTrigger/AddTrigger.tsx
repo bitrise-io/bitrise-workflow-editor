@@ -128,11 +128,7 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    if (
-      isEqual(getConditionList(trigger), conditions) &&
-      isEqual(trigger.draft_enabled !== false, isDraftPr) &&
-      isEqual(trigger.priority, priority)
-    ) {
+    if (isEqual(getConditionList(trigger), conditions) && isEqual(trigger.draft_enabled !== false, isDraftPr)) {
       isSameTriggerExist = true;
     }
   });
