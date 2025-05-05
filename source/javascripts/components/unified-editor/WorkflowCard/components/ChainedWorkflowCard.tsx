@@ -1,23 +1,21 @@
 /* eslint-disable import/no-cycle */
+import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef } from 'react';
 
-import { CSS } from '@dnd-kit/utilities';
-import { useSortable } from '@dnd-kit/sortable';
-import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-
-import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+import useWorkflow from '@/hooks/useWorkflow';
 
+import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
-import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
-
-import WorkflowStepList from './WorkflowStepList';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
+import WorkflowStepList from './WorkflowStepList';
 
 type Props = {
   id: string;

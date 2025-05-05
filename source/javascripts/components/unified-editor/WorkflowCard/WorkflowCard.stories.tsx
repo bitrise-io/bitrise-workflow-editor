@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import withQueryClientProvider from '@/utils/withQueryClientProvider';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+
 import WorkflowCard from './WorkflowCard';
 
 export default {
@@ -29,8 +28,6 @@ export default {
     id: 'wf1',
     isCollapsable: true,
   },
-  decorators: (Story) => withBitriseYml(TEST_BITRISE_YML, Story),
-  render: withQueryClientProvider((props) => <WorkflowCard {...props} />),
 } as Meta<typeof WorkflowCard>;
 
 type Story = StoryObj<typeof WorkflowCard>;

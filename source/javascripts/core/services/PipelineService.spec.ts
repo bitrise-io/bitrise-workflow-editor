@@ -84,22 +84,54 @@ describe('PipelineService', () => {
   });
 
   describe('validateName', () => {
-    it('returns an error message if the pipeline name is empty', () => {
-      expect(PipelineService.validateName('')).toBe('Pipeline name is required.');
+    describe('when the initial name is empty', () => {
+      it('returns true if the pipeline name is valid and unique', () => {
+        expect(PipelineService.validateName('pl4', '', ['pl1', 'pl2', 'pl3'])).toBe(true);
+      });
+
+      it('returns an error message if the pipeline name is empty', () => {
+        expect(PipelineService.validateName('', '', ['pl1', 'pl2', 'pl3'])).toBe('Pipeline name is required');
+      });
+
+      it('returns an error message if the pipeline name contains only whitespaces', () => {
+        expect(PipelineService.validateName('   ', '', ['pl1', 'pl2', 'pl3'])).toBe('Pipeline name is required');
+      });
+
+      it('returns an error message if the pipeline name contains invalid characters', () => {
+        expect(PipelineService.validateName('invalid!', '', ['pl1', 'pl2', 'pl3'])).toBe(
+          'Pipeline name must only contain letters, numbers, dashes, underscores or periods',
+        );
+      });
+
+      it('returns an error message if the pipeline name is not unique', () => {
+        expect(PipelineService.validateName('pl1', '', ['pl1', 'pl2', 'pl3'])).toBe('Pipeline name should be unique');
+      });
     });
 
-    it('returns an error message if the pipeline name contains invalid characters', () => {
-      expect(PipelineService.validateName('invalid name!')).toBe(
-        'Pipeline name must only contain letters, numbers, dashes, underscores or periods.',
-      );
-    });
+    describe('when the initial name is not empty', () => {
+      it('returns true if the pipeline name is valid and unique', () => {
+        expect(PipelineService.validateName('pl4', 'pl1', ['pl1', 'pl2', 'pl3'])).toBe(true);
+      });
 
-    it('returns an error message if the pipeline name is not unique', () => {
-      expect(PipelineService.validateName('pipeline1', ['pipeline1'])).toBe('Pipeline name should be unique.');
-    });
+      it('returns an error message if the pipeline name is empty', () => {
+        expect(PipelineService.validateName('', 'pl1', ['pl1', 'pl2', 'pl3'])).toBe('Pipeline name is required');
+      });
 
-    it('returns true if the pipeline name is valid', () => {
-      expect(PipelineService.validateName('valid-name')).toBe(true);
+      it('returns an error message if the pipeline name contains only whitespaces', () => {
+        expect(PipelineService.validateName('   ', 'pl1', ['pl1', 'pl2', 'pl3'])).toBe('Pipeline name is required');
+      });
+
+      it('returns an error message if the pipeline name contains invalid characters', () => {
+        expect(PipelineService.validateName('invalid!', 'pl1', ['pl1', 'pl2', 'pl3'])).toBe(
+          'Pipeline name must only contain letters, numbers, dashes, underscores or periods',
+        );
+      });
+
+      it('returns an error message if the pipeline name is not unique', () => {
+        expect(PipelineService.validateName('pl2', 'pl1', ['pl1', 'pl2', 'pl3'])).toBe(
+          'Pipeline name should be unique',
+        );
+      });
     });
   });
 

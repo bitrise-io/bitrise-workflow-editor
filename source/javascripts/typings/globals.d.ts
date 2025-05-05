@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LogsPublicApi } from '@datadog/browser-logs/cjs/boot/logsPublicApi';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
 export {};
@@ -13,15 +12,6 @@ declare global {
     localFeatureFlags: Partial<{
       [s: string]: string | number | boolean;
     }>;
-
-    analytics: {
-      track: (event: string, payload: Record<string, string | number | null | undefined>) => void;
-    };
-    serviceVersion: string;
-    datadogApiKey: string;
-    isAnalyticsOn: boolean;
-    datadogLogs: LogsPublicApi;
-    mode: 'website' | 'cli';
 
     dataLayer?: object[];
     globalProps?: {

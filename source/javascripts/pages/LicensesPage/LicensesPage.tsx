@@ -1,25 +1,18 @@
-import { Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Box, Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import GlobalProps from '@/core/utils/GlobalProps';
-import { useWorkflows } from '@/hooks/useWorkflows';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useGetLicensePoolsQuery } from '@/hooks/useLicensePools';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
-const LicensesPageContent = () => {
-  const workspaceSlug = GlobalProps.workspaceSlug();
-
+const LicensesPage = () => {
   const workflows = useWorkflows();
-
-  const { data: licensePools, isPending } = useGetLicensePoolsQuery({
-    workspaceSlug,
-  });
-
+  const workspaceSlug = GlobalProps.workspaceSlug();
   const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
+  const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
 
   return (
-    <>
+    <Box p="32">
       <Text as="h2" textStyle="heading/h2" marginBlockEnd="4">
         Licenses
       </Text>
@@ -84,21 +77,8 @@ const LicensesPageContent = () => {
           </Tbody>
         </Table>
       )}
-    </>
+    </Box>
   );
 };
 
-type Props = {
-  onChange: (yml: BitriseYml) => void;
-  yml: BitriseYml;
-};
-
-const LicenscesPage = ({ onChange, yml }: Props) => {
-  return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <LicensesPageContent />
-    </BitriseYmlProvider>
-  );
-};
-
-export default LicenscesPage;
+export default LicensesPage;

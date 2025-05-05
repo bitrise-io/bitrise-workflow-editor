@@ -1,14 +1,17 @@
-import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Button, Divider, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowService from '@/core/services/WorkflowService';
+
 import EditableInput from '@/components/EditableInput/EditableInput';
-import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
 import DeleteWorkflowDialog from '@/components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog';
-import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-import GitStatusNameInput from '../components/GitStatusNameInput';
+import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
+import WorkflowService from '@/core/services/WorkflowService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import PriorityInput from '../../PriorityInput/PriorityInput';
+import GitStatusNameInput from '../components/GitStatusNameInput';
+import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -91,7 +94,13 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
         label="Name"
         value={workflow?.id || ''}
         sanitize={WorkflowService.sanitizeName}
-        validate={WorkflowService.validateName}
+        validate={(name) =>
+          WorkflowService.validateName(
+            name,
+            workflow?.id || '',
+            Object.keys(bitriseYmlStore.getState().yml.workflows ?? {}),
+          )
+        }
         onCommit={handleNameChange}
       />
       <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />

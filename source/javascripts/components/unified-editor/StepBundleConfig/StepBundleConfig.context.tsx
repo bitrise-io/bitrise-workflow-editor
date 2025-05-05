@@ -1,7 +1,8 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
-import useStepBundle from '@/hooks/useStepBundle';
+
 import { StepBundle } from '@/core/models/Step';
 import useStep from '@/hooks/useStep';
+import useStepBundle from '@/hooks/useStepBundle';
 
 type State = { stepBundle: StepBundle | undefined } & Props;
 const Context = createContext<State>({

@@ -1,5 +1,5 @@
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 
 import { segmentTrack } from './SegmentBaseTracking';
 

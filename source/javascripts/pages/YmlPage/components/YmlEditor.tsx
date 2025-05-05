@@ -1,55 +1,58 @@
-import { useState } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
+import Editor, { OnMount } from '@monaco-editor/react';
+import { useEffect, useRef } from 'react';
 
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { useEnvVarsAndSecretsCompletionProvider } from '@/hooks/useMonacoCompletionProvider';
-import useMonacoYaml from '@/hooks/useMonacoYaml';
+import LoadingState from '@/components/LoadingState';
+import { bitriseYmlStore, updateYmlInStore } from '@/core/stores/BitriseYmlStore';
+import MonacoUtils from '@/core/utils/MonacoUtils';
+import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useFormattedYml from '@/hooks/useFormattedYml';
 
-const EDITOR_OPTIONS = {
-  roundedSelection: false,
-  scrollBeyondLastLine: false,
-  stickyScroll: {
-    enabled: true,
-  },
-};
+const YmlEditor = () => {
+  const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
+  const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
+  // NOTE: Don't subscribe to the store here, because it will send a format request on every character change
+  // When switching to a different page, this will be unmounted, and on reopen the yml will be read from the store again
+  const { data: formattedYml, isLoading: isLoadingFormattedYml } = useFormattedYml(bitriseYmlStore.getState().yml);
 
-type YmlEditorProps = {
-  ciConfigYml: string;
-  isLoading?: boolean;
-  readOnly: boolean;
-  onEditorChange: (changedText?: string) => void;
-};
+  useEffect(() => {
+    return () => {
+      monacoEditorRef.current?.dispose();
+    };
+  }, []);
 
-const YmlEditor = (props: YmlEditorProps) => {
-  const { ciConfigYml, isLoading, readOnly, onEditorChange } = props;
+  if (isLoadingSetting || isLoadingFormattedYml) {
+    return <LoadingState />;
+  }
 
-  const [monacoInstance, setMonaco] = useState<Monaco>();
+  const handleEditorChange = (modifiedYmlString?: string) => {
+    try {
+      updateYmlInStore(modifiedYmlString);
+    } catch (error) {
+      // TODO: Should we show a notification here? This happens when the YML is invalid while typing.
+    }
+  };
 
-  useMonacoYaml(monacoInstance);
-  useEnvVarsAndSecretsCompletionProvider({
-    monaco: monacoInstance,
-    language: 'yaml',
-  });
+  const handleEditorDidMount: OnMount = (editor) => {
+    monacoEditorRef.current = editor;
+  };
 
   return (
     <Editor
+      value={formattedYml}
       theme="vs-dark"
       language="yaml"
-      onChange={onEditorChange}
-      value={isLoading ? 'Loading...' : ciConfigYml}
-      options={{ ...EDITOR_OPTIONS, readOnly: readOnly || isLoading }}
-      beforeMount={setMonaco}
+      keepCurrentModel
+      onChange={handleEditorChange}
+      onMount={handleEditorDidMount}
+      beforeMount={(monaco) => {
+        MonacoUtils.configureForYaml(monaco);
+        MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+      }}
+      options={{
+        readOnly: isLoadingSetting || isLoadingFormattedYml || ymlSettings?.usesRepositoryYml,
+      }}
     />
   );
 };
 
-const WrappedYmlEditor = (props: YmlEditorProps) => (
-  // eslint-disable-next-line react/destructuring-assignment
-  <BitriseYmlProvider yml={BitriseYmlApi.fromYml(props.ciConfigYml) as BitriseYml}>
-    <YmlEditor {...props} />
-  </BitriseYmlProvider>
-);
-
-export default WrappedYmlEditor;
+export default YmlEditor;

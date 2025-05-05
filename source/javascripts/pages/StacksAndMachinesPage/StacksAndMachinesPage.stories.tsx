@@ -1,11 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
+
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import StacksAndMachinesPage, { StacksAndMachinesPageProps } from './StacksAndMachinesPage';
 
-type Props = StacksAndMachinesPageProps & { deprecatedMachinesPeriod?: 'before' | 'in' | 'after' };
+import StacksAndMachinesPage from './StacksAndMachinesPage';
 
-const getGracePeriod = (deprecatedMachinesPeriod: Props['deprecatedMachinesPeriod']) => {
+const getGracePeriod = (deprecatedMachinesPeriod?: 'before' | 'in' | 'after') => {
   let shiftDays = 1;
 
   if (deprecatedMachinesPeriod === 'before') {
@@ -24,19 +24,15 @@ const getGracePeriod = (deprecatedMachinesPeriod: Props['deprecatedMachinesPerio
   };
 };
 
-type Story = StoryObj<Props>;
+type Story = StoryObj<typeof StacksAndMachinesPage>;
 
-const meta: Meta<Props> = {
+const meta: Meta<typeof StacksAndMachinesPage> = {
   component: StacksAndMachinesPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
   argTypes: {
     deprecatedMachinesPeriod: {
       control: 'inline-radio',
       options: ['before', 'in', 'after'],
     },
-    onChange: { type: 'function' },
   },
   parameters: {
     layout: 'fullscreen',
@@ -60,24 +56,33 @@ export const FreeUser: Story = {
 };
 
 export const WithInvalidPreviousStackVersion: Story = {
-  args: {
-    yml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-      stack: 'osx-xcode-15',
-      machine_type_id: 'm2.large',
-      stack_rollback_version: '1.0.0',
-    }),
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'osx-xcode-15',
+        machine_type_id: 'm2.large',
+        stack_rollback_version: '1.0.0',
+      });
+      return { yml: TEST_BITRISE_YML };
+    })(),
   },
 };
 
 export const WithDeprecatedMachines: Story = {
   args: {
     deprecatedMachinesPeriod: 'in',
-    yml: set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-      stack: 'linux-ubuntu-22.04',
-      machine_type_id: 'standard',
-    }),
   },
-  beforeEach: ({ args }) => {
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'linux-ubuntu-22.04',
+        machine_type_id: 'standard',
+      });
+      return { yml: TEST_BITRISE_YML };
+    })(),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  beforeEach: ({ args }: any) => {
     set(
       window,
       'parent.globalProps.account.useReplacementForDeprecatedMachines',

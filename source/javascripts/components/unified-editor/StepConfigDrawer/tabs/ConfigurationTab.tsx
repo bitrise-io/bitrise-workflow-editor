@@ -1,11 +1,11 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
-import { useDebounceCallback } from 'usehooks-ts';
 import { cloneDeep } from 'es-toolkit';
+import { useDebounceCallback } from 'usehooks-ts';
 
 import { StepModel } from '@/core/models/BitriseYml';
+import StepVariableService from '@/core/services/StepVariableService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import StepVariableService from '@/core/services/StepVariableService';
 import StepInput from '../components/StepInput';
 import StepInputGroup from '../components/StepInputGroup';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';

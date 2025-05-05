@@ -1,10 +1,11 @@
-import { ReactFlow, NodeTypes, ReactFlowProps } from '@xyflow/react';
-import usePipelineStageNodes from './hooks/usePipelineStageNodes';
-import usePipelineStageEdges from './hooks/usePipelineStageEdges';
+import { NodeTypes, ReactFlow, ReactFlowProps } from '@xyflow/react';
+
 import AddNode from './components/AddNode';
-import RunNode from './components/RunNode';
 import EndNode from './components/EndNode';
+import RunNode from './components/RunNode';
 import StageNode from './components/StageNode';
+import usePipelineStageEdges from './hooks/usePipelineStageEdges';
+import usePipelineStageNodes from './hooks/usePipelineStageNodes';
 
 const nodeTypes: NodeTypes = {
   add: AddNode,

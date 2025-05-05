@@ -1,18 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 
 import SecretCard from './SecretCard';
 
-type SecretsPageProps = {
-  onSecretsChange: (secrets: Secret[]) => void;
-};
-
-const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
+const SecretsPage = () => {
   const appSlug = PageProps.appSlug();
   const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/secrets`;
   const planSelectorPath = `/workspaces/${GlobalProps.workspaceSlug()}/plan_selector`;
@@ -29,10 +25,6 @@ const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
       setAppSecretList(secrets.filter((secret) => !secret.isShared));
     }
   }, [secrets]);
-
-  useEffect(() => {
-    onSecretsChange([...workspaceSecretList, ...appSecretList]);
-  }, [workspaceSecretList, appSecretList, onSecretsChange]);
 
   const {
     mutate: deleteSecret,
@@ -150,7 +142,7 @@ const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
   };
 
   return (
-    <>
+    <Box p="32">
       <Text as="h2" textStyle="heading/h2" marginBottom="12">
         Secret Environment Variables
       </Text>
@@ -218,7 +210,7 @@ const SecretsPage = ({ onSecretsChange }: SecretsPageProps) => {
           </Button>
         </DialogFooter>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

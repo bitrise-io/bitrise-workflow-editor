@@ -3,29 +3,58 @@ import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
   describe('validateName', () => {
-    it('returns true if workflow name is valid and no other names are provided', () => {
-      const result = WorkflowService.validateName('valid-name_123');
-      expect(result).toBe(true);
+    describe('when the initial name is empty', () => {
+      it('returns true if workflow name is valid and unique', () => {
+        const result = WorkflowService.validateName('wf4', '', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe(true);
+      });
+
+      it('returns error message when workflow name is empty', () => {
+        const result = WorkflowService.validateName('', '', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name is required');
+      });
+
+      it('returns error message when workflow name is whitespace only', () => {
+        const result = WorkflowService.validateName('   ', '', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name is required');
+      });
+
+      it('returns error message when workflow name contains invalid characters', () => {
+        const result = WorkflowService.validateName('invalid@name!', '', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name must only contain letters, numbers, dashes, underscores or periods');
+      });
+
+      it('returns error message when workflow name is not unique', () => {
+        const result = WorkflowService.validateName('wf1', '', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name should be unique');
+      });
     });
 
-    it('returns true if workflow name is valid and unique', () => {
-      const result = WorkflowService.validateName('valid-name_123', ['otherName']);
-      expect(result).toBe(true);
-    });
+    describe('when the initial name is not empty', () => {
+      it('returns true if workflow name is valid and unique', () => {
+        const result = WorkflowService.validateName('my-first-workflow', 'wf1', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe(true);
+      });
 
-    it('returns error message if workflow name is empty', () => {
-      const result = WorkflowService.validateName('');
-      expect(result).toBe('Workflow name is required');
-    });
+      it('returns error message when workflow name is empty', () => {
+        const result = WorkflowService.validateName('', 'wf1', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name is required');
+      });
 
-    it('returns error message if workflow name contains invalid characters', () => {
-      const result = WorkflowService.validateName('invalid@name!');
-      expect(result).toBe('Workflow name must only contain letters, numbers, dashes, underscores or periods');
-    });
+      it('returns error message when workflow name is whitespace only', () => {
+        const result = WorkflowService.validateName('   ', 'w1', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name is required');
+      });
 
-    it('returns error message if workflow name is not unique', () => {
-      const result = WorkflowService.validateName('duplicateName', ['duplicateName']);
-      expect(result).toBe('Workflow name should be unique.');
+      it('returns error message when workflow name contains invalid characters', () => {
+        const result = WorkflowService.validateName('invalid@name!', 'wf1', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name must only contain letters, numbers, dashes, underscores or periods');
+      });
+
+      it('returns error message when workflow name is not unique', () => {
+        const result = WorkflowService.validateName('wf2', 'wf1', ['wf1', 'wf2', 'wf3']);
+        expect(result).toBe('Workflow name should be unique');
+      });
     });
   });
 

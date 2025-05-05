@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Box, Label } from '@bitrise/bitkit';
-import { editor } from 'monaco-editor';
-import { Editor, Monaco } from '@monaco-editor/react';
-import { useEnvVarsAndSecretsCompletionProvider } from '@/hooks/useMonacoCompletionProvider';
+import { Editor } from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
+import { useCallback, useEffect, useState } from 'react';
+
+import MonacoUtils from '@/core/utils/MonacoUtils';
 
 const EDITOR_OPTIONS = {
   fontSize: 13,
@@ -23,13 +24,7 @@ type Props = {
 };
 
 const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
-  const [monacoInstance, setMonaco] = useState<Monaco>();
   const [editorInstance, setEditor] = useState<editor.IStandaloneCodeEditor>();
-
-  useEnvVarsAndSecretsCompletionProvider({
-    monaco: monacoInstance,
-    language: 'shell',
-  });
 
   const updateEditorHeight = useCallback(() => {
     if (!editorInstance) {
@@ -56,14 +51,12 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
       {label && <Label>{label}</Label>}
       <Editor
         theme="vs-dark"
-        value={value || defaultValue}
-        options={EDITOR_OPTIONS}
+        onMount={setEditor}
         defaultLanguage="shell"
+        options={EDITOR_OPTIONS}
+        value={value || defaultValue}
         onChange={(changedValue) => onChange(changedValue || null)}
-        onMount={(edtr, mnco) => {
-          setMonaco(mnco);
-          setEditor(edtr);
-        }}
+        beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}
       />
     </Box>
   );

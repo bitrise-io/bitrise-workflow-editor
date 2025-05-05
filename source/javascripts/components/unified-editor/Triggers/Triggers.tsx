@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Box,
   Button,
@@ -13,17 +12,18 @@ import {
   Toggle,
 } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
+import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition, TriggersModel } from '@/core/models/BitriseYml';
+import { deepCloneSimpleObject } from '@/core/utils/CommonUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useUserMetaData from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
+import useUserMetaData from '@/hooks/useUserMetaData';
 
-import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
 import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
+import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
 import { getConditionList, getPipelineableTriggers } from './Triggers.utils';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {

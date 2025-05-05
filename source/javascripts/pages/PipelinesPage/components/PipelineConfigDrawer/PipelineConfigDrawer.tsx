@@ -1,4 +1,5 @@
 import { Box, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -6,6 +7,7 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+
 import PropertiesTab from './tabs/PropertiesTab';
 import TriggersTab from './tabs/TriggersTab';
 

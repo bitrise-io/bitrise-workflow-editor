@@ -1,4 +1,5 @@
 import { StepApiResult } from '@/core/api/StepApi';
+
 import { compareByPriority } from './StepSelectorDrawer.utils';
 
 describe('compareByPriority', () => {

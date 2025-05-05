@@ -1,12 +1,12 @@
-import { Fragment } from 'react/jsx-runtime';
 import { Divider, Text } from '@bitrise/bitkit';
+import { Fragment } from 'react/jsx-runtime';
 
-import TabHeader from '@/components/tabs/TabHeader';
 import TabContainer from '@/components/tabs/TabContainer';
+import TabHeader from '@/components/tabs/TabHeader';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import PrivateInfoNotification from '../components/PrivateInfoNotification';
 import EnvVarsTable from '../components/EnvVarsTable/EnvVarsTable';
+import PrivateInfoNotification from '../components/PrivateInfoNotification';
 
 const WorkflowsTab = () => {
   const workflowIds = useBitriseYmlStore((state) => Object.keys(state.yml.workflows ?? {}));

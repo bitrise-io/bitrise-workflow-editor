@@ -1,11 +1,14 @@
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { StepBundleConfigDrawer, StepConfigDrawer, StepSelectorDrawer } from '@/components/unified-editor';
+import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig/StepBundleConfigDrawer';
+import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
+import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
-import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import CreateStepBundleDialog, {
   StepBundleBaseEntityType,
 } from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const Drawers = () => {
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =

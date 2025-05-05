@@ -1,13 +1,13 @@
 import { parse, stringify } from 'yaml';
+
 import { BitriseYml } from '@/core/models/BitriseYml';
-import RuntimeUtils from '@/core/utils/RuntimeUtils'; // TRANSFORMATIONS
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 import Client from './client';
 
-// TRANSFORMATIONS
-function toBitriseYml(data: string): BitriseYml {
-  return JSON.parse(data) as BitriseYml;
-}
+const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
 
+// TRANSFORMATIONS
 function toYml(model?: unknown): string {
   if (!model) {
     return '';
@@ -17,90 +17,109 @@ function toYml(model?: unknown): string {
     return model;
   }
 
-  return `---\n${stringify(model, { version: '1.1', aliasDuplicateObjects: false })}`;
-}
-
-function toJSON(model?: unknown): string {
-  return JSON.stringify({
-    app_config_datastore_yaml: toYml(model),
+  return stringify(model, {
+    version: '1.1',
+    indentSeq: false,
+    schema: 'yaml-1.1',
+    aliasDuplicateObjects: false,
   });
 }
 
-function fromYml(yml: string): unknown {
+function fromYml(yml: string): BitriseYml {
   if (!yml) {
-    return {};
+    return { format_version: '' };
   }
 
   return parse(yml);
 }
 
-// API CALLS
-const BITRISE_YML_PATH = `/api/app/:projectSlug/config`;
-const LOCAL_BITRISE_YAML_PATH = `/api/bitrise-yml.json`;
-const FORMAT_YML_PATH = `/api/cli/format`;
-
-function getBitriseYmlPath({
-  projectSlug,
-  readFromRepo = false,
-}: {
+type GetCiConfigOptions = {
   projectSlug: string;
-  readFromRepo?: boolean;
-}): string {
-  return `${BITRISE_YML_PATH.replace(':projectSlug', projectSlug)}${readFromRepo ? '?is_force_from_repo=1' : ''}`;
+  signal?: AbortSignal;
+  forceToReadFromRepo?: boolean;
+};
+
+type GetCiConfigResult = {
+  ymlString: string;
+  version: string;
+};
+
+type SaveCiConfigOptions = {
+  data: string;
+  version?: string;
+  projectSlug: string;
+  tabOpenDuringSave?: string;
+};
+
+// API CALLS
+const FORMAT_YML_PATH = `/api/cli/format`;
+const BITRISE_YML_PATH = `/api/app/:projectSlug/config.yml`;
+const LOCAL_BITRISE_YML_PATH = `/api/bitrise-yml`;
+
+function ciConfigPath({ projectSlug, forceToReadFromRepo }: Omit<GetCiConfigOptions, 'signal'>) {
+  const basePath = RuntimeUtils.isWebsiteMode()
+    ? BITRISE_YML_PATH.replace(':projectSlug', projectSlug)
+    : LOCAL_BITRISE_YML_PATH;
+
+  return [basePath, forceToReadFromRepo ? '?is_force_from_repo=1' : ''].join('');
 }
 
-async function getBitriseYml({
-  signal,
-  ...params
-}: {
-  projectSlug: string;
-  readFromRepo?: boolean;
-  signal?: AbortSignal;
-}): Promise<BitriseYml> {
+async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<GetCiConfigResult> {
+  const path = ciConfigPath(options);
+  const response = await Client.raw(path, { signal, method: 'GET' });
+
+  return {
+    ymlString: await response.text(),
+    version: response.headers.get(CI_CONFIG_VERSION_HEADER) || '',
+  };
+}
+
+async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: SaveCiConfigOptions) {
+  const path = ciConfigPath({ projectSlug });
+  const headers: HeadersInit = version ? { [CI_CONFIG_VERSION_HEADER]: version } : {};
+
   if (RuntimeUtils.isWebsiteMode()) {
-    const response = await Client.text(getBitriseYmlPath(params), {
-      signal,
+    return Client.post(path, {
+      headers,
+      body: JSON.stringify({
+        app_config_datastore_yaml: data,
+        tab_open_during_save: tabOpenDuringSave,
+      }),
     });
-    return toBitriseYml(response);
   }
 
-  return Client.text(LOCAL_BITRISE_YAML_PATH).then(toBitriseYml);
-}
-
-function updateBitriseYml({
-  projectSlug,
-  model,
-  signal,
-}: {
-  projectSlug: string;
-  model: BitriseYml;
-  signal?: AbortSignal;
-}): Promise<unknown> {
-  return Client.post<unknown>(getBitriseYmlPath({ projectSlug }), {
-    signal,
-    body: toJSON(model),
+  return Client.post(path, {
+    headers,
+    body: JSON.stringify({
+      bitrise_yml: data,
+    }),
   });
 }
 
-async function formatYml(model: BitriseYml): Promise<string> {
+async function formatCiConfig(data: string, signal?: AbortSignal): Promise<string> {
   const response = await Client.text(FORMAT_YML_PATH, {
-    body: toJSON(model),
+    signal,
+    body: JSON.stringify({
+      app_config_datastore_yaml: data,
+    }),
     headers: {
       Accept: 'application/x-yaml, application/json',
+      'Content-Type': 'application/json',
     },
     method: 'POST',
   });
 
-  return response || toYml(model);
+  return response || toYml(data);
 }
 
+export type { GetCiConfigResult };
+
 export default {
-  getBitriseYmlPath,
-  getBitriseYml,
-  getUpdateBitriseYmlPath: getBitriseYmlPath,
-  updateBitriseYml,
-  formatYml,
-  fromYml,
   toYml,
-  toJSON,
+  fromYml,
+  getCiConfig,
+  ciConfigPath,
+  saveCiConfig,
+  formatCiConfig,
+  FORMAT_YML_PATH,
 };

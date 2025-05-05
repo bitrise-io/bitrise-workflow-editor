@@ -1,18 +1,16 @@
-import { RefObject, useCallback, useRef } from 'react';
 import { Box, Link, Notification } from '@bitrise/bitkit';
-
+import { RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
-import PageProps from '@/core/utils/PageProps';
-
 import StackAndMachineService from '@/core/services/StackAndMachineService';
+import PageProps from '@/core/utils/PageProps';
+import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
-import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
-import MachineTypeSelector from './MachineTypeSelector';
-import StackSelector from './StackSelector';
 import DeprecatedMachineNotification from './DeprecatedMachineNotification';
+import MachineTypeSelector from './MachineTypeSelector';
 import StackAndMachineWrapper from './StackAndMachineWrapper';
+import StackSelector from './StackSelector';
 
 const useOrientation = (ref: RefObject<HTMLDivElement>) => {
   const { width } = useResizeObserver({ ref, box: 'border-box' });

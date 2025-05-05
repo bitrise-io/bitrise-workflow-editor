@@ -1,12 +1,11 @@
 import { toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
 
-import { Stack, StackOption } from '../models/Stack';
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { MachineType, MachineTypeOption } from '../models/MachineType';
-
-import StackService from './StackService';
+import { Stack, StackOption } from '../models/Stack';
 import MachineTypeService from './MachineTypeService';
+import StackService from './StackService';
 
 export type StackWithValue = Stack & {
   value: string;

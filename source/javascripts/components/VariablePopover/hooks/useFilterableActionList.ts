@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ListItemProps } from '@bitrise/bitkit';
 import { ListProps } from '@chakra-ui/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { type FilterInputProps } from '../components/FilterInput';
 
 export type FilterableActionListResult<TActionItem> = {

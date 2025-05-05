@@ -1,18 +1,20 @@
 /* eslint-disable import/no-cycle */
-import { useMemo, useRef, MouseEvent } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import StepBundleService from '@/core/services/StepBundleService';
-import { LibraryType } from '@/core/models/Step';
+import { MouseEvent, useMemo, useRef } from 'react';
+
 import DragHandle from '@/components/DragHandle/DragHandle';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
-import { StepCardProps } from '../../WorkflowCard/components/StepCard';
-import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
-import useReactFlowZoom from '../../WorkflowCard/hooks/useReactFlowZoom';
-import { useSelection, useStepActions } from '../../WorkflowCard/contexts/WorkflowCardContext';
+import { LibraryType } from '@/core/models/Step';
+import StepBundleService from '@/core/services/StepBundleService';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
+import { StepCardProps } from '../../WorkflowCard/components/StepCard';
+import { useSelection, useStepActions } from '../../WorkflowCard/contexts/WorkflowCardContext';
+import useReactFlowZoom from '../../WorkflowCard/hooks/useReactFlowZoom';
+import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
 
 type StepBundleCardProps = StepCardProps & {
   cvs: string;

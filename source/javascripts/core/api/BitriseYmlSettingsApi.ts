@@ -1,9 +1,10 @@
 import { BitriseYmlSettings } from '@/core/models/BitriseYmlSettings';
+
 import Client from './client';
 
 // DTOs
 export type BitriseYmlSettingsResponse = {
-  last_modified: string;
+  last_modified: string | null;
   lines: number;
   split: boolean;
   uses_repository_yml: boolean;
@@ -24,7 +25,7 @@ function toYmlSettings(response: BitriseYmlSettingsResponse): BitriseYmlSettings
     isYmlSplit: response.split,
     isModularYamlSupported: response.modular_yaml_supported,
     usesRepositoryYml: response.uses_repository_yml,
-    ymlRootPath: response.yml_root_path || '',
+    ymlRootPath: response.yml_root_path,
   };
 }
 
@@ -36,7 +37,7 @@ function toYmlSettingUpdateModel(model: Partial<BitriseYmlSettings>): BitriseYml
 }
 
 // API CALLS
-const YML_SETTINGS_PATH = 'app/:projectSlug/pipeline_config';
+const YML_SETTINGS_PATH = '/app/:projectSlug/pipeline_config';
 
 function getYmlSettingsPath(projectSlug: string): string {
   return YML_SETTINGS_PATH.replace(':projectSlug', projectSlug);

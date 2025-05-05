@@ -1,12 +1,12 @@
+import { Box, Button, ButtonGroup, Checkbox, Divider, Link, Text, Tooltip } from '@bitrise/bitkit';
+import { isEqual } from 'es-toolkit';
 import { useMemo } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { isEqual } from 'es-toolkit';
-import { Box, Button, ButtonGroup, Checkbox, Divider, Link, Text, Tooltip } from '@bitrise/bitkit';
 
+import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
 
-import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';

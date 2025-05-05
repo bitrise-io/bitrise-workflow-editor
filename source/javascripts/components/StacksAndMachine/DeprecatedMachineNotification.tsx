@@ -1,4 +1,5 @@
 import { Link, Notification, NotificationProps } from '@bitrise/bitkit';
+
 import GlobalProps from '@/core/utils/GlobalProps';
 
 type Props = {

@@ -1,7 +1,7 @@
 import { toMerged } from 'es-toolkit';
 
-import { Stage } from '@/core/models/Stage';
 import { PipelineStages } from '@/core/models/BitriseYml';
+import { Stage } from '@/core/models/Stage';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';

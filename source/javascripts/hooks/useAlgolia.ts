@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import StepApi from '@/core/api/StepApi';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
@@ -31,4 +32,4 @@ function useAlgoliaStepInputs({ cvs, enabled = true }: { cvs: string; enabled?: 
   });
 }
 
-export { useAlgoliaSteps, useAlgoliaStep, useAlgoliaStepInputs };
+export { useAlgoliaStep, useAlgoliaStepInputs, useAlgoliaSteps };

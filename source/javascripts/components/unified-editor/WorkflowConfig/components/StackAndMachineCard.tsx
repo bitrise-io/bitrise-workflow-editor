@@ -1,7 +1,7 @@
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-
-import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
+
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const StackAndMachineCard = () => {

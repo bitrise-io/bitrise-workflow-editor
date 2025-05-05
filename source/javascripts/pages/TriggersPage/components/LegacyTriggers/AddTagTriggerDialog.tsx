@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from 'react';
 import {
   Button,
   Checkbox,
@@ -12,8 +11,11 @@ import {
   Toggletip,
   Tooltip,
 } from '@bitrise/bitkit';
+import { useEffect, useMemo } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
+
 import { FormItems, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 type DialogProps = {

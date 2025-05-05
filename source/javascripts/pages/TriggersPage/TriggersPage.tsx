@@ -1,24 +1,20 @@
-import { Link, Notification, Text } from '@bitrise/bitkit';
+import { Box, Link, Notification, Text } from '@bitrise/bitkit';
 
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useUserMetaData from '@/hooks/useUserMetaData';
+
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
-const TriggersPageContent = () => {
+const TriggersPage = () => {
   const { yml } = useBitriseYmlStore();
-
   const appSlug = PageProps.appSlug();
-
-  const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
-
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 
   const { value: metaDataValue, update: updateMetaData } = useUserMetaData(
     TRIGGERS_CONFIGURED_METADATA_KEY,
@@ -26,7 +22,7 @@ const TriggersPageContent = () => {
   );
 
   return (
-    <>
+    <Box p="32">
       <Text as="h2" textStyle="heading/h2" marginBlockEnd="4">
         Triggers
       </Text>
@@ -53,20 +49,7 @@ const TriggersPageContent = () => {
       )}
       <TargetBasedTriggers yml={yml} />
       {!!yml.trigger_map && <LegacyTriggers yml={yml} />}
-    </>
-  );
-};
-
-type Props = {
-  onChange: (yml: BitriseYml) => void;
-  yml: BitriseYml;
-};
-
-const TriggersPage = ({ onChange, yml }: Props) => {
-  return (
-    <BitriseYmlProvider yml={yml} onChange={onChange}>
-      <TriggersPageContent />
-    </BitriseYmlProvider>
+    </Box>
   );
 };
 

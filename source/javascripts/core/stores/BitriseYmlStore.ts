@@ -1,3 +1,4 @@
+import { omitBy } from 'es-toolkit';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
@@ -13,19 +14,26 @@ import {
   TriggersModel,
   WorkflowModel,
 } from '@/core/models/BitriseYml';
-
 import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/services/EnvVarService';
-import BitriseYmlService from '@/core/services/BitriseYmlService';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import BitriseYmlService from '@/core/services/BitriseYmlService';
+import EnvVarService from '@/core/services/EnvVarService';
 
-type BitriseYmlStoreState = ExtractState<ReturnType<typeof create>>;
+import BitriseYmlApi from '../api/BitriseYmlApi';
 
-type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
+export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
-function create(yml: BitriseYml) {
-  return createStore(
-    combine({ yml }, (set, get) => ({
+export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
+
+export const bitriseYmlStore = createStore(
+  combine(
+    {
+      discardKey: Date.now(),
+      yml: {} as BitriseYml,
+      savedYml: {} as BitriseYml,
+      savedYmlVersion: '',
+    },
+    (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
       },
@@ -487,10 +495,38 @@ function create(yml: BitriseYml) {
           };
         });
       },
-    })),
-  );
+    }),
+  ),
+);
+
+export function updateYmlInStore(ymlString?: string, discardKey?: number) {
+  if (ymlString && discardKey) {
+    return bitriseYmlStore.setState({ yml: BitriseYmlApi.fromYml(ymlString), discardKey });
+  }
+
+  if (ymlString) {
+    return bitriseYmlStore.setState({ yml: BitriseYmlApi.fromYml(ymlString) });
+  }
 }
 
-export { BitriseYmlStore, BitriseYmlStoreState };
-
-export default { create };
+export function initializeStore({
+  version,
+  ymlString,
+  discardKey,
+}: {
+  version: string;
+  ymlString: string;
+  discardKey?: number;
+}) {
+  bitriseYmlStore.setState(
+    omitBy(
+      {
+        discardKey,
+        yml: BitriseYmlApi.fromYml(ymlString),
+        savedYml: BitriseYmlApi.fromYml(ymlString),
+        savedYmlVersion: version,
+      },
+      (value) => value === undefined,
+    ),
+  );
+}

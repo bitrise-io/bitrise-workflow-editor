@@ -1,5 +1,5 @@
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelineWorkflow } from '@/core/models/Workflow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 

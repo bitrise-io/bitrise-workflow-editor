@@ -1,14 +1,16 @@
-import { ChangeEventHandler, useState } from 'react';
 import { Button, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { ChangeEventHandler, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
+
 import EditableInput from '@/components/EditableInput/EditableInput';
-import StepBundleService from '@/core/services/StepBundleService';
-import { useStepBundles } from '@/hooks/useStepBundles';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { StepBundleModel } from '@/core/models/BitriseYml';
+import StepBundleService from '@/core/services/StepBundleService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useStepBundles } from '@/hooks/useStepBundles';
+
 import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
-import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import useRenameStepBundle from './hooks/useRenameStepBundle';
+import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type StepBundlePropertiesTabProps = {
   onDelete?: () => void;

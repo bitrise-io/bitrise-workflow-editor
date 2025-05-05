@@ -1,13 +1,15 @@
-import { useCallback } from 'react';
 import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import PipelineService from '@/core/services/PipelineService';
+import { useCallback } from 'react';
+
 import EditableInput from '@/components/EditableInput/EditableInput';
+import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
+import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
+import PipelineService from '@/core/services/PipelineService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
-import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
-import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
+
 import DeletePipelineDialog from '../components/DeletePipelineDialog/DeletePipelineDialog';
 
 type Props = {
@@ -40,17 +42,6 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
     }
   };
 
-  const validateName = (value: string) => {
-    return PipelineService.validateName(
-      value,
-      keys.filter((key) => key !== pipelineId),
-    );
-  };
-
-  const sanitizeName = (value: string) => {
-    return PipelineService.sanitizeName(value);
-  };
-
   const onDeletePipeline = useCallback(
     (deletedId: string) => {
       onDelete();
@@ -66,8 +57,8 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
           isRequired
           name="name"
           label="Name"
-          sanitize={sanitizeName}
-          validate={validateName}
+          sanitize={PipelineService.sanitizeName}
+          validate={(name) => PipelineService.validateName(name, pipelineId, keys)}
           onCommit={onNameChange}
           defaultValue={pipelineId}
         />
@@ -90,7 +81,11 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
         />
         <GitStatusNameInput
           targetId={pipelineId}
-          onChange={(newStatusReportName) => updatePipeline(pipelineId, { status_report_name: newStatusReportName })}
+          onChange={(newStatusReportName) =>
+            updatePipeline(pipelineId, {
+              status_report_name: newStatusReportName,
+            })
+          }
           statusReportName={statusReportName}
         />
 

@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 
 const meta: Meta<EntitySelectorProps> = {

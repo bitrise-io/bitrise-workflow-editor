@@ -1,63 +1,89 @@
 import { Meta, StoryObj } from '@storybook/react';
-import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
+
 import {
-  getConfig,
-  getConfigFailed,
-  postConfig,
-  putPipelineConfig,
-  putPipelineConfigFailed,
+  getCiConfig,
+  getYmlSettings,
+  postCiConfig,
+  postFormatYml,
+  putYmlSettings,
 } from './ConfigurationYmlSource.mswMocks';
+import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
+
+const defaultMswHandlers = [getCiConfig(), putYmlSettings(), postCiConfig(), postFormatYml(), getYmlSettings()];
 
 export default {
   component: ConfigurationYmlSourceDialog,
   args: {
     isOpen: true,
-    projectSlug: '1c75ec44-ef64-4da0-8ab8-339f512eecc8',
-    onClose: () => {},
-    defaultBranch: 'main',
-    gitRepoSlug: 'VoyagerGitRepo',
-    lastModified: '2024-05-12T09:23:48.190Z',
-    onConfigSourceChangeSaved: () => {},
-    initialYmlRootPath: 'spongebob/squarepants',
-    ciConfigYml: 'ciConfigYml content',
+  },
+  argTypes: {
+    onClose: { type: 'function' },
   },
   parameters: {
     msw: {
-      handlers: [getConfig(), putPipelineConfig(), postConfig()],
+      handlers: [...defaultMswHandlers],
     },
   },
 } as Meta<typeof ConfigurationYmlSourceDialog>;
 
-export const StoredOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
-  args: {
-    initialUsesRepositoryYml: false,
-  },
-};
+type Story = StoryObj<typeof ConfigurationYmlSourceDialog>;
 
-export const StoredOnGitRepository: StoryObj<typeof ConfigurationYmlSourceDialog> = {
-  args: {
-    initialUsesRepositoryYml: true,
-  },
-};
+export const StoredOnBitrise: Story = {};
 
-export const StoringFailedOnGit: StoryObj<typeof ConfigurationYmlSourceDialog> = {
-  args: {
-    initialUsesRepositoryYml: false,
-  },
+export const StoredOnGitRepository: Story = {
   parameters: {
     msw: {
-      handlers: [getConfigFailed()],
+      handlers: [getYmlSettings({ uses_repository_yml: true, yml_root_path: '' }), ...defaultMswHandlers],
     },
   },
 };
 
-export const StoringFailedOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
-  args: {
-    initialUsesRepositoryYml: true,
-  },
+export const SaveCIConfigSettingsFailed: Story = {
   parameters: {
     msw: {
-      handlers: [getConfig(), postConfig(), putPipelineConfigFailed()],
+      handlers: [putYmlSettings('Save CI config settings failed.'), ...defaultMswHandlers],
     },
   },
 };
+
+export const FetchCIConfigFailed: Story = {
+  parameters: {
+    msw: {
+      handlers: [getCiConfig('Get CI confit from Git repository failed.'), ...defaultMswHandlers],
+    },
+  },
+};
+
+// export const StoredOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+//   args: {
+//     initialUsesRepositoryYml: false,
+//   },
+// };
+
+// export const StoredOnGitRepository: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+//   args: {
+//     initialUsesRepositoryYml: true,
+//   },
+// };
+
+// export const StoringFailedOnGit: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+//   args: {
+//     initialUsesRepositoryYml: false,
+//   },
+//   parameters: {
+//     msw: {
+//       handlers: [getConfigFailed()],
+//     },
+//   },
+// };
+
+// export const StoringFailedOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+//   args: {
+//     initialUsesRepositoryYml: true,
+//   },
+//   parameters: {
+//     msw: {
+//       handlers: [getCiConfig(), postCiConfig(), putPipelineConfigFailed()],
+//     },
+//   },
+// };

@@ -1,8 +1,8 @@
 import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 import { ReactFlowProvider } from '@xyflow/react';
 
-import PageProps from '@/core/utils/PageProps';
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -11,12 +11,12 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import { SelectStepHandlerFn } from './StepSelectorDrawer.types';
-import useSearch from './hooks/useSearch';
-import StepBundleFilter from './components/StepBundleFilter';
-import StepFilter from './components/StepFilter';
-import StepBundleList from './components/StepBundleList';
 import AlgoliaStepList from './components/AlgoliaStepList';
+import StepBundleFilter from './components/StepBundleFilter';
+import StepBundleList from './components/StepBundleList';
+import StepFilter from './components/StepFilter';
+import useSearch from './hooks/useSearch';
+import { SelectStepHandlerFn } from './StepSelectorDrawer.types';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;

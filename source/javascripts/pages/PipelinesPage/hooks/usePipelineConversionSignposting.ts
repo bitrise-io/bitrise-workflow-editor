@@ -2,20 +2,19 @@ import { useCallback, useMemo } from 'react';
 import { useSessionStorage } from 'usehooks-ts';
 
 import PipelineService from '@/core/services/PipelineService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
-import { useBitriseYmlStoreApi } from '@/hooks/useBitriseYmlStore';
 
 const usePipelineConversionSignposting = () => {
   const key = ['pipeline-conversion-signposting', PageProps.appSlug() || 'cli'].join('-');
   const [state, setState] = useSessionStorage<string[]>(key, []);
-  const bitriseYmlStoreApi = useBitriseYmlStoreApi();
 
   const isPipelineConversionSignpostingHiddenFor = useCallback(
     (pipelineId: string) => {
-      const isGraph = PipelineService.isGraph(bitriseYmlStoreApi.getState().yml.pipelines?.[pipelineId] ?? {});
+      const isGraph = PipelineService.isGraph(bitriseYmlStore.getState().yml.pipelines?.[pipelineId] ?? {});
       return isGraph || state.includes(pipelineId);
     },
-    [state, bitriseYmlStoreApi],
+    [state],
   );
 
   const hidePipelineConversionSignpostingFor = useCallback(

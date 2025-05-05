@@ -1,8 +1,9 @@
-import { useForm } from 'react-hook-form';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { useForm } from 'react-hook-form';
+
+import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
-import AutoGrowableInput from '@/components/AutoGrowableInput';
 
 type Props = {
   items: EnvVar[];

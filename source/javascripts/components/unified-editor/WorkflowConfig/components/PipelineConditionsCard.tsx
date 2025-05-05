@@ -1,14 +1,14 @@
-import { ChangeEventHandler, useEffect, useState } from 'react';
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
-
 import { uniq } from 'es-toolkit';
-import { useShallow } from '@/hooks/useShallow';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { ChangeEventHandler, useEffect, useState } from 'react';
+
 import DetailedHelperText from '@/components/DetailedHelperText';
-import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
-import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 import { EnvVarPopover } from '@/components/VariablePopover';
 import { EnvVar } from '@/core/models/EnvVar';
+import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useShallow } from '@/hooks/useShallow';
+import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 type PipelineConditionInputProps = {
   pipelineId: string;

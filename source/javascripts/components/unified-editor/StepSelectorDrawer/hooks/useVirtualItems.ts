@@ -1,4 +1,5 @@
 import { capitalize, startCase } from 'es-toolkit';
+
 import { AlgoliaStepResponse } from '@/core/api/AlgoliaApi';
 
 import useDebouncedFilter from './useDebouncedFilter';

@@ -1,10 +1,11 @@
 import { isEqual } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
+
 import {
   ConditionType,
+  LegacyConditionType,
   TriggerItem,
   TriggerType,
-  LegacyConditionType,
 } from '@/components/unified-editor/Triggers/Triggers.types';
 import { TriggerMap, TriggerMapItemModel } from '@/core/models/BitriseYml';
 

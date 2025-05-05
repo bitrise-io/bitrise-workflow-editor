@@ -1,4 +1,5 @@
 import { CamelCasedProperties } from 'type-fest';
+
 import { GraphPipelineWorkflowModel, WorkflowModel } from './BitriseYml';
 
 export type Workflow = { id: string; userValues: WorkflowModel };

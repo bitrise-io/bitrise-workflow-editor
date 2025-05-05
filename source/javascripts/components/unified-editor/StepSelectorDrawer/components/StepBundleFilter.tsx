@@ -1,4 +1,5 @@
 import { BoxProps, SearchInput } from '@bitrise/bitkit';
+
 import useSearch from '../hooks/useSearch';
 
 type Props = BoxProps;

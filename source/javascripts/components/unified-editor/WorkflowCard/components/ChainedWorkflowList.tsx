@@ -1,13 +1,15 @@
 /* eslint-disable import/no-cycle */
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, Icon } from '@bitrise/bitkit';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import { SortableWorkflowItem } from '../WorkflowCard.types';
+
 import { useWorkflowActions } from '../contexts/WorkflowCardContext';
+import { SortableWorkflowItem } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
 

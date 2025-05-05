@@ -1,4 +1,4 @@
-import SecretPopover from './SecretPopover';
 import EnvVarPopover from './EnvVarPopover';
+import SecretPopover from './SecretPopover';
 
-export { SecretPopover, EnvVarPopover };
+export { EnvVarPopover, SecretPopover };

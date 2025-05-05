@@ -1,25 +1,24 @@
-import { memo, useEffect, useMemo, useRef } from 'react';
 import { Box, CardProps } from '@bitrise/bitkit';
 import { NodeProps, useReactFlow } from '@xyflow/react';
-import { useHover, useResizeObserver } from 'usehooks-ts';
 import { isEqual } from 'es-toolkit';
+import { memo, useEffect, useMemo, useRef } from 'react';
+import { useHover, useResizeObserver } from 'usehooks-ts';
 
+import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
-import { useWorkflows } from '@/hooks/useWorkflows';
-import { WorkflowCard } from '@/components/unified-editor';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import StepBundleService from '@/core/services/StepBundleService';
+import { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { moveStepIndices } from '@/utils/stepSelectionHandlers';
-import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
-import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
-
-import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
-import usePipelineSelector from '../../../../hooks/usePipelineSelector';
-import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
-import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
+import usePipelineSelector from '../../../../hooks/usePipelineSelector';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
+import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;

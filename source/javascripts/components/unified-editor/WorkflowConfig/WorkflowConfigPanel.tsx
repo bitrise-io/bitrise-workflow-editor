@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
 import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+
 import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/TriggersTab';
 import useSearchParams from '@/hooks/useSearchParams';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import datadogCustomRumTiming from '@/utils/datadogCustomRumTiming';
+
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';

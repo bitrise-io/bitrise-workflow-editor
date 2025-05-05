@@ -1,5 +1,6 @@
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { Secret, SecretScope } from '@/core/models/Secret';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 import Client from './client'; // Types
 
 // Types
@@ -218,7 +219,7 @@ async function deleteSecret({
   });
 }
 
-export type { SecretsMonolithResponse, SecretsApiResponse, SecretsLocalResponse };
+export type { SecretsApiResponse, SecretsLocalResponse, SecretsMonolithResponse };
 
 export default {
   getSecrets,

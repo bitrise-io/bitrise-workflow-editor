@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -11,20 +10,26 @@ import {
   Notification,
   Text,
 } from '@bitrise/bitkit';
-import * as monaco from 'monaco-editor';
+import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
+import { useQuery } from '@tanstack/react-query';
+import { toMerged } from 'es-toolkit';
+import type { editor } from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
-import { DiffEditor, loader, MonacoDiffEditor } from '@monaco-editor/react';
-import { useShallow } from '@/hooks/useShallow';
-import { configMergeDialog, useConfigMergeDialog } from './ConfigMergeDialog.store';
+import { useRef, useState } from 'react';
 
-loader.config({ monaco });
+import LoadingState from '@/components/LoadingState';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
+import MonacoUtils from '@/core/utils/MonacoUtils';
+import PageProps from '@/core/utils/PageProps';
+import { useSaveCiConfig } from '@/hooks/useCiConfig';
+import useCurrentPage from '@/hooks/useCurrentPage';
 
-type Props = Omit<DialogProps, 'title' | 'isOpen' | 'onClose'> & {
-  onSave: VoidFunction;
-  onClose: (method: 'close_button' | 'cancel_button') => void;
-};
+type Props = Omit<DialogProps, 'title'>;
 
-const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
+const diffEditorOptions: DiffEditorProps['options'] = {
+  diffWordWrap: 'off',
   automaticLayout: true,
   roundedSelection: false,
   renderSideBySide: false,
@@ -40,16 +45,18 @@ const diffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
   },
 };
 
-const readOnlyDiffEditorOptions: monaco.editor.IDiffEditorConstructionOptions = {
+const readOnlyDiffEditorOptions: DiffEditorProps['options'] = {
   ...diffEditorOptions,
   readOnly: true,
 };
 
 function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];
-  const decorations: monaco.editor.IModelDeltaDecoration[] = [];
+  const decorations: editor.IModelDeltaDecoration[] = [];
 
-  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, { stringSeparator: '\n' }).forEach((region) => {
+  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, {
+    stringSeparator: '\n',
+  }).forEach((region) => {
     if (region.ok) {
       rows.push(...region.ok);
     } else if (region.conflict) {
@@ -91,35 +98,72 @@ function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
 
   return {
     decorations,
-    finalYaml: rows.join('\n'),
+    mergedYml: rows.join('\n'),
   };
 }
 
-const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
-  const { isOpen, isLoading, yourYaml, baseYaml, remoteYaml, errorMessage } = useConfigMergeDialog(
-    useShallow((s) => ({
-      isOpen: s.isOpen,
-      isLoading: s.isLoading,
-      yourYaml: s.yourYaml,
-      baseYaml: s.baseYaml,
-      remoteYaml: s.remoteYaml,
-      errorMessage: s.errorMessage,
-    })),
-  );
+function useInitialCiConfigs() {
+  const projectSlug = PageProps.appSlug();
 
-  const { decorations, finalYaml } = mergeYamls(yourYaml, baseYaml, remoteYaml);
+  return useQuery({
+    queryKey: ['initial-ci-configs', projectSlug],
+    queryFn: async ({ signal }) => {
+      return {
+        yourYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().yml), signal),
+        baseYml: await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(bitriseYmlStore.getState().savedYml), signal),
+        ...(await BitriseYmlApi.getCiConfig({ projectSlug, signal }).then(async (res) => ({
+          remoteYml: await BitriseYmlApi.formatCiConfig(res.ymlString, signal),
+          remoteVersion: res.version,
+        }))),
+      };
+    },
+  });
+}
 
-  const onMount = (editor: MonacoDiffEditor) => {
-    const modifiedEditor = editor.getModifiedEditor();
+const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
+  const currentPage = useCurrentPage();
+  const [clientError, setClientError] = useState<Error>();
+  const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
+  const finalYmlEditor = useRef<ReturnType<MonacoDiffEditor['getModifiedEditor']>>();
+  const [nextData, setNextData] = useState<Partial<ReturnType<typeof useInitialCiConfigs>['data']>>();
 
-    modifiedEditor.onDidChangeModelContent((e) => {
-      configMergeDialog.setState({ finalYaml: modifiedEditor.getValue() });
+  const {
+    error: saveError,
+    mutate: saveCiConfig,
+    isPending: isSaving,
+  } = useSaveCiConfig({
+    onSuccess: ({ ymlString, version }) => {
+      onClose();
+      initializeStore({ ymlString, version, discardKey: Date.now() });
+    },
+  });
 
+  if (isFetching) {
+    return <LoadingState />;
+  }
+
+  if (initialError || !data) {
+    return (
+      <Notification status="error">
+        <Text textStyle="comp/notification/title">Error fetching initial configs</Text>
+        <Text>{initialError?.message || 'Initial configs not found'}</Text>
+      </Notification>
+    );
+  }
+
+  const isLoading = isSaving || isFetching;
+  const { yourYml, baseYml, remoteYml, remoteVersion } = toMerged(data, nextData ?? {});
+  const { mergedYml, decorations } = mergeYamls(yourYml, baseYml, remoteYml);
+
+  const onFinalYmlEditorMount = (editor: MonacoDiffEditor) => {
+    finalYmlEditor.current = editor.getModifiedEditor();
+
+    finalYmlEditor.current?.onDidChangeModelContent((e) => {
       const removableDecorationIds = e.changes.reduce<Set<string>>((acc, c) => {
         const { startLineNumber, endLineNumber } = c.range;
 
         for (let i = startLineNumber; i <= endLineNumber; i++) {
-          modifiedEditor.getLineDecorations(i)?.forEach((d) => {
+          finalYmlEditor.current?.getLineDecorations(i)?.forEach((d) => {
             if (d.options.blockClassName === 'conflict') {
               acc.add(d.id);
             }
@@ -129,123 +173,177 @@ const ConfigMergeDialog = ({ onSave, onClose, ...props }: Props) => {
         return acc;
       }, new Set<string>([]));
 
-      modifiedEditor.removeDecorations(Array.from(removableDecorationIds));
+      finalYmlEditor.current?.removeDecorations(Array.from(removableDecorationIds));
     });
 
     editor.createDecorationsCollection(decorations);
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      configMergeDialog.setState({ finalYaml });
+  const handleCancel = () => {
+    onClose();
+    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
+      tab_name: currentPage,
+      popup_step_dismiss_method: 'close_button',
+    });
+  };
+
+  const handleSave = () => {
+    try {
+      setClientError(undefined);
+      saveCiConfig(
+        {
+          yml: BitriseYmlApi.fromYml(finalYmlEditor.current?.getValue() || ''),
+          version: remoteVersion,
+          projectSlug: PageProps.appSlug(),
+          tabOpenDuringSave: currentPage,
+        },
+        {
+          onError: (error) => {
+            if (error.status === 409) {
+              refetch();
+              setNextData({ yourYml: finalYmlEditor.current?.getValue() });
+              setClientError(new Error('There are changes outside your current editing session.'));
+            }
+          },
+        },
+      );
+      segmentTrack('Workflow Editor Config Merge Popup Save Results Button Clicked', {
+        tab_name: currentPage,
+      });
+    } catch (error) {
+      setClientError(error as Error);
     }
-  }, [isOpen, finalYaml]);
+  };
 
   return (
     <>
-      <Dialog
-        size="full"
-        isOpen={isOpen}
-        title="Review changes"
-        isClosable={!isLoading}
-        minHeight={['100dvh', 'unset']}
-        onClose={() => onClose('close_button')}
-        {...props}
-      >
-        <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
-          <Text>
-            There are changes outside your current editing session. Review the differences and resolve any conflicts to
-            proceed.
-          </Text>
-          <Box display="flex" flex="1" gap="4">
-            <Box display="flex" flexDirection="column" flex="1" gap="4">
-              <Text textStyle="body/md/semibold">Your changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-                <DiffEditor
-                  key={yourYaml}
-                  theme="vs-dark"
-                  language="yaml"
-                  original={baseYaml}
-                  modified={yourYaml}
-                  options={readOnlyDiffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
-                />
-              </Box>
-            </Box>
-
-            <Box alignSelf="center">
-              <Icon name="ArrowRight" color="icon/tertiary" size="24" />
-            </Box>
-
-            <Box display="flex" flexDirection="column" flex="1" gap="4">
-              <Text textStyle="body/md/semibold">Results</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
-                <DiffEditor
-                  key={finalYaml}
-                  theme="vs-dark"
-                  language="yaml"
-                  original={baseYaml}
-                  modified={finalYaml}
-                  options={diffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
-                  onMount={onMount}
-                />
-              </Box>
-            </Box>
-
-            <Box alignSelf="center">
-              <Icon name="ArrowLeft" color="icon/tertiary" size="24" />
-            </Box>
-
-            <Box display="flex" flexDirection="column" flex="1" gap="4">
-              <Text textStyle="body/md/semibold">Remote changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-                <DiffEditor
-                  key={remoteYaml}
-                  theme="vs-dark"
-                  language="yaml"
-                  original={baseYaml}
-                  modified={remoteYaml}
-                  options={readOnlyDiffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
-                />
-              </Box>
+      <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
+        <Text>
+          There are changes outside your current editing session. Review the differences and resolve any conflicts to
+          proceed.
+        </Text>
+        <Box display="flex" flex="1" gap="4">
+          <Box display="flex" flexDirection="column" flex="1" gap="4">
+            <Text textStyle="body/md/semibold">Your changes</Text>
+            <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
+              <DiffEditor
+                theme="vs-dark"
+                language="yaml"
+                original={baseYml}
+                modified={yourYml}
+                options={readOnlyDiffEditorOptions}
+                keepCurrentModifiedModel
+                keepCurrentOriginalModel
+                beforeMount={(monaco) => {
+                  MonacoUtils.configureForYaml(monaco);
+                }}
+              />
             </Box>
           </Box>
-          <Notification status="info">
-            <Text textStyle="comp/notification/title">Merge conflict auto-resolution</Text>
+
+          <Box alignSelf="center">
+            <Icon name="ArrowRight" color="icon/tertiary" size="24" />
+          </Box>
+
+          <Box display="flex" flexDirection="column" flex="1" gap="4">
+            <Text textStyle="body/md/semibold">Results</Text>
+            <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
+              <DiffEditor
+                theme="vs-dark"
+                language="yaml"
+                original={baseYml}
+                modified={mergedYml}
+                options={diffEditorOptions}
+                keepCurrentModifiedModel
+                keepCurrentOriginalModel
+                onMount={onFinalYmlEditorMount}
+                beforeMount={(monaco) => {
+                  MonacoUtils.configureForYaml(monaco);
+                  MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+                }}
+              />
+            </Box>
+          </Box>
+
+          <Box alignSelf="center">
+            <Icon name="ArrowLeft" color="icon/tertiary" size="24" />
+          </Box>
+
+          <Box display="flex" flexDirection="column" flex="1" gap="4">
+            <Text textStyle="body/md/semibold">Remote changes</Text>
+            <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
+              <DiffEditor
+                theme="vs-dark"
+                language="yaml"
+                original={baseYml}
+                modified={remoteYml}
+                options={readOnlyDiffEditorOptions}
+                keepCurrentModifiedModel
+                keepCurrentOriginalModel
+                beforeMount={(monaco) => {
+                  MonacoUtils.configureForYaml(monaco);
+                }}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <Notification status="info">
+          <Text textStyle="comp/notification/title">Merge conflict auto-resolution</Text>
+          <Text>
+            In case of a conflict, remote changes will take priority over your local changes. To retain your changes,
+            edit the results before saving.
+          </Text>
+        </Notification>
+        {(clientError || saveError) && (
+          <Notification status="error">
+            <Text textStyle="comp/notification/title">Error saving...</Text>
             <Text>
-              In case of a conflict, remote changes will take priority over your local changes. To retain your changes,
-              edit the results before saving.
+              {clientError?.message || saveError?.getResponseErrorMessage() || saveError?.message || 'Unknown error'}
             </Text>
           </Notification>
-          {errorMessage && (
-            <Notification status="error">
-              <Text textStyle="comp/notification/title">Error saving...</Text>
-              <Text>{errorMessage}</Text>
-            </Notification>
-          )}
-        </DialogBody>
-        <DialogFooter>
-          <ButtonGroup spacing={16}>
-            <Button variant="secondary" isDisabled={isLoading} onClick={() => onClose('cancel_button')}>
-              Cancel
-            </Button>
-            <Button variant="primary" isLoading={isLoading} onClick={onSave}>
-              Save results
-            </Button>
-          </ButtonGroup>
-        </DialogFooter>
-      </Dialog>
+        )}
+      </DialogBody>
+      <DialogFooter>
+        <ButtonGroup spacing={16}>
+          <Button variant="secondary" isDisabled={isLoading} onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button variant="primary" isLoading={isLoading} onClick={handleSave}>
+            Save results
+          </Button>
+        </ButtonGroup>
+      </DialogFooter>
+    </>
+  );
+};
+
+const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
+  const currentPage = useCurrentPage();
+
+  const handleClose = () => {
+    onClose();
+    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
+      tab_name: currentPage,
+      popup_step_dismiss_method: 'close_button',
+    });
+  };
+
+  return (
+    <Dialog
+      size="full"
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Review changes"
+      minHeight={['100dvh', 'unset']}
+      {...props}
+    >
+      <ConfigMergeDialogContent onClose={onClose} />
       <style>{`
         .monaco-diff-editor .conflict {
           border: 1px solid rgba(255, 0, 0, 1);
         }
       `}</style>
-    </>
+    </Dialog>
   );
 };
 

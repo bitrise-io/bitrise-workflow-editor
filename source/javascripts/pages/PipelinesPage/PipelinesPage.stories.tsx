@@ -1,20 +1,13 @@
 import { Box } from '@bitrise/bitkit';
-import { set } from 'es-toolkit/compat';
 import { Meta, StoryObj } from '@storybook/react';
+import { set } from 'es-toolkit/compat';
 
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+
 import PipelinesPage from './PipelinesPage';
 
 export default {
   component: PipelinesPage,
-  args: {
-    yml: TEST_BITRISE_YML,
-  },
-  argTypes: {
-    onChange: {
-      type: 'function',
-    },
-  },
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -38,14 +31,14 @@ export default {
 type Story = StoryObj<typeof PipelinesPage>;
 
 export const CreateFirstGraphPipeline: Story = {
-  args: {
-    yml: { format_version: '2' },
+  parameters: {
+    bitriseYmlStore: { yml: { format_version: '2' } },
   },
 };
 
 export const UpgradePlan: Story = {
-  args: {
-    yml: { format_version: '2' },
+  parameters: {
+    bitriseYmlStore: { yml: { format_version: '2' } },
   },
   beforeEach: () => {
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', false);
@@ -61,21 +54,24 @@ export const ReactivatePlan: Story = {
 export const GraphPipelineWithEditing: Story = {};
 
 export const WithWorkflowOverride: Story = {
-  args: {
-    yml: set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
-      uses: 'wf3',
-      depends_on: ['wf1'],
-    }),
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'pipelines["graph-pipeline"].workflows.override', {
+        uses: 'wf3',
+        depends_on: ['wf1'],
+      });
+      return { yml: TEST_BITRISE_YML };
+    })(),
   },
 };
 
 export const WithParallelWorkflowCollision: Story = {
-  args: {
-    yml: (() => {
+  parameters: {
+    bitriseYmlStore: (() => {
       const yml = TEST_BITRISE_YML;
       set(yml, 'workflows.tmp_3', {});
       set(yml, 'pipelines["graph-pipeline"].workflows.tmp_2', { uses: 'tmp' });
-      return yml;
+      return { yml };
     })(),
   },
 };

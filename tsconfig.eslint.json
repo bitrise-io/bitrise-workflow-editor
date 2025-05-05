@@ -7,6 +7,6 @@
     ".eslintrc.js",
     ".storybook/**/*",
     "jest.config.js",
-    "webpack.config.js"
-  ]
+    "webpack.config.js",
+  ],
 }

@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
+import { useState } from 'react';
 
+import { EnvVarPopover } from '@/components/VariablePopover';
 import { EnvVar } from '@/core/models/EnvVar';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { EnvVarPopover } from '@/components/VariablePopover';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';

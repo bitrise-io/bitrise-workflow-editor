@@ -1,14 +1,14 @@
-import { CSSProperties, useRef } from 'react';
-import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
 import { Box, BoxProps } from '@bitrise/bitkit';
-import { useHover } from 'usehooks-ts';
 import { Icon, IconProps } from '@chakra-ui/react';
+import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
+import { CSSProperties, useRef } from 'react';
+import { useHover } from 'usehooks-ts';
 
-import createPlaceholderNode from '../utils/createPlaceholderNode';
-import createPlaceholderEdge from '../utils/createPlaceholderEdge';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
-import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanvas.const';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanvas.const';
+import createPlaceholderEdge from '../utils/createPlaceholderEdge';
+import createPlaceholderNode from '../utils/createPlaceholderNode';
 
 const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
   width: 12,

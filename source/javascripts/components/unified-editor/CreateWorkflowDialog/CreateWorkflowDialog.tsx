@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { DialogProps } from '@bitrise/bitkit';
+import { useEffect } from 'react';
 
 import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -43,7 +43,7 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
       onCloseComplete={handleCloseComplete}
       onCreateEntity={handleCreateWorkflow}
       sanitizer={WorkflowService.sanitizeName}
-      validator={(v) => WorkflowService.validateName(v, workflowIds)}
+      validator={(name) => WorkflowService.validateName(name, '', workflowIds)}
       {...props}
     />
   );
