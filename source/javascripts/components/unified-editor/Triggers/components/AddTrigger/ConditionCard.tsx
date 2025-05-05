@@ -58,7 +58,7 @@ const ConditionCard = (props: ConditionCardProps) => {
         <Tbody>
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
-            const { isRegex, type } = cond;
+            const { isLastCommitOnly, isRegex, type } = cond;
 
             return (
               <Tr key={fieldItem.id}>
@@ -88,8 +88,8 @@ const ConditionCard = (props: ConditionCardProps) => {
                   {type === 'changed_files' || type === 'commit_message' ? (
                     <Checkbox
                       marginBlockStart="12"
-                      isChecked={isRegex}
-                      onChange={(e) => setValue(`conditions.${index}.isRegex`, e.target.checked)}
+                      isChecked={isLastCommitOnly}
+                      onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
                     >
                       Last commit only
                       <Toggletip label="Last commit only">

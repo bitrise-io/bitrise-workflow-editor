@@ -82,9 +82,16 @@ const AddTrigger = (props: AddTriggerProps) => {
 
     const newTrigger: any = {};
     filteredData.conditions.forEach((condition) => {
-      const value = condition.isRegex ? { regex: condition.value } : { pattern: condition.value };
-      if (condition.type) {
+      if (condition.type === 'commit_message' || condition.type === 'changed_files') {
+        const value: TriggerMapItemModelRegexCondition = condition.isRegex
+          ? { regex: condition.value }
+          : { pattern: condition.value };
+        if (condition.isLastCommitOnly) {
+          value.last_commit = true;
+        }
         newTrigger[condition.type] = value;
+      } else if (condition.type) {
+        newTrigger[condition.type] = condition.isRegex ? { regex: condition.value } : condition.value;
       }
     });
 

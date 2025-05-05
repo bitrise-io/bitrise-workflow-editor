@@ -37,9 +37,7 @@ const converter = (legacy: TriggerItem): TargetBasedTriggerItem => {
       ? {
           regex: c.value,
         }
-      : {
-          pattern: c.value,
-        };
+      : c.value;
   });
   return targetBased;
 };
