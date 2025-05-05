@@ -248,6 +248,9 @@ export type TagTriggerModel = {
 export type TriggerMapItemModelRegexCondition =
   | string
   | {
+      pattern: string;
+    }
+  | {
       regex: string;
     };
 

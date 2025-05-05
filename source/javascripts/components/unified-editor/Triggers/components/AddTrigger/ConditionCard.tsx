@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  Checkbox,
   ControlButton,
   Icon,
   Input,
@@ -11,10 +10,11 @@ import {
   Td,
   Th,
   Thead,
+  ToggleButton,
   Toggletip,
   Tr,
 } from '@bitrise/bitkit';
-import { Tfoot } from '@chakra-ui/react';
+import { Checkbox, Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
@@ -50,9 +50,9 @@ const ConditionCard = (props: ConditionCardProps) => {
       <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
         <Thead backgroundColor="background/primary">
           <Tr>
-            <Th>Condition</Th>
+            <Th width="30%">Condition</Th>
             <Th>Value</Th>
-            {!isTagCondition && <Th width="44px" />}
+            {!isTagCondition && <Th width="52px" />}
           </Tr>
         </Thead>
         <Tbody>
@@ -62,7 +62,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 
             return (
               <Tr key={fieldItem.id}>
-                <Td verticalAlign="top">
+                <Td height="auto" paddingBlock="12" verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.type`}
                     control={control}
@@ -85,8 +85,20 @@ const ConditionCard = (props: ConditionCardProps) => {
                       </Select>
                     )}
                   />
+                  {type === 'changed_files' || type === 'commit_message' ? (
+                    <Checkbox
+                      marginBlockStart="12"
+                      isChecked={isRegex}
+                      onChange={(e) => setValue(`conditions.${index}.isRegex`, e.target.checked)}
+                    >
+                      Last commit only
+                      <Toggletip label="Last commit only">
+                        <Icon name="Info" size="16" marginLeft="2" />
+                      </Toggletip>
+                    </Checkbox>
+                  ) : null}
                 </Td>
-                <Td>
+                <Td height="auto" paddingBlock="12" verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.value`}
                     render={({ field }) => (
@@ -97,30 +109,30 @@ const ConditionCard = (props: ConditionCardProps) => {
                         placeholder={isRegex ? '.*' : '*'}
                         helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
                         size="md"
+                        leftAddon={
+                          <ToggleButton
+                            aria-label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
+                            iconName="Code"
+                            isSelected={isRegex}
+                            marginBlockStart="4"
+                            marginInlineStart="4"
+                            onClick={() => {
+                              setValue(`conditions.${index}.isRegex`, !isRegex);
+                            }}
+                          />
+                        }
+                        leftAddonPlacement="inside"
                       />
                     )}
                   />
-                  <Checkbox
-                    mt={8}
-                    isChecked={isRegex}
-                    onChange={(e) => setValue(`conditions.${index}.isRegex`, e.target.checked)}
-                  >
-                    Use regex pattern
-                    <Toggletip
-                      label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method."
-                      learnMoreUrl="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
-                    >
-                      <Icon name="Info" size="16" marginLeft="5" />
-                    </Toggletip>
-                  </Checkbox>
                 </Td>
                 {!isTagCondition && (
-                  <Td verticalAlign="top" paddingLeft="0" paddingTop="12">
+                  <Td height="auto" paddingBlock="12" verticalAlign="top" paddingLeft="0">
                     <ControlButton
                       iconName="Trash"
                       aria-label="Remove"
                       isTooltipDisabled={fields.length === 1}
-                      size="sm"
+                      size="md"
                       isDanger
                       isDisabled={fields.length === 1}
                       onClick={() => remove(index)}

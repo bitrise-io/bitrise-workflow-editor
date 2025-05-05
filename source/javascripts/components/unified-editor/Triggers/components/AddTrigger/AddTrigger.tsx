@@ -82,7 +82,7 @@ const AddTrigger = (props: AddTriggerProps) => {
 
     const newTrigger: any = {};
     filteredData.conditions.forEach((condition) => {
-      const value = condition.isRegex ? { regex: condition.value } : condition.value;
+      const value = condition.isRegex ? { regex: condition.value } : { pattern: condition.value };
       if (condition.type) {
         newTrigger[condition.type] = value;
       }

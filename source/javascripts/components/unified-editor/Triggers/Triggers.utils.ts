@@ -64,11 +64,11 @@ export const getConditionList = (trigger: TargetBasedTriggerItem) => {
   const triggerKeys = Object.keys(trigger) as (keyof TargetBasedTriggerItem)[];
   triggerKeys.forEach((key) => {
     if (!['enabled', 'pipelineableId', 'pipelineableType', 'type', 'draft_enabled', 'priority'].includes(key)) {
-      const isRegex = isObject(trigger[key]);
+      const isRegex = isObject(trigger[key]) && Object.keys(trigger[key])[0] === 'regex';
       conditions.push({
         isRegex,
         type: key as ConditionType,
-        value: isRegex ? (trigger[key] as any).regex : (trigger[key] as string),
+        value: isRegex ? (trigger[key] as any).regex : (trigger[key] as any).pattern,
       });
     }
   });
