@@ -47,7 +47,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     );
 
   const {
-    moveStep,
     cloneStep,
     deleteStep,
     upgradeStep,
@@ -59,7 +58,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     setChainedWorkflows,
     removeChainedWorkflow,
   } = useBitriseYmlStore((s) => ({
-    moveStep: s.moveStep,
     cloneStep: s.cloneStep,
     deleteStep: s.deleteStep,
     upgradeStep: s.changeStepVersion,
@@ -234,14 +232,14 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const handleMoveStep = useCallback(
     (wfId: string, stepIndex: number, targetIndex: number) => {
-      moveStep(wfId, stepIndex, targetIndex);
+      WorkflowService.moveStep(wfId, stepIndex, targetIndex);
 
       // Adjust index of the selected steps
       if (selectionParent?.id === wfId && selectionParent?.type === 'workflow') {
         setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
       }
     },
-    [moveStep, selectedStepIndices, selectionParent, setSelectedStepIndices],
+    [selectedStepIndices, selectionParent, setSelectedStepIndices],
   );
 
   const handleCloneStep = useCallback(

@@ -156,8 +156,29 @@ function addStep(workflowId: string, cvs: string, to: number) {
   });
 }
 
+function moveStep(workflowId: string, from: number, to: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const workflow = doc.getIn(['workflows', workflowId]);
+
+    if (!workflow) {
+      throw new Error(`Workflow with ID ${workflowId} not found`);
+    }
+
+    const steps = YamlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps'], true);
+    const step = steps.items[from];
+
+    if (!step) {
+      throw new Error(`Step at index ${from} not found`);
+    }
+
+    steps.items.splice(from, 1);
+    steps.items.splice(to, 0, step);
+
+    return doc;
+  });
+}
+
 export default {
-  addStep,
   validateName,
   sanitizeName,
   isUtilityWorkflow,
@@ -169,4 +190,6 @@ export default {
   getChainableWorkflows,
   getDependantWorkflows,
   countInPipelines,
+  addStep,
+  moveStep,
 };

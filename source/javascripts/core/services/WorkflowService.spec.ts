@@ -62,6 +62,67 @@ describe('WorkflowService', () => {
     });
   });
 
+  describe('moveStep', () => {
+    it('should move step to the expected place in workflow.steps', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+              - step3: {}
+        `,
+      });
+
+      WorkflowService.moveStep('wf1', 0, 2);
+
+      const expectedYmlString = yaml`
+        workflows:
+          wf1:
+            steps:
+            - step2: {}
+            - step3: {}
+            - step1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYmlString);
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.moveStep('non_existent_workflow', 0, 1)).toThrow(
+        'Workflow with ID non_existent_workflow not found',
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.moveStep('wf1', 2, 0)).toThrow('Step at index 2 not found');
+    });
+  });
+
   describe('validateName', () => {
     describe('when the initial name is empty', () => {
       it('returns true if workflow name is valid and unique', () => {

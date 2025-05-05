@@ -255,13 +255,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      moveStep(workflowId: string, stepIndex: number, to: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.moveStep(workflowId, stepIndex, to, state.yml),
-          };
-        });
-      },
       updateLicensePoolId(workflowId: string, licensePoolId: string) {
         return set((state) => {
           return {

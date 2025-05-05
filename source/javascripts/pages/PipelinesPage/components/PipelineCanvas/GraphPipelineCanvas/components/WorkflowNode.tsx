@@ -89,7 +89,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
   const {
-    moveStep,
     cloneStep,
     deleteStep,
     upgradeStep,
@@ -101,7 +100,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     setChainedWorkflows,
     removeChainedWorkflow,
   } = useBitriseYmlStore((s) => ({
-    moveStep: s.moveStep,
     cloneStep: s.cloneStep,
     deleteStep: s.deleteStep,
     upgradeStep: s.changeStepVersion,
@@ -313,7 +311,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       },
       handleUpgradeStep: upgradeStep,
       handleMoveStep: (workflowId: string, stepIndex: number, targetIndex: number) => {
-        moveStep(workflowId, stepIndex, targetIndex);
+        WorkflowService.moveStep(workflowId, stepIndex, targetIndex);
         handleStepActionChange({
           workflowId,
           stepIndex,
@@ -449,7 +447,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
-    moveStep,
     cloneStep,
     deleteStep,
     cloneStepInStepBundle,
