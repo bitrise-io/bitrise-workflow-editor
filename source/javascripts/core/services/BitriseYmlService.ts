@@ -27,21 +27,6 @@ import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
-function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  const clonedIndex = stepIndex + 1;
-  const clonedStep = copy.workflows[workflowId].steps[stepIndex];
-  copy.workflows[workflowId].steps.splice(clonedIndex, 0, clonedStep);
-
-  return copy;
-}
-
 function updateStep(
   workflowId: string,
   stepIndex: number,
@@ -1680,7 +1665,6 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
 }
 
 export default {
-  cloneStep,
   updateStep,
   getUniqueStepIds,
   getUniqueStepCvss,

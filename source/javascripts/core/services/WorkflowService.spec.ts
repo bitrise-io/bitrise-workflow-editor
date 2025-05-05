@@ -4,125 +4,6 @@ import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
-  describe('addStep', () => {
-    it('should add step to the expected place in workflow.steps', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
-          workflows:
-            wf1:
-              steps:
-              - step1: {}
-              - step2: {}
-            wf2:
-              steps:
-              - step3: {}
-            wf3: {}
-        `,
-      });
-
-      WorkflowService.addStep('wf1', 'new_step', 1);
-      WorkflowService.addStep('wf2', 'new_step', 1);
-      WorkflowService.addStep('wf3', 'new_step', 0);
-
-      const expectedYmlString = yaml`
-        workflows:
-          wf1:
-            steps:
-            - step1: {}
-            - new_step: {}
-            - step2: {}
-          wf2:
-            steps:
-            - step3: {}
-            - new_step: {}
-          wf3:
-            steps:
-            - new_step: {}
-      `;
-
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYmlString);
-    });
-
-    it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
-          workflows:
-            wf1:
-              steps:
-              - step1: {}
-              - step2: {}
-        `,
-      });
-
-      expect(() => WorkflowService.addStep('non_existent_workflow', 'new_step', 1)).toThrow(
-        'Workflow with ID non_existent_workflow not found',
-      );
-    });
-  });
-
-  describe('moveStep', () => {
-    it('should move step to the expected place in workflow.steps', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
-          workflows:
-            wf1:
-              steps:
-              - step1: {}
-              - step2: {}
-              - step3: {}
-        `,
-      });
-
-      WorkflowService.moveStep('wf1', 0, 2);
-
-      const expectedYmlString = yaml`
-        workflows:
-          wf1:
-            steps:
-            - step2: {}
-            - step3: {}
-            - step1: {}
-      `;
-
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYmlString);
-    });
-
-    it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
-          workflows:
-            wf1:
-              steps:
-              - step1: {}
-              - step2: {}
-        `,
-      });
-
-      expect(() => WorkflowService.moveStep('non_existent_workflow', 0, 1)).toThrow(
-        'Workflow with ID non_existent_workflow not found',
-      );
-    });
-
-    it('should throw an error if the step does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
-          workflows:
-            wf1:
-              steps:
-              - step1: {}
-              - step2: {}
-        `,
-      });
-
-      expect(() => WorkflowService.moveStep('wf1', 2, 0)).toThrow('Step at index 2 not found');
-    });
-  });
-
   describe('validateName', () => {
     describe('when the initial name is empty', () => {
       it('returns true if workflow name is valid and unique', () => {
@@ -773,6 +654,187 @@ describe('WorkflowService', () => {
       const result = WorkflowService.getDependantWorkflows(workflows, id);
 
       expect(result).toEqual(['wf-2', 'wf-3', 'wf-4', 'wf-5', 'wf-6']);
+    });
+  });
+
+  describe('addStep', () => {
+    it('should add step to the expected place in workflow.steps', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+            wf2:
+              steps:
+              - step3: {}
+            wf3: {}
+        `,
+      });
+
+      WorkflowService.addStep('wf1', 'new_step', 1);
+      WorkflowService.addStep('wf2', 'new_step', 1);
+      WorkflowService.addStep('wf3', 'new_step', 0);
+
+      const expectedYmlString = yaml`
+        workflows:
+          wf1:
+            steps:
+            - step1: {}
+            - new_step: {}
+            - step2: {}
+          wf2:
+            steps:
+            - step3: {}
+            - new_step: {}
+          wf3:
+            steps:
+            - new_step: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYmlString);
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.addStep('non_existent_workflow', 'new_step', 1)).toThrow(
+        'Workflow with ID non_existent_workflow not found',
+      );
+    });
+  });
+
+  describe('moveStep', () => {
+    it('should move step to the expected place in workflow.steps', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+              - step3: {}
+        `,
+      });
+
+      WorkflowService.moveStep('wf1', 0, 2);
+
+      const expectedYmlString = yaml`
+        workflows:
+          wf1:
+            steps:
+            - step2: {}
+            - step3: {}
+            - step1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYmlString);
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.moveStep('non_existent_workflow', 0, 1)).toThrow(
+        'Workflow with ID non_existent_workflow not found',
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.moveStep('wf1', 2, 0)).toThrow('Step at index 2 not found in workflow wf1');
+    });
+  });
+
+  describe('cloneStep', () => {
+    it('should clone step to the expected place in workflow.steps', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+              - step3: {}
+        `,
+      });
+
+      WorkflowService.cloneStep('wf1', 1);
+
+      const expectedYmlString = yaml`
+        workflows:
+          wf1:
+            steps:
+            - step1: {}
+            - step2: {}
+            - step2: {}
+            - step3: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYmlString);
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.cloneStep('non_existent_workflow', 0)).toThrow(
+        'Workflow with ID non_existent_workflow not found',
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              steps:
+              - step1: {}
+              - step2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.cloneStep('wf1', 2)).toThrow('Step at index 2 not found in workflow wf1');
     });
   });
 });

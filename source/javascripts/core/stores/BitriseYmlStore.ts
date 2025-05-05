@@ -241,13 +241,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      cloneStep(workflowId: string, stepIndex: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.cloneStep(workflowId, stepIndex, state.yml),
-          };
-        });
-      },
       deleteStep(workflowId: string, selectedStepIndices: number[]) {
         return set((state) => {
           return {
