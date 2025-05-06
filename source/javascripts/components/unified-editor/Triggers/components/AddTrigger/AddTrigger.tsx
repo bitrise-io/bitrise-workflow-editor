@@ -82,7 +82,7 @@ const AddTrigger = (props: AddTriggerProps) => {
 
     const newTrigger: any = {};
     filteredData.conditions.forEach((condition) => {
-      if (condition.type === 'commit_message' || condition.type === 'changed_files') {
+      if (triggerType === 'push' && (condition.type === 'commit_message' || condition.type === 'changed_files')) {
         const value: TriggerMapItemModelRegexCondition = condition.isRegex
           ? { regex: condition.value }
           : { pattern: condition.value };
