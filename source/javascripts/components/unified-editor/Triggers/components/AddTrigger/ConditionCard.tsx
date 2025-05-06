@@ -108,7 +108,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                         leftAddon={
                           <ToggleButton
                             aria-label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
-                            iconName="Code"
+                            iconName="Regex"
                             isSelected={isRegex}
                             marginBlockStart="4"
                             marginInlineStart="4"
