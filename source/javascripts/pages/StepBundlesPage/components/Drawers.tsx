@@ -14,8 +14,7 @@ const Drawers = () => {
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =
     useStepBundlesPageStore();
 
-  const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
-    addStepToStepBundle: s.addStepToStepBundle,
+  const { createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
     createStepBundle: s.createStepBundle,
     getUniqueStepIds: s.getUniqueStepIds,
   }));
@@ -23,19 +22,18 @@ const Drawers = () => {
   const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStepToStepBundle = (cvs: string) => {
-    const { library } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
-    addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-    if (library === LibraryType.BUNDLE) {
-      openDialog({
-        type: StepBundlesPageDialogType.STEP_BUNDLE,
-        stepBundleId,
-      })();
+    const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
+    const source = 'step_bundles';
+    const sourceId = stepBundleId;
+    const wantsToAddAStepBundle = library === LibraryType.BUNDLE;
+
+    if (wantsToAddAStepBundle) {
+      StepService.addStep(source, sourceId, cvs, selectedStepIndices[0]);
+      openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE, stepBundleId })();
     } else {
-      openDialog({
-        type: StepBundlesPageDialogType.STEP_CONFIG,
-        selectedStepIndices,
-        stepBundleId,
-      })();
+      StepService.addStep(source, sourceId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      openDialog({ type: StepBundlesPageDialogType.STEP_CONFIG, selectedStepIndices, stepBundleId })();
     }
   };
 

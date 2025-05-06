@@ -1,5 +1,4 @@
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
-import { cloneDeep } from 'es-toolkit';
 import { useCallback, useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -112,7 +111,7 @@ const Header = () => {
     });
     bitriseYmlStore.setState((s) => ({
       discardKey: Date.now(),
-      yml: cloneDeep(s.savedYml),
+      ymlDocument: s.savedYmlDocument.clone(),
     }));
   };
 

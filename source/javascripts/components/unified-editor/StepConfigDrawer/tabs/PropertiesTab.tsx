@@ -91,18 +91,9 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
+  const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
   const [name, setName] = useState(data?.mergedValues?.title);
-
-  const updateStep = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStep),
-    250,
-  );
-
-  const updateStepInStepBundle = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStepInStepBundle),
-    250,
-  );
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;
@@ -110,15 +101,12 @@ const PropertiesTab = () => {
   const sourceUrl = data?.mergedValues?.source_code_url;
 
   const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setName(e.currentTarget.value);
-    if (workflowId) {
-      updateStep(workflowId, stepIndex, { title: e.currentTarget.value });
-    }
-    if (stepBundleId) {
-      updateStepInStepBundle(stepBundleId, stepIndex, {
-        title: e.currentTarget.value,
-      });
-    }
+    const title = e.currentTarget.value;
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+
+    setName(title);
+    updateStepField(source, sourceId, stepIndex, 'title', title);
   };
 
   return (

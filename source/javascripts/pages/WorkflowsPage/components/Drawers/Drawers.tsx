@@ -31,44 +31,28 @@ const Drawers = ({ children }: PropsWithChildren) => {
     parentWorkflowId,
   } = useWorkflowsPageStore();
 
-  const { addStep, addStepToStepBundle, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
-    (s) => ({
-      addStep: s.addStep,
-      addStepToStepBundle: s.addStepToStepBundle,
-      createWorkflow: s.createWorkflow,
-      getUniqueStepIds: s.getUniqueStepIds,
-      addChainedWorkflow: s.addChainedWorkflow,
-    }),
-  );
+  const { createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
+    createWorkflow: s.createWorkflow,
+    getUniqueStepIds: s.getUniqueStepIds,
+    addChainedWorkflow: s.addChainedWorkflow,
+  }));
 
   const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
-    if (library === LibraryType.BUNDLE) {
-      if (workflowId) {
-        addStep(workflowId, cvs, selectedStepIndices[0]);
-      } else {
-        addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-      }
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_BUNDLE,
-        workflowId,
-        stepBundleId,
-      })();
-    } else if (workflowId) {
-      addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_CONFIG,
-        workflowId,
-      })();
+
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    const wantsToAddAStepBundle = library === LibraryType.BUNDLE;
+
+    if (wantsToAddAStepBundle) {
+      StepService.addStep(source, sourceId, cvs, selectedStepIndices[0]);
+      openDialog({ type: WorkflowsPageDialogType.STEP_BUNDLE, workflowId, stepBundleId })();
     } else {
-      addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_CONFIG,
-        stepBundleId,
-      })();
+      StepService.addStep(source, sourceId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      openDialog({ type: WorkflowsPageDialogType.STEP_CONFIG, workflowId, stepBundleId })();
     }
   };
 

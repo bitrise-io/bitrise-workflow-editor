@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
 services:
   postgres:
-    image: postgres:13
+    image: postgres:13s
 containers:
   ruby:
     image: ruby:3.2
@@ -33,7 +33,7 @@ pipelines:
       tmp:
         depends_on:
         - wf1
-        parallel: "4"
+        parallel: "45"
       wf1: {}
       wf2:
         depends_on:

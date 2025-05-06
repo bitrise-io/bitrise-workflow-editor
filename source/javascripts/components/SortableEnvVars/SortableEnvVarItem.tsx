@@ -1,23 +1,34 @@
 import { Box, Checkbox, ControlButton, Input, Text } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { omit } from 'es-toolkit';
 import { useState } from 'react';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 
-import { EnvVarWithUniqueId } from '../../EnvVarsPage.types';
-
-type Props = {
-  env: EnvVarWithUniqueId;
-  isDragging?: boolean;
-  onRemove?: (uniqueId: string) => void;
-  onChange?: (env: EnvVarWithUniqueId) => void;
+export type SortableEnvVar = EnvVar & {
+  uniqueId: string;
 };
 
-const EnvVarsTableItem = ({ env, isDragging, onChange, onRemove }: Props) => {
+export type SortableEnvVarItemProps = {
+  env: SortableEnvVar;
+  isDragging?: boolean;
+  onRemove?: () => void;
+  onKeyChange?: (key: string) => void;
+  onValueChange?: (value: string) => void;
+  onIsExpandChange?: (isExpand: boolean) => void;
+};
+
+const SortableEnvVarItem = ({
+  env,
+  isDragging,
+  onRemove,
+  onKeyChange,
+  onValueChange,
+  onIsExpandChange,
+}: SortableEnvVarItemProps) => {
   const sortable = useSortable({ id: env.uniqueId, data: env });
 
   const [errors, setErrors] = useState({
@@ -25,23 +36,16 @@ const EnvVarsTableItem = ({ env, isDragging, onChange, onRemove }: Props) => {
   });
 
   const handleKeyChange = (key: string) => {
-    onChange?.({ ...env, key });
-    setErrors((oldErrors) => ({
-      ...oldErrors,
-      key: EnvVarService.validateKey(key),
-    }));
+    onKeyChange?.(key);
+    setErrors((prevErrors) => ({ ...prevErrors, key: EnvVarService.validateKey(key) }));
   };
 
   const handleValueChange = (value: string) => {
-    onChange?.({ ...env, value });
+    onValueChange?.(value);
   };
 
   const handleIsExpandChange = (isExpand: boolean) => {
-    if (isExpand) {
-      onChange?.(omit(env, ['isExpand']));
-    } else {
-      onChange?.({ ...env, isExpand: false });
-    }
+    onIsExpandChange?.(isExpand);
   };
 
   return (
@@ -106,7 +110,7 @@ const EnvVarsTableItem = ({ env, isDragging, onChange, onRemove }: Props) => {
             aria-label="Remove"
             iconName="MinusCircle"
             tooltipProps={{ 'aria-label': 'Remove' }}
-            onClick={() => onRemove?.(env.uniqueId)}
+            onClick={() => onRemove?.()}
           />
         </Box>
         <Checkbox isChecked={env.isExpand !== false} onChange={(e) => handleIsExpandChange(e.target.checked)}>
@@ -117,4 +121,4 @@ const EnvVarsTableItem = ({ env, isDragging, onChange, onRemove }: Props) => {
   );
 };
 
-export default EnvVarsTableItem;
+export default SortableEnvVarItem;
