@@ -2,7 +2,6 @@ import {
   Button,
   Card,
   ControlButton,
-  Icon,
   Input,
   Select,
   Table,
@@ -11,14 +10,13 @@ import {
   Th,
   Thead,
   ToggleButton,
-  Toggletip,
   Tr,
 } from '@bitrise/bitkit';
 import { Checkbox, Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
-import { FormItems } from '../../Triggers.types';
+import { FormItems, TriggerType } from '../../Triggers.types';
 
 type ConditionCardProps = {
   fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
@@ -26,6 +24,7 @@ type ConditionCardProps = {
   optionsMap: Record<string, string>;
   remove: (index: number) => void;
   labelsMap: Record<string, string>;
+  triggerType?: TriggerType;
 };
 
 const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
@@ -37,7 +36,7 @@ const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
-  const { fields, append, optionsMap, remove } = props;
+  const { fields, append, optionsMap, remove, triggerType } = props;
   const { control, watch, setValue } = useFormContext<FormItems>();
   const { conditions } = watch();
 
@@ -85,16 +84,13 @@ const ConditionCard = (props: ConditionCardProps) => {
                       </Select>
                     )}
                   />
-                  {type === 'changed_files' || type === 'commit_message' ? (
+                  {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') ? (
                     <Checkbox
                       marginBlockStart="12"
                       isChecked={isLastCommitOnly}
                       onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
                     >
                       Last commit only
-                      <Toggletip label="Last commit only">
-                        <Icon name="Info" size="16" marginLeft="2" />
-                      </Toggletip>
                     </Checkbox>
                   ) : null}
                 </Td>

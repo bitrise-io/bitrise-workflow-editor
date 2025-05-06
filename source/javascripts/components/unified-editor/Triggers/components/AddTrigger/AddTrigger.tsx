@@ -173,6 +173,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             append={onAppend}
             optionsMap={optionsMap}
             remove={remove}
+            triggerType={triggerType}
           />
           {triggerType === 'pull_request' && (
             <Checkbox
