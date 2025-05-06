@@ -132,21 +132,6 @@ function changeStepVersionInStepBundle(stepBundleId: string, stepIndex: number, 
   return copy;
 }
 
-function cloneStepInStepBundle(stepBundleId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  const clonedIndex = stepIndex + 1;
-  const clonedStep = copy.step_bundles[stepBundleId].steps[stepIndex];
-  copy.step_bundles[stepBundleId].steps.splice(clonedIndex, 0, clonedStep);
-
-  return copy;
-}
-
 function createStepBundle(
   stepBundleId: string,
   yml: BitriseYml,
@@ -370,34 +355,6 @@ function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml
       }
     }
   });
-
-  return copy;
-}
-
-function updateStepInStepBundle(
-  stepBundleId: string,
-  stepIndex: number,
-  newValues: Omit<StepModel, 'inputs' | 'outputs'>,
-  yml: BitriseYml,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  const [cvs, stepYmlObject] = Object.entries(copy.step_bundles[stepBundleId].steps[stepIndex])[0];
-
-  mapValues(newValues, (value: string, key: never) => {
-    if (shouldRemoveField(value, stepYmlObject[key])) {
-      delete stepYmlObject[key];
-    } else {
-      stepYmlObject[key] = value as never;
-    }
-  });
-
-  copy.step_bundles[stepBundleId].steps[stepIndex] = { [cvs]: stepYmlObject };
 
   return copy;
 }
@@ -1615,14 +1572,12 @@ export default {
   updateStepInputs,
   deleteStep,
   changeStepVersionInStepBundle,
-  cloneStepInStepBundle,
   createStepBundle,
   deleteStepBundle,
   deleteStepInStepBundle,
   groupStepsToStepBundle,
   renameStepBundle,
   updateStepBundle,
-  updateStepInStepBundle,
   updateStepInputsInStepBundle,
   createWorkflow,
   renameWorkflow,
