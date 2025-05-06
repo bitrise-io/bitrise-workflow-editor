@@ -10,10 +10,8 @@ const StackAndMachineCard = () => {
   const { stackId, machineTypeId, stackRollbackVersion } = useWorkflowStackAndMachine(workflowId);
 
   const updateWorkflowMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
-    StackAndMachineService.updateStackId(stack, StackAndMachineSource.Workflow, workflowId);
-    StackAndMachineService.updateMachineTypeId(machine_type_id, StackAndMachineSource.Workflow, workflowId);
-    StackAndMachineService.updateStackRollbackVersion(
-      stack_rollback_version,
+    StackAndMachineService.updateStackAndMachine(
+      { stackId: stack, machineTypeId: machine_type_id, stackRollbackVersion: stack_rollback_version },
       StackAndMachineSource.Workflow,
       workflowId,
     );

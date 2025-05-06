@@ -1,5 +1,6 @@
 import { toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
+import { Document } from 'yaml';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
@@ -270,44 +271,48 @@ function getMetaPath(source: StackAndMachineSource, sourceId?: string, field?: F
   return path;
 }
 
-function updateFieldValue(field: FieldKeys, value: string, source: StackAndMachineSource, sourceId?: string) {
+function updateFieldValue(
+  doc: Document,
+  field: FieldKeys,
+  value: string,
+  source: StackAndMachineSource,
+  sourceId?: string,
+) {
+  validateSourceId(source, sourceId);
+  const path = getMetaPath(source, sourceId);
+  const meta = YamlUtils.getMapIn(doc, path, true);
+
+  if (value) {
+    meta.setIn([field], value);
+  } else {
+    YamlUtils.safeDeleteIn(doc, path.concat(field), ['meta', 'bitrise.io']);
+  }
+}
+
+function updateStackAndMachine(
+  value: { stackId?: string; machineTypeId?: string; stackRollbackVersion?: string },
+  source: StackAndMachineSource,
+  sourceId?: string,
+) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
-    const path = getMetaPath(source, sourceId);
-    const meta = YamlUtils.getMapIn(doc, path, true);
-
-    if (value) {
-      meta.setIn([field], value);
-    } else {
-      YamlUtils.safeDeleteIn(doc, path.concat(field), ['meta', 'bitrise.io']);
-    }
-
+    updateFieldValue(doc, 'stack', value.stackId || '', source, sourceId);
+    updateFieldValue(doc, 'machine_type_id', value.machineTypeId || '', source, sourceId);
+    updateFieldValue(doc, 'stack_rollback_version', value.stackRollbackVersion || '', source, sourceId);
     return doc;
   });
 }
 
-function updateStackId(stackId: string, source: StackAndMachineSource, sourceId?: string) {
-  updateFieldValue('stack', stackId, source, sourceId);
-}
-
-function updateMachineTypeId(machineTypeId: string, source: StackAndMachineSource, sourceId?: string) {
-  updateFieldValue('machine_type_id', machineTypeId, source, sourceId);
-}
-
-function updateStackRollbackVersion(stackRollbackVersion: string, source: StackAndMachineSource, sourceId?: string) {
-  updateFieldValue('stack_rollback_version', stackRollbackVersion, source, sourceId);
-}
-
 function updateLicensePoolId(licensePoolId: string, source: StackAndMachineSource, sourceId?: string) {
-  updateFieldValue('license_pool_id', licensePoolId, source, sourceId);
+  updateBitriseYmlDocument(({ doc }) => {
+    updateFieldValue(doc, 'license_pool_id', licensePoolId, source, sourceId);
+    return doc;
+  });
 }
 
 export { MachineTypeWithValue, StackAndMachineSource, StackWithValue };
 export default {
   changeStackAndMachine,
   prepareStackAndMachineSelectionData,
-  updateStackId,
-  updateMachineTypeId,
-  updateStackRollbackVersion,
+  updateStackAndMachine,
   updateLicensePoolId,
 };

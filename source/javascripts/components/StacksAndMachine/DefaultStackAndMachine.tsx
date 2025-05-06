@@ -8,9 +8,10 @@ const DefaultStackAndMachine = () => {
   const { projectStackId, projectMachineTypeId, projectStackRollbackVersion } = useProjectStackAndMachine();
 
   const updateDefaultMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
-    StackAndMachineService.updateStackId(stack, StackAndMachineSource.Root);
-    StackAndMachineService.updateMachineTypeId(machine_type_id, StackAndMachineSource.Root);
-    StackAndMachineService.updateStackRollbackVersion(stack_rollback_version, StackAndMachineSource.Root);
+    StackAndMachineService.updateStackAndMachine(
+      { stackId: stack, machineTypeId: machine_type_id, stackRollbackVersion: stack_rollback_version },
+      StackAndMachineSource.Root,
+    );
   };
 
   return (

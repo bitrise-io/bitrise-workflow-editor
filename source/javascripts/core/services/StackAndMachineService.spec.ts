@@ -603,7 +603,7 @@ describe('StackAndMachineService', () => {
     });
   });
 
-  describe('updateStackId', () => {
+  describe('updateStackAndMachine', () => {
     describe('root-level', () => {
       it('updates stack ID at meta.[bitrise.io]', () => {
         initializeStore({
@@ -617,7 +617,10 @@ describe('StackAndMachineService', () => {
           `,
         });
 
-        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Root);
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1', stackRollbackVersion: 'v1' },
+          StackAndMachineSource.Root,
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -629,24 +632,7 @@ describe('StackAndMachineService', () => {
         `);
       });
 
-      it('creates meta.[bitrise.io] when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`format_version: ''`,
-        });
-
-        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          format_version: ''
-          meta:
-            bitrise.io:
-              stack: osx-xcode-16
-        `);
-      });
-
-      it('removes stack ID at meta.[bitrise.io] when stack ID is empty', () => {
+      it('updates machine type ID at meta.[bitrise.io]', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -658,7 +644,81 @@ describe('StackAndMachineService', () => {
           `,
         });
 
-        StackAndMachineService.updateStackId('', StackAndMachineSource.Root);
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: 'mac-m2', stackRollbackVersion: 'v1' },
+          StackAndMachineSource.Root,
+        );
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m2
+              stack_rollback_version: v1
+        `);
+      });
+
+      it('updates stack rollback version at meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: 'v2' },
+          StackAndMachineSource.Root,
+        );
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v2
+        `);
+      });
+
+      it('creates meta.[bitrise.io] when it does not exist', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`format_version: ''`,
+        });
+
+        StackAndMachineService.updateStackAndMachine({ stackId: 'osx-xcode-16' }, StackAndMachineSource.Root);
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          format_version: ''
+          meta:
+            bitrise.io:
+              stack: osx-xcode-16
+        `);
+      });
+
+      it('removes stack ID meta.[bitrise.io] when stack ID is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: '', machineTypeId: 'mac-m1', stackRollbackVersion: 'v1' },
+          StackAndMachineSource.Root,
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -669,7 +729,59 @@ describe('StackAndMachineService', () => {
         `);
       });
 
-      it('removes meta.[bitrise.io] when stack ID is empty and it is the only key', () => {
+      it('removes machine type ID at meta.[bitrise.io] when machine type ID is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: '', stackRollbackVersion: 'v1' },
+          StackAndMachineSource.Root,
+        );
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              stack_rollback_version: v1
+        `);
+      });
+
+      it('removes stack rollback version at meta.[bitrise.io] when stack rollback version is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+          `,
+        });
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: '' },
+          StackAndMachineSource.Root,
+        );
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+        `);
+      });
+
+      it('removes meta.[bitrise.io] when its last key is removed', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -680,7 +792,7 @@ describe('StackAndMachineService', () => {
           `,
         });
 
-        StackAndMachineService.updateStackId('', StackAndMachineSource.Root);
+        StackAndMachineService.updateStackAndMachine({ stackId: '' }, StackAndMachineSource.Root);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toBe(yaml`format_version: ''`);
@@ -711,7 +823,11 @@ describe('StackAndMachineService', () => {
                 steps: []`,
         });
 
-        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow, 'primary');
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -726,6 +842,110 @@ describe('StackAndMachineService', () => {
                 bitrise.io:
                   stack: osx-xcode-16
                   machine_type_id: mac-m1
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('updates machine type ID at workflows.[id].meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: 'mac-m2' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m2
+            test:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+            deploy:
+              steps: []
+        `);
+      });
+
+      it('updates stack rollback version at workflows.[id].meta.[bitrise.io]', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            meta:
+              bitrise.io:
+                stack: osx-xcode-15
+                machine_type_id: mac-m1
+                stack_rollback_version: v1
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+                    machine_type_id: mac-m1
+                    stack_rollback_version: v1
+              test:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-15
+              deploy:
+                steps: []`,
+        });
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: 'v2' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
+
+        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
+        expect(actualYml).toEqual(yaml`
+          meta:
+            bitrise.io:
+              stack: osx-xcode-15
+              machine_type_id: mac-m1
+              stack_rollback_version: v1
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-15
+                  machine_type_id: mac-m1
+                  stack_rollback_version: v2
             test:
               meta:
                 bitrise.io:
@@ -759,7 +979,11 @@ describe('StackAndMachineService', () => {
           `,
         });
 
-        StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow, 'deploy');
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-16' },
+          StackAndMachineSource.Workflow,
+          'deploy',
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -809,7 +1033,11 @@ describe('StackAndMachineService', () => {
                 steps: []`,
         });
 
-        StackAndMachineService.updateStackId('', StackAndMachineSource.Workflow, 'primary');
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: '', machineTypeId: 'mac-m1' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -829,289 +1057,6 @@ describe('StackAndMachineService', () => {
                   stack: osx-xcode-15
             deploy:
               steps: []
-        `);
-      });
-
-      it('removes workflow.[id].meta.[bitrise.io], but keeps workflow.[id] when stack ID is empty and it is the only key', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-        StackAndMachineService.updateStackId('', StackAndMachineSource.Workflow, 'test');
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v1
-          workflows:
-            primary:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-                  machine_type_id: mac-m1
-            test: {}
-            deploy:
-              steps: []
-        `);
-      });
-
-      it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-
-        expect(() => {
-          StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow);
-        }).toThrow('sourceId is required when source is Workflow');
-      });
-
-      it('throws an error if the workflow does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-
-        expect(() => {
-          StackAndMachineService.updateStackId('osx-xcode-16', StackAndMachineSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
-      });
-    });
-  });
-
-  describe('updateMachineTypeId', () => {
-    describe('project-level default', () => {
-      it('updates machine type ID at meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-          `,
-        });
-
-        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m2
-              stack_rollback_version: v1
-        `);
-      });
-
-      it('creates meta.[bitrise.io] when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`format_version: ''`,
-        });
-
-        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          format_version: ''
-          meta:
-            bitrise.io:
-              machine_type_id: mac-m2
-        `);
-      });
-
-      it('removes machine type ID at meta.[bitrise.io] when machine type ID is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-          `,
-        });
-
-        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              stack_rollback_version: v1
-        `);
-      });
-
-      it('removes meta.[bitrise.io] when machine type ID is empty and it is the only key', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            format_version: ''
-            meta:
-              bitrise.io:
-                machine_type_id: mac-m1
-          `,
-        });
-
-        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toBe(yaml`format_version: ''`);
-      });
-    });
-
-    describe('workflow-level override', () => {
-      it('updates machine type ID at workflows.[id].meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-
-        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow, 'primary');
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v1
-          workflows:
-            primary:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-                  machine_type_id: mac-m2
-            test:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-            deploy:
-              steps: []
-        `);
-      });
-
-      it('creates workflows.[id].meta.[bitrise.io] if it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []
-          `,
-        });
-
-        StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow, 'deploy');
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v1
-          workflows:
-            primary:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-                  machine_type_id: mac-m1
-            test:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-            deploy:
-              steps: []
-              meta:
-                bitrise.io:
-                  machine_type_id: mac-m2
         `);
       });
 
@@ -1138,7 +1083,11 @@ describe('StackAndMachineService', () => {
                 steps: []`,
         });
 
-        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Workflow, 'primary');
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: '' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1158,294 +1107,6 @@ describe('StackAndMachineService', () => {
                   stack: osx-xcode-15
             deploy:
               steps: []
-        `);
-      });
-
-      it('removes the workflows.[id].meta.[bitrise.io], but keeps workflow.[id] when machine type ID is empty and it is the only key', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    machine_type_id: mac-m1
-              deploy:
-                steps: []`,
-        });
-
-        StackAndMachineService.updateMachineTypeId('', StackAndMachineSource.Workflow, 'test');
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v1
-          workflows:
-            primary:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-                  machine_type_id: mac-m1
-            test: {}
-            deploy:
-              steps: []
-        `);
-      });
-
-      it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-
-        expect(() => {
-          StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow);
-        }).toThrow('sourceId is required when source is Workflow');
-      });
-
-      it('throws an error if the workflow does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-
-        expect(() => {
-          StackAndMachineService.updateMachineTypeId('mac-m2', StackAndMachineSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
-      });
-    });
-  });
-
-  describe('updateStackRollbackVersion', () => {
-    describe('project-level default', () => {
-      it('updates stack rollback version at meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-          `,
-        });
-
-        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v2
-        `);
-      });
-
-      it('creates meta.[bitrise.io] when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`format_version: ''`,
-        });
-
-        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          format_version: ''
-          meta:
-            bitrise.io:
-              stack_rollback_version: v2
-        `);
-      });
-
-      it('removes stack rollback version at meta.[bitrise.io] when stack rollback version is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-          `,
-        });
-
-        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-        `);
-      });
-
-      it('removes meta.[bitrise.io] when stack rollback version is empty and it is the only key', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            format_version: ''
-            meta:
-              bitrise.io:
-                stack_rollback_version: v1
-          `,
-        });
-
-        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Root);
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toBe(yaml`format_version: ''`);
-      });
-    });
-
-    describe('workflow-level override', () => {
-      it('updates stack rollback version at workflows.[id].meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-                    stack_rollback_version: v1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []`,
-        });
-
-        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow, 'primary');
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v1
-          workflows:
-            primary:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-                  machine_type_id: mac-m1
-                  stack_rollback_version: v2
-            test:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-            deploy:
-              steps: []
-        `);
-      });
-
-      it('creates workflows.[id].meta.[bitrise.io] when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
-            meta:
-              bitrise.io:
-                stack: osx-xcode-15
-                machine_type_id: mac-m1
-                stack_rollback_version: v1
-            workflows:
-              primary:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-                    machine_type_id: mac-m1
-                    stack_rollback_version: v1
-              test:
-                meta:
-                  bitrise.io:
-                    stack: osx-xcode-15
-              deploy:
-                steps: []
-          `,
-        });
-
-        StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow, 'deploy');
-
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
-          meta:
-            bitrise.io:
-              stack: osx-xcode-15
-              machine_type_id: mac-m1
-              stack_rollback_version: v1
-          workflows:
-            primary:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-                  machine_type_id: mac-m1
-                  stack_rollback_version: v1
-            test:
-              meta:
-                bitrise.io:
-                  stack: osx-xcode-15
-            deploy:
-              steps: []
-              meta:
-                bitrise.io:
-                  stack_rollback_version: v2
         `);
       });
 
@@ -1473,7 +1134,11 @@ describe('StackAndMachineService', () => {
                 steps: []`,
         });
 
-        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Workflow, 'primary');
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: '' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1497,7 +1162,7 @@ describe('StackAndMachineService', () => {
         `);
       });
 
-      it('removes the workflows.[id].meta.[bitrise.io], but keeps workflow.[id] when stack rollback version is empty and it is the only key', () => {
+      it('removes workflow.[id].meta.[bitrise.io], but keeps workflow.[id] when its last key is removed', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -1512,16 +1177,14 @@ describe('StackAndMachineService', () => {
                   bitrise.io:
                     stack: osx-xcode-15
                     machine_type_id: mac-m1
-                    stack_rollback_version: v1
               test:
                 meta:
                   bitrise.io:
-                    stack_rollback_version: v1
+                    stack: osx-xcode-15
               deploy:
                 steps: []`,
         });
-
-        StackAndMachineService.updateStackRollbackVersion('', StackAndMachineSource.Workflow, 'test');
+        StackAndMachineService.updateStackAndMachine({ stackId: '' }, StackAndMachineSource.Workflow, 'test');
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
           meta:
@@ -1535,7 +1198,6 @@ describe('StackAndMachineService', () => {
                 bitrise.io:
                   stack: osx-xcode-15
                   machine_type_id: mac-m1
-                  stack_rollback_version: v1
             test: {}
             deploy:
               steps: []
@@ -1557,7 +1219,6 @@ describe('StackAndMachineService', () => {
                   bitrise.io:
                     stack: osx-xcode-15
                     machine_type_id: mac-m1
-                    stack_rollback_version: v1
               test:
                 meta:
                   bitrise.io:
@@ -1567,7 +1228,10 @@ describe('StackAndMachineService', () => {
         });
 
         expect(() => {
-          StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow);
+          StackAndMachineService.updateStackAndMachine(
+            { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1', stackRollbackVersion: 'v1' },
+            StackAndMachineSource.Workflow,
+          );
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -1586,7 +1250,6 @@ describe('StackAndMachineService', () => {
                   bitrise.io:
                     stack: osx-xcode-15
                     machine_type_id: mac-m1
-                    stack_rollback_version: v1
               test:
                 meta:
                   bitrise.io:
@@ -1596,7 +1259,11 @@ describe('StackAndMachineService', () => {
         });
 
         expect(() => {
-          StackAndMachineService.updateStackRollbackVersion('v2', StackAndMachineSource.Workflow, 'nonexistent');
+          StackAndMachineService.updateStackAndMachine(
+            { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1', stackRollbackVersion: 'v1' },
+            StackAndMachineSource.Workflow,
+            'nonexistent',
+          );
         }).toThrow('Workflow is not found at path: workflows.nonexistent');
       });
     });
