@@ -233,13 +233,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Step related actions
-      changeStepVersion: (workflowId: string, stepIndex: number, version: string) => {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.changeStepVersion(workflowId, stepIndex, version, state.yml),
-          };
-        });
-      },
       updateLicensePoolId(workflowId: string, licensePoolId: string) {
         return set((state) => {
           return {
@@ -281,13 +274,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.appendStepBundleInput(bundleId, newInput, state.yml),
-          };
-        });
-      },
-      changeStepVersionInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.changeStepVersionInStepBundle(stepBundleId, stepIndex, version, state.yml),
           };
         });
       },

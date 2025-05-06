@@ -1,7 +1,7 @@
-import { compact, uniq } from 'es-toolkit';
+import { compact, isString, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import semver from 'semver';
-import { Document, isMap } from 'yaml';
+import { Document, isMap, isScalar } from 'yaml';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
@@ -515,6 +515,24 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
   });
 }
 
+function changeStepVersion(source: Source, sourceId: string, index: number, version: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getStepOrThrowError(source, sourceId, index, doc);
+    const stepCVSScalar = step.items[0].key;
+
+    if (!isScalar(stepCVSScalar) || !isString(stepCVSScalar.value)) {
+      return doc;
+    }
+
+    const cvs = stepCVSScalar.value;
+    const defaultStepLibrary = (doc.get('default_step_lib_source') as string) || BITRISE_STEP_LIBRARY_URL;
+
+    stepCVSScalar.value = updateVersion(cvs, defaultStepLibrary, version);
+
+    return doc;
+  });
+}
+
 export default {
   parseStepCVS,
   canUpdateVersion,
@@ -541,4 +559,5 @@ export default {
   cloneStep,
   deleteStep,
   updateStepField,
+  changeStepVersion,
 };

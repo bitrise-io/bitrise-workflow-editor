@@ -46,14 +46,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       })),
     );
 
-  const { upgradeStep, groupStepsToStepBundle, upgradeStepInStepBundle, setChainedWorkflows, removeChainedWorkflow } =
-    useBitriseYmlStore((s) => ({
-      upgradeStep: s.changeStepVersion,
-      groupStepsToStepBundle: s.groupStepsToStepBundle,
-      upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-      setChainedWorkflows: s.setChainedWorkflows,
-      removeChainedWorkflow: s.removeChainedWorkflow,
-    }));
+  const { groupStepsToStepBundle, setChainedWorkflows, removeChainedWorkflow } = useBitriseYmlStore((s) => ({
+    groupStepsToStepBundle: s.groupStepsToStepBundle,
+    setChainedWorkflows: s.setChainedWorkflows,
+    removeChainedWorkflow: s.removeChainedWorkflow,
+  }));
 
   const runButtonAriaLabel = useMemo(() => {
     if (WorkflowService.isUtilityWorkflow(workflowId)) {
@@ -355,6 +352,14 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     [selectedStepIndices, selectionParent?.id, selectionParent?.type, setSelectedStepIndices],
   );
 
+  const upgradeStepInWorkflow = useCallback((wfId: string, stepIndex: number, version: string) => {
+    StepService.changeStepVersion('workflows', wfId, stepIndex, version);
+  }, []);
+
+  const upgradeStepInStepBundle = useCallback((stepBundleId: string, stepIndex: number, version: string) => {
+    StepService.changeStepVersion('step_bundles', stepBundleId, stepIndex, version);
+  }, []);
+
   return (
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
@@ -393,7 +398,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onMoveStep={handleMoveStep}
           onCloneStep={handleCloneStep}
           onDeleteStep={handleDeleteStep}
-          onUpgradeStep={upgradeStep}
+          onUpgradeStep={upgradeStepInWorkflow}
           onSelectStep={handleSelectStep}
           onAddStep={openStepSelectorDrawerFromWorkflow}
           onAddStepToStepBundle={openStepSelectorDrawerFromStepBundle}

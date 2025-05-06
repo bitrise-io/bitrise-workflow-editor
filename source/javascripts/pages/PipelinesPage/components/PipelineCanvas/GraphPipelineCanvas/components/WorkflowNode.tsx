@@ -88,14 +88,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  const { upgradeStep, groupStepsToStepBundle, upgradeStepInStepBundle, setChainedWorkflows, removeChainedWorkflow } =
-    useBitriseYmlStore((s) => ({
-      upgradeStep: s.changeStepVersion,
-      groupStepsToStepBundle: s.groupStepsToStepBundle,
-      upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-      setChainedWorkflows: s.setChainedWorkflows,
-      removeChainedWorkflow: s.removeChainedWorkflow,
-    }));
+  const { groupStepsToStepBundle, setChainedWorkflows, removeChainedWorkflow } = useBitriseYmlStore((s) => ({
+    groupStepsToStepBundle: s.groupStepsToStepBundle,
+    setChainedWorkflows: s.setChainedWorkflows,
+    removeChainedWorkflow: s.removeChainedWorkflow,
+  }));
 
   useResizeObserver({
     ref,
@@ -294,7 +291,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           }
         }
       },
-      handleUpgradeStep: upgradeStep,
+      handleUpgradeStep: (workflowId: string, stepIndex: number, version: string) => {
+        StepService.changeStepVersion('workflows', workflowId, stepIndex, version);
+      },
       handleMoveStep: (workflowId: string, stepIndex: number, targetIndex: number) => {
         StepService.moveStep('workflows', workflowId, stepIndex, targetIndex);
         handleStepActionChange({
@@ -383,7 +382,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'move',
         });
       },
-      handleUpgradeStepInStepBundle: upgradeStepInStepBundle,
+      handleUpgradeStepInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => {
+        StepService.changeStepVersion('step_bundles', stepBundleId, stepIndex, version);
+      },
       handleEditWorkflow: (workflowId: string, parentWorkflowId?: string) =>
         openDialog({
           type: PipelinesPageDialogType.WORKFLOW_CONFIG,
@@ -420,8 +421,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     };
   }, [
     uses,
-    upgradeStep,
-    upgradeStepInStepBundle,
     workflows,
     selectedWorkflowId,
     closeDialog,

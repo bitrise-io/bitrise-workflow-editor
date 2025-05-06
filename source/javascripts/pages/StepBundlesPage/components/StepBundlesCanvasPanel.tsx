@@ -22,9 +22,8 @@ type Props = {
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const stepBundles = useStepBundles();
 
-  const { groupStepsToStepBundle, upgradeStepInStepBundle } = useBitriseYmlStore((s) => ({
+  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
     groupStepsToStepBundle: s.groupStepsToStepBundle,
-    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
   }));
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
@@ -166,6 +165,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     },
     [groupStepsToStepBundle, openDialog, setSelectedStepIndices],
   );
+
+  const upgradeStepInStepBundle = useCallback((bundleId: string, stepIndex: number, version: string) => {
+    StepService.changeStepVersion('step_bundles', bundleId, stepIndex, version);
+  }, []);
 
   return (
     <ReactFlowProvider>

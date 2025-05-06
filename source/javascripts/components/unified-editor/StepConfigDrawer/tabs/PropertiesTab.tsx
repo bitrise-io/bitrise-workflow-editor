@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
@@ -27,31 +26,15 @@ type StepVersionProps = {
 const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
   const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
-
-  const changeStepVersionInYml = useBitriseYmlStore((s) => s.changeStepVersion);
-  const debouncedChangeStepVersionInYml = useDebounceCallback(changeStepVersionInYml, 250);
-
-  const changeStepVersionInStepBundle = useBitriseYmlStore((s) => s.changeStepVersionInStepBundle);
-  const debouncedChangeStepVersionInStepBundle = useDebounceCallback(changeStepVersionInYml, 250);
+  const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
   const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
 
-    if (variant === 'select') {
-      if (workflowId) {
-        changeStepVersionInYml(workflowId, stepIndex, e.target.value);
-      }
-      if (stepBundleId) {
-        changeStepVersionInStepBundle(stepBundleId, stepIndex, e.target.value);
-      }
-    } else {
-      if (workflowId) {
-        debouncedChangeStepVersionInYml(workflowId, stepIndex, e.target.value);
-      }
-      if (stepBundleId) {
-        debouncedChangeStepVersionInStepBundle(stepBundleId, stepIndex, e.target.value);
-      }
-    }
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+
+    changeStepVersion(source, sourceId, stepIndex, e.target.value);
   };
 
   useEffect(() => {

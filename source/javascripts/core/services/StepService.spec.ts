@@ -1486,4 +1486,99 @@ describe('StepService', () => {
       );
     });
   });
+
+  describe('changeStepVersion', () => {
+    it('should upgrade the step version at the given index', () => {
+      StepService.changeStepVersion('workflows', 'primary', 0, '1.2.3');
+      StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '2.3.x');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1.2.3: {}
+            - cache@2: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2.3: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should append version if the step does not have one', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - script: {}
+              - cache@2: {}
+          step_bundles:
+            my_bundle:
+              steps:
+              - script@1: {}
+              - cache: {}
+        `,
+      });
+
+      StepService.changeStepVersion('workflows', 'primary', 0, '1.2.3');
+      StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '2.3.x');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1.2.3: {}
+            - cache@2: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2.3: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove the step version is empty string is given', () => {
+      StepService.changeStepVersion('workflows', 'primary', 0, '');
+      StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script: {}
+            - cache@2: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.changeStepVersion('workflows', 'non_existing', 0, '1.2.3'),
+          () => StepService.changeStepVersion('step_bundles', 'non_existing', 0, '2.3.x'),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.changeStepVersion('workflows', 'primary', 2, '1.2.3')],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
 });

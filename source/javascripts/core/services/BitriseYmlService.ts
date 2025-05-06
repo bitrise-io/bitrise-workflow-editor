@@ -27,22 +27,6 @@ import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
-function changeStepVersion(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
-  const copy = deepCloneSimpleObject(yml);
-  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
-
-  // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].steps[stepIndex] = mapKeys(copy.workflows[workflowId].steps[stepIndex], (_, cvs) => {
-    return StepService.updateVersion(String(cvs), defaultStepLibrary, version);
-  });
-
-  return copy;
-}
-
 function updateStepInputs(workflowId: string, stepIndex: number, newInputs: EnvModel, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
 
@@ -87,25 +71,6 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: EnvM
   if (isEmpty(newInputs) || isEmpty(stepYmlObject.inputs)) {
     delete stepYmlObject.inputs;
   }
-
-  return copy;
-}
-
-function changeStepVersionInStepBundle(stepBundleId: string, stepIndex: number, version: string, yml: BitriseYml) {
-  const copy = deepCloneSimpleObject(yml);
-  const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
-
-  // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  copy.step_bundles[stepBundleId].steps[stepIndex] = mapKeys(
-    copy.step_bundles[stepBundleId].steps[stepIndex],
-    (_, cvs) => {
-      return StepService.updateVersion(String(cvs), defaultStepLibrary, version);
-    },
-  );
 
   return copy;
 }
@@ -1524,9 +1489,7 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
-  changeStepVersion,
   updateStepInputs,
-  changeStepVersionInStepBundle,
   createStepBundle,
   deleteStepBundle,
   groupStepsToStepBundle,
