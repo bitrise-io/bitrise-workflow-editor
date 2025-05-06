@@ -27,34 +27,6 @@ import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
-function updateStep(
-  workflowId: string,
-  stepIndex: number,
-  newValues: Omit<StepModel, 'inputs' | 'outputs'>,
-  yml: BitriseYml,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  const [cvs, stepYmlObject] = Object.entries(copy.workflows[workflowId].steps[stepIndex])[0];
-
-  mapValues(newValues, (value: string, key: never) => {
-    if (shouldRemoveField(value, stepYmlObject[key])) {
-      delete stepYmlObject[key];
-    } else {
-      stepYmlObject[key] = value as never;
-    }
-  });
-
-  copy.workflows[workflowId].steps[stepIndex] = { [cvs]: stepYmlObject };
-
-  return copy;
-}
-
 function changeStepVersion(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
@@ -137,21 +109,6 @@ function deleteStep(workflowId: string, selectedStepIndices: number[], yml: Bitr
   if (shouldRemoveField(copy.workflows[workflowId].steps, yml.workflows?.[workflowId]?.steps)) {
     delete copy.workflows[workflowId].steps;
   }
-
-  return copy;
-}
-
-function addStepToStepBundle(stepBundleId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the step bundle is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]) {
-    return copy;
-  }
-
-  const steps = copy.step_bundles[stepBundleId].steps ?? [];
-  steps.splice(to, 0, { [cvs]: {} });
-  copy.step_bundles[stepBundleId].steps = steps;
 
   return copy;
 }
@@ -349,19 +306,6 @@ function groupStepsToStepBundle(
   stepsInEntity.splice(insertPosition, 0, {
     [StepBundleService.idToCvs(newStepBundleId)]: {},
   });
-  return copy;
-}
-
-function moveStepInStepBundle(stepBundleId: string, stepIndex: number, to: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  copy.step_bundles[stepBundleId].steps.splice(to, 0, copy.step_bundles[stepBundleId].steps.splice(stepIndex, 1)[0]);
-
   return copy;
 }
 
@@ -1665,20 +1609,17 @@ function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: Bit
 }
 
 export default {
-  updateStep,
   getUniqueStepIds,
   getUniqueStepCvss,
   changeStepVersion,
   updateStepInputs,
   deleteStep,
-  addStepToStepBundle,
   changeStepVersionInStepBundle,
   cloneStepInStepBundle,
   createStepBundle,
   deleteStepBundle,
   deleteStepInStepBundle,
   groupStepsToStepBundle,
-  moveStepInStepBundle,
   renameStepBundle,
   updateStepBundle,
   updateStepInStepBundle,

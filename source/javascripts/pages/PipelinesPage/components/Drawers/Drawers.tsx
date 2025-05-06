@@ -8,7 +8,6 @@ import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/S
 import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
-import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -35,47 +34,27 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setStepBundleId,
   } = usePipelinesPageStore();
 
-  const { addStepToStepBundle, createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } =
-    useBitriseYmlStore((s) => ({
-      addStepToStepBundle: s.addStepToStepBundle,
-      createPipeline: s.createPipeline,
-      getUniqueStepIds: s.getUniqueStepIds,
-      addChainedWorkflow: s.addChainedWorkflow,
-      addWorkflowToPipeline: s.addWorkflowToPipeline,
-    }));
+  const { createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
+    createPipeline: s.createPipeline,
+    getUniqueStepIds: s.getUniqueStepIds,
+    addChainedWorkflow: s.addChainedWorkflow,
+    addWorkflowToPipeline: s.addWorkflowToPipeline,
+  }));
 
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
-    if (library === LibraryType.BUNDLE) {
-      if (workflowId) {
-        WorkflowService.addStep(workflowId, cvs, selectedStepIndices[0]);
-      } else {
-        addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-      }
-      openDialog({
-        type: PipelinesPageDialogType.STEP_BUNDLE,
-        workflowId,
-        stepBundleId,
-        selectedStepIndices,
-      })();
-    } else if (workflowId) {
-      WorkflowService.addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
-      openDialog({
-        type: PipelinesPageDialogType.STEP_CONFIG,
-        pipelineId,
-        workflowId,
-        selectedStepIndices,
-      })();
+
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    const wantsToAddAStepBundle = library === LibraryType.BUNDLE;
+
+    if (wantsToAddAStepBundle) {
+      StepService.addStep(source, sourceId, cvs, selectedStepIndices[0]);
+      openDialog({ type: PipelinesPageDialogType.STEP_BUNDLE, workflowId, stepBundleId })();
     } else {
-      addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-      openDialog({
-        type: PipelinesPageDialogType.STEP_CONFIG,
-        pipelineId,
-        workflowId,
-        stepBundleId,
-        selectedStepIndices,
-      })();
+      StepService.addStep(source, sourceId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      openDialog({ type: PipelinesPageDialogType.STEP_CONFIG, workflowId, stepBundleId })();
     }
   };
 

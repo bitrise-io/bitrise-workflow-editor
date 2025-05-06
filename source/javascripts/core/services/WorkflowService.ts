@@ -1,8 +1,4 @@
-import { Document, YAMLMap } from 'yaml';
-
 import { Pipelines, Stages, Workflows } from '../models/BitriseYml';
-import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -143,61 +139,6 @@ function countInPipelines(id: string, pipelines?: Pipelines, stages?: Stages) {
   return pipelineIdsWhereWorkflowIsUsed.size;
 }
 
-function getWorkflowOrThrowError(workflowId: string, doc: Document) {
-  const workflow = doc.getIn(['workflows', workflowId]);
-
-  if (!workflow) {
-    throw new Error(`Workflow with ID ${workflowId} not found`);
-  }
-
-  return workflow as YAMLMap;
-}
-
-function getStepOrThrowError(workflowId: string, stepIndex: number, doc: Document) {
-  const workflow = getWorkflowOrThrowError(workflowId, doc);
-
-  const step = workflow.getIn(['steps', stepIndex]);
-  if (!step) {
-    throw new Error(`Step at index ${stepIndex} not found in workflow ${workflowId}`);
-  }
-
-  return step as YAMLMap;
-}
-
-function addStep(workflowId: string, cvs: string, to: number) {
-  updateBitriseYmlDocument(({ doc }) => {
-    getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YamlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps'], true);
-    steps.items.splice(to, 0, { [cvs]: {} });
-
-    return doc;
-  });
-}
-
-function moveStep(workflowId: string, from: number, to: number) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const step = getStepOrThrowError(workflowId, from, doc);
-    const steps = YamlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps'], true);
-
-    steps.items.splice(from, 1);
-    steps.items.splice(to, 0, step);
-
-    return doc;
-  });
-}
-
-function cloneStep(workflowId: string, stepIndex: number) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const step = getStepOrThrowError(workflowId, stepIndex, doc);
-    const steps = YamlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps'], true);
-
-    steps.items.splice(stepIndex + 1, 0, step.clone());
-
-    return doc;
-  });
-}
-
 export default {
   validateName,
   sanitizeName,
@@ -210,7 +151,4 @@ export default {
   getChainableWorkflows,
   getDependantWorkflows,
   countInPipelines,
-  addStep,
-  moveStep,
-  cloneStep,
 };

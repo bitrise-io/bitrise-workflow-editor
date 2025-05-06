@@ -7,7 +7,7 @@ import { WorkflowCardContextProvider } from '@/components/unified-editor/Workflo
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
-import { moveStepIndices } from '@/core/services/StepService';
+import StepService, { moveStepIndices } from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
@@ -22,17 +22,9 @@ type Props = {
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const stepBundles = useStepBundles();
 
-  const {
-    cloneStepInStepBundle,
-    deleteStepInStepBundle,
-    groupStepsToStepBundle,
-    moveStepInStepBundle,
-    upgradeStepInStepBundle,
-  } = useBitriseYmlStore((s) => ({
-    cloneStepInStepBundle: s.cloneStepInStepBundle,
+  const { deleteStepInStepBundle, groupStepsToStepBundle, upgradeStepInStepBundle } = useBitriseYmlStore((s) => ({
     deleteStepInStepBundle: s.deleteStepInStepBundle,
     groupStepsToStepBundle: s.groupStepsToStepBundle,
-    moveStepInStepBundle: s.moveStepInStepBundle,
     upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
   }));
 
@@ -103,14 +95,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
   const handleCloneStep = useCallback(
     (parentStepBundleId: string, stepIndex: number) => {
-      cloneStepInStepBundle(parentStepBundleId, stepIndex);
+      StepService.cloneStep('step_bundles', parentStepBundleId, stepIndex);
 
       if (selectionParent?.id === parentStepBundleId) {
         // Adjust index of the selected steps
         setSelectedStepIndices(moveStepIndices('clone', selectedStepIndices, stepIndex));
       }
     },
-    [cloneStepInStepBundle, selectedStepIndices, selectionParent?.id, setSelectedStepIndices],
+    [selectedStepIndices, selectionParent?.id, setSelectedStepIndices],
   );
 
   const handleDeleteStep = useCallback(
@@ -154,14 +146,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
   const handleMoveStep = useCallback(
     (parentStepBundleId: string, stepIndex: number, targetIndex: number) => {
-      moveStepInStepBundle(parentStepBundleId, stepIndex, targetIndex);
+      StepService.moveStep('step_bundles', parentStepBundleId, stepIndex, targetIndex);
 
       if (selectionParent?.id === parentStepBundleId) {
         // Adjust index of the selected steps
         setSelectedStepIndices(moveStepIndices('move', selectedStepIndices, stepIndex, targetIndex));
       }
     },
-    [moveStepInStepBundle, selectedStepIndices, selectionParent?.id, setSelectedStepIndices],
+    [selectedStepIndices, selectionParent?.id, setSelectedStepIndices],
   );
 
   const handleGroupStepsToStepBundle = useCallback(

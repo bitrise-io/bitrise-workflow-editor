@@ -9,7 +9,6 @@ import {
   EnvModel,
   PipelineModel,
   StepBundleModel,
-  StepModel,
   TriggerMap,
   TriggersModel,
   WorkflowModel,
@@ -255,13 +254,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      updateStep: (workflowId: string, stepIndex: number, newValues: Omit<StepModel, 'inputs' | 'outputs'>) => {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStep(workflowId, stepIndex, newValues, state.yml),
-          };
-        });
-      },
       updateStepInputs: (workflowId: string, stepIndex: number, inputs: EnvModel) => {
         return set((state) => {
           return {
@@ -292,13 +284,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Step Bundle related actions
-      addStepToStepBundle(stepBundleId: string, cvs: string, to: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.addStepToStepBundle(stepBundleId, cvs, to, state.yml),
-          };
-        });
-      },
       appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel) {
         return set((state) => {
           return {
@@ -310,13 +295,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.changeStepVersionInStepBundle(stepBundleId, stepIndex, version, state.yml),
-          };
-        });
-      },
-      cloneStepInStepBundle(stepBundleId: string, stepIndex: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.cloneStepInStepBundle(stepBundleId, stepIndex, state.yml),
           };
         });
       },
@@ -366,13 +344,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      moveStepInStepBundle(stepBundleId: string, stepIndex: number, to: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.moveStepInStepBundle(stepBundleId, stepIndex, to, state.yml),
-          };
-        });
-      },
       renameStepBundle(stepBundleId: string, newStepBundleId: string) {
         return set((state) => {
           return {
@@ -413,17 +384,6 @@ export const bitriseYmlStore = createStore(
               stepIndex,
               state.yml,
             ),
-          };
-        });
-      },
-      updateStepInStepBundle: (
-        stepBundleId: string,
-        stepIndex: number,
-        newValues: Omit<StepModel, 'inputs' | 'outputs'>,
-      ) => {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStepInStepBundle(stepBundleId, stepIndex, newValues, state.yml),
           };
         });
       },
