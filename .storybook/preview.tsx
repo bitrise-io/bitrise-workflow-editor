@@ -5,7 +5,9 @@ import { Provider } from "@bitrise/bitkit";
 import type { Preview } from "@storybook/react";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { withBitriseYml } from "./withBitriseYml";
+import { bitriseYmlStore, initializeStore } from "../source/javascripts/core/stores/BitriseYmlStore.ts";
+import { useEffect } from "react";
+import BitriseYmlApi from "../source/javascripts/core/api/BitriseYmlApi.ts";
 import { parseDocument } from "yaml";
 
 initialize({ serviceWorker: { url: "./mockServiceWorker.js" } });
@@ -46,24 +48,32 @@ const preview: Preview = {
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
   },
   decorators: [
-    (Story, context) => (
-      <Provider>
-        <QueryClientProvider client={queryClient}>
-          <ReactFlowProvider>
-            {withBitriseYml(
-              {
-                yml: TEST_BITRISE_YML,
-                ymlDocument: parseDocument(JSON.stringify(TEST_BITRISE_YML)),
-                savedYmlDocument: parseDocument(JSON.stringify(TEST_BITRISE_YML)),
-                savedYmlVersion: '1.0',
-                ...context.parameters.bitriseYmlStore,
-              },
-              Story,
-            )}
-          </ReactFlowProvider>
-        </QueryClientProvider>
-      </Provider>
-    ),
+    (Story, context) => {
+      useEffect(() => {
+        bitriseYmlStore.setState({
+          yml: TEST_BITRISE_YML,
+          ymlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML)),
+          savedYmlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML)),
+          savedYmlVersion: '',
+        });
+      }, []);
+
+      useEffect(() => {
+        if (context.parameters.bitriseYmlStore) {
+          bitriseYmlStore.setState(context.parameters.bitriseYmlStore);
+        }
+      }, [context.parameters.bitriseYmlStore]);
+
+      return (
+        <Provider>
+          <QueryClientProvider client={queryClient}>
+            <ReactFlowProvider>
+              <Story />
+            </ReactFlowProvider>
+          </QueryClientProvider>
+        </Provider>
+      );
+    },
   ],
   loaders: [mswLoader],
 };
