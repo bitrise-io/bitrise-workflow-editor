@@ -248,7 +248,12 @@ export type TagTriggerModel = {
 export type TriggerMapItemModelRegexCondition =
   | string
   | {
+      pattern: string;
+      last_commit?: boolean;
+    }
+  | {
       regex: string;
+      last_commit?: boolean;
     };
 
 export type StepListItemModel = {

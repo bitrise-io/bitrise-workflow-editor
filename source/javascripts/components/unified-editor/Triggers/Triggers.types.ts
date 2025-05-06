@@ -29,6 +29,7 @@ export type LegacyConditionType = LegacyPushConditionType | LegacyPrConditionTyp
 export type ConditionType = PushConditionType | PrConditionType | TagConditionType;
 
 export type Condition = {
+  isLastCommitOnly?: boolean;
   isRegex: boolean;
   type: ConditionType | LegacyConditionType;
   value: string;
@@ -50,6 +51,7 @@ export type TriggerItem = {
 export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   conditions: {
     isRegex: boolean;
+    isLastCommitOnly?: boolean;
     type?: ConditionType | LegacyConditionType | '';
     value: string;
   }[];

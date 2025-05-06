@@ -64,12 +64,22 @@ export const getConditionList = (trigger: TargetBasedTriggerItem) => {
   const triggerKeys = Object.keys(trigger) as (keyof TargetBasedTriggerItem)[];
   triggerKeys.forEach((key) => {
     if (!['enabled', 'pipelineableId', 'pipelineableType', 'type', 'draft_enabled', 'priority'].includes(key)) {
-      const isRegex = isObject(trigger[key]);
-      conditions.push({
+      const isRegex = isObject(trigger[key]) && Object.keys(trigger[key])[0] === 'regex';
+      const value = isRegex ? (trigger[key] as any).regex : (trigger[key] as string);
+
+      const condition: Condition = {
         isRegex,
         type: key as ConditionType,
-        value: isRegex ? (trigger[key] as any).regex : (trigger[key] as string),
-      });
+        value,
+      };
+
+      if (key === 'changed_files' || key === 'commit_message') {
+        condition.value = isRegex ? (trigger[key] as any).regex : (trigger[key] as any).pattern;
+        if ((trigger[key] as any).last_commit) {
+          condition.isLastCommitOnly = true;
+        }
+      }
+      conditions.push(condition);
     }
   });
   return conditions;

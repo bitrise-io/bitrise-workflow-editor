@@ -82,9 +82,16 @@ const AddTrigger = (props: AddTriggerProps) => {
 
     const newTrigger: any = {};
     filteredData.conditions.forEach((condition) => {
-      const value = condition.isRegex ? { regex: condition.value } : condition.value;
-      if (condition.type) {
+      if (condition.type === 'commit_message' || condition.type === 'changed_files') {
+        const value: TriggerMapItemModelRegexCondition = condition.isRegex
+          ? { regex: condition.value }
+          : { pattern: condition.value };
+        if (condition.isLastCommitOnly) {
+          value.last_commit = true;
+        }
         newTrigger[condition.type] = value;
+      } else if (condition.type) {
+        newTrigger[condition.type] = condition.isRegex ? { regex: condition.value } : condition.value;
       }
     });
 
@@ -128,11 +135,7 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    if (
-      isEqual(getConditionList(trigger), conditions) &&
-      isEqual(trigger.draft_enabled !== false, isDraftPr) &&
-      isEqual(trigger.priority, priority)
-    ) {
+    if (isEqual(getConditionList(trigger), conditions) && isEqual(trigger.draft_enabled !== false, isDraftPr)) {
       isSameTriggerExist = true;
     }
   });
@@ -170,6 +173,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             append={onAppend}
             optionsMap={optionsMap}
             remove={remove}
+            triggerType={triggerType}
           />
           {triggerType === 'pull_request' && (
             <Checkbox

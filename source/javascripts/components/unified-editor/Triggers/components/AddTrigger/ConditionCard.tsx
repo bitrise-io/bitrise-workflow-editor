@@ -1,9 +1,7 @@
 import {
   Button,
   Card,
-  Checkbox,
   ControlButton,
-  Icon,
   Input,
   Select,
   Table,
@@ -11,14 +9,14 @@ import {
   Td,
   Th,
   Thead,
-  Toggletip,
+  ToggleButton,
   Tr,
 } from '@bitrise/bitkit';
-import { Tfoot } from '@chakra-ui/react';
+import { Checkbox, Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
-import { FormItems } from '../../Triggers.types';
+import { FormItems, TriggerType } from '../../Triggers.types';
 
 type ConditionCardProps = {
   fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
@@ -26,6 +24,7 @@ type ConditionCardProps = {
   optionsMap: Record<string, string>;
   remove: (index: number) => void;
   labelsMap: Record<string, string>;
+  triggerType?: TriggerType;
 };
 
 const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
@@ -37,7 +36,7 @@ const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
-  const { fields, append, optionsMap, remove } = props;
+  const { fields, append, optionsMap, remove, triggerType } = props;
   const { control, watch, setValue } = useFormContext<FormItems>();
   const { conditions } = watch();
 
@@ -50,19 +49,19 @@ const ConditionCard = (props: ConditionCardProps) => {
       <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
         <Thead backgroundColor="background/primary">
           <Tr>
-            <Th>Condition</Th>
+            <Th width="30%">Condition</Th>
             <Th>Value</Th>
-            {!isTagCondition && <Th width="44px" />}
+            {!isTagCondition && <Th width="52px" />}
           </Tr>
         </Thead>
         <Tbody>
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
-            const { isRegex, type } = cond;
+            const { isLastCommitOnly, isRegex, type } = cond;
 
             return (
               <Tr key={fieldItem.id}>
-                <Td verticalAlign="top">
+                <Td height="auto" paddingBlock="12" verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.type`}
                     control={control}
@@ -85,8 +84,17 @@ const ConditionCard = (props: ConditionCardProps) => {
                       </Select>
                     )}
                   />
+                  {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') ? (
+                    <Checkbox
+                      marginBlockStart="12"
+                      isChecked={isLastCommitOnly}
+                      onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
+                    >
+                      Last commit only
+                    </Checkbox>
+                  ) : null}
                 </Td>
-                <Td>
+                <Td height="auto" paddingBlock="12" verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.value`}
                     render={({ field }) => (
@@ -97,30 +105,30 @@ const ConditionCard = (props: ConditionCardProps) => {
                         placeholder={isRegex ? '.*' : '*'}
                         helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
                         size="md"
+                        leftAddon={
+                          <ToggleButton
+                            aria-label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
+                            iconName="Code"
+                            isSelected={isRegex}
+                            marginBlockStart="4"
+                            marginInlineStart="4"
+                            onClick={() => {
+                              setValue(`conditions.${index}.isRegex`, !isRegex);
+                            }}
+                          />
+                        }
+                        leftAddonPlacement="inside"
                       />
                     )}
                   />
-                  <Checkbox
-                    mt={8}
-                    isChecked={isRegex}
-                    onChange={(e) => setValue(`conditions.${index}.isRegex`, e.target.checked)}
-                  >
-                    Use regex pattern
-                    <Toggletip
-                      label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text. Bitrise uses Ruby's Regexp#match method."
-                      learnMoreUrl="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
-                    >
-                      <Icon name="Info" size="16" marginLeft="5" />
-                    </Toggletip>
-                  </Checkbox>
                 </Td>
                 {!isTagCondition && (
-                  <Td verticalAlign="top" paddingLeft="0" paddingTop="12">
+                  <Td height="auto" paddingBlock="12" verticalAlign="top" paddingLeft="0">
                     <ControlButton
                       iconName="Trash"
                       aria-label="Remove"
                       isTooltipDisabled={fields.length === 1}
-                      size="sm"
+                      size="md"
                       isDanger
                       isDisabled={fields.length === 1}
                       onClick={() => remove(index)}
