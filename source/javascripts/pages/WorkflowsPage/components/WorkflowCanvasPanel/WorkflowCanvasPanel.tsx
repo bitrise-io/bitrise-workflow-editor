@@ -46,23 +46,14 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       })),
     );
 
-  const {
-    deleteStep,
-    upgradeStep,
-    deleteStepInStepBundle,
-    groupStepsToStepBundle,
-    upgradeStepInStepBundle,
-    setChainedWorkflows,
-    removeChainedWorkflow,
-  } = useBitriseYmlStore((s) => ({
-    deleteStep: s.deleteStep,
-    upgradeStep: s.changeStepVersion,
-    deleteStepInStepBundle: s.deleteStepInStepBundle,
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-    setChainedWorkflows: s.setChainedWorkflows,
-    removeChainedWorkflow: s.removeChainedWorkflow,
-  }));
+  const { upgradeStep, groupStepsToStepBundle, upgradeStepInStepBundle, setChainedWorkflows, removeChainedWorkflow } =
+    useBitriseYmlStore((s) => ({
+      upgradeStep: s.changeStepVersion,
+      groupStepsToStepBundle: s.groupStepsToStepBundle,
+      upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
+      setChainedWorkflows: s.setChainedWorkflows,
+      removeChainedWorkflow: s.removeChainedWorkflow,
+    }));
 
   const runButtonAriaLabel = useMemo(() => {
     if (WorkflowService.isUtilityWorkflow(workflowId)) {
@@ -250,7 +241,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const handleDeleteStep = useCallback(
     (wfId: string, stepIndices: number[], cvs?: string) => {
-      deleteStep(wfId, stepIndices);
+      StepService.deleteStep('workflows', wfId, stepIndices);
 
       if (selectionParent?.id === wfId && selectionParent?.type === 'workflow') {
         // Close the dialog if the selected step is deleted
@@ -278,15 +269,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         }
       }
     },
-    [
-      deleteStep,
-      selectionParent?.id,
-      selectionParent?.type,
-      selectedStepIndices,
-      closeDialog,
-      setSelectedStepIndices,
-      stepBundles,
-    ],
+    [selectionParent?.id, selectionParent?.type, selectedStepIndices, closeDialog, setSelectedStepIndices, stepBundles],
   );
 
   const handleCloneStepInStepBundle = useCallback(
@@ -303,7 +286,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const handleDeleteStepInStepBundle = useCallback(
     (stepBundleId: string, stepIndices: number[], cvs?: string) => {
-      deleteStepInStepBundle(stepBundleId, stepIndices);
+      StepService.deleteStep('step_bundles', stepBundleId, stepIndices);
 
       if (selectionParent?.id === stepBundleId && selectionParent?.type === 'stepBundle') {
         // Close the dialog if the selected step is deleted
@@ -329,15 +312,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         }
       }
     },
-    [
-      closeDialog,
-      deleteStepInStepBundle,
-      selectedStepIndices,
-      selectionParent?.id,
-      selectionParent?.type,
-      setSelectedStepIndices,
-      stepBundles,
-    ],
+    [closeDialog, selectedStepIndices, selectionParent?.id, selectionParent?.type, setSelectedStepIndices, stepBundles],
   );
 
   const handleGroupStepsToStepBundle = useCallback(

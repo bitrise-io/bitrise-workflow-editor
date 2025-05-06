@@ -88,23 +88,14 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  const {
-    deleteStep,
-    upgradeStep,
-    deleteStepInStepBundle,
-    groupStepsToStepBundle,
-    upgradeStepInStepBundle,
-    setChainedWorkflows,
-    removeChainedWorkflow,
-  } = useBitriseYmlStore((s) => ({
-    deleteStep: s.deleteStep,
-    upgradeStep: s.changeStepVersion,
-    deleteStepInStepBundle: s.deleteStepInStepBundle,
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-    setChainedWorkflows: s.setChainedWorkflows,
-    removeChainedWorkflow: s.removeChainedWorkflow,
-  }));
+  const { upgradeStep, groupStepsToStepBundle, upgradeStepInStepBundle, setChainedWorkflows, removeChainedWorkflow } =
+    useBitriseYmlStore((s) => ({
+      upgradeStep: s.changeStepVersion,
+      groupStepsToStepBundle: s.groupStepsToStepBundle,
+      upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
+      setChainedWorkflows: s.setChainedWorkflows,
+      removeChainedWorkflow: s.removeChainedWorkflow,
+    }));
 
   useResizeObserver({
     ref,
@@ -322,7 +313,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleDeleteStep: (workflowId: string, stepIndices: number[], cvs?: string) => {
-        deleteStep(workflowId, stepIndices);
+        StepService.deleteStep('workflows', workflowId, stepIndices);
         handleStepActionChange({
           workflowId,
           stepIndex: stepIndices[0],
@@ -351,7 +342,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleDeleteStepInStepBundle: (stepBundleId: string, stepIndices: number[]) => {
-        deleteStepInStepBundle(stepBundleId, stepIndices);
+        StepService.deleteStep('step_bundles', stepBundleId, stepIndices);
         handleStepActionChange({
           stepBundleId,
           stepIndex: stepIndices[0],
@@ -441,8 +432,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
-    deleteStep,
-    deleteStepInStepBundle,
     groupStepsToStepBundle,
     setChainedWorkflows,
     removeChainedWorkflow,

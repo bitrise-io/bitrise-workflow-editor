@@ -91,28 +91,6 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: EnvM
   return copy;
 }
 
-function deleteStep(workflowId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow or step is missing in the YML just return the YML
-  if (selectedStepIndices.length === 0 || !copy.workflows?.[workflowId]?.steps) {
-    return copy;
-  }
-
-  // Remove selected step / steps
-  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
-  sortedIndices.forEach((stepIndex) => {
-    copy.workflows?.[workflowId].steps?.splice(stepIndex, 1);
-  });
-
-  // If the steps are empty, remove it
-  if (shouldRemoveField(copy.workflows[workflowId].steps, yml.workflows?.[workflowId]?.steps)) {
-    delete copy.workflows[workflowId].steps;
-  }
-
-  return copy;
-}
-
 function changeStepVersionInStepBundle(stepBundleId: string, stepIndex: number, version: string, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
@@ -219,28 +197,6 @@ function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
   // Remove the whole `step_bundles` section in the YML if empty
   if (shouldRemoveField(copy.step_bundles, yml.step_bundles)) {
     delete copy.step_bundles;
-  }
-
-  return copy;
-}
-
-function deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: number[], yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the step bundle or step is missing in the YML just return the YML
-  if (selectedStepIndices.length === 0 || !copy.step_bundles?.[stepBundleId]?.steps) {
-    return copy;
-  }
-
-  // Remove selected step / steps
-  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
-  sortedIndices.forEach((stepIndex) => {
-    copy.step_bundles?.[stepBundleId].steps?.splice(stepIndex, 1);
-  });
-
-  // If the steps are empty, remove it
-  if (shouldRemoveField(copy.step_bundles[stepBundleId].steps, yml.step_bundles?.[stepBundleId]?.steps)) {
-    delete copy.step_bundles[stepBundleId].steps;
   }
 
   return copy;
@@ -1570,11 +1526,9 @@ export default {
   getUniqueStepCvss,
   changeStepVersion,
   updateStepInputs,
-  deleteStep,
   changeStepVersionInStepBundle,
   createStepBundle,
   deleteStepBundle,
-  deleteStepInStepBundle,
   groupStepsToStepBundle,
   renameStepBundle,
   updateStepBundle,

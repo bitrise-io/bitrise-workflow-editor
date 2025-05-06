@@ -1329,6 +1329,105 @@ describe('StepService', () => {
     });
   });
 
+  describe('deleteStep', () => {
+    it('should delete a step in an existing workflow', () => {
+      StepService.deleteStep('workflows', 'primary', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - cache@2: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should delete a step in an existing step bundle', () => {
+      StepService.deleteStep('step_bundles', 'my_bundle', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - cache@2: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should be able to delete multiple steps', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - cache@2: {}
+              - build@2: {}
+              - deploy@2: {}
+              - analyze@2: {}
+        `,
+      });
+
+      StepService.deleteStep('workflows', 'primary', [1, 2, 3]);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - analyze@2: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should delete steps field if it is empty', () => {
+      StepService.deleteStep('workflows', 'primary', 0);
+      StepService.deleteStep('workflows', 'primary', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.deleteStep('workflows', 'non_existing', 0),
+          () => StepService.deleteStep('step_bundles', 'non_existing', 0),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.deleteStep('workflows', 'primary', 2)],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
   describe('updateStepField', () => {
     it('should update a step field in an existing workflow', () => {
       StepService.updateStepField('workflows', 'primary', 0, 'title', 'New title');

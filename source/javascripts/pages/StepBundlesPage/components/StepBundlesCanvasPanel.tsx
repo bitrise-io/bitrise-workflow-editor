@@ -22,8 +22,7 @@ type Props = {
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const stepBundles = useStepBundles();
 
-  const { deleteStepInStepBundle, groupStepsToStepBundle, upgradeStepInStepBundle } = useBitriseYmlStore((s) => ({
-    deleteStepInStepBundle: s.deleteStepInStepBundle,
+  const { groupStepsToStepBundle, upgradeStepInStepBundle } = useBitriseYmlStore((s) => ({
     groupStepsToStepBundle: s.groupStepsToStepBundle,
     upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
   }));
@@ -107,7 +106,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
   const handleDeleteStep = useCallback(
     (parentStepBundleId: string, stepIndices: number[], cvs?: string) => {
-      deleteStepInStepBundle(parentStepBundleId, stepIndices);
+      StepService.deleteStep('step_bundles', parentStepBundleId, stepIndices);
 
       if (selectionParent?.id === parentStepBundleId) {
         // Close the dialog if the selected step is deleted
@@ -134,14 +133,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         }
       }
     },
-    [
-      deleteStepInStepBundle,
-      selectionParent?.id,
-      selectedStepIndices,
-      closeDialog,
-      setSelectedStepIndices,
-      stepBundles,
-    ],
+    [selectionParent?.id, selectedStepIndices, closeDialog, setSelectedStepIndices, stepBundles],
   );
 
   const handleMoveStep = useCallback(

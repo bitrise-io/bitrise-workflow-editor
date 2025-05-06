@@ -478,6 +478,21 @@ function cloneStep(source: Source, sourceId: string, index: number) {
   });
 }
 
+function deleteStep(source: Source, sourceId: string, indices: number | number[]) {
+  updateBitriseYmlDocument(({ doc }) => {
+    // Sort indices in descending order to handle the shifting problem
+    // By removing higher indices first, we avoid affecting the position of lower indices
+    const indexArray = Array.isArray(indices) ? [...indices].sort((a, b) => b - a) : [indices];
+
+    indexArray.forEach((index) => {
+      getStepOrThrowError(source, sourceId, index, doc);
+      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index], ['steps']);
+    });
+
+    return doc;
+  });
+}
+
 type Key = keyof StepModel;
 type Value<T extends Key> = StepModel[T];
 function updateStepField<T extends Key>(source: Source, sourceId: string, index: number, field: T, value: Value<T>) {
@@ -524,5 +539,6 @@ export default {
   addStep,
   moveStep,
   cloneStep,
+  deleteStep,
   updateStepField,
 };

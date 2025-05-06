@@ -240,13 +240,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      deleteStep(workflowId: string, selectedStepIndices: number[]) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deleteStep(workflowId, selectedStepIndices, state.yml),
-          };
-        });
-      },
       updateLicensePoolId(workflowId: string, licensePoolId: string) {
         return set((state) => {
           return {
@@ -316,13 +309,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.deleteStepBundleInput(bundleId, index, state.yml),
-          };
-        });
-      },
-      deleteStepInStepBundle(stepBundleId: string, selectedStepIndices: number[]) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deleteStepInStepBundle(stepBundleId, selectedStepIndices, state.yml),
           };
         });
       },
