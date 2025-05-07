@@ -11,16 +11,11 @@ import {
   EnvironmentItemModel,
   EnvironmentItemOptionsModel,
   StepBundleModel,
+  StepListItemModel,
   StepModel,
   WithModel,
 } from '../models/BitriseYml';
-import {
-  BITRISE_STEP_LIBRARY_SSH_URL,
-  BITRISE_STEP_LIBRARY_URL,
-  LibraryType,
-  Step,
-  StepLikeYmlObject,
-} from '../models/Step';
+import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, LibraryType, Step } from '../models/Step';
 
 // https://devcenter.bitrise.io/en/references/steps-reference/step-reference-id-format.html
 // <step_lib_source>::<step-id>@<version>:
@@ -133,37 +128,49 @@ function updateVersion(cvs: string, defaultStepLibrary: string, version: string 
   return version ? `${id}@${denormalizedVersion}` : id;
 }
 
-function isStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
+function isStep(cvs: string, defaultStepLibrary: string, _step?: StepListItemModel[0]): _step is StepModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library !== LibraryType.BUNDLE && library !== LibraryType.WITH;
 }
 
-function isBitriseLibraryStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
+function isBitriseLibraryStep(
+  cvs: string,
+  defaultStepLibrary: string,
+  _step?: StepListItemModel[0],
+): _step is StepModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.BITRISE;
 }
 
-function isCustomLibraryStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
+function isCustomLibraryStep(
+  cvs: string,
+  defaultStepLibrary: string,
+  _step?: StepListItemModel[0],
+): _step is StepModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.CUSTOM;
 }
 
-function isGitStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
+function isGitStep(cvs: string, defaultStepLibrary: string, _step?: StepListItemModel[0]): _step is StepModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.GIT;
 }
 
-function isLocalStep(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepModel {
+function isLocalStep(cvs: string, defaultStepLibrary: string, _step?: StepListItemModel[0]): _step is StepModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.LOCAL;
 }
 
-function isStepBundle(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is StepBundleModel {
+function isStepBundle(
+  cvs: string,
+  defaultStepLibrary: string,
+  _step?: StepListItemModel[0],
+): _step is StepBundleModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.BUNDLE;
 }
 
-function isWithGroup(cvs: string, defaultStepLibrary: string, _step?: StepLikeYmlObject): _step is WithModel {
+function isWithGroup(cvs: string, defaultStepLibrary: string, _step?: StepListItemModel[0]): _step is WithModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.WITH;
 }
@@ -230,9 +237,9 @@ function getRawGitUrl(cvs: string, defaultStepLibrary: string, fallbackBranch: s
   return `${url}/step.yml`;
 }
 
-function resolveTitle(cvs: string, defaultStepLibrary: string, step?: StepLikeYmlObject): string {
+function resolveTitle(cvs: string, defaultStepLibrary: string, step?: StepListItemModel[0]): string {
   if (isStepBundle(cvs, defaultStepLibrary, step)) {
-    return step.title || cvs.replace('bundle::', '');
+    return step?.title || cvs.replace('bundle::', '');
   }
   if (isWithGroup(cvs, defaultStepLibrary, step)) {
     return 'With group';
@@ -250,7 +257,7 @@ function resolveTitle(cvs: string, defaultStepLibrary: string, step?: StepLikeYm
 function resolveIcon(
   cvs: string,
   defaultStepLibrary: string,
-  step?: StepLikeYmlObject,
+  step?: StepListItemModel[0],
   info?: AlgoliaStepInfo,
 ): string {
   if (isWithGroup(cvs, defaultStepLibrary, step) || isStepBundle(cvs, defaultStepLibrary, step)) {

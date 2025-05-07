@@ -84,16 +84,17 @@ function updateStep(
   }
 
   const [cvs, stepYmlObject] = Object.entries(copy.workflows[workflowId].steps[stepIndex])[0];
+  const step = stepYmlObject ?? {};
 
   mapValues(newValues, (value: string, key: never) => {
-    if (shouldRemoveField(value, stepYmlObject[key])) {
-      delete stepYmlObject[key];
+    if (shouldRemoveField(value, step[key])) {
+      delete step[key];
     } else {
-      stepYmlObject[key] = value as never;
+      step[key] = value as never;
     }
   });
 
-  copy.workflows[workflowId].steps[stepIndex] = { [cvs]: stepYmlObject };
+  copy.workflows[workflowId].steps[stepIndex] = { [cvs]: step };
 
   return copy;
 }
@@ -487,16 +488,17 @@ function updateStepInStepBundle(
   }
 
   const [cvs, stepYmlObject] = Object.entries(copy.step_bundles[stepBundleId].steps[stepIndex])[0];
+  const step = stepYmlObject ?? {};
 
   mapValues(newValues, (value: string, key: never) => {
-    if (shouldRemoveField(value, stepYmlObject[key])) {
-      delete stepYmlObject[key];
+    if (shouldRemoveField(value, step[key])) {
+      delete step[key];
     } else {
-      stepYmlObject[key] = value as never;
+      step[key] = value as never;
     }
   });
 
-  copy.step_bundles[stepBundleId].steps[stepIndex] = { [cvs]: stepYmlObject };
+  copy.step_bundles[stepBundleId].steps[stepIndex] = { [cvs]: step };
 
   return copy;
 }
@@ -1273,10 +1275,10 @@ function updateStepBundleInputInstanceValue(
 
   let inputs: EnvModel = [];
   if (parentWorkflowId && copy.workflows?.[parentWorkflowId]?.steps?.[stepIndex]) {
-    inputs = copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs || [];
+    inputs = copy.workflows[parentWorkflowId].steps[stepIndex][cvs]?.inputs || [];
   }
   if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex]) {
-    inputs = copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs || [];
+    inputs = copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs]?.inputs || [];
   }
 
   const inputIndex = inputs?.findIndex(({ opts, ...i }) => Object.keys(i)[0] === key);
@@ -1292,16 +1294,22 @@ function updateStepBundleInputInstanceValue(
 
   if (parentWorkflowId && copy.workflows?.[parentWorkflowId].steps?.[stepIndex]) {
     if (inputs.length) {
+      if (!copy.workflows[parentWorkflowId].steps[stepIndex][cvs]) {
+        copy.workflows[parentWorkflowId].steps[stepIndex][cvs] = {};
+      }
       copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs = inputs.length ? inputs : undefined;
-    } else {
+    } else if (copy.workflows[parentWorkflowId].steps[stepIndex][cvs]) {
       delete copy.workflows[parentWorkflowId].steps[stepIndex][cvs].inputs;
     }
   }
 
   if (parentStepBundleId && copy.step_bundles?.[parentStepBundleId].steps?.[stepIndex]) {
     if (inputs.length) {
+      if (!copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs]) {
+        copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs] = {};
+      }
       copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs = inputs;
-    } else {
+    } else if (copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs]) {
       delete copy.step_bundles[parentStepBundleId].steps[stepIndex][cvs].inputs;
     }
   }
@@ -1337,7 +1345,7 @@ function getUniqueStepIds(yml: BitriseYml) {
           StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
           StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
         ) {
-          stepLike.steps?.forEach((stepObj) => {
+          stepLike?.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               const { id } = StepService.parseStepCVS(String(cvs), defaultStepLibrary);
               ids.add(id);
@@ -1366,7 +1374,7 @@ function getUniqueStepCvss(yml: BitriseYml) {
           StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
           StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
         ) {
-          stepLike.steps?.forEach((stepObj) => {
+          stepLike?.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               cvss.add(String(cvs));
             });

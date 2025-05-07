@@ -5031,6 +5031,35 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
+    it('should return the original YML when the step bundle does not exist', () => {
+      const sourceYml: BitriseYml = {
+        ...sourceYmlTemplate,
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'bundle::bundle1': {
+                  inputs: [{ INPUT0: 'input0' }],
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStepBundleInputInstanceValue(
+        'INPUT0',
+        '',
+        undefined,
+        'wf1',
+        'bundle::bundle2',
+        0,
+        sourceYml,
+      );
+
+      expect(sourceYml).toMatchBitriseYml(actualYml);
+    });
+
     it('should return the original YML when the input is not defined in the bundle', () => {
       const sourceYml: BitriseYml = {
         format_version: '',

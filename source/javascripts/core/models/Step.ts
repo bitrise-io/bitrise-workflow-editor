@@ -18,8 +18,6 @@ export enum LibraryType {
   WITH = 'with',
 }
 
-export type StepLikeYmlObject = StepModel | StepBundleModel | WithModel;
-
 export type Step = {
   cvs: string;
   id: string;
