@@ -114,7 +114,7 @@ export type WorkflowModel = {
   before_run?: string[];
   after_run?: string[];
   envs?: EnvModel;
-  steps?: StepListItemModel[];
+  steps?: Steps;
   meta?: Meta;
   timeout_in_minutes?: number;
   triggers?: TriggersModel;
@@ -257,7 +257,7 @@ export type TriggerMapItemModelRegexCondition =
     };
 
 export type StepListItemModel = {
-  [stepId: string]: StepModel | WithModel | StepBundleModel;
+  [stepId: string]: StepModel | WithModel | StepBundleModel | null;
 };
 
 export type ContainerModel = {
@@ -276,7 +276,7 @@ export type DockerCredentialModel = {
 
 // Helper types
 export type TriggerMap = TriggerMapItemModel[];
-export type Steps = Record<string, StepModel>[];
+export type Steps = StepListItemModel[];
 export type Stages = Record<string, StageModel>;
 export type Services = Record<string, ContainerModel>;
 export type Workflows = Record<string, WorkflowModel>;

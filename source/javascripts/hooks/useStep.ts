@@ -3,7 +3,8 @@ import { toMerged } from 'es-toolkit';
 import { useMemo } from 'react';
 
 import StepApi, { StepApiResult } from '@/core/api/StepApi';
-import { Step, StepBundle, StepLike, StepLikeYmlObject, WithGroup } from '@/core/models/Step';
+import { StepListItemModel } from '@/core/models/BitriseYml';
+import { Step, StepBundle, StepLike, WithGroup } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
@@ -16,26 +17,19 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
 
   return useBitriseYmlStore(({ yml }) => {
-    let stepObjectFromYml: StepLikeYmlObject | undefined;
+    let stepObjectFromYml: StepListItemModel = {};
 
     if (props.workflowId) {
       const { workflowId, stepIndex } = props;
-      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex] ?? {};
     } else if (props.stepBundleId) {
       const { stepBundleId, stepIndex } = props;
       // TODO: Investigate why this type override is needed
-      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex] as StepLikeYmlObject | undefined;
+      stepObjectFromYml = (yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex] as StepListItemModel) ?? {};
     }
 
-    if (!stepObjectFromYml) {
-      return { data: undefined };
-    }
-
-    const [cvs, step] = Object.entries(stepObjectFromYml)[0];
-
-    if (!step) {
-      return { data: undefined };
-    }
+    const [cvs, stepObj] = Object.entries(stepObjectFromYml)[0];
+    const step = stepObj ?? {};
 
     const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
     const title = StepService.resolveTitle(cvs, defaultStepLibrary, step);
