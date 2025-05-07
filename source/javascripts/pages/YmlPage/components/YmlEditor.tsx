@@ -5,9 +5,11 @@ import LoadingState from '@/components/LoadingState';
 import { bitriseYmlStore, updateYmlInStore } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useFormattedYml from '@/hooks/useFormattedYml';
 
 const YmlEditor = () => {
+  const useLSP = useFeatureFlag('enable-wfe-editor-language-server');
   const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
   // NOTE: Don't subscribe to the store here, because it will send a format request on every character change
@@ -35,6 +37,26 @@ const YmlEditor = () => {
   const handleEditorDidMount: OnMount = (editor) => {
     monacoEditorRef.current = editor;
   };
+
+  if (useLSP) {
+    return (
+      <Editor
+        value={formattedYml}
+        theme="vs-light"
+        language="yaml"
+        keepCurrentModel
+        onChange={handleEditorChange}
+        onMount={handleEditorDidMount}
+        beforeMount={(monaco) => {
+          MonacoUtils.configureForYaml(monaco);
+          MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+        }}
+        options={{
+          readOnly: isLoadingSetting || isLoadingFormattedYml || ymlSettings?.usesRepositoryYml,
+        }}
+      />
+    );
+  }
 
   return (
     <Editor
