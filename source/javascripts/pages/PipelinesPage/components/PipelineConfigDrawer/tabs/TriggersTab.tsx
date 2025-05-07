@@ -1,4 +1,5 @@
 import Triggers from '@/components/unified-editor/Triggers/Triggers';
+import * as TriggerService from '@/core/services/TriggerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
@@ -6,20 +7,21 @@ type Props = {
 };
 
 const TriggersTab = ({ pipelineId }: Props) => {
-  const { triggers, updatePipelineTriggers, updatePipelineTriggersEnabled } = useBitriseYmlStore((s) => ({
+  const { triggers, updatePipelineTriggers } = useBitriseYmlStore((s) => ({
     triggers: s.yml.pipelines?.[pipelineId]?.triggers,
     updatePipelineTriggers: s.updatePipelineTriggers,
-    updatePipelineTriggersEnabled: s.updatePipelineTriggersEnabled,
   }));
 
   return (
     <Triggers
-      additionalTrackingData={{ tab_name: 'pipelines', pipeline_name: pipelineId }}
       id={pipelineId}
+      entity="Pipeline"
       triggers={triggers}
       updateTriggers={updatePipelineTriggers}
-      updateTriggersEnabled={updatePipelineTriggersEnabled}
-      entity="Pipeline"
+      updateTriggersEnabled={(sourceId, enabled) =>
+        TriggerService.updateEnabled(enabled, { source: 'pipelines', sourceId })
+      }
+      additionalTrackingData={{ tab_name: 'pipelines', pipeline_name: pipelineId }}
     />
   );
 };

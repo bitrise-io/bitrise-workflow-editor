@@ -110,11 +110,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      updatePipelineTriggersEnabled(pipelineId: string, isEnabled: boolean) {
-        return set((state) => ({
-          yml: BitriseYmlService.updatePipelineTriggersEnabled(pipelineId, isEnabled, state.yml),
-        }));
-      },
       updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(
         pipelineId: string,
         workflowId: string,
@@ -258,13 +253,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.updateWorkflowTriggers(workflowId, triggers, state.yml),
-          };
-        });
-      },
-      updateWorkflowTriggersEnabled(workflowId: string, isEnabled: boolean) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateWorkflowTriggersEnabled(workflowId, isEnabled, state.yml),
           };
         });
       },

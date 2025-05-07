@@ -2144,60 +2144,6 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('updateWorkflowTriggersEnabled', () => {
-    it('should disable triggers (set enabled: false)', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            triggers: {},
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            triggers: {
-              enabled: false,
-            },
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateWorkflowTriggersEnabled('wf1', false, sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should enable triggers (remove enabled: false)', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            triggers: {
-              enabled: false,
-            },
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            triggers: {},
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updateWorkflowTriggersEnabled('wf1', true, sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-  });
-
   describe('updatePipelineTriggers', () => {
     it('should add pipeline triggers if pipeline has no triggers before', () => {
       const sourceYml: BitriseYml = {
@@ -2270,60 +2216,6 @@ describe('BitriseYmlService', () => {
         { push: [{ branch: 'main' }], tag: [{ name: { regex: '*' } }] },
         sourceYml,
       );
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-  });
-
-  describe('updatePipelineTriggersEnabled', () => {
-    it('should disable triggers (set enabled: false)', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            triggers: {},
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            triggers: {
-              enabled: false,
-            },
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updatePipelineTriggersEnabled('pl1', false, sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should enable triggers (remove enabled: false)', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            triggers: {
-              enabled: false,
-            },
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            triggers: {},
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updatePipelineTriggersEnabled('pl1', true, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

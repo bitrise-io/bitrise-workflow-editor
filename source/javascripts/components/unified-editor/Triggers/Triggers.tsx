@@ -117,8 +117,8 @@ type TriggersProps = {
   additionalTrackingData: Record<string, string>;
   id: string;
   triggers?: TriggersModel;
-  updateTriggers: (workflowId: string, triggers: TriggersModel) => void;
-  updateTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
+  updateTriggers: (sourceId: string, triggers: TriggersModel) => void;
+  updateTriggersEnabled: (sourceId: string, isEnabled: boolean) => void;
   entity: 'Workflow' | 'Pipeline';
 };
 

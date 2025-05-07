@@ -1,13 +1,14 @@
-import Triggers from '@/components/unified-editor/Triggers/Triggers';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
+import * as TriggerService from '@/core/services/TriggerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+import Triggers from '../../Triggers/Triggers';
 
 const TriggersTab = () => {
   const workflow = useWorkflowConfigContext();
 
-  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore((s) => ({
+  const { updateWorkflowTriggers } = useBitriseYmlStore((s) => ({
     updateWorkflowTriggers: s.updateWorkflowTriggers,
-    updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
   }));
 
   if (!workflow) {
@@ -16,12 +17,14 @@ const TriggersTab = () => {
 
   return (
     <Triggers
-      additionalTrackingData={{ tab_name: 'workflows', workflow_name: workflow.id }}
       id={workflow.id}
+      entity="Workflow"
       triggers={workflow.userValues.triggers}
       updateTriggers={updateWorkflowTriggers}
-      updateTriggersEnabled={updateWorkflowTriggersEnabled}
-      entity="Workflow"
+      updateTriggersEnabled={(sourceId, enabled) =>
+        TriggerService.updateEnabled(enabled, { source: 'workflows', sourceId })
+      }
+      additionalTrackingData={{ tab_name: 'workflows', workflow_name: workflow.id }}
     />
   );
 };

@@ -1109,28 +1109,6 @@ function updateWorkflowTriggers(workflowId: string, triggers: TriggersModel, yml
   return copy;
 }
 
-function updateWorkflowTriggersEnabled(workflowId: string, isEnabled: boolean, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  if (isEnabled === true) {
-    if (copy.workflows[workflowId].triggers) {
-      delete copy.workflows[workflowId].triggers.enabled;
-    }
-  } else {
-    copy.workflows[workflowId].triggers = {
-      enabled: false,
-      ...(copy.workflows[workflowId].triggers || {}),
-    };
-  }
-
-  return copy;
-}
-
 function updatePipelineTriggers(pipelineID: string, triggers: TriggersModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1140,28 +1118,6 @@ function updatePipelineTriggers(pipelineID: string, triggers: TriggersModel, yml
   }
 
   copy.pipelines[pipelineID].triggers = triggers;
-
-  return copy;
-}
-
-function updatePipelineTriggersEnabled(pipelineId: string, isEnabled: boolean, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the pipeline is missing in the YML just return the YML
-  if (!copy.pipelines?.[pipelineId]) {
-    return copy;
-  }
-
-  if (isEnabled === true) {
-    if (copy.pipelines[pipelineId].triggers) {
-      delete copy.pipelines[pipelineId].triggers.enabled;
-    }
-  } else {
-    copy.pipelines[pipelineId].triggers = {
-      enabled: false,
-      ...(copy.pipelines[pipelineId].triggers || {}),
-    };
-  }
 
   return copy;
 }
@@ -1523,9 +1479,7 @@ export default {
   updateProjectEnvVars,
   updateWorkflowEnvVars,
   updateWorkflowTriggers,
-  updateWorkflowTriggersEnabled,
   updatePipelineTriggers,
-  updatePipelineTriggersEnabled,
   updateLicensePoolId,
   appendStepBundleInput,
   deleteStepBundleInput,
