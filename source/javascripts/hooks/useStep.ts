@@ -17,15 +17,19 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
 
   return useBitriseYmlStore(({ yml }) => {
-    let stepObjectFromYml: StepListItemModel = {};
+    let stepObjectFromYml: StepListItemModel | undefined;
 
     if (props.workflowId) {
       const { workflowId, stepIndex } = props;
-      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex] ?? {};
+      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
     } else if (props.stepBundleId) {
       const { stepBundleId, stepIndex } = props;
       // TODO: Investigate why this type override is needed
-      stepObjectFromYml = (yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex] as StepListItemModel) ?? {};
+      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
+    }
+
+    if (!stepObjectFromYml) {
+      return { data: undefined };
     }
 
     const [cvs, stepObj] = Object.entries(stepObjectFromYml)[0];
