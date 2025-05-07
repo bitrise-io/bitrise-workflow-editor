@@ -1,9 +1,11 @@
-import { Box, Label } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Label, ToggleButton } from '@bitrise/bitkit';
 import { Editor } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
 
 import MonacoUtils from '@/core/utils/MonacoUtils';
+
+import StepMaker from './StepMaker';
 
 const EDITOR_OPTIONS = {
   fontSize: 13,
@@ -25,6 +27,7 @@ type Props = {
 
 const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
   const [editorInstance, setEditor] = useState<editor.IStandaloneCodeEditor>();
+  const [state, setState] = useState<'script' | 'ai'>('script');
 
   const updateEditorHeight = useCallback(() => {
     if (!editorInstance) {
@@ -47,17 +50,40 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
   }, [editorInstance, updateEditorHeight]);
 
   return (
-    <Box display="flex" flexDir="column" gap="8px">
-      {label && <Label>{label}</Label>}
-      <Editor
-        theme="vs-dark"
-        onMount={setEditor}
-        defaultLanguage="shell"
-        options={EDITOR_OPTIONS}
-        value={value || defaultValue}
-        onChange={(changedValue) => onChange(changedValue || null)}
-        beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}
-      />
+    <Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center" marginBlockEnd="8">
+        {label && <Label>{label}</Label>}
+        <ButtonGroup spacing="0">
+          <ToggleButton
+            aria-label="Script"
+            iconName="Code"
+            isSelected={state === 'script'}
+            onClick={() => setState('script')}
+            borderRightRadius={0}
+          />
+          <ToggleButton
+            aria-label="Step Maker AI"
+            iconName="MagicWand"
+            isSelected={state === 'ai'}
+            onClick={() => setState('ai')}
+            borderLeftRadius={0}
+          />
+        </ButtonGroup>
+      </Box>
+      <Box display={state === 'ai' ? 'none' : 'block'}>
+        <Editor
+          theme="vs-dark"
+          onMount={setEditor}
+          defaultLanguage="shell"
+          options={EDITOR_OPTIONS}
+          value={value || defaultValue}
+          onChange={(changedValue) => onChange(changedValue || null)}
+          beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}
+        />
+      </Box>
+      <Box display={state === 'ai' ? 'block' : 'none'}>
+        <StepMaker />
+      </Box>
     </Box>
   );
 };
