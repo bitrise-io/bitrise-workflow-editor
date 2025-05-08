@@ -15,38 +15,38 @@ type Props = {
   token: string;
 };
 
-type StepMakerState = InitialState | Planning | CodeGeneration | WaitingForBuild | BuildLogEvaluation;
+// type StepMakerState = InitialState | Planning | CodeGeneration | WaitingForBuild | BuildLogEvaluation;
 
-type InitialState = {
-  kind: 'initial';
-  messages: Message[];
-  examplePrompts: string[];
-};
+// type InitialState = {
+//   kind: 'initial';
+//   messages: Message[];
+//   examplePrompts: string[];
+// };
 
-type Planning = {
-  kind: 'planning';
-  messages: Message[];
-  userQA: Map<string, string>;
-};
+// type Planning = {
+//   kind: 'planning';
+//   messages: Message[];
+//   userQA: Map<string, string>;
+// };
 
-type CodeGeneration = {
-  kind: 'codeGeneration';
-  messages: Message[];
-  userQA: Map<string, string>;
-};
+// type CodeGeneration = {
+//   kind: 'codeGeneration';
+//   messages: Message[];
+//   userQA: Map<string, string>;
+// };
 
-type WaitingForBuild = {
-  kind: 'waitingForBuild';
-  buildSlug: string;
-  messages: Message[];
-};
+// type WaitingForBuild = {
+//   kind: 'waitingForBuild';
+//   buildSlug: string;
+//   messages: Message[];
+// };
 
-type BuildLogEvaluation = {
-  kind: 'buildLogEvaluation';
-  plan: string;
-  messages: Message[];
-  buildLogSnippet: string;
-};
+// type BuildLogEvaluation = {
+//   kind: 'buildLogEvaluation';
+//   plan: string;
+//   messages: Message[];
+//   buildLogSnippet: string;
+// };
 
 const useStepMakerAI = (props: Props) => {
   const { bitriseYml, selectedWorkflow, token } = props;
@@ -58,23 +58,51 @@ const useStepMakerAI = (props: Props) => {
     dangerouslyAllowBrowser: true,
   });
 
-  const [state, setState] = useState<StepMakerState>({
-    kind: 'initial',
-    examplePrompts,
-    messages: [],
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  const plannerPrompt = `
+You are a DevOps engineer helping Bitrise CI/CD users with their bash script step. You are given an existing (functioning) workflow and editing a bash script step and a new request to improve that step.
+Your task is to understand the user's request and create a high-level plan to implement the requested changes.
+
+Technical considerations:
+- DO NOT write any code or YAML, just a high-level plan.
+- DO NOT assume the user uses any CI/CD tool other than Bitrise.
+
+Make sure to ask clarifying questions if the request is not clear. Think about various edge cases, not just the happy path.
+
+Selected workflow to edit: ${selectedWorkflow}
+
+bitrise.yml that implements the selected workflow:
+\`\`\`yml
+${bitriseYml}
+\`\`\`
+`;
+
+  const coderSystemPrompt = `
+You are a DevOps engineer implementing Bitrise CI/CD workflows. You are given a high-level plan to implement a new feature in an existing workflow. Your task is to output the bitrise.yml file that implements the requested changes. Only output raw YML, no explanations or comments, no Markdown code blocks.
+The selected workflow to improve: ${selectedWorkflow}
+
+This is the high-level plan you need to implement. It might contain unanswered questions. In this case, use your best judgment to fill in the gaps.
+`;
+
+  // const [state, setState] = useState<StepMakerState>({
+  //   kind: 'initial',
+  //   examplePrompts: [
+  //     'Add a step to send a Slack message when the build fails.',
+  //     'Add a step to run unit tests before deploying to production.',
+  //     'Add a step to send an email notification when the build succeeds.',
+  //   ],
+  //   messages: [],
+  // });
 
   const sendMessage = async (input: string) => {
     setIsLoading(true);
-    setState((prev) => ({
-      ...prev,
-      messages: [...prev.messages, { content: input, sender: 'user', type: 'message' }],
-    }));
+    console.log(coderSystemPrompt);
+    setMessages((prev) => [...prev, { content: input, sender: 'user', type: 'message' }]);
 
     const response = await client.responses.create({
       model: 'gpt-4o',
-      instructions:
-        state.kind === 'planning' ? plannerPrompt(selectedWorkflow, bitriseYml) : coderSystemPrompt(selectedWorkflow),
+      instructions: plannerPrompt,
       input,
       previous_response_id: responseId,
       tools: [
@@ -118,35 +146,61 @@ const useStepMakerAI = (props: Props) => {
     });
     setIsLoading(false);
     setResponseId(response.id);
+
     console.log('Response:', response);
 
-    let nextState: StepMakerState;
-    switch (state.kind) {
-      case 'initial':
-        nextState = {
-          kind: 'planning',
-          messages: [...state.messages, { content: response.output_text, sender: 'ai', type: 'message' }],
-          userQA: new Map(),
-        };
-        setState(nextState);
-        break;
-      case 'planning':
-        nextState = {
-          kind: 'planning',
-          userQA: new Map(),
-          messages: [...state.messages, { content: response.output_text, sender: 'ai', type: 'message' }],
-        };
-        break;
-      case 'codeGeneration':
-        break;
-      case 'waitingForBuild':
-        break;
-      case 'buildLogEvaluation':
-        break;
+    // let type = 'message';
+    // if(response.output[0].type === 'function_call' &&
+    //   response.output[0].name === 'process_plan' )
+    //   {
+    //     type = 'plan';
+    //   }
+    //   [
+    //     {
+    //         "id": "fc_681c74a030b08191a5101aedcfebcef3050d103f60d8a0dc",
+    //         "type": "function_call",
+    //         "status": "completed",
+    //         "arguments": "{\"plan\":\"1. Research Method to Fetch External IP:\\n   - Use a reliable external service or command that returns the external IP address, such as `curl` with a service like `http://ipinfo.io/ip` or `http://ifconfig.me`.\\n\\n2. Error Handling:\\n   - Ensure the command can handle potential errors gracefully. For example, handle situations where the external service is unreachable or returns an unexpected result.\\n\\n3. Security Considerations:\\n   - Ensure that using an external service does not expose sensitive information about your environment.\\n\\n4. Integration with the Bitrise Workflow:\\n   - Add the command to the existing bash script step within your Bitrise workflow.\\n   - Use `echo` to print the result to the console.\\n\\n5. Testing:\\n   - Test the script in a controlled environment to ensure it works as expected without throwing errors.\\n\\n6. Documentation:\\n   - Optionally update any relevant documentation to ensure the process is clear for future reference.\"}",
+    //         "call_id": "call_YRQHlxiphLgI5wY41QDNvGTl",
+    //         "name": "process_plan"
+    //     }
+    // ]
+
+    if (response.output[0].type === 'message') {
+      setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
+    } else if (response.output[0].type === 'function_call' && response.output[0].name === 'process_plan') {
+      setMessages((prev) => [
+        ...prev,
+        { content: JSON.parse((response.output[0] as any).arguments).plan, sender: 'ai', type: 'plan' },
+      ]);
     }
+    // let nextState: StepMakerState;
+    // switch (state.kind) {
+    //   case 'initial':
+    //     nextState = {
+    //       kind: 'planning',
+    //       messages: [...state.messages, { content: response.output_text, sender: 'ai', type: 'message' }],
+    //       userQA: new Map(),
+    //     };
+    //     setState(nextState);
+    //     break;
+    //   case 'planning':
+    //     nextState = {
+    //       kind: 'planning',
+    //       userQA: new Map(),
+    //       messages: [...state.messages, { content: response.output_text, sender: 'ai', type: 'message' }],
+    //     };
+    //     break;
+    //   case 'codeGeneration':
+    //     break;
+    //   case 'waitingForBuild':
+    //     break;
+    //   case 'buildLogEvaluation':
+    //     break;
+    // }
   };
 
-  return { isLoading, state, sendMessage };
+  return { isLoading, messages, sendMessage };
 };
 
 export default useStepMakerAI;
