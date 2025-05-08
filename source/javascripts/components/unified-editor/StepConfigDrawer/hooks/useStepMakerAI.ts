@@ -66,9 +66,8 @@ const useStepMakerAI = (props: Props) => {
 
   const [toolOutputId, setToolOutputId] = useState('');
 
-  const sendMessage = async (action: 'chat' | 'process_with_plan' | 'generate_code', input: string) => {
+  const sendMessage = async (action: 'chat' | 'process_with_plan', input: string) => {
     setIsLoading(true);
-    console.log(coderSystemPrompt, action);
     setMessages((prev) => [...prev, { content: input, sender: 'user', type: 'message' }]);
 
     const inputs: ResponseInput = [
@@ -99,10 +98,10 @@ const useStepMakerAI = (props: Props) => {
       instructions = coderSystemPrompt(selectedWorkflow, bitriseYml);
     }
 
-    let selectedTool = FUNCTION_CALL_PLAN;
-    if (action === 'process_with_plan') {
-      selectedTool = FUNCTION_CALL_STORE_BASH_SCRIPT;
-    }
+    // let selectedTool = FUNCTION_CALL_PLAN;
+    // if (action === 'process_with_plan') {
+    //   selectedTool = FUNCTION_CALL_STORE_BASH_SCRIPT;
+    // }
 
     const response = await client.responses.create({
       model: 'gpt-4o-mini',
@@ -155,10 +154,10 @@ const useStepMakerAI = (props: Props) => {
             'The provided bash script gets stored in the selected Bitrise workflow script step. The script is a part of the workflow.',
         },
       ],
-      tool_choice: {
-        type: 'function',
-        name: selectedTool,
-      },
+      // tool_choice: {
+      //   type: 'function',
+      //   name: selectedTool,
+      // },
     });
     setIsLoading(false);
     setResponseId(response.id);
