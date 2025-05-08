@@ -4,11 +4,12 @@ type ExpandableMessageProps = {
   buttonLabel: string;
   children: string;
   isExpanded?: boolean;
+  onButtonClick?: VoidFunction;
   title: string;
 };
 
 const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref) => {
-  const { buttonLabel, children, isExpanded, title } = props;
+  const { buttonLabel, children, isExpanded, onButtonClick, title } = props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded });
 
@@ -17,7 +18,7 @@ const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref)
       <Box onClick={() => onToggle()} padding="16" data-group role="button" display="flex" alignItems="center" gap="8">
         <Icon name="ChevronDown" transform={isOpen ? 'rotate(180deg)' : undefined} size="24" transition=".3s" />
         {title}
-        <Button size="sm" variant="secondary" marginInlineStart="auto">
+        <Button size="sm" variant="secondary" marginInlineStart="auto" onClick={onButtonClick}>
           {buttonLabel}
         </Button>
       </Box>
