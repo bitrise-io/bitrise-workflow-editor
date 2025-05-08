@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { useState } from 'react';
 
-import { coderSystemPrompt, examplePrompts, plannerPrompt } from './prompts';
+import { plannerPrompt } from './prompts';
 
 export type Message = {
   content: string;
@@ -60,24 +60,6 @@ const useStepMakerAI = (props: Props) => {
 
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const plannerPrompt = `
-You are a DevOps engineer helping Bitrise CI/CD users with their bash script step. You are given an existing (functioning) workflow and editing a bash script step and a new request to improve that step.
-Your task is to understand the user's request and create a high-level plan to implement the requested changes.
-
-Technical considerations:
-- DO NOT write any code or YAML, just a high-level plan.
-- DO NOT assume the user uses any CI/CD tool other than Bitrise.
-
-Make sure to ask clarifying questions if the request is not clear. Think about various edge cases, not just the happy path.
-
-Selected workflow to edit: ${selectedWorkflow}
-
-bitrise.yml that implements the selected workflow:
-\`\`\`yml
-${bitriseYml}
-\`\`\`
-`;
-
   const coderSystemPrompt = `
 You are a DevOps engineer implementing Bitrise CI/CD workflows. You are given a high-level plan to implement a new feature in an existing workflow. Your task is to output the bitrise.yml file that implements the requested changes. Only output raw YML, no explanations or comments, no Markdown code blocks.
 The selected workflow to improve: ${selectedWorkflow}
@@ -102,7 +84,7 @@ This is the high-level plan you need to implement. It might contain unanswered q
 
     const response = await client.responses.create({
       model: 'gpt-4o',
-      instructions: plannerPrompt,
+      instructions: plannerPrompt(selectedWorkflow, bitriseYml),
       input,
       previous_response_id: responseId,
       tools: [
