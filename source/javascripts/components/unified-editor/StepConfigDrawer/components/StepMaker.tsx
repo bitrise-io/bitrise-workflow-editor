@@ -85,14 +85,7 @@ const StepMaker = (props: StepMakerProps) => {
 
   return (
     <>
-      <Box
-        marginBlockEnd="16"
-        borderTop="1px solid"
-        borderColor="border/minimal"
-        paddingBlockStart="8"
-        marginBlockStart="16"
-        minHeight="245px"
-      >
+      <Box marginBlockEnd="16" marginBlockStart="16" minHeight="245px">
         {messages.length === 0 && (
           <Box
             paddingX="32"
@@ -119,24 +112,26 @@ const StepMaker = (props: StepMakerProps) => {
               </Text>
             )}
             <Box display="flex" flexDir="column" gap="4" borderRadius="4" marginBlockStart="24">
-              {examplePrompts.map((p) => (
-                <Box
-                  as="button"
-                  key={p}
-                  padding="8"
-                  borderRadius="8"
-                  background="#fff"
-                  _hover={{ background: 'background/selected-hover' }}
-                  marginBlockEnd="8"
-                  textAlign="left"
-                  textStyle="body/md/regular"
-                  onClick={() => {
-                    sendMessage('chat', p);
-                  }}
-                >
-                  {p}
-                </Box>
-              ))}
+              {!!token &&
+                examplePrompts.map((p) => (
+                  <Box
+                    as="button"
+                    key={p}
+                    paddingY="8"
+                    paddingX="12"
+                    borderRadius="8"
+                    background="#fff"
+                    _hover={{ background: 'background/selected-hover' }}
+                    marginBlockEnd="8"
+                    textAlign="left"
+                    textStyle="body/md/regular"
+                    onClick={() => {
+                      sendMessage('chat', p);
+                    }}
+                  >
+                    {p}
+                  </Box>
+                ))}
             </Box>
           </Box>
         )}
@@ -154,7 +149,7 @@ const StepMaker = (props: StepMakerProps) => {
           <Box textAlign="center" marginBlockStart="8">
             <Button
               variant="tertiary"
-              size="md"
+              size="sm"
               isDanger
               leftIconName="Trash"
               onClick={() => reset()}
@@ -175,7 +170,7 @@ const StepMaker = (props: StepMakerProps) => {
           autoFocus
           placeholder="What do you need?"
         />
-        <Button size="sm" type="submit" isLoading={isLoading} isDisabled={!token}>
+        <Button size="md" type="submit" isLoading={isLoading} isDisabled={!token}>
           Send
         </Button>
       </Box>
