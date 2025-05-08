@@ -79,9 +79,10 @@ ${bitriseInfo}
 `;
 
 export const examplePrompts = [
-  'Add a step to send a Slack message when the build fails.',
-  'Add a step to run unit tests before deploying to production.',
-  'Add a step to send an email notification when the build succeeds.',
+  'Look at the changed files of the PR that triggered this build. Add a label to the PR based on the size of the diff, such as `Size: M` or `Size: XXL`.',
+  "Fetch one random Chuck Norris joke from `https://api.chucknorris.io/jokes/random` so that I don't get bored waiting for the build.",
+  'Print the IP address of the machine running the build.',
+  "Iterate the dependency tree, fetch their declared license metadata and abort the build if a dependency's license is in our forbidden license list file. Present results in a table format and post it as a PR comment. If the offending dependency is a transitive one, make sure to also report the direct dependency that introduced it.",
 ];
 
 export const coderSystemPrompt = (selectedWorkflow: string, bitriseYml: string) => `
