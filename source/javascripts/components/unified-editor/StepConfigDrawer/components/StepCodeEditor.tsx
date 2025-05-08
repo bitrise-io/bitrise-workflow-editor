@@ -27,7 +27,7 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
         <EditorWrapper defaultValue={defaultValue} value={value} onChange={onChange} />
       </Box>
       <Box display={state === 'ai' ? 'block' : 'none'}>
-        <StepMaker />
+        <StepMaker onChange={onChange} />
       </Box>
     </Box>
   );

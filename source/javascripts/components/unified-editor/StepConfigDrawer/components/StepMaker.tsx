@@ -1,23 +1,26 @@
 /* eslint-disable react/no-array-index-key */
-import { Avatar, Box, BoxProps, Button, Input, Text } from '@bitrise/bitkit';
+import { Avatar, Box, BoxProps, Button, Input, MarkdownContent, ProgressBitbot, Text } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { useSecrets } from '@/hooks/useSecrets';
 
+import { examplePrompts } from '../hooks/prompts';
 import useStepMakerAI, { Message } from '../hooks/useStepMakerAI';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import ExpandableMessage from './ExpandableMessage';
 import aiAvatar from './purr.png';
 
 interface MessageItemProps extends BoxProps {
+  isLoading: boolean;
   message: Message;
   onPlanButtonClick?: VoidFunction;
+  onSaveButtonClick?: (value: string | null) => void;
 }
 
 const MessageItem = (props: MessageItemProps) => {
-  const { message, onPlanButtonClick } = props;
+  const { isLoading, message, onPlanButtonClick, onSaveButtonClick } = props;
   return (
-    <Box display="flex" flexDir={message.sender === 'user' ? 'row-reverse' : 'row'} marginBlockEnd="8" gap="8">
+    <Box display="flex" flexDir={message.sender === 'user' ? 'row-reverse' : 'row'} marginBlockEnd="12" gap="8">
       {message.sender === 'user' && (
         <Avatar
           iconName="Person"
@@ -33,6 +36,7 @@ const MessageItem = (props: MessageItemProps) => {
             onButtonClick={onPlanButtonClick}
             title="The Purr-fect plan"
             type="plan"
+            isLoading={isLoading}
           >
             {message.content}
           </ExpandableMessage>
@@ -40,20 +44,26 @@ const MessageItem = (props: MessageItemProps) => {
         {message.type === 'content' && (
           <ExpandableMessage
             buttonLabel="Approve code"
-            onButtonClick={onPlanButtonClick}
+            onButtonClick={() => onSaveButtonClick?.(message.content)}
             title="The Purr-fect code"
             type="content"
+            isLoading={isLoading}
           >
             {message.content}
           </ExpandableMessage>
         )}
-        {message.type === 'message' && message.content}
+        {message.type === 'message' && <MarkdownContent md={message.content} />}
       </Box>
     </Box>
   );
 };
 
-const StepMaker = () => {
+type StepMakerProps = {
+  onChange: (value: string | null) => void;
+};
+
+const StepMaker = (props: StepMakerProps) => {
+  const { onChange } = props;
   const { workflowId } = useStepDrawerContext();
 
   const [value, setValue] = useState<string>('');
@@ -81,6 +91,7 @@ const StepMaker = () => {
         borderColor="border/minimal"
         paddingBlockStart="8"
         marginBlockStart="16"
+        minHeight="245px"
       >
         {messages.length === 0 && (
           <Box
@@ -100,7 +111,33 @@ const StepMaker = () => {
               <br />
               do, and I’ll pounce on it for you.
             </Text>
-            {!token && <Text textStyle="body/md/regular">To get started, add your ChatGPT API key as a secret.</Text>}
+            {!token && (
+              <Text textStyle="body/md/regular">
+                To get started, add your ChatGPT API key as a secret. The key must
+                <br />
+                be OPENAI_API_KEY e.g: OPENAI_API_KEY=’your_API_key’
+              </Text>
+            )}
+            <Box display="flex" flexDir="column" gap="4" borderRadius="4" marginBlockStart="24">
+              {examplePrompts.map((p) => (
+                <Box
+                  as="button"
+                  key={p}
+                  padding="8"
+                  borderRadius="8"
+                  background="#fff"
+                  _hover={{ background: 'background/selected-hover' }}
+                  marginBlockEnd="8"
+                  textAlign="left"
+                  textStyle="body/md/regular"
+                  onClick={() => {
+                    sendMessage('chat', p);
+                  }}
+                >
+                  {p}
+                </Box>
+              ))}
+            </Box>
           </Box>
         )}
         {messages.map((message, index) => (
@@ -108,8 +145,11 @@ const StepMaker = () => {
             key={index}
             message={message}
             onPlanButtonClick={() => sendMessage('process_with_plan', 'Proceed with code generation')}
+            onSaveButtonClick={onChange}
+            isLoading={isLoading}
           />
         ))}
+        {isLoading && <ProgressBitbot color="text/secondary" />}
       </Box>
       <Box as="form" display="flex" gap="8" onSubmit={handleSubmit}>
         <Input
@@ -118,11 +158,16 @@ const StepMaker = () => {
           size="md"
           flex="1"
           value={value}
+          autoFocus
+          placeholder="What do you need?"
         />
         <Button size="md" type="submit" isLoading={isLoading} isDisabled={!token}>
           Send
         </Button>
       </Box>
+      <Text color="text/secondary" marginBlockStart="8" textStyle="body/sm/regular" textAlign="center">
+        Purr Request uses ChatGPT4 and may not be reliable. Always review and test code before deploying.
+      </Text>
     </>
   );
 };

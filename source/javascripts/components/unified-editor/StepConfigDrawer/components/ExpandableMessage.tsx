@@ -6,15 +6,16 @@ type ExpandableMessageProps = {
   buttonLabel: string;
   children: string;
   isExpanded?: boolean;
+  isLoading?: boolean;
   onButtonClick?: VoidFunction;
   title: string;
   type: 'plan' | 'content' | 'message';
 };
 
 const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref) => {
-  const { buttonLabel, children, isExpanded, onButtonClick, title, type } = props;
+  const { buttonLabel, children, isLoading, onButtonClick, title, type } = props;
 
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded });
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -26,7 +27,7 @@ const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref)
       <Box onClick={() => onToggle()} padding="16" data-group role="button" display="flex" alignItems="center" gap="8">
         <Icon name="ChevronDown" transform={isOpen ? 'rotate(180deg)' : undefined} size="24" transition=".3s" />
         {title}
-        <Button size="sm" variant="secondary" marginInlineStart="auto" onClick={handleClick}>
+        <Button size="sm" variant="secondary" marginInlineStart="auto" onClick={handleClick} isLoading={isLoading}>
           {buttonLabel}
         </Button>
       </Box>
@@ -34,7 +35,14 @@ const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref)
         <Box padding="16">
           {type === 'plan' && <MarkdownContent md={children} />}
           {type === 'content' && <EditorWrapper value={children} onChange={console.log} />}
-          <Button size="sm" variant="secondary" marginBlockStart="16" marginInlineStart="auto" onClick={handleClick}>
+          <Button
+            size="sm"
+            variant="secondary"
+            marginBlockStart="16"
+            marginInlineStart="auto"
+            onClick={handleClick}
+            isLoading={isLoading}
+          >
             {buttonLabel}
           </Button>
         </Box>
