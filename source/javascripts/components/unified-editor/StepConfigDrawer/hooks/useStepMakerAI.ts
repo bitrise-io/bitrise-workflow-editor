@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { ResponseInput } from 'openai/resources/responses/responses';
 import { useState } from 'react';
 
 import { plannerPrompt } from './prompts';
@@ -82,10 +83,18 @@ This is the high-level plan you need to implement. It might contain unanswered q
     console.log(coderSystemPrompt);
     setMessages((prev) => [...prev, { content: input, sender: 'user', type: 'message' }]);
 
+    const inputs: ResponseInput = [
+      {
+        content: input,
+        role: 'user', // | 'assistant' | 'system' | 'developer';
+        type: 'message',
+      },
+    ];
+
     const response = await client.responses.create({
       model: 'gpt-4o',
       instructions: plannerPrompt(selectedWorkflow, bitriseYml),
-      input,
+      input: inputs,
       previous_response_id: responseId,
       tools: [
         {
