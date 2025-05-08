@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { Avatar, Box, BoxProps, Button, EmptyState, Input, Text } from '@bitrise/bitkit';
+import { Avatar, Box, BoxProps, Button, Input, Text } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { useSecrets } from '@/hooks/useSecrets';
@@ -28,7 +28,22 @@ const MessageItem = (props: MessageItemProps) => {
       {message.sender === 'ai' && <Avatar name="AI" src={aiAvatar} variant="user" />}
       <Box padding="12" backgroundColor="background/secondary" borderRadius="8" flex="1">
         {message.type === 'plan' && (
-          <ExpandableMessage buttonLabel="Proceed with plan" onButtonClick={onPlanButtonClick} title="Here is the plan">
+          <ExpandableMessage
+            buttonLabel="Proceed with plan"
+            onButtonClick={onPlanButtonClick}
+            title="Here is the plan"
+            type="plan"
+          >
+            {message.content}
+          </ExpandableMessage>
+        )}
+        {message.type === 'content' && (
+          <ExpandableMessage
+            buttonLabel="Approve code"
+            onButtonClick={onPlanButtonClick}
+            title="Here is the code"
+            type="content"
+          >
             {message.content}
           </ExpandableMessage>
         )}
@@ -68,13 +83,25 @@ const StepMaker = () => {
         marginBlockStart="16"
       >
         {messages.length === 0 && (
-          <EmptyState
-            iconName="Chat"
-            title="Meowdy! I'm Purr Request, your paw-sonal Step-making assistant."
-            description="Just give me a whisker of a description about what you want your step to do, and I’ll pounce on it for you."
+          <Box
+            paddingX="32"
+            paddingY="40"
+            backgroundColor="background/secondary"
+            borderRadius="8"
+            color="text/secondary"
+            textAlign="center"
           >
+            <Avatar name="AI" src={aiAvatar} size="64" variant="user" marginBlockEnd="12" />
+            <Text marginBlockEnd="8" as="h4" textStyle="heading/h4">
+              Meowdy! I'm Purr Request, your paw-sonal Step-making assistant.
+            </Text>
+            <Text marginBlockEnd="8" textStyle="body/md/regular">
+              Just give me a whisker of a description about what you want your step to
+              <br />
+              do, and I’ll pounce on it for you.
+            </Text>
             {!token && <Text textStyle="body/md/regular">To get started, add your ChatGPT API key as a secret.</Text>}
-          </EmptyState>
+          </Box>
         )}
         {messages.map((message, index) => (
           <MessageItem

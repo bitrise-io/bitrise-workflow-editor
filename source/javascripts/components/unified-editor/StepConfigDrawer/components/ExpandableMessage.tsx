@@ -1,15 +1,18 @@
 import { Box, Button, Card, Collapse, forwardRef, Icon, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
 
+import EditorWrapper from './EditorWrapper';
+
 type ExpandableMessageProps = {
   buttonLabel: string;
   children: string;
   isExpanded?: boolean;
   onButtonClick?: VoidFunction;
   title: string;
+  type: 'plan' | 'content' | 'message';
 };
 
 const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref) => {
-  const { buttonLabel, children, isExpanded, onButtonClick, title } = props;
+  const { buttonLabel, children, isExpanded, onButtonClick, title, type } = props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded });
 
@@ -29,7 +32,8 @@ const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref)
       </Box>
       <Collapse in={isOpen} style={{ overflow: 'unset' }}>
         <Box padding="16">
-          <MarkdownContent md={children} />
+          {type === 'plan' && <MarkdownContent md={children} />}
+          {type === 'content' && <EditorWrapper value={children} onChange={console.log} />}
           <Button size="sm" variant="secondary" marginBlockStart="16" marginInlineStart="auto" onClick={handleClick}>
             {buttonLabel}
           </Button>
