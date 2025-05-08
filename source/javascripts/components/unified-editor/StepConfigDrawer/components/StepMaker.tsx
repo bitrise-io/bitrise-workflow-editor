@@ -50,7 +50,7 @@ const StepMaker = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLDivElement>) => {
     e.preventDefault();
-    sendMessage(value);
+    sendMessage('chat', value);
     setValue('');
   };
 

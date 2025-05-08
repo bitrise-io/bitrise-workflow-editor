@@ -80,7 +80,7 @@ This is the high-level plan you need to implement. It might contain unanswered q
   //   messages: [],
   // });
 
-  const sendMessage = async (input: string) => {
+  const sendMessage = async (action: 'chat' | 'process_with_plan', input: string) => {
     setIsLoading(true);
     console.log(coderSystemPrompt);
     setMessages((prev) => [...prev, { content: input, sender: 'user', type: 'message' }]);
