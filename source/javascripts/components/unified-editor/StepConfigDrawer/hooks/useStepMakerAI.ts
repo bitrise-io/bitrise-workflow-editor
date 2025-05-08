@@ -96,6 +96,24 @@ const useStepMakerAI = (props: Props) => {
           description:
             'The provided plan gets processed and forwarded to help the customer proceed with their workflow/bash script setup.',
         },
+        {
+          name: 'store_bash_script',
+          strict: false,
+          parameters: {
+            type: 'object',
+            properties: {
+              script: {
+                type: 'string',
+                description: 'The text of the bash script.',
+              },
+            },
+            required: ['script'],
+            additionalProperties: false,
+          },
+          type: 'function',
+          description:
+            'The provided bash script gets stored in the selected Bitrise workflow script step. The script is a part of the workflow.',
+        },
       ],
     });
     setIsLoading(false);
