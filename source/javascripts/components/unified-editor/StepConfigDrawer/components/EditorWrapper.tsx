@@ -19,10 +19,11 @@ type EditorWrapperProps = {
   value: string;
   defaultValue?: string;
   onChange: (value: string | null) => void;
+  readOnly?: boolean;
 };
 
 const EditorWrapper = (props: EditorWrapperProps) => {
-  const { defaultValue, onChange, value } = props;
+  const { defaultValue, onChange, readOnly, value } = props;
   const [editorInstance, setEditor] = useState<editor.IStandaloneCodeEditor>();
 
   const updateEditorHeight = useCallback(() => {
@@ -50,7 +51,7 @@ const EditorWrapper = (props: EditorWrapperProps) => {
       theme="vs-dark"
       onMount={setEditor}
       defaultLanguage="shell"
-      options={EDITOR_OPTIONS}
+      options={{ ...EDITOR_OPTIONS, readOnly }}
       value={value || defaultValue}
       onChange={(changedValue) => onChange(changedValue || null)}
       beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}

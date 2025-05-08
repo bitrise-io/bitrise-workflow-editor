@@ -34,7 +34,7 @@ const ExpandableMessage = forwardRef<ExpandableMessageProps, 'div'>((props, ref)
       <Collapse in={isOpen} style={{ overflow: 'unset' }}>
         <Box padding="16">
           {type === 'plan' && <MarkdownContent md={children} />}
-          {type === 'content' && <EditorWrapper value={children} onChange={console.log} />}
+          {type === 'content' && <EditorWrapper value={children} onChange={console.log} readOnly />}
           <Button
             size="sm"
             variant="secondary"
