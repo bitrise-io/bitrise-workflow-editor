@@ -31,7 +31,7 @@ const MessageItem = (props: MessageItemProps) => {
           <ExpandableMessage
             buttonLabel="Proceed with plan"
             onButtonClick={onPlanButtonClick}
-            title="Here is the plan"
+            title="The Purr-fect plan"
             type="plan"
           >
             {message.content}
@@ -41,7 +41,7 @@ const MessageItem = (props: MessageItemProps) => {
           <ExpandableMessage
             buttonLabel="Approve code"
             onButtonClick={onPlanButtonClick}
-            title="Here is the code"
+            title="The Purr-fect code"
             type="content"
           >
             {message.content}
