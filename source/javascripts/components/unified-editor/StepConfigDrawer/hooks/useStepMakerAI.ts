@@ -114,6 +114,7 @@ const useStepMakerAI = (props: Props) => {
       instructions,
       input: inputs,
       previous_response_id: responseId,
+      temperature: 0.5,
       tools: [
         {
           name: FUNCTION_CALL_PLAN,
