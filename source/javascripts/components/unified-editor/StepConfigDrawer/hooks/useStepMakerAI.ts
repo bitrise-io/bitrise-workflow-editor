@@ -95,8 +95,13 @@ const useStepMakerAI = (props: Props) => {
     }
 
     let instructions = plannerPrompt(selectedWorkflow, bitriseYml);
-    if (action === 'generate_code') {
+    if (action === 'process_with_plan') {
       instructions = coderSystemPrompt(selectedWorkflow, bitriseYml);
+    }
+
+    let selectedTool = FUNCTION_CALL_PLAN;
+    if (action === 'process_with_plan') {
+      selectedTool = FUNCTION_CALL_STORE_BASH_SCRIPT;
     }
 
     const response = await client.responses.create({
@@ -152,7 +157,7 @@ const useStepMakerAI = (props: Props) => {
       ],
       tool_choice: {
         type: 'function',
-        name: FUNCTION_CALL_PLAN,
+        name: selectedTool,
       },
     });
     setIsLoading(false);
