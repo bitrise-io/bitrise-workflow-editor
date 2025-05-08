@@ -28,7 +28,7 @@ const StepMaker = () => {
   };
 
   if (!token) {
-    return 'No token provided';
+    return 'No OPENAI_API_KEY token provided';
   }
 
   return (
