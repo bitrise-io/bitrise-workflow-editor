@@ -93,6 +93,14 @@ This is the high-level plan you need to implement. It might contain unanswered q
       },
     ];
 
+    if (action === 'process_with_plan') {
+      inputs.push({
+        output: 'plan ok',
+        call_id: 'planner_id',
+        type: 'function_call_output',
+      });
+    }
+
     const response = await client.responses.create({
       model: 'gpt-4o-mini',
       instructions: plannerPrompt(selectedWorkflow, bitriseYml),
