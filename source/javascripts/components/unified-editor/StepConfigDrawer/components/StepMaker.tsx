@@ -71,7 +71,7 @@ const StepMaker = (props: StepMakerProps) => {
   const { data } = useSecrets({ appSlug: '' });
   const token = data?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '';
 
-  const { isLoading, messages, sendMessage } = useStepMakerAI({
+  const { isLoading, messages, sendMessage, reset } = useStepMakerAI({
     bitriseYml: '',
     selectedWorkflow: workflowId,
     token,
@@ -150,6 +150,13 @@ const StepMaker = (props: StepMakerProps) => {
           />
         ))}
         {isLoading && <ProgressBitbot color="text/secondary" />}
+        {messages.length > 0 && (
+          <Box textAlign="center" marginBlockStart="8">
+            <Button variant="tertiary" size="md" isDanger leftIconName="Trash" onClick={() => reset()}>
+              Discard chat
+            </Button>
+          </Box>
+        )}
       </Box>
       <Box as="form" display="flex" gap="8" onSubmit={handleSubmit}>
         <Input
@@ -161,7 +168,7 @@ const StepMaker = (props: StepMakerProps) => {
           autoFocus
           placeholder="What do you need?"
         />
-        <Button size="md" type="submit" isLoading={isLoading} isDisabled={!token}>
+        <Button size="sm" type="submit" isLoading={isLoading} isDisabled={!token}>
           Send
         </Button>
       </Box>
