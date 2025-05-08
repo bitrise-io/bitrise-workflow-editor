@@ -57,7 +57,7 @@ macOS-only:
 
 export const plannerPrompt = (selectedWorkflow: string, bitriseYml: string) => `
 You are a DevOps engineer helping Bitrise CI/CD users with their bash script step. You are given an existing (functioning) workflow and editing a bash script step and a new request to improve that step.
-Your task is to understand the user's request and create a high-level plan to implement the requested changes.
+Your goal is to understand the user's request and create a high-level plan to implement the requested changes.
 
 Technical considerations:
 - DO NOT write any code or YAML, just a high-level plan.

@@ -16,6 +16,8 @@ type Props = {
   token: string;
 };
 
+const FUNCTION_CALL_PLAN = 'store_plan';
+
 // type StepMakerState = InitialState | Planning | CodeGeneration | WaitingForBuild | BuildLogEvaluation;
 
 // type InitialState = {
@@ -92,28 +94,36 @@ This is the high-level plan you need to implement. It might contain unanswered q
     ];
 
     const response = await client.responses.create({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       instructions: plannerPrompt(selectedWorkflow, bitriseYml),
       input: inputs,
       previous_response_id: responseId,
       tools: [
         {
-          name: 'process_plan',
+          name: FUNCTION_CALL_PLAN,
           strict: false,
           parameters: {
             type: 'object',
             properties: {
               plan: {
                 type: 'string',
-                description: 'The text of a plan.',
+                description: 'The plan you created in Markdown.',
+              },
+              questions: {
+                description: 'The questions to ask the user.',
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+                minItems: 0,
+                maxItems: 3,
               },
             },
-            required: ['plan'],
+            required: ['plan', 'questions'],
             additionalProperties: false,
           },
           type: 'function',
-          description:
-            'The provided plan gets processed and forwarded to help the customer proceed with their workflow/bash script setup.',
+          description: 'Store the current high-level plan for the next phase (code generation).',
         },
         {
           name: 'store_bash_script',
@@ -134,6 +144,10 @@ This is the high-level plan you need to implement. It might contain unanswered q
             'The provided bash script gets stored in the selected Bitrise workflow script step. The script is a part of the workflow.',
         },
       ],
+      tool_choice: {
+        type: 'function',
+        name: FUNCTION_CALL_PLAN,
+      },
     });
     setIsLoading(false);
     setResponseId(response.id);
@@ -159,7 +173,7 @@ This is the high-level plan you need to implement. It might contain unanswered q
 
     if (response.output[0].type === 'message') {
       setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
-    } else if (response.output[0].type === 'function_call' && response.output[0].name === 'process_plan') {
+    } else if (response.output[0].type === 'function_call' && response.output[0].name === FUNCTION_CALL_PLAN) {
       setMessages((prev) => [
         ...prev,
         { content: JSON.parse((response.output[0] as any).arguments).plan, sender: 'ai', type: 'plan' },
