@@ -80,6 +80,8 @@ This is the high-level plan you need to implement. It might contain unanswered q
   //   messages: [],
   // });
 
+  const [toolOutputId, setToolOutputId] = useState('');
+
   const sendMessage = async (action: 'chat' | 'process_with_plan', input: string) => {
     setIsLoading(true);
     console.log(coderSystemPrompt, action);
@@ -93,12 +95,19 @@ This is the high-level plan you need to implement. It might contain unanswered q
       },
     ];
 
-    if (action === 'process_with_plan') {
+    if (toolOutputId.length > 0) {
+      let output = 'plan: ok!';
+      if (action !== 'process_with_plan') {
+        output = 'plan: requires refinement';
+      }
+
       inputs.push({
-        output: 'plan ok',
-        call_id: 'planner_id',
+        output,
+        call_id: toolOutputId,
         type: 'function_call_output',
       });
+
+      setToolOutputId('');
     }
 
     const response = await client.responses.create({
@@ -182,6 +191,7 @@ This is the high-level plan you need to implement. It might contain unanswered q
     if (response.output[0].type === 'message') {
       setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
     } else if (response.output[0].type === 'function_call' && response.output[0].name === FUNCTION_CALL_PLAN) {
+      setToolOutputId(response.output[0].call_id);
       setMessages((prev) => [
         ...prev,
         { content: JSON.parse((response.output[0] as any).arguments).plan, sender: 'ai', type: 'plan' },
