@@ -6,6 +6,8 @@ import { useSecrets } from '@/hooks/useSecrets';
 
 import useStepMakerAI, { Message } from '../hooks/useStepMakerAI';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
+import ExpandableMessage from './ExpandableMessage';
+import aiAvatar from './purr.png';
 
 interface MessageItemProps extends BoxProps {
   message: Message;
@@ -15,9 +17,18 @@ const MessageItem = (props: MessageItemProps) => {
   const { message } = props;
   return (
     <Box display="flex" flexDir={message.sender === 'user' ? 'row-reverse' : 'row'} marginBlockEnd="8" gap="8">
-      <Avatar name={message.sender === 'user' ? 'You' : 'Bitbot'} variant="user" />
-      <Box padding="12" backgroundColor="background/secondary" borderRadius="8">
-        {message.content}
+      <Avatar
+        name={message.sender === 'user' ? 'You' : 'Bitbot'}
+        src={message.sender === 'user' ? undefined : aiAvatar}
+        variant="user"
+      />
+      <Box padding="12" backgroundColor="background/secondary" borderRadius="8" flex="1">
+        {message.type === 'plan' && (
+          <ExpandableMessage buttonLabel="Proceed with plan" title="Here is the plan">
+            {message.content}
+          </ExpandableMessage>
+        )}
+        {message.type === 'message' && message.content}
       </Box>
     </Box>
   );
