@@ -1,5 +1,5 @@
 import Triggers from '@/components/unified-editor/Triggers/Triggers';
-import * as TriggerService from '@/core/services/TriggerService';
+import TriggerService from '@/core/services/TriggerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {

@@ -1,5 +1,5 @@
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
-import * as TriggerService from '@/core/services/TriggerService';
+import TriggerService from '@/core/services/TriggerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import Triggers from '../../Triggers/Triggers';
