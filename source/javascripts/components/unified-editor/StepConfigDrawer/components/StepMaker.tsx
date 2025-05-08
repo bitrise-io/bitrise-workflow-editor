@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { Avatar, Box, BoxProps, Button, Input } from '@bitrise/bitkit';
+import { Avatar, Box, BoxProps, Button, EmptyState, Input, Text } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { useSecrets } from '@/hooks/useSecrets';
@@ -19,10 +19,11 @@ const MessageItem = (props: MessageItemProps) => {
   return (
     <Box display="flex" flexDir={message.sender === 'user' ? 'row-reverse' : 'row'} marginBlockEnd="8" gap="8">
       {message.sender === 'user' && (
-        /* <Box padding="8" borderRadius="50%" backgroundColor="background/selected">
-          <Icon name="Person" size="16" color="icon/interactive" />
-        </Box> */
-        <Avatar name="U" variant="user" />
+        <Avatar
+          iconName="Person"
+          variant="brand"
+          sx={{ borderRadius: '50%', backgroundColor: 'background/selected', svg: { color: 'icon/interactive' } }}
+        />
       )}
       {message.sender === 'ai' && <Avatar name="AI" src={aiAvatar} variant="user" />}
       <Box padding="12" backgroundColor="background/secondary" borderRadius="8" flex="1">
@@ -66,6 +67,15 @@ const StepMaker = () => {
         paddingBlockStart="8"
         marginBlockStart="16"
       >
+        {messages.length === 0 && (
+          <EmptyState
+            iconName="Chat"
+            title="Meowdy! I'm Purr Request, your paw-sonal Step-making assistant."
+            description="Just give me a whisker of a description about what you want your step to do, and I’ll pounce on it for you."
+          >
+            {!token && <Text textStyle="body/md/regular">To get started, add your ChatGPT API key as a secret.</Text>}
+          </EmptyState>
+        )}
         {messages.map((message, index) => (
           <MessageItem
             key={index}
@@ -76,13 +86,13 @@ const StepMaker = () => {
       </Box>
       <Box as="form" display="flex" gap="8" onSubmit={handleSubmit}>
         <Input
-          isDisabled={isLoading}
+          isDisabled={isLoading || !token}
           onChange={(e) => setValue(e.currentTarget.value)}
           size="md"
           flex="1"
           value={value}
         />
-        <Button size="md" type="submit" isLoading={isLoading}>
+        <Button size="md" type="submit" isLoading={isLoading} isDisabled={!token}>
           Send
         </Button>
       </Box>
