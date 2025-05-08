@@ -1,11 +1,27 @@
 /* eslint-disable react/no-array-index-key */
-import { Box, Button, Input } from '@bitrise/bitkit';
+import { Avatar, Box, BoxProps, Button, Input } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { useSecrets } from '@/hooks/useSecrets';
 
-import useStepMakerAI from '../hooks/useStepMakerAI';
+import useStepMakerAI, { Message } from '../hooks/useStepMakerAI';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
+
+interface MessageItemProps extends BoxProps {
+  message: Message;
+}
+
+const MessageItem = (props: MessageItemProps) => {
+  const { message } = props;
+  return (
+    <Box display="flex" flexDir={message.sender === 'user' ? 'row-reverse' : 'row'} marginBlockEnd="8" gap="8">
+      <Avatar name={message.sender === 'user' ? 'You' : 'Bitbot'} variant="user" />
+      <Box padding="12" backgroundColor="background/secondary" borderRadius="8">
+        {message.content}
+      </Box>
+    </Box>
+  );
+};
 
 const StepMaker = () => {
   const { workflowId } = useStepDrawerContext();
@@ -27,30 +43,17 @@ const StepMaker = () => {
     setValue('');
   };
 
-  if (!token) {
-    return 'No OPENAI_API_KEY token provided';
-  }
-
   return (
     <>
-      <Box marginBlockEnd="16">
+      <Box
+        marginBlockEnd="16"
+        borderTop="1px solid"
+        borderColor="border/minimal"
+        paddingBlockStart="8"
+        marginBlockStart="16"
+      >
         {state.messages.map((message, index) => (
-          <Box
-            key={index}
-            display="flex"
-            flexDir={message.sender === 'user' ? 'row-reverse' : 'row'}
-            gap="8"
-            marginBlockEnd="8"
-          >
-            <Box
-              padding="8"
-              backgroundColor={message.sender === 'user' ? 'blue.100' : 'gray.100'}
-              borderRadius="8"
-              maxWidth="80%"
-            >
-              {message.content}
-            </Box>
-          </Box>
+          <MessageItem key={index} message={message} />
         ))}
       </Box>
       <Box as="form" display="flex" gap="8" onSubmit={handleSubmit}>

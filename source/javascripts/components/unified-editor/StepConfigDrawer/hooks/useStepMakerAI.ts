@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { useState } from 'react';
 
-type Message = {
+export type Message = {
   content: string;
   sender: 'user' | 'ai';
   type: 'message' | 'plan' | 'content';

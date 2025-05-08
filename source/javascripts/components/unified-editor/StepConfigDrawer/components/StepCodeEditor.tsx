@@ -1,4 +1,4 @@
-import { Box, ButtonGroup, Label, ToggleButton } from '@bitrise/bitkit';
+import { Box, FilterSwitch, FilterSwitchGroup, Label } from '@bitrise/bitkit';
 import { Editor } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
@@ -53,22 +53,10 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBlockEnd="8">
         {label && <Label>{label}</Label>}
-        <ButtonGroup spacing="0">
-          <ToggleButton
-            aria-label="Script"
-            iconName="Code"
-            isSelected={state === 'script'}
-            onClick={() => setState('script')}
-            borderRightRadius={0}
-          />
-          <ToggleButton
-            aria-label="Step Maker AI"
-            iconName="MagicWand"
-            isSelected={state === 'ai'}
-            onClick={() => setState('ai')}
-            borderLeftRadius={0}
-          />
-        </ButtonGroup>
+        <FilterSwitchGroup onChange={(v) => setState(v as 'script' | 'ai')} value={state} marginBlockStart="0">
+          <FilterSwitch value="script">Script</FilterSwitch>
+          <FilterSwitch value="ai">AI input</FilterSwitch>
+        </FilterSwitchGroup>
       </Box>
       <Box display={state === 'ai' ? 'none' : 'block'}>
         <Editor
