@@ -93,10 +93,14 @@ This is the high-level plan you need to implement. It might contain unanswered q
 
   const sendMessage = async (input: string) => {
     setIsLoading(true);
+    setState((prev) => ({
+      ...prev,
+      messages: [...prev.messages, { content: input, sender: 'user', type: 'message' }],
+    }));
 
     const response = await client.responses.create({
       model: 'gpt-4o',
-      instructions: responseId ? coderSystemPrompt : plannerPrompt,
+      instructions: state.kind === 'planning' ? plannerPrompt : coderSystemPrompt,
       input,
       previous_response_id: responseId,
       tools: [
