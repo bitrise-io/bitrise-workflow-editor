@@ -79,6 +79,8 @@ const StepMaker = (props: StepMakerProps) => {
   });
   const token = secretData?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '';
 
+  console.log({ appSlug, secretData, token });
+
   const { isLoading, messages, sendMessage, reset } = useStepMakerAI({
     bitriseYml: '',
     appSecretKeys: secretData?.map(({ key }) => key) || [],
