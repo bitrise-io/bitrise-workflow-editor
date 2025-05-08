@@ -168,24 +168,23 @@ const useStepMakerAI = (props: Props) => {
 
     console.log('Response:', response);
 
-    if (response.output[0].type === 'message') {
-      setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
-    } else if (response.output[0].type === 'function_call' && response.output[0].name === FUNCTION_CALL_PLAN) {
-      setToolOutputId(response.output[0].call_id);
-      setMessages((prev) => [
-        ...prev,
-        { content: JSON.parse((response.output[0] as any).arguments).plan, sender: 'ai', type: 'plan' },
-      ]);
-    } else if (
-      response.output[0].type === 'function_call' &&
-      response.output[0].name === FUNCTION_CALL_STORE_BASH_SCRIPT
-    ) {
-      setToolOutputId(response.output[0].call_id);
-      setMessages((prev) => [
-        ...prev,
-        { content: JSON.parse((response.output[0] as any).arguments).script, sender: 'ai', type: 'content' },
-      ]);
-    }
+    response.output.forEach((outputItem) => {
+      if (outputItem.type === 'message') {
+        setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
+      } else if (outputItem.type === 'function_call' && outputItem.name === FUNCTION_CALL_PLAN) {
+        setToolOutputId(outputItem.call_id);
+        setMessages((prev) => [
+          ...prev,
+          { content: JSON.parse((outputItem as any).arguments).plan, sender: 'ai', type: 'plan' },
+        ]);
+      } else if (outputItem.type === 'function_call' && outputItem.name === FUNCTION_CALL_STORE_BASH_SCRIPT) {
+        setToolOutputId(outputItem.call_id);
+        setMessages((prev) => [
+          ...prev,
+          { content: JSON.parse((outputItem as any).arguments).script, sender: 'ai', type: 'content' },
+        ]);
+      }
+    });
   };
 
   return { isLoading, messages, sendMessage, reset };
