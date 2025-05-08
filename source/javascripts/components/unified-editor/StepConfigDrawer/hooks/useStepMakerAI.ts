@@ -66,6 +66,12 @@ const useStepMakerAI = (props: Props) => {
 
   const [toolOutputId, setToolOutputId] = useState('');
 
+  const reset = () => {
+    setMessages([]);
+    setToolOutputId('');
+    setResponseId('');
+  };
+
   const sendMessage = async (action: 'chat' | 'process_with_plan', input: string) => {
     setIsLoading(true);
     setMessages((prev) => [...prev, { content: input, sender: 'user', type: 'message' }]);
@@ -184,7 +190,7 @@ const useStepMakerAI = (props: Props) => {
     }
   };
 
-  return { isLoading, messages, sendMessage };
+  return { isLoading, messages, sendMessage, reset };
 };
 
 export default useStepMakerAI;
