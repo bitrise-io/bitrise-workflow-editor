@@ -43,9 +43,9 @@ const MessageItem = (props: MessageItemProps) => {
         )}
         {message.type === 'content' && (
           <ExpandableMessage
-            buttonLabel="Approve code"
+            buttonLabel="Apply code"
             onButtonClick={() => onSaveButtonClick?.(message.content)}
-            title="The Purr-fect code"
+            title="Here is the purr-fect code. Apply to write it into the YML."
             type="content"
             isLoading={isLoading}
           >
@@ -152,7 +152,14 @@ const StepMaker = (props: StepMakerProps) => {
         {isLoading && <ProgressBitbot color="text/secondary" />}
         {messages.length > 0 && (
           <Box textAlign="center" marginBlockStart="8">
-            <Button variant="tertiary" size="md" isDanger leftIconName="Trash" onClick={() => reset()}>
+            <Button
+              variant="tertiary"
+              size="md"
+              isDanger
+              leftIconName="Trash"
+              onClick={() => reset()}
+              isDisabled={isLoading}
+            >
               Discard chat
             </Button>
           </Box>
