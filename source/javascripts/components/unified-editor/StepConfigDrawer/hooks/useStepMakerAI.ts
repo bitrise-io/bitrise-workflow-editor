@@ -56,20 +56,18 @@ const useStepMakerAI = (props: Props) => {
   const { bitriseYml, selectedWorkflow, token } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [responseId, setResponseId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [toolOutputId, setToolOutputId] = useState<string | null>(null);
 
   const client = new OpenAI({
     apiKey: token,
     dangerouslyAllowBrowser: true,
   });
 
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  const [toolOutputId, setToolOutputId] = useState('');
-
   const reset = () => {
     setMessages([]);
-    setToolOutputId('');
-    setResponseId('');
+    setToolOutputId(null);
+    setResponseId(null);
   };
 
   const sendMessage = async (action: 'chat' | 'process_with_plan', input: string) => {
@@ -84,7 +82,7 @@ const useStepMakerAI = (props: Props) => {
       },
     ];
 
-    if (toolOutputId.length > 0) {
+    if (toolOutputId) {
       let output = 'ok';
       if (action !== 'process_with_plan') {
         output = 'requires refinement';
