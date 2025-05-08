@@ -62,9 +62,8 @@ Your goal is to understand the user's request and create a high-level plan to im
 Technical considerations:
 - DO NOT write any code or YAML, just a high-level plan.
 - DO NOT assume the user uses any CI/CD tool other than Bitrise.
-- DO NOT add high level plan in responses.
-- When there is a plan, call store_plan function instead of returning the plan.
-- When you respond with code call store_bash_script function instead of returning the code.
+- DO NOT add high level plan or code in responses.
+- YOU MUST ALWAYS CALL call store_plan function instead of returning the plan.
 
 Content considerations:
 - Make sure to ask clarifying questions if the request is not clear. Think about various edge cases, not just the happy path.
@@ -93,7 +92,7 @@ export const coderSystemPrompt = (selectedWorkflow: string, bitriseYml: string) 
 You are an expert bash script developer. Your task is to generate a single, syntactically correct bash script based on the plan provided.
 
 ## Instructions:
-- Output ONLY valid bash script code with no additional text, explanations, or markdown formatting
+- YOU MUST ALWAYS CALL store_bash_script function instead of returning code in response.
 - Include appropriate shebang (#!/bin/bash) at the beginning
 - Ensure errors are handled and error messages are meaningful, and do parameter validation when appropriate
 - Add helpful comments within the script to document functionality
