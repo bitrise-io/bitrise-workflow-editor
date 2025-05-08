@@ -63,7 +63,9 @@ Technical considerations:
 - DO NOT write any code or YAML, just a high-level plan.
 - DO NOT assume the user uses any CI/CD tool other than Bitrise.
 
-Make sure to ask clarifying questions if the request is not clear. Think about various edge cases, not just the happy path.
+Content considerations:
+- Make sure to ask clarifying questions if the request is not clear. Think about various edge cases, not just the happy path.
+- The plan shouldn't be too verbose, but it should be detailed enough to understand the implementation.
 
 Selected workflow to edit: ${selectedWorkflow}
 
@@ -76,15 +78,29 @@ Below you will find some documentation about Bitrise workflows and implementatio
 ${bitriseInfo}
 `;
 
-export const coderSystemPrompt = (selectedWorkflow: string) => `
-You are a DevOps engineer implementing Bitrise CI/CD workflows. You are given a high-level plan to implement a new feature in an existing workflow. Your task is to output the bitrise.yml file that implements the requested changes. Only output raw YML, no explanations or comments, no Markdown code blocks.
-The selected workflow to improve: ${selectedWorkflow}
-
-This is the high-level plan you need to implement. It might contain unanswered questions. In this case, use your best judgment to fill in the gaps.
-`;
-
 export const examplePrompts = [
   'Add a step to send a Slack message when the build fails.',
   'Add a step to run unit tests before deploying to production.',
   'Add a step to send an email notification when the build succeeds.',
 ];
+
+export const coderSystemPrompt = (selectedWorkflow: string, bitriseYml: string) => `
+You are an expert bash script developer. Your task is to generate a single, syntactically correct bash script based on the plan provided.
+
+## Instructions:
+- Output ONLY valid bash script code with no additional text, explanations, or markdown formatting
+- Include appropriate shebang (#!/bin/bash) at the beginning
+- Ensure errors are handled and error messages are meaningful, and do parameter validation when appropriate
+- Add helpful comments within the script to document functionality
+- Follow best practices for bash scripting (variable naming, quoting, etc.)
+- Implement all functionality described in the provided plan
+
+The bash script you provide will be parsed and executed directly as a bash script at the right place within the workflow. It's going to be inlined into a script step, you do not need to work on that.
+
+Workflow you are working on: ${selectedWorkflow}
+
+bitrise.yml that implements the selected workflow:
+\`\`\`yml
+${bitriseYml}
+\`\`\`
+`;
