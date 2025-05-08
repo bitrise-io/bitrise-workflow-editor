@@ -55,7 +55,12 @@ macOS-only:
 - pod (Cocoapods)
 `;
 
-export const plannerPrompt = (selectedWorkflow: string, bitriseYml: string) => `
+export const plannerPrompt = (
+  selectedWorkflow: string,
+  bitriseYml: string,
+  appSecretKeys: string[],
+  appEnvKeys: string[],
+) => `
 You are a DevOps engineer helping Bitrise CI/CD users with their bash script step. You are given an existing (functioning) workflow and editing a bash script step and a new request to improve that step.
 Your goal is to understand the user's request and create a high-level plan to implement the requested changes.
 
@@ -77,7 +82,13 @@ bitrise.yml that implements the selected workflow:
 ${bitriseYml}
 \`\`\`
 
-Below you will find some documentation about Bitrise workflows and implementation details you need to know:
+Available user-defined env vars:
+${appEnvKeys.map((key) => `- $${key}`).join('\n')}
+
+Available user-defined secret env vars:
+${appSecretKeys.map((key) => `- $${key}`).join('\n')}
+
+Below you will find some documentation about Bitrise workflows and implementation details you need to be aware of:
 ${bitriseInfo}
 `;
 
@@ -88,7 +99,12 @@ export const examplePrompts = [
   "Iterate the dependency tree, fetch their declared license metadata and abort the build if a dependency's license is in our forbidden license list file. Present results in a table format and post it as a PR comment. If the offending dependency is a transitive one, make sure to also report the direct dependency that introduced it.",
 ];
 
-export const coderSystemPrompt = (selectedWorkflow: string, bitriseYml: string) => `
+export const coderSystemPrompt = (
+  selectedWorkflow: string,
+  bitriseYml: string,
+  appEnvKeys: string[],
+  appSecretKeys: string[],
+) => `
 You are an expert bash script developer. Your task is to generate a single, syntactically correct bash script based on the plan provided.
 
 ## Instructions:
@@ -102,6 +118,12 @@ You are an expert bash script developer. Your task is to generate a single, synt
 The bash script you provide will be parsed and executed directly as a bash script at the right place within the workflow. It's going to be inlined into a script step, you do not need to work on that.
 
 Workflow you are working on: ${selectedWorkflow}
+
+Available user-defined env vars:
+${appEnvKeys.map((key) => `- $${key}`).join('\n')}
+
+Available user-defined secret env vars:
+${appSecretKeys.map((key) => `- $${key}`).join('\n')}
 
 bitrise.yml that implements the selected workflow:
 \`\`\`yml

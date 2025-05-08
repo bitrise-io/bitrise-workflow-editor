@@ -20,7 +20,7 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
         {label && <Label>{label}</Label>}
         <FilterSwitchGroup onChange={(v) => setState(v as 'script' | 'ai')} value={state} marginBlockStart="0">
           <FilterSwitch value="script">Script</FilterSwitch>
-          <FilterSwitch value="ai">AI input</FilterSwitch>
+          <FilterSwitch value="ai">Step Maker</FilterSwitch>
         </FilterSwitchGroup>
       </Box>
       <Box display={state === 'ai' ? 'none' : 'block'}>

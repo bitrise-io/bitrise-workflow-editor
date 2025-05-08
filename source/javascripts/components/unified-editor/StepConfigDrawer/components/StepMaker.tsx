@@ -2,6 +2,8 @@
 import { Avatar, Box, BoxProps, Button, Input, MarkdownContent, ProgressBitbot, Text } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import PageProps from '@/core/utils/PageProps';
+import useEnvVars from '@/hooks/useEnvVars';
 import { useSecrets } from '@/hooks/useSecrets';
 
 import { examplePrompts } from '../hooks/prompts';
@@ -68,11 +70,19 @@ const StepMaker = (props: StepMakerProps) => {
 
   const [value, setValue] = useState<string>('');
 
-  const { data } = useSecrets({ appSlug: '' });
-  const token = data?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '';
+  const appSlug = PageProps.appSlug();
+  const { data: secretData } = useSecrets({ appSlug });
+  const { envs } = useEnvVars({
+    enabled: true,
+    stepBundleIds: [],
+    workflowIds: workflowId ? [workflowId] : [],
+  });
+  const token = secretData?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '';
 
   const { isLoading, messages, sendMessage, reset } = useStepMakerAI({
     bitriseYml: '',
+    appSecretKeys: secretData?.map(({ key }) => key) || [],
+    appEnvKeys: envs.map(({ key }) => key) || [],
     selectedWorkflow: workflowId,
     token,
   });
@@ -175,7 +185,7 @@ const StepMaker = (props: StepMakerProps) => {
         </Button>
       </Box>
       <Text color="text/secondary" marginBlockStart="8" textStyle="body/sm/regular" textAlign="center">
-        Purr Request uses ChatGPT4 and may not be reliable. Always review and test code before deploying.
+        Purr Request uses LLMs and may not always be reliable. Always review code before testing.
       </Text>
     </>
   );

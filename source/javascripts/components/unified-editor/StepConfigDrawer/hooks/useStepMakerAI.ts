@@ -13,6 +13,8 @@ export type Message = {
 type Props = {
   bitriseYml: string;
   selectedWorkflow: string;
+  appSecretKeys: string[];
+  appEnvKeys: string[];
   token: string;
 };
 
@@ -97,9 +99,9 @@ const useStepMakerAI = (props: Props) => {
       setToolOutputId('');
     }
 
-    let instructions = plannerPrompt(selectedWorkflow, bitriseYml);
+    let instructions = plannerPrompt(selectedWorkflow, bitriseYml, props.appSecretKeys, props.appEnvKeys);
     if (action === 'process_with_plan') {
-      instructions = coderSystemPrompt(selectedWorkflow, bitriseYml);
+      instructions = coderSystemPrompt(selectedWorkflow, bitriseYml, props.appSecretKeys, props.appEnvKeys);
     }
 
     // let selectedTool = FUNCTION_CALL_PLAN;
