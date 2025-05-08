@@ -15,7 +15,7 @@ const StepMaker = () => {
   const { data } = useSecrets({ appSlug: '' });
   const token = data?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '';
 
-  const { isLoading, messages, sendMessage } = useStepMakerAI({
+  const { isLoading, state, sendMessage } = useStepMakerAI({
     bitriseYml: '',
     selectedWorkflow: workflowId,
     token,
@@ -34,7 +34,7 @@ const StepMaker = () => {
   return (
     <>
       <Box marginBlockEnd="16">
-        {messages.map((message, index) => (
+        {state.messages.map((message, index) => (
           <Box
             key={index}
             display="flex"

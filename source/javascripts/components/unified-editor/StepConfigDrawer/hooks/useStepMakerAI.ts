@@ -13,19 +13,50 @@ type Props = {
   token: string;
 };
 
+type StepMakerState = InitialState | Planning | CodeGeneration | WaitingForBuild | BuildLogEvaluation;
+
+type InitialState = {
+  kind: 'initial';
+  messages: Message[];
+  examplePrompts: string[];
+};
+
+type Planning = {
+  kind: 'planning';
+  messages: Message[];
+  userQA: Map<string, string>;
+};
+
+type CodeGeneration = {
+  kind: 'codeGeneration';
+  messages: Message[];
+  userQA: Map<string, string>;
+};
+
+type WaitingForBuild = {
+  kind: 'waitingForBuild';
+  buildSlug: string;
+  messages: Message[];
+};
+
+type BuildLogEvaluation = {
+  kind: 'buildLogEvaluation';
+  plan: string;
+  messages: Message[];
+  buildLogSnippet: string;
+};
+
 const useStepMakerAI = (props: Props) => {
   const { bitriseYml, selectedWorkflow, token } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [responseId, setResponseId] = useState<string | null>(null);
-
-  const [messages, setMessages] = useState<Message[]>([]);
 
   const client = new OpenAI({
     apiKey: token,
     dangerouslyAllowBrowser: true,
   });
 
-  const systemPrompt = `
+  const plannerPrompt = `
 You are a DevOps engineer helping Bitrise CI/CD users with their bash script step. You are given an existing (functioning) workflow and editing a bash script step and a new request to improve that step.
 Your task is to understand the user's request and create a high-level plan to implement the requested changes.
 
@@ -43,13 +74,29 @@ ${bitriseYml}
 \`\`\`
 `;
 
+  const coderSystemPrompt = `
+You are a DevOps engineer implementing Bitrise CI/CD workflows. You are given a high-level plan to implement a new feature in an existing workflow. Your task is to output the bitrise.yml file that implements the requested changes. Only output raw YML, no explanations or comments, no Markdown code blocks.
+The selected workflow to improve: ${selectedWorkflow}
+
+This is the high-level plan you need to implement. It might contain unanswered questions. In this case, use your best judgment to fill in the gaps.
+`;
+
+  const [state, setState] = useState<StepMakerState>({
+    kind: 'initial',
+    examplePrompts: [
+      'Add a step to send a Slack message when the build fails.',
+      'Add a step to run unit tests before deploying to production.',
+      'Add a step to send an email notification when the build succeeds.',
+    ],
+    messages: [],
+  });
+
   const sendMessage = async (input: string) => {
     setIsLoading(true);
-    setMessages((prev) => [...prev, { content: input, sender: 'user', type: 'message' }]);
 
     const response = await client.responses.create({
       model: 'gpt-4o',
-      instructions: systemPrompt,
+      instructions: responseId ? coderSystemPrompt : plannerPrompt,
       input,
       previous_response_id: responseId,
       tools: [
@@ -76,10 +123,34 @@ ${bitriseYml}
     setIsLoading(false);
     setResponseId(response.id);
     console.log('Response:', response);
-    setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
+
+    let nextState: StepMakerState;
+    switch (state.kind) {
+      case 'initial':
+        nextState = {
+          kind: 'planning',
+          messages: [...state.messages, { content: response.output_text, sender: 'ai', type: 'message' }],
+          userQA: new Map(),
+        };
+        setState(nextState);
+        break;
+      case 'planning':
+        nextState = {
+          kind: 'planning',
+          userQA: new Map(),
+          messages: [...state.messages, { content: response.output_text, sender: 'ai', type: 'message' }],
+        };
+        break;
+      case 'codeGeneration':
+        break;
+      case 'waitingForBuild':
+        break;
+      case 'buildLogEvaluation':
+        break;
+    }
   };
 
-  return { isLoading, messages, sendMessage };
+  return { isLoading, state, sendMessage };
 };
 
 export default useStepMakerAI;
