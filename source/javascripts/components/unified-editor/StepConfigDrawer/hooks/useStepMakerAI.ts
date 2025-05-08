@@ -26,7 +26,7 @@ const useStepMakerAI = (props: Props) => {
   });
 
   const systemPrompt = `
-You are a DevOps engineer helping Bitrise CI/CD users with their workflows. You are given an existing (functioning) workflow and a new request to improve that workflow.
+You are a DevOps engineer helping Bitrise CI/CD users with their bash script step. You are given an existing (functioning) workflow and editing a bash script step and a new request to improve that step.
 Your task is to understand the user's request and create a high-level plan to implement the requested changes.
 
 Technical considerations:
@@ -52,10 +52,30 @@ ${bitriseYml}
       instructions: systemPrompt,
       input,
       previous_response_id: responseId,
+      tools: [
+        {
+          name: 'process_plan',
+          strict: false,
+          parameters: {
+            type: 'object',
+            properties: {
+              plan: {
+                type: 'string',
+                description: 'The text of a plan.',
+              },
+            },
+            required: ['plan'],
+            additionalProperties: false,
+          },
+          type: 'function',
+          description:
+            'The provided plan gets processed and forwarded to help the customer proceed with their workflow/bash script setup.',
+        },
+      ],
     });
     setIsLoading(false);
     setResponseId(response.id);
-
+    console.log('Response:', response);
     setMessages((prev) => [...prev, { content: response.output_text, sender: 'ai', type: 'message' }]);
   };
 
