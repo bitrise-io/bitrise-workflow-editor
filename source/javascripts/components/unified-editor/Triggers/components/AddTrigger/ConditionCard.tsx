@@ -2,6 +2,7 @@ import {
   Button,
   Card,
   ControlButton,
+  Icon,
   Input,
   Select,
   Table,
@@ -10,6 +11,7 @@ import {
   Th,
   Thead,
   ToggleButton,
+  Toggletip,
   Tr,
 } from '@bitrise/bitkit';
 import { Checkbox, Tfoot } from '@chakra-ui/react';
@@ -91,6 +93,9 @@ const ConditionCard = (props: ConditionCardProps) => {
                       onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
                     >
                       Last commit only
+                      <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
+                        <Icon name="Info" size="16" marginLeft="5" />
+                      </Toggletip>
                     </Checkbox>
                   ) : null}
                 </Td>
