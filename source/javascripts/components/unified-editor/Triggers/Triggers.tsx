@@ -16,6 +16,8 @@ import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition, TriggersModel } from '@/core/models/BitriseYml';
+import { TriggerSource } from '@/core/models/Trigger';
+import { TARGET_BASED_LABELS_MAP, TARGET_BASED_OPTIONS_MAP } from '@/core/models/Trigger.target-based';
 import { deepCloneSimpleObject } from '@/core/utils/CommonUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -25,44 +27,6 @@ import AddTrigger from './components/AddTrigger/AddTrigger';
 import TriggerConditions from './components/TriggerConditions';
 import { TargetBasedTriggerItem, TriggerType } from './Triggers.types';
 import { getConditionList, getPipelineableTriggers } from './Triggers.utils';
-
-const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
-  push: {
-    branch: 'Push branch',
-    commit_message: 'Commit message',
-    changed_files: 'File change',
-  },
-  pull_request: {
-    target_branch: 'Target branch',
-    source_branch: 'Source branch',
-    label: 'PR label',
-    comment: 'PR comment',
-    commit_message: 'Commit message',
-    changed_files: 'File change',
-  },
-  tag: {
-    name: 'Tag',
-  },
-};
-
-const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
-  push: {
-    branch: 'Push branch',
-    commit_message: 'Enter a commit message',
-    changed_files: 'Enter a path',
-  },
-  pull_request: {
-    target_branch: 'Enter a target branch',
-    source_branch: 'Enter a source branch',
-    label: 'Enter a label',
-    comment: 'Enter a comment',
-    commit_message: 'Enter a commit message',
-    changed_files: 'Enter a path',
-  },
-  tag: {
-    tag: 'Enter a tag',
-  },
-};
 
 type TriggerItemProps = {
   globalDisabled: boolean;
@@ -114,16 +78,23 @@ const TriggerItem = (props: TriggerItemProps) => {
 };
 
 type TriggersProps = {
-  additionalTrackingData: Record<string, string>;
-  id: string;
+  source: TriggerSource;
+  sourceId: string;
   triggers?: TriggersModel;
+  additionalTrackingData: Record<string, string>;
   updateTriggers: (sourceId: string, triggers: TriggersModel) => void;
   updateTriggersEnabled: (sourceId: string, isEnabled: boolean) => void;
-  entity: 'Workflow' | 'Pipeline';
 };
 
 const Triggers = (props: TriggersProps) => {
-  const { additionalTrackingData, id, triggers: triggersProp, entity, updateTriggers, updateTriggersEnabled } = props;
+  const {
+    source,
+    sourceId,
+    triggers: triggersProp,
+    additionalTrackingData,
+    updateTriggers,
+    updateTriggersEnabled,
+  } = props;
 
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTriggerItem } | undefined>(
@@ -145,7 +116,7 @@ const Triggers = (props: TriggersProps) => {
 
   const trackingData = {
     number_of_existing_target_based_triggers_on_target: triggersInProject.filter(
-      ({ pipelineableId }) => pipelineableId === id,
+      ({ pipelineableId }) => pipelineableId === sourceId,
     ).length,
     number_of_existing_target_based_triggers_in_project: triggersInProject.length,
     number_of_existing_trigger_map_triggers_in_project: numberOfLegacyTriggers,
@@ -155,7 +126,7 @@ const Triggers = (props: TriggersProps) => {
 
   const onTriggerDelete = (trigger: TargetBasedTriggerItem, type: TriggerType) => {
     triggers[type] = triggers[type]?.filter((t: TargetBasedTriggerItem) => !isEqual(trigger, t));
-    updateTriggers(id, triggers);
+    updateTriggers(sourceId, triggers);
   };
 
   const onTriggerToggle = (
@@ -192,7 +163,7 @@ const Triggers = (props: TriggersProps) => {
       trigger_conditions: triggerConditions,
       build_trigger_type: type,
     });
-    updateTriggers(id, triggers);
+    updateTriggers(sourceId, triggers);
   };
 
   const onSubmit = (trigger: TargetBasedTriggerItem) => {
@@ -206,7 +177,7 @@ const Triggers = (props: TriggersProps) => {
         triggers[triggerType].push(trigger);
       }
 
-      updateTriggers(id, triggers);
+      updateTriggers(sourceId, triggers);
     }
     setTriggerType(undefined);
     setEditedItem(undefined);
@@ -220,26 +191,26 @@ const Triggers = (props: TriggersProps) => {
         ({ enabled }) => enabled !== false,
       ).length,
     });
-    updateTriggersEnabled(id, triggers.enabled === false);
+    updateTriggersEnabled(sourceId, triggers.enabled === false);
   };
 
   return (
     <>
       {triggerType !== undefined && (
         <AddTrigger
-          id={id}
-          onSubmit={onSubmit}
+          source={source}
+          sourceId={sourceId}
           triggerType={triggerType}
+          trackingData={trackingData}
+          optionsMap={TARGET_BASED_OPTIONS_MAP[triggerType]}
+          labelsMap={TARGET_BASED_LABELS_MAP[triggerType]}
+          editedItem={editedItem?.trigger}
+          currentTriggers={(triggers[triggerType] as TargetBasedTriggerItem[]) || []}
+          onSubmit={onSubmit}
           onCancel={() => {
             setTriggerType(undefined);
             setEditedItem(undefined);
           }}
-          optionsMap={OPTIONS_MAP[triggerType]}
-          labelsMap={LABELS_MAP[triggerType]}
-          editedItem={editedItem?.trigger}
-          currentTriggers={(triggers[triggerType] as TargetBasedTriggerItem[]) || []}
-          trackingData={trackingData}
-          entity={entity}
         />
       )}
       <Box display={triggerType !== undefined ? 'none' : 'block'}>

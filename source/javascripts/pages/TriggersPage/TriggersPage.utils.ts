@@ -57,7 +57,7 @@ export const convertTriggerMapToItems = (triggerMap: TriggerMap): Record<Trigger
     const source = getSourceType(triggerKeys, trigger.type as TriggerType);
     const finalItem: TriggerItem = {
       conditions: [],
-      pipelineable: trigger.workflow as string,
+      pipelineable: '',
       id: crypto.randomUUID(),
       source,
       isActive: trigger.enabled !== false,
@@ -72,10 +72,10 @@ export const convertTriggerMapToItems = (triggerMap: TriggerMap): Record<Trigger
     }
 
     if (trigger.workflow) {
-      finalItem.pipelineable = `workflow#${trigger.workflow}`;
+      finalItem.pipelineable = `workflows#${trigger.workflow}`;
     }
     if (trigger.pipeline) {
-      finalItem.pipelineable = `pipeline#${trigger.pipeline}`;
+      finalItem.pipelineable = `pipelines#${trigger.pipeline}`;
     }
 
     triggerKeys.forEach((key) => {

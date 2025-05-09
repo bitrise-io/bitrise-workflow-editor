@@ -6,27 +6,39 @@ import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
+import { TriggerSource } from '@/core/models/Trigger';
 
 import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
-  id?: string;
+  source: TriggerSource;
+  sourceId: string;
   triggerType: TriggerType;
-  onSubmit: (trigger: TargetBasedTriggerItem) => void;
-  onCancel: () => void;
-  optionsMap: Record<ConditionType, string>;
+  trackingData: Record<string, number | string | boolean>;
+  optionsMap: Record<string, string>;
   labelsMap: Record<string, string>;
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
-  trackingData: Record<string, number | string | boolean>;
-  entity: 'Workflow' | 'Pipeline';
+  onSubmit: (trigger: TargetBasedTriggerItem) => void;
+  onCancel: () => void;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData, entity } =
+  const { source, labelsMap, optionsMap, editedItem, currentTriggers, triggerType, trackingData, onCancel, onSubmit } =
     props;
+
+  const entity = useMemo(() => {
+    switch (source) {
+      case 'workflows':
+        return 'Workflow';
+      case 'pipelines':
+        return 'Pipeline';
+      default:
+        return 'Unknown entity';
+    }
+  }, [source]);
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {

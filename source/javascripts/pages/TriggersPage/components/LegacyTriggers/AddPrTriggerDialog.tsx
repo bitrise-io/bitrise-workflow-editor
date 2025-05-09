@@ -17,42 +17,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
 import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
-import {
-  ConditionType,
-  FormItems,
-  LegacyPrConditionType,
-  TriggerItem,
-} from '@/components/unified-editor/Triggers/Triggers.types';
+import { ConditionType, FormItems, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+import { LEGACY_LABELS_MAP, LEGACY_OPTIONS_MAP } from '@/core/models/Trigger.legacy';
 
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 type DialogProps = {
-  currentTriggers: TriggerItem[];
   isOpen: boolean;
   onClose: () => void;
-  pipelines: string[];
-  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
-  editedItem?: TriggerItem;
   workflows: string[];
+  pipelines: string[];
+  editedItem?: TriggerItem;
+  currentTriggers: TriggerItem[];
+  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
 };
 
-const LABELS_MAP: Record<LegacyPrConditionType, string> = {
-  pull_request_target_branch: 'Enter a target branch',
-  pull_request_source_branch: 'Enter a source branch',
-  pull_request_label: 'Enter a label',
-  pull_request_comment: 'Enter a comment',
-  commit_message: 'Enter a commit message',
-  changed_files: 'Enter a path',
-};
-
-const OPTIONS_MAP: Record<LegacyPrConditionType, string> = {
-  pull_request_target_branch: 'Target branch',
-  pull_request_source_branch: 'Source branch',
-  pull_request_label: 'PR label',
-  pull_request_comment: 'PR comment',
-  commit_message: 'Commit message',
-  changed_files: 'File change',
-};
+const OPTIONS_MAP = LEGACY_OPTIONS_MAP.pull_request;
+const LABELS_MAP = LEGACY_LABELS_MAP.pull_request;
 
 const AddPrTriggerDialog = (props: DialogProps) => {
   const { currentTriggers, isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;

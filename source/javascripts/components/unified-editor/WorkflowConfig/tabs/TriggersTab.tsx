@@ -17,8 +17,8 @@ const TriggersTab = () => {
 
   return (
     <Triggers
-      id={workflow.id}
-      entity="Workflow"
+      source="workflows"
+      sourceId={workflow.id}
       triggers={workflow.userValues.triggers}
       updateTriggers={updateWorkflowTriggers}
       updateTriggersEnabled={(sourceId, enabled) =>

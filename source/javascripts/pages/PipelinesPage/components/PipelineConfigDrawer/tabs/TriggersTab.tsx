@@ -14,8 +14,8 @@ const TriggersTab = ({ pipelineId }: Props) => {
 
   return (
     <Triggers
-      id={pipelineId}
-      entity="Pipeline"
+      source="pipelines"
+      sourceId={pipelineId}
       triggers={triggers}
       updateTriggers={updatePipelineTriggers}
       updateTriggersEnabled={(sourceId, enabled) =>

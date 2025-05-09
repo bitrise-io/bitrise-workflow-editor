@@ -1,4 +1,5 @@
 import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel } from '@/core/models/BitriseYml';
+import { TriggerSource } from '@/core/models/Trigger';
 
 export type LegacyTagConditionType = 'tag';
 
@@ -39,7 +40,7 @@ export type TriggerType = 'push' | 'pull_request' | 'tag';
 
 export type TriggerItem = {
   conditions: Condition[];
-  pipelineable: string;
+  pipelineable: `${TriggerSource}#${string}` | '';
   id: string;
   source: TriggerType;
   isDraftPr?: boolean;
