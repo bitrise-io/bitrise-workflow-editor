@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { Avatar, Box, BoxProps, Button, Input, MarkdownContent, ProgressBitbot, Text } from '@bitrise/bitkit';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
 import useEnvVars from '@/hooks/useEnvVars';
@@ -69,17 +69,21 @@ const StepMaker = (props: StepMakerProps) => {
   const { workflowId } = useStepDrawerContext();
 
   const [value, setValue] = useState<string>('');
+  const [token, setToken] = useState<string>('');
 
   const appSlug = PageProps.appSlug();
-  const { data: secretData } = useSecrets({ appSlug });
+  const { data: secretData, isLoading: isSecretsLoading } = useSecrets({ appSlug });
   const { envs } = useEnvVars({
     enabled: true,
     stepBundleIds: [],
     workflowIds: workflowId ? [workflowId] : [],
   });
-  const token = secretData?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '';
 
-  console.log({ appSlug, secretData, token });
+  useEffect(() => {
+    if (!isSecretsLoading) {
+      setToken(secretData?.find(({ key }) => key === 'OPENAI_API_KEY')?.value || '');
+    }
+  }, [isSecretsLoading, secretData]);
 
   const { isLoading, messages, sendMessage, reset } = useStepMakerAI({
     bitriseYml: '',
