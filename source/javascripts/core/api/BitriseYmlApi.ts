@@ -1,4 +1,4 @@
-import { parse, stringify } from 'yaml';
+import { parse, Scalar, stringify } from 'yaml';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -8,6 +8,21 @@ import Client from './client';
 const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
 
 // TRANSFORMATIONS
+
+// NOTE: When the value is a string and contains a tab characters, the eemeli/yaml
+// will stringify it as multi-line block string, but keep the tab characters. It's not optimal
+// for us, because it's not a valid YAML for the Bitrise CLI. So we need to keep the single
+// line string with double quotes. This is a workaround for the issue.
+function tabbedValueReplacer(_: unknown, value: unknown) {
+  if (typeof value === 'string' && /\t/.test(value)) {
+    const scalar = new Scalar(value);
+    scalar.type = 'QUOTE_DOUBLE';
+    return scalar;
+  }
+
+  return value;
+}
+
 function toYml(model?: unknown): string {
   if (!model) {
     return '';
@@ -17,7 +32,7 @@ function toYml(model?: unknown): string {
     return model;
   }
 
-  return stringify(model, {
+  return stringify(model, tabbedValueReplacer, {
     version: '1.1',
     indentSeq: false,
     schema: 'yaml-1.1',
