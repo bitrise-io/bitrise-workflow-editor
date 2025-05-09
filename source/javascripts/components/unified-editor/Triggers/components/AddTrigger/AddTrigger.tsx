@@ -8,7 +8,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
 import { TriggerSource } from '@/core/models/Trigger';
 
-import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
+import { ConditionType, TargetBasedTriggerItem, TriggerItem, TriggerType } from '../../Triggers.types';
 import { getConditionList } from '../../Triggers.utils';
 import ConditionCard from './ConditionCard';
 
@@ -53,7 +53,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     ];
   }, [editedItem, optionsMap]);
 
-  const formMethods = useForm<FormItems>({
+  const formMethods = useForm<TriggerItem>({
     defaultValues: {
       conditions: defaultConditions,
       isDraftPr: editedItem?.draft_enabled !== false,
@@ -68,12 +68,18 @@ const AddTrigger = (props: AddTriggerProps) => {
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'conditions',
+    keyName: 'uniqueId',
   });
 
   const onAppend = () => {
     const availableTypes = Object.keys(optionsMap) as ConditionType[];
     const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
+
+    if (!newType) {
+      return;
+    }
+
     append({
       type: newType,
       value: '',
@@ -81,7 +87,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     });
   };
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: TriggerItem) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -92,11 +98,11 @@ const AddTrigger = (props: AddTriggerProps) => {
       return newCondition;
     });
 
-    const newTrigger: any = {};
+    const newTrigger: TargetBasedTriggerItem = {};
     filteredData.conditions.forEach((condition) => {
       const value = condition.isRegex ? { regex: condition.value } : condition.value;
       if (condition.type) {
-        newTrigger[condition.type] = value;
+        newTrigger[condition.type as ConditionType] = value;
       }
     });
 

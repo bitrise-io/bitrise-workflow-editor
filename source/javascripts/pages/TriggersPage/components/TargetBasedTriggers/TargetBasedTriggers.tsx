@@ -18,6 +18,7 @@ import TriggerConditions from '@/components/unified-editor/Triggers/components/T
 import { TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
 import { getConditionList, getPipelineableTriggers } from '@/components/unified-editor/Triggers/Triggers.utils';
 import { BitriseYml } from '@/core/models/BitriseYml';
+import { TriggerSource } from '@/core/models/Trigger';
 import useNavigation from '@/hooks/useNavigation';
 
 const TYPE_MAP: Record<TriggerType, string> = {
@@ -38,10 +39,10 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
   const [filterString, setFilterString] = useState('');
   const [sortProps, setSortProps] = useState<{
     direction: AriaAttributes['aria-sort'];
-    condition: 'pipelineableId' | 'type';
+    condition: 'sourceId' | 'type';
   }>({
     direction: 'ascending',
-    condition: 'pipelineableId',
+    condition: 'sourceId',
   });
 
   const pipelineableTriggers = getPipelineableTriggers(yml);
@@ -58,10 +59,20 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
   });
 
   filteredItems.sort((a, b) => {
-    if (a[sortProps.condition] > b[sortProps.condition]) {
+    const aItem = {
+      ...a,
+      sourceId: a.pipelineable.split('#')[1],
+    };
+
+    const bItem = {
+      ...b,
+      sourceId: b.pipelineable.split('#')[1],
+    };
+
+    if (aItem[sortProps.condition] > bItem[sortProps.condition]) {
       return sortProps.direction === 'ascending' ? 1 : -1;
     }
-    if (a[sortProps.condition] < b[sortProps.condition]) {
+    if (aItem[sortProps.condition] < bItem[sortProps.condition]) {
       return sortProps.direction === 'ascending' ? -1 : 1;
     }
     return 0;
@@ -85,9 +96,9 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                   <Th
                     isSortable
                     onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'pipelineableId' });
+                      setSortProps({ direction: sortDirection, condition: 'sourceId' });
                     }}
-                    sortedBy={sortProps.condition === 'pipelineableId' ? sortProps.direction : undefined}
+                    sortedBy={sortProps.condition === 'sourceId' ? sortProps.direction : undefined}
                   >
                     Target
                   </Th>
@@ -105,38 +116,41 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                 </Tr>
               </Thead>
               <Tbody>
-                {filteredItems.map((trigger) => (
-                  <Tr key={JSON.stringify(trigger)}>
-                    <Td>
-                      <Text>{trigger.pipelineableId}</Text>
-                      <Text textStyle="body/md/regular" color="text/secondary">
-                        {trigger.pipelineableType === 'workflow' ? 'Workflow' : 'Pipeline'}
-                      </Text>
-                    </Td>
-                    <Td>{TYPE_MAP[trigger.type]}</Td>
-                    <Td>
-                      <TriggerConditions
-                        conditions={getConditionList(trigger)}
-                        isDraftPr={trigger.draft_enabled}
-                        priority={trigger.priority}
-                        triggerType={trigger.type}
-                      />
-                    </Td>
-                    <Td display="flex" justifyContent="flex-end" alignItems="center">
-                      <ControlButton
-                        aria-label="Edit trigger"
-                        iconName="Pencil"
-                        onClick={() => {
-                          if (trigger.pipelineableType === 'workflow') {
-                            replace('/workflows', { workflow_id: trigger.pipelineableId, tab: 'triggers' });
-                          } else {
-                            replace('/pipelines', { pipeline: trigger.pipelineableId });
-                          }
-                        }}
-                      />
-                    </Td>
-                  </Tr>
-                ))}
+                {filteredItems.map((trigger) => {
+                  const [source, sourceId] = trigger.pipelineable.split('#') as [TriggerSource, string];
+                  return (
+                    <Tr key={JSON.stringify(trigger)}>
+                      <Td>
+                        <Text>{sourceId}</Text>
+                        <Text textStyle="body/md/regular" color="text/secondary">
+                          {source === 'workflows' ? 'Workflow' : 'Pipeline'}
+                        </Text>
+                      </Td>
+                      <Td>{TYPE_MAP[trigger.type]}</Td>
+                      <Td>
+                        <TriggerConditions
+                          conditions={getConditionList(trigger)}
+                          isDraftPr={trigger.draft_enabled}
+                          priority={trigger.priority}
+                          triggerType={trigger.type}
+                        />
+                      </Td>
+                      <Td display="flex" justifyContent="flex-end" alignItems="center">
+                        <ControlButton
+                          aria-label="Edit trigger"
+                          iconName="Pencil"
+                          onClick={() => {
+                            if (source === 'workflows') {
+                              replace('/workflows', { workflow_id: sourceId, tab: 'triggers' });
+                            } else {
+                              replace('/pipelines', { pipeline: sourceId });
+                            }
+                          }}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })}
               </Tbody>
             </Table>
           </TableContainer>

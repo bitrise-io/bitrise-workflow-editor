@@ -1,33 +1,14 @@
 import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel } from '@/core/models/BitriseYml';
 import { TriggerSource } from '@/core/models/Trigger';
-
-export type LegacyTagConditionType = 'tag';
-
-export type TagConditionType = 'name';
-
-export type LegacyPushConditionType = 'push_branch' | 'commit_message' | 'changed_files';
-
-export type PushConditionType = 'branch' | 'commit_message' | 'changed_files';
-
-export type LegacyPrConditionType =
-  | 'pull_request_source_branch'
-  | 'pull_request_target_branch'
-  | 'pull_request_label'
-  | 'pull_request_comment'
-  | 'commit_message'
-  | 'changed_files';
-
-export type PrConditionType =
-  | 'source_branch'
-  | 'target_branch'
-  | 'label'
-  | 'comment'
-  | 'commit_message'
-  | 'changed_files';
+import { LegacyPrConditionType, LegacyPushConditionType, LegacyTagConditionType } from '@/core/models/Trigger.legacy';
+import {
+  TargetBasedPrConditionType,
+  TargetBasedPushConditionType,
+  TargetBasedTagConditionType,
+} from '@/core/models/Trigger.target-based';
 
 export type LegacyConditionType = LegacyPushConditionType | LegacyPrConditionType | LegacyTagConditionType;
-
-export type ConditionType = PushConditionType | PrConditionType | TagConditionType;
+export type ConditionType = TargetBasedPushConditionType | TargetBasedPrConditionType | TargetBasedTagConditionType;
 
 export type Condition = {
   isRegex: boolean;
@@ -39,27 +20,18 @@ export type Condition = {
 export type TriggerType = 'push' | 'pull_request' | 'tag';
 
 export type TriggerItem = {
-  conditions: Condition[];
+  uniqueId: string;
   pipelineable: `${TriggerSource}#${string}` | '';
-  id: string;
-  source: TriggerType;
+  conditions: Condition[];
+  type: TriggerType;
   isDraftPr?: boolean;
   isActive: boolean;
   priority?: number;
 };
 
-export interface FormItems extends Omit<TriggerItem, 'conditions'> {
-  conditions: {
-    isRegex: boolean;
-    type?: ConditionType | LegacyConditionType | '';
-    value: string;
-  }[];
-}
-
 export type TargetBasedTriggerItem = PushTriggerModel & PullrequestTriggerModel & TagTriggerModel;
 
 export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
-  pipelineableId: string;
-  pipelineableType: 'pipeline' | 'workflow';
+  pipelineable: `${TriggerSource}#${string}`;
   type: TriggerType;
 }

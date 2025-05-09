@@ -14,7 +14,7 @@ import {
 import { useEffect, useMemo } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 
-import { FormItems, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
@@ -31,7 +31,7 @@ type DialogProps = {
 const AddTagTriggerDialog = (props: DialogProps) => {
   const { currentTriggers, isOpen, onClose, editedItem, pipelines, onSubmit, workflows } = props;
 
-  const defaultValues: FormItems = useMemo(() => {
+  const defaultValues: TriggerItem = useMemo(() => {
     return {
       conditions: [
         {
@@ -40,16 +40,16 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           value: '',
         },
       ],
-      id: crypto.randomUUID(),
+      uniqueId: crypto.randomUUID(),
       pipelineable: '',
-      source: 'tag',
+      type: 'tag',
       isActive: true,
       ...editedItem,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedItem, isOpen]);
 
-  const formMethods = useForm<FormItems>({
+  const formMethods = useForm<TriggerItem>({
     defaultValues,
   });
 
@@ -65,7 +65,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
   const isEditMode = !!editedItem;
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: TriggerItem) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };

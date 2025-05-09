@@ -16,8 +16,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
 import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
-import { ConditionType, FormItems, TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
-import { LEGACY_LABELS_MAP, LEGACY_OPTIONS_MAP } from '@/core/models/Trigger.legacy';
+import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+import { LEGACY_LABELS_MAP, LEGACY_OPTIONS_MAP, LegacyPushConditionType } from '@/core/models/Trigger.legacy';
 
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
@@ -48,7 +48,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     { label: 'Target' },
   ];
 
-  const defaultValues: FormItems = useMemo(() => {
+  const defaultValues: TriggerItem = useMemo(() => {
     return {
       conditions: [
         {
@@ -57,16 +57,16 @@ const AddPushTriggerDialog = (props: DialogProps) => {
           value: '',
         },
       ],
-      id: crypto.randomUUID(),
+      uniqueId: crypto.randomUUID(),
       pipelineable: '',
-      source: 'push',
+      type: 'push',
       isActive: true,
       ...editedItem,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedItem, isOpen]);
 
-  const formMethods = useForm<FormItems>({
+  const formMethods = useForm<TriggerItem>({
     defaultValues,
   });
 
@@ -79,6 +79,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'conditions',
+    keyName: 'uniqueId',
   });
 
   const onFormCancel = () => {
@@ -87,7 +88,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     setActiveStageIndex(0);
   };
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: TriggerItem) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -102,9 +103,14 @@ const AddPushTriggerDialog = (props: DialogProps) => {
   };
 
   const onAppend = () => {
-    const availableTypes = Object.keys(OPTIONS_MAP) as ConditionType[];
+    const availableTypes = Object.keys(OPTIONS_MAP) as LegacyPushConditionType[];
     const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
+
+    if (!newType) {
+      return;
+    }
+
     append({
       type: newType,
       value: '',

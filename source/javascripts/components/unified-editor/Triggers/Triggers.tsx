@@ -115,9 +115,10 @@ const Triggers = (props: TriggersProps) => {
   }));
 
   const trackingData = {
-    number_of_existing_target_based_triggers_on_target: triggersInProject.filter(
-      ({ pipelineableId }) => pipelineableId === sourceId,
-    ).length,
+    number_of_existing_target_based_triggers_on_target: triggersInProject.filter((trigger) => {
+      const [tSource, tSourceId] = trigger.pipelineable.split('#') as [TriggerSource, string];
+      return tSource === source && tSourceId === sourceId;
+    }).length,
     number_of_existing_target_based_triggers_in_project: triggersInProject.length,
     number_of_existing_trigger_map_triggers_in_project: numberOfLegacyTriggers,
     is_target_based_triggers_enabled_on_target: triggers.enabled !== false,

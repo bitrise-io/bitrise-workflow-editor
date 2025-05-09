@@ -76,15 +76,16 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
 
   const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
     const newTriggers = { ...triggers };
+
     if (action === 'add') {
-      newTriggers[trigger.source].push(trigger);
+      newTriggers[trigger.type].push(trigger);
     }
     if (action === 'remove') {
-      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
+      newTriggers[trigger.type] = triggers[trigger.type].filter(({ uniqueId }) => uniqueId !== trigger.uniqueId);
     }
     if (action === 'edit') {
-      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
-      newTriggers[trigger.source][index] = trigger;
+      const index = triggers[trigger.type].findIndex(({ uniqueId }) => uniqueId === trigger.uniqueId);
+      newTriggers[trigger.type][index] = trigger;
     }
     setTriggers(newTriggers);
     updateTriggerMap(convertItemsToTriggerMap(newTriggers));
@@ -129,8 +130,8 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     const items = triggers[type];
 
     if (active.id !== over?.id) {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over?.id);
+      const oldIndex = items.findIndex((item) => item.uniqueId === active.id);
+      const newIndex = items.findIndex((item) => item.uniqueId === over?.id);
       const newItems = arrayMove(items, oldIndex, newIndex);
       const newTriggers = {
         ...triggers,
@@ -205,11 +206,14 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 onDragEnd={(event) => handleDragEnd(event, 'push')}
                 sensors={sensors}
               >
-                <SortableContext strategy={verticalListSortingStrategy} items={triggers.push.map(({ id }) => id)}>
+                <SortableContext
+                  strategy={verticalListSortingStrategy}
+                  items={triggers.push.map(({ uniqueId }) => uniqueId)}
+                >
                   {triggers.push.length > 0 &&
                     triggers.push.map((triggerItem) => (
                       <TriggerCard
-                        key={triggerItem.id}
+                        key={triggerItem.uniqueId}
                         triggerItem={triggerItem}
                         onRemove={(trigger) => onTriggersChange('remove', trigger)}
                         onEdit={(trigger) => onPushTriggerEdit(trigger)}
@@ -220,7 +224,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 <DragOverlay>
                   {activeId ? (
                     <TriggerCard
-                      triggerItem={triggers.push.find(({ id }) => id === activeId) || triggers.push[0]}
+                      triggerItem={triggers.push.find(({ uniqueId }) => uniqueId === activeId) || triggers.push[0]}
                       isOverlay
                     />
                   ) : null}
@@ -271,12 +275,12 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
               >
                 <SortableContext
                   strategy={verticalListSortingStrategy}
-                  items={triggers.pull_request.map(({ id }) => id)}
+                  items={triggers.pull_request.map(({ uniqueId }) => uniqueId)}
                 >
                   {triggers.pull_request.length > 0 &&
                     triggers.pull_request.map((triggerItem) => (
                       <TriggerCard
-                        key={triggerItem.id}
+                        key={triggerItem.uniqueId}
                         triggerItem={triggerItem}
                         onRemove={(trigger) => onTriggersChange('remove', trigger)}
                         onEdit={(trigger) => onPrTriggerEdit(trigger)}
@@ -287,7 +291,9 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 <DragOverlay>
                   {activeId ? (
                     <TriggerCard
-                      triggerItem={triggers.pull_request.find(({ id }) => id === activeId) || triggers.pull_request[0]}
+                      triggerItem={
+                        triggers.pull_request.find(({ uniqueId }) => uniqueId === activeId) || triggers.pull_request[0]
+                      }
                       isOverlay
                     />
                   ) : null}
@@ -335,11 +341,14 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 onDragEnd={(event) => handleDragEnd(event, 'tag')}
                 sensors={sensors}
               >
-                <SortableContext strategy={verticalListSortingStrategy} items={triggers.tag.map(({ id }) => id)}>
+                <SortableContext
+                  strategy={verticalListSortingStrategy}
+                  items={triggers.tag.map(({ uniqueId }) => uniqueId)}
+                >
                   {triggers.tag.length > 0 &&
                     triggers.tag.map((triggerItem) => (
                       <TriggerCard
-                        key={triggerItem.id}
+                        key={triggerItem.uniqueId}
                         triggerItem={triggerItem}
                         onRemove={(trigger) => onTriggersChange('remove', trigger)}
                         onEdit={(trigger) => onTagTriggerEdit(trigger)}
@@ -350,7 +359,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
                 <DragOverlay>
                   {activeId ? (
                     <TriggerCard
-                      triggerItem={triggers.tag.find(({ id }) => id === activeId) || triggers.tag[0]}
+                      triggerItem={triggers.tag.find(({ uniqueId }) => uniqueId === activeId) || triggers.tag[0]}
                       isOverlay
                     />
                   ) : null}

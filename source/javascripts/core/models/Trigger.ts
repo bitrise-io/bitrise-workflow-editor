@@ -8,19 +8,19 @@ export const TYPE_MAP: Record<TriggerType, string> = {
   tag: 'Tag',
 };
 
-export type BaseCondition<TConditionType extends string> = {
+export type Condition<TConditionType extends string> = {
   isRegex: boolean;
   type: TConditionType;
   value: string;
   id?: string;
 };
 
-export type BaseTriggerItem<TConditionType extends string> = {
+export type Trigger<TConditionType extends string> = {
   uniqueId: string;
   source: `${TriggerSource}#${string}` | '';
   type: TriggerType;
   isActive: boolean;
-  conditions: BaseCondition<TConditionType>[];
+  conditions: Condition<TConditionType>[];
   isDraftPr?: boolean;
   priority?: number;
 };

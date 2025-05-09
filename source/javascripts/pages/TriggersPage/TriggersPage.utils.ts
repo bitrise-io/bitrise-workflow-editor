@@ -33,10 +33,10 @@ export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerIt
       if (!trigger.isActive) {
         finalItem.enabled = false;
       }
-      if (trigger.source === 'pull_request' && !trigger.isDraftPr) {
+      if (trigger.type === 'pull_request' && !trigger.isDraftPr) {
         finalItem.draft_pull_request_enabled = false;
       }
-      finalItem.type = trigger.source;
+      finalItem.type = trigger.type;
       const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
       finalItem[pipelinableType as 'workflow' | 'pipeline'] = pipelinableName;
       return finalItem;
@@ -54,16 +54,16 @@ export const convertTriggerMapToItems = (triggerMap: TriggerMap): Record<Trigger
 
   triggerMap.forEach((trigger) => {
     const triggerKeys = Object.keys(trigger) as (keyof TriggerMapItemModel)[];
-    const source = getSourceType(triggerKeys, trigger.type as TriggerType);
+    const type = getSourceType(triggerKeys, trigger.type as TriggerType);
     const finalItem: TriggerItem = {
       conditions: [],
       pipelineable: '',
-      id: crypto.randomUUID(),
-      source,
+      uniqueId: crypto.randomUUID(),
+      type,
       isActive: trigger.enabled !== false,
     };
 
-    if (source === 'pull_request') {
+    if (type === 'pull_request') {
       if (trigger.draft_pull_request_enabled !== false) {
         finalItem.isDraftPr = true;
       } else {
@@ -88,14 +88,14 @@ export const convertTriggerMapToItems = (triggerMap: TriggerMap): Record<Trigger
         });
       }
     });
-    triggers[source].push(finalItem);
+    triggers[type].push(finalItem);
   });
   return triggers;
 };
 
 export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
   let isUsed = false;
-  currentTriggers.forEach(({ conditions, id }) => {
+  currentTriggers.forEach(({ conditions, uniqueId }) => {
     const newConditions = newTrigger.conditions.map((c) => {
       if (c.value === '') {
         return {
@@ -107,7 +107,7 @@ export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger
     });
     conditions.forEach((c) => {
       newConditions.forEach((newC) => {
-        if (isEqual(c, newC) && id !== newTrigger.id) {
+        if (isEqual(c, newC) && uniqueId !== newTrigger.uniqueId) {
           isUsed = true;
         }
       });

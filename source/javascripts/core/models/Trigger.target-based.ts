@@ -1,7 +1,7 @@
 import { IterableElement } from 'type-fest';
 
 import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel, TriggersModel } from '@/core/models/BitriseYml';
-import { BaseCondition, BaseTriggerItem, TriggerType } from '@/core/models/Trigger';
+import { Condition, Trigger, TriggerType } from '@/core/models/Trigger';
 
 export type TargetBasedPushConditionType = keyof Omit<IterableElement<TriggersModel['push']>, 'enabled' | 'priority'>;
 export type TargetBasedPrConditionType = keyof Omit<
@@ -11,14 +11,14 @@ export type TargetBasedPrConditionType = keyof Omit<
 export type TargetBasedTagConditionType = keyof Omit<IterableElement<TriggersModel['tag']>, 'enabled' | 'priority'>;
 export type TargetBasedTriggerItemModel = PushTriggerModel & PullrequestTriggerModel & TagTriggerModel;
 
-export type TargetBasedPushCondition = BaseCondition<TargetBasedPushConditionType>;
-export type TargetBasedPrCondition = BaseCondition<TargetBasedPrConditionType>;
-export type TargetBasedTagCondition = BaseCondition<TargetBasedTagConditionType>;
+export type TargetBasedPushCondition = Condition<TargetBasedPushConditionType>;
+export type TargetBasedPrCondition = Condition<TargetBasedPrConditionType>;
+export type TargetBasedTagCondition = Condition<TargetBasedTagConditionType>;
 export type TargetBasedCondition = TargetBasedPushCondition | TargetBasedPrCondition | TargetBasedTagCondition;
 
-export type TargetBasedPushTriggerItem = BaseTriggerItem<TargetBasedPushConditionType>;
-export type TargetBasedPrTriggerItem = BaseTriggerItem<TargetBasedPrConditionType>;
-export type TargetBasedTagTriggerItem = BaseTriggerItem<TargetBasedTagConditionType>;
+export type TargetBasedPushTriggerItem = Trigger<TargetBasedPushConditionType>;
+export type TargetBasedPrTriggerItem = Trigger<TargetBasedPrConditionType>;
+export type TargetBasedTagTriggerItem = Trigger<TargetBasedTagConditionType>;
 export type TargetBasedTrigger = TargetBasedPushTriggerItem | TargetBasedPrTriggerItem | TargetBasedTagTriggerItem;
 
 export type TargetBasedTriggerMapping = {

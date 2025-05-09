@@ -1,6 +1,7 @@
 import { isObject } from 'es-toolkit/compat';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
+import { TriggerSource } from '@/core/models/Trigger';
 import WorkflowService from '@/core/services/WorkflowService';
 
 import {
@@ -11,18 +12,12 @@ import {
   TriggerType,
 } from './Triggers.types';
 
-const looper = (
-  pipelineableId: string,
-  pipelineableType: DecoratedPipelineableTriggerItem['pipelineableType'],
-  type: TriggerType,
-  array?: TargetBasedTriggerItem[],
-) => {
+const looper = (source: TriggerSource, sourceId: string, type: TriggerType, array?: TargetBasedTriggerItem[]) => {
   const decoratedTriggerItems: DecoratedPipelineableTriggerItem[] = [];
   if (array?.length) {
     array.forEach((trigger) => {
       decoratedTriggerItems.push({
-        pipelineableId,
-        pipelineableType,
+        pipelineable: `${source}#${sourceId}`,
         type,
         ...trigger,
       });
@@ -37,9 +32,9 @@ export const getPipelineableTriggers = (yml: BitriseYml) => {
     Object.entries(yml.pipelines).forEach(([id, p]) => {
       if (p.triggers) {
         pipelineableTriggers = pipelineableTriggers.concat(
-          looper(id, 'pipeline', 'pull_request', p.triggers.pull_request as TargetBasedTriggerItem[]),
-          looper(id, 'pipeline', 'push', p.triggers.push as TargetBasedTriggerItem[]),
-          looper(id, 'pipeline', 'tag', p.triggers.tag as TargetBasedTriggerItem[]),
+          looper('pipelines', id, 'pull_request', p.triggers.pull_request),
+          looper('pipelines', id, 'push', p.triggers.push),
+          looper('pipelines', id, 'tag', p.triggers.tag),
         );
       }
     });
@@ -48,9 +43,9 @@ export const getPipelineableTriggers = (yml: BitriseYml) => {
     Object.entries(yml.workflows).forEach(([id, w]) => {
       if (!WorkflowService.isUtilityWorkflow(id) && w.triggers) {
         pipelineableTriggers = pipelineableTriggers.concat(
-          looper(id, 'workflow', 'pull_request', w.triggers.pull_request as TargetBasedTriggerItem[]),
-          looper(id, 'workflow', 'push', w.triggers.push as TargetBasedTriggerItem[]),
-          looper(id, 'workflow', 'tag', w.triggers.tag as TargetBasedTriggerItem[]),
+          looper('workflows', id, 'pull_request', w.triggers.pull_request),
+          looper('workflows', id, 'push', w.triggers.push),
+          looper('workflows', id, 'tag', w.triggers.tag),
         );
       }
     });
@@ -61,9 +56,9 @@ export const getPipelineableTriggers = (yml: BitriseYml) => {
 
 export const getConditionList = (trigger: TargetBasedTriggerItem) => {
   const conditions: Condition[] = [];
-  const triggerKeys = Object.keys(trigger) as (keyof TargetBasedTriggerItem)[];
+  const triggerKeys = Object.keys(trigger) as ConditionType[];
   triggerKeys.forEach((key) => {
-    if (!['enabled', 'pipelineableId', 'pipelineableType', 'type', 'draft_enabled', 'priority'].includes(key)) {
+    if (!['enabled', 'draft_enabled', 'priority', 'type', 'pipelineable'].includes(key)) {
       const isRegex = isObject(trigger[key]);
       conditions.push({
         isRegex,

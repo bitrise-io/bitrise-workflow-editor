@@ -1,5 +1,5 @@
 import { TriggerMapItemModel } from '@/core/models/BitriseYml';
-import { BaseCondition, BaseTriggerItem, TriggerType } from '@/core/models/Trigger';
+import { Condition, Trigger, TriggerType } from '@/core/models/Trigger';
 
 export type LegacyPushConditionType = keyof Pick<
   TriggerMapItemModel,
@@ -17,14 +17,14 @@ export type LegacyPrConditionType = keyof Pick<
 export type LegacyTagConditionType = keyof Pick<TriggerMapItemModel, 'tag'>;
 export type LegacyTriggerItemModel = TriggerMapItemModel;
 
-export type LegacyPushCondition = BaseCondition<LegacyPushConditionType>;
-export type LegacyPrCondition = BaseCondition<LegacyPrConditionType>;
-export type LegacyTagCondition = BaseCondition<LegacyTagConditionType>;
+export type LegacyPushCondition = Condition<LegacyPushConditionType>;
+export type LegacyPrCondition = Condition<LegacyPrConditionType>;
+export type LegacyTagCondition = Condition<LegacyTagConditionType>;
 export type LegacyCondition = LegacyPushCondition | LegacyPrCondition | LegacyTagCondition;
 
-export type LegacyPushTriggerItem = BaseTriggerItem<LegacyPushConditionType>;
-export type LegacyPrTriggerItem = BaseTriggerItem<LegacyPrConditionType>;
-export type LegacyTagTriggerItem = BaseTriggerItem<LegacyTagConditionType>;
+export type LegacyPushTriggerItem = Trigger<LegacyPushConditionType>;
+export type LegacyPrTriggerItem = Trigger<LegacyPrConditionType>;
+export type LegacyTagTriggerItem = Trigger<LegacyTagConditionType>;
 export type LegacyTrigger = LegacyPushTriggerItem | LegacyPrTriggerItem | LegacyTagTriggerItem;
 
 type LegacyTriggerMapping = {

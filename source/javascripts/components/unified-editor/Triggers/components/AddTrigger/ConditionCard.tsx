@@ -18,10 +18,10 @@ import { Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
-import { FormItems } from '../../Triggers.types';
+import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 
 type ConditionCardProps = {
-  fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
+  fields: FieldArrayWithId<TriggerItem, 'conditions', 'uniqueId'>[];
   append?: () => void;
   optionsMap: Record<string, string>;
   remove: (index: number) => void;
@@ -38,11 +38,11 @@ const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { fields, append, optionsMap, remove } = props;
-  const { control, watch, setValue } = useFormContext<FormItems>();
+  const { control, watch, setValue } = useFormContext<TriggerItem>();
   const { conditions } = watch();
 
   const isTagCondition = useMemo(() => {
-    return conditions.some((condition) => condition.type === 'name');
+    return conditions.some((condition) => condition.type === 'name' || condition.type === 'tag');
   }, [conditions]);
 
   return (

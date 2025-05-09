@@ -19,7 +19,7 @@ const TriggerCard = (props: TriggerCardProps) => {
   const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
 
   const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
-    id: triggerItem.id as string,
+    id: triggerItem.uniqueId,
   });
 
   const style: CardProps = {
@@ -55,7 +55,7 @@ const TriggerCard = (props: TriggerCardProps) => {
       activatorListeners={listeners}
       ref={setNodeRef}
       marginBottom="12"
-      isDragging={active?.id === triggerItem.id}
+      isDragging={active?.id === triggerItem.uniqueId}
       isOverlay={isOverlay}
       {...style}
       {...rest}

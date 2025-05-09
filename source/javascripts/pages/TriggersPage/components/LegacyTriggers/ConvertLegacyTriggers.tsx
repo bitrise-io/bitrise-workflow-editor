@@ -7,6 +7,7 @@ import {
   TriggerItem,
   TriggerType,
 } from '@/components/unified-editor/Triggers/Triggers.types';
+import { TriggerSource } from '@/core/models/Trigger';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
@@ -14,13 +15,13 @@ type Props = {
 };
 
 const CONDITION_TYPE_MAP: Record<LegacyConditionType, ConditionType> = {
-  pull_request_comment: 'comment',
   push_branch: 'branch',
   commit_message: 'commit_message',
   changed_files: 'changed_files',
   pull_request_source_branch: 'source_branch',
   pull_request_target_branch: 'target_branch',
   pull_request_label: 'label',
+  pull_request_comment: 'comment',
   tag: 'name',
 };
 
@@ -59,39 +60,38 @@ const ConvertLegacyTriggers = (props: Props) => {
   }
 
   const onClick = () => {
-    const mapped: Record<'pipeline' | 'workflow', Record<string, Record<TriggerType, TargetBasedTriggerItem[]>>> = {
-      pipeline: {},
-      workflow: {},
+    const mapped: Record<TriggerSource, Record<string, Record<TriggerType, TargetBasedTriggerItem[]>>> = {
+      pipelines: {},
+      workflows: {},
     };
 
     Object.values(triggers)
       .flat()
       .forEach((trigger) => {
-        const [targetType, targetId] = trigger.pipelineable.split('#');
-        if (!mapped[targetType as 'pipeline' | 'workflow'][targetId]) {
-          const type: 'pipelines' | 'workflows' = `${targetType as 'pipeline' | 'workflow'}s`;
-          mapped[targetType as 'pipeline' | 'workflow'][targetId] = {
-            pull_request: (yml[type]?.[targetId].triggers?.pull_request as TargetBasedTriggerItem[]) || [],
-            push: (yml[type]?.[targetId].triggers?.push as TargetBasedTriggerItem[]) || [],
-            tag: (yml[type]?.[targetId].triggers?.tag as TargetBasedTriggerItem[]) || [],
+        const [target, targetId] = trigger.pipelineable.split('#') as [TriggerSource, string];
+        if (!mapped[target][targetId]) {
+          mapped[target][targetId] = {
+            pull_request: yml[target]?.[targetId]?.triggers?.pull_request || [],
+            push: yml[target]?.[targetId]?.triggers?.push || [],
+            tag: yml[target]?.[targetId]?.triggers?.tag || [],
           };
         }
-        mapped[targetType as 'pipeline' | 'workflow'][targetId][trigger.source]?.push(converter(trigger));
+        mapped[target][targetId][trigger.type]?.push(converter(trigger));
       });
 
-    Object.keys(mapped.pipeline).forEach((key) => {
-      updatePipelineTriggers(key, mapped.pipeline[key]);
+    Object.keys(mapped.pipelines).forEach((key) => {
+      updatePipelineTriggers(key, mapped.pipelines[key]);
     });
 
-    Object.keys(mapped.workflow).forEach((key) => {
-      updateWorkflowTriggers(key, mapped.workflow[key]);
+    Object.keys(mapped.workflows).forEach((key) => {
+      updateWorkflowTriggers(key, mapped.workflows[key]);
     });
 
     updateTriggerMap([]);
     toast({
       isClosable: true,
       status: 'success',
-      title: 'Successful convertion',
+      title: 'Successful conversion',
       description: 'Legacy triggers converted to new format.',
     });
   };
