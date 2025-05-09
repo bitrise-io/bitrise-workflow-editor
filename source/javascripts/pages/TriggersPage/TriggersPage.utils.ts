@@ -8,6 +8,7 @@ import {
   TriggerType,
 } from '@/components/unified-editor/Triggers/Triggers.types';
 import { TriggerMap, TriggerMapItemModel } from '@/core/models/BitriseYml';
+import { TriggerSource } from '@/core/models/Trigger';
 
 const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
   if (type) {
@@ -37,8 +38,13 @@ export const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerIt
         finalItem.draft_pull_request_enabled = false;
       }
       finalItem.type = trigger.type;
-      const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
-      finalItem[pipelinableType as 'workflow' | 'pipeline'] = pipelinableName;
+      const [target, targetId] = trigger.pipelineable.split('#') as [TriggerSource, string];
+
+      if (target === 'workflows') {
+        finalItem.workflow = targetId;
+      } else if (target === 'pipelines') {
+        finalItem.pipeline = targetId;
+      }
       return finalItem;
     });
 

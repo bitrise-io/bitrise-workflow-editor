@@ -1,78 +1,34 @@
-import {
-  Button,
-  EmptyState,
-  Link,
-  Notification,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-  useDisclosure,
-} from '@bitrise/bitkit';
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { TriggerItem, TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useUserMetaData from '@/hooks/useUserMetaData';
+import SortableTriggerList from '@/pages/TriggersPage/components/LegacyTriggers/SortableTriggerList';
 
 import { convertItemsToTriggerMap, convertTriggerMapToItems } from '../../TriggersPage.utils';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import ConvertLegacyTriggers from './ConvertLegacyTriggers';
-import TriggerCard from './TriggerCard';
 
-type LegacyTriggersProps = {
-  yml: BitriseYml;
-};
+const LegacyTriggers = () => {
+  const triggerMap = useBitriseYmlStore((s) => s.yml.trigger_map);
 
-const LegacyTriggers = (props: LegacyTriggersProps) => {
-  const { yml } = props;
-
-  const pipelines = yml.pipelines ? Object.keys(yml.pipelines) : [];
-  const workflows = yml.workflows ? Object.keys(yml.workflows).filter((workflowID) => !workflowID.startsWith('_')) : [];
-  const triggerMap = yml.trigger_map;
-
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
   const [triggers, setTriggers] = useState<Record<TriggerType, TriggerItem[]>>(
     convertTriggerMapToItems(triggerMap || []),
-  );
-  const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
-
-  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-
-  const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
-
-  const { value: metaDataValue, update: updateMetaData } = useUserMetaData(
-    ORDER_NOTIFICATION_METADATA_KEY,
-    isWebsiteMode,
   );
 
   const { updateTriggerMap } = useBitriseYmlStore((s) => ({
     updateTriggerMap: s.updateTriggerMap,
   }));
+
+  const onReorder = (type: TriggerType, newTriggers: TriggerItem[]) => {
+    const newTriggersMap = { ...triggers };
+    newTriggersMap[type] = newTriggers;
+    setTriggers(newTriggersMap);
+    updateTriggerMap(convertItemsToTriggerMap(newTriggersMap));
+  };
 
   const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
     const newTriggers = { ...triggers };
@@ -105,6 +61,23 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     onClose: closeTagTriggerDialog,
   } = useDisclosure();
 
+  const onOpenDialog = (trigger: TriggerItem) => {
+    setEditedItem(trigger);
+    switch (trigger.type) {
+      case 'push':
+        openPushTriggerDialog();
+        break;
+      case 'pull_request':
+        openPrTriggerDialog();
+        break;
+      case 'tag':
+        openTagTriggerDialog();
+        break;
+      default:
+        break;
+    }
+  };
+
   const onCloseDialog = () => {
     closePushTriggerDialog();
     closePrTriggerDialog();
@@ -112,51 +85,9 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     setEditedItem(undefined);
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-
-    setActiveId(active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent, type: TriggerType) => {
-    const { active, over } = event;
-    const items = triggers[type];
-
-    if (active.id !== over?.id) {
-      const oldIndex = items.findIndex((item) => item.uniqueId === active.id);
-      const newIndex = items.findIndex((item) => item.uniqueId === over?.id);
-      const newItems = arrayMove(items, oldIndex, newIndex);
-      const newTriggers = {
-        ...triggers,
-        [type]: newItems,
-      };
-      setActiveId(null);
-      setTriggers(newTriggers);
-      updateTriggerMap(convertItemsToTriggerMap(newTriggers));
-    }
-  };
-
-  const onPushTriggerEdit = (trigger: TriggerItem) => {
-    setEditedItem(trigger);
-    openPushTriggerDialog();
-  };
-
-  const onPrTriggerEdit = (trigger: TriggerItem) => {
-    setEditedItem(trigger);
-    openPrTriggerDialog();
-  };
-
-  const onTagTriggerEdit = (trigger: TriggerItem) => {
-    setEditedItem(trigger);
-    openTagTriggerDialog();
-  };
+  if (!triggerMap) {
+    return null;
+  }
 
   return (
     <>
@@ -185,231 +116,63 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
             <Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusCircle">
               Add push trigger
             </Button>
-            {triggers.push.length === 0 && (
-              <EmptyState iconName="Trigger" title="Your push triggers will appear here" maxHeight="208">
-                <Text marginTop="8">
-                  A push based trigger automatically starts builds when commits are pushed to your repository.{' '}
-                  <Link
-                    colorScheme="purple"
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-                  >
-                    Learn more
-                  </Link>
-                </Text>
-              </EmptyState>
-            )}
-            <div>
-              <DndContext
-                collisionDetection={closestCenter}
-                modifiers={[restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges]}
-                onDragStart={handleDragStart}
-                onDragEnd={(event) => handleDragEnd(event, 'push')}
-                sensors={sensors}
-              >
-                <SortableContext
-                  strategy={verticalListSortingStrategy}
-                  items={triggers.push.map(({ uniqueId }) => uniqueId)}
-                >
-                  {triggers.push.length > 0 &&
-                    triggers.push.map((triggerItem) => (
-                      <TriggerCard
-                        key={triggerItem.uniqueId}
-                        triggerItem={triggerItem}
-                        onRemove={(trigger) => onTriggersChange('remove', trigger)}
-                        onEdit={(trigger) => onPushTriggerEdit(trigger)}
-                        onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
-                      />
-                    ))}
-                </SortableContext>
-                <DragOverlay>
-                  {activeId ? (
-                    <TriggerCard
-                      triggerItem={triggers.push.find(({ uniqueId }) => uniqueId === activeId) || triggers.push[0]}
-                      isOverlay
-                    />
-                  ) : null}
-                </DragOverlay>
-              </DndContext>
-            </div>
-            {triggers.push.length > 1 && metaDataValue === null && (
-              <Notification status="info" marginTop="12" onClose={() => updateMetaData('true')}>
-                <Text fontWeight="bold">Order of triggers</Text>
-                <Text>
-                  The first matching trigger is executed by the system, so make sure that the order of triggers is
-                  configured correctly.{' '}
-                  <Link
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-                    isUnderlined
-                  >
-                    Learn more
-                  </Link>
-                </Text>
-              </Notification>
-            )}
+            <SortableTriggerList
+              type="push"
+              triggers={triggers.push}
+              onEditItem={onOpenDialog}
+              onToggleItem={(trigger) => onTriggersChange('edit', trigger)}
+              onRemoveItem={(trigger) => onTriggersChange('remove', trigger)}
+              onReorder={onReorder}
+            />
           </TabPanel>
           <TabPanel>
             <Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusCircle">
               Add pull request trigger
             </Button>
-            {triggers.pull_request.length === 0 && (
-              <EmptyState iconName="Trigger" title="Your pull request triggers will appear here" maxHeight="208">
-                <Text marginTop="8">
-                  A pull request based trigger automatically starts builds when specific PR related actions detected
-                  within your repository.{' '}
-                  <Link
-                    colorScheme="purple"
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-                  >
-                    Learn more
-                  </Link>
-                </Text>
-              </EmptyState>
-            )}
-            <div>
-              <DndContext
-                collisionDetection={closestCenter}
-                modifiers={[restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges]}
-                onDragStart={handleDragStart}
-                onDragEnd={(event) => handleDragEnd(event, 'pull_request')}
-                sensors={sensors}
-              >
-                <SortableContext
-                  strategy={verticalListSortingStrategy}
-                  items={triggers.pull_request.map(({ uniqueId }) => uniqueId)}
-                >
-                  {triggers.pull_request.length > 0 &&
-                    triggers.pull_request.map((triggerItem) => (
-                      <TriggerCard
-                        key={triggerItem.uniqueId}
-                        triggerItem={triggerItem}
-                        onRemove={(trigger) => onTriggersChange('remove', trigger)}
-                        onEdit={(trigger) => onPrTriggerEdit(trigger)}
-                        onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
-                      />
-                    ))}
-                </SortableContext>
-                <DragOverlay>
-                  {activeId ? (
-                    <TriggerCard
-                      triggerItem={
-                        triggers.pull_request.find(({ uniqueId }) => uniqueId === activeId) || triggers.pull_request[0]
-                      }
-                      isOverlay
-                    />
-                  ) : null}
-                </DragOverlay>
-              </DndContext>
-            </div>
-            {triggers.pull_request.length > 1 && metaDataValue === null && (
-              <Notification status="info" marginTop="12" onClose={() => updateMetaData('true')}>
-                <Text fontWeight="bold">Order of triggers</Text>
-                <Text>
-                  The first matching trigger is executed by the system, so make sure that the order of triggers is
-                  configured correctly.{' '}
-                  <Link
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-                    isUnderlined
-                  >
-                    Learn more
-                  </Link>
-                </Text>
-              </Notification>
-            )}
+            <SortableTriggerList
+              type="pull_request"
+              triggers={triggers.pull_request}
+              onEditItem={onOpenDialog}
+              onToggleItem={(trigger) => onTriggersChange('edit', trigger)}
+              onRemoveItem={(trigger) => onTriggersChange('remove', trigger)}
+              onReorder={onReorder}
+            />
           </TabPanel>
           <TabPanel>
             <Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusCircle">
               Add tag trigger
             </Button>
-            {triggers.tag.length === 0 && (
-              <EmptyState iconName="Trigger" title="Your tag triggers will appear here" maxHeight="208">
-                <Text marginTop="8">
-                  A tag-based trigger automatically starts builds when tags gets pushed to your repository.{' '}
-                  <Link
-                    colorScheme="purple"
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-                  >
-                    Learn more
-                  </Link>
-                </Text>
-              </EmptyState>
-            )}
-            <div>
-              <DndContext
-                collisionDetection={closestCenter}
-                modifiers={[restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges]}
-                onDragStart={handleDragStart}
-                onDragEnd={(event) => handleDragEnd(event, 'tag')}
-                sensors={sensors}
-              >
-                <SortableContext
-                  strategy={verticalListSortingStrategy}
-                  items={triggers.tag.map(({ uniqueId }) => uniqueId)}
-                >
-                  {triggers.tag.length > 0 &&
-                    triggers.tag.map((triggerItem) => (
-                      <TriggerCard
-                        key={triggerItem.uniqueId}
-                        triggerItem={triggerItem}
-                        onRemove={(trigger) => onTriggersChange('remove', trigger)}
-                        onEdit={(trigger) => onTagTriggerEdit(trigger)}
-                        onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
-                      />
-                    ))}
-                </SortableContext>
-                <DragOverlay>
-                  {activeId ? (
-                    <TriggerCard
-                      triggerItem={triggers.tag.find(({ uniqueId }) => uniqueId === activeId) || triggers.tag[0]}
-                      isOverlay
-                    />
-                  ) : null}
-                </DragOverlay>
-              </DndContext>
-            </div>
-            {triggers.tag.length > 1 && metaDataValue === null && (
-              <Notification status="info" marginTop="12" onClose={() => updateMetaData('true')}>
-                <Text fontWeight="bold">Order of triggers</Text>
-                <Text>
-                  The first matching trigger is executed by the system, so make sure that the order of triggers is
-                  configured correctly.{' '}
-                  <Link
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-                    isUnderlined
-                  >
-                    Learn more
-                  </Link>
-                </Text>
-              </Notification>
-            )}
+            <SortableTriggerList
+              type="tag"
+              triggers={triggers.tag}
+              onEditItem={onOpenDialog}
+              onToggleItem={(trigger) => onTriggersChange('edit', trigger)}
+              onRemoveItem={(trigger) => onTriggersChange('remove', trigger)}
+              onReorder={onReorder}
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>
       <AddPushTriggerDialog
-        currentTriggers={triggers.push}
-        onClose={onCloseDialog}
         isOpen={isPushTriggerDialogOpen}
-        onSubmit={onTriggersChange}
         editedItem={editedItem}
-        pipelines={pipelines}
-        workflows={workflows}
+        currentTriggers={triggers.push}
+        onSubmit={onTriggersChange}
+        onClose={onCloseDialog}
       />
       <AddPrTriggerDialog
-        currentTriggers={triggers.pull_request}
         isOpen={isPrTriggerDialogOpen}
-        onClose={onCloseDialog}
-        onSubmit={onTriggersChange}
         editedItem={editedItem}
-        pipelines={pipelines}
-        workflows={workflows}
+        currentTriggers={triggers.pull_request}
+        onSubmit={onTriggersChange}
+        onClose={onCloseDialog}
       />
       <AddTagTriggerDialog
-        currentTriggers={triggers.tag}
         isOpen={isTagTriggerDialogOpen}
-        onClose={onCloseDialog}
-        onSubmit={onTriggersChange}
-        pipelines={pipelines}
-        workflows={workflows}
         editedItem={editedItem}
+        currentTriggers={triggers.tag}
+        onSubmit={onTriggersChange}
+        onClose={onCloseDialog}
       />
     </>
   );

@@ -17,8 +17,8 @@ import { AriaAttributes, useState } from 'react';
 import TriggerConditions from '@/components/unified-editor/Triggers/components/TriggerConditions';
 import { TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
 import { getConditionList, getPipelineableTriggers } from '@/components/unified-editor/Triggers/Triggers.utils';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import { TriggerSource } from '@/core/models/Trigger';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useNavigation from '@/hooks/useNavigation';
 
 const TYPE_MAP: Record<TriggerType, string> = {
@@ -27,13 +27,8 @@ const TYPE_MAP: Record<TriggerType, string> = {
   tag: 'Tag',
 };
 
-type TargetBasedTriggersProps = {
-  yml: BitriseYml;
-};
-
-const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
-  const { yml } = props;
-
+const TargetBasedTriggers = () => {
+  const yml = useBitriseYmlStore((s) => s.yml);
   const { replace } = useNavigation();
 
   const [filterString, setFilterString] = useState('');

@@ -19,28 +19,30 @@ import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-for
 import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
 import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 import { LEGACY_LABELS_MAP, LEGACY_OPTIONS_MAP, LegacyPrConditionType } from '@/core/models/Trigger.legacy';
+import usePipelineIds from '@/hooks/usePipelineIds';
+import useWorkflowIds from '@/hooks/useWorkflowIds';
 
 import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 type DialogProps = {
   isOpen: boolean;
-  onClose: () => void;
-  workflows: string[];
-  pipelines: string[];
   editedItem?: TriggerItem;
   currentTriggers: TriggerItem[];
   onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
+  onClose: () => void;
 };
 
 const OPTIONS_MAP = LEGACY_OPTIONS_MAP.pull_request;
 const LABELS_MAP = LEGACY_LABELS_MAP.pull_request;
 
 const AddPrTriggerDialog = (props: DialogProps) => {
-  const { currentTriggers, isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;
-  const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
-
+  const { isOpen, editedItem, currentTriggers, onClose, onSubmit } = props;
   const isEditMode = !!editedItem;
 
+  const pipelines = usePipelineIds();
+  const workflows = useWorkflowIds(true);
+
+  const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
   const dialogStages: ProgressIndicatorProps['stages'] = [
     {
       action: activeStageIndex === 1 ? { onClick: () => setActiveStageIndex(0) } : undefined,
@@ -209,7 +211,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                     {pipelines.length && (
                       <optgroup label="Pipelines">
                         {pipelines.map((p) => (
-                          <option key={p} value={`pipeline#${p}`}>
+                          <option key={p} value={`pipelines#${p}`}>
                             {p}
                           </option>
                         ))}
@@ -218,7 +220,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                     {workflows.length && (
                       <optgroup label="Workflows">
                         {workflows.map((p) => (
-                          <option key={p} value={`workflow#${p}`}>
+                          <option key={p} value={`workflows#${p}`}>
                             {p}
                           </option>
                         ))}
