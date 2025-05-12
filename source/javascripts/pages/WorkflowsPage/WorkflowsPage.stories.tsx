@@ -84,13 +84,13 @@ export const UniqueStepLimit: Story = {
 
 export const DedicatedWithMachines: Story = {
   parameters: {
-    msw: { handlers: [getStacksAndMachines({ isDedicated: true })] },
+    msw: { handlers: [getStacksAndMachines({ privateCloud: 'machine-overrides' })] },
   },
 };
 
 export const LegacyDedicated: Story = {
   parameters: {
-    msw: { handlers: [getStacksAndMachines({ isDedicated: true, isLegacyDedicated: true })] },
+    msw: { handlers: [getStacksAndMachines({ privateCloud: 'no-machines' })] },
   },
 };
 

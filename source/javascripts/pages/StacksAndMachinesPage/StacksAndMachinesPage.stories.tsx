@@ -96,7 +96,7 @@ export const WithDedicatedMachines: Story = {
     layout: 'fullscreen',
     msw: {
       handlers: {
-        story: [getStacksAndMachines({ isDedicated: true })],
+        story: [getStacksAndMachines({ privateCloud: 'machine-overrides' })],
       },
     },
   },
@@ -107,7 +107,7 @@ export const WithLegacyDedicated: Story = {
     layout: 'fullscreen',
     msw: {
       handlers: {
-        story: [getStacksAndMachines({ isDedicated: true, isLegacyDedicated: true })],
+        story: [getStacksAndMachines({ privateCloud: 'no-machines' })],
       },
     },
   },
