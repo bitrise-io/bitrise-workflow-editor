@@ -91,4 +91,26 @@ export const WithDeprecatedMachines: Story = {
   },
 };
 
+export const WithDedicatedMachines: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ privateCloud: 'machine-overrides' })],
+      },
+    },
+  },
+};
+
+export const WithLegacyDedicated: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ privateCloud: 'no-machines' })],
+      },
+    },
+  },
+};
+
 export default meta;

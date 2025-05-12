@@ -282,7 +282,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     expect(result.availableMachineTypeOptions).toEqual([{ label: 'Self-Hosted Runner', value: '' }]);
   });
 
-  it('returns dedicated machine when dedicated machine is assigned', () => {
+  it('returns machines for dedicated accounts with available machines', () => {
     const result = StackAndMachineService.prepareStackAndMachineSelectionData({
       selectedStackId: '',
       selectedMachineTypeId: '',
@@ -290,7 +290,30 @@ describe('prepareStackAndMachineSelectionData', () => {
       availableMachineTypes: machines,
       projectStackId: 'osx-xcode-16',
       projectMachineTypeId: 'mac-m1',
-      hasDedicatedMachine: true,
+      runningBuildsOnPrivateCloud: true,
+    });
+
+    // Machine type
+    expect(result.isInvalidMachineType).toBe(false);
+    expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
+
+    // Machine type options
+    expect(result.isMachineTypeSelectionDisabled).toBe(false);
+    const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
+    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+    expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+  });
+
+  it('returns disabled selection for dedicated accounts with no available machines', () => {
+    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+      selectedStackId: '',
+      selectedMachineTypeId: '',
+      availableStacks: stacks,
+      availableMachineTypes: [],
+      projectStackId: 'osx-xcode-16',
+      projectMachineTypeId: 'mac-m1',
+      runningBuildsOnPrivateCloud: true,
     });
 
     // Machine type
