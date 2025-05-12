@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { parseDocument } from 'yaml';
 
 import LoadingState from '@/components/LoadingState';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
@@ -47,7 +48,7 @@ const YmlEditor = () => {
       options={{
         readOnly: isLoadingSetting || ymlSettings?.usesRepositoryYml,
       }}
-      defaultValue={bitriseYmlStore.getState().ymlDocument.toString({ indentSeq: false, lineWidth: 0 })}
+      defaultValue={BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)}
     />
   );
 };

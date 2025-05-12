@@ -2,12 +2,26 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 import { isMatch } from 'picomatch';
-import { Document, isCollection, isMap, isPair, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+import { Document, isCollection, isMap, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+
+import BitriseYmlApi from '../api/BitriseYmlApi';
 
 type Args = { doc: Document; paths: string[] };
 
 function toDotNotation(paths: unknown[]) {
   return paths.join('.');
+}
+
+function isScalarKeyEqual(pair: Pair, key: string): pair is Pair<Scalar> {
+  return isScalar(pair.key) && pair.key.value === key;
+}
+
+function isNonScalarKeyEqual(pair: Pair, key: string) {
+  return !isScalar(pair.key) && (pair.key as string).toString() === key;
+}
+
+function isPairKeyEqual(pair: Pair, key: string) {
+  return isScalarKeyEqual(pair, key) || isNonScalarKeyEqual(pair, key);
 }
 
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLSeq;
@@ -73,9 +87,9 @@ function safeDeleteIn(doc: Document, path: unknown[], removeEmptyParent: boolean
 
 function updateMapKey(map: YAMLMap, oldKey: string, newKey: string) {
   map.items = map.items.map((pair) => {
-    if (isScalar(pair.key) && pair.key.value === oldKey) {
+    if (isScalarKeyEqual(pair, oldKey)) {
       pair.key.value = newKey;
-    } else if (!isScalar(pair.key) && (pair.key as string).toString() === oldKey) {
+    } else if (isNonScalarKeyEqual(pair, oldKey)) {
       pair.key = newKey;
     }
 
@@ -84,7 +98,7 @@ function updateMapKey(map: YAMLMap, oldKey: string, newKey: string) {
 }
 
 function areDocumentsEqual(a: Document, b: Document) {
-  return a.toString() === b.toString();
+  return BitriseYmlApi.toYml(a) === BitriseYmlApi.toYml(b);
 }
 
 function updateKey({ doc, paths }: Args, glob: string, newKey: string) {
@@ -146,7 +160,7 @@ function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists = false)
     const maybeMap = seq.items[i];
     if (isMap(maybeMap)) {
       for (const maybePair of maybeMap.items) {
-        if (isPair(maybePair) && isScalar(maybePair.key) && maybePair.key.value === key) {
+        if (isPairKeyEqual(maybePair, key)) {
           return [maybePair, i];
         }
       }
