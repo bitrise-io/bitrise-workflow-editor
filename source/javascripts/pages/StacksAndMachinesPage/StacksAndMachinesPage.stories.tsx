@@ -91,4 +91,26 @@ export const WithDeprecatedMachines: Story = {
   },
 };
 
+export const WithDedicatedMachines: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ isDedicated: true })],
+      },
+    },
+  },
+};
+
+export const WithLegacyDedicated: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ isDedicated: true, isLegacyDedicated: true })],
+      },
+    },
+  },
+};
+
 export default meta;

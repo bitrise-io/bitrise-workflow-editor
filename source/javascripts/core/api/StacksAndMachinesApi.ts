@@ -6,7 +6,7 @@ import Client from './client';
 
 type StacksAndMachinesResponse = {
   has_self_hosted_runner: boolean;
-  has_dedicated_machine: boolean;
+  running_builds_on_private_cloud: boolean;
   default_stack_id: string;
   default_machine_id: string;
   available_stacks: {
@@ -91,7 +91,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     defaultMachineTypeIdOfOSs,
     defaultStackId: response.default_stack_id,
     defaultMachineTypeId: response.default_machine_id,
-    hasDedicatedMachine: response.has_dedicated_machine,
+    runningBuildsOnPrivateCloud: response.running_builds_on_private_cloud,
     hasSelfHostedRunner: response.has_self_hosted_runner,
   };
 }
