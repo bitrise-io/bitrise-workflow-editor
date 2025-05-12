@@ -6,7 +6,6 @@ import { combine } from 'zustand/middleware';
 import {
   BitriseYml,
   EnvironmentItemModel,
-  EnvModel,
   PipelineModel,
   StepBundleModel,
   TriggerMap,
@@ -337,13 +336,6 @@ export const bitriseYmlStore = createStore(
               stepIndex,
               state.yml,
             ),
-          };
-        });
-      },
-      updateStepInputsInStepBundle: (stepBundleId: string, stepIndex: number, inputs: EnvModel) => {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStepInputsInStepBundle(stepBundleId, stepIndex, inputs, state.yml),
           };
         });
       },

@@ -232,57 +232,6 @@ function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml
   return copy;
 }
 
-function updateStepInputsInStepBundle(stepBundleId: string, stepIndex: number, newInputs: EnvModel, yml: BitriseYml) {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the step bundle or step is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex]) {
-    return copy;
-  }
-
-  const [, stepYmlObject] = Object.entries(copy.step_bundles?.[stepBundleId]?.steps?.[stepIndex])[0] as [
-    string,
-    StepModel,
-  ];
-
-  newInputs.forEach((input) => {
-    if (!stepYmlObject.inputs) {
-      stepYmlObject.inputs = [];
-    }
-
-    const [key, value] = Object.entries(omit(input, ['opts']))[0];
-    const inputIndexInYml = stepYmlObject.inputs.findIndex((i) => Object.keys(i).includes(key));
-    const isInputExistsInTheYml = inputIndexInYml > -1;
-
-    if (isInputExistsInTheYml) {
-      const valueInYml = stepYmlObject.inputs[inputIndexInYml][key];
-
-      if (valueInYml === null && !String(value)) {
-        return;
-      }
-
-      const inputObject = StepService.toYmlInput(key, value, stepYmlObject.inputs[inputIndexInYml].opts);
-
-      if (inputObject) {
-        stepYmlObject.inputs[inputIndexInYml] = inputObject;
-      } else {
-        stepYmlObject.inputs.splice(inputIndexInYml, 1);
-      }
-    } else {
-      const inputObject = StepService.toYmlInput(key, value);
-      if (inputObject) {
-        stepYmlObject.inputs.push(inputObject);
-      }
-    }
-  });
-
-  if (isEmpty(newInputs) || isEmpty(stepYmlObject.inputs)) {
-    delete stepYmlObject.inputs;
-  }
-
-  return copy;
-}
-
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1402,7 +1351,6 @@ export default {
   groupStepsToStepBundle,
   renameStepBundle,
   updateStepBundle,
-  updateStepInputsInStepBundle,
   createWorkflow,
   renameWorkflow,
   updateWorkflow,
