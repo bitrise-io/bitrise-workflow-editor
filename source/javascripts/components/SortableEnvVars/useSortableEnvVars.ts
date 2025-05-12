@@ -1,6 +1,7 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useEffect, useState } from 'react';
+import { useDebounceCallback } from 'usehooks-ts';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
 import { EnvVarSource } from '@/core/models/EnvVar';
@@ -17,6 +18,9 @@ type UseSortableEnvVarsProps = {
 export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges = false }: UseSortableEnvVarsProps) => {
   const [activeItem, setActiveItem] = useState<SortableEnvVar>();
   const [envs, setEnvs] = useState<SortableEnvVar[]>([]);
+
+  const updateKeyDebounced = useDebounceCallback(EnvVarService.updateKey, 250, { leading: false });
+  const updateValueDebounced = useDebounceCallback(EnvVarService.updateValue, 250, { leading: false });
 
   useEffect(() => {
     setEnvs(
@@ -79,12 +83,12 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
 
   const onKeyChange = (index: number) => (key: string) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, key } : env)));
-    EnvVarService.updateKey(key, index, envs[index].key, source, sourceId);
+    updateKeyDebounced(key, index, envs[index].key, source, sourceId);
   };
 
   const onValueChange = (index: number) => (value: string) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, value } : env)));
-    EnvVarService.updateValue(value, index, envs[index].key, source, sourceId);
+    updateValueDebounced(value, index, envs[index].key, source, sourceId);
   };
 
   const onIsExpandChange = (index: number) => (isExpand: boolean) => {
