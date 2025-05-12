@@ -235,13 +235,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      updateStepInputs: (workflowId: string, stepIndex: number, inputs: EnvModel) => {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStepInputs(workflowId, stepIndex, inputs, state.yml),
-          };
-        });
-      },
       updateTriggerMap(triggerMap: TriggerMap) {
         return set((state) => {
           return {

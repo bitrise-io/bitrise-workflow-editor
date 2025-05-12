@@ -1,5 +1,6 @@
-import { parseDocument, stringify } from 'yaml';
+import { parseDocument, stringify, YAMLSeq } from 'yaml';
 
+import BitriseYmlApi from '../api/BitriseYmlApi';
 import { YamlMutatorCtx } from '../stores/BitriseYmlStore';
 import YamlUtils from './YamlUtils';
 import YamlExample from './YamlUtils.yaml';
@@ -257,6 +258,45 @@ describe('YamlUtils', () => {
     it('should handle empty objects and arrays', () => {
       expect(YamlUtils.collectPaths({}, 'obj')).toEqual(['obj']);
       expect(YamlUtils.collectPaths([], 'arr')).toEqual(['arr']);
+    });
+  });
+
+  describe('getPairInSeqByKey', () => {
+    it('should return the existing pair and index in the sequence by key', () => {
+      const seq = ctx.doc.getIn(asArr('final_entry.stages')) as YAMLSeq;
+      const [pair, index] = YamlUtils.getPairInSeqByKey(seq, 'implementation');
+
+      expect(index).toBe(1);
+      expect(pair?.key?.toString()).toBe('implementation');
+      expect(pair?.value?.toString()).toBe('Writing comprehensive examples to showcase YAML features.\n');
+    });
+
+    it('should return undefined when the key does not exist', () => {
+      const seq = ctx.doc.getIn(asArr('final_entry.stages')) as YAMLSeq;
+      const [pair, index] = YamlUtils.getPairInSeqByKey(seq, 'nonexistent');
+
+      expect(index).toBeUndefined();
+      expect(pair).toBeUndefined();
+    });
+
+    it('should create and return a new pair when createIfNotExists is true', () => {
+      const seq = ctx.doc.getIn(asArr('final_entry.stages')) as YAMLSeq;
+      const [pair, index] = YamlUtils.getPairInSeqByKey(seq, 'new_key', true);
+
+      expect(index).toBe(3);
+      expect(pair?.key?.toString()).toBe('new_key');
+      expect(pair?.value?.toString()).toBe('');
+
+      expect(BitriseYmlApi.toYml(seq)).toEqual(yaml`
+        - research: >
+            Understanding the basics of YAML, looking into version differences.
+        - implementation: >
+            Writing comprehensive examples to showcase YAML features.
+        - testing:
+          - ensure valid YAML
+          - check parsers for compatibility
+        - new_key: ""
+      `);
     });
   });
 });

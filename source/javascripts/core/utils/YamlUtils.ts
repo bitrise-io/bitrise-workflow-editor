@@ -2,7 +2,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 import { isMatch } from 'picomatch';
-import { Document, isCollection, isMap, isScalar, YAMLMap, YAMLSeq } from 'yaml';
+import { Document, isCollection, isMap, isPair, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 type Args = { doc: Document; paths: string[] };
 
@@ -138,6 +138,34 @@ function collectPaths(obj: unknown, prefix = '') {
   return paths;
 }
 
+type GetPairInSeqByKeyReturn = [Pair | undefined, number | undefined];
+function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists: true): [Pair, number];
+function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists?: boolean): GetPairInSeqByKeyReturn;
+function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists = false): GetPairInSeqByKeyReturn {
+  for (let i = 0; i < seq.items.length; i++) {
+    const maybeMap = seq.items[i];
+    if (isMap(maybeMap)) {
+      for (const maybePair of maybeMap.items) {
+        if (isPair(maybePair) && isScalar(maybePair.key) && maybePair.key.value === key) {
+          return [maybePair, i];
+        }
+      }
+    }
+  }
+
+  if (createIfNotExists) {
+    const newMap = new YAMLMap();
+    const newPair = new Pair(new Scalar(key), new Scalar(''));
+
+    newMap.add(newPair);
+    seq.add(newMap);
+
+    return [newPair, seq.items.length - 1];
+  }
+
+  return [undefined, undefined];
+}
+
 export default {
   getSeqIn,
   getMapIn,
@@ -148,4 +176,5 @@ export default {
   collectPaths,
   areDocumentsEqual,
   toDotNotation,
+  getPairInSeqByKey,
 };

@@ -1,7 +1,7 @@
 import { compact, isString, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import semver from 'semver';
-import { Document, isMap, isScalar } from 'yaml';
+import { Document, isMap, isScalar, Scalar } from 'yaml';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
@@ -24,6 +24,7 @@ import {
 } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+import EnvVarService from './EnvVarService';
 
 type Source = 'workflows' | 'step_bundles';
 
@@ -515,6 +516,23 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
   });
 }
 
+function updateStepInput(source: Source, sourceId: string, index: number, input: string, value: unknown) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const cvs = (getStepOrThrowError(source, sourceId, index, doc).items[0].key as Scalar).value;
+    const inputsSeq = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs'], true);
+    const [inputPair, inputIndex] = YamlUtils.getPairInSeqByKey(inputsSeq, input, true);
+
+    const newValue = EnvVarService.toYmlValue(value);
+    if (newValue === '') {
+      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs', inputIndex], ['inputs']);
+    } else {
+      inputPair.value = EnvVarService.toYmlValue(value);
+    }
+
+    return doc;
+  });
+}
+
 function changeStepVersion(source: Source, sourceId: string, index: number, version: string) {
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, index, doc);
@@ -559,5 +577,6 @@ export default {
   cloneStep,
   deleteStep,
   updateStepField,
+  updateStepInput,
   changeStepVersion,
 };

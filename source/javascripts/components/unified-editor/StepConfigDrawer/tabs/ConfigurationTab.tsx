@@ -1,11 +1,9 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
-import { cloneDeep } from 'es-toolkit';
 import { ChangeEventHandler } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
 import StepVariableService from '@/core/services/StepVariableService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import StepInput from '../components/StepInput';
 import StepInputGroup from '../components/StepInputGroup';
@@ -13,43 +11,24 @@ import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 const ConfigurationTab = () => {
   const { data, workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
-
-  const updateStepInputs = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStepInputs),
-    250,
-  );
-
-  const updateStepInputsInStepBundle = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStepInputsInStepBundle),
-    250,
-  );
+  const updateStepInput = useDebounceCallback(StepService.updateStepInput, 250);
 
   const userValues = data?.userValues ?? {};
   const defaultValues = data?.defaultValues ?? {};
   const mergedValues = data?.mergedValues ?? {};
 
   const onInputValueChange = (name: string, value?: string | null) => {
-    const clone = cloneDeep(userValues.inputs ?? []);
     const isNameValid = defaultValues.inputs?.some((input) => Object.keys(input).includes(name));
-    const changeIndex = clone.findIndex((input) => Object.keys(input).includes(name));
 
     // Trying to write a non-existing input
     if (!isNameValid) {
       return;
     }
 
-    if (changeIndex !== -1) {
-      clone[changeIndex][name] = value;
-    } else {
-      clone.push({ [name]: value });
-    }
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
 
-    if (workflowId) {
-      updateStepInputs(workflowId, stepIndex, clone);
-    }
-    if (stepBundleId) {
-      updateStepInputsInStepBundle(stepBundleId, stepIndex, clone);
-    }
+    updateStepInput(source, sourceId, stepIndex, name, value);
   };
 
   const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
