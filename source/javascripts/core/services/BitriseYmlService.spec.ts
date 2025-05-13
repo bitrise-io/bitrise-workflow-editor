@@ -645,43 +645,6 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('deletePipeline', () => {
-    it('should remove a pipeline in the whole yml completely', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            workflows: { wf1: {} },
-          },
-          pl2: {
-            workflows: { wf1: {}, wf2: {} },
-          },
-          pl3: {
-            workflows: { wf1: {}, wf2: {} },
-          },
-        },
-        trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl2' }, { pipeline: 'pl3' }],
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl2: {
-            workflows: { wf1: {}, wf2: {} },
-          },
-          pl3: {
-            workflows: { wf1: {}, wf2: {} },
-          },
-        },
-        trigger_map: [{ pipeline: 'pl2' }, { pipeline: 'pl3' }],
-      };
-
-      const actualYml = BitriseYmlService.deletePipeline('pl1', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-  });
-
   describe('addWorkflowToPipeline', () => {
     it('should add a root workflow to the given pipeline', () => {
       const sourceYml: BitriseYml = {

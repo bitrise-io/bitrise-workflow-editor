@@ -52,20 +52,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      deletePipeline(pipelineId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deletePipeline(pipelineId, state.yml),
-          };
-        });
-      },
-      deletePipelines(pipelineIds: string[]) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deletePipelines(pipelineIds, state.yml),
-          };
-        });
-      },
       removePipelineWorkflowDependency: (pipelineId: string, workflowId: string, dependencyId: string) => {
         return set((state) => {
           return {

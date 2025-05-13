@@ -158,6 +158,22 @@ function renamePipeline(id: string, newName: string) {
   });
 }
 
+function deletePipeline(ids: string | string[]) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    const pipelines = Array.isArray(ids)
+      ? [...ids].sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }))
+      : [ids];
+
+    pipelines.forEach((id) => {
+      getPipelineOrThrowError(id, doc);
+      YamlUtils.deleteKey({ doc, paths }, `pipelines.${id}`, true);
+      YamlUtils.deleteValue({ doc, paths }, `trigger_map.*.pipeline`, id, true);
+    });
+
+    return doc;
+  });
+}
+
 type Key = keyof PipelineModel;
 type Value<T extends Key> = PipelineModel[T];
 function updatePipelineField<T extends Key>(id: string, field: T, value: Value<T>) {
@@ -187,5 +203,6 @@ export default {
   EMPTY_PIPELINE,
   createPipeline,
   renamePipeline,
+  deletePipeline,
   updatePipelineField,
 };

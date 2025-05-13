@@ -1,7 +1,7 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
-import { isMatch } from 'picomatch';
+import { Glob, isMatch } from 'picomatch';
 import { Document, isCollection, isMap, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
@@ -10,6 +10,21 @@ type Args = { doc: Document; paths: string[] };
 
 function toDotNotation(paths: unknown[]) {
   return paths.join('.');
+}
+
+function transformRemoveEmptyParentGlob(path: string[], removeEmptyParentGlob: boolean | Glob = false) {
+  let removeEmptyParent: boolean | string[] = false;
+
+  if (typeof removeEmptyParentGlob === 'string') {
+    removeEmptyParent = path.slice(0, -1);
+    while (isMatch(toDotNotation(removeEmptyParent.slice(0, -1)), removeEmptyParentGlob)) {
+      removeEmptyParent = removeEmptyParent.slice(0, -1);
+    }
+  } else {
+    removeEmptyParent = removeEmptyParentGlob;
+  }
+
+  return removeEmptyParent;
 }
 
 function isScalarKeyEqual(pair: Pair, key: string): pair is Pair<Scalar> {
@@ -101,7 +116,7 @@ function areDocumentsEqual(a: Document, b: Document) {
   return BitriseYmlApi.toYml(a) === BitriseYmlApi.toYml(b);
 }
 
-function updateKey({ doc, paths }: Args, glob: string, newKey: string) {
+function updateKey({ doc, paths }: Args, glob: Glob, newKey: string) {
   const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
 
   filteredPaths.forEach((path) => {
@@ -120,7 +135,15 @@ function updateKey({ doc, paths }: Args, glob: string, newKey: string) {
   });
 }
 
-function updateValue({ doc, paths }: Args, glob: string, newValue: unknown, oldValue?: unknown) {
+function deleteKey({ doc, paths }: Args, glob: Glob, removeEmptyParentGlob: boolean | Glob = false) {
+  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
+
+  filteredPaths.forEach((path) => {
+    safeDeleteIn(doc, path, transformRemoveEmptyParentGlob(path, removeEmptyParentGlob));
+  });
+}
+
+function updateValue({ doc, paths }: Args, glob: Glob, newValue: unknown, oldValue?: unknown) {
   const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
 
   filteredPaths.forEach((path) => {
@@ -129,6 +152,18 @@ function updateValue({ doc, paths }: Args, glob: string, newValue: unknown, oldV
     if (value === oldValue || oldValue === undefined) {
       doc.setIn(path, newValue);
     }
+  });
+}
+
+function deleteValue({ doc, paths }: Args, glob: Glob, value: unknown, removeEmptyParentGlob: boolean | Glob = false) {
+  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
+
+  filteredPaths.forEach((path) => {
+    if (doc.getIn(path) !== value) {
+      return;
+    }
+
+    safeDeleteIn(doc, path, transformRemoveEmptyParentGlob(path, removeEmptyParentGlob));
   });
 }
 
@@ -184,7 +219,9 @@ export default {
   getSeqIn,
   getMapIn,
   updateKey,
+  deleteKey,
   updateValue,
+  deleteValue,
   safeDeleteIn,
   updateMapKey,
   collectPaths,

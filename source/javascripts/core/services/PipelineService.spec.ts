@@ -490,6 +490,111 @@ describe('PipelineService', () => {
     });
   });
 
+  describe('deletePipeline', () => {
+    it('should delete the pipeline and its references', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline_to_delete:
+              workflows: {}
+            another_pipeline:
+              workflows: {}
+          trigger_map:
+          - push:
+              pipeline: pipeline_to_delete
+        `,
+      });
+
+      PipelineService.deletePipeline('pipeline_to_delete');
+
+      const expectedYml = yaml`
+        pipelines:
+          another_pipeline:
+            workflows: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should delete multiple pipelines and their references', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+            pipeline2:
+              workflows: {}
+            pipeline3:
+              workflows: {}
+          trigger_map:
+          - push:
+              pipeline: pipeline1
+          - pull_request:
+              pipeline: pipeline2
+          - tag:
+              pipeline: pipeline3
+        `,
+      });
+
+      PipelineService.deletePipeline(['pipeline1', 'pipeline2']);
+
+      const expectedYml = yaml`
+        pipelines:
+          pipeline3:
+            workflows: {}
+        trigger_map:
+        - tag:
+            pipeline: pipeline3
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove pipelines section if all pipelines are deleted', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          format_version: '1.0'
+          pipelines:
+            pipeline1:
+              workflows: {}
+            pipeline2:
+              workflows: {}
+          trigger_map:
+          - push:
+              pipeline: pipeline1
+          - pull_request:
+              pipeline: pipeline2
+        `,
+      });
+
+      PipelineService.deletePipeline(['pipeline1', 'pipeline2']);
+
+      const expectedYml = yaml`
+        format_version: '1.0'
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the pipeline does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              workflows: {}
+        `,
+      });
+
+      expect(() => PipelineService.deletePipeline('non_existent_pipeline')).toThrow(
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+  });
+
   describe('updatePipelineField', () => {
     it('should update an existing pipeline field', () => {
       initializeStore({

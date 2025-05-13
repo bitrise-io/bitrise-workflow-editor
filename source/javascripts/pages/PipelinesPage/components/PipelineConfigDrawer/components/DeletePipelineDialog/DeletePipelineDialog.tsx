@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
 import { useCallback } from 'react';
 
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import PipelineService from '@/core/services/PipelineService';
 
 type Props = Omit<DialogProps, 'title'> & {
   pipelineId: string;
@@ -9,13 +9,11 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props }: Props) => {
-  const deletePipeline = useBitriseYmlStore((s) => s.deletePipeline);
-
   const handleDeletePipeline = useCallback(() => {
-    deletePipeline(pipelineId);
+    PipelineService.deletePipeline(pipelineId);
     onDeletePipeline?.(pipelineId);
     onClose();
-  }, [pipelineId, deletePipeline, onDeletePipeline, onClose]);
+  }, [pipelineId, onDeletePipeline, onClose]);
 
   return (
     <Dialog {...props} title="Delete Pipeline" onClose={onClose}>

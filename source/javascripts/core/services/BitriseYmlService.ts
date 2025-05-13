@@ -426,43 +426,6 @@ function removeChainedWorkflow(
   return copy;
 }
 
-function deletePipeline(pipelineId: string, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the pipeline is missing in the YML just return the YML
-  if (!copy.pipelines?.[pipelineId]) {
-    return copy;
-  }
-
-  // Remove pipeline from `pipelines` section of the YML
-  delete copy.pipelines[pipelineId];
-
-  // Remove the whole `pipelines` section in the YML if empty
-  if (shouldRemoveField(copy.pipelines, yml.pipelines)) {
-    delete copy.pipelines;
-  }
-
-  // Remove triggers what referencing to the pipeline
-  copy.trigger_map = deletePipelineFromTriggerMap(pipelineId, copy.trigger_map);
-
-  // Remove the whole `trigger_map` section in the YML if empty
-  if (shouldRemoveField(copy.trigger_map, yml.trigger_map)) {
-    delete copy.trigger_map;
-  }
-
-  return copy;
-}
-
-function deletePipelines(pipelineIds: string[], yml: BitriseYml): BitriseYml {
-  let copy = deepCloneSimpleObject(yml);
-
-  pipelineIds.forEach((pipelineId) => {
-    copy = deletePipeline(pipelineId, copy);
-  });
-
-  return copy;
-}
-
 function addWorkflowToPipeline(
   pipelineId: string,
   workflowId: string,
@@ -1232,13 +1195,6 @@ function deleteWorkflowFromTriggerMap(
   return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
 }
 
-function deletePipelineFromTriggerMap(
-  pipelineId: string,
-  triggerMap: TriggerMapItemModel[] = [],
-): TriggerMapItemModel[] {
-  return triggerMap.filter((trigger) => trigger.pipeline !== pipelineId);
-}
-
 function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1292,8 +1248,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  deletePipeline,
-  deletePipelines,
   addWorkflowToPipeline,
   removeWorkflowFromPipeline,
   addPipelineWorkflowDependency,
