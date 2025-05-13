@@ -91,7 +91,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.CREATE_PIPELINE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreatePipeline={PipelineService.create}
+          onCreatePipeline={PipelineService.createPipeline}
         />
       )}
 

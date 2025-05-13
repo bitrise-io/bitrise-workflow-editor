@@ -316,7 +316,7 @@ describe('PipelineService', () => {
     });
   });
 
-  describe('create', () => {
+  describe('createPipeline', () => {
     it('should create a pipeline with empty workflows if base pipeline is missing', () => {
       initializeStore({
         version: '',
@@ -324,7 +324,7 @@ describe('PipelineService', () => {
         `,
       });
 
-      PipelineService.create('new_pipeline');
+      PipelineService.createPipeline('new_pipeline');
 
       const expectedYml = yaml`
         pipelines:
@@ -348,7 +348,7 @@ describe('PipelineService', () => {
         `,
       });
 
-      PipelineService.create('new_pipeline', 'base_pipeline');
+      PipelineService.createPipeline('new_pipeline', 'base_pipeline');
 
       const expectedYml = yaml`
         pipelines:
@@ -392,7 +392,7 @@ describe('PipelineService', () => {
         `,
       });
 
-      PipelineService.create('new_pipeline', 'base_pipeline');
+      PipelineService.createPipeline('new_pipeline', 'base_pipeline');
 
       const expectedYml = yaml`
         pipelines:
@@ -440,13 +440,13 @@ describe('PipelineService', () => {
         `,
       });
 
-      expect(() => PipelineService.create('new_pipeline', 'non_existent_pipeline')).toThrow(
+      expect(() => PipelineService.createPipeline('new_pipeline', 'non_existent_pipeline')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
       );
     });
   });
 
-  describe('rename', () => {
+  describe('renamePipeline', () => {
     it('should rename the pipeline and update references', () => {
       initializeStore({
         version: '',
@@ -460,7 +460,7 @@ describe('PipelineService', () => {
         `,
       });
 
-      PipelineService.rename('old_pipeline', 'new_pipeline');
+      PipelineService.renamePipeline('old_pipeline', 'new_pipeline');
 
       const expectedYml = yaml`
         pipelines:
@@ -484,7 +484,7 @@ describe('PipelineService', () => {
         `,
       });
 
-      expect(() => PipelineService.rename('non_existent_pipeline', 'new_name')).toThrow(
+      expect(() => PipelineService.renamePipeline('non_existent_pipeline', 'new_name')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
       );
     });

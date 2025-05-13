@@ -41,8 +41,8 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
       if (selectedPipelineId) {
         setIsRenaming(true);
 
-        PipelineService.rename(selectedPipelineId, newPipelineId);
-        PipelineService.create(selectedPipelineId, newPipelineId);
+        PipelineService.renamePipeline(selectedPipelineId, newPipelineId);
+        PipelineService.createPipeline(selectedPipelineId, newPipelineId);
 
         setNextPipelineId(newPipelineId);
         setPrevPipelineId(selectedPipelineId);

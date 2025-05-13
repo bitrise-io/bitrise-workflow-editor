@@ -125,7 +125,7 @@ function getPipelineOrThrowError(id: string, doc: Document) {
   return basePipelineNode;
 }
 
-function create(id: string, baseId?: string) {
+function createPipeline(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     if (baseId) {
       const basePipelineNode = getPipelineOrThrowError(baseId, doc);
@@ -149,7 +149,7 @@ function create(id: string, baseId?: string) {
   });
 }
 
-function rename(id: string, newName: string) {
+function renamePipeline(id: string, newName: string) {
   updateBitriseYmlDocument(({ doc, paths }) => {
     getPipelineOrThrowError(id, doc);
     YamlUtils.updateKey({ doc, paths }, `pipelines.${id}`, newName);
@@ -168,6 +168,6 @@ export default {
   numberOfStages,
   convertToGraphPipeline,
   EMPTY_PIPELINE,
-  create,
-  rename,
+  createPipeline,
+  renamePipeline,
 };
