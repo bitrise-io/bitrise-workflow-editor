@@ -645,49 +645,6 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('renamePipeline', () => {
-    it('should rename an existing pipeline', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: { workflows: { wf1: {} } },
-          pl2: { workflows: { wf2: {} } },
-        },
-        trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl2' }],
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: { workflows: { wf1: {} } },
-          pl3: { workflows: { wf2: {} } },
-        },
-        trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl3' }],
-      };
-
-      const actualYml = BitriseYmlService.renamePipeline('pl2', 'pl3', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    describe('when the pipeline does not exists', () => {
-      it('should return the original yml', () => {
-        const sourceAndExpectedYml: BitriseYml = {
-          format_version: '',
-          pipelines: {
-            pl1: { workflows: { wf1: {} } },
-            pl2: { workflows: { wf2: {} } },
-          },
-          trigger_map: [{ pipeline: 'pl1' }, { pipeline: 'pl2' }],
-        };
-
-        const actualYml = BitriseYmlService.renamePipeline('pl3', 'pl4', sourceAndExpectedYml);
-
-        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-      });
-    });
-  });
-
   describe('updatePipeline', () => {
     it('should update the given pipeline', () => {
       const sourceYml: BitriseYml = {

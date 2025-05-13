@@ -81,13 +81,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      renamePipeline(pipelineId: string, newPipelineId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.renamePipeline(pipelineId, newPipelineId, state.yml),
-          };
-        });
-      },
       updatePipeline(pipelineId: string, pipeline: PipelineModel) {
         return set((state) => {
           return {

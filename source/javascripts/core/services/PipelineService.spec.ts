@@ -441,7 +441,51 @@ describe('PipelineService', () => {
       });
 
       expect(() => PipelineService.create('new_pipeline', 'non_existent_pipeline')).toThrow(
-        "Base pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+  });
+
+  describe('rename', () => {
+    it('should rename the pipeline and update references', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            old_pipeline:
+              workflows: {}
+          trigger_map:
+          - push:
+              pipeline: old_pipeline
+        `,
+      });
+
+      PipelineService.rename('old_pipeline', 'new_pipeline');
+
+      const expectedYml = yaml`
+        pipelines:
+          new_pipeline:
+            workflows: {}
+        trigger_map:
+        - push:
+            pipeline: new_pipeline
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the pipeline does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              workflows: {}
+        `,
+      });
+
+      expect(() => PipelineService.rename('non_existent_pipeline', 'new_name')).toThrow(
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
       );
     });
   });

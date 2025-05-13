@@ -427,22 +427,6 @@ function removeChainedWorkflow(
   return copy;
 }
 
-function renamePipeline(pipelineId: string, newPipelineId: string, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (copy.pipelines) {
-    copy.pipelines = Object.fromEntries(
-      Object.entries(copy.pipelines).map(([id, pipeline]) => {
-        return [id === pipelineId ? newPipelineId : id, pipeline];
-      }),
-    );
-  }
-
-  if (copy.trigger_map) copy.trigger_map = renamePipelineInTriggerMap(pipelineId, newPipelineId, copy.trigger_map);
-
-  return copy;
-}
-
 function updatePipeline(pipelineId: string, pipeline: PipelineModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -1265,22 +1249,6 @@ function deleteWorkflowFromTriggerMap(
   return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
 }
 
-function renamePipelineInTriggerMap(
-  pipelineId: string,
-  newPipelineId: string,
-  triggerMap: TriggerMapItemModel[],
-): TriggerMapItemModel[] {
-  return triggerMap.map((trigger) => {
-    const triggerCopy = deepCloneSimpleObject(trigger);
-
-    if (triggerCopy.pipeline === pipelineId) {
-      triggerCopy.pipeline = newPipelineId;
-    }
-
-    return triggerCopy;
-  });
-}
-
 function deletePipelineFromTriggerMap(
   pipelineId: string,
   triggerMap: TriggerMapItemModel[] = [],
@@ -1341,7 +1309,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  renamePipeline,
   updatePipeline,
   deletePipeline,
   deletePipelines,

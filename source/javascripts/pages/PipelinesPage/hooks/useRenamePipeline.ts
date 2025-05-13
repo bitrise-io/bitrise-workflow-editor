@@ -13,8 +13,7 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
   const [nextPipelineId, setNextPipelineId] = useState(selectedPipelineId);
   const [prevPipelineId, setPrevPipelineId] = useState(selectedPipelineId);
 
-  const { renamePipeline, deletePipeline } = useBitriseYmlStore((s) => ({
-    renamePipeline: s.renamePipeline,
+  const { deletePipeline } = useBitriseYmlStore((s) => ({
     deletePipeline: s.deletePipeline,
   }));
 
@@ -42,14 +41,14 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
       if (selectedPipelineId) {
         setIsRenaming(true);
 
-        renamePipeline(selectedPipelineId, newPipelineId);
+        PipelineService.rename(selectedPipelineId, newPipelineId);
         PipelineService.create(selectedPipelineId, newPipelineId);
 
         setNextPipelineId(newPipelineId);
         setPrevPipelineId(selectedPipelineId);
       }
     },
-    [renamePipeline, selectedPipelineId],
+    [selectedPipelineId],
   );
 };
 

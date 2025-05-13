@@ -1,4 +1,5 @@
 import { omit, uniq } from 'es-toolkit';
+import { Document } from 'yaml';
 
 import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -116,15 +117,18 @@ function convertToGraphPipeline(pipeline: PipelineModel, stages: Stages = {}): P
   return { ...newPipeline, workflows };
 }
 
+function getPipelineOrThrowError(id: string, doc: Document) {
+  const basePipelineNode = YamlUtils.getMapIn(doc, ['pipelines', id]);
+  if (!basePipelineNode) {
+    throw new Error(`Pipeline ${id} not found. Ensure that the pipeline exists in the 'pipelines' section.`);
+  }
+  return basePipelineNode;
+}
+
 function create(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const basePipelineNode = YamlUtils.getMapIn(doc, ['pipelines', baseId]);
-
-    if (baseId && !basePipelineNode) {
-      throw new Error(`Base pipeline ${baseId} not found. Ensure that the pipeline exists in the 'pipelines' section.`);
-    }
-
-    if (baseId && basePipelineNode) {
+    if (baseId) {
+      const basePipelineNode = getPipelineOrThrowError(baseId, doc);
       const basePipelineJson = basePipelineNode.toJSON();
 
       if (isGraph(basePipelineJson)) {
@@ -145,6 +149,15 @@ function create(id: string, baseId?: string) {
   });
 }
 
+function rename(id: string, newName: string) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    getPipelineOrThrowError(id, doc);
+    YamlUtils.updateKey({ doc, paths }, `pipelines.${id}`, newName);
+    YamlUtils.updateValue({ doc, paths }, `trigger_map.*.pipeline`, newName, id);
+    return doc;
+  });
+}
+
 export default {
   isGraph,
   getPipeline,
@@ -156,4 +169,5 @@ export default {
   convertToGraphPipeline,
   EMPTY_PIPELINE,
   create,
+  rename,
 };
