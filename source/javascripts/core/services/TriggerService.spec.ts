@@ -723,7 +723,14 @@ describe('TriggerService', () => {
           source: 'pipelines#release',
           index: 1,
           triggerType: 'push',
-          conditions: [{ type: 'branch', value: 'dev', isRegex: false }],
+          conditions: [
+            { type: 'branch', value: 'dev', isRegex: false },
+            {
+              type: 'commit_message',
+              value: 'ci/.*',
+              isRegex: true,
+            },
+          ],
           isActive: true,
         });
 
@@ -736,6 +743,8 @@ describe('TriggerService', () => {
                 push:
                 - branch: master
                 - branch: dev
+                  commit_message:
+                    regex: ci/.*
         `);
       });
 
@@ -904,7 +913,15 @@ describe('TriggerService', () => {
           source: 'workflows#primary',
           triggerType: 'push',
           isActive: true,
-          conditions: [{ type: 'branch', value: 'dev', isRegex: false }],
+          conditions: [
+            { type: 'branch', value: 'dev', isRegex: false },
+            {
+              type: 'changed_files',
+              value: 'src',
+              isRegex: false,
+              isLastCommitOnly: true,
+            },
+          ],
         });
 
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
@@ -914,6 +931,9 @@ describe('TriggerService', () => {
                 push:
                 - branch: master
                 - branch: dev
+                  changed_files:
+                    pattern: src
+                    last_commit: true
           `);
       });
 
@@ -1073,7 +1093,14 @@ describe('TriggerService', () => {
           source: 'pipelines#release',
           triggerType: 'push',
           isActive: true,
-          conditions: [{ type: 'branch', value: 'feat', isRegex: false }],
+          conditions: [
+            { type: 'branch', value: 'feat', isRegex: false },
+            {
+              type: 'commit_message',
+              value: 'ci/.*',
+              isRegex: true,
+            },
+          ],
         });
 
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
@@ -1085,6 +1112,8 @@ describe('TriggerService', () => {
                 push:
                 - branch: master
                 - branch: feat
+                  commit_message:
+                    regex: ci/.*
           `);
       });
 
@@ -1227,7 +1256,15 @@ describe('TriggerService', () => {
           source: 'workflows#primary',
           triggerType: 'push',
           isActive: true,
-          conditions: [{ type: 'branch', value: 'development', isRegex: false }],
+          conditions: [
+            { type: 'branch', value: 'development', isRegex: false },
+            {
+              type: 'changed_files',
+              value: 'src',
+              isRegex: false,
+              isLastCommitOnly: true,
+            },
+          ],
         });
 
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
@@ -1237,6 +1274,9 @@ describe('TriggerService', () => {
                 push:
                 - branch: master
                 - branch: development
+                  changed_files:
+                    pattern: src
+                    last_commit: true
           `);
       });
 

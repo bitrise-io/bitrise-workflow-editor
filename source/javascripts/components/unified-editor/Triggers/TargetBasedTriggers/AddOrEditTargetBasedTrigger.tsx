@@ -135,6 +135,7 @@ const AddTrigger = (props: Props) => {
             run.
           </Text>
           <ConditionCard
+            triggerType={triggerType}
             fields={fields}
             labelsMap={labelsMap}
             append={onAppend}

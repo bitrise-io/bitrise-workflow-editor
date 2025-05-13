@@ -5,6 +5,7 @@ import { Document, isMap, isSeq } from 'yaml';
 import { TriggerMap, TriggerMapItemModel, TriggersModel } from '../models/BitriseYml';
 import {
   ALL_TARGET_BASED_CONDITION_TYPES,
+  TargetBasedCondition,
   TargetBasedConditionType,
   TargetBasedTrigger,
   TargetBasedTriggerItemModel,
@@ -168,12 +169,22 @@ function toTargetBasedTriggers(
 
     return Object.entries(conditions).map(([key, value]) => {
       const isRegex = isObject(value) && 'regex' in value && typeof value.regex === 'string';
+      const isPattern = isObject(value) && 'pattern' in value && typeof value.pattern === 'string';
+      const isLastCommitOnly = isObject(value) && 'last_commit' in value && value.last_commit;
+      // eslint-disable-next-line no-nested-ternary
+      const conditionValue = isRegex ? value.regex : isPattern ? value.pattern : String(value);
 
-      return {
+      const condition: TargetBasedCondition = {
         isRegex,
         type: key as TargetBasedConditionType,
-        value: isRegex ? value.regex : String(value),
+        value: conditionValue,
       };
+
+      if (isLastCommitOnly) {
+        condition.isLastCommitOnly = true;
+      }
+
+      return condition;
     });
   }
 
@@ -203,7 +214,7 @@ function toTargetBasedTriggers(
 function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTriggerItemModel {
   const item = { priority: trigger.priority } as TargetBasedTriggerItemModel;
 
-  if (trigger.isActive === false) {
+  if (!trigger.isActive) {
     item.enabled = false;
   }
 
@@ -211,8 +222,15 @@ function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTrigger
     item.draft_enabled = false;
   }
 
-  trigger.conditions.forEach(({ isRegex, type, value }) => {
-    item[type] = isRegex ? { regex: value } : value;
+  trigger.conditions.forEach(({ isRegex, type, value, isLastCommitOnly }) => {
+    if (type === 'commit_message' || type === 'changed_files') {
+      item[type] = isRegex ? { regex: value } : { pattern: value };
+      if (isLastCommitOnly) {
+        item[type].last_commit = true;
+      }
+    } else {
+      item[type] = isRegex ? { regex: value } : value;
+    }
   });
 
   return item;

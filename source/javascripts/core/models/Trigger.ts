@@ -14,7 +14,7 @@ export type Condition<TConditionType extends string> = {
   isRegex: boolean;
   type: TConditionType;
   value: string;
-  uniqueId?: string;
+  isLastCommitOnly?: boolean;
 };
 
 export type Trigger<TConditionType extends string> = {
