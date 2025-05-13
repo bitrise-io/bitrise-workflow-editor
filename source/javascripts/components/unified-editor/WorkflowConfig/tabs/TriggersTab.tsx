@@ -1,32 +1,15 @@
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
-import TriggerService from '@/core/services/TriggerService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import Triggers from '../../Triggers/Triggers';
+import TargerBasedTriggersTabContent from '../../Triggers/TargetBasedTriggers/TargetBasedTriggersTabContent';
 
 const TriggersTab = () => {
   const workflow = useWorkflowConfigContext();
-
-  const { updateWorkflowTriggers } = useBitriseYmlStore((s) => ({
-    updateWorkflowTriggers: s.updateWorkflowTriggers,
-  }));
 
   if (!workflow) {
     return null;
   }
 
-  return (
-    <Triggers
-      source="workflows"
-      sourceId={workflow.id}
-      triggers={workflow.userValues.triggers}
-      updateTriggers={updateWorkflowTriggers}
-      updateTriggersEnabled={(sourceId, enabled) =>
-        TriggerService.updateEnabled(enabled, { source: 'workflows', sourceId })
-      }
-      additionalTrackingData={{ tab_name: 'workflows', workflow_name: workflow.id }}
-    />
-  );
+  return <TargerBasedTriggersTabContent source="workflows" sourceId={workflow.id} />;
 };
 
 export default TriggersTab;

@@ -1,5 +1,5 @@
 import { TriggerMapItemModel } from '@/core/models/BitriseYml';
-import { Condition, Trigger, TriggerType } from '@/core/models/Trigger';
+import { Condition, TargetBasedConditionType, Trigger, TriggerType } from '@/core/models/Trigger';
 
 export type LegacyPushConditionType = keyof Pick<
   TriggerMapItemModel,
@@ -15,17 +15,10 @@ export type LegacyPrConditionType = keyof Pick<
   | 'changed_files'
 >;
 export type LegacyTagConditionType = keyof Pick<TriggerMapItemModel, 'tag'>;
+export type LegacyConditionType = LegacyPushConditionType | LegacyPrConditionType | LegacyTagConditionType;
 export type LegacyTriggerItemModel = TriggerMapItemModel;
-
-export type LegacyPushCondition = Condition<LegacyPushConditionType>;
-export type LegacyPrCondition = Condition<LegacyPrConditionType>;
-export type LegacyTagCondition = Condition<LegacyTagConditionType>;
-export type LegacyCondition = LegacyPushCondition | LegacyPrCondition | LegacyTagCondition;
-
-export type LegacyPushTriggerItem = Trigger<LegacyPushConditionType>;
-export type LegacyPrTriggerItem = Trigger<LegacyPrConditionType>;
-export type LegacyTagTriggerItem = Trigger<LegacyTagConditionType>;
-export type LegacyTrigger = LegacyPushTriggerItem | LegacyPrTriggerItem | LegacyTagTriggerItem;
+export type LegacyCondition = Condition<LegacyConditionType>;
+export type LegacyTrigger = Trigger<LegacyConditionType>;
 
 type LegacyTriggerMapping = {
   [key in TriggerType]: key extends 'push'
@@ -36,6 +29,17 @@ type LegacyTriggerMapping = {
         ? Record<LegacyTagConditionType, string>
         : never;
 };
+
+export const ALL_LEGACY_CONDITION_TYPES = [
+  'push_branch',
+  'commit_message',
+  'changed_files',
+  'pull_request_target_branch',
+  'pull_request_source_branch',
+  'pull_request_label',
+  'pull_request_comment',
+  'tag',
+] as const satisfies readonly LegacyConditionType[];
 
 export const LEGACY_LABELS_MAP = {
   push: {
@@ -74,3 +78,14 @@ export const LEGACY_OPTIONS_MAP = {
     tag: 'Tag',
   },
 } as const satisfies LegacyTriggerMapping;
+
+export const LEGACY_TO_TARGET_BASED_CONDITION_MAP: Record<LegacyConditionType, TargetBasedConditionType> = {
+  push_branch: 'branch',
+  commit_message: 'commit_message',
+  changed_files: 'changed_files',
+  pull_request_source_branch: 'source_branch',
+  pull_request_target_branch: 'target_branch',
+  pull_request_label: 'label',
+  pull_request_comment: 'comment',
+  tag: 'name',
+};

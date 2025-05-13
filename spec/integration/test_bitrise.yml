@@ -3,13 +3,13 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
 services:
   postgres:
-    image: postgres:13s
+    image: postgres:13
 containers:
   ruby:
     image: ruby:3.2
 app:
   envs:
-  - ACCESS_KEY: "125"
+  - ACCESS_KEY: "120"
   - GITHUB_TOKEN: GITHUB_TOKEN
     opts:
       is_expand: false
@@ -33,7 +33,7 @@ pipelines:
       tmp:
         depends_on:
         - wf1
-        parallel: "45"
+        parallel: "4"
       wf1: {}
       wf2:
         depends_on:
@@ -209,6 +209,18 @@ workflows:
     - script@1:
         inputs:
         - content: echo "Hello Bitrise!"
+    triggers:
+      push:
+      - branch: master
+      - commit_message:
+          regex: ci
+        changed_files: main.ts
+      pull_request:
+      - source_branch: feat
+      - label: staging
+      tag:
+      - name:
+          regex: beta
   wf1:
     summary: My first workflow
     description: There will be more to come

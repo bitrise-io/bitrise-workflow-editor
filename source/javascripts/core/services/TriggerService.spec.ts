@@ -1,4 +1,5 @@
 import BitriseYmlApi from '../api/BitriseYmlApi';
+import { LegacyTrigger } from '../models/Trigger.legacy';
 import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 import TriggerService from './TriggerService';
 
@@ -63,6 +64,89 @@ describe('TriggerService', () => {
         push: [],
         pull_request: [],
         tag: [],
+      });
+    });
+  });
+
+  describe('convertLegacyTriggers', () => {
+    it('should convert a legacy push trigger', () => {
+      const legacyTrigger: LegacyTrigger = {
+        uniqueId: '1',
+        index: 0,
+        source: 'pipelines#release',
+        triggerType: 'push',
+        isActive: true,
+        conditions: [
+          { type: 'push_branch', value: 'master', isRegex: false },
+          { type: 'commit_message', value: 'ci', isRegex: false },
+          { type: 'changed_files', value: 'src', isRegex: false },
+        ],
+      };
+
+      const convertedTrigger = TriggerService.convertToTargetBasedTrigger(legacyTrigger);
+      expect(convertedTrigger).toEqual({
+        uniqueId: '1',
+        index: 0,
+        source: 'pipelines#release',
+        triggerType: 'push',
+        isActive: true,
+        conditions: [
+          { type: 'branch', value: 'master', isRegex: false },
+          { type: 'commit_message', value: 'ci', isRegex: false },
+          { type: 'changed_files', value: 'src', isRegex: false },
+        ],
+      });
+    });
+
+    it('should convert a legacy pull_request trigger', () => {
+      const legacyTrigger: LegacyTrigger = {
+        uniqueId: '1',
+        index: 0,
+        source: 'pipelines#release',
+        triggerType: 'pull_request',
+        isActive: true,
+        conditions: [
+          { type: 'pull_request_source_branch', value: 'master', isRegex: false },
+          { type: 'pull_request_target_branch', value: 'dev', isRegex: false },
+          { type: 'pull_request_label', value: 'bugfix', isRegex: false },
+          { type: 'pull_request_comment', value: 'comment', isRegex: false },
+        ],
+      };
+
+      const convertedTrigger = TriggerService.convertToTargetBasedTrigger(legacyTrigger);
+      expect(convertedTrigger).toEqual({
+        uniqueId: '1',
+        index: 0,
+        source: 'pipelines#release',
+        triggerType: 'pull_request',
+        isActive: true,
+        conditions: [
+          { type: 'source_branch', value: 'master', isRegex: false },
+          { type: 'target_branch', value: 'dev', isRegex: false },
+          { type: 'label', value: 'bugfix', isRegex: false },
+          { type: 'comment', value: 'comment', isRegex: false },
+        ],
+      });
+    });
+
+    it('should convert a legacy tag trigger', () => {
+      const legacyTrigger: LegacyTrigger = {
+        uniqueId: '1',
+        index: 0,
+        source: 'pipelines#release',
+        triggerType: 'tag',
+        isActive: true,
+        conditions: [{ type: 'tag', value: 'v1.0.0', isRegex: false }],
+      };
+
+      const convertedTrigger = TriggerService.convertToTargetBasedTrigger(legacyTrigger);
+      expect(convertedTrigger).toEqual({
+        uniqueId: '1',
+        index: 0,
+        source: 'pipelines#release',
+        triggerType: 'tag',
+        isActive: true,
+        conditions: [{ type: 'name', value: 'v1.0.0', isRegex: false }],
       });
     });
   });
@@ -340,6 +424,25 @@ describe('TriggerService', () => {
           workflow: primary
           tag: v1.0.0
           enabled: false
+      `);
+    });
+
+    it('should remove the trigger_map if undefined is provided', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary: {}
+          trigger_map:
+          - push_branch: master
+            workflow: primary`,
+      });
+
+      TriggerService.updateTriggerMap(undefined);
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
       `);
     });
   });

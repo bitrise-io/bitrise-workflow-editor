@@ -11,7 +11,12 @@ import {
   TriggerSource,
   TriggerType,
 } from '../models/Trigger';
-import { ALL_LEGACY_CONDITION_TYPES, LegacyConditionType, LegacyTrigger } from '../models/Trigger.legacy';
+import {
+  ALL_LEGACY_CONDITION_TYPES,
+  LEGACY_TO_TARGET_BASED_CONDITION_MAP,
+  LegacyConditionType,
+  LegacyTrigger,
+} from '../models/Trigger.legacy';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 
@@ -114,22 +119,43 @@ function toTriggerMap(triggers: Record<TriggerType, LegacyTrigger[]>): TriggerMa
 }
 
 function isLegacyConditionUsed(currentTriggers: LegacyTrigger[], newTrigger: LegacyTrigger) {
-  const newConditions = newTrigger.conditions.map((c) => ({
-    ...c,
-    value: c.value === '' ? '*' : c.value,
-  }));
+  let isUsed = false;
+  currentTriggers.forEach(({ conditions, index }) => {
+    const newConditions = newTrigger.conditions.map((c) => {
+      if (c.value === '') {
+        return {
+          ...c,
+          value: '*',
+        };
+      }
+      return c;
+    });
+    conditions.forEach((c) => {
+      newConditions.forEach((newC) => {
+        if (isEqual(c, newC) && index !== newTrigger.index) {
+          isUsed = true;
+        }
+      });
+    });
+  });
+  return isUsed;
+}
 
-  return currentTriggers.some(
-    (trigger) =>
-      trigger.uniqueId !== newTrigger.uniqueId &&
-      trigger.conditions.some((c) => newConditions.some((newC) => isEqual(c, newC))),
-  );
+function convertToTargetBasedTrigger(trigger: LegacyTrigger): TargetBasedTrigger {
+  return {
+    ...trigger,
+    conditions: trigger.conditions.map(({ isRegex, type, value }) => ({
+      isRegex,
+      type: LEGACY_TO_TARGET_BASED_CONDITION_MAP[type],
+      value,
+    })),
+  };
 }
 
 function toTargetBasedTriggers(
   source: TriggerSource,
   sourceId: string,
-  triggersModel: TriggersModel,
+  triggersModel?: TriggersModel,
 ): Record<TriggerType, TargetBasedTrigger[]> {
   const triggers: Record<TriggerType, TargetBasedTrigger[]> = {
     push: [],
@@ -167,9 +193,9 @@ function toTargetBasedTriggers(
     );
   }
 
-  triggers.push = toTriggers('push', triggersModel.push);
-  triggers.pull_request = toTriggers('pull_request', triggersModel.pull_request);
-  triggers.tag = toTriggers('tag', triggersModel.tag);
+  triggers.push = toTriggers('push', triggersModel?.push);
+  triggers.pull_request = toTriggers('pull_request', triggersModel?.pull_request);
+  triggers.tag = toTriggers('tag', triggersModel?.tag);
 
   return triggers;
 }
@@ -194,7 +220,7 @@ function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTrigger
 
 // Legacy triggers
 function getTriggerMapOrThrowError(doc: Document) {
-  const triggerMap = doc.getIn(['trigger_map']);
+  const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map']);
   if (!triggerMap || !isSeq(triggerMap)) {
     throw new Error('trigger_map not found');
   }
@@ -217,7 +243,7 @@ function addLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map'], true);
     triggerMap.flow = false;
-    triggerMap.add(toTriggerMapItemModel(trigger));
+    triggerMap.add(doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
 }
@@ -225,7 +251,7 @@ function addLegacyTrigger(trigger: LegacyTrigger) {
 function updateLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     getTriggerMapItemOrThrowError(doc, trigger.index);
-    doc.setIn(['trigger_map', trigger.index], toTriggerMapItemModel(trigger));
+    doc.setIn(['trigger_map', trigger.index], doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
 }
@@ -238,9 +264,14 @@ function removeLegacyTrigger(index: number) {
   });
 }
 
-function updateTriggerMap(triggers: Record<TriggerType, LegacyTrigger[]>) {
+function updateTriggerMap(triggers?: Record<TriggerType, LegacyTrigger[]>) {
   updateBitriseYmlDocument(({ doc }) => {
-    doc.set('trigger_map', toTriggerMap(triggers));
+    if (!triggers) {
+      doc.delete('trigger_map');
+      return doc;
+    }
+
+    doc.setIn(['trigger_map'], doc.createNode(toTriggerMap(triggers)));
     return doc;
   });
 }
@@ -298,7 +329,7 @@ function addTrigger(trigger: TargetBasedTrigger) {
     entity.flow = false;
 
     const triggers = YamlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
-    triggers.add(toTargetBasedItemModel(trigger));
+    triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
 
     return doc;
   });
@@ -309,7 +340,10 @@ function updateTrigger(trigger: TargetBasedTrigger) {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     getTriggerOrThrowError(doc, { source, sourceId, triggerType: trigger.triggerType, index: trigger.index });
 
-    doc.setIn([source, sourceId, 'triggers', trigger.triggerType, trigger.index], toTargetBasedItemModel(trigger));
+    doc.setIn(
+      [source, sourceId, 'triggers', trigger.triggerType, trigger.index],
+      doc.createNode(toTargetBasedItemModel(trigger)),
+    );
 
     return doc;
   });
@@ -359,6 +393,7 @@ function removeTrigger(trigger: TargetBasedTrigger) {
 export default {
   toLegacyTriggers,
   isLegacyConditionUsed,
+  convertToTargetBasedTrigger,
   toTargetBasedTriggers,
   addLegacyTrigger,
   updateLegacyTrigger,

@@ -18,8 +18,8 @@ import {
 } from '@dnd-kit/sortable';
 import { useState } from 'react';
 
-import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
 import { TriggerType } from '@/core/models/Trigger';
+import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 
 import LegacyEmptyState from './LegacyEmptyState';
 import OrderOfTriggersNotification from './OrderOfTriggersNotification';
@@ -27,11 +27,11 @@ import TriggerCard from './TriggerCard';
 
 type SortableTriggerListProps = {
   type: TriggerType;
-  triggers: TriggerItem[];
-  onReorder: (type: TriggerType, triggers: TriggerItem[]) => void;
-  onEditItem: (triggerItem: TriggerItem) => void;
-  onToggleItem: (triggerItem: TriggerItem) => void;
-  onRemoveItem: (triggerItem: TriggerItem) => void;
+  triggers: LegacyTrigger[];
+  onReorder: (type: TriggerType, triggers: LegacyTrigger[]) => void;
+  onEditItem: (triggerItem: LegacyTrigger) => void;
+  onToggleItem: (triggerItem: LegacyTrigger) => void;
+  onRemoveItem: (triggerItem: LegacyTrigger) => void;
 };
 
 const SortableTriggerList = ({

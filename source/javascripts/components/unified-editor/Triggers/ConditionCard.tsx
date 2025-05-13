@@ -18,10 +18,11 @@ import { Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
-import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
+import { TargetBasedTrigger } from '@/core/models/Trigger';
+import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 
 type ConditionCardProps = {
-  fields: FieldArrayWithId<TriggerItem, 'conditions', 'uniqueId'>[];
+  fields: FieldArrayWithId<LegacyTrigger | TargetBasedTrigger, 'conditions', 'uniqueId'>[];
   append?: () => void;
   optionsMap: Record<string, string>;
   remove: (index: number) => void;
@@ -34,11 +35,12 @@ const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
   source_branch: 'If you leave it blank, Bitrise will start builds for any source branch.',
   pull_request_source_branch: 'If you leave it blank, Bitrise will start builds for any source branch.',
   name: 'If you leave it blank, Bitrise will start builds for any tag.',
+  tag: 'If you leave it blank, Bitrise will start builds for any tag.',
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { fields, append, optionsMap, remove } = props;
-  const { control, watch, setValue } = useFormContext<TriggerItem>();
+  const { control, watch, setValue } = useFormContext<LegacyTrigger | TargetBasedTrigger>();
   const { conditions } = watch();
 
   const isTagCondition = useMemo(() => {
@@ -61,7 +63,7 @@ const ConditionCard = (props: ConditionCardProps) => {
             const { isRegex, type } = cond;
 
             return (
-              <Tr key={fieldItem.id}>
+              <Tr key={fieldItem.uniqueId}>
                 <Td verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.type`}

@@ -15,27 +15,31 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
-import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
-import { TriggerItem } from '@/components/unified-editor/Triggers/Triggers.types';
-import { LEGACY_LABELS_MAP, LEGACY_OPTIONS_MAP, LegacyPushConditionType } from '@/core/models/Trigger.legacy';
+import ConditionCard from '@/components/unified-editor/Triggers/ConditionCard';
+import {
+  LEGACY_LABELS_MAP,
+  LEGACY_OPTIONS_MAP,
+  LegacyPushConditionType,
+  LegacyTrigger,
+} from '@/core/models/Trigger.legacy';
+import TriggerService from '@/core/services/TriggerService';
 import usePipelineIds from '@/hooks/usePipelineIds';
 import useWorkflowIds from '@/hooks/useWorkflowIds';
-
-import { checkIsConditionsUsed } from '../../TriggersPage.utils';
 
 const OPTIONS_MAP = LEGACY_OPTIONS_MAP.push;
 const LABELS_MAP = LEGACY_LABELS_MAP.push;
 
 type DialogProps = {
   isOpen: boolean;
-  editedItem?: TriggerItem;
-  currentTriggers: TriggerItem[];
-  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
+  editedItem?: LegacyTrigger;
+  currentTriggers: LegacyTrigger[];
+  onAdd: (trigger: LegacyTrigger) => void;
+  onEdit: (trigger: LegacyTrigger) => void;
   onClose: () => void;
 };
 
 const AddPushTriggerDialog = (props: DialogProps) => {
-  const { isOpen, editedItem, currentTriggers, onClose, onSubmit } = props;
+  const { isOpen, editedItem, currentTriggers, onAdd, onEdit, onClose } = props;
   const isEditMode = !!editedItem;
 
   const pipelines = usePipelineIds();
@@ -50,7 +54,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     { label: 'Target' },
   ];
 
-  const defaultValues: TriggerItem = useMemo(() => {
+  const defaultValues: LegacyTrigger = useMemo(() => {
     return {
       conditions: [
         {
@@ -59,21 +63,22 @@ const AddPushTriggerDialog = (props: DialogProps) => {
           value: '',
         },
       ],
-      uniqueId: crypto.randomUUID(),
-      pipelineable: '',
-      type: 'push',
+      uniqueId: editedItem?.uniqueId ?? crypto.randomUUID(),
+      source: '',
+      index: currentTriggers.length,
+      triggerType: 'push',
       isActive: true,
       ...editedItem,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedItem, isOpen]);
 
-  const formMethods = useForm<TriggerItem>({
+  const formMethods = useForm<LegacyTrigger>({
     defaultValues,
   });
 
   const { control, reset, handleSubmit, watch } = formMethods;
-  const { conditions, pipelineable } = watch();
+  const { conditions, source } = watch();
 
   useEffect(() => {
     reset(defaultValues);
@@ -91,7 +96,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     setActiveStageIndex(0);
   };
 
-  const onFormSubmit = (data: TriggerItem) => {
+  const onFormSubmit = (data: LegacyTrigger) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -101,7 +106,12 @@ const AddPushTriggerDialog = (props: DialogProps) => {
       }
       return newCondition;
     });
-    onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
+
+    if (isEditMode) {
+      onEdit(filteredData);
+    } else {
+      onAdd(filteredData);
+    }
     onFormCancel();
   };
 
@@ -121,7 +131,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
+  const isConditionsUsed = TriggerService.isLegacyConditionUsed(currentTriggers, watch());
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
@@ -130,7 +140,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     }
   });
 
-  const isPipelineableMissing = !pipelineable;
+  const isPipelineableMissing = !source;
 
   return (
     <FormProvider {...formMethods}>
@@ -176,7 +186,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
                 Select the Pipeline or Workflow you want Bitrise to run when trigger conditions are met.
               </Text>
               <Controller
-                name="pipelineable"
+                name="source"
                 control={control}
                 render={({ field }) => (
                   <Select placeholder="Select a Pipeline or Workflow" {...field}>

@@ -14,33 +14,24 @@ import {
 } from '@bitrise/bitkit';
 import { AriaAttributes, useState } from 'react';
 
-import TriggerConditions from '@/components/unified-editor/Triggers/components/TriggerConditions';
-import { TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
-import { getConditionList, getPipelineableTriggers } from '@/components/unified-editor/Triggers/Triggers.utils';
-import { TriggerSource } from '@/core/models/Trigger';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
+import { TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
 import useNavigation from '@/hooks/useNavigation';
-
-const TYPE_MAP: Record<TriggerType, string> = {
-  push: 'Push',
-  pull_request: 'Pull request',
-  tag: 'Tag',
-};
+import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 
 const TargetBasedTriggers = () => {
-  const yml = useBitriseYmlStore((s) => s.yml);
   const { replace } = useNavigation();
 
   const [filterString, setFilterString] = useState('');
   const [sortProps, setSortProps] = useState<{
     direction: AriaAttributes['aria-sort'];
-    condition: 'sourceId' | 'type';
+    condition: 'sourceId' | 'triggerType';
   }>({
     direction: 'ascending',
     condition: 'sourceId',
   });
 
-  const pipelineableTriggers = getPipelineableTriggers(yml);
+  const pipelineableTriggers = useAllTargetBasedTriggers();
 
   const filteredItems = pipelineableTriggers.filter((item) => {
     const lowerCaseFilterString = filterString.toLowerCase();
@@ -50,18 +41,18 @@ const TargetBasedTriggers = () => {
       }
       return false;
     });
-    return matchingValues.length > 0 || TYPE_MAP[item.type].toLowerCase().includes(lowerCaseFilterString);
+    return matchingValues.length > 0 || TYPE_MAP[item.triggerType].toLowerCase().includes(lowerCaseFilterString);
   });
 
   filteredItems.sort((a, b) => {
     const aItem = {
       ...a,
-      sourceId: a.pipelineable.split('#')[1],
+      sourceId: a.source.split('#')[1],
     };
 
     const bItem = {
       ...b,
-      sourceId: b.pipelineable.split('#')[1],
+      sourceId: b.source.split('#')[1],
     };
 
     if (aItem[sortProps.condition] > bItem[sortProps.condition]) {
@@ -100,9 +91,9 @@ const TargetBasedTriggers = () => {
                   <Th
                     isSortable
                     onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'type' });
+                      setSortProps({ direction: sortDirection, condition: 'triggerType' });
                     }}
-                    sortedBy={sortProps.condition === 'type' ? sortProps.direction : undefined}
+                    sortedBy={sortProps.condition === 'triggerType' ? sortProps.direction : undefined}
                   >
                     Type
                   </Th>
@@ -112,7 +103,7 @@ const TargetBasedTriggers = () => {
               </Thead>
               <Tbody>
                 {filteredItems.map((trigger) => {
-                  const [source, sourceId] = trigger.pipelineable.split('#') as [TriggerSource, string];
+                  const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
                   return (
                     <Tr key={JSON.stringify(trigger)}>
                       <Td>
@@ -121,13 +112,13 @@ const TargetBasedTriggers = () => {
                           {source === 'workflows' ? 'Workflow' : 'Pipeline'}
                         </Text>
                       </Td>
-                      <Td>{TYPE_MAP[trigger.type]}</Td>
+                      <Td>{TYPE_MAP[trigger.triggerType]}</Td>
                       <Td>
                         <TriggerConditions
-                          conditions={getConditionList(trigger)}
-                          isDraftPr={trigger.draft_enabled}
+                          conditions={trigger.conditions}
+                          isDraftPr={trigger.isDraftPr}
                           priority={trigger.priority}
-                          triggerType={trigger.type}
+                          triggerType={trigger.triggerType}
                         />
                       </Td>
                       <Td display="flex" justifyContent="flex-end" alignItems="center">

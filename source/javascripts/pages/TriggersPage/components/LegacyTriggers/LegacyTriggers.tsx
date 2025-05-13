@@ -1,50 +1,38 @@
 import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
-import { TriggerItem, TriggerType } from '@/components/unified-editor/Triggers/Triggers.types';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { TriggerType } from '@/core/models/Trigger';
+import { LegacyTrigger } from '@/core/models/Trigger.legacy';
+import TriggerService from '@/core/services/TriggerService';
+import useLegacyTriggers from '@/hooks/useLegacyTriggers';
 import SortableTriggerList from '@/pages/TriggersPage/components/LegacyTriggers/SortableTriggerList';
 
-import { convertItemsToTriggerMap, convertTriggerMapToItems } from '../../TriggersPage.utils';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import ConvertLegacyTriggers from './ConvertLegacyTriggers';
 
 const LegacyTriggers = () => {
-  const triggerMap = useBitriseYmlStore((s) => s.yml.trigger_map);
+  const triggers = useLegacyTriggers();
+  const [editedItem, setEditedItem] = useState<LegacyTrigger | undefined>();
 
-  const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
-  const [triggers, setTriggers] = useState<Record<TriggerType, TriggerItem[]>>(
-    convertTriggerMapToItems(triggerMap || []),
-  );
-
-  const { updateTriggerMap } = useBitriseYmlStore((s) => ({
-    updateTriggerMap: s.updateTriggerMap,
-  }));
-
-  const onReorder = (type: TriggerType, newTriggers: TriggerItem[]) => {
+  const onReorder = (type: TriggerType, newTriggers: LegacyTrigger[]) => {
     const newTriggersMap = { ...triggers };
     newTriggersMap[type] = newTriggers;
-    setTriggers(newTriggersMap);
-    updateTriggerMap(convertItemsToTriggerMap(newTriggersMap));
+    // Let the animation finish before updating the trigger map
+    TriggerService.updateTriggerMap(newTriggersMap);
   };
 
-  const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
-    const newTriggers = { ...triggers };
+  const onTriggerAdded = (trigger: LegacyTrigger) => {
+    TriggerService.addLegacyTrigger(trigger);
+  };
 
-    if (action === 'add') {
-      newTriggers[trigger.type].push(trigger);
-    }
-    if (action === 'remove') {
-      newTriggers[trigger.type] = triggers[trigger.type].filter(({ uniqueId }) => uniqueId !== trigger.uniqueId);
-    }
-    if (action === 'edit') {
-      const index = triggers[trigger.type].findIndex(({ uniqueId }) => uniqueId === trigger.uniqueId);
-      newTriggers[trigger.type][index] = trigger;
-    }
-    setTriggers(newTriggers);
-    updateTriggerMap(convertItemsToTriggerMap(newTriggers));
+  const onTriggerEdited = (trigger: LegacyTrigger) => {
+    TriggerService.updateLegacyTrigger(trigger);
+  };
+
+  const onTriggerRemoved = (trigger: LegacyTrigger) => {
+    TriggerService.removeLegacyTrigger(trigger.index);
   };
 
   const {
@@ -61,9 +49,9 @@ const LegacyTriggers = () => {
     onClose: closeTagTriggerDialog,
   } = useDisclosure();
 
-  const onOpenDialog = (trigger: TriggerItem) => {
+  const onOpenDialog = (trigger: LegacyTrigger) => {
     setEditedItem(trigger);
-    switch (trigger.type) {
+    switch (trigger.triggerType) {
       case 'push':
         openPushTriggerDialog();
         break;
@@ -85,7 +73,7 @@ const LegacyTriggers = () => {
     setEditedItem(undefined);
   };
 
-  if (!triggerMap) {
+  if (triggers.push.length + triggers.pull_request.length + triggers.tag.length === 0) {
     return null;
   }
 
@@ -120,8 +108,8 @@ const LegacyTriggers = () => {
               type="push"
               triggers={triggers.push}
               onEditItem={onOpenDialog}
-              onToggleItem={(trigger) => onTriggersChange('edit', trigger)}
-              onRemoveItem={(trigger) => onTriggersChange('remove', trigger)}
+              onToggleItem={onTriggerEdited}
+              onRemoveItem={onTriggerRemoved}
               onReorder={onReorder}
             />
           </TabPanel>
@@ -133,8 +121,8 @@ const LegacyTriggers = () => {
               type="pull_request"
               triggers={triggers.pull_request}
               onEditItem={onOpenDialog}
-              onToggleItem={(trigger) => onTriggersChange('edit', trigger)}
-              onRemoveItem={(trigger) => onTriggersChange('remove', trigger)}
+              onToggleItem={onTriggerEdited}
+              onRemoveItem={onTriggerRemoved}
               onReorder={onReorder}
             />
           </TabPanel>
@@ -146,8 +134,8 @@ const LegacyTriggers = () => {
               type="tag"
               triggers={triggers.tag}
               onEditItem={onOpenDialog}
-              onToggleItem={(trigger) => onTriggersChange('edit', trigger)}
-              onRemoveItem={(trigger) => onTriggersChange('remove', trigger)}
+              onToggleItem={onTriggerEdited}
+              onRemoveItem={onTriggerRemoved}
               onReorder={onReorder}
             />
           </TabPanel>
@@ -157,21 +145,24 @@ const LegacyTriggers = () => {
         isOpen={isPushTriggerDialogOpen}
         editedItem={editedItem}
         currentTriggers={triggers.push}
-        onSubmit={onTriggersChange}
+        onAdd={onTriggerAdded}
+        onEdit={onTriggerEdited}
         onClose={onCloseDialog}
       />
       <AddPrTriggerDialog
         isOpen={isPrTriggerDialogOpen}
         editedItem={editedItem}
         currentTriggers={triggers.pull_request}
-        onSubmit={onTriggersChange}
+        onAdd={onTriggerAdded}
+        onEdit={onTriggerEdited}
         onClose={onCloseDialog}
       />
       <AddTagTriggerDialog
         isOpen={isTagTriggerDialogOpen}
         editedItem={editedItem}
         currentTriggers={triggers.tag}
-        onSubmit={onTriggersChange}
+        onAdd={onTriggerAdded}
+        onEdit={onTriggerEdited}
         onClose={onCloseDialog}
       />
     </>
