@@ -1,4 +1,6 @@
+import BitriseYmlApi from '../api/BitriseYmlApi';
 import { BitriseYml, PipelineModel, Stages } from '../models/BitriseYml';
+import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 import PipelineService from './PipelineService';
 
 describe('PipelineService', () => {
@@ -311,6 +313,136 @@ describe('PipelineService', () => {
       };
 
       expect(PipelineService.convertToGraphPipeline(pipeline, stages)).toEqual(expected);
+    });
+  });
+
+  describe('create', () => {
+    it('should create a pipeline with empty workflows if base pipeline is missing', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+        `,
+      });
+
+      PipelineService.create('new_pipeline');
+
+      const expectedYml = yaml`
+        pipelines:
+          new_pipeline:
+            workflows: {}
+        `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should create a pipeline based on an other graph pipeline', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            base_pipeline:
+              workflows:
+                wf1: {}
+                wf2:
+                  depends_on: [ wf1 ]
+        `,
+      });
+
+      PipelineService.create('new_pipeline', 'base_pipeline');
+
+      const expectedYml = yaml`
+        pipelines:
+          base_pipeline:
+            workflows:
+              wf1: {}
+              wf2:
+                depends_on: [ wf1 ]
+          new_pipeline:
+            workflows:
+              wf1: {}
+              wf2:
+                depends_on: [ wf1 ]
+        `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should create a pipeline based on a staged pipeline', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            base_pipeline:
+              title: Staged Pipeline
+              stages:
+              - st1: {}
+              - st2: {}
+          stages:
+            st1:
+              workflows:
+              - wf1: {}
+              - wf2: {}
+            st2:
+              workflows:
+              - wf3: {}
+          workflows:
+            wf1: {}
+            wf2: {}
+            wf3: {}
+        `,
+      });
+
+      PipelineService.create('new_pipeline', 'base_pipeline');
+
+      const expectedYml = yaml`
+        pipelines:
+          base_pipeline:
+            title: Staged Pipeline
+            stages:
+            - st1: {}
+            - st2: {}
+          new_pipeline:
+            title: Staged Pipeline
+            workflows:
+              wf1: {}
+              wf2: {}
+              wf3:
+                depends_on:
+                - wf1
+                - wf2
+        stages:
+          st1:
+            workflows:
+            - wf1: {}
+            - wf2: {}
+          st2:
+            workflows:
+            - wf3: {}
+        workflows:
+          wf1: {}
+          wf2: {}
+          wf3: {}
+        `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the base pipeline is not found', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            base_pipeline:
+              workflows:
+                wf1: {}
+                wf2:
+                  depends_on: [ wf1 ]
+        `,
+      });
+
+      expect(() => PipelineService.create('new_pipeline', 'non_existent_pipeline')).toThrow(
+        "Base pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
     });
   });
 });

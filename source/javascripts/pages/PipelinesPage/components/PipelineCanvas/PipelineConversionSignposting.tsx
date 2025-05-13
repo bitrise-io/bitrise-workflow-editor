@@ -46,7 +46,7 @@ const PipelineConversionSignposting = () => {
       newPipelineId = [selectedPipeline, 'converted', suffix].join('_');
     }
 
-    bitriseYmlStore.getState().createPipeline(newPipelineId, selectedPipeline);
+    PipelineService.create(newPipelineId, selectedPipeline);
     trackConvertPipelineBannerCtaClicked(newPipelineId, selectedPipeline);
 
     if (PipelineService.hasStepInside(newPipelineId, 'pull-intermediate-files', bitriseYmlStore.getState().yml)) {

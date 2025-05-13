@@ -23,7 +23,6 @@ import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
 import GraphPipelineWorkflowService from './GraphPipelineWorkflowService';
-import PipelineService from './PipelineService';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
@@ -424,23 +423,6 @@ function removeChainedWorkflow(
   if (shouldRemoveField(copy.workflows[parentWorkflowId][placement], yml.workflows?.[parentWorkflowId]?.[placement])) {
     delete copy.workflows[parentWorkflowId][placement];
   }
-
-  return copy;
-}
-
-function createPipeline(pipelineId: string, yml: BitriseYml, basePipelineId?: string): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  let basePipeline: PipelineModel = PipelineService.EMPTY_PIPELINE;
-
-  if (basePipelineId && copy.pipelines?.[basePipelineId]) {
-    basePipeline = copy.pipelines[basePipelineId];
-  }
-
-  copy.pipelines = {
-    ...copy.pipelines,
-    [pipelineId]: PipelineService.convertToGraphPipeline(basePipeline, yml.stages), // NOTE: If the base pipeline is a graph pipeline, it will be returned as is
-  };
 
   return copy;
 }
@@ -1359,7 +1341,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  createPipeline,
   renamePipeline,
   updatePipeline,
   deletePipeline,

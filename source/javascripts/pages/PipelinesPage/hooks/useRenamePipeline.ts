@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from './usePipelineSelector';
@@ -12,8 +13,7 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
   const [nextPipelineId, setNextPipelineId] = useState(selectedPipelineId);
   const [prevPipelineId, setPrevPipelineId] = useState(selectedPipelineId);
 
-  const { createPipeline, renamePipeline, deletePipeline } = useBitriseYmlStore((s) => ({
-    createPipeline: s.createPipeline,
+  const { renamePipeline, deletePipeline } = useBitriseYmlStore((s) => ({
     renamePipeline: s.renamePipeline,
     deletePipeline: s.deletePipeline,
   }));
@@ -43,13 +43,13 @@ const useRenamePipeline = (onChange?: (newPipelineId: string) => void) => {
         setIsRenaming(true);
 
         renamePipeline(selectedPipelineId, newPipelineId);
-        createPipeline(selectedPipelineId, newPipelineId);
+        PipelineService.create(selectedPipelineId, newPipelineId);
 
         setNextPipelineId(newPipelineId);
         setPrevPipelineId(selectedPipelineId);
       }
     },
-    [createPipeline, renamePipeline, selectedPipelineId],
+    [renamePipeline, selectedPipelineId],
   );
 };
 

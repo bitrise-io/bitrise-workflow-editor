@@ -53,13 +53,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      createPipeline(pipelineId: string, basePipelineId?: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.createPipeline(pipelineId, state.yml, basePipelineId),
-          };
-        });
-      },
       deletePipeline(pipelineId: string) {
         return set((state) => {
           return {

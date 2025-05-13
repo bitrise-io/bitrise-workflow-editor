@@ -7,6 +7,7 @@ import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepC
 import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
 import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
+import PipelineService from '@/core/services/PipelineService';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
@@ -34,8 +35,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setStepBundleId,
   } = usePipelinesPageStore();
 
-  const { createPipeline, getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
-    createPipeline: s.createPipeline,
+  const { getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
     getUniqueStepIds: s.getUniqueStepIds,
     addChainedWorkflow: s.addChainedWorkflow,
     addWorkflowToPipeline: s.addWorkflowToPipeline,
@@ -91,7 +91,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.CREATE_PIPELINE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreatePipeline={createPipeline}
+          onCreatePipeline={PipelineService.create}
         />
       )}
 

@@ -2,6 +2,8 @@ import { omit, uniq } from 'es-toolkit';
 
 import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
+import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import YamlUtils from '../utils/YamlUtils';
 import StepService from './StepService';
 import WorkflowService from './WorkflowService';
 
@@ -114,6 +116,35 @@ function convertToGraphPipeline(pipeline: PipelineModel, stages: Stages = {}): P
   return { ...newPipeline, workflows };
 }
 
+function create(id: string, baseId?: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const basePipelineNode = YamlUtils.getMapIn(doc, ['pipelines', baseId]);
+
+    if (baseId && !basePipelineNode) {
+      throw new Error(`Base pipeline ${baseId} not found. Ensure that the pipeline exists in the 'pipelines' section.`);
+    }
+
+    if (baseId && basePipelineNode) {
+      const basePipelineJson = basePipelineNode.toJSON();
+
+      if (isGraph(basePipelineJson)) {
+        doc.setIn(['pipelines', id], basePipelineNode.clone());
+        return doc;
+      }
+
+      const stages = YamlUtils.getMapIn(doc, ['stages'])?.toJSON();
+      const newPipelineJson = convertToGraphPipeline(basePipelineJson, stages);
+      const newPipelineNode = doc.createNode(newPipelineJson, { aliasDuplicateObjects: false });
+
+      doc.setIn(['pipelines', id], newPipelineNode);
+      return doc;
+    }
+
+    doc.setIn(['pipelines', id], doc.createNode(EMPTY_PIPELINE));
+    return doc;
+  });
+}
+
 export default {
   isGraph,
   getPipeline,
@@ -124,4 +155,5 @@ export default {
   numberOfStages,
   convertToGraphPipeline,
   EMPTY_PIPELINE,
+  create,
 };
