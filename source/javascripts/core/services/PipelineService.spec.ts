@@ -489,4 +489,88 @@ describe('PipelineService', () => {
       );
     });
   });
+
+  describe('updatePipelineField', () => {
+    it('should update an existing pipeline field', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              title: Old Title
+              workflows: {}
+        `,
+      });
+
+      PipelineService.updatePipelineField('existing_pipeline', 'title', 'New Title');
+
+      const expectedYml = yaml`
+        pipelines:
+          existing_pipeline:
+            title: New Title
+            workflows: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should set a non-existing pipeline field', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              workflows: {}
+        `,
+      });
+
+      PipelineService.updatePipelineField('existing_pipeline', 'title', 'New Title');
+
+      const expectedYml = yaml`
+        pipelines:
+          existing_pipeline:
+            workflows: {}
+            title: New Title
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should delete the field if the value is empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              title: Old Title
+              workflows: {}
+        `,
+      });
+
+      PipelineService.updatePipelineField('existing_pipeline', 'title', '');
+
+      const expectedYml = yaml`
+        pipelines:
+          existing_pipeline:
+            workflows: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the pipeline does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              workflows: {}
+        `,
+      });
+
+      expect(() => PipelineService.updatePipelineField('non_existent_pipeline', 'title', 'New Title')).toThrow(
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+  });
 });

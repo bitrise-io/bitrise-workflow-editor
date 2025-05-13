@@ -645,55 +645,6 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('updatePipeline', () => {
-    it('should update the given pipeline', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: { title: 'title', summary: 'summary' },
-          pl2: { title: 'title', summary: 'summary' },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        pipelines: {
-          pl1: {
-            summary: 'summary',
-            description: 'description',
-            status_report_name: 'Executing <target_id> for <project_title>',
-          },
-          pl2: { title: 'title', summary: 'summary' },
-        },
-      };
-
-      const actualYml = BitriseYmlService.updatePipeline(
-        'pl1',
-        {
-          title: '',
-          description: 'description',
-          status_report_name: 'Executing <target_id> for <project_title>',
-        },
-        sourceYml,
-      );
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    describe('when pipeline does not exists', () => {
-      it('should return the original yml', () => {
-        const sourceAndExpectedYml: BitriseYml = {
-          format_version: '',
-          pipelines: { pl1: { title: 'title', summary: 'summary' } },
-        };
-
-        const actualYml = BitriseYmlService.updatePipeline('pl2', { description: 'description' }, sourceAndExpectedYml);
-
-        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-      });
-    });
-  });
-
   describe('deletePipeline', () => {
     it('should remove a pipeline in the whole yml completely', () => {
       const sourceYml: BitriseYml = {

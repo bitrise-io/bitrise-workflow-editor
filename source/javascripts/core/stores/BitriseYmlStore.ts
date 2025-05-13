@@ -6,7 +6,6 @@ import { combine } from 'zustand/middleware';
 import {
   BitriseYml,
   EnvironmentItemModel,
-  PipelineModel,
   StepBundleModel,
   TriggerMap,
   TriggersModel,
@@ -78,13 +77,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.removeWorkflowFromPipeline(pipelineId, workflowId, state.yml),
-          };
-        });
-      },
-      updatePipeline(pipelineId: string, pipeline: PipelineModel) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updatePipeline(pipelineId, pipeline, state.yml),
           };
         });
       },

@@ -158,6 +158,23 @@ function renamePipeline(id: string, newName: string) {
   });
 }
 
+type Key = keyof PipelineModel;
+type Value<T extends Key> = PipelineModel[T];
+function updatePipelineField<T extends Key>(id: string, field: T, value: Value<T>) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const pipeline = getPipelineOrThrowError(id, doc);
+
+    if (value) {
+      pipeline.flow = false;
+      pipeline.set(field, value);
+    } else {
+      pipeline.delete(field);
+    }
+
+    return doc;
+  });
+}
+
 export default {
   isGraph,
   getPipeline,
@@ -170,4 +187,5 @@ export default {
   EMPTY_PIPELINE,
   createPipeline,
   renamePipeline,
+  updatePipelineField,
 };

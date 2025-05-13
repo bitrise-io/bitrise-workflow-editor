@@ -7,7 +7,6 @@ import {
   EnvironmentItemOptionsModel,
   EnvModel,
   Meta,
-  PipelineModel,
   Pipelines,
   PipelineWorkflows,
   Stages,
@@ -423,22 +422,6 @@ function removeChainedWorkflow(
   if (shouldRemoveField(copy.workflows[parentWorkflowId][placement], yml.workflows?.[parentWorkflowId]?.[placement])) {
     delete copy.workflows[parentWorkflowId][placement];
   }
-
-  return copy;
-}
-
-function updatePipeline(pipelineId: string, pipeline: PipelineModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  mapValues(pipeline, (value: string | number, key: never) => {
-    if (copy.pipelines?.[pipelineId]) {
-      if (value || (value === 0 && key === 'priority')) {
-        copy.pipelines[pipelineId][key] = value as never;
-      } else if (shouldRemoveField(value, yml.pipelines?.[pipelineId]?.[key])) {
-        delete copy.pipelines[pipelineId][key];
-      }
-    }
-  });
 
   return copy;
 }
@@ -1309,7 +1292,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  updatePipeline,
   deletePipeline,
   deletePipelines,
   addWorkflowToPipeline,
