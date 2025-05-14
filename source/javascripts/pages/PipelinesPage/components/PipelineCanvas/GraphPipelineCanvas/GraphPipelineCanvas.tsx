@@ -17,7 +17,6 @@ import { isEqual } from 'es-toolkit';
 import { useCallback, useEffect, useState } from 'react';
 
 import PipelineService from '@/core/services/PipelineService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
@@ -52,15 +51,15 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [nodes, setNodes] = useNodesState(autoLayoutingGraphNodes(workflows, initial.nodes));
 
-  const { removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
-    removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
-  }));
-
   const handleEdgesDelete: OnEdgesDelete = useCallback(
     (deletedEdges) => {
-      deletedEdges.forEach((edge) => removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source));
+      deletedEdges.forEach((edge) => {
+        if (workflows.some((workflow) => workflow.id === edge.target)) {
+          PipelineService.removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
+        }
+      });
     },
-    [removePipelineWorkflowDependency, selectedPipeline],
+    [selectedPipeline, workflows],
   );
 
   const handleNodesDelete: OnNodesDelete = useCallback(

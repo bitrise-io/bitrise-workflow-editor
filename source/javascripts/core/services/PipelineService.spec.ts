@@ -1038,4 +1038,92 @@ describe('PipelineService', () => {
       );
     });
   });
+
+  describe('removePipelineWorkflowDependency', () => {
+    it('should remove the dependency from the workflow in the given pipeline', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+                wf2:
+                  depends_on:
+                  - wf1
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+      });
+
+      PipelineService.removePipelineWorkflowDependency('pipeline1', 'wf2', 'wf1');
+
+      const expectedYml = yaml`
+        pipelines:
+          pipeline1:
+            workflows:
+              wf1: {}
+              wf2: {}
+        workflows:
+          wf1: {}
+          wf2: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the pipeline does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() => PipelineService.removePipelineWorkflowDependency('non_existent_pipeline', 'wf1', 'wf2')).toThrow(
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() =>
+        PipelineService.removePipelineWorkflowDependency('pipeline1', 'non_existent_workflow', 'wf2'),
+      ).toThrow('Workflow non_existent_workflow not found in pipeline pipeline1.');
+    });
+
+    it('should throw an error if the based_on workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+      });
+
+      expect(() =>
+        PipelineService.removePipelineWorkflowDependency('pipeline1', 'wf1', 'non_existent_workflow'),
+      ).toThrow('Workflow non_existent_workflow not found in pipeline pipeline1.');
+    });
+  });
 });

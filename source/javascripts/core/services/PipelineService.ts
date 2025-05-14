@@ -138,6 +138,16 @@ function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string,
   return workflow;
 }
 
+function hasPipelineWorkflowDependsOn(pipelineId: string, workflowId: string, dependsOn: string, doc: Document) {
+  const dependsOns = YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on']);
+
+  if (!dependsOns) {
+    return false;
+  }
+
+  return dependsOns.items.some((item) => isScalar(item) && item.toString() === dependsOn);
+}
+
 function createPipeline(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     if (baseId) {
@@ -262,13 +272,31 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
     getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
     getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
 
-    const dependsOns = YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on'], true);
-
-    if (dependsOns.items.some((item) => isScalar(item) && item.toString() === dependsOn)) {
+    if (hasPipelineWorkflowDependsOn(pipelineId, workflowId, dependsOn, doc)) {
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
-    dependsOns.add(dependsOn);
+    YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on'], true).add(dependsOn);
+
+    return doc;
+  });
+}
+
+function removePipelineWorkflowDependency(pipelineId: string, workflowId: string, dependsOn: string) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
+    getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
+
+    if (!hasPipelineWorkflowDependsOn(pipelineId, workflowId, dependsOn, doc)) {
+      throw new Error(`Workflow ${workflowId} does not depend on ${dependsOn}.`);
+    }
+
+    YamlUtils.deleteNodeByValue(
+      { doc, paths },
+      `pipelines.${pipelineId}.workflows.${workflowId}.depends_on.*`,
+      dependsOn,
+      `pipelines.${pipelineId}.workflows.${workflowId}.depends_on`,
+    );
 
     return doc;
   });
@@ -291,4 +319,5 @@ export default {
   addWorkflowToPipeline,
   removeWorkflowFromPipeline,
   addPipelineWorkflowDependency,
+  removePipelineWorkflowDependency,
 };

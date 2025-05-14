@@ -426,31 +426,6 @@ function removeChainedWorkflow(
   return copy;
 }
 
-function removePipelineWorkflowDependency(
-  pipelineId: string,
-  workflowId: string,
-  dependencyId: string,
-  yml: BitriseYml,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  const workflow = copy.pipelines[pipelineId].workflows[workflowId];
-
-  if (workflow.depends_on) {
-    workflow.depends_on = workflow.depends_on.filter((id) => id !== dependencyId);
-  }
-
-  if (shouldRemoveField(workflow.depends_on, yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.depends_on)) {
-    delete workflow.depends_on;
-  }
-
-  return copy;
-}
-
 function updatePipelineWorkflowConditionAbortPipelineOnFailure(
   pipelineId: string,
   workflowId: string,
@@ -1164,7 +1139,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  removePipelineWorkflowDependency,
   updatePipelineWorkflowConditionAbortPipelineOnFailure,
   updatePipelineWorkflowConditionShouldAlwaysRun,
   updatePipelineWorkflowConditionRunIfExpression,
