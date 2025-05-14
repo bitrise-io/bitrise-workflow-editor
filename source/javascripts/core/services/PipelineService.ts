@@ -1,5 +1,5 @@
 import { omit, uniq } from 'es-toolkit';
-import { Document } from 'yaml';
+import { Document, isMap } from 'yaml';
 
 import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -118,11 +118,24 @@ function convertToGraphPipeline(pipeline: PipelineModel, stages: Stages = {}): P
 }
 
 function getPipelineOrThrowError(id: string, doc: Document) {
-  const basePipelineNode = YamlUtils.getMapIn(doc, ['pipelines', id]);
-  if (!basePipelineNode) {
+  const pipeline = YamlUtils.getMapIn(doc, ['pipelines', id]);
+
+  if (!pipeline) {
     throw new Error(`Pipeline ${id} not found. Ensure that the pipeline exists in the 'pipelines' section.`);
   }
-  return basePipelineNode;
+
+  return pipeline;
+}
+
+function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string, doc: Document) {
+  const pipeline = getPipelineOrThrowError(pipelineId, doc);
+  const workflow = pipeline.getIn(['workflows', workflowId]);
+
+  if (!workflow || !isMap(workflow)) {
+    throw new Error(`Workflow ${workflowId} not found in pipeline ${pipelineId}.`);
+  }
+
+  return workflow;
 }
 
 function createPipeline(id: string, baseId?: string) {
@@ -191,6 +204,29 @@ function updatePipelineField<T extends Key>(id: string, field: T, value: Value<T
   });
 }
 
+function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn?: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    getPipelineOrThrowError(pipelineId, doc);
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    const workflows = YamlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'], true);
+    workflows.flow = false;
+
+    if (workflows.has(workflowId)) {
+      throw new Error(`Workflow ${workflowId} already exists in pipeline ${pipelineId}.`);
+    }
+
+    if (dependsOn) {
+      getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
+      workflows.setIn([workflowId], { depends_on: [dependsOn] });
+    } else {
+      workflows.setIn([workflowId], {});
+    }
+
+    return doc;
+  });
+}
+
 export default {
   isGraph,
   getPipeline,
@@ -205,4 +241,5 @@ export default {
   renamePipeline,
   deletePipeline,
   updatePipelineField,
+  addWorkflowToPipeline,
 };

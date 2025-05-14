@@ -45,13 +45,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      addWorkflowToPipeline(pipelineId: string, workflowId: string, parentWorkflowId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.addWorkflowToPipeline(pipelineId, workflowId, state.yml, parentWorkflowId),
-          };
-        });
-      },
       removePipelineWorkflowDependency: (pipelineId: string, workflowId: string, dependencyId: string) => {
         return set((state) => {
           return {

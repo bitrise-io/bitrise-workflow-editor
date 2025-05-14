@@ -35,10 +35,9 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setStepBundleId,
   } = usePipelinesPageStore();
 
-  const { getUniqueStepIds, addChainedWorkflow, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
+  const { getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
     getUniqueStepIds: s.getUniqueStepIds,
     addChainedWorkflow: s.addChainedWorkflow,
-    addWorkflowToPipeline: s.addWorkflowToPipeline,
   }));
 
   const handleAddStep = (cvs: string) => {
@@ -59,7 +58,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
   };
 
   const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
-    addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
+    PipelineService.addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
     closeDialog();
   };
 

@@ -1,4 +1,7 @@
+import { Document } from 'yaml';
+
 import { Pipelines, Stages, Workflows } from '../models/BitriseYml';
+import YamlUtils from '../utils/YamlUtils';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -139,6 +142,16 @@ function countInPipelines(id: string, pipelines?: Pipelines, stages?: Stages) {
   return pipelineIdsWhereWorkflowIsUsed.size;
 }
 
+function getWorkflowOrThrowError(id: string, doc: Document) {
+  const workflow = YamlUtils.getMapIn(doc, ['workflows', id]);
+
+  if (!workflow) {
+    throw new Error(`Workflow ${id} not found. Ensure that the workflow exists in the 'workflows' section.`);
+  }
+
+  return workflow;
+}
+
 export default {
   validateName,
   sanitizeName,
@@ -151,4 +164,5 @@ export default {
   getChainableWorkflows,
   getDependantWorkflows,
   countInPipelines,
+  getWorkflowOrThrowError,
 };
