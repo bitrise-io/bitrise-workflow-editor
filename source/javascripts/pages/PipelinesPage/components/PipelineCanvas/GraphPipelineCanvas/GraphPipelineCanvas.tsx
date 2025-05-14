@@ -16,6 +16,7 @@ import {
 import { isEqual } from 'es-toolkit';
 import { useCallback, useEffect, useState } from 'react';
 
+import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -25,7 +26,7 @@ import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import PlaceholderNode from './components/PlaceholderWorkflowNode';
 import WorkflowNode from './components/WorkflowNode';
 import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
-import { GraphPipelineEdgeType, GraphPipelineNodeType } from './GraphPipelineCanvas.types';
+import { GraphPipelineEdgeType, GraphPipelineNodeType, isWorkflowNode } from './GraphPipelineCanvas.types';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import transformWorkflowsToGraphEntities from './utils/transformWorkflowsToGraphEntities';
@@ -51,12 +52,10 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [nodes, setNodes] = useNodesState(autoLayoutingGraphNodes(workflows, initial.nodes));
 
-  const { addPipelineWorkflowDependency, removeWorkflowFromPipeline, removePipelineWorkflowDependency } =
-    useBitriseYmlStore((s) => ({
-      removeWorkflowFromPipeline: s.removeWorkflowFromPipeline,
-      addPipelineWorkflowDependency: s.addPipelineWorkflowDependency,
-      removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
-    }));
+  const { addPipelineWorkflowDependency, removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
+    addPipelineWorkflowDependency: s.addPipelineWorkflowDependency,
+    removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
+  }));
 
   const handleEdgesDelete: OnEdgesDelete = useCallback(
     (deletedEdges) => {
@@ -67,9 +66,13 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
 
   const handleNodesDelete: OnNodesDelete = useCallback(
     (deletedNodes) => {
-      deletedNodes.forEach((node) => removeWorkflowFromPipeline(selectedPipeline, node.id));
+      deletedNodes.forEach((node) => {
+        if (isWorkflowNode(node)) {
+          PipelineService.removeWorkflowFromPipeline(selectedPipeline, node.id);
+        }
+      });
     },
-    [removeWorkflowFromPipeline, selectedPipeline],
+    [selectedPipeline],
   );
 
   const handleConnect: OnConnect = useCallback(

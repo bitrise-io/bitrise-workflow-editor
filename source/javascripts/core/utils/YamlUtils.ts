@@ -12,19 +12,16 @@ function toDotNotation(paths: unknown[]) {
   return paths.join('.');
 }
 
-function transformRemoveEmptyParentGlob(path: string[], removeEmptyParentGlob: boolean | Glob = false) {
-  let removeEmptyParent: boolean | string[] = false;
+function toArrayNotation(path: string) {
+  return path.split('.');
+}
 
-  if (typeof removeEmptyParentGlob === 'string') {
-    removeEmptyParent = path.slice(0, -1);
-    while (isMatch(toDotNotation(removeEmptyParent.slice(0, -1)), removeEmptyParentGlob)) {
-      removeEmptyParent = removeEmptyParent.slice(0, -1);
-    }
-  } else {
-    removeEmptyParent = removeEmptyParentGlob;
+function removeIfEmpty(doc: Document, path: string[], glob: Glob) {
+  const node = doc.getIn(path);
+  if (isCollection(node) && node.items.length === 0 && isMatch(toDotNotation(path), glob)) {
+    doc.deleteIn(path);
+    removeIfEmpty(doc, path.slice(0, -1), glob);
   }
-
-  return removeEmptyParent;
 }
 
 function isScalarKeyEqual(pair: Pair, key: string): pair is Pair<Scalar> {
@@ -117,7 +114,7 @@ function areDocumentsEqual(a: Document, b: Document) {
 }
 
 function updateKey({ doc, paths }: Args, glob: Glob, newKey: string) {
-  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
+  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
 
   filteredPaths.forEach((path) => {
     if (path.length === 1 && isMap(doc.contents)) {
@@ -135,16 +132,8 @@ function updateKey({ doc, paths }: Args, glob: Glob, newKey: string) {
   });
 }
 
-function deleteKey({ doc, paths }: Args, glob: Glob, removeEmptyParentGlob: boolean | Glob = false) {
-  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
-
-  filteredPaths.forEach((path) => {
-    safeDeleteIn(doc, path, transformRemoveEmptyParentGlob(path, removeEmptyParentGlob));
-  });
-}
-
 function updateValue({ doc, paths }: Args, glob: Glob, newValue: unknown, oldValue?: unknown) {
-  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
+  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
 
   filteredPaths.forEach((path) => {
     const value = doc.getIn(path);
@@ -155,15 +144,39 @@ function updateValue({ doc, paths }: Args, glob: Glob, newValue: unknown, oldVal
   });
 }
 
-function deleteValue({ doc, paths }: Args, glob: Glob, value: unknown, removeEmptyParentGlob: boolean | Glob = false) {
-  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map((path) => path.split('.'));
+function deleteNodeByPath({ doc, paths }: Args, glob: Glob, removeIfEmptyGlob?: Glob) {
+  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
+
+  filteredPaths.sort((a, b) => {
+    return toDotNotation(b).localeCompare(toDotNotation(a), undefined, { numeric: true, sensitivity: 'base' });
+  });
 
   filteredPaths.forEach((path) => {
-    if (doc.getIn(path) !== value) {
+    doc.deleteIn(path);
+
+    if (removeIfEmptyGlob) {
+      removeIfEmpty(doc, path.slice(0, -1), removeIfEmptyGlob);
+    }
+  });
+}
+
+function deleteNodeByValue({ doc, paths }: Args, glob: Glob, value: unknown, removeIfEmptyGlob?: Glob) {
+  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
+
+  filteredPaths.sort((a, b) => {
+    return toDotNotation(b).localeCompare(toDotNotation(a), undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  filteredPaths.forEach((path) => {
+    if (typeof value === 'function' ? !value(doc.getIn(path)) : doc.getIn(path) !== value) {
       return;
     }
 
-    safeDeleteIn(doc, path, transformRemoveEmptyParentGlob(path, removeEmptyParentGlob));
+    doc.deleteIn(path);
+
+    if (removeIfEmptyGlob) {
+      removeIfEmpty(doc, path.slice(0, -1), removeIfEmptyGlob);
+    }
   });
 }
 
@@ -219,13 +232,13 @@ export default {
   getSeqIn,
   getMapIn,
   updateKey,
-  deleteKey,
   updateValue,
-  deleteValue,
   safeDeleteIn,
   updateMapKey,
   collectPaths,
-  areDocumentsEqual,
   toDotNotation,
+  deleteNodeByPath,
+  deleteNodeByValue,
+  areDocumentsEqual,
   getPairInSeqByKey,
 };

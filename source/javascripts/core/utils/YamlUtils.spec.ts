@@ -8,6 +8,8 @@ import YamlExample from './YamlUtils.yaml';
 const orinalYamlDocument = parseDocument(YamlExample);
 
 const asArr = (path: string) => path.split('.');
+const asYaml = (node: unknown) => stringify(node);
+// const asJson = (node: unknown) => (node as Node)?.toJSON();
 
 describe('YamlUtils', () => {
   let ctx: YamlMutatorCtx;
@@ -17,30 +19,6 @@ describe('YamlUtils', () => {
       doc: orinalYamlDocument.clone(),
       paths: YamlUtils.collectPaths(orinalYamlDocument.toJSON()),
     };
-  });
-
-  describe('updateValue', () => {
-    it('should update a value in the document', () => {
-      YamlUtils.updateValue(ctx, 'root', 'new value');
-      expect(ctx.doc.getIn(asArr('root'))).toBe('new value');
-    });
-
-    it('should update a value in the document with a glob', () => {
-      YamlUtils.updateValue(ctx, 'complex_mapping.country.states.*.name', 'new value');
-      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.0.name'))).toBe('new value');
-      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.1.name'))).toBe('new value');
-    });
-
-    it('should update a value in the document with a glob and a condition', () => {
-      YamlUtils.updateValue(ctx, 'complex_mapping.country.states.*.name', 'new value', 'Texas');
-      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.0.name'))).toBe('California');
-      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.1.name'))).toBe('new value');
-    });
-
-    it('should not update when the path is not found', () => {
-      YamlUtils.updateValue(ctx, 'nonexistent', 'new value');
-      expect(ctx.doc.hasIn(asArr('nonexistent'))).toBe(false);
-    });
   });
 
   describe('updateKey', () => {
@@ -72,6 +50,169 @@ describe('YamlUtils', () => {
     it('should not update when the path is not found', () => {
       YamlUtils.updateKey(ctx, 'nonexistent', 'new_key');
       expect(ctx.doc.hasIn(asArr('nonexistent'))).toBe(false);
+    });
+  });
+
+  describe('updateValue', () => {
+    it('should update a value in the document', () => {
+      YamlUtils.updateValue(ctx, 'root', 'new value');
+      expect(ctx.doc.getIn(asArr('root'))).toBe('new value');
+    });
+
+    it('should update a value in the document with a glob', () => {
+      YamlUtils.updateValue(ctx, 'complex_mapping.country.states.*.name', 'new value');
+      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.0.name'))).toBe('new value');
+      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.1.name'))).toBe('new value');
+    });
+
+    it('should update a value in the document with a glob and a condition', () => {
+      YamlUtils.updateValue(ctx, 'complex_mapping.country.states.*.name', 'new value', 'Texas');
+      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.0.name'))).toBe('California');
+      expect(ctx.doc.getIn(asArr('complex_mapping.country.states.1.name'))).toBe('new value');
+    });
+
+    it('should not update when the path is not found', () => {
+      YamlUtils.updateValue(ctx, 'nonexistent', 'new value');
+      expect(ctx.doc.hasIn(asArr('nonexistent'))).toBe(false);
+    });
+  });
+
+  describe('deleteNodeByPath', () => {
+    it('should delete a node in the document', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'root');
+      expect(ctx.doc.hasIn(asArr('root'))).toBe(false);
+      expect(ctx.doc.getIn(asArr('root'))).toBeUndefined();
+    });
+
+    it('should delete a node in the document with a glob', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.name');
+      expect(ctx.doc.hasIn(asArr('complex_mapping.country.states.0.name'))).toBe(false);
+      expect(ctx.doc.hasIn(asArr('complex_mapping.country.states.1.name'))).toBe(false);
+      expect(ctx.doc.hasIn(asArr('complex_mapping.country.states.0.capital'))).toBe(true);
+      expect(ctx.doc.hasIn(asArr('complex_mapping.country.states.1.capital'))).toBe(true);
+    });
+
+    it('should not delete when the path is not found', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'nonexistent');
+      expect(ctx.doc.hasIn(asArr('nonexistent'))).toBe(false);
+    });
+
+    it('should delete item in a sequence by index', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'sequence_example.1');
+      expect(asYaml(ctx.doc.getIn(asArr('sequence_example')))).toEqual(yaml`
+        - apple
+        - cherry
+      `);
+    });
+
+    it('should delete item in a sequence by glob', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'sequence_example.*');
+      expect(asYaml(ctx.doc.getIn(asArr('sequence_example')))).toEqual(yaml`
+        []
+      `);
+    });
+
+    it('should not delete empty parent when removeIfEmptyGlob is not provided', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.name');
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.capital');
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country')))).toEqual(yaml`
+        name: "United States"
+        states:
+          - {}
+          - {}
+      `);
+    });
+
+    it('should delete empty parents recursively when removeIfEmptyGlob is "*"', () => {
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.name', '*');
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.capital', '*');
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country')))).toEqual(yaml`
+        name: "United States"
+      `);
+    });
+
+    it('should delete empty parent when removeIfEmptyGlob is matching its path', () => {
+      const removeIfEmptyGlob = 'complex_mapping.country.states.*';
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.name', removeIfEmptyGlob);
+      YamlUtils.deleteNodeByPath(ctx, 'complex_mapping.country.states.*.capital', removeIfEmptyGlob);
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country')))).toEqual(yaml`
+        name: "United States"
+        states: []
+      `);
+    });
+  });
+
+  describe('deleteNodeByValue', () => {
+    it('should delete a node by value in the document', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'root', 'root value');
+      expect(ctx.doc.hasIn(asArr('root'))).toBe(false);
+      expect(ctx.doc.getIn(asArr('root'))).toBeUndefined();
+    });
+
+    it('should delete a value from a sequence in the document', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'sequence_example.*', 'banana');
+      expect(asYaml(ctx.doc.getIn(asArr('sequence_example')))).toEqual(yaml`
+        - apple
+        - cherry
+      `);
+    });
+
+    it('should delete a node by value in a map in the document', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'event.*', 'Conference');
+      expect(asYaml(ctx.doc.getIn(asArr('event')))).toEqual(yaml`
+        date: 2023-10-15
+        time: 10:00:00
+      `);
+    });
+
+    it('should delete node by glob path and value from a map in the document', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'Texas');
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country.states')))).toEqual(yaml`
+        - name: "California"
+          capital: "Sacramento"
+        - capital: "Austin"
+      `);
+    });
+
+    it('should not delete empty parent when removeIfEmptyGlob is not provided', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'Texas');
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.capital', 'Austin');
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country.states')))).toEqual(yaml`
+        - name: "California"
+          capital: "Sacramento"
+        - {}
+      `);
+    });
+
+    it('should delete empty parent when removeIfEmptyGlob is "*"', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'Texas', '*');
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.capital', 'Austin', '*');
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country.states')))).toEqual(yaml`
+        - name: "California"
+          capital: "Sacramento"
+      `);
+    });
+
+    it('should delete empty parent recursively when removeIfEmptyGlob is "*"', () => {
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'Texas', '*');
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.capital', 'Austin', '*');
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'California', '*');
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.capital', 'Sacramento', '*');
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country')))).toEqual(yaml`
+        name: "United States"
+      `);
+    });
+
+    it('should delete empty parent when removeIfEmptyGlob is matching its path', () => {
+      const removeIfEmptyGlob = 'complex_mapping.country.states.*';
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'Texas', removeIfEmptyGlob);
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.capital', 'Austin', removeIfEmptyGlob);
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.name', 'California', removeIfEmptyGlob);
+      YamlUtils.deleteNodeByValue(ctx, 'complex_mapping.country.states.*.capital', 'Sacramento', removeIfEmptyGlob);
+      expect(asYaml(ctx.doc.getIn(asArr('complex_mapping.country')))).toEqual(yaml`
+        name: "United States"
+        states: []
+      `);
     });
   });
 

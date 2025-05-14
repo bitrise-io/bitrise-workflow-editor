@@ -455,8 +455,8 @@ describe('PipelineService', () => {
             old_pipeline:
               workflows: {}
           trigger_map:
-          - push:
-              pipeline: old_pipeline
+          - type: push
+            pipeline: old_pipeline
         `,
       });
 
@@ -467,8 +467,8 @@ describe('PipelineService', () => {
           new_pipeline:
             workflows: {}
         trigger_map:
-        - push:
-            pipeline: new_pipeline
+        - type: push
+          pipeline: new_pipeline
       `;
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
@@ -501,8 +501,8 @@ describe('PipelineService', () => {
             another_pipeline:
               workflows: {}
           trigger_map:
-          - push:
-              pipeline: pipeline_to_delete
+          - type: push
+            pipeline: pipeline_to_delete
         `,
       });
 
@@ -529,12 +529,12 @@ describe('PipelineService', () => {
             pipeline3:
               workflows: {}
           trigger_map:
-          - push:
-              pipeline: pipeline1
-          - pull_request:
-              pipeline: pipeline2
-          - tag:
-              pipeline: pipeline3
+          - type: push
+            pipeline: pipeline1
+          - type: pull_request
+            pipeline: pipeline2
+          - type: tag
+            pipeline: pipeline3
         `,
       });
 
@@ -545,8 +545,8 @@ describe('PipelineService', () => {
           pipeline3:
             workflows: {}
         trigger_map:
-        - tag:
-            pipeline: pipeline3
+        - type: tag
+          pipeline: pipeline3
       `;
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
@@ -563,10 +563,10 @@ describe('PipelineService', () => {
             pipeline2:
               workflows: {}
           trigger_map:
-          - push:
-              pipeline: pipeline1
-          - pull_request:
-              pipeline: pipeline2
+          - type: push
+            pipeline: pipeline1
+          - type: pull_request
+            pipeline: pipeline2
         `,
       });
 
@@ -806,6 +806,108 @@ describe('PipelineService', () => {
       expect(() => PipelineService.addWorkflowToPipeline('pipeline1', 'wf2', 'wf1')).toThrow(
         'Workflow wf1 not found in pipeline pipeline1.',
       );
+    });
+  });
+
+  describe('removeWorkflowFromPipeline', () => {
+    it('should remove the workflow and references from the given pipeline', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+                wf2:
+                  depends_on:
+                  - wf1
+            pipeline2:
+              workflows:
+                wf3: {}
+          workflows:
+            wf1: {}
+            wf2: {}
+            wf3: {}
+        `,
+      });
+
+      PipelineService.removeWorkflowFromPipeline('pipeline1', 'wf1');
+      PipelineService.removeWorkflowFromPipeline('pipeline2', 'wf3');
+
+      const expectedYml = yaml`
+        pipelines:
+          pipeline1:
+            workflows:
+              wf2: {}
+          pipeline2:
+            workflows: {}
+        workflows:
+          wf1: {}
+          wf2: {}
+          wf3: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the pipeline does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() => PipelineService.removeWorkflowFromPipeline('non_existent_pipeline', 'wf1')).toThrow(
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() => PipelineService.removeWorkflowFromPipeline('pipeline1', 'non_existent_workflow')).toThrow(
+        'Workflow non_existent_workflow not found in pipeline pipeline1.',
+      );
+    });
+
+    it('should NOT remove the workflows field if it becomes empty after removal', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      PipelineService.removeWorkflowFromPipeline('pipeline1', 'wf1');
+
+      const expectedYml = yaml`
+        pipelines:
+          pipeline1:
+            workflows: {}
+        workflows:
+          wf1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
     });
   });
 });

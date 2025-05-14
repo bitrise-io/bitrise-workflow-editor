@@ -179,8 +179,13 @@ function deletePipeline(ids: string | string[]) {
 
     pipelines.forEach((id) => {
       getPipelineOrThrowError(id, doc);
-      YamlUtils.deleteKey({ doc, paths }, `pipelines.${id}`, true);
-      YamlUtils.deleteValue({ doc, paths }, `trigger_map.*.pipeline`, id, true);
+
+      const isConnectedToPipeline = (node: unknown) => {
+        return isMap(node) && node.get('pipeline') === id;
+      };
+
+      YamlUtils.deleteNodeByPath({ doc, paths }, `pipelines.${id}`, '*');
+      YamlUtils.deleteNodeByValue({ doc, paths }, `trigger_map.*`, isConnectedToPipeline, '*');
     });
 
     return doc;
@@ -227,6 +232,27 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
   });
 }
 
+function removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
+
+    YamlUtils.deleteNodeByPath(
+      { doc, paths },
+      `pipelines.${pipelineId}.workflows.${workflowId}`,
+      `pipelines.${pipelineId}.workflows.${workflowId}`,
+    );
+
+    YamlUtils.deleteNodeByValue(
+      { doc, paths },
+      `pipelines.${pipelineId}.workflows.*.depends_on.*`,
+      workflowId,
+      `pipelines.${pipelineId}.workflows.*.depends_on`,
+    );
+
+    return doc;
+  });
+}
+
 export default {
   isGraph,
   getPipeline,
@@ -242,4 +268,5 @@ export default {
   deletePipeline,
   updatePipelineField,
   addWorkflowToPipeline,
+  removeWorkflowFromPipeline,
 };

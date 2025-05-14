@@ -52,13 +52,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.removeWorkflowFromPipeline(pipelineId, workflowId, state.yml),
-          };
-        });
-      },
       updatePipelineTriggers(pipelineId: string, triggers: TriggersModel) {
         return set((state) => {
           return {
