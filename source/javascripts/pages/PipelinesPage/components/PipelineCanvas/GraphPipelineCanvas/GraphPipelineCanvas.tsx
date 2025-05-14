@@ -52,8 +52,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [nodes, setNodes] = useNodesState(autoLayoutingGraphNodes(workflows, initial.nodes));
 
-  const { addPipelineWorkflowDependency, removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
-    addPipelineWorkflowDependency: s.addPipelineWorkflowDependency,
+  const { removePipelineWorkflowDependency } = useBitriseYmlStore((s) => ({
     removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
   }));
 
@@ -76,8 +75,8 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   );
 
   const handleConnect: OnConnect = useCallback(
-    (params) => addPipelineWorkflowDependency(selectedPipeline, params.target, params.source),
-    [addPipelineWorkflowDependency, selectedPipeline],
+    (params) => PipelineService.addPipelineWorkflowDependency(selectedPipeline, params.target, params.source),
+    [selectedPipeline],
   );
 
   const handleEdgeMouseEnter: EdgeMouseHandler = useCallback(

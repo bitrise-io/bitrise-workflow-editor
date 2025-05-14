@@ -38,13 +38,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Pipeline related actions
-      addPipelineWorkflowDependency(pipelineId: string, workflowId: string, dependencyId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.addPipelineWorkflowDependency(pipelineId, workflowId, dependencyId, state.yml),
-          };
-        });
-      },
       removePipelineWorkflowDependency: (pipelineId: string, workflowId: string, dependencyId: string) => {
         return set((state) => {
           return {

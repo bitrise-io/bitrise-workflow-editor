@@ -1,5 +1,5 @@
 import { omit, uniq } from 'es-toolkit';
-import { Document, isMap } from 'yaml';
+import { Document, isMap, isScalar } from 'yaml';
 
 import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -253,6 +253,27 @@ function removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
   });
 }
 
+function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, dependsOn: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    if (dependsOn === workflowId) {
+      throw new Error(`Workflow ${workflowId} cannot depend on itself.`);
+    }
+
+    getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
+    getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
+
+    const dependsOns = YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on'], true);
+
+    if (dependsOns.items.some((item) => isScalar(item) && item.toString() === dependsOn)) {
+      throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
+    }
+
+    dependsOns.add(dependsOn);
+
+    return doc;
+  });
+}
+
 export default {
   isGraph,
   getPipeline,
@@ -269,4 +290,5 @@ export default {
   updatePipelineField,
   addWorkflowToPipeline,
   removeWorkflowFromPipeline,
+  addPipelineWorkflowDependency,
 };
