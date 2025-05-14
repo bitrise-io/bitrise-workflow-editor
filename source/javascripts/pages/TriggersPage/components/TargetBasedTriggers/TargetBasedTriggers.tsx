@@ -1,6 +1,8 @@
 import {
-  ControlButton,
+  Box,
+  Checkbox,
   EmptyState,
+  IconButton,
   Link,
   SearchInput,
   Table,
@@ -11,16 +13,25 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from '@bitrise/bitkit';
-import { AriaAttributes, useState } from 'react';
+import { AriaAttributes, useMemo, useState } from 'react';
 
 import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
-import { TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
-import useNavigation from '@/hooks/useNavigation';
+import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
+import { TargetBasedTrigger, TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
+import TriggerService from '@/core/services/TriggerService';
 import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 
+import EditTargetBasedTriggerDialog from './EditTargetBasedTriggerDialog';
+
 const TargetBasedTriggers = () => {
-  const { replace } = useNavigation();
+  const {
+    isOpen: isEditTriggerDialogOpen,
+    onOpen: openEditTriggerDialog,
+    onClose: closeEditTriggerDialog,
+  } = useDisclosure();
+  const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
   const [filterString, setFilterString] = useState('');
   const [sortProps, setSortProps] = useState<{
@@ -32,37 +43,66 @@ const TargetBasedTriggers = () => {
   });
 
   const pipelineableTriggers = useAllTargetBasedTriggers();
-
-  const filteredItems = pipelineableTriggers.filter((item) => {
+  const filteredTriggers = useMemo(() => {
     const lowerCaseFilterString = filterString.toLowerCase();
-    const matchingValues = Object.values(item).filter((value) => {
-      if (typeof value === 'string' && value.toLowerCase().includes(lowerCaseFilterString)) {
-        return true;
-      }
-      return false;
+    return pipelineableTriggers.filter((item) => {
+      const matchingValues = Object.values(item).filter(
+        (value) => typeof value === 'string' && value.toLowerCase().includes(lowerCaseFilterString),
+      );
+      return matchingValues.length > 0 || TYPE_MAP[item.triggerType].toLowerCase().includes(lowerCaseFilterString);
     });
-    return matchingValues.length > 0 || TYPE_MAP[item.triggerType].toLowerCase().includes(lowerCaseFilterString);
-  });
+  }, [filterString, pipelineableTriggers]);
 
-  filteredItems.sort((a, b) => {
-    const aItem = {
-      ...a,
-      sourceId: a.source.split('#')[1],
-    };
+  const sortedFilteredTriggers = useMemo(() => {
+    return [...filteredTriggers].sort((a, b) => {
+      const getCompareValue = (item: TargetBasedTrigger) => {
+        const sourceId = item.source.split('#')[1];
+        return sortProps.condition === 'sourceId' ? sourceId : item.triggerType;
+      };
 
-    const bItem = {
-      ...b,
-      sourceId: b.source.split('#')[1],
-    };
+      const aValue = getCompareValue(a);
+      const bValue = getCompareValue(b);
 
-    if (aItem[sortProps.condition] > bItem[sortProps.condition]) {
-      return sortProps.direction === 'ascending' ? 1 : -1;
-    }
-    if (aItem[sortProps.condition] < bItem[sortProps.condition]) {
-      return sortProps.direction === 'ascending' ? -1 : 1;
-    }
-    return 0;
-  });
+      const modifier = sortProps.direction === 'ascending' ? 1 : -1;
+      if (aValue > bValue) {
+        return modifier;
+      }
+      if (aValue < bValue) {
+        return -modifier;
+      }
+      return 0;
+    });
+  }, [filteredTriggers, sortProps]);
+
+  const handleOpenEditTriggerDialog = (trigger: TargetBasedTrigger) => {
+    setEditedItem(trigger);
+    openEditTriggerDialog();
+  };
+
+  const handleActiveChange = (trigger: TargetBasedTrigger) => {
+    const updatedTrigger = { ...trigger, isActive: !trigger.isActive };
+    TriggerService.updateTrigger(updatedTrigger);
+    trackTriggerEnabledToggled(
+      updatedTrigger,
+      trigger.source.startsWith('workflows') ? 'workflow_triggers' : 'pipeline_triggers',
+    );
+  };
+
+  const handleEditTrigger = (trigger: TargetBasedTrigger) => {
+    TriggerService.updateTrigger(trigger);
+    closeEditTriggerDialog();
+    setEditedItem(undefined);
+    trackEditTrigger(trigger);
+  };
+
+  const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
+    TriggerService.removeTrigger(trigger);
+  };
+
+  const handleCloseEditTriggerDialog = () => {
+    closeEditTriggerDialog();
+    setEditedItem(undefined);
+  };
 
   return (
     <>
@@ -102,7 +142,7 @@ const TargetBasedTriggers = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {filteredItems.map((trigger) => {
+                {sortedFilteredTriggers.map((trigger) => {
                   const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
                   return (
                     <Tr key={JSON.stringify(trigger)}>
@@ -122,17 +162,28 @@ const TargetBasedTriggers = () => {
                         />
                       </Td>
                       <Td display="flex" justifyContent="flex-end" alignItems="center">
-                        <ControlButton
-                          aria-label="Edit trigger"
-                          iconName="Pencil"
-                          onClick={() => {
-                            if (source === 'workflows') {
-                              replace('/workflows', { workflow_id: sourceId, tab: 'triggers' });
-                            } else {
-                              replace('/pipelines', { pipeline: sourceId });
-                            }
-                          }}
-                        />
+                        <Box display="flex" alignItems="center">
+                          <Checkbox
+                            marginRight="16"
+                            isChecked={trigger.isActive}
+                            onChange={() => handleActiveChange(trigger)}
+                          >
+                            Active
+                          </Checkbox>
+                          <IconButton
+                            iconName="Pencil"
+                            variant="tertiary"
+                            aria-label="Edit trigger"
+                            onClick={() => handleOpenEditTriggerDialog(trigger)}
+                          />
+                          <IconButton
+                            isDanger
+                            variant="tertiary"
+                            iconName="MinusCircle"
+                            aria-label="Delete trigger"
+                            onClick={() => handleDeleteTrigger(trigger)}
+                          />
+                        </Box>
                       </Td>
                     </Tr>
                   );
@@ -140,6 +191,13 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
+          <EditTargetBasedTriggerDialog
+            isOpen={isEditTriggerDialogOpen}
+            editedItem={editedItem}
+            currentTriggers={pipelineableTriggers}
+            onEdit={handleEditTrigger}
+            onClose={handleCloseEditTriggerDialog}
+          />
         </>
       ) : (
         <EmptyState

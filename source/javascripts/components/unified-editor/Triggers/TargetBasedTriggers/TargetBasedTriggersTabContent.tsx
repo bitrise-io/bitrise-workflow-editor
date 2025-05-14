@@ -6,7 +6,7 @@ import { TargetBasedTrigger, TriggerSource, TriggerType } from '@/core/models/Tr
 import TriggerService from '@/core/services/TriggerService';
 import useTargetBasedTriggers from '@/hooks/useTargetBasedTriggers';
 
-import AddTrigger from './AddOrEditTargetBasedTrigger';
+import AddOrEditTargetBasedTrigger from './AddOrEditTargetBasedTrigger';
 import TargetBasedTriggerNotification from './TargetBasedTriggerNotification';
 import TargetBasedTriggersCard from './TargetBasedTriggersCard';
 
@@ -55,7 +55,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
   return (
     <>
       {triggerType !== undefined && (
-        <AddTrigger
+        <AddOrEditTargetBasedTrigger
           source={source}
           sourceId={sourceId}
           triggerType={triggerType}

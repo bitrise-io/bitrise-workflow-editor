@@ -26,7 +26,7 @@ type Props = {
   onCancel: () => void;
 };
 
-const AddTrigger = (props: Props) => {
+const AddOrEditTargetBasedTrigger = (props: Props) => {
   const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit } = props;
 
   const optionsMap = useMemo(() => TARGET_BASED_OPTIONS_MAP[triggerType], [triggerType]);
@@ -99,6 +99,7 @@ const AddTrigger = (props: Props) => {
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
     if (
+      trigger.uniqueId !== editedItem?.uniqueId &&
       isEqual(trigger.conditions, conditions) &&
       isEqual(trigger.isDraftPr, isDraftPr) &&
       isEqual(trigger.priority, priority)
@@ -192,4 +193,4 @@ const AddTrigger = (props: Props) => {
   );
 };
 
-export default AddTrigger;
+export default AddOrEditTargetBasedTrigger;
