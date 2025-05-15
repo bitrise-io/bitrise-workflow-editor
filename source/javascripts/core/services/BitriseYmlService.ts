@@ -21,7 +21,6 @@ import {
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
-import GraphPipelineWorkflowService from './GraphPipelineWorkflowService';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
@@ -421,88 +420,6 @@ function removeChainedWorkflow(
   // If the chained placement is empty, remove it
   if (shouldRemoveField(copy.workflows[parentWorkflowId][placement], yml.workflows?.[parentWorkflowId]?.[placement])) {
     delete copy.workflows[parentWorkflowId][placement];
-  }
-
-  return copy;
-}
-
-function updatePipelineWorkflowConditionAbortPipelineOnFailure(
-  pipelineId: string,
-  workflowId: string,
-  abortPipelineOnFailureEnabled: boolean,
-  yml: BitriseYml,
-) {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  if (abortPipelineOnFailureEnabled) {
-    copy.pipelines[pipelineId].workflows[workflowId].abort_on_fail = true;
-  } else {
-    delete copy.pipelines[pipelineId].workflows[workflowId].abort_on_fail;
-  }
-
-  return copy;
-}
-
-function updatePipelineWorkflowConditionShouldAlwaysRun(
-  pipelineId: string,
-  workflowId: string,
-  shouldAlwaysRun: string,
-  yml: BitriseYml,
-) {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  if (shouldAlwaysRun === 'workflow') {
-    copy.pipelines[pipelineId].workflows[workflowId].should_always_run = 'workflow';
-  } else {
-    delete copy.pipelines[pipelineId].workflows[workflowId].should_always_run;
-  }
-
-  return copy;
-}
-
-function updatePipelineWorkflowConditionRunIfExpression(
-  pipelineId: string,
-  workflowId: string,
-  runIfExpression: string,
-  yml: BitriseYml,
-) {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  if (runIfExpression !== '') {
-    const runIf = { expression: runIfExpression };
-    copy.pipelines[pipelineId].workflows[workflowId].run_if = runIf;
-  } else {
-    delete copy.pipelines[pipelineId].workflows[workflowId].run_if;
-  }
-
-  return copy;
-}
-
-function updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, parallel: string, yml: BitriseYml) {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.pipelines?.[pipelineId]?.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  const typedParallel = GraphPipelineWorkflowService.asIntegerIfPossible(parallel);
-
-  if (!typedParallel) {
-    delete copy.pipelines[pipelineId].workflows[workflowId].parallel;
-  } else {
-    copy.pipelines[pipelineId].workflows[workflowId].parallel = typedParallel;
   }
 
   return copy;
@@ -1139,10 +1056,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  updatePipelineWorkflowConditionAbortPipelineOnFailure,
-  updatePipelineWorkflowConditionShouldAlwaysRun,
-  updatePipelineWorkflowConditionRunIfExpression,
-  updatePipelineWorkflowParallel,
   updateTriggerMap,
   appendWorkflowEnvVar,
   appendProjectEnvVar,

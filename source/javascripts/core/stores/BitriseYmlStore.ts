@@ -45,53 +45,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(
-        pipelineId: string,
-        workflowId: string,
-        abortPipelineOnFailureEnabled: boolean,
-      ) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updatePipelineWorkflowConditionAbortPipelineOnFailure(
-              pipelineId,
-              workflowId,
-              abortPipelineOnFailureEnabled,
-              state.yml,
-            ),
-          };
-        });
-      },
-      updatePipelineWorkflowConditionRunIfExpression(pipelineId: string, workflowId: string, runIfExpression: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updatePipelineWorkflowConditionRunIfExpression(
-              pipelineId,
-              workflowId,
-              runIfExpression,
-              state.yml,
-            ),
-          };
-        });
-      },
-      updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId: string, workflowId: string, shouldAlwaysRun: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updatePipelineWorkflowConditionShouldAlwaysRun(
-              pipelineId,
-              workflowId,
-              shouldAlwaysRun,
-              state.yml,
-            ),
-          };
-        });
-      },
-      updatePipelineWorkflowParallel(pipelineId: string, workflowId: string, parallel: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updatePipelineWorkflowParallel(pipelineId, workflowId, parallel, state.yml),
-          };
-        });
-      },
 
       // Workflow related actions
       addChainedWorkflow(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainableWorkflowId: string) {

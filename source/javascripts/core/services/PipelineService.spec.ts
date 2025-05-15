@@ -911,6 +911,102 @@ describe('PipelineService', () => {
     });
   });
 
+  describe('updatePipelineWorkflowField', () => {
+    it('should update the workflow field in the given pipeline', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      PipelineService.updatePipelineWorkflowField('pipeline1', 'wf1', 'run_if.expression', '.CI');
+
+      const expectedYml = yaml`
+        pipelines:
+          pipeline1:
+            workflows:
+              wf1:
+                run_if:
+                  expression: .CI
+        workflows:
+          wf1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove the workflow field if the value is empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1:
+                  run_if:
+                    expression: .CI
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      PipelineService.updatePipelineWorkflowField('pipeline1', 'wf1', 'run_if.expression', '');
+
+      const expectedYml = yaml`
+        pipelines:
+          pipeline1:
+            workflows:
+              wf1: {}
+        workflows:
+          wf1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the pipeline does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() =>
+        PipelineService.updatePipelineWorkflowField('non_existent_pipeline', 'wf1', 'run_if.expression', '.CI'),
+      ).toThrow(
+        "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            pipeline1:
+              workflows: {}
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() =>
+        PipelineService.updatePipelineWorkflowField('pipeline1', 'non_existent_workflow', 'run_if.expression', '.CI'),
+      ).toThrow('Workflow non_existent_workflow not found in pipeline pipeline1.');
+    });
+  });
+
   describe('addPipelineWorkflowDependency', () => {
     it('should add a dependency to the workflow in the given pipeline', () => {
       initializeStore({

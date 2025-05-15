@@ -1,7 +1,8 @@
 import { omit, uniq } from 'es-toolkit';
+import { Get, Paths } from 'type-fest';
 import { Document, isMap, isScalar } from 'yaml';
 
-import { BitriseYml, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
+import { BitriseYml, GraphPipelineWorkflowModel, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
@@ -202,9 +203,9 @@ function deletePipeline(ids: string | string[]) {
   });
 }
 
-type Key = keyof PipelineModel;
-type Value<T extends Key> = PipelineModel[T];
-function updatePipelineField<T extends Key>(id: string, field: T, value: Value<T>) {
+type PK = keyof PipelineModel;
+type PV<T extends PK> = PipelineModel[T];
+function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
   updateBitriseYmlDocument(({ doc }) => {
     const pipeline = getPipelineOrThrowError(id, doc);
 
@@ -258,6 +259,27 @@ function removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
       workflowId,
       `pipelines.${pipelineId}.workflows.*.depends_on`,
     );
+
+    return doc;
+  });
+}
+
+type PWK = Paths<GraphPipelineWorkflowModel>;
+type PVV<T extends PWK> = Get<GraphPipelineWorkflowModel, T>;
+function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflowId: string, field: T, value: PVV<T>) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
+
+    if (value) {
+      workflow.flow = false;
+      workflow.setIn(field.split('.'), value);
+    } else {
+      YamlUtils.deleteNodeByPath(
+        { doc, paths },
+        `pipelines.${pipelineId}.workflows.${workflowId}.${field}`,
+        `pipelines.${pipelineId}.workflows.${workflowId}.*`,
+      );
+    }
 
     return doc;
   });
@@ -318,6 +340,7 @@ export default {
   updatePipelineField,
   addWorkflowToPipeline,
   removeWorkflowFromPipeline,
+  updatePipelineWorkflowField,
   addPipelineWorkflowDependency,
   removePipelineWorkflowDependency,
 };

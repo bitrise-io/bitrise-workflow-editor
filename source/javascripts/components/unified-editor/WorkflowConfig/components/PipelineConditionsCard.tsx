@@ -5,6 +5,7 @@ import { ChangeEventHandler, useEffect, useState } from 'react';
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { EnvVarPopover } from '@/components/VariablePopover';
 import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
+import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -53,12 +54,8 @@ const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputPro
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
   );
 
-  const updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled = useBitriseYmlStore(
-    (s) => s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
-  );
-
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, e.target.checked);
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'abort_on_fail', e.target.checked);
   };
 
   return (
@@ -75,7 +72,7 @@ const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputPro
 const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const options = [
     {
-      value: 'off',
+      value: '',
       label: 'Off',
       helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
     },
@@ -87,17 +84,18 @@ const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps
   ];
 
   const value = useBitriseYmlStore(
-    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off',
+    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? '',
   );
 
   const helperText = options.find((o) => o.value === value)?.helperText;
 
-  const updatePipelineWorkflowConditionShouldAlwaysRun = useBitriseYmlStore(
-    (s) => s.updatePipelineWorkflowConditionShouldAlwaysRun,
-  );
-
   const handleChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, e.target.value);
+    PipelineService.updatePipelineWorkflowField(
+      pipelineId,
+      workflowId,
+      'should_always_run',
+      e.target.value === 'workflow' ? 'workflow' : undefined,
+    );
   };
 
   return (
@@ -116,12 +114,8 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
   );
 
-  const updatePipelineWorkflowConditionRunIfExpression = useBitriseYmlStore(
-    (s) => s.updatePipelineWorkflowConditionRunIfExpression,
-  );
-
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, e.target.value);
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'run_if.expression', e.target.value);
   };
 
   return (
@@ -136,7 +130,6 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
-  const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
   const initValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel || '');
 
   const existingWorkflowIds = useBitriseYmlStore((s) => {
@@ -164,9 +157,9 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     setError(validationError === true ? undefined : validationError);
 
     if (validationError === true) {
-      updatePipelineWorkflowParallel(pipelineId, workflowId, stringValue);
+      PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'parallel', stringValue);
     }
-  }, [value, pipelineId, workflowId, existingWorkflowIds, updatePipelineWorkflowParallel]);
+  }, [value, pipelineId, workflowId, existingWorkflowIds]);
 
   return (
     <Input
