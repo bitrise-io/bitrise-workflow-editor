@@ -211,7 +211,7 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
 
     if (value) {
       pipeline.flow = false;
-      pipeline.set(field, value);
+      pipeline.set(field, doc.createNode(value));
     } else {
       pipeline.delete(field);
     }
@@ -234,9 +234,9 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
 
     if (dependsOn) {
       getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
-      workflows.setIn([workflowId], { depends_on: [dependsOn] });
+      workflows.setIn([workflowId], doc.createNode({ depends_on: [dependsOn] }));
     } else {
-      workflows.setIn([workflowId], {});
+      workflows.setIn([workflowId], doc.createNode({}));
     }
 
     return doc;
@@ -272,7 +272,7 @@ function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflow
 
     if (value) {
       workflow.flow = false;
-      workflow.setIn(field.split('.'), value);
+      workflow.setIn(field.split('.'), doc.createNode(value));
     } else {
       YamlUtils.deleteNodeByPath(
         { doc, paths },
@@ -298,7 +298,9 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
-    YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on'], true).add(dependsOn);
+    YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on'], true).add(
+      doc.createNode(dependsOn),
+    );
 
     return doc;
   });

@@ -334,7 +334,7 @@ function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: 
     entity.flow = false;
     const triggers = YamlUtils.getMapIn(doc, [source, sourceId, 'triggers'], true);
     triggers.flow = false;
-    triggers.set('enabled', false);
+    triggers.set('enabled', doc.createNode(false));
 
     return doc;
   });
@@ -387,7 +387,7 @@ function updateTriggerEnabled(trigger: TargetBasedTrigger) {
     }
 
     entity.flow = false;
-    entity.set('enabled', false);
+    entity.set('enabled', doc.createNode(false));
 
     return doc;
   });

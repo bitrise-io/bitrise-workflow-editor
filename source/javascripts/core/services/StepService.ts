@@ -507,7 +507,7 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
 
     if (value) {
       stepData.flow = false;
-      stepData.set(field, value);
+      stepData.set(field, doc.createNode(value));
     } else {
       stepData.delete(field);
     }
