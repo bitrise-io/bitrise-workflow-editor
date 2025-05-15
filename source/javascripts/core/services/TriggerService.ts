@@ -2,7 +2,12 @@ import { isEqual, pick } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
 import { Document, isMap, isSeq } from 'yaml';
 
-import { TriggerMap, TriggerMapItemModel, TriggersModel } from '../models/BitriseYml';
+import {
+  TriggerMap,
+  TriggerMapItemModel,
+  TriggerMapItemModelRegexCondition,
+  TriggersModel,
+} from '../models/BitriseYml';
 import {
   ALL_TARGET_BASED_CONDITION_TYPES,
   TargetBasedCondition,
@@ -15,12 +20,14 @@ import {
 import {
   ALL_LEGACY_CONDITION_TYPES,
   LEGACY_TO_TARGET_BASED_CONDITION_MAP,
+  LegacyCondition,
   LegacyConditionType,
   LegacyTrigger,
 } from '../models/Trigger.legacy';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 
+// Legacy triggers
 function toLegacyTriggers(triggerMap?: TriggerMap): Record<TriggerType, LegacyTrigger[]> {
   const legacyTriggers: Record<TriggerType, LegacyTrigger[]> = {
     push: [],
@@ -88,6 +95,10 @@ function toLegacyTriggers(triggerMap?: TriggerMap): Record<TriggerType, LegacyTr
   return legacyTriggers;
 }
 
+function fromLegacyCondition({ isRegex, value }: LegacyCondition): TriggerMapItemModelRegexCondition {
+  return isRegex ? { regex: value } : value;
+}
+
 function toTriggerMapItemModel(trigger: LegacyTrigger): TriggerMapItemModel {
   const [target, targetId] = trigger.source.split('#') as [TriggerSource, string];
 
@@ -100,9 +111,8 @@ function toTriggerMapItemModel(trigger: LegacyTrigger): TriggerMapItemModel {
     item.workflow = targetId;
   }
 
-  trigger.conditions.forEach(({ isRegex, type, value }) => {
-    item[type] = isRegex ? { regex: value } : value;
-  });
+  // eslint-disable-next-line no-return-assign
+  trigger.conditions.forEach((c) => (item[c.type] = fromLegacyCondition(c)));
 
   if (trigger.triggerType === 'pull_request' && trigger.isDraftPr === false) {
     item.draft_pull_request_enabled = false;
@@ -153,90 +163,6 @@ function convertToTargetBasedTrigger(trigger: LegacyTrigger): TargetBasedTrigger
   };
 }
 
-function toTargetBasedTriggers(
-  source: TriggerSource,
-  sourceId: string,
-  triggersModel?: TriggersModel,
-): Record<TriggerType, TargetBasedTrigger[]> {
-  const triggers: Record<TriggerType, TargetBasedTrigger[]> = {
-    push: [],
-    pull_request: [],
-    tag: [],
-  };
-
-  function toConditions(trigger: TargetBasedTriggerItemModel) {
-    const conditions = pick(trigger, ALL_TARGET_BASED_CONDITION_TYPES);
-
-    return Object.entries(conditions).map(([key, value]) => {
-      const isRegex = isObject(value) && 'regex' in value && typeof value.regex === 'string';
-      const isPattern = isObject(value) && 'pattern' in value && typeof value.pattern === 'string';
-      const isLastCommitOnly = isObject(value) && 'last_commit' in value && value.last_commit;
-      // eslint-disable-next-line no-nested-ternary
-      const conditionValue = isRegex ? value.regex : isPattern ? value.pattern : String(value);
-
-      const condition: TargetBasedCondition = {
-        isRegex,
-        type: key as TargetBasedConditionType,
-        value: conditionValue,
-      };
-
-      if (isLastCommitOnly) {
-        condition.isLastCommitOnly = true;
-      }
-
-      return condition;
-    });
-  }
-
-  function toTriggers(triggerType: TriggerType, array?: TargetBasedTriggerItemModel[]) {
-    return (
-      array?.map<TargetBasedTrigger>((trigger, index) => ({
-        triggerType,
-        index,
-
-        uniqueId: crypto.randomUUID(),
-        source: `${source}#${sourceId}`,
-        isActive: trigger.enabled !== false,
-        isDraftPr: trigger.draft_enabled,
-        priority: trigger.priority,
-        conditions: toConditions(trigger),
-      })) || []
-    );
-  }
-
-  triggers.push = toTriggers('push', triggersModel?.push);
-  triggers.pull_request = toTriggers('pull_request', triggersModel?.pull_request);
-  triggers.tag = toTriggers('tag', triggersModel?.tag);
-
-  return triggers;
-}
-
-function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTriggerItemModel {
-  const item = { priority: trigger.priority } as TargetBasedTriggerItemModel;
-
-  if (!trigger.isActive) {
-    item.enabled = false;
-  }
-
-  if (trigger.triggerType === 'pull_request' && trigger.isDraftPr === false) {
-    item.draft_enabled = false;
-  }
-
-  trigger.conditions.forEach(({ isRegex, type, value, isLastCommitOnly }) => {
-    if (type === 'commit_message' || type === 'changed_files') {
-      item[type] = isRegex ? { regex: value } : { pattern: value };
-      if (isLastCommitOnly) {
-        item[type].last_commit = true;
-      }
-    } else {
-      item[type] = isRegex ? { regex: value } : value;
-    }
-  });
-
-  return item;
-}
-
-// Legacy triggers
 function getTriggerMapOrThrowError(doc: Document) {
   const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map']);
   if (!triggerMap || !isSeq(triggerMap)) {
@@ -295,6 +221,105 @@ function updateTriggerMap(triggers?: Record<TriggerType, LegacyTrigger[]>) {
 }
 
 // Target-based triggers
+function toTargetBasedTriggers(
+  source: TriggerSource,
+  sourceId: string,
+  triggersModel?: TriggersModel,
+): Record<TriggerType, TargetBasedTrigger[]> {
+  const triggers: Record<TriggerType, TargetBasedTrigger[]> = {
+    push: [],
+    pull_request: [],
+    tag: [],
+  };
+
+  function toConditions(trigger: TargetBasedTriggerItemModel) {
+    const conditions = pick(trigger, ALL_TARGET_BASED_CONDITION_TYPES);
+
+    return Object.entries(conditions).map(([key, value]) => {
+      const isRegex = isObject(value) && 'regex' in value && typeof value.regex === 'string';
+      const isPattern = isObject(value) && 'pattern' in value && typeof value.pattern === 'string';
+      const isLastCommitOnly = isObject(value) && 'last_commit' in value && value.last_commit;
+      // eslint-disable-next-line no-nested-ternary
+      const conditionValue = isRegex ? value.regex : isPattern ? value.pattern : String(value);
+
+      const condition: TargetBasedCondition = {
+        isRegex,
+        type: key as TargetBasedConditionType,
+        value: conditionValue,
+      };
+
+      if (isLastCommitOnly) {
+        condition.isLastCommitOnly = true;
+      }
+
+      return condition;
+    });
+  }
+
+  function toTriggers(triggerType: TriggerType, array?: TargetBasedTriggerItemModel[]) {
+    return (
+      array?.map<TargetBasedTrigger>((trigger, index) => ({
+        triggerType,
+        index,
+
+        uniqueId: crypto.randomUUID(),
+        source: `${source}#${sourceId}`,
+        isActive: trigger.enabled !== false,
+        isDraftPr: trigger.draft_enabled,
+        priority: trigger.priority,
+        conditions: toConditions(trigger),
+      })) || []
+    );
+  }
+
+  triggers.push = toTriggers('push', triggersModel?.push);
+  triggers.pull_request = toTriggers('pull_request', triggersModel?.pull_request);
+  triggers.tag = toTriggers('tag', triggersModel?.tag);
+
+  return triggers;
+}
+
+function fromTargetBasedCondition({
+  isRegex,
+  type,
+  value,
+  isLastCommitOnly,
+}: TargetBasedCondition): TriggerMapItemModelRegexCondition {
+  const canHaveLastCommit = ['commit_message', 'changed_files'].includes(type);
+
+  if (isRegex) {
+    return isLastCommitOnly && canHaveLastCommit ? { regex: value, last_commit: true } : { regex: value };
+  }
+
+  if (canHaveLastCommit) {
+    return isLastCommitOnly ? { pattern: value, last_commit: true } : value;
+  }
+
+  return value;
+}
+
+function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTriggerItemModel {
+  const item = {} as TargetBasedTriggerItemModel;
+
+  if (!trigger.isActive) {
+    item.enabled = false;
+  }
+
+  if (trigger.priority !== undefined) {
+    item.priority = trigger.priority;
+  }
+
+  if (trigger.triggerType === 'pull_request' && trigger.isDraftPr === false) {
+    item.draft_enabled = false;
+  }
+
+  trigger.conditions.forEach((cond) => {
+    item[cond.type] = fromTargetBasedCondition(cond);
+  });
+
+  return item;
+}
+
 function getSourceOrThrowError(doc: Document, at: { source: TriggerSource; sourceId: string }) {
   const { source, sourceId } = at;
   const entity = doc.getIn([source, sourceId]);
@@ -321,6 +346,23 @@ function getTriggerOrThrowError(
   return trigger;
 }
 
+function getTriggerConditionOrThrowError(
+  doc: Document,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number; conditionType: string },
+) {
+  const { source, sourceId, triggerType, index, conditionType } = at;
+  const entity = getTriggerOrThrowError(doc, { source, sourceId, triggerType, index });
+  const condition = entity.get(conditionType);
+
+  if (!condition) {
+    throw new Error(
+      `Condition ${conditionType} not found at path ${source}.${sourceId}.triggers.${triggerType}.${index}`,
+    );
+  }
+
+  return condition;
+}
+
 function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: string }) {
   updateBitriseYmlDocument(({ doc }) => {
     const { source, sourceId } = at;
@@ -340,6 +382,35 @@ function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: 
   });
 }
 
+function changeTriggerEnabled(
+  doc: Document,
+  enabled: boolean,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
+) {
+  const trigger = getTriggerOrThrowError(doc, at);
+
+  if (enabled) {
+    trigger.delete('enabled');
+    return;
+  }
+
+  trigger.flow = false;
+  trigger.set('enabled', false);
+}
+
+function updateTriggerEnabled(trigger: TargetBasedTrigger) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+    changeTriggerEnabled(doc, trigger.isActive, {
+      source,
+      sourceId,
+      triggerType: trigger.triggerType,
+      index: trigger.index,
+    });
+    return doc;
+  });
+}
+
 function addTrigger(trigger: TargetBasedTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
@@ -353,41 +424,252 @@ function addTrigger(trigger: TargetBasedTrigger) {
   });
 }
 
-function updateTrigger(trigger: TargetBasedTrigger) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
-    getTriggerOrThrowError(doc, { source, sourceId, triggerType: trigger.triggerType, index: trigger.index });
+function updateTriggerPriority(
+  doc: Document,
+  priority: number | undefined,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
+) {
+  const entity = getTriggerOrThrowError(doc, at);
 
-    doc.setIn(
-      [source, sourceId, 'triggers', trigger.triggerType, trigger.index],
-      doc.createNode(toTargetBasedItemModel(trigger)),
-    );
+  if (priority === undefined) {
+    entity.delete('priority');
+  } else {
+    entity.set('priority', priority);
+  }
+}
 
-    return doc;
+function updateTriggerDraftPr(
+  doc: Document,
+  isDraftPr: boolean | undefined,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
+) {
+  const entity = getTriggerOrThrowError(doc, at);
+  entity.flow = false;
+
+  if (isDraftPr === false) {
+    entity.set('draft_enabled', false);
+  } else {
+    entity.delete('draft_enabled');
+  }
+}
+
+function addTriggerCondition(
+  doc: Document,
+  condition: TargetBasedCondition,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
+) {
+  const entity = getTriggerOrThrowError(doc, at);
+  entity.flow = false;
+  entity.set(condition.type, doc.createNode(fromTargetBasedCondition(condition)));
+}
+
+function removeTriggerCondition(
+  doc: Document,
+  conditionType: TargetBasedConditionType,
+  at: {
+    source: TriggerSource;
+    sourceId: string;
+    triggerType: TriggerType;
+    index: number;
+  },
+) {
+  getTriggerConditionOrThrowError(doc, { ...at, conditionType });
+  const trigger = getTriggerOrThrowError(doc, at);
+  trigger.delete(conditionType);
+}
+
+function updateTriggerConditionRegex(
+  doc: Document,
+  isRegex: boolean,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number; conditionType: string },
+) {
+  const trigger = getTriggerOrThrowError(doc, at);
+  const condition = getTriggerConditionOrThrowError(doc, at);
+
+  if (isRegex) {
+    if (typeof condition === 'string') {
+      // set regex from string
+      trigger.set(at.conditionType, doc.createNode({ regex: condition }));
+      return;
+    }
+    if (isMap(condition) && condition.has('pattern')) {
+      // set regex from pattern
+      YamlUtils.updateMapKey(condition, 'pattern', 'regex');
+      return;
+    }
+    if (isMap(condition) && condition.has('regex')) {
+      // already has regex, do nothing
+      return;
+    }
+  }
+
+  // NOT regex
+  if (typeof condition === 'string') {
+    // does not have regex, do nothing
+    return;
+  }
+  if (isMap(condition) && !condition.has('regex')) {
+    // does not have regex, do nothing
+    return;
+  }
+  if (isMap(condition) && condition.has('regex') && condition.has('last_commit')) {
+    // set pattern from regex
+    YamlUtils.updateMapKey(condition, 'regex', 'pattern');
+    return;
+  }
+  if (isMap(condition) && condition.has('regex') && !condition.has('last_commit')) {
+    // set string from regex
+    trigger.set(at.conditionType, condition.get('regex'));
+  }
+}
+
+function updateTriggerConditionLastCommit(
+  doc: Document,
+  isLastCommit: boolean | undefined,
+  at: {
+    source: TriggerSource;
+    sourceId: string;
+    triggerType: TriggerType;
+    index: number;
+    conditionType: TargetBasedConditionType;
+  },
+) {
+  const trigger = getTriggerOrThrowError(doc, at);
+  const condition = getTriggerConditionOrThrowError(doc, at);
+
+  // set last_commit
+  if (isLastCommit) {
+    // change string to object with last_commit set to true
+    if (typeof condition === 'string') {
+      trigger.set(at.conditionType, doc.createNode({ pattern: condition, last_commit: true }));
+      return;
+    }
+    // set last_commit to true
+    if (isMap(condition)) {
+      condition.set('last_commit', true);
+      return;
+    }
+  }
+
+  // NOT last_commit
+
+  // does not have last_commit, do nothing
+  if (typeof condition === 'string') {
+    return;
+  }
+  // delete last_commit
+  if (isMap(condition)) {
+    condition.delete('last_commit');
+  }
+}
+
+function updateTriggerConditionValue(
+  doc: Document,
+  value: string,
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number; conditionType: string },
+) {
+  const trigger = getTriggerOrThrowError(doc, at);
+  const condition = getTriggerConditionOrThrowError(doc, at);
+
+  if (isMap(condition) && condition.has('regex')) {
+    condition.set('regex', value);
+  } else if (isMap(condition) && condition.has('pattern')) {
+    condition.set('pattern', value);
+  } else {
+    trigger.set(at.conditionType, value);
+  }
+}
+
+function updateConditions(
+  doc: Document,
+  conditions: TargetBasedCondition[],
+  at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
+) {
+  const trigger = getTriggerOrThrowError(doc, at);
+  const newConditionTypes = conditions.map((c) => c.type);
+  const oldConditionTypes = ALL_TARGET_BASED_CONDITION_TYPES.reduce((acc, c) => {
+    if (trigger.has(c)) {
+      acc.push(c);
+    }
+    return acc;
+  }, [] as TargetBasedConditionType[]);
+
+  const removedConditionTypes = oldConditionTypes.filter((c) => !newConditionTypes.includes(c));
+  const addedConditionTypes = newConditionTypes.filter((c) => !oldConditionTypes.includes(c));
+  const updatedConditionTypes = newConditionTypes.filter((c) => oldConditionTypes.includes(c));
+
+  // remove old conditions
+  removedConditionTypes.forEach((conditionType) => {
+    removeTriggerCondition(doc, conditionType, at);
+  });
+
+  // update existing conditions
+  updatedConditionTypes.forEach((conditionType) => {
+    const condition = conditions.find((c) => c.type === conditionType);
+    if (condition) {
+      updateTriggerConditionValue(doc, condition.value, { ...at, conditionType });
+      updateTriggerConditionRegex(doc, condition.isRegex || false, { ...at, conditionType });
+      updateTriggerConditionLastCommit(doc, condition.isLastCommitOnly, { ...at, conditionType });
+    }
+  });
+
+  // add new conditions
+  addedConditionTypes.forEach((conditionType) => {
+    const condition = conditions.find((c) => c.type === conditionType);
+    if (condition) {
+      addTriggerCondition(doc, condition, at);
+    }
   });
 }
 
-function updateTriggerEnabled(trigger: TargetBasedTrigger) {
+function updateTrigger(trigger: TargetBasedTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
-    const entity = getTriggerOrThrowError(doc, {
+    const triggerItem = getTriggerOrThrowError(doc, {
       source,
       sourceId,
       triggerType: trigger.triggerType,
       index: trigger.index,
     });
 
-    if (trigger.isActive) {
-      YamlUtils.safeDeleteIn(
-        doc,
-        [source, sourceId, 'triggers', trigger.triggerType, trigger.index, 'enabled'],
-        ['triggers', trigger.triggerType, trigger.index],
-      );
-      return doc;
+    // update the conditions
+    updateConditions(doc, trigger.conditions, {
+      source,
+      sourceId,
+      triggerType: trigger.triggerType,
+      index: trigger.index,
+    });
+
+    if (
+      trigger.triggerType === 'pull_request' &&
+      (trigger.isDraftPr !== false) !== (triggerItem.get('draft_enabled') !== false)
+    ) {
+      updateTriggerDraftPr(doc, trigger.isDraftPr, {
+        source,
+        sourceId,
+        triggerType: 'pull_request',
+        index: trigger.index,
+      });
     }
 
-    entity.flow = false;
-    entity.set('enabled', doc.createNode(false));
+    if (trigger.priority !== triggerItem.get('priority')) {
+      updateTriggerPriority(doc, trigger.priority, {
+        source,
+        sourceId,
+        triggerType: trigger.triggerType,
+        index: trigger.index,
+      });
+    }
+
+    // write out enabled false only
+    if (trigger.isActive !== (triggerItem.get('enabled') !== false)) {
+      changeTriggerEnabled(doc, trigger.isActive, {
+        source,
+        sourceId,
+        triggerType: trigger.triggerType,
+        index: trigger.index,
+      });
+    }
 
     return doc;
   });

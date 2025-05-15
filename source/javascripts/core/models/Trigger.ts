@@ -11,9 +11,9 @@ export const TYPE_MAP: Record<TriggerType, string> = {
 };
 
 export type Condition<TConditionType extends string> = {
-  isRegex: boolean;
   type: TConditionType;
   value: string;
+  isRegex?: boolean;
   isLastCommitOnly?: boolean;
 };
 

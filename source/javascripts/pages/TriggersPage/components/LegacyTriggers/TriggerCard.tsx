@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
 import { trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
+import { TriggerSource } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 
 interface TriggerCardProps extends CardProps {
@@ -17,6 +18,7 @@ interface TriggerCardProps extends CardProps {
 const TriggerCard = (props: TriggerCardProps) => {
   const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
   const { conditions, source, isDraftPr, isActive } = triggerItem;
+  const [target, targetId] = source.split('#') as [TriggerSource, string];
 
   const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
     id: triggerItem.uniqueId,
@@ -65,8 +67,10 @@ const TriggerCard = (props: TriggerCardProps) => {
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
         <Icon name="ArrowRight" marginRight="16" />
         <Box display="flex" flexDir="column" gap="4">
-          <Text textStyle="body/md/semibold">Start build</Text>
-          <Text>{source.replace('#', ': ')}</Text>
+          <Text>{targetId}</Text>
+          <Text textStyle="body/md/regular" color="text/secondary">
+            {target === 'workflows' ? 'Workflow' : 'Pipeline'}
+          </Text>
         </Box>
       </Box>
       <Box display="flex" alignItems="center">
