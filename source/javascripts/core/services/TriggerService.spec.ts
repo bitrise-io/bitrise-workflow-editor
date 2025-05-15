@@ -1387,6 +1387,40 @@ describe('TriggerService', () => {
             `);
           });
 
+          it('should update the value to *, if value is empty', () => {
+            initializeStore({
+              version: '',
+              ymlString: yaml`
+                ${source}:
+                  ${sourceId}:
+                    triggers:
+                      push:
+                      - branch: master
+                        commit_message: ci`,
+            });
+
+            TriggerService.updateTrigger({
+              uniqueId: '1',
+              index: 0,
+              source: `${source}#${sourceId}`,
+              triggerType: 'push',
+              isActive: true,
+              conditions: [
+                { type: 'branch', value: 'master' },
+                { type: 'commit_message', value: '   ' },
+              ],
+            });
+
+            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+              ${source}:
+                ${sourceId}:
+                  triggers:
+                    push:
+                    - branch: master
+                      commit_message: "*"
+            `);
+          });
+
           it('should set the regex property of a trigger (string value to regex value)', () => {
             initializeStore({
               version: '',
@@ -1426,6 +1460,41 @@ describe('TriggerService', () => {
             `);
           });
 
+          it('should set the regex property of a trigger (string value (*) to regex value (.*))', () => {
+            initializeStore({
+              version: '',
+              ymlString: yaml`
+                ${source}:
+                  ${sourceId}:
+                    triggers:
+                      push:
+                      - branch: master
+                        commit_message: '*'`,
+            });
+
+            TriggerService.updateTrigger({
+              uniqueId: '1',
+              index: 0,
+              source: `${source}#${sourceId}`,
+              triggerType: 'push',
+              isActive: true,
+              conditions: [
+                { type: 'branch', value: 'master' },
+                { type: 'commit_message', value: '*', isRegex: true },
+              ],
+            });
+
+            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+              ${source}:
+                ${sourceId}:
+                  triggers:
+                    push:
+                    - branch: master
+                      commit_message:
+                        regex: .*
+            `);
+          });
+
           it('should set the regex property of a trigger (pattern value to regex value)', () => {
             initializeStore({
               version: '',
@@ -1459,6 +1528,42 @@ describe('TriggerService', () => {
                     - branch: master
                       commit_message:
                         regex: ci
+            `);
+          });
+
+          it('should set the regex property of a trigger (pattern value (*) to regex value (.*))', () => {
+            initializeStore({
+              version: '',
+              ymlString: yaml`
+                ${source}:
+                  ${sourceId}:
+                    triggers:
+                      push:
+                      - branch: master
+                        commit_message:
+                          pattern: '*'`,
+            });
+
+            TriggerService.updateTrigger({
+              uniqueId: '1',
+              index: 0,
+              source: `${source}#${sourceId}`,
+              triggerType: 'push',
+              isActive: true,
+              conditions: [
+                { type: 'branch', value: 'master' },
+                { type: 'commit_message', value: '*', isRegex: true },
+              ],
+            });
+
+            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+              ${source}:
+                ${sourceId}:
+                  triggers:
+                    push:
+                    - branch: master
+                      commit_message:
+                        regex: '.*'
             `);
           });
 
@@ -1533,6 +1638,41 @@ describe('TriggerService', () => {
             `);
           });
 
+          it('should remove the regex property of a trigger (regex value (.*) to string value (*))', () => {
+            initializeStore({
+              version: '',
+              ymlString: yaml`
+                ${source}:
+                  ${sourceId}:
+                    triggers:
+                      push:
+                      - branch: master
+                        commit_message:
+                          regex: .*`,
+            });
+
+            TriggerService.updateTrigger({
+              uniqueId: '1',
+              index: 0,
+              source: `${source}#${sourceId}`,
+              triggerType: 'push',
+              isActive: true,
+              conditions: [
+                { type: 'branch', value: 'master' },
+                { type: 'commit_message', value: '.*', isRegex: false },
+              ],
+            });
+
+            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+              ${source}:
+                ${sourceId}:
+                  triggers:
+                    push:
+                    - branch: master
+                      commit_message: "*"
+            `);
+          });
+
           it('should remove the regex property of a trigger (regex value to pattern value)', () => {
             initializeStore({
               version: '',
@@ -1567,6 +1707,44 @@ describe('TriggerService', () => {
                     - branch: master
                       commit_message:
                         pattern: ci
+                        last_commit: true
+            `);
+          });
+
+          it('should remove the regex property of a trigger (regex value (.*) to pattern value (*))', () => {
+            initializeStore({
+              version: '',
+              ymlString: yaml`
+                ${source}:
+                  ${sourceId}:
+                    triggers:
+                      push:
+                      - branch: master
+                        commit_message:
+                          regex: .*
+                          last_commit: true`,
+            });
+
+            TriggerService.updateTrigger({
+              uniqueId: '1',
+              index: 0,
+              source: `${source}#${sourceId}`,
+              triggerType: 'push',
+              isActive: true,
+              conditions: [
+                { type: 'branch', value: 'master' },
+                { type: 'commit_message', value: '.*', isLastCommitOnly: true },
+              ],
+            });
+
+            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+              ${source}:
+                ${sourceId}:
+                  triggers:
+                    push:
+                    - branch: master
+                      commit_message:
+                        pattern: "*"
                         last_commit: true
             `);
           });

@@ -1,6 +1,6 @@
 import { isEqual, pick } from 'es-toolkit';
 import { isObject } from 'es-toolkit/compat';
-import { Document, isMap, isSeq } from 'yaml';
+import { Document, isMap, isSeq, Pair } from 'yaml';
 
 import {
   TriggerMap,
@@ -26,6 +26,24 @@ import {
 } from '../models/Trigger.legacy';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+
+function cleanConditionValue(value: string, isRegex: boolean) {
+  const trimmed = value.trim();
+
+  if (trimmed === '') {
+    return isRegex ? '.*' : '*';
+  }
+
+  if (isRegex && trimmed === '*') {
+    return '.*';
+  }
+
+  if (!isRegex && trimmed === '.*') {
+    return '*';
+  }
+
+  return trimmed;
+}
 
 // Legacy triggers
 function toLegacyTriggers(triggerMap?: TriggerMap): Record<TriggerType, LegacyTrigger[]> {
@@ -96,7 +114,9 @@ function toLegacyTriggers(triggerMap?: TriggerMap): Record<TriggerType, LegacyTr
 }
 
 function fromLegacyCondition({ isRegex, value }: LegacyCondition): TriggerMapItemModelRegexCondition {
-  return isRegex ? { regex: value } : value;
+  const finalValue = cleanConditionValue(value, Boolean(isRegex));
+
+  return isRegex ? { regex: finalValue } : finalValue;
 }
 
 function toTriggerMapItemModel(trigger: LegacyTrigger): TriggerMapItemModel {
@@ -192,18 +212,30 @@ function addLegacyTrigger(trigger: LegacyTrigger) {
   });
 }
 
-function updateLegacyTrigger(trigger: LegacyTrigger) {
-  updateBitriseYmlDocument(({ doc }) => {
-    getTriggerMapItemOrThrowError(doc, trigger.index);
-    doc.setIn(['trigger_map', trigger.index], doc.createNode(toTriggerMapItemModel(trigger)));
-    return doc;
-  });
-}
-
 function removeLegacyTrigger(index: number) {
   updateBitriseYmlDocument(({ doc }) => {
     getTriggerMapItemOrThrowError(doc, index);
     YamlUtils.safeDeleteIn(doc, ['trigger_map', index], ['trigger_map']);
+    return doc;
+  });
+}
+
+function updateLegacyTriggerEnabled(enabled: boolean, index: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const trigger = getTriggerMapItemOrThrowError(doc, index);
+    if (enabled) {
+      YamlUtils.safeDeleteIn(doc, ['trigger_map', index, 'enabled'], ['trigger_map']);
+      return doc;
+    }
+    trigger.set('enabled', false);
+    return doc;
+  });
+}
+
+function updateLegacyTrigger(trigger: LegacyTrigger) {
+  updateBitriseYmlDocument(({ doc }) => {
+    getTriggerMapItemOrThrowError(doc, trigger.index);
+    doc.setIn(['trigger_map', trigger.index], doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
 }
@@ -287,35 +319,37 @@ function fromTargetBasedCondition({
 }: TargetBasedCondition): TriggerMapItemModelRegexCondition {
   const canHaveLastCommit = ['commit_message', 'changed_files'].includes(type);
 
+  const finalValue = cleanConditionValue(value, Boolean(isRegex));
+
   if (isRegex) {
-    return isLastCommitOnly && canHaveLastCommit ? { regex: value, last_commit: true } : { regex: value };
+    return isLastCommitOnly && canHaveLastCommit ? { regex: finalValue, last_commit: true } : { regex: finalValue };
   }
 
   if (canHaveLastCommit) {
-    return isLastCommitOnly ? { pattern: value, last_commit: true } : value;
+    return isLastCommitOnly ? { pattern: finalValue, last_commit: true } : finalValue;
   }
 
-  return value;
+  return finalValue;
 }
 
 function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTriggerItemModel {
   const item = {} as TargetBasedTriggerItemModel;
 
-  if (!trigger.isActive) {
-    item.enabled = false;
+  trigger.conditions.forEach((cond) => {
+    item[cond.type] = fromTargetBasedCondition(cond);
+  });
+
+  if (trigger.triggerType === 'pull_request' && trigger.isDraftPr === false) {
+    item.draft_enabled = false;
   }
 
   if (trigger.priority !== undefined) {
     item.priority = trigger.priority;
   }
 
-  if (trigger.triggerType === 'pull_request' && trigger.isDraftPr === false) {
-    item.draft_enabled = false;
+  if (!trigger.isActive) {
+    item.enabled = false;
   }
-
-  trigger.conditions.forEach((cond) => {
-    item[cond.type] = fromTargetBasedCondition(cond);
-  });
 
   return item;
 }
@@ -352,7 +386,7 @@ function getTriggerConditionOrThrowError(
 ) {
   const { source, sourceId, triggerType, index, conditionType } = at;
   const entity = getTriggerOrThrowError(doc, { source, sourceId, triggerType, index });
-  const condition = entity.get(conditionType);
+  const condition = entity.get(conditionType) as Pair<TargetBasedConditionType, TriggerMapItemModelRegexCondition>;
 
   if (!condition) {
     throw new Error(
@@ -376,7 +410,7 @@ function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: 
     entity.flow = false;
     const triggers = YamlUtils.getMapIn(doc, [source, sourceId, 'triggers'], true);
     triggers.flow = false;
-    triggers.set('enabled', doc.createNode(false));
+    triggers.set('enabled', false);
 
     return doc;
   });
@@ -489,12 +523,15 @@ function updateTriggerConditionRegex(
   if (isRegex) {
     if (typeof condition === 'string') {
       // set regex from string
-      trigger.set(at.conditionType, doc.createNode({ regex: condition }));
+      const finalValue = cleanConditionValue(condition, true);
+      trigger.set(at.conditionType, doc.createNode({ regex: finalValue }));
       return;
     }
     if (isMap(condition) && condition.has('pattern')) {
       // set regex from pattern
+      const finalValue = cleanConditionValue(condition.get('pattern') as string, true);
       YamlUtils.updateMapKey(condition, 'pattern', 'regex');
+      condition.set('regex', finalValue);
       return;
     }
     if (isMap(condition) && condition.has('regex')) {
@@ -514,12 +551,15 @@ function updateTriggerConditionRegex(
   }
   if (isMap(condition) && condition.has('regex') && condition.has('last_commit')) {
     // set pattern from regex
+    const finalValue = cleanConditionValue(condition.get('regex') as string, false);
     YamlUtils.updateMapKey(condition, 'regex', 'pattern');
+    condition.set('pattern', finalValue);
     return;
   }
   if (isMap(condition) && condition.has('regex') && !condition.has('last_commit')) {
     // set string from regex
-    trigger.set(at.conditionType, condition.get('regex'));
+    const finalValue = cleanConditionValue(condition.get('regex') as string, false);
+    trigger.set(at.conditionType, finalValue);
   }
 }
 
@@ -571,12 +611,17 @@ function updateTriggerConditionValue(
   const trigger = getTriggerOrThrowError(doc, at);
   const condition = getTriggerConditionOrThrowError(doc, at);
 
+  let finalValue = value.trim();
+  if (finalValue === '') {
+    finalValue = isMap(condition) && condition.has('regex') ? '.*' : '*';
+  }
+
   if (isMap(condition) && condition.has('regex')) {
-    condition.set('regex', value);
+    condition.set('regex', finalValue);
   } else if (isMap(condition) && condition.has('pattern')) {
-    condition.set('pattern', value);
+    condition.set('pattern', finalValue);
   } else {
-    trigger.set(at.conditionType, value);
+    trigger.set(at.conditionType, finalValue);
   }
 }
 
