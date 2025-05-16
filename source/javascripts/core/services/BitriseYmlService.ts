@@ -6,12 +6,9 @@ import {
   EnvironmentItemModel,
   EnvironmentItemOptionsModel,
   EnvModel,
-  Meta,
   StepBundleModel,
   StepListItemModel,
   StepModel,
-  TriggerMapItemModel,
-  TriggersModel,
   WorkflowModel,
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -316,66 +313,6 @@ function removeChainedWorkflow(
   return copy;
 }
 
-function appendWorkflowEnvVar(workflowId: string, envVar: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
-
-  return copy;
-}
-
-function appendProjectEnvVar(envVar: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.app) {
-    copy.app = {};
-  }
-
-  if (!copy.app.envs) {
-    copy.app.envs = [];
-  }
-
-  copy.app.envs = [...copy.app.envs, envVar];
-
-  return copy;
-}
-
-function updateProjectEnvVars(envVars: EnvModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.app) {
-    copy.app = {};
-  }
-
-  copy.app.envs = updateEnvVars(copy.app.envs, envVars);
-
-  if (shouldRemoveField(copy.app.envs, yml.app?.envs)) {
-    delete copy.app.envs;
-  }
-
-  return copy;
-}
-
-function updateWorkflowEnvVars(workflowId: string, envVars: EnvModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].envs = updateEnvVars(copy.workflows[workflowId].envs, envVars);
-
-  if (shouldRemoveField(copy.workflows[workflowId].envs, yml.workflows?.[workflowId]?.envs)) {
-    delete copy.workflows[workflowId].envs;
-  }
-
-  return copy;
-}
-
 function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -538,18 +475,6 @@ function updateStepBundleInputInstanceValue(
   return copy;
 }
 
-function updateTriggerMap(newTriggerMap: TriggerMapItemModel[], yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (newTriggerMap.length) {
-    copy.trigger_map = newTriggerMap;
-  } else {
-    delete copy.trigger_map;
-  }
-
-  return copy;
-}
-
 function getUniqueStepIds(yml: BitriseYml) {
   const ids = new Set<string>();
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
@@ -608,32 +533,6 @@ function getUniqueStepCvss(yml: BitriseYml) {
   return Array.from(cvss);
 }
 
-function updateWorkflowTriggers(workflowId: string, triggers: TriggersModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].triggers = triggers;
-
-  return copy;
-}
-
-function updatePipelineTriggers(pipelineID: string, triggers: TriggersModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the pipeline is missing in the YML just return the YML
-  if (!copy.pipelines?.[pipelineID]) {
-    return copy;
-  }
-
-  copy.pipelines[pipelineID].triggers = triggers;
-
-  return copy;
-}
-
 // UTILITY FUNCTIONS
 
 function shouldRemoveField<T>(modified: T, original: T) {
@@ -641,70 +540,6 @@ function shouldRemoveField<T>(modified: T, original: T) {
   const originalIsEmpty = !isBoolean(original) && !isNumber(original) && !isNull(original) && isEmpty(original);
 
   return modifiedIsEmpty && (!originalIsEmpty || original === undefined);
-}
-
-// PRIVATE FUNCTIONS
-
-function updateEnvVars(oldEnvVars?: EnvModel, newEnvVars?: EnvModel) {
-  return newEnvVars?.map((newEnvVar, i) => {
-    const oldEnvVar = oldEnvVars?.[i];
-
-    if (!oldEnvVar) {
-      return newEnvVar;
-    }
-
-    const { opts: oo, ...oldEnvVarKeyValue } = oldEnvVar;
-    const { opts: no, ...newEnvVarKeyValue } = newEnvVar;
-
-    if (!isEqual(oldEnvVarKeyValue, newEnvVarKeyValue)) {
-      return newEnvVar;
-    }
-
-    if (newEnvVar.opts?.is_expand === undefined) {
-      delete oldEnvVar.opts;
-    } else {
-      oldEnvVar.opts = { is_expand: newEnvVar.opts.is_expand };
-    }
-
-    return oldEnvVar;
-  });
-}
-
-function updateLicensePoolId(workflowId: string, licensePoolId: string, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  if (copy.workflows[workflowId].meta?.['bitrise.io']) {
-    const copyBitriseIoMeta = copy.workflows[workflowId].meta?.['bitrise.io'] as Required<Meta>['bitrise.io'];
-    copyBitriseIoMeta.license_pool_id = licensePoolId;
-    copy.workflows[workflowId].meta['bitrise.io'] = copyBitriseIoMeta;
-  } else {
-    copy.workflows[workflowId].meta = {
-      ...copy.workflows[workflowId].meta,
-      'bitrise.io': { license_pool_id: licensePoolId },
-    };
-  }
-
-  const newMeta = copy.workflows[workflowId].meta as Meta | undefined;
-  const ymlMeta = yml.workflows?.[workflowId]?.meta as Meta | undefined;
-
-  if (shouldRemoveField(newMeta?.['bitrise.io']?.license_pool_id, ymlMeta?.['bitrise.io']?.license_pool_id)) {
-    delete newMeta?.['bitrise.io']?.license_pool_id;
-  }
-
-  if (shouldRemoveField(newMeta?.['bitrise.io'], ymlMeta?.['bitrise.io'])) {
-    delete newMeta?.['bitrise.io'];
-  }
-
-  if (shouldRemoveField(copy.workflows[workflowId].meta, yml.workflows?.[workflowId]?.meta)) {
-    delete copy.workflows[workflowId].meta;
-  }
-
-  return copy;
 }
 
 export default {
@@ -718,14 +553,6 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   removeChainedWorkflow,
-  updateTriggerMap,
-  appendWorkflowEnvVar,
-  appendProjectEnvVar,
-  updateProjectEnvVars,
-  updateWorkflowEnvVars,
-  updateWorkflowTriggers,
-  updatePipelineTriggers,
-  updateLicensePoolId,
   appendStepBundleInput,
   deleteStepBundleInput,
   updateStepBundleInput,

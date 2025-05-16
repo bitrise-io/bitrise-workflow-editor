@@ -3,7 +3,7 @@ import { Document, parseDocument } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
-import { BitriseYml, EnvironmentItemModel, StepBundleModel, TriggerMap, TriggersModel } from '@/core/models/BitriseYml';
+import { BitriseYml, EnvironmentItemModel, StepBundleModel } from '@/core/models/BitriseYml';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 
@@ -28,15 +28,6 @@ export const bitriseYmlStore = createStore(
     (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
-      },
-
-      // Pipeline related actions
-      updatePipelineTriggers(pipelineId: string, triggers: TriggersModel) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updatePipelineTriggers(pipelineId, triggers, state.yml),
-          };
-        });
       },
 
       // Workflow related actions
@@ -69,29 +60,6 @@ export const bitriseYmlStore = createStore(
         return set((state) => {
           return {
             yml: BitriseYmlService.setChainedWorkflows(parentWorkflowId, placement, chainedWorkflowIds, state.yml),
-          };
-        });
-      },
-
-      // Step related actions
-      updateLicensePoolId(workflowId: string, licensePoolId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateLicensePoolId(workflowId, licensePoolId, state.yml),
-          };
-        });
-      },
-      updateTriggerMap(triggerMap: TriggerMap) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateTriggerMap(triggerMap, state.yml),
-          };
-        });
-      },
-      updateWorkflowTriggers(workflowId: string, triggers: TriggersModel) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateWorkflowTriggers(workflowId, triggers, state.yml),
           };
         });
       },
