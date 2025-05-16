@@ -1,4 +1,6 @@
+import BitriseYmlApi from '../api/BitriseYmlApi';
 import { Workflows } from '../models/BitriseYml';
+import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
@@ -653,5 +655,334 @@ describe('WorkflowService', () => {
 
       expect(result).toEqual(['wf-2', 'wf-3', 'wf-4', 'wf-5', 'wf-6']);
     });
+  });
+
+  describe('createWorkflow', () => {
+    it('should create an empty workflow if base workflow is missing', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml``,
+      });
+
+      WorkflowService.createWorkflow('new-workflow');
+
+      const expectedYml = yaml`
+        workflows:
+          new-workflow: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should create a workflow based on an other workflow', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            base-workflow:
+              steps:
+                - script:
+                    title: Base Workflow
+                    inputs:
+                      - content: echo "Hello from Base Workflow"
+        `,
+      });
+
+      WorkflowService.createWorkflow('new-workflow', 'base-workflow');
+
+      const expectedYml = yaml`
+        workflows:
+          base-workflow:
+            steps:
+            - script:
+                title: Base Workflow
+                inputs:
+                - content: echo "Hello from Base Workflow"
+          new-workflow:
+            steps:
+            - script:
+                title: Base Workflow
+                inputs:
+                - content: echo "Hello from Base Workflow"
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+  });
+
+  describe('renameWorkflow', () => {
+    it('should be rename an existing workflow', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            graph:
+              workflows:
+                wf1:
+                  depends_on:
+                  - wf2
+                wf2: {}
+                variant1:
+                  uses: 'wf1'
+                variant2:
+                  uses: 'wf2'
+            pl1:
+              stages:
+              - st1: {}
+            pl2:
+              stages:
+              - st2:
+                  workflows:
+                  - wf2: {}
+          stages:
+            st1:
+              workflows:
+              - wf1: {}
+            st2:
+              workflows:
+              - wf2: {}
+          workflows:
+            wf1:
+              before_run: [ 'wf2' ]
+              after_run:
+              - wf2
+            wf2: {}
+          trigger_map:
+          - workflow: 'wf1'
+          - workflow: 'wf2'
+        `,
+      });
+
+      WorkflowService.renameWorkflow('wf2', 'wf3');
+
+      const expectedYml = yaml`
+        pipelines:
+          graph:
+            workflows:
+              wf1:
+                depends_on:
+                - wf3
+              wf3: {}
+              variant1:
+                uses: 'wf1'
+              variant2:
+                uses: 'wf3'
+          pl1:
+            stages:
+            - st1: {}
+          pl2:
+            stages:
+            - st2:
+                workflows:
+                - wf3: {}
+        stages:
+          st1:
+            workflows:
+            - wf1: {}
+          st2:
+            workflows:
+            - wf3: {}
+        workflows:
+          wf1:
+            before_run: [ 'wf3' ]
+            after_run:
+            - wf3
+          wf3: {}
+        trigger_map:
+        - workflow: 'wf1'
+        - workflow: 'wf3'
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow to rename does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() => WorkflowService.renameWorkflow('non-existing-workflow', 'new-name')).toThrow(
+        `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
+      );
+    });
+  });
+
+  describe('updateWorkflowField', () => {
+    it('should update the specified field of the workflow', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              title: Old Title
+              summary: "Old Summary"
+              description: 'Old Description'
+        `,
+      });
+
+      WorkflowService.updateWorkflowField('wf1', 'title', 'New Title');
+      WorkflowService.updateWorkflowField('wf1', 'summary', 'New Summary');
+      WorkflowService.updateWorkflowField('wf1', 'description', 'New Description');
+
+      const expectedYml = yaml`
+        workflows:
+          wf1:
+            title: New Title
+            summary: "New Summary"
+            description: 'New Description'
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove the specified field if the value is empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1:
+              title: Old Title
+              summary: "Old Summary"
+              description: 'Old Description'
+        `,
+      });
+
+      WorkflowService.updateWorkflowField('wf1', 'title', '');
+      WorkflowService.updateWorkflowField('wf1', 'summary', '');
+      WorkflowService.updateWorkflowField('wf1', 'description', '');
+
+      const expectedYml = yaml`
+        workflows:
+          wf1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() => WorkflowService.updateWorkflowField('non-existing-workflow', 'title', 'New Title')).toThrow(
+        `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
+      );
+    });
+  });
+
+  describe('deleteWorkflow', () => {
+    it('should remove a workflow in the whole yml completely', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            graph1:
+              workflows:
+                wf1_variant:
+                  uses: 'wf1'
+                wf1_variant_dependant:
+                  depends_on: [ 'wf1_variant' ]
+                wf2:
+                  depends_on: [ 'wf1' ]
+            graph2:
+              workflows:
+                wf2_variant:
+                  uses: 'wf2'
+            pl1:
+              stages:
+              - st1: {}
+            pl2:
+              stages:
+              - st1: {}
+              - st2: {}
+            pl3:
+              stages:
+              - st1:
+                  workflows:
+                  - wf1: {}
+              - st1:
+                  workflows:
+                  - wf1: {}
+                  - wf2: {}
+              - st2:
+                  workflows:
+                  - wf1: {}
+                  - wf2: {}
+          stages:
+            st1:
+              workflows:
+              - wf1: {}
+            st2:
+              workflows:
+              - wf1: {}
+              - wf2: {}
+          workflows:
+            wf1: {}
+            wf1_variant_dependant: {}
+            wf2:
+              before_run: [ 'wf1' ]
+              after_run: [ 'wf1' ]
+            wf3:
+              before_run: ['wf1', 'wf2']
+              after_run: ['wf1', 'wf2']
+          trigger_map:
+          - workflow: 'wf1'
+          - workflow: 'wf2'
+          - workflow: 'wf3'
+        `,
+      });
+
+      WorkflowService.deleteWorkflow('wf1');
+
+      const expectedYml = yaml`
+        pipelines:
+          graph1:
+            workflows:
+              wf1_variant_dependant: {}
+              wf2: {}
+          graph2:
+            workflows:
+              wf2_variant:
+                uses: 'wf2'
+          pl2:
+            stages:
+            - st2: {}
+          pl3:
+            stages:
+            - st1:
+                workflows:
+                - wf2: {}
+            - st2:
+                workflows:
+                - wf2: {}
+        stages:
+          st2:
+            workflows:
+            - wf2: {}
+        workflows:
+          wf1_variant_dependant: {}
+          wf2: {}
+          wf3:
+            before_run: [ 'wf2' ]
+            after_run: [ 'wf2' ]
+        trigger_map:
+        - workflow: 'wf2'
+        - workflow: 'wf3'
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should keep pipelines with stage references which have workflows', () => {});
+
+    it('should NOT remove the pipeline workflows property when last workflow removed in it', () => {});
   });
 });

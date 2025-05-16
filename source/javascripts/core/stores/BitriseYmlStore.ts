@@ -3,14 +3,7 @@ import { Document, parseDocument } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
-import {
-  BitriseYml,
-  EnvironmentItemModel,
-  StepBundleModel,
-  TriggerMap,
-  TriggersModel,
-  WorkflowModel,
-} from '@/core/models/BitriseYml';
+import { BitriseYml, EnvironmentItemModel, StepBundleModel, TriggerMap, TriggersModel } from '@/core/models/BitriseYml';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 
@@ -54,27 +47,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      createWorkflow(workflowId: string, baseWorkflowId?: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
-          };
-        });
-      },
-      deleteWorkflow(workflowId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deleteWorkflow(workflowId, state.yml),
-          };
-        });
-      },
-      deleteWorkflows(workflowIds: string[]) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deleteWorkflows(workflowIds, state.yml),
-          };
-        });
-      },
       removeChainedWorkflow(
         parentWorkflowId: string,
         placement: ChainedWorkflowPlacement,
@@ -93,24 +65,10 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      renameWorkflow(workflowId: string, newWorkflowId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.renameWorkflow(workflowId, newWorkflowId, state.yml),
-          };
-        });
-      },
       setChainedWorkflows(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) {
         return set((state) => {
           return {
             yml: BitriseYmlService.setChainedWorkflows(parentWorkflowId, placement, chainedWorkflowIds, state.yml),
-          };
-        });
-      },
-      updateWorkflow(workflowId: string, workflow: WorkflowModel) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateWorkflow(workflowId, workflow, state.yml),
           };
         });
       },

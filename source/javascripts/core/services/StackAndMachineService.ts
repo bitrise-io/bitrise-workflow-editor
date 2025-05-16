@@ -283,7 +283,7 @@ function updateFieldValue(
   const meta = YamlUtils.getMapIn(doc, path, true);
 
   if (value) {
-    meta.setIn([field], doc.createNode(value));
+    meta.setIn([field], value);
   } else {
     YamlUtils.safeDeleteIn(doc, path.concat(field), ['meta', 'bitrise.io']);
   }

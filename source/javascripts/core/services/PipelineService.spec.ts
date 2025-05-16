@@ -524,15 +524,15 @@ describe('PipelineService', () => {
           pipelines:
             pipeline1:
               workflows: {}
-            pipeline2:
-              workflows: {}
             pipeline3:
               workflows: {}
+            pipeline2:
+              workflows: {}
           trigger_map:
-          - type: push
-            pipeline: pipeline1
           - type: pull_request
             pipeline: pipeline2
+          - type: push
+            pipeline: pipeline1
           - type: tag
             pipeline: pipeline3
         `,

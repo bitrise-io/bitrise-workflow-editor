@@ -1,6 +1,8 @@
-import { Document } from 'yaml';
+import { isEmpty } from 'es-toolkit/compat';
+import { Document, isMap } from 'yaml';
 
-import { Pipelines, Stages, Workflows } from '../models/BitriseYml';
+import { Pipelines, Stages, WorkflowModel, Workflows } from '../models/BitriseYml';
+import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
@@ -152,6 +154,119 @@ function getWorkflowOrThrowError(id: string, doc: Document) {
   return workflow;
 }
 
+function createWorkflow(id: string, baseId?: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    doc.setIn(['workflows', id], baseId ? getWorkflowOrThrowError(baseId, doc).clone() : doc.createNode({}));
+    return doc;
+  });
+}
+
+function renameWorkflow(id: string, newName: string) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    getWorkflowOrThrowError(id, doc);
+    YamlUtils.updateKey({ doc, paths }, `workflows.${id}`, newName);
+    YamlUtils.updateKey({ doc, paths }, `stages.*.workflows.*.${id}`, newName);
+    YamlUtils.updateKey({ doc, paths }, `pipelines.*.workflows.${id}`, newName);
+    YamlUtils.updateKey({ doc, paths }, `pipelines.*.stages.*.workflows.*.${id}`, newName);
+    YamlUtils.updateValue({ doc, paths }, 'trigger_map.*.workflow', newName, id);
+    YamlUtils.updateValue({ doc, paths }, 'workflows.*.after_run.*', newName, id);
+    YamlUtils.updateValue({ doc, paths }, 'workflows.*.before_run.*', newName, id);
+    YamlUtils.updateValue({ doc, paths }, 'pipelines.*.workflows.*.uses', newName, id);
+    YamlUtils.updateValue({ doc, paths }, 'pipelines.*.workflows.*.depends_on.*', newName, id);
+    return doc;
+  });
+}
+
+type WK = keyof WorkflowModel;
+type WV<T extends WK> = WorkflowModel[T];
+function updateWorkflowField<T extends WK>(id: string, field: T, value: WV<T>) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const workflow = getWorkflowOrThrowError(id, doc);
+
+    if (value) {
+      workflow.flow = false;
+      workflow.set(field, value);
+    } else {
+      workflow.delete(field);
+    }
+
+    return doc;
+  });
+}
+
+function deleteWorkflow(ids: string | string[]) {
+  const isUsesWorkflow = (workflowId: string) => (node: unknown) => {
+    return isMap(node) && node.get('uses') === workflowId;
+  };
+
+  const isTriggerWorkflow = (workflowId: string) => (node: unknown) => {
+    return isMap(node) && node.get('workflow') === workflowId;
+  };
+
+  const isPipelineStageHasNoWorkflows = (stageId: string) => (node: unknown) => {
+    if (!isMap(node)) {
+      return false;
+    }
+
+    const stage = node.get(stageId);
+    if (!isMap(stage)) {
+      return false;
+    }
+
+    return isEmpty(stage.get('workflows'));
+  };
+
+  updateBitriseYmlDocument((ctx) => {
+    const workflows = Array.isArray(ids) ? [...ids] : [ids];
+
+    workflows.forEach((id) => {
+      getWorkflowOrThrowError(id, ctx.doc);
+
+      YamlUtils.deleteNodeByPath(ctx, `workflows.${id}`, `*`);
+      YamlUtils.deleteNodeByPath(ctx, `pipelines.*.workflows.${id}`, `pipelines.*.workflows`);
+      YamlUtils.deleteNodeByPath(ctx, `pipelines.*.stages.*.workflows.*.${id}`, `*`);
+
+      YamlUtils.deleteNodeByValue(ctx, `trigger_map.*`, isTriggerWorkflow(id), `*`);
+      YamlUtils.deleteNodeByValue(ctx, `workflows.*.after_run.*`, id, `workflows.*.after_run`);
+      YamlUtils.deleteNodeByValue(ctx, `workflows.*.before_run.*`, id, `workflows.*.before_run`);
+
+      YamlUtils.deleteNodeByValue(
+        ctx,
+        `pipelines.*.workflows.*.depends_on.*`,
+        id,
+        `pipelines.*.workflows.*.depends_on`,
+      );
+
+      YamlUtils.deleteNodeByPath(ctx, `stages.*.workflows.*.${id}`, `*`, (path) => {
+        if (/^stages\.[^.]+$/.test(YamlUtils.toDotNotation(path))) {
+          const stageId = path[path.length - 1];
+          YamlUtils.deleteNodeByValue(ctx, `pipelines.*.stages.*`, isPipelineStageHasNoWorkflows(stageId), `*`);
+        }
+      });
+
+      YamlUtils.deleteNodeByValue(
+        ctx,
+        `pipelines.*.workflows.*`,
+        isUsesWorkflow(id),
+        `pipelines.*.workflows`,
+        (path) => {
+          if (/^pipelines\.[^.]+\.workflows\.[^.]+$/.test(YamlUtils.toDotNotation(path))) {
+            const dependantWorkflowId = path[path.length - 1];
+            YamlUtils.deleteNodeByValue(
+              ctx,
+              `pipelines.*.workflows.*.depends_on.*`,
+              dependantWorkflowId,
+              `pipelines.*.workflows.*.depends_on`,
+            );
+          }
+        },
+      );
+    });
+
+    return ctx.doc;
+  });
+}
+
 export default {
   validateName,
   sanitizeName,
@@ -165,4 +280,8 @@ export default {
   getDependantWorkflows,
   countInPipelines,
   getWorkflowOrThrowError,
+  createWorkflow,
+  renameWorkflow,
+  updateWorkflowField,
+  deleteWorkflow,
 };

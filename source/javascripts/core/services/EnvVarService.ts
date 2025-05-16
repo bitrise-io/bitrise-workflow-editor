@@ -314,7 +314,7 @@ function updateIsExpand(isExpand: boolean, index: number, source: EnvVarSource, 
     if (isExpand) {
       YamlUtils.safeDeleteIn(doc, [...path, 'opts', 'is_expand'], true);
     } else {
-      env.setIn(['opts', 'is_expand'], doc.createNode(false));
+      env.setIn(['opts', 'is_expand'], false);
     }
 
     return doc;

@@ -10,6 +10,7 @@ import WithGroupDrawer from '@/components/unified-editor/WithGroupDrawer/WithGro
 import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -31,8 +32,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     parentWorkflowId,
   } = useWorkflowsPageStore();
 
-  const { createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
-    createWorkflow: s.createWorkflow,
+  const { getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
     getUniqueStepIds: s.getUniqueStepIds,
     addChainedWorkflow: s.addChainedWorkflow,
   }));
@@ -83,7 +83,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.CREATE_WORKFLOW)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreateWorkflow={createWorkflow}
+          onCreateWorkflow={WorkflowService.createWorkflow}
         />
       )}
 

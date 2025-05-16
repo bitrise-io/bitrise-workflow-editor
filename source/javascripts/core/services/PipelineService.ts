@@ -211,7 +211,7 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
 
     if (value) {
       pipeline.flow = false;
-      pipeline.set(field, doc.createNode(value));
+      pipeline.set(field, value);
     } else {
       pipeline.delete(field);
     }
@@ -272,7 +272,7 @@ function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflow
 
     if (value) {
       workflow.flow = false;
-      workflow.setIn(field.split('.'), doc.createNode(value));
+      workflow.setIn(field.split('.'), value);
     } else {
       YamlUtils.deleteNodeByPath(
         { doc, paths },

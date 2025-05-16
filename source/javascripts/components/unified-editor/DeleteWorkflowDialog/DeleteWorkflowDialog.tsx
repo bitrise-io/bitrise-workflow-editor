@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
 import { useCallback } from 'react';
 
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import WorkflowService from '@/core/services/WorkflowService';
 
 type Props = Omit<DialogProps, 'title'> & {
   workflowId: string;
@@ -9,13 +9,11 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialogProps }: Props) => {
-  const deleteWorkflow = useBitriseYmlStore((s) => s.deleteWorkflow);
-
   const handleDelete = useCallback(() => {
-    deleteWorkflow(workflowId);
+    WorkflowService.deleteWorkflow(workflowId);
     onDeleteWorkflow?.(workflowId);
     onClose();
-  }, [workflowId, deleteWorkflow, onDeleteWorkflow, onClose]);
+  }, [workflowId, onDeleteWorkflow, onClose]);
 
   return (
     <Dialog title="Delete Workflow?" onClose={onClose} {...dialogProps}>

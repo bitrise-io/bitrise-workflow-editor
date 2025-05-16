@@ -1,12 +1,15 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
+
+import { isEmpty } from 'es-toolkit/compat';
 import { Glob, isMatch } from 'picomatch';
-import { Document, isCollection, isMap, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+import { Document, isCollection, isMap, isPair, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 
 type Args = { doc: Document; paths: string[] };
+type AfterRemove = (removedNodePath: string[]) => void;
 
 function toDotNotation(paths: unknown[]) {
   return paths.join('.');
@@ -16,11 +19,22 @@ function toArrayNotation(path: string) {
   return path.split('.');
 }
 
-function removeIfEmpty(doc: Document, path: string[], glob: Glob) {
+function removeIfEmpty(doc: Document, path: string[], glob: Glob, afterRemove?: AfterRemove) {
   const node = doc.getIn(path);
-  if (isCollection(node) && node.items.length === 0 && isMatch(toDotNotation(path), glob)) {
+  if (isCollection(node) && isEmpty(node.items) && isMatch(toDotNotation(path), glob)) {
     doc.deleteIn(path);
-    removeIfEmpty(doc, path.slice(0, -1), glob);
+    afterRemove?.(path);
+    removeIfEmpty(doc, path.slice(0, -1), glob, afterRemove);
+  }
+  if (isScalar(node) && isEmpty(node.value) && isMatch(toDotNotation(path), glob)) {
+    doc.deleteIn(path);
+    afterRemove?.(path);
+    removeIfEmpty(doc, path.slice(0, -1), glob, afterRemove);
+  }
+  if (isPair(node) && isEmpty(node.value) && isMatch(toDotNotation(path), glob)) {
+    doc.deleteIn(path);
+    afterRemove?.(path);
+    removeIfEmpty(doc, path.slice(0, -1), glob, afterRemove);
   }
 }
 
@@ -144,38 +158,42 @@ function updateValue({ doc, paths }: Args, glob: Glob, newValue: unknown, oldVal
   });
 }
 
-function deleteNodeByPath({ doc, paths }: Args, glob: Glob, removeIfEmptyGlob?: Glob) {
-  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
+function deleteNodeByPath(ctx: Args, glob: Glob, removeIfEmptyGlob?: Glob, afterRemove?: AfterRemove) {
+  const filteredPaths = ctx.paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
 
   filteredPaths.sort((a, b) => {
     return toDotNotation(b).localeCompare(toDotNotation(a), undefined, { numeric: true, sensitivity: 'base' });
   });
 
   filteredPaths.forEach((path) => {
-    doc.deleteIn(path);
+    if (ctx.doc.deleteIn(path)) {
+      afterRemove?.(path);
+    }
 
     if (removeIfEmptyGlob) {
-      removeIfEmpty(doc, path.slice(0, -1), removeIfEmptyGlob);
+      removeIfEmpty(ctx.doc, path.slice(0, -1), removeIfEmptyGlob, afterRemove);
     }
   });
 }
 
-function deleteNodeByValue({ doc, paths }: Args, glob: Glob, value: unknown, removeIfEmptyGlob?: Glob) {
-  const filteredPaths = paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
+function deleteNodeByValue(ctx: Args, glob: Glob, value: unknown, removeIfEmptyGlob?: Glob, afterRemove?: AfterRemove) {
+  const filteredPaths = ctx.paths.filter((path) => isMatch(path, glob)).map(toArrayNotation);
 
   filteredPaths.sort((a, b) => {
     return toDotNotation(b).localeCompare(toDotNotation(a), undefined, { numeric: true, sensitivity: 'base' });
   });
 
   filteredPaths.forEach((path) => {
-    if (typeof value === 'function' ? !value(doc.getIn(path)) : doc.getIn(path) !== value) {
+    if (typeof value === 'function' ? !value(ctx.doc.getIn(path)) : ctx.doc.getIn(path) !== value) {
       return;
     }
 
-    doc.deleteIn(path);
+    if (ctx.doc.deleteIn(path)) {
+      afterRemove?.(path);
+    }
 
     if (removeIfEmptyGlob) {
-      removeIfEmpty(doc, path.slice(0, -1), removeIfEmptyGlob);
+      removeIfEmpty(ctx.doc, path.slice(0, -1), removeIfEmptyGlob, afterRemove);
     }
   });
 }
@@ -237,6 +255,7 @@ export default {
   updateMapKey,
   collectPaths,
   toDotNotation,
+  toArrayNotation,
   deleteNodeByPath,
   deleteNodeByValue,
   areDocumentsEqual,
