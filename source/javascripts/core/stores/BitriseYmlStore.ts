@@ -31,31 +31,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Workflow related actions
-      addChainedWorkflow(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainableWorkflowId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.addChainedWorkflow(parentWorkflowId, placement, chainableWorkflowId, state.yml),
-          };
-        });
-      },
-      removeChainedWorkflow(
-        parentWorkflowId: string,
-        placement: ChainedWorkflowPlacement,
-        chainedWorkflowId: string,
-        chainedWorkflowIndex: number,
-      ) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.removeChainedWorkflow(
-              parentWorkflowId,
-              placement,
-              chainedWorkflowId,
-              chainedWorkflowIndex,
-              state.yml,
-            ),
-          };
-        });
-      },
       setChainedWorkflows(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) {
         return set((state) => {
           return {

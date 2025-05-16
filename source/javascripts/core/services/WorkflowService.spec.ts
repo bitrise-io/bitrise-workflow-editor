@@ -1,5 +1,6 @@
 import BitriseYmlApi from '../api/BitriseYmlApi';
 import { Workflows } from '../models/BitriseYml';
+import { ChainedWorkflowPlacement } from '../models/Workflow';
 import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
@@ -981,8 +982,340 @@ describe('WorkflowService', () => {
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
     });
 
-    it('should keep pipelines with stage references which have workflows', () => {});
+    it('should keep pipelines with stage references which have workflows', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+          stages:
+            st1:
+              workflows:
+              - wf1: {}
+            st2:
+              workflows:
+              - wf1: {}
+              - wf2: {}
+          pipelines:
+            pl1:
+              stages:
+              - st1: {}
+            pl2:
+              stages:
+              - st1: {}
+              - st2: {}
+        `,
+      });
 
-    it('should NOT remove the pipeline workflows property when last workflow removed in it', () => {});
+      WorkflowService.deleteWorkflow('wf1');
+
+      const expectedYml = yaml`
+        workflows:
+          wf2: {}
+        stages:
+          st2:
+            workflows:
+            - wf2: {}
+        pipelines:
+          pl2:
+            stages:
+            - st2: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should NOT remove the pipeline workflows property when last workflow removed in it', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+          pipelines:
+            pl1:
+              workflows:
+                wf1: {}
+        `,
+      });
+
+      WorkflowService.deleteWorkflow('wf1');
+
+      const expectedYml = yaml`
+        pipelines:
+          pl1:
+            workflows: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+  });
+
+  describe('addChainedWorkflow', () => {
+    const placements: ChainedWorkflowPlacement[] = ['after_run', 'before_run'];
+
+    placements.forEach((placement) => {
+      describe(`when placement is '${placement}'`, () => {
+        it('should create placement with chained workflow', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1: {}
+                wf2: {}
+            `,
+          });
+
+          const expectedYml = yaml`
+            workflows:
+              wf1:
+                ${placement}:
+                - wf2
+              wf2: {}
+          `;
+
+          WorkflowService.addChainedWorkflow('wf1', placement, 'wf2');
+
+          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+        });
+
+        it('should insert chainable workflow to the end of the list', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1:
+                  ${placement}: [ wf2 ]
+                wf2: {}
+                wf3: {}
+            `,
+          });
+
+          WorkflowService.addChainedWorkflow('wf1', placement, 'wf3');
+
+          const expectedYml = yaml`
+            workflows:
+              wf1:
+                ${placement}: [ wf2, wf3 ]
+              wf2: {}
+              wf3: {}
+          `;
+
+          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+        });
+
+        it('should be able to insert chained workflow multiple times', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1:
+                  ${placement}: [ wf2 ]
+                wf2: {}
+            `,
+          });
+
+          WorkflowService.addChainedWorkflow('wf1', placement, 'wf2');
+
+          const expectedYml = yaml`
+            workflows:
+              wf1:
+                ${placement}: [ wf2, wf2 ]
+              wf2: {}
+          `;
+
+          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+        });
+
+        it('throw an error when insert chained workflow into a non-existent workflow', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1: {}
+            `,
+          });
+
+          expect(() => {
+            WorkflowService.addChainedWorkflow('non-existing-workflow', placement, 'wf1');
+          }).toThrow(
+            `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
+          );
+        });
+
+        it('throw an error when insert non-existent chained workflow', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1: {}
+            `,
+          });
+          expect(() => {
+            WorkflowService.addChainedWorkflow('wf1', placement, 'non-existing-workflow');
+          }).toThrow(
+            `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
+          );
+        });
+      });
+    });
+
+    it('throw an error when insert chained workflow to invalid placement', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+      });
+
+      expect(() => {
+        WorkflowService.addChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2');
+      }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
+    });
+  });
+
+  describe('removeChainedWorkflow', () => {
+    const placements: ChainedWorkflowPlacement[] = ['after_run', 'before_run'];
+
+    placements.forEach((placement) => {
+      describe(`when placement is '${placement}'`, () => {
+        it('should remove workflow from the target placement', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1:
+                  before_run: [ wf2, wf3, wf2 ]
+                  after_run:
+                  - wf2
+                  - wf3
+                  - wf2
+            `,
+          });
+
+          WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 0);
+
+          let expectedYml = ``;
+          if (placement === 'before_run') {
+            expectedYml = yaml`
+              workflows:
+                wf1:
+                  before_run: [ wf3, wf2 ]
+                  after_run:
+                  - wf2
+                  - wf3
+                  - wf2
+            `;
+          } else {
+            expectedYml = yaml`
+              workflows:
+                wf1:
+                  before_run: [ wf2, wf3, wf2 ]
+                  after_run:
+                  - wf3
+                  - wf2
+            `;
+          }
+
+          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+        });
+
+        it('should remove placement when placement is empty', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1:
+                  before_run: [ wf2 ]
+                  after_run:
+                  - wf2
+            `,
+          });
+
+          WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 0);
+
+          let expectedYml = ``;
+          if (placement === 'before_run') {
+            expectedYml = yaml`
+              workflows:
+                wf1:
+                  after_run:
+                  - wf2
+            `;
+          } else {
+            expectedYml = yaml`
+              workflows:
+                wf1:
+                  before_run: [ wf2 ]
+            `;
+          }
+
+          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+        });
+
+        it('throw an error if the parentWorkflowId does not exist', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1: {}
+            `,
+          });
+
+          expect(() => {
+            WorkflowService.removeChainedWorkflow('non-existing-workflow', placement, 'wf1', 0);
+          }).toThrow(
+            `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
+          );
+        });
+
+        it('throw an error if the chainedWorkflowId does not match the index', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1:
+                  ${placement}: [ wf2, wf3 ]
+            `,
+          });
+
+          expect(() => {
+            WorkflowService.removeChainedWorkflow('wf1', placement, 'wf3', 0);
+          }).toThrow(`Workflow wf3 is not in the ${placement} workflow chain of wf1.`);
+        });
+
+        it('throw an error if the index is out of range', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+              workflows:
+                wf1:
+                  ${placement}: [ wf2, wf3 ]
+            `,
+          });
+
+          expect(() => {
+            WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 2);
+          }).toThrow(`Workflow wf2 is not in the ${placement} workflow chain of wf1.`);
+        });
+      });
+    });
+
+    it('throw an error when insert chained workflow to invalid placement', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+      });
+
+      expect(() => {
+        WorkflowService.removeChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2', 0);
+      }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
+    });
   });
 });

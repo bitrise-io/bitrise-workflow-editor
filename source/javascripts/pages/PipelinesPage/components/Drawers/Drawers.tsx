@@ -9,6 +9,7 @@ import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/Wor
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import PipelineService from '@/core/services/PipelineService';
 import StepService from '@/core/services/StepService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -35,9 +36,8 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setStepBundleId,
   } = usePipelinesPageStore();
 
-  const { getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
+  const { getUniqueStepIds } = useBitriseYmlStore((s) => ({
     getUniqueStepIds: s.getUniqueStepIds,
-    addChainedWorkflow: s.addChainedWorkflow,
   }));
 
   const handleAddStep = (cvs: string) => {
@@ -166,7 +166,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.CHAIN_WORKFLOW)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onChainWorkflow={addChainedWorkflow}
+          onChainWorkflow={WorkflowService.addChainedWorkflow}
         />
       )}
     </>

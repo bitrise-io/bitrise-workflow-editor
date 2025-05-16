@@ -32,9 +32,8 @@ const Drawers = ({ children }: PropsWithChildren) => {
     parentWorkflowId,
   } = useWorkflowsPageStore();
 
-  const { getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore((s) => ({
+  const { getUniqueStepIds } = useBitriseYmlStore((s) => ({
     getUniqueStepIds: s.getUniqueStepIds,
-    addChainedWorkflow: s.addChainedWorkflow,
   }));
 
   const enabledSteps = new Set(getUniqueStepIds());
@@ -94,7 +93,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.CHAIN_WORKFLOW)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onChainWorkflow={addChainedWorkflow}
+          onChainWorkflow={WorkflowService.addChainedWorkflow}
         />
       )}
 

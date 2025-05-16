@@ -1,7 +1,8 @@
 import { isEmpty } from 'es-toolkit/compat';
-import { Document, isMap } from 'yaml';
+import { Document, isMap, isScalar, isSeq } from 'yaml';
 
 import { Pipelines, Stages, WorkflowModel, Workflows } from '../models/BitriseYml';
+import { ChainedWorkflowPlacement } from '../models/Workflow';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 
@@ -223,7 +224,7 @@ function deleteWorkflow(ids: string | string[]) {
       getWorkflowOrThrowError(id, ctx.doc);
 
       YamlUtils.deleteNodeByPath(ctx, `workflows.${id}`, `*`);
-      YamlUtils.deleteNodeByPath(ctx, `pipelines.*.workflows.${id}`, `pipelines.*.workflows`);
+      YamlUtils.deleteNodeByPath(ctx, `pipelines.*.workflows.${id}`, `pipelines.*.workflows.*`);
       YamlUtils.deleteNodeByPath(ctx, `pipelines.*.stages.*.workflows.*.${id}`, `*`);
 
       YamlUtils.deleteNodeByValue(ctx, `trigger_map.*`, isTriggerWorkflow(id), `*`);
@@ -267,6 +268,59 @@ function deleteWorkflow(ids: string | string[]) {
   });
 }
 
+function addChainedWorkflow(prentWorkflowId: string, placement: ChainedWorkflowPlacement, chainableWorkflowId: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    if (placement !== 'before_run' && placement !== 'after_run') {
+      throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
+    }
+
+    getWorkflowOrThrowError(prentWorkflowId, doc);
+    getWorkflowOrThrowError(chainableWorkflowId, doc);
+
+    YamlUtils.getSeqIn(doc, ['workflows', prentWorkflowId, placement], true).add(doc.createNode(chainableWorkflowId));
+
+    return doc;
+  });
+}
+
+function removeChainedWorkflow(
+  parentWorkflowId: string,
+  placement: ChainedWorkflowPlacement,
+  chainedWorkflowId: string,
+  chainedWorkflowIndex: number,
+) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    if (placement !== 'before_run' && placement !== 'after_run') {
+      throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
+    }
+
+    getWorkflowOrThrowError(parentWorkflowId, doc);
+
+    const chainedWorkflows = YamlUtils.getSeqIn(doc, ['workflows', parentWorkflowId, placement]);
+    if (!chainedWorkflows || !isSeq(chainedWorkflows)) {
+      throw new Error(`Workflow ${parentWorkflowId} does not have a ${placement} workflow chain.`);
+    }
+
+    const isChainedWorkflowExists = chainedWorkflows.items.some((item, index) => {
+      return isScalar(item) && item.value === chainedWorkflowId && index === chainedWorkflowIndex;
+    });
+
+    if (!isChainedWorkflowExists) {
+      throw new Error(
+        `Workflow ${chainedWorkflowId} is not in the ${placement} workflow chain of ${parentWorkflowId}.`,
+      );
+    }
+
+    YamlUtils.deleteNodeByPath(
+      { doc, paths },
+      `workflows.${parentWorkflowId}.${placement}.${chainedWorkflowIndex}`,
+      `workflows.*`,
+    );
+
+    return doc;
+  });
+}
+
 export default {
   validateName,
   sanitizeName,
@@ -284,4 +338,6 @@ export default {
   renameWorkflow,
   updateWorkflowField,
   deleteWorkflow,
+  addChainedWorkflow,
+  removeChainedWorkflow,
 };

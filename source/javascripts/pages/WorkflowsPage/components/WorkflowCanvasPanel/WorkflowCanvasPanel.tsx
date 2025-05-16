@@ -46,10 +46,9 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       })),
     );
 
-  const { groupStepsToStepBundle, setChainedWorkflows, removeChainedWorkflow } = useBitriseYmlStore((s) => ({
+  const { groupStepsToStepBundle, setChainedWorkflows } = useBitriseYmlStore((s) => ({
     groupStepsToStepBundle: s.groupStepsToStepBundle,
     setChainedWorkflows: s.setChainedWorkflows,
-    removeChainedWorkflow: s.removeChainedWorkflow,
   }));
 
   const runButtonAriaLabel = useMemo(() => {
@@ -167,7 +166,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       deletedWorkflowId: string,
       deletedWorkflowIndex: number,
     ) => {
-      removeChainedWorkflow(parentWorkflowId, placement, deletedWorkflowId, deletedWorkflowIndex);
+      WorkflowService.removeChainedWorkflow(parentWorkflowId, placement, deletedWorkflowId, deletedWorkflowIndex);
 
       // Close the dialog if the selected workflow is deleted
       if (deletedWorkflowId === selectedWorkflowId) {
@@ -179,7 +178,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         closeDialog();
       }
     },
-    [closeDialog, removeChainedWorkflow, selectedWorkflowId, workflows],
+    [closeDialog, selectedWorkflowId, workflows],
   );
 
   const openStepSelectorDrawerFromWorkflow = useCallback(
