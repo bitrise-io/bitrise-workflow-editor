@@ -203,6 +203,17 @@ function getTriggerMapItemOrThrowError(doc: Document, index: number) {
   return trigger;
 }
 
+function getTriggerMapItemConditionOrThrowError(doc: Document, index: number, conditionType: string) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  const condition = trigger.get(conditionType) as Pair<LegacyConditionType, TriggerMapItemModelRegexCondition>;
+
+  if (!condition) {
+    throw new Error(`Condition ${conditionType} not found at path trigger_map.${index}`);
+  }
+
+  return condition;
+}
+
 function addLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map'], true);
@@ -220,22 +231,196 @@ function removeLegacyTrigger(index: number) {
   });
 }
 
-function updateLegacyTriggerEnabled(enabled: boolean, index: number) {
+function changeLegacyTriggerEnabled(doc: Document, enabled: boolean, index: number) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+
+  if (enabled) {
+    trigger.delete('enabled');
+    return;
+  }
+
+  trigger.flow = false;
+  trigger.set('enabled', false);
+}
+
+function updateLegacyTriggerEnabled(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
-    const trigger = getTriggerMapItemOrThrowError(doc, index);
-    if (enabled) {
-      YamlUtils.safeDeleteIn(doc, ['trigger_map', index, 'enabled'], ['trigger_map']);
-      return doc;
-    }
-    trigger.set('enabled', false);
+    changeLegacyTriggerEnabled(doc, trigger.isActive, trigger.index);
     return doc;
+  });
+}
+
+function updateLegacyTriggerDraftPr(doc: Document, isDraftPr: boolean | undefined, index: number) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  trigger.flow = false;
+
+  if (isDraftPr === false) {
+    trigger.set('draft_pull_request_enabled', false);
+  } else {
+    trigger.delete('draft_pull_request_enabled');
+  }
+}
+
+function updateLegacyTriggerSource(doc: Document, legacyTrigger: LegacyTrigger) {
+  const trigger = getTriggerMapItemOrThrowError(doc, legacyTrigger.index);
+  const [target, targetId] = legacyTrigger.source.split('#') as [TriggerSource, string];
+
+  if (target === 'pipelines') {
+    trigger.set('pipeline', targetId);
+    trigger.delete('workflow');
+  } else if (target === 'workflows') {
+    trigger.set('workflow', targetId);
+    trigger.delete('pipeline');
+  }
+}
+
+function addLegacyTriggerCondition(doc: Document, condition: LegacyCondition, index: number) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  trigger.flow = false;
+  trigger.set(condition.type, doc.createNode(fromLegacyCondition(condition)));
+}
+
+function removeLegacyTriggerCondition(doc: Document, conditionType: LegacyConditionType, index: number) {
+  getTriggerMapItemConditionOrThrowError(doc, index, conditionType);
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  trigger.delete(conditionType);
+}
+
+function updateLegacyTriggerConditionRegex(
+  doc: Document,
+  isRegex: boolean,
+  index: number,
+  conditionType: LegacyConditionType,
+) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  const condition = trigger.get(conditionType) as Pair<LegacyConditionType, TriggerMapItemModelRegexCondition>;
+
+  if (isRegex) {
+    if (typeof condition === 'string') {
+      // set regex from string
+      const finalValue = cleanConditionValue(condition, true);
+      trigger.set(conditionType, doc.createNode({ regex: finalValue }));
+      return;
+    }
+    if (isMap(condition) && condition.has('pattern')) {
+      // set regex from pattern
+      const finalValue = cleanConditionValue(condition.get('pattern') as string, true);
+      YamlUtils.updateMapKey(condition, 'pattern', 'regex');
+      condition.set('regex', finalValue);
+      return;
+    }
+    if (isMap(condition) && condition.has('regex')) {
+      // already has regex, do nothing
+      return;
+    }
+  }
+
+  // NOT regex
+  if (typeof condition === 'string') {
+    // does not have regex, do nothing
+    return;
+  }
+  if (isMap(condition) && !condition.has('regex')) {
+    // does not have regex, do nothing
+    return;
+  }
+  if (isMap(condition) && condition.has('regex') && condition.has('last_commit')) {
+    // set pattern from regex
+    const finalValue = cleanConditionValue(condition.get('regex') as string, false);
+    YamlUtils.updateMapKey(condition, 'regex', 'pattern');
+    condition.set('pattern', finalValue);
+    return;
+  }
+  if (isMap(condition) && condition.has('regex') && !condition.has('last_commit')) {
+    // set string from regex
+    const finalValue = cleanConditionValue(condition.get('regex') as string, false);
+    trigger.set(conditionType, finalValue);
+  }
+}
+
+function updateLegacyTriggerConditionValue(
+  doc: Document,
+  value: string,
+  index: number,
+  conditionType: LegacyConditionType,
+) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  const condition = trigger.get(conditionType);
+
+  let finalValue = value.trim();
+  if (finalValue === '') {
+    finalValue = isMap(condition) && condition.has('regex') ? '.*' : '*';
+  }
+
+  if (isMap(condition) && condition.has('regex')) {
+    condition.set('regex', finalValue);
+  } else if (isMap(condition) && condition.has('pattern')) {
+    condition.set('pattern', finalValue);
+  } else {
+    trigger.set(conditionType, finalValue);
+  }
+}
+
+function updateLegacyConditions(doc: Document, conditions: LegacyCondition[], index: number) {
+  const trigger = getTriggerMapItemOrThrowError(doc, index);
+  const newConditionTypes = conditions.map((c) => c.type);
+  const oldConditionTypes = ALL_LEGACY_CONDITION_TYPES.reduce((acc, c) => {
+    if (trigger.has(c)) {
+      acc.push(c);
+    }
+    return acc;
+  }, [] as LegacyConditionType[]);
+
+  const removedConditionTypes = oldConditionTypes.filter((c) => !newConditionTypes.includes(c));
+  const addedConditionTypes = newConditionTypes.filter((c) => !oldConditionTypes.includes(c));
+  const updatedConditionTypes = newConditionTypes.filter((c) => oldConditionTypes.includes(c));
+
+  // remove old conditions
+  removedConditionTypes.forEach((conditionType) => {
+    removeLegacyTriggerCondition(doc, conditionType, index);
+  });
+
+  // update existing conditions
+  updatedConditionTypes.forEach((conditionType) => {
+    const condition = conditions.find((c) => c.type === conditionType);
+    if (condition) {
+      updateLegacyTriggerConditionValue(doc, condition.value, index, conditionType);
+      updateLegacyTriggerConditionRegex(doc, condition.isRegex || false, index, conditionType);
+    }
+  });
+
+  // add new conditions
+  addedConditionTypes.forEach((conditionType) => {
+    const condition = conditions.find((c) => c.type === conditionType);
+    if (condition) {
+      addLegacyTriggerCondition(doc, condition, index);
+    }
   });
 }
 
 function updateLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
-    getTriggerMapItemOrThrowError(doc, trigger.index);
-    doc.setIn(['trigger_map', trigger.index], doc.createNode(toTriggerMapItemModel(trigger)));
+    const triggerItem = getTriggerMapItemOrThrowError(doc, trigger.index);
+
+    // Update the conditions
+    updateLegacyConditions(doc, trigger.conditions, trigger.index);
+
+    // update the draft_pr_enabled property
+    if (
+      trigger.triggerType === 'pull_request' &&
+      (trigger.isDraftPr !== false) !== (triggerItem.get('draft_pull_request_enabled') !== false)
+    ) {
+      updateLegacyTriggerDraftPr(doc, trigger.isDraftPr, trigger.index);
+    }
+
+    updateLegacyTriggerSource(doc, trigger);
+
+    // Update the enabled property
+    if (trigger.isActive !== (triggerItem.get('enabled') !== false)) {
+      changeLegacyTriggerEnabled(doc, trigger.isActive, trigger.index);
+    }
+
+    // doc.setIn(['trigger_map', trigger.index], doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
 }
@@ -416,6 +601,19 @@ function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: 
   });
 }
 
+function addTrigger(trigger: TargetBasedTrigger) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+    const entity = getSourceOrThrowError(doc, { source, sourceId });
+    entity.flow = false;
+
+    const triggers = YamlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
+    triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
+
+    return doc;
+  });
+}
+
 function changeTriggerEnabled(
   doc: Document,
   enabled: boolean,
@@ -441,19 +639,6 @@ function updateTriggerEnabled(trigger: TargetBasedTrigger) {
       triggerType: trigger.triggerType,
       index: trigger.index,
     });
-    return doc;
-  });
-}
-
-function addTrigger(trigger: TargetBasedTrigger) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
-    const entity = getSourceOrThrowError(doc, { source, sourceId });
-    entity.flow = false;
-
-    const triggers = YamlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
-    triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
-
     return doc;
   });
 }
@@ -677,7 +862,6 @@ function updateTrigger(trigger: TargetBasedTrigger) {
       index: trigger.index,
     });
 
-    // update the conditions
     updateConditions(doc, trigger.conditions, {
       source,
       sourceId,
@@ -706,7 +890,6 @@ function updateTrigger(trigger: TargetBasedTrigger) {
       });
     }
 
-    // write out enabled false only
     if (trigger.isActive !== (triggerItem.get('enabled') !== false)) {
       changeTriggerEnabled(doc, trigger.isActive, {
         source,
@@ -736,14 +919,18 @@ function removeTrigger(trigger: TargetBasedTrigger) {
 }
 
 export default {
+  // legacy trigger helpers
   toLegacyTriggers,
   isLegacyConditionUsed,
   convertToTargetBasedTrigger,
   toTargetBasedTriggers,
+  // legacy trigger actions
   addLegacyTrigger,
   updateLegacyTrigger,
+  updateLegacyTriggerEnabled,
   removeLegacyTrigger,
   updateTriggerMap,
+  // target-based trigger actions
   updateEnabled,
   addTrigger,
   updateTrigger,

@@ -3,6 +3,7 @@ import {
   Card,
   Checkbox,
   ControlButton,
+  Icon,
   Input,
   Select,
   Table,
@@ -11,6 +12,7 @@ import {
   Th,
   Thead,
   ToggleButton,
+  Toggletip,
   Tr,
 } from '@bitrise/bitkit';
 import { Tfoot } from '@chakra-ui/react';
@@ -95,6 +97,9 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                       onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
                     >
                       Last commit only
+                      <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
+                        <Icon name="Info" size="16" marginLeft="5" />
+                      </Toggletip>
                     </Checkbox>
                   )}
                 </Td>
@@ -112,7 +117,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         leftAddon={
                           <ToggleButton
                             aria-label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
-                            iconName="Code"
+                            iconName="Regex"
                             isSelected={isRegex}
                             marginBlockStart="4"
                             marginInlineStart="4"

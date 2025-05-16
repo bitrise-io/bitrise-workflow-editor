@@ -16,13 +16,6 @@ const LegacyTriggers = () => {
   const triggers = useLegacyTriggers();
   const [editedItem, setEditedItem] = useState<LegacyTrigger | undefined>();
 
-  const onReorder = (type: TriggerType, newTriggers: LegacyTrigger[]) => {
-    const newTriggersMap = { ...triggers };
-    newTriggersMap[type] = newTriggers;
-    // Let the animation finish before updating the trigger map
-    TriggerService.updateTriggerMap(newTriggersMap);
-  };
-
   const onTriggerAdded = (trigger: LegacyTrigger) => {
     TriggerService.addLegacyTrigger(trigger);
   };
@@ -33,6 +26,12 @@ const LegacyTriggers = () => {
 
   const onTriggerRemoved = (trigger: LegacyTrigger) => {
     TriggerService.removeLegacyTrigger(trigger.index);
+  };
+
+  const onReorder = (type: TriggerType, newTriggers: LegacyTrigger[]) => {
+    const newTriggersMap = { ...triggers };
+    newTriggersMap[type] = newTriggers;
+    TriggerService.updateTriggerMap(newTriggersMap);
   };
 
   const {

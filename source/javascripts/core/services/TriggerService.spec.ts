@@ -297,15 +297,703 @@ describe('TriggerService', () => {
     });
 
     describe('updateLegacyTrigger', () => {
-      it('should update a legacy trigger in the trigger_map', () => {
+      it('should create the enabled property of a trigger', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: false,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
+            enabled: false
+        `);
+      });
+
+      it('should update the enabled property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - type: pull_request
+              workflow: primary
+              enabled: true
+              pull_request_target_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'pull_request',
+          isActive: false,
+          conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - type: pull_request
+            workflow: primary
+            enabled: false
+            pull_request_target_branch: master
+        `);
+      });
+
+      it('should remove the enabled property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - tag: master
+              enabled: false
+              workflow: primary`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'tag',
+          isActive: true,
+          conditions: [{ type: 'tag', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - tag: master
+            workflow: primary
+        `);
+      });
+
+      it('should create the draft_pull_request_enabled property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - pull_request_target_branch: master
+              workflow: primary`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'pull_request',
+          isActive: true,
+          isDraftPr: false,
+          conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - pull_request_target_branch: master
+            workflow: primary
+            draft_pull_request_enabled: false
+        `);
+      });
+
+      it('should update the draft_pull_request_enabled property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - type: pull_request
+              workflow: primary
+              draft_pull_request_enabled: true
+              pull_request_target_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'pull_request',
+          isActive: true,
+          isDraftPr: false,
+          conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - type: pull_request
+            workflow: primary
+            draft_pull_request_enabled: false
+            pull_request_target_branch: master
+        `);
+      });
+
+      it('should delete the draft_pull_request_enabled property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - type: pull_request
+              workflow: primary
+              draft_pull_request_enabled: false
+              pull_request_target_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'pull_request',
+          isActive: true,
+          isDraftPr: true,
+          conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - type: pull_request
+            workflow: primary
+            pull_request_target_branch: master
+        `);
+      });
+
+      it('should create the workflow property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+        `);
+      });
+
+      it('should update the workflow property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - workflow: primary
+              push_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#secondary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - workflow: secondary
+            push_branch: master
+        `);
+      });
+
+      it('should replace the workflow property of a trigger with the pipeline property', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - workflow: primary
+              push_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'pipelines#ci-pipeline',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            pipeline: ci-pipeline
+        `);
+      });
+
+      it('should create the pipeline property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'pipelines#ci-pipeline',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            pipeline: ci-pipeline
+        `);
+      });
+
+      it('should update the pipeline property of a trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - pipeline: ci-pipeline
+              push_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'pipelines#release-pipeline',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - pipeline: release-pipeline
+            push_branch: master
+
+        `);
+      });
+
+      it('should replace the pipeline property of a trigger with the workflow property', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - pipeline: ci-pipeline
+              push_branch: master`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+        `);
+      });
+
+      it('should add a new condition to the trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'ci' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: ci
+        `);
+      });
+
+      it('should remove a condition from the trigger', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [{ type: 'push_branch', value: 'master' }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+        `);
+      });
+
+      it('should update the value of a condition in the trigger (string value)', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'dev' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: dev
+        `);
+      });
+
+      it('should update the value of a condition in the trigger (regex value)', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message:
+                regex: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'feat/.*', isRegex: true },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message:
+              regex: feat/.*
+        `);
+      });
+
+      it('should update the value to *, if value is empty', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: '   ' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: "*"
+        `);
+      });
+
+      it('should set the regex property of a trigger (string value to regex)', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'feat\\-\\d+\\/.*', isRegex: true },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message:
+              regex: feat\\-\\d+\\/.*
+        `);
+      });
+
+      it('should set the regex property of a trigger (string value (*) to regex value (.*))', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message: "*"`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: '*', isRegex: true },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message:
+              regex: .*
+        `);
+      });
+
+      it('should set the regex property of a trigger (regex value is unchanged)', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message:
+                regex: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'ci', isRegex: true },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message:
+              regex: ci
+        `);
+      });
+
+      it('should remove the regex property of a trigger (regex value to string value)', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message:
+                regex: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'ci' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: ci
+        `);
+      });
+
+      it('should remove the regex property of a trigger (regex value (.*) to string value(*))', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message:
+                regex: .*`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: '*' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: "*"
+        `);
+      });
+
+      it('should remove the regex property of a trigger (string value is unchanged)', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+              commit_message: ci`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'ci' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: ci
+        `);
+      });
+
+      it('should update a legacy push trigger in the trigger_map', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+            - pull_request_target_branch: develop
+              workflow: primary
+            - tag: v1.0.0
+              workflow: primary`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 0,
+          source: 'workflows#primary',
+          triggerType: 'push',
+          isActive: true,
+          conditions: [
+            { type: 'push_branch', value: 'master' },
+            { type: 'commit_message', value: 'ci' },
+          ],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+            commit_message: ci
           - pull_request_target_branch: develop
-            workflow: primary`,
+            workflow: primary
+          - tag: v1.0.0
+            workflow: primary
+        `);
+      });
+
+      it('should update a legacy pull_request trigger in the trigger_map', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+            - pull_request_target_branch: develop
+              workflow: primary
+            - tag: v1.0.0
+              workflow: primary`,
         });
 
         TriggerService.updateLegacyTrigger({
@@ -314,17 +1002,58 @@ describe('TriggerService', () => {
           source: 'workflows#primary',
           triggerType: 'pull_request',
           isActive: true,
-          conditions: [{ type: 'pull_request_source_branch', value: 'dev' }],
+          isDraftPr: false,
+          conditions: [
+            { type: 'pull_request_target_branch', value: 'master' },
+            { type: 'pull_request_source_branch', value: 'feat' },
+          ],
         });
 
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
-        trigger_map:
-        - push_branch: master
-          workflow: primary
-        - type: pull_request
-          workflow: primary
-          pull_request_source_branch: dev
-      `);
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+          - pull_request_target_branch: master
+            workflow: primary
+            pull_request_source_branch: feat
+            draft_pull_request_enabled: false
+          - tag: v1.0.0
+            workflow: primary
+        `);
+      });
+
+      it('should update a legacy tag trigger in the trigger_map', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            trigger_map:
+            - push_branch: master
+              workflow: primary
+            - pull_request_target_branch: develop
+              workflow: primary
+            - tag: v1.0.0
+              workflow: primary`,
+        });
+
+        TriggerService.updateLegacyTrigger({
+          uniqueId: '1',
+          index: 2,
+          source: 'workflows#primary',
+          triggerType: 'tag',
+          isActive: true,
+          conditions: [{ type: 'tag', value: '^v\\d+\\.\\d+\\.\\d+$', isRegex: true }],
+        });
+
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+          - pull_request_target_branch: develop
+            workflow: primary
+          - tag:
+              regex: ^v\\d+\\.\\d+\\.\\d+$
+            workflow: primary
+        `);
       });
 
       it('should throw an error if trigger_map is not found', () => {
@@ -1443,7 +2172,7 @@ describe('TriggerService', () => {
                 { type: 'branch', value: 'master' },
                 {
                   type: 'commit_message',
-                  value: 'ci',
+                  value: 'feat\\-\\d+\\/.*',
                   isRegex: true,
                 },
               ],
@@ -1456,7 +2185,7 @@ describe('TriggerService', () => {
                     push:
                     - branch: master
                       commit_message:
-                        regex: ci
+                        regex: feat\\-\\d+\\/.*
             `);
           });
 
@@ -1516,7 +2245,7 @@ describe('TriggerService', () => {
               isActive: true,
               conditions: [
                 { type: 'branch', value: 'master' },
-                { type: 'commit_message', value: 'ci', isRegex: true },
+                { type: 'commit_message', value: 'feat\\-\\d+\\/.*', isRegex: true },
               ],
             });
 
@@ -1527,7 +2256,7 @@ describe('TriggerService', () => {
                     push:
                     - branch: master
                       commit_message:
-                        regex: ci
+                        regex: feat\\-\\d+\\/.*
             `);
           });
 
