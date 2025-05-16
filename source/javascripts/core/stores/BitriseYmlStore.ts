@@ -47,13 +47,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      createStepBundle(stepBundleId: string, baseStepBundleId?: string, baseWorkflowId?: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.createStepBundle(stepBundleId, state.yml, baseStepBundleId, baseWorkflowId),
-          };
-        });
-      },
       deleteStepBundle(stepBundleId: string) {
         return set((state) => {
           return {

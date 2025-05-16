@@ -1,7 +1,10 @@
 import { omitBy, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
+import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 
-import { EnvironmentItemModel, StepBundles, Workflows } from '../models/BitriseYml';
+import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
+import { STEP_BUNDLE_KEYS, StepBundleBasedOnSource } from '../models/StepBundle';
+import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 
 const STEP_BUNDLE_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -120,6 +123,49 @@ function sanitizeInputKey(key: string) {
   return key.replace(/[^a-zA-Z0-9_]/g, '').trim();
 }
 
+function getCreationSourceOrThrowError(doc: Document, at: { source: StepBundleBasedOnSource; sourceId: string }) {
+  const { source, sourceId } = at;
+  const entity = doc.getIn([source, sourceId]);
+
+  if (!entity || !isMap(entity)) {
+    throw new Error(`${source}.${sourceId} not found`);
+  }
+
+  return entity;
+}
+
+function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
+  const stepBundle = doc.getIn(['step_bundles', id]);
+  if (stepBundle) {
+    throw new Error(`step_bundles.${id} already exists`);
+  }
+}
+
+function create(id: string, basedOn?: { source: StepBundleBasedOnSource; sourceId: string }) {
+  updateBitriseYmlDocument(({ doc }) => {
+    throwIfStepBundleAlreadyExists(doc, id);
+
+    if (!basedOn) {
+      doc.setIn(['step_bundles', id], doc.createNode({}));
+      return doc;
+    }
+
+    const baseEntity = getCreationSourceOrThrowError(doc, basedOn).clone() as YAMLMap;
+    const keysToDelete = new Set();
+    baseEntity.items.forEach((item) => {
+      const key = isScalar(item.key) ? item.key.value : item.key;
+      if (!STEP_BUNDLE_KEYS.includes(key as keyof StepBundleModel)) {
+        keysToDelete.add(key);
+      }
+    });
+    keysToDelete.forEach((key) => baseEntity.delete(key));
+
+    doc.setIn(['step_bundles', id], baseEntity);
+
+    return doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -131,4 +177,5 @@ export default {
   idToCvs,
   sanitizeInputOpts,
   sanitizeInputKey,
+  create,
 };

@@ -2,20 +2,19 @@ import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig
 import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
 import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
+import { StepBundleBasedOnSource } from '@/core/models/StepBundle';
+import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import CreateStepBundleDialog, {
-  StepBundleBaseEntityType,
-} from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
+import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const Drawers = () => {
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =
     useStepBundlesPageStore();
 
-  const { createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
-    createStepBundle: s.createStepBundle,
+  const { getUniqueStepIds } = useBitriseYmlStore((s) => ({
     getUniqueStepIds: s.getUniqueStepIds,
   }));
 
@@ -38,13 +37,8 @@ const Drawers = () => {
   };
 
   const handleCreateStepBundle = (newId: string, baseEntityId?: string) => {
-    const [type, baseId] = baseEntityId?.split('#') || [];
-    if (!type || type === StepBundleBaseEntityType.STEP_BUNDLES) {
-      createStepBundle(newId, baseId);
-    }
-    if (type === StepBundleBaseEntityType.WORKFLOWS) {
-      createStepBundle(newId, undefined, baseId);
-    }
+    const [type, baseId] = baseEntityId ? (baseEntityId.split('#') as [StepBundleBasedOnSource, string]) : [];
+    StepBundleService.create(newId, type && baseId ? { source: type, sourceId: baseId } : undefined);
   };
 
   return (

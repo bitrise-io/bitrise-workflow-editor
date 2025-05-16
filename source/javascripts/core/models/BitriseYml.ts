@@ -107,6 +107,17 @@ export type GoStepToolkitModel = {
   package_name: string;
 };
 
+/*
+export type StepBundleModel = {
+  title?: string;
+  summary?: string;
+  description?: string;
+  envs?: EnvModel;
+  inputs?: EnvModel;
+  steps?: Steps;
+};
+*/
+
 export type WorkflowModel = {
   title?: string;
   summary?: string;
@@ -248,13 +259,13 @@ export type TagTriggerModel = {
 export type TriggerMapItemModelRegexCondition =
   | string
   | {
-      pattern: string;
-      last_commit?: boolean;
-    }
+    pattern: string;
+    last_commit?: boolean;
+  }
   | {
-      regex: string;
-      last_commit?: boolean;
-    };
+    regex: string;
+    last_commit?: boolean;
+  };
 
 export type StepListItemModel = {
   [stepId: string]: StepModel | WithModel | StepBundleModel;

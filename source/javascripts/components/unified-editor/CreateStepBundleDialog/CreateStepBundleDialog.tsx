@@ -1,16 +1,18 @@
 import { DialogProps } from '@bitrise/bitkit';
 
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
+import { StepBundleBasedOnSource } from '@/core/models/StepBundle';
 import StepBundleService from '@/core/services/StepBundleService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
-export enum StepBundleBaseEntityType {
-  STEP_BUNDLES = 'step_bundles',
-  WORKFLOWS = 'workflows',
-}
+type BaseEntityGroup = {
+  ids: string[];
+  groupLabel?: string;
+  type: StepBundleBasedOnSource;
+};
 
 type Props = Omit<DialogProps, 'title'> & {
   onCreateStepBundle: (stepBundleId: string, baseEntityId?: string) => void;
@@ -34,11 +36,11 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
     onCloseComplete?.();
   };
 
-  const baseEntities = [
+  const baseEntities: BaseEntityGroup[] = [
     {
       ids: stepBundleIds,
       groupLabel: utilityWorkflowIds.length ? 'Step bundles' : undefined,
-      type: StepBundleBaseEntityType.STEP_BUNDLES,
+      type: 'step_bundles',
     },
   ];
 
@@ -46,12 +48,12 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
     baseEntities.push({
       ids: utilityWorkflowIds,
       groupLabel: 'Utility workflows',
-      type: StepBundleBaseEntityType.WORKFLOWS,
+      type: 'workflows',
     });
   }
 
   return (
-    <CreateEntityDialog<StepBundleBaseEntityType>
+    <CreateEntityDialog<StepBundleBasedOnSource>
       baseEntities={baseEntities}
       entityName="Step bundle"
       onClose={onClose}
