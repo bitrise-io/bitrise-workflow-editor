@@ -321,6 +321,38 @@ function removeChainedWorkflow(
   });
 }
 
+function setChainedWorkflows(workflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    if (placement !== 'before_run' && placement !== 'after_run') {
+      throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
+    }
+
+    getWorkflowOrThrowError(workflowId, doc);
+
+    const chainedWorkflowSequence = YamlUtils.getSeqIn(doc, ['workflows', workflowId, placement], true);
+
+    chainedWorkflowIds.forEach((chainedWorkflowId, index) => {
+      getWorkflowOrThrowError(chainedWorkflowId, doc);
+
+      if (chainedWorkflowSequence.get(index)) {
+        chainedWorkflowSequence.set(index, chainedWorkflowId);
+      } else {
+        chainedWorkflowSequence.add(doc.createNode(chainedWorkflowId));
+      }
+    });
+
+    if (chainedWorkflowSequence.items.length > chainedWorkflowIds.length) {
+      chainedWorkflowSequence.items = chainedWorkflowSequence.items.slice(0, chainedWorkflowIds.length);
+    }
+
+    if (chainedWorkflowSequence.items.length === 0) {
+      YamlUtils.deleteNodeByPath({ doc, paths }, `workflows.${workflowId}.${placement}`, `workflows.*.*`);
+    }
+
+    return doc;
+  });
+}
+
 export default {
   validateName,
   sanitizeName,
@@ -340,4 +372,5 @@ export default {
   deleteWorkflow,
   addChainedWorkflow,
   removeChainedWorkflow,
+  setChainedWorkflows,
 };

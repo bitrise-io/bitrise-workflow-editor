@@ -88,9 +88,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  const { groupStepsToStepBundle, setChainedWorkflows } = useBitriseYmlStore((s) => ({
+  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
     groupStepsToStepBundle: s.groupStepsToStepBundle,
-    setChainedWorkflows: s.setChainedWorkflows,
   }));
 
   useResizeObserver({
@@ -406,7 +405,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         placement: ChainedWorkflowPlacement,
         chainedIds: string[],
       ) => {
-        setChainedWorkflows(parentWorkflowId, placement, chainedIds);
+        WorkflowService.setChainedWorkflows(parentWorkflowId, placement, chainedIds);
       },
       handleRemoveChainedWorkflow: (
         parentWorkflowId: string,
@@ -431,7 +430,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     openDialog,
     selectedPipeline,
     groupStepsToStepBundle,
-    setChainedWorkflows,
   ]);
 
   const containerProps = useMemo(

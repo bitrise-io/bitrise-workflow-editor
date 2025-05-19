@@ -46,9 +46,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       })),
     );
 
-  const { groupStepsToStepBundle, setChainedWorkflows } = useBitriseYmlStore((s) => ({
+  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
     groupStepsToStepBundle: s.groupStepsToStepBundle,
-    setChainedWorkflows: s.setChainedWorkflows,
   }));
 
   const runButtonAriaLabel = useMemo(() => {
@@ -389,7 +388,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onEditWorkflow={undefined}
           onRemoveWorkflow={undefined}
           onChainWorkflow={openChainWorkflowDialog}
-          onChainedWorkflowsUpdate={setChainedWorkflows}
+          onChainedWorkflowsUpdate={WorkflowService.setChainedWorkflows}
           onRemoveChainedWorkflow={handleRemoveChainedWorkflow}
           onEditChainedWorkflow={openWorkflowConfigDrawer}
           onChainChainedWorkflow={openChainWorkflowDialog}

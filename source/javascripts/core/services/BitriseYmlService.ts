@@ -10,7 +10,6 @@ import {
   StepModel,
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
-import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
@@ -75,35 +74,6 @@ function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml
       }
     }
   });
-
-  return copy;
-}
-
-function setChainedWorkflows(
-  workflowId: string,
-  placement: Placement,
-  chainedWorkflowIds: string[],
-  yml: BitriseYml,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If the workflow is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]) {
-    return copy;
-  }
-
-  // If the placement is not valid, return the YML
-  if (!['before_run', 'after_run'].includes(placement)) {
-    return copy;
-  }
-
-  // Set the chained workflows
-  copy.workflows[workflowId][placement] = chainedWorkflowIds;
-
-  // If the chained placement is empty, remove it
-  if (shouldRemoveField(copy.workflows[workflowId][placement], yml.workflows?.[workflowId]?.[placement])) {
-    delete copy.workflows[workflowId][placement];
-  }
 
   return copy;
 }
@@ -342,7 +312,6 @@ export default {
   getUniqueStepCvss,
   groupStepsToStepBundle,
   updateStepBundle,
-  setChainedWorkflows,
   appendStepBundleInput,
   deleteStepBundleInput,
   updateStepBundleInput,

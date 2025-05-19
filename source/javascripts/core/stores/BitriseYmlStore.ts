@@ -4,7 +4,6 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
 import { BitriseYml, EnvironmentItemModel, StepBundleModel } from '@/core/models/BitriseYml';
-import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
@@ -28,15 +27,6 @@ export const bitriseYmlStore = createStore(
     (set, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
-      },
-
-      // Workflow related actions
-      setChainedWorkflows(parentWorkflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.setChainedWorkflows(parentWorkflowId, placement, chainedWorkflowIds, state.yml),
-          };
-        });
       },
 
       // Step Bundle related actions
