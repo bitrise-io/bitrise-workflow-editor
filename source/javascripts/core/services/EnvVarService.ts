@@ -286,8 +286,14 @@ function updateValue(value: string, index: number, key: string, source: EnvVarSo
     }
 
     const ymlValue = toYmlValue(value);
-    const scalar = new Scalar(ymlValue);
-    scalar.type = Scalar.PLAIN;
+
+    let scalar = env.get(key, true);
+    if (!scalar) {
+      scalar = new Scalar(ymlValue);
+      scalar.type = Scalar.PLAIN;
+    } else {
+      scalar.value = ymlValue;
+    }
 
     // If value is number, set the minFractionDigits to the number of digits in the value
     if (typeof ymlValue === 'number' && value.includes('.')) {

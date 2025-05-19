@@ -1030,16 +1030,25 @@ describe('EnvVarService', () => {
           ymlString: yaml`
             app:
               envs:
-              - SERVICE_VERSION: 1.2.3`,
+              - SERVICE_VERSION: 1.2.3
+              - PROJECT_NAME: "Mando"
+              - ENVIRONMENT: 'production'
+              - NODE_VERSION: '0.14.0'`,
         });
 
         EnvVarService.updateValue('2.0', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        EnvVarService.updateValue('Grogu', 1, 'PROJECT_NAME', EnvVarSource.Project);
+        EnvVarService.updateValue('staging', 2, 'ENVIRONMENT', EnvVarSource.Project);
+        EnvVarService.updateValue('0.15.0', 3, 'NODE_VERSION', EnvVarSource.Project);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 2.0
+            - PROJECT_NAME: "Grogu"
+            - ENVIRONMENT: 'staging'
+            - NODE_VERSION: '0.15.0'
         `);
       });
 
