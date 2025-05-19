@@ -123,8 +123,31 @@ function updateMapKey(map: YAMLMap, oldKey: string, newKey: string) {
   });
 }
 
+// Memoization cache for areDocumentsEqual
+const areDocumentsEqualCache = new WeakMap<Document, WeakMap<Document, boolean>>();
+
 function areDocumentsEqual(a: Document, b: Document) {
-  return BitriseYmlApi.toYml(a) === BitriseYmlApi.toYml(b);
+  // Check if documents are the same instance
+  if (a === b) return true;
+
+  // Check if result is already cached
+  if (!areDocumentsEqualCache.has(a)) {
+    areDocumentsEqualCache.set(a, new WeakMap<Document, boolean>());
+  }
+
+  const aCache = areDocumentsEqualCache.get(a)!;
+
+  if (aCache.has(b)) {
+    return aCache.get(b)!;
+  }
+
+  // Compute the result
+  const result = BitriseYmlApi.toYml(a) === BitriseYmlApi.toYml(b);
+
+  // Cache the result
+  aCache.set(b, result);
+
+  return result;
 }
 
 function updateKey({ doc, paths }: Args, glob: Glob, newKey: string) {

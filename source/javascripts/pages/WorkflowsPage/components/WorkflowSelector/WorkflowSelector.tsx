@@ -8,7 +8,7 @@ import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/Workflow
 const WorkflowSelector = () => {
   const workflowIds = useWorkflows((s) => Object.keys(s));
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
-  const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
+  const [selectedWorkflowId, setSelectedWorkflow] = useSelectedWorkflow();
 
   const onCreateWorkflow = () => {
     openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();

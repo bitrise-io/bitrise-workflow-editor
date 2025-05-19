@@ -12,7 +12,15 @@ type Props = {
 
 const useDependantWorkflows = (props: Props) => {
   const { workflowId, stepBundleCvs } = props;
-  const workflows = useWorkflows();
+
+  const workflows = useWorkflows((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([id, { before_run, after_run }]) => {
+        return [id, { before_run, after_run }];
+      }),
+    );
+  });
+
   const stepBundles = useStepBundles();
 
   return useMemo(() => {

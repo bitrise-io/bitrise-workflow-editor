@@ -10,7 +10,7 @@ import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvas
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
 
 const WorkflowsPage = () => {
-  const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
+  const [selectedWorkflowId] = useSelectedWorkflow();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
 
