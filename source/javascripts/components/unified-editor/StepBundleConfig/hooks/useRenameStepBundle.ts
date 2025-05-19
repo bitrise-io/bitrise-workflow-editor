@@ -10,10 +10,6 @@ const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundl
   const [nextStepBundleId, setNextStepBundleId] = useState(stepBundleId);
   const [prevStepBundleId, setPrevStepBundleId] = useState(stepBundleId);
 
-  const { renameStepBundle } = useBitriseYmlStore((s) => ({
-    renameStepBundle: s.renameStepBundle,
-  }));
-
   const isNewStepBundlePersisted = stepBundleIdsInTheStore.includes(nextStepBundleId);
   const isNewStepBundleSelected = nextStepBundleId === stepBundleId;
 
@@ -38,14 +34,14 @@ const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundl
       if (stepBundleId) {
         setIsRenaming(true);
 
-        renameStepBundle(stepBundleId, newStepBundleId);
+        StepBundleService.renameStepBundle(stepBundleId, newStepBundleId);
         StepBundleService.createStepBundle(stepBundleId, { source: 'step_bundles', sourceId: newStepBundleId });
 
         setNextStepBundleId(newStepBundleId);
         setPrevStepBundleId(stepBundleId);
       }
     },
-    [renameStepBundle, stepBundleId],
+    [stepBundleId],
   );
 };
 

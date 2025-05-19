@@ -303,45 +303,6 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('renameStepBundle', () => {
-    it('should rename an existing step bundle', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: { steps: [{ step1: {} }, { step2: {} }] },
-          bundle2: { steps: [{ step3: {} }] },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: { steps: [{ step1: {} }, { step2: {} }] },
-          bundle3: { steps: [{ step3: {} }] },
-        },
-      };
-
-      const actualYml = BitriseYmlService.renameStepBundle('bundle2', 'bundle3', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    describe('when step bundle does not exist', () => {
-      it('should return the original yml', () => {
-        const sourceAndExpectedYml: BitriseYml = {
-          format_version: '',
-          step_bundles: {
-            bundle1: { steps: [{ step1: {} }, { step2: {} }] },
-          },
-        };
-
-        const actualYml = BitriseYmlService.renameStepBundle('bundle2', 'bundle3', sourceAndExpectedYml);
-
-        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-      });
-    });
-  });
-
   describe('appendStepBundleInput', () => {
     it('should add input to step bundle', () => {
       const sourceYml: BitriseYml = {

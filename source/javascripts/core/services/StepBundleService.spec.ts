@@ -337,6 +337,164 @@ describe('StepBundleService', () => {
     });
   });
 
+  describe('renameStepBundle', () => {
+    it('renames a step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1: {}
+            sb2: {}
+            sb3: {}
+        `,
+      });
+
+      StepBundleService.renameStepBundle('sb2', 'sb4');
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1: {}
+          sb4: {}
+          sb3: {}
+      `);
+    });
+
+    it('renames the step bundle references in other step bundles', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step3
+              - step4
+            sb2:
+              steps:
+              - step5
+              - bundle::sb1
+              - bundle::sb1:
+              - bundle::sb1: {}
+              - step6
+            sb3:
+              steps:
+              - bundle::sb1
+        `,
+      });
+
+      StepBundleService.renameStepBundle('sb1', 'sb4');
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb4:
+            steps:
+            - step3
+            - step4
+          sb2:
+            steps:
+            - step5
+            - bundle::sb4
+            - bundle::sb4:
+            - bundle::sb4: {}
+            - step6
+          sb3:
+            steps:
+            - bundle::sb4
+      `);
+    });
+
+    it('renames the step bundle references in workflows', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary:
+              steps:
+              - step1
+              - bundle::sb1
+              - step2
+            secondary:
+              steps:
+              - bundle::sb1
+              - bundle::sb1:
+              - bundle::sb1: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step3
+              - step4
+            sb2:
+              steps:
+              - step5
+        `,
+      });
+
+      StepBundleService.renameStepBundle('sb1', 'sb4');
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary:
+            steps:
+            - step1
+            - bundle::sb4
+            - step2
+          secondary:
+            steps:
+            - bundle::sb4
+            - bundle::sb4:
+            - bundle::sb4: {}
+        step_bundles:
+          sb4:
+            steps:
+            - step3
+            - step4
+          sb2:
+            steps:
+            - step5
+      `);
+    });
+
+    it('should throw an error if the old step bundle id does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1: {}
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.renameStepBundle('sb2', 'sb4');
+      }).toThrow('step_bundles.sb2 not found');
+    });
+
+    it('should throw an error if the new step bundle id already exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1: {}
+            sb2: {}
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.renameStepBundle('sb1', 'sb2');
+      }).toThrow('step_bundles.sb2 already exists');
+    });
+  });
+
   describe('deleteStepBundle', () => {
     it('deletes a step bundle', () => {
       initializeStore({

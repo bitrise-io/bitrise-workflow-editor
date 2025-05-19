@@ -175,18 +175,34 @@ function createStepBundle(id: string, basedOn?: { source: StepBundleBasedOnSourc
   });
 }
 
+function renameStepBundle(id: string, newId: string) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    getStepBundleOrThrowError(doc, id);
+    throwIfStepBundleAlreadyExists(doc, newId);
+
+    const cvs = idToCvs(id);
+    const newCvs = idToCvs(newId);
+
+    YamlUtils.updateKey({ doc, paths }, `step_bundles.${id}`, newId);
+    YamlUtils.updateValue({ doc, paths }, `step_bundles.*.steps.*`, newCvs, cvs);
+    YamlUtils.updateKey({ doc, paths }, `step_bundles.*.steps.*.${cvs}`, newCvs);
+    YamlUtils.updateValue({ doc, paths }, `workflows.*.steps.*`, newCvs, cvs);
+    YamlUtils.updateKey({ doc, paths }, `workflows.*.steps.*.${cvs}`, newCvs);
+
+    return doc;
+  });
+}
+
 function deleteStepBundle(id: string) {
   updateBitriseYmlDocument(({ doc, paths }) => {
-    const bundleId = cvsToId(id);
-    const bundleCvs = idToCvs(id);
+    getStepBundleOrThrowError(doc, id);
 
-    getStepBundleOrThrowError(doc, bundleId);
-
+    const cvs = idToCvs(id);
     function isStepBundleReference(node: unknown) {
-      return isMap(node) ? node.has(bundleCvs) : node === bundleCvs;
+      return isMap(node) ? node.has(cvs) : node === cvs;
     }
 
-    YamlUtils.deleteNodeByPath({ doc, paths }, `step_bundles.${bundleId}`, '*');
+    YamlUtils.deleteNodeByPath({ doc, paths }, `step_bundles.${id}`, '*');
     YamlUtils.deleteNodeByValue({ doc, paths }, `step_bundles.*.steps.*`, isStepBundleReference, '*');
     YamlUtils.deleteNodeByValue({ doc, paths }, `workflows.*.steps.*`, isStepBundleReference, 'workflows.*.steps');
 
@@ -206,5 +222,6 @@ export default {
   sanitizeInputOpts,
   sanitizeInputKey,
   createStepBundle,
+  renameStepBundle,
   deleteStepBundle,
 };

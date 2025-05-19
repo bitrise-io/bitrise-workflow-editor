@@ -7,7 +7,6 @@ import {
   EnvironmentItemOptionsModel,
   EnvModel,
   StepBundleModel,
-  StepListItemModel,
   StepModel,
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -61,55 +60,6 @@ function groupStepsToStepBundle(
   stepsInEntity.splice(insertPosition, 0, {
     [StepBundleService.idToCvs(newStepBundleId)]: {},
   });
-  return copy;
-}
-
-function renameStepBundle(stepBundleId: string, newStepBundleId: string, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (copy.step_bundles) {
-    copy.step_bundles = Object.fromEntries(
-      Object.entries(copy.step_bundles).map(([id, stepBundle]) => {
-        return [id === stepBundleId ? newStepBundleId : id, stepBundle];
-      }),
-    );
-  }
-
-  if (copy.workflows) {
-    copy.workflows = Object.fromEntries(
-      Object.entries(copy.workflows).map(([workflowId, workflow]) => {
-        let renamedSteps = workflow.steps;
-        if (workflow.steps) {
-          renamedSteps = workflow.steps.map((step: StepListItemModel) => {
-            const [stepId, stepDetails] = Object.entries(step)[0];
-            if (stepId === StepBundleService.idToCvs(stepBundleId)) {
-              return {
-                [StepBundleService.idToCvs(newStepBundleId)]: stepDetails,
-              };
-            }
-            return step;
-          });
-        }
-        return [workflowId, { ...workflow, steps: renamedSteps }];
-      }),
-    );
-  }
-
-  if (copy.step_bundles) {
-    Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
-      const renamedSteps = bundle.steps?.map((step) => {
-        const [stepId, stepDetails] = Object.entries(step)[0];
-        if (stepId === StepBundleService.idToCvs(stepBundleId)) {
-          return { [StepBundleService.idToCvs(newStepBundleId)]: stepDetails };
-        }
-        return step;
-      });
-      if (copy.step_bundles?.[id]) {
-        copy.step_bundles[id].steps = renamedSteps;
-      }
-    });
-  }
-
   return copy;
 }
 
@@ -391,7 +341,6 @@ export default {
   getUniqueStepIds,
   getUniqueStepCvss,
   groupStepsToStepBundle,
-  renameStepBundle,
   updateStepBundle,
   setChainedWorkflows,
   appendStepBundleInput,

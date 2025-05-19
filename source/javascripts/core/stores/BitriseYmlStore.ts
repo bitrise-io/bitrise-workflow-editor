@@ -72,13 +72,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      renameStepBundle(stepBundleId: string, newStepBundleId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.renameStepBundle(stepBundleId, newStepBundleId, state.yml),
-          };
-        });
-      },
       updateStepBundle: (stepBundleId: string, stepBundle: StepBundleModel) => {
         return set((state) => {
           return {
