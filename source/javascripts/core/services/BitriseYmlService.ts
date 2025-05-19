@@ -9,105 +9,12 @@ import {
   StepBundleModel,
   StepListItemModel,
   StepModel,
-  WorkflowModel,
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { ChainedWorkflowPlacement as Placement } from '../models/Workflow';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
-
-function createStepBundle(
-  stepBundleId: string,
-  yml: BitriseYml,
-  baseStepBundleId?: string,
-  baseWorkflowId?: string,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  let baseContent: WorkflowModel & { inputs?: EnvModel } = {};
-
-  if (baseStepBundleId) {
-    baseContent = deepCloneSimpleObject(copy.step_bundles?.[baseStepBundleId] ?? {});
-  }
-
-  if (baseWorkflowId) {
-    baseContent = deepCloneSimpleObject(copy.workflows?.[baseWorkflowId] ?? {});
-    if (baseContent.before_run) {
-      delete baseContent.before_run;
-    }
-    if (baseContent.after_run) {
-      delete baseContent.after_run;
-    }
-    if (baseContent.meta) {
-      delete baseContent.meta;
-    }
-    if (baseContent.triggers) {
-      delete baseContent.triggers;
-    }
-    if (baseContent.envs) {
-      baseContent.inputs = baseContent.envs;
-      delete baseContent.envs;
-    }
-  }
-
-  copy.step_bundles = {
-    ...copy.step_bundles,
-    ...{
-      [stepBundleId]: baseContent,
-    },
-  };
-
-  return copy;
-}
-
-function deleteStepBundle(stepBundleId: string, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-  // If the step bundle is missing in the YML just return the YML
-  if (!copy.step_bundles?.[stepBundleId]) {
-    return copy;
-  }
-
-  // Remove step bundle from `step_bundles` section of the YML
-  delete copy.step_bundles[stepBundleId];
-
-  // Remove the selected step bundle from `workflows` section of the YML
-  if (copy.workflows) {
-    copy.workflows = Object.fromEntries(
-      Object.entries(copy.workflows).map(([workflowId, workflow]) => {
-        const filteredSteps = workflow.steps?.filter((step) => {
-          const [stepId] = Object.keys(step);
-          return stepId !== StepBundleService.idToCvs(stepBundleId);
-        });
-        return [workflowId, { ...workflow, steps: filteredSteps }];
-      }),
-    );
-  }
-
-  if (copy.step_bundles) {
-    Object.entries(copy.step_bundles).forEach(([id, bundle]) => {
-      const filteredSteps = bundle.steps?.filter((step) => {
-        const [stepId] = Object.keys(step);
-        return stepId !== StepBundleService.idToCvs(stepBundleId);
-      });
-      // Remove `steps` field if empty
-      if (copy.step_bundles?.[id]) {
-        if (filteredSteps?.length) {
-          copy.step_bundles[id].steps = filteredSteps;
-        } else {
-          delete copy.step_bundles[id].steps;
-        }
-      }
-    });
-  }
-
-  // Remove the whole `step_bundles` section in the YML if empty
-  if (shouldRemoveField(copy.step_bundles, yml.step_bundles)) {
-    delete copy.step_bundles;
-  }
-
-  return copy;
-}
 
 function groupStepsToStepBundle(
   parentWorkflowId: string | undefined,
@@ -483,8 +390,6 @@ function shouldRemoveField<T>(modified: T, original: T) {
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
-  createStepBundle,
-  deleteStepBundle,
   groupStepsToStepBundle,
   renameStepBundle,
   updateStepBundle,

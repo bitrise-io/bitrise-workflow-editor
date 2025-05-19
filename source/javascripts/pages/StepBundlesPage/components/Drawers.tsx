@@ -38,7 +38,7 @@ const Drawers = () => {
 
   const handleCreateStepBundle = (newId: string, baseEntityId?: string) => {
     const [type, baseId] = baseEntityId ? (baseEntityId.split('#') as [StepBundleBasedOnSource, string]) : [];
-    StepBundleService.create(newId, type && baseId ? { source: type, sourceId: baseId } : undefined);
+    StepBundleService.createStepBundle(newId, type && baseId ? { source: type, sourceId: baseId } : undefined);
   };
 
   return (

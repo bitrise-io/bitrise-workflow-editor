@@ -5,6 +5,7 @@ import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
 import { STEP_BUNDLE_KEYS, StepBundleBasedOnSource } from '../models/StepBundle';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import YamlUtils from '../utils/YamlUtils';
 
 const STEP_BUNDLE_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -141,7 +142,15 @@ function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
   }
 }
 
-function create(id: string, basedOn?: { source: StepBundleBasedOnSource; sourceId: string }) {
+function getStepBundleOrThrowError(doc: Document, id: string) {
+  const stepBundle = doc.getIn(['step_bundles', id]);
+  if (!stepBundle || !isMap(stepBundle)) {
+    throw new Error(`step_bundles.${id} not found`);
+  }
+  return stepBundle;
+}
+
+function createStepBundle(id: string, basedOn?: { source: StepBundleBasedOnSource; sourceId: string }) {
   updateBitriseYmlDocument(({ doc }) => {
     throwIfStepBundleAlreadyExists(doc, id);
 
@@ -166,6 +175,25 @@ function create(id: string, basedOn?: { source: StepBundleBasedOnSource; sourceI
   });
 }
 
+function deleteStepBundle(id: string) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    const bundleId = cvsToId(id);
+    const bundleCvs = idToCvs(id);
+
+    getStepBundleOrThrowError(doc, bundleId);
+
+    function isStepBundleReference(node: unknown) {
+      return isMap(node) ? node.has(bundleCvs) : node === bundleCvs;
+    }
+
+    YamlUtils.deleteNodeByPath({ doc, paths }, `step_bundles.${bundleId}`, '*');
+    YamlUtils.deleteNodeByValue({ doc, paths }, `step_bundles.*.steps.*`, isStepBundleReference, '*');
+    YamlUtils.deleteNodeByValue({ doc, paths }, `workflows.*.steps.*`, isStepBundleReference, 'workflows.*.steps');
+
+    return doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -177,5 +205,6 @@ export default {
   idToCvs,
   sanitizeInputOpts,
   sanitizeInputKey,
-  create,
+  createStepBundle,
+  deleteStepBundle,
 };

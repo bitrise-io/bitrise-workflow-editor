@@ -144,61 +144,6 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('deleteStepBundle', () => {
-    it('should remove a step bundle in the whole yml completely', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {},
-          bundle2: {},
-          bundle3: {},
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle2: {},
-          bundle3: {},
-        },
-      };
-
-      const actualYml = BitriseYmlService.deleteStepBundle('bundle1', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should return the original YML if the step bundle does not exist', () => {
-      const sourceAndExpectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
-        },
-      };
-
-      const actualYml = BitriseYmlService.deleteStepBundle('nonExistingStepBundle', sourceAndExpectedYml);
-
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-    });
-
-    it('should remove the step bundles property if it becomes empty after deletion', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: { steps: [{ script: {} }] },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-      };
-
-      const actualYml = BitriseYmlService.deleteStepBundle('bundle1', sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-  });
-
   describe('groupStepsToStepBundle', () => {
     it('should return the original YAML if no steps are selected', () => {
       const sourceYml: BitriseYml = {

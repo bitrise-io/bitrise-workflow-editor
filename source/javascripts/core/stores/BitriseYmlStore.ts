@@ -47,13 +47,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      deleteStepBundle(stepBundleId: string) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deleteStepBundle(stepBundleId, state.yml),
-          };
-        });
-      },
       deleteStepBundleInput(bundleId: string, index: number) {
         return set((state) => {
           return {
