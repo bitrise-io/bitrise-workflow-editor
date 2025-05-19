@@ -11,6 +11,7 @@ import {
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
+// eslint-disable-next-line import/no-cycle
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 

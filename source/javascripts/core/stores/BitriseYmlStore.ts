@@ -4,6 +4,7 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
 import { BitriseYml, EnvironmentItemModel, StepBundleModel } from '@/core/models/BitriseYml';
+// eslint-disable-next-line import/no-cycle
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';

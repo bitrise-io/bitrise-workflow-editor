@@ -4,6 +4,7 @@ import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 
 import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
 import { STEP_BUNDLE_KEYS, StepBundleBasedOnSource } from '../models/StepBundle';
+// eslint-disable-next-line import/no-cycle
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 
