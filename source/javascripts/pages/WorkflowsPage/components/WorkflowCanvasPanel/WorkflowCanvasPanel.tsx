@@ -9,11 +9,11 @@ import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { useWorkflows } from '@/hooks/useWorkflows';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
@@ -29,7 +29,6 @@ const containerProps: CardProps = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
-  const workflows = useWorkflows();
   const stepBundles = useStepBundles();
   const hasUnsavedChanges = useYmlHasChanges();
 
@@ -173,11 +172,15 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       }
 
       // Close the dialog if the selected workflow is chained to the deleted workflow
-      if (WorkflowService.getWorkflowChain(workflows, deletedWorkflowId).includes(selectedWorkflowId)) {
+      if (
+        WorkflowService.getWorkflowChain(bitriseYmlStore.getState().yml?.workflows ?? {}, deletedWorkflowId).includes(
+          selectedWorkflowId,
+        )
+      ) {
         closeDialog();
       }
     },
-    [closeDialog, selectedWorkflowId, workflows],
+    [closeDialog, selectedWorkflowId],
   );
 
   const openStepSelectorDrawerFromWorkflow = useCallback(

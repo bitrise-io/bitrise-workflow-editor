@@ -20,7 +20,7 @@ const ButtonContent = ({ numberOfErrors }: { numberOfErrors: number }) => {
 };
 
 const EnvVarsCard = () => {
-  const workflow = useWorkflowConfigContext();
+  const sourceId = useWorkflowConfigContext((s) => s?.id);
   const [errorCount, setErrorCount] = useState(0);
 
   return (
@@ -32,7 +32,7 @@ const EnvVarsCard = () => {
       <Box m="-24px" width="auto">
         <SortableEnvVars
           source={EnvVarSource.Workflow}
-          sourceId={workflow?.id}
+          sourceId={sourceId}
           listenForExternalChanges
           onValidationErrorsChange={setErrorCount}
         />

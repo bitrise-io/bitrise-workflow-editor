@@ -13,7 +13,7 @@ type Props = {
 };
 
 const SelectableWorkflowCard = ({ id, onClick }: Props) => {
-  const workflow = useWorkflow(id);
+  const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
   const stackName = useWorkflowStackName(id);
 
   const usedInPipelinesText = useBitriseYmlStore(({ yml: { pipelines, stages } }) => {
@@ -41,7 +41,7 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
           onClick={onClick}
           _hover={{ boxShadow: 'small', borderColor: 'border/hover' }}
         >
-          <Text textStyle="body/lg/semibold">{workflow?.userValues.title || workflow?.id}</Text>
+          <Text textStyle="body/lg/semibold">{workflow?.title || id}</Text>
           <Text textStyle="body/sm/regular" color="text/secondary">
             {usedInPipelinesText}
             {' • '}

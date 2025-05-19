@@ -1,18 +1,23 @@
 import { createContext, PropsWithChildren, useContext } from 'react';
 
 import { Workflow } from '@/core/models/Workflow';
-import useWorkflow from '@/hooks/useWorkflow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const Context = createContext<Workflow | undefined>(undefined);
+const Context = createContext<string>('');
 
 const WorkflowConfigProvider = ({ workflowId, children }: PropsWithChildren<{ workflowId: string }>) => {
-  const workflow = useWorkflow(workflowId);
-
-  return <Context.Provider value={workflow}>{children}</Context.Provider>;
+  return <Context.Provider value={workflowId}>{children}</Context.Provider>;
 };
 
-export const useWorkflowConfigContext = () => {
-  return useContext<Workflow | undefined>(Context);
-};
+export function useWorkflowConfigContext<U = Workflow | undefined>(selector?: (state: Workflow | undefined) => U) {
+  const id = useContext(Context);
+
+  return useBitriseYmlStore(({ yml }) => {
+    const userValues = yml.workflows?.[id];
+    const workflow = userValues ? { id, userValues } : undefined;
+
+    return selector ? selector(workflow) : workflow;
+  }) as U;
+}
 
 export default WorkflowConfigProvider;

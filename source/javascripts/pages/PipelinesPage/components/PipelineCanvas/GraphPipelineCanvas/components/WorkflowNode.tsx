@@ -11,9 +11,9 @@ import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { useWorkflows } from '@/hooks/useWorkflows';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
@@ -75,7 +75,6 @@ const ParallelWorkflowIndicator = memo(() => {
 const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const hovered = useHover(ref);
-  const workflows = useWorkflows();
   const stepBundles = useStepBundles();
   const { selectedPipeline } = usePipelineSelector();
 
@@ -126,7 +125,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       switch (action) {
         case 'remove': {
           // Close the dialog if the selected workflow is in the deleted workflow's chain
-          if (WorkflowService.getWorkflowChain(workflows, workflowId).includes(selectedWorkflowId)) {
+          if (
+            WorkflowService.getWorkflowChain(bitriseYmlStore.getState().yml?.workflows ?? {}, workflowId).includes(
+              selectedWorkflowId,
+            )
+          ) {
             closeDialog();
           }
           break;
@@ -419,7 +422,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     };
   }, [
     uses,
-    workflows,
     selectedWorkflowId,
     closeDialog,
     selectionParent,

@@ -5,8 +5,7 @@ import WorkflowService from '@/core/services/WorkflowService';
 import { useWorkflows } from './useWorkflows';
 
 const useWorkflowIds = (excludeUtility?: boolean) => {
-  const workflows = useWorkflows();
-  const ids = Object.keys(workflows);
+  const ids = useWorkflows((s) => Object.keys(s));
   return useMemo(
     () => (excludeUtility ? ids.filter((id) => !WorkflowService.isUtilityWorkflow(id)) : ids),
     [ids, excludeUtility],

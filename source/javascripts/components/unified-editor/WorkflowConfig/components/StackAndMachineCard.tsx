@@ -5,8 +5,7 @@ import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const StackAndMachineCard = () => {
-  const workflow = useWorkflowConfigContext();
-  const workflowId = workflow?.id || '';
+  const workflowId = useWorkflowConfigContext((s) => s?.id || '');
   const { stackId, machineTypeId, stackRollbackVersion } = useWorkflowStackAndMachine(workflowId);
 
   const updateWorkflowMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {

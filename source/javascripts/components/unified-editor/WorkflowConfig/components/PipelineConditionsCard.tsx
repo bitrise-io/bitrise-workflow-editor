@@ -1,6 +1,6 @@
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 import { uniq } from 'es-toolkit';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import { ChangeEventHandler, useState } from 'react';
 
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { EnvVarPopover } from '@/components/VariablePopover';
@@ -13,25 +13,6 @@ import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store
 type PipelineConditionInputProps = {
   pipelineId: string;
   workflowId: string;
-};
-
-const PipelineConditionsCard = () => {
-  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
-
-  return (
-    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
-      <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
-
-      <Divider my="24" />
-      <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
-
-      <Divider my="24" />
-      <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
-
-      <Divider my="24" />
-      <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
-    </ExpandableCard>
-  );
 };
 
 const ButtonContent = () => {
@@ -142,16 +123,8 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
   const [value, setValue] = useState(initValue);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValue(e.target.value);
-  };
-
-  const insertVariable = (key: string) => {
-    setValue(`$${key}`);
-  };
-
-  useEffect(() => {
-    const stringValue = String(value);
+  const validateAndPersist = (parallel: string | number) => {
+    const stringValue = String(parallel);
     const validationError = GraphPipelineWorkflowService.validateParallel(stringValue, workflowId, existingWorkflowIds);
 
     setError(validationError === true ? undefined : validationError);
@@ -159,7 +132,17 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     if (validationError === true) {
       PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'parallel', stringValue);
     }
-  }, [value, pipelineId, workflowId, existingWorkflowIds]);
+  };
+
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setValue(e.target.value);
+    validateAndPersist(e.target.value);
+  };
+
+  const insertVariable = (key: string) => {
+    setValue(`$${key}`);
+    validateAndPersist(`$${key}`);
+  };
 
   return (
     <Input
@@ -181,6 +164,25 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
       }
       rightAddonPlacement="inside"
     />
+  );
+};
+
+const PipelineConditionsCard = () => {
+  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
+
+  return (
+    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
+      <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
+    </ExpandableCard>
   );
 };
 

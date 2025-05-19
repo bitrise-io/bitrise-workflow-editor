@@ -6,7 +6,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
-  const selectedWorkflowId = useWorkflowConfigContext()?.id ?? '';
+  const selectedWorkflowId = useWorkflowConfigContext((s) => s?.id || '');
   const workflowIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.workflows ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);
@@ -26,6 +26,7 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
   }, [onChange, shouldRunOnChange, nextWorkflowId]);
 
   useEffect(() => {
+    console.log('shouldFinishRenaming', shouldFinishRenaming, prevWorkflowId);
     if (shouldFinishRenaming) {
       setIsRenaming(false);
       WorkflowService.deleteWorkflow(prevWorkflowId);
@@ -41,7 +42,9 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
         WorkflowService.createWorkflow(selectedWorkflowId, newWorkflowId);
 
         setNextWorkflowId(newWorkflowId);
+        console.log('setNextWorkflowId', newWorkflowId);
         setPrevWorkflowId(selectedWorkflowId);
+        console.log('setPrevWorkflowId', selectedWorkflowId);
       }
     },
     [selectedWorkflowId],

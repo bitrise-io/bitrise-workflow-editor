@@ -63,7 +63,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
   const workflowId = uses || id;
 
   const containerRef = useRef(null);
-  const workflow = useWorkflow(workflowId);
+  const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
@@ -108,7 +108,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <WorkflowName parallel={parallel}>{uses ? id : workflow.userValues.title || id}</WorkflowName>
+          <WorkflowName parallel={parallel}>{uses ? id : workflow.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {uses ? `Uses ${uses}` : stackName}
           </Text>
