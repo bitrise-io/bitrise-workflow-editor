@@ -1,3 +1,4 @@
+import { toMerged } from 'es-toolkit';
 import { createContext, PropsWithChildren, useContext } from 'react';
 
 import { StepBundle } from '@/core/models/Step';
@@ -45,22 +46,26 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
 
     if (parentWorkflowId && stepIndex >= 0) {
       const stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
-      const [cvs, stepBundle] = Object.entries(stepListItemModel || {})[0];
+      const [cvs, stepBundleInWorkflow] = Object.entries(stepListItemModel || {})[0];
 
-      result.stepBundle =
-        stepBundle && StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
-          ? StepBundleService.ymlInstanceToStepBundle(StepBundleService.cvsToId(cvs), stepBundle)
-          : undefined;
+      const id = StepBundleService.cvsToId(cvs);
+      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow);
+
+      result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
+        ? StepBundleService.ymlInstanceToStepBundle(id, stepBundle)
+        : undefined;
     }
 
     if (parentStepBundleId && stepIndex >= 0) {
       const stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
-      const [cvs, stepBundle] = Object.entries(stepListItemModel || {})[0];
+      const [cvs, stepBundleInStepBundle] = Object.entries(stepListItemModel || {})[0];
 
-      result.stepBundle =
-        stepBundle && StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
-          ? StepBundleService.ymlInstanceToStepBundle(StepBundleService.cvsToId(cvs), stepBundle)
-          : undefined;
+      const id = StepBundleService.cvsToId(cvs);
+      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInStepBundle);
+
+      result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
+        ? StepBundleService.ymlInstanceToStepBundle(id, stepBundle)
+        : undefined;
     }
 
     return selector ? selector(result) : result;
