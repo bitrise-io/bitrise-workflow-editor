@@ -451,7 +451,7 @@ function addStep(source: Source, sourceId: string, cvs: string, to: number) {
     getSourceOrThrowError(source, sourceId, doc);
 
     const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
-    steps.items.splice(to, 0, { [cvs]: {} });
+    steps.items.splice(to, 0, doc.createNode({ [cvs]: {} }));
 
     return doc;
   });
