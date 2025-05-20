@@ -290,6 +290,21 @@ function addStepBundleInput(id: string, input: EnvironmentItemModel) {
   });
 }
 
+function deleteStepBundleInput(id: string, index: number) {
+  updateBitriseYmlDocument(({ doc, paths }) => {
+    const stepBundle = getStepBundleOrThrowError(doc, id);
+
+    const inputs = stepBundle.get('inputs') as YAMLSeq;
+    if (!inputs?.has(index)) {
+      throw new Error(`Input at index '${index}' not found in step bundle '${id}'`);
+    }
+
+    YamlUtils.deleteNodeByPath({ doc, paths }, `step_bundles.${id}.inputs.${index}`, `step_bundles.${id}.inputs`);
+
+    return doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -306,4 +321,5 @@ export default {
   deleteStepBundle,
   groupStepsToStepBundle,
   addStepBundleInput,
+  deleteStepBundleInput,
 };

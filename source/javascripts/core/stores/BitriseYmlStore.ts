@@ -31,13 +31,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Step Bundle related actions
-      deleteStepBundleInput(bundleId: string, index: number) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.deleteStepBundleInput(bundleId, index, state.yml),
-          };
-        });
-      },
       updateStepBundle: (stepBundleId: string, stepBundle: StepBundleModel) => {
         return set((state) => {
           return {

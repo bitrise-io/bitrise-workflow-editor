@@ -901,4 +901,107 @@ describe('StepBundleService', () => {
       }).toThrow("Input 'input1' already exists in step bundle 'sb1'");
     });
   });
+
+  describe('deleteStepBundleInput', () => {
+    it('deletes an input from the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              - input2: value2
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.deleteStepBundleInput('sb1', 1);
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('deletes the inputs array when deleting the last input', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.deleteStepBundleInput('sb1', 0);
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('throws an error if the step bundle does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.deleteStepBundleInput('sb2', 0);
+      }).toThrow("Step bundle 'sb2' not found");
+    });
+
+    it('throws an error if the input does not exist in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.deleteStepBundleInput('sb1', 1);
+      }).toThrow("Input at index '1' not found in step bundle 'sb1'");
+    });
+  });
 });

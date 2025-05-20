@@ -2,32 +2,6 @@ import { BitriseYml } from '../models/BitriseYml';
 import BitriseYmlService from './BitriseYmlService';
 
 describe('BitriseYmlService', () => {
-  describe('deleteStepBundleInput', () => {
-    it('should delete input from step bundle', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [{ INPUT0: 'input0', opts: { is_required: true } }, { INPUT1: 'input1' }],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [{ INPUT1: 'input1' }],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.deleteStepBundleInput('bundle1', 0, sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-  });
-
   describe('updateStepBundleInput', () => {
     it('should update key of bundle input', () => {
       const sourceYml: BitriseYml = {

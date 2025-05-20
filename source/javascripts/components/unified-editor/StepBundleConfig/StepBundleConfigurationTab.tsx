@@ -16,7 +16,6 @@ const StepBundleConfigurationTab = () => {
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const { stepBundle, ...context } = useStepBundleConfigContext();
 
-  const deleteStepBundleInput = useBitriseYmlStore((s) => s.deleteStepBundleInput);
   const updateStepBundleInput = useBitriseYmlStore((s) => s.updateStepBundleInput);
   const updateStepBundleInputInstanceValue = useBitriseYmlStore((s) => s.updateStepBundleInputInstanceValue);
 
@@ -52,7 +51,7 @@ const StepBundleConfigurationTab = () => {
   };
 
   const handleDelete = (index: number) => {
-    deleteStepBundleInput(stepBundle?.id || '', index);
+    StepBundleService.deleteStepBundleInput(stepBundle?.id || '', index);
   };
 
   const handleEdit = (index: number) => {
