@@ -1005,6 +1005,259 @@ describe('StepBundleService', () => {
     });
   });
 
+  describe('updateStepBundleInput', () => {
+    it('updates the keys of the input in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - opts:
+                  is_required: true
+                input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.updateStepBundleInput('sb1', 0, { input2: 'value1', opts: { is_required: true } });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - opts:
+                is_required: true
+              input2: value1
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('updates the value of the input in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - opts:
+                  is_required: true
+                input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: { is_required: true } });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - opts:
+                is_required: true
+              input1: value2
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('should create the opts, if not exists yet', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value1', opts: { is_required: true } });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+              opts:
+                is_required: true
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('should update the opts of the input in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+                opts:
+                  is_required: true
+                  is_dont_change_value: true
+                  category: 'other'
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.updateStepBundleInput('sb1', 0, {
+        input1: 'value1',
+        opts: { is_required: true, category: 'primary', is_dont_change_value: false, is_expand: true },
+      });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+              opts:
+                is_required: true
+                category: 'primary'
+                is_expand: true
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('should remove the opts if empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+                opts:
+                  is_required: true
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: {} });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value2
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('should remove the opts becomes empty after the updates', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+                opts:
+                  is_required: true
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: { is_required: false } });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value2
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('should throw an error if the step bundle does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.updateStepBundleInput('sb2', 0, { input1: 'value1' });
+      }).toThrow("Step bundle 'sb2' not found");
+    });
+
+    it('should throw an error if the input does not exist in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.updateStepBundleInput('sb1', 1, { input1: 'value2' });
+      }).toThrow("Input at index '1' not found in step bundle 'sb1'");
+    });
+  });
+
   describe('updateStepBundleField', () => {
     it('should update the specified field of the step_bundle', () => {
       initializeStore({

@@ -2,7 +2,13 @@ import { omitBy, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import { Document, isMap, isScalar, YAMLMap, YAMLSeq } from 'yaml';
 
-import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
+import {
+  EnvironmentItemModel,
+  EnvironmentItemOptionsModel,
+  StepBundleModel,
+  StepBundles,
+  Workflows,
+} from '../models/BitriseYml';
 import { StepBundle } from '../models/Step';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
 // eslint-disable-next-line import/no-cycle
@@ -146,14 +152,6 @@ function getCreationSourceOrThrowError(doc: Document, at: { source: StepBundleCr
   return entity;
 }
 
-function getStepBundleOrThrowError(doc: Document, id: string) {
-  const stepBundle = doc.getIn(['step_bundles', id]);
-  if (!stepBundle || !isMap(stepBundle)) {
-    throw new Error(`Step bundle '${id}' not found`);
-  }
-  return stepBundle;
-}
-
 function getSourceStepOrThrowError(
   doc: Document,
   at: { source: StepBundleCreationSource; sourceId: string; stepIndex: number },
@@ -168,11 +166,28 @@ function getSourceStepOrThrowError(
   return step;
 }
 
+function getStepBundleOrThrowError(doc: Document, id: string) {
+  const stepBundle = doc.getIn(['step_bundles', id]);
+  if (!stepBundle || !isMap(stepBundle)) {
+    throw new Error(`Step bundle '${id}' not found`);
+  }
+  return stepBundle;
+}
+
 function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
   const stepBundle = doc.getIn(['step_bundles', id]);
   if (stepBundle) {
     throw new Error(`Step bundle '${id}' already exists`);
   }
+}
+
+function getStepBundleInputOrThrowError(doc: Document, at: { id: string; index: number }) {
+  const stepBundle = getStepBundleOrThrowError(doc, at.id);
+  const inputs = stepBundle.get('inputs') as YAMLSeq;
+  if (!inputs || !inputs.has(at.index) || !isMap(inputs.get(at.index))) {
+    throw new Error(`Input at index '${at.index}' not found in step bundle '${at.id}'`);
+  }
+  return inputs.get(at.index) as YAMLMap;
 }
 
 function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSource; sourceId: string }) {
@@ -315,6 +330,99 @@ function deleteStepBundleInput(id: string, index: number) {
   });
 }
 
+function updateStepBundleInputKey(doc: Document, newKey: string, at: { id: string; index: number }) {
+  const input = getStepBundleInputOrThrowError(doc, at);
+  const keyPair = input.items.find((pair) => (isScalar(pair.key) ? pair.key.value !== 'opts' : pair.key !== 'opts'));
+  const key = (isScalar(keyPair?.key) ? keyPair.key.value : keyPair?.key) as string;
+  if (!key) {
+    throw new Error('Input key not defined');
+  }
+  const newKeySanitized = sanitizeInputKey(newKey);
+  if (key !== newKeySanitized) {
+    YamlUtils.updateMapKey(input, key, newKeySanitized);
+  }
+}
+
+function updateStepBundleInputValue(doc: Document, newValue: string, at: { id: string; index: number }) {
+  const input = getStepBundleInputOrThrowError(doc, at);
+  const keyPair = input.items.find((pair) => (isScalar(pair.key) ? pair.key.value !== 'opts' : pair.key !== 'opts'));
+  const key = (isScalar(keyPair?.key) ? keyPair.key.value : keyPair?.key) as string;
+  if (!key) {
+    throw new Error('Input key not defined');
+  }
+  const value = input.get(key);
+  if (value !== newValue) {
+    input.set(key, newValue);
+  }
+}
+
+function updateStepBundleInputOpts(
+  doc: Document,
+  newOpts: EnvironmentItemOptionsModel,
+  at: { id: string; index: number },
+) {
+  const input = getStepBundleInputOrThrowError(doc, at);
+  if (isEmpty(newOpts)) {
+    input.delete('opts');
+    return;
+  }
+
+  const opts = input.get('opts') as YAMLMap;
+  if (!opts || !isMap(opts)) {
+    input.set('opts', doc.createNode({}));
+  }
+
+  const optsMap = input.get('opts') as YAMLMap;
+  const oldKeys = Object.keys(optsMap.toJSON());
+  const newKeys = Object.keys(newOpts);
+
+  const removedKeys = oldKeys.filter(
+    (key) => !newKeys.includes(key) || !newOpts[key as keyof EnvironmentItemOptionsModel],
+  );
+  const addedKeys = newKeys.filter(
+    (key) => !oldKeys.includes(key) && newOpts[key as keyof EnvironmentItemOptionsModel],
+  );
+  const updatedKeys = newKeys.filter(
+    (key) => oldKeys.includes(key) && newOpts[key as keyof EnvironmentItemOptionsModel],
+  );
+
+  // Remove keys that are not in the new opts
+  removedKeys.forEach((key) => {
+    optsMap.delete(key);
+  });
+
+  // Update keys that are in both old and new opts
+  updatedKeys.forEach((key) => {
+    optsMap.set(key, newOpts[key as keyof EnvironmentItemOptionsModel]);
+  });
+
+  // Add keys that are in the new opts
+  addedKeys.forEach((key) => {
+    optsMap.set(key, newOpts[key as keyof EnvironmentItemOptionsModel]);
+  });
+
+  if (isEmpty(optsMap.items)) {
+    input.delete('opts');
+  }
+}
+
+function updateStepBundleInput(id: string, index: number, newInput: EnvironmentItemModel) {
+  updateBitriseYmlDocument(({ doc }) => {
+    getStepBundleInputOrThrowError(doc, { id, index });
+
+    const { opts, ...keyValueObj } = newInput;
+    const [key, value] = Object.entries(keyValueObj)[0];
+    updateStepBundleInputKey(doc, key, { id, index });
+    updateStepBundleInputValue(doc, value as string, { id, index });
+
+    if (opts) {
+      updateStepBundleInputOpts(doc, opts, { id, index });
+    }
+
+    return doc;
+  });
+}
+
 type K = keyof StepBundleModel;
 type V<T extends K> = StepBundleModel[T];
 function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
@@ -350,5 +458,6 @@ export default {
   groupStepsToStepBundle,
   addStepBundleInput,
   deleteStepBundleInput,
+  updateStepBundleInput,
   updateStepBundleField,
 };

@@ -16,7 +16,6 @@ const StepBundleConfigurationTab = () => {
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const { stepBundle, ...context } = useStepBundleConfigContext();
 
-  const updateStepBundleInput = useBitriseYmlStore((s) => s.updateStepBundleInput);
   const updateStepBundleInputInstanceValue = useBitriseYmlStore((s) => s.updateStepBundleInputInstanceValue);
 
   const categories = useStepBundleInputs({
@@ -43,7 +42,7 @@ const StepBundleConfigurationTab = () => {
         context.stepIndex,
       );
     } else {
-      updateStepBundleInput(stepBundle?.id || '', index, {
+      StepBundleService.updateStepBundleInput(stepBundle?.id || '', index, {
         ...input,
         [key]: newValue,
       });
@@ -65,7 +64,7 @@ const StepBundleConfigurationTab = () => {
 
   const handleSubmit = (data: EnvironmentItemModel, index: number, mode: FormMode) => {
     if (mode === 'edit') {
-      updateStepBundleInput(stepBundle?.id || '', index, data);
+      StepBundleService.updateStepBundleInput(stepBundle?.id || '', index, data);
     } else {
       StepBundleService.addStepBundleInput(stepBundle?.id || '', data);
     }

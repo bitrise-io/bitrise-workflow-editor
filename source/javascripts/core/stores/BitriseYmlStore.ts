@@ -3,7 +3,7 @@ import { Document, parseDocument } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { combine } from 'zustand/middleware';
 
-import { BitriseYml, EnvironmentItemModel } from '@/core/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 // eslint-disable-next-line import/no-cycle
 import BitriseYmlService from '@/core/services/BitriseYmlService';
 
@@ -31,13 +31,6 @@ export const bitriseYmlStore = createStore(
       },
 
       // Step Bundle related actions
-      updateStepBundleInput(bundleId: string, index: number, newInput: EnvironmentItemModel) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStepBundleInput(bundleId, index, newInput, state.yml),
-          };
-        });
-      },
       updateStepBundleInputInstanceValue(
         key: string,
         newValue: string,

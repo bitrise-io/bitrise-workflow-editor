@@ -1,75 +1,11 @@
-import { isEqual, mapKeys, mapValues } from 'es-toolkit';
-import { isEmpty } from 'es-toolkit/compat';
+import { mapValues } from 'es-toolkit';
 
-import { BitriseYml, EnvironmentItemModel, EnvironmentItemOptionsModel, EnvModel } from '../models/BitriseYml';
+import { BitriseYml, EnvModel } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
 // eslint-disable-next-line import/no-cycle
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
-
-function updateStepBundleInput(
-  bundleId: string,
-  index: number,
-  newInput: EnvironmentItemModel,
-  yml: BitriseYml,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.step_bundles?.[bundleId] || !copy.step_bundles?.[bundleId].inputs?.[index]) {
-    return copy;
-  }
-
-  let oldInput = copy.step_bundles[bundleId].inputs[index];
-  if (isEqual(oldInput, newInput)) {
-    return copy;
-  }
-
-  const { opts: oo, ...oldInputKeyValue } = oldInput;
-  const { opts: no, ...newInputKeyValue } = newInput;
-
-  const [oldKey, oldValue] = Object.entries(oldInputKeyValue)[0];
-  const [newKey, newValue] = Object.entries(newInputKeyValue)[0];
-
-  if (newKey !== oldKey) {
-    oldInput = mapKeys(oldInput, (_value, key) => (oldKey === key ? newKey : key));
-  }
-
-  if (newValue !== oldValue) {
-    oldInput[newKey] = newValue;
-  }
-
-  if (isEmpty(oldInput.opts) && !isEmpty(newInput.opts)) {
-    oldInput.opts = newInput.opts;
-  }
-
-  if (!isEmpty(oldInput.opts) && !isEmpty(newInput.opts) && oldInput.opts) {
-    oldInput.opts = mapValues<EnvironmentItemOptionsModel, keyof EnvironmentItemOptionsModel, any>(
-      oldInput.opts,
-      (_value, key) => {
-        if (newInput.opts?.[key]) {
-          return newInput.opts[key];
-        }
-        return undefined;
-      },
-    );
-    Object.entries(newInput.opts).forEach(([key, value]) => {
-      if (oldInput.opts && !oldInput.opts[key as keyof EnvironmentItemOptionsModel]) {
-        oldInput.opts[key as keyof EnvironmentItemOptionsModel] = value as any;
-      }
-    });
-  }
-
-  oldInput = StepBundleService.sanitizeInputOpts(oldInput);
-
-  if (isEmpty(oldInput.opts)) {
-    delete oldInput.opts;
-  }
-
-  copy.step_bundles[bundleId].inputs[index] = oldInput;
-
-  return copy;
-}
 
 function updateStepBundleInputInstanceValue(
   key: string,
@@ -200,6 +136,5 @@ function getUniqueStepCvss(yml: BitriseYml) {
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
-  updateStepBundleInput,
   updateStepBundleInputInstanceValue,
 };
