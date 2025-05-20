@@ -21,20 +21,16 @@ function toArrayNotation(path: string) {
 
 function removeIfEmpty(doc: Document, path: string[], glob: Glob, afterRemove?: AfterRemove) {
   const node = doc.getIn(path);
-  if (isCollection(node) && isEmpty(node.items) && isMatch(toDotNotation(path), glob)) {
+  const nodeIsEmpty =
+    (isCollection(node) && isEmpty(node.items)) || ((isScalar(node) || isPair(node)) && isEmpty(node.value));
+  const shouldRemoveNode = nodeIsEmpty && isMatch(toDotNotation(path), glob);
+
+  if (shouldRemoveNode) {
     doc.deleteIn(path);
     afterRemove?.(path);
     removeIfEmpty(doc, path.slice(0, -1), glob, afterRemove);
-  }
-  if (isScalar(node) && isEmpty(node.value) && isMatch(toDotNotation(path), glob)) {
-    doc.deleteIn(path);
-    afterRemove?.(path);
-    removeIfEmpty(doc, path.slice(0, -1), glob, afterRemove);
-  }
-  if (isPair(node) && isEmpty(node.value) && isMatch(toDotNotation(path), glob)) {
-    doc.deleteIn(path);
-    afterRemove?.(path);
-    removeIfEmpty(doc, path.slice(0, -1), glob, afterRemove);
+  } else if (nodeIsEmpty && isCollection(node)) {
+    node.flow = true;
   }
 }
 

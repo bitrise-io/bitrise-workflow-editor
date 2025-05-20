@@ -440,6 +440,62 @@ function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
   });
 }
 
+function updateStepBundleInputInstanceValue(
+  key: string,
+  newValue: string,
+  at: {
+    cvs: string;
+    source: StepBundleCreationSource;
+    sourceId: string;
+    stepIndex: number;
+  },
+) {
+  const id = cvsToId(at.cvs);
+  const { cvs, source, sourceId, stepIndex } = at;
+
+  updateBitriseYmlDocument((ctx) => {
+    getSourceStepOrThrowError(ctx.doc, at);
+    getStepBundleOrThrowError(ctx.doc, id);
+
+    if (!YamlUtils.getMapIn(ctx.doc, [source, sourceId, 'steps', stepIndex, cvs])) {
+      throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
+    }
+
+    const inputsInInstance = YamlUtils.getSeqIn(ctx.doc, [source, sourceId, 'steps', stepIndex, cvs, 'inputs']);
+    const inputIndexInInstance = inputsInInstance?.items.findIndex((input) => isMap(input) && input.has(key)) ?? -1;
+
+    const inputsInDefaults = YamlUtils.getSeqIn(ctx.doc, ['step_bundles', id, 'inputs']);
+    const inputIndexInDefaults = inputsInDefaults?.items.findIndex((input) => isMap(input) && input.has(key)) ?? -1;
+
+    if (inputIndexInDefaults < 0) {
+      throw new Error(`Input '${key}' not found in step bundle '${id}'`);
+    }
+
+    const shouldCreateInstanceInput = !!newValue && inputIndexInInstance < 0;
+    const shouldUpdateInstanceInput = !!newValue && inputIndexInInstance >= 0;
+    const shouldRemoveInstanceInput = !newValue && inputIndexInInstance >= 0;
+
+    if (shouldCreateInstanceInput) {
+      const node = ctx.doc.createNode({ [key]: newValue });
+      YamlUtils.getSeqIn(ctx.doc, [source, sourceId, 'steps', stepIndex, cvs, 'inputs'], true).add(node);
+    }
+
+    if (shouldUpdateInstanceInput) {
+      YamlUtils.updateValue(ctx, `${source}.${sourceId}.steps.${stepIndex}.${cvs}.inputs.*.${key}`, newValue);
+    }
+
+    if (shouldRemoveInstanceInput) {
+      YamlUtils.deleteNodeByPath(
+        ctx,
+        `${source}.${sourceId}.steps.${stepIndex}.${cvs}.inputs.${inputIndexInInstance}`,
+        `${source}.${sourceId}.steps.${stepIndex}.${cvs}.inputs`,
+      );
+    }
+
+    return ctx.doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -460,4 +516,5 @@ export default {
   deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleField,
+  updateStepBundleInputInstanceValue,
 };

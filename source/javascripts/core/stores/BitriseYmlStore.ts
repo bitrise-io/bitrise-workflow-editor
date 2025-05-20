@@ -25,33 +25,9 @@ export const bitriseYmlStore = createStore(
       savedYmlDocument: new Document(),
       savedYmlVersion: '',
     },
-    (set, get) => ({
+    (_, get) => ({
       getUniqueStepIds() {
         return BitriseYmlService.getUniqueStepIds(get().yml);
-      },
-
-      // Step Bundle related actions
-      updateStepBundleInputInstanceValue(
-        key: string,
-        newValue: string,
-        parentStepBundleId: string | undefined,
-        parentWorkflowId: string | undefined,
-        cvs: string,
-        stepIndex: number,
-      ) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.updateStepBundleInputInstanceValue(
-              key,
-              newValue,
-              parentStepBundleId,
-              parentWorkflowId,
-              cvs,
-              stepIndex,
-              state.yml,
-            ),
-          };
-        });
       },
     }),
   ),

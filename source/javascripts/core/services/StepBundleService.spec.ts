@@ -1324,4 +1324,354 @@ describe('StepBundleService', () => {
       );
     });
   });
+
+  describe('updateStepBundleInputInstanceValue', () => {
+    it('should update the value of the specified Step Bundle instance input', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              - input2: 'value2'
+              - input3: "value3"
+        `,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 1,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input2', 'value2_updated', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 1,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input3', 'value3_updated', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 1,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1:
+                inputs:
+                - input1: value1
+                - input2: 'value2'
+                - input3: "value3"
+            - bundle::sb1:
+                inputs:
+                - input1: value1_updated
+                - input2: 'value2_updated'
+                - input3: "value3_updated"
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+            - input2: 'value2'
+            - input3: "value3"
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should update the value of the specified Step Bundle instance input in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              - input2: 'value2'
+              - input3: "value3"
+            sb2:
+              steps:
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+        `,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
+        cvs: 'bundle::sb1',
+        source: 'step_bundles',
+        sourceId: 'sb2',
+        stepIndex: 0,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input2', 'value2_updated', {
+        cvs: 'bundle::sb1',
+        source: 'step_bundles',
+        sourceId: 'sb2',
+        stepIndex: 0,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input3', 'value3_updated', {
+        cvs: 'bundle::sb1',
+        source: 'step_bundles',
+        sourceId: 'sb2',
+        stepIndex: 0,
+      });
+
+      const expectedYml = yaml`
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+            - input2: 'value2'
+            - input3: "value3"
+          sb2:
+            steps:
+            - bundle::sb1:
+                inputs:
+                - input1: value1_updated
+                - input2: 'value2_updated'
+                - input3: "value3_updated"
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should add the input if it does not exist in the instance', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              - input2: 'value2'
+              - input3: "value3"
+              - input4: value4
+        `,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input4', 'value4_added', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 1,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1:
+                inputs:
+                - input1: value1
+                - input2: 'value2'
+                - input3: "value3"
+            - bundle::sb1:
+                inputs:
+                - input1: value1
+                - input2: 'value2'
+                - input3: "value3"
+                - input4: value4_added
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+            - input2: 'value2'
+            - input3: "value3"
+            - input4: value4
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove the input if the value is empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+                  - input2: 'value2'
+                  - input3: "value3"
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              - input2: 'value2'
+              - input3: "value3"
+        `,
+      });
+
+      StepBundleService.updateStepBundleInputInstanceValue('input2', '', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 1,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1:
+                inputs:
+                - input1: value1
+                - input2: 'value2'
+                - input3: "value3"
+            - bundle::sb1:
+                inputs:
+                - input1: value1
+                - input3: "value3"
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+            - input2: 'value2'
+            - input3: "value3"
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the step bundle does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1: {}
+          step_bundles:
+            sb1: {}
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
+          cvs: 'bundle::sb2',
+          source: 'workflows',
+          sourceId: 'primary',
+          stepIndex: 0,
+        });
+      }).toThrow("Step bundle 'sb2' not found");
+    });
+
+    it('should throw an error if the input does not exist in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.updateStepBundleInputInstanceValue('input4', 'value4_updated', {
+          cvs: 'bundle::sb1',
+          source: 'workflows',
+          sourceId: 'primary',
+          stepIndex: 0,
+        });
+      }).toThrow("Input 'input4' not found in step bundle 'sb1'");
+    });
+
+    it('should throw an error if the step bundle instance does not exist in the workflow', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb2: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
+          cvs: 'bundle::sb1',
+          source: 'workflows',
+          sourceId: 'primary',
+          stepIndex: 0,
+        });
+      }).toThrow("Step bundle instance 'sb1' is not found in 'workflows.primary' at index 0");
+    });
+
+    it('should throw an error if the source is not exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml``,
+      });
+
+      expect(() => {
+        StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
+          cvs: 'bundle::sb1',
+          source: 'workflows',
+          sourceId: 'secondary',
+          stepIndex: 0,
+        });
+      }).toThrow('workflows.secondary not found');
+
+      expect(() => {
+        StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
+          cvs: 'bundle::sb1',
+          source: 'step_bundles',
+          sourceId: 'sb1',
+          stepIndex: 0,
+        });
+      }).toThrow('step_bundles.sb1 not found');
+    });
+  });
 });

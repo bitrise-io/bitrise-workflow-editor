@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import useStepBundleInputs from '@/components/unified-editor/StepBundleConfig/hooks/useStepBundleInputs';
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import StepBundleService from '@/core/services/StepBundleService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import StepBundleInputsCategoryCard from './StepBundleInputs/StepBundleInputsCategoryCard';
@@ -15,8 +14,6 @@ const StepBundleConfigurationTab = () => {
   const [preselectedCategory, setPreselectedCategory] = useState<string>();
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const { stepBundle, ...context } = useStepBundleConfigContext();
-
-  const updateStepBundleInputInstanceValue = useBitriseYmlStore((s) => s.updateStepBundleInputInstanceValue);
 
   const categories = useStepBundleInputs({
     inputs: stepBundle?.userValues.inputs,
@@ -33,14 +30,12 @@ const StepBundleConfigurationTab = () => {
   const handleChange = (key: string, newValue: string, index: number) => {
     const input = stepBundle?.userValues.inputs?.[index];
     if (context.parentStepBundleId || context.parentWorkflowId) {
-      updateStepBundleInputInstanceValue(
-        key,
-        newValue,
-        context.parentStepBundleId,
-        context.parentWorkflowId,
-        stepBundle?.cvs || `bundle::${stepBundle?.id}`,
-        context.stepIndex,
-      );
+      StepBundleService.updateStepBundleInputInstanceValue(key, newValue, {
+        cvs: stepBundle?.cvs || `bundle::${stepBundle?.id}`,
+        source: context.parentStepBundleId ? 'step_bundles' : 'workflows',
+        sourceId: context.parentStepBundleId || context.parentWorkflowId || '',
+        stepIndex: context.stepIndex,
+      });
     } else {
       StepBundleService.updateStepBundleInput(stepBundle?.id || '', index, {
         ...input,
