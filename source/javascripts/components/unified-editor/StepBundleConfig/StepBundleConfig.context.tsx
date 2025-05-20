@@ -18,10 +18,6 @@ const Context = createContext<Omit<Props, 'children'>>({
   stepIndex: -1,
 });
 
-// This function can work 3 different ways:
-// 1. If stepBundleId is provided, it fetches the step bundle by its id.
-// 2. If parentWorkflowId and stepIndex are provided, it fetches the stepBundle from the parentWorkflow at stepIndex.
-// 3. If parentStepBundleId and stepIndex are provided, it fetches the stepBundle from the parentStepBundle at stepIndex.
 const StepBundleConfigProvider = ({ children, ...props }: Props) => {
   return <Context.Provider value={props}>{children}</Context.Provider>;
 };
@@ -30,6 +26,10 @@ type UseStepBundleConfigContextResult = Omit<Props, 'children'> & {
   stepBundle?: StepBundle;
 };
 
+// This function can work 3 different ways:
+// 1. If stepBundleId is provided, it fetches the step bundle by its id.
+// 2. If parentWorkflowId and stepIndex are provided, it fetches the stepBundle from the parentWorkflow at stepIndex.
+// 3. If parentStepBundleId and stepIndex are provided, it fetches the stepBundle from the parentStepBundle at stepIndex.
 export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>(
   selector?: (state: UseStepBundleConfigContextResult) => U,
 ): U {
