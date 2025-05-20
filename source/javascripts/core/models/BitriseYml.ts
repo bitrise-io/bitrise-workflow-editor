@@ -107,17 +107,6 @@ export type GoStepToolkitModel = {
   package_name: string;
 };
 
-/*
-export type StepBundleModel = {
-  title?: string;
-  summary?: string;
-  description?: string;
-  envs?: EnvModel;
-  inputs?: EnvModel;
-  steps?: Steps;
-};
-*/
-
 export type WorkflowModel = {
   title?: string;
   summary?: string;

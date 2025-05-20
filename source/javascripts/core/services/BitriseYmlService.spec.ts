@@ -2,34 +2,6 @@ import { BitriseYml } from '../models/BitriseYml';
 import BitriseYmlService from './BitriseYmlService';
 
 describe('BitriseYmlService', () => {
-  describe('appendStepBundleInput', () => {
-    it('should add input to step bundle', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {},
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        step_bundles: {
-          bundle1: {
-            inputs: [{ INPUT0: 'input0', opts: { is_required: true } }],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.appendStepBundleInput(
-        'bundle1',
-        { INPUT0: 'input0', opts: { is_required: true } },
-        sourceYml,
-      );
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-  });
-
   describe('deleteStepBundleInput', () => {
     it('should delete input from step bundle', () => {
       const sourceYml: BitriseYml = {

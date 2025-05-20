@@ -1,6 +1,6 @@
 import { omitBy, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
-import { Document, isMap, isScalar, YAMLMap } from 'yaml';
+import { Document, isMap, isScalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
@@ -144,13 +144,6 @@ function getStepBundleOrThrowError(doc: Document, id: string) {
   return stepBundle;
 }
 
-function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
-  const stepBundle = doc.getIn(['step_bundles', id]);
-  if (stepBundle) {
-    throw new Error(`Step bundle '${id}' already exists`);
-  }
-}
-
 function getSourceStepOrThrowError(
   doc: Document,
   at: { source: StepBundleCreationSource; sourceId: string; stepIndex: number },
@@ -163,6 +156,13 @@ function getSourceStepOrThrowError(
   }
 
   return step;
+}
+
+function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
+  const stepBundle = doc.getIn(['step_bundles', id]);
+  if (stepBundle) {
+    throw new Error(`Step bundle '${id}' already exists`);
+  }
 }
 
 function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSource; sourceId: string }) {
@@ -264,6 +264,32 @@ function groupStepsToStepBundle(
   });
 }
 
+function addStepBundleInput(id: string, input: EnvironmentItemModel) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const stepBundle = getStepBundleOrThrowError(doc, id);
+
+    if (!stepBundle.has('inputs')) {
+      stepBundle.set('inputs', doc.createNode([]));
+    }
+
+    const inputs = stepBundle.get('inputs') as YAMLSeq;
+
+    const key = Object.keys(input).find((k) => k !== 'opts');
+    if (!key) {
+      throw new Error('Input key not defined');
+    }
+
+    const hasKeyAlready = inputs.items.some((inputItem) => isMap(inputItem) && inputItem.has(key));
+    if (hasKeyAlready) {
+      throw new Error(`Input '${key}' already exists in step bundle '${id}'`);
+    }
+
+    inputs.add(doc.createNode(sanitizeInputOpts(input)));
+
+    return doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -279,4 +305,5 @@ export default {
   renameStepBundle,
   deleteStepBundle,
   groupStepsToStepBundle,
+  addStepBundleInput,
 };

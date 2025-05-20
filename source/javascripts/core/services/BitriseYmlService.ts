@@ -30,21 +30,6 @@ function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml
   return copy;
 }
 
-function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.step_bundles?.[bundleId]) {
-    return copy;
-  }
-
-  copy.step_bundles[bundleId].inputs = [
-    ...(copy.step_bundles[bundleId].inputs ?? []),
-    StepBundleService.sanitizeInputOpts(newInput),
-  ];
-
-  return copy;
-}
-
 function deleteStepBundleInput(bundleId: string, index: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -263,7 +248,6 @@ export default {
   getUniqueStepIds,
   getUniqueStepCvss,
   updateStepBundle,
-  appendStepBundleInput,
   deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleInputInstanceValue,

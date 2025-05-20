@@ -777,4 +777,128 @@ describe('StepBundleService', () => {
       }).toThrow('Step at index 1 in workflows.primary is a with group, and cannot be used in a step bundle');
     });
   });
+
+  describe('addStepBundleInput', () => {
+    it('adds a new input to the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.addStepBundleInput('sb1', { input2: 'value2', opts: { is_required: true } });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+            - input2: value2
+              opts:
+                is_required: true
+            steps:
+            - step1:
+            - step2:
+      `);
+    });
+
+    it('creates the inputs array if it does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      StepBundleService.addStepBundleInput('sb1', { input1: 'value1' });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            steps:
+            - step1:
+            - step2:
+            inputs:
+            - input1: value1
+      `);
+    });
+
+    it('throws an error if the step bundle does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.addStepBundleInput('sb2', { input1: 'value1' });
+      }).toThrow("Step bundle 'sb2' not found");
+    });
+
+    it('throws an error if the input is not valid', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.addStepBundleInput('sb1', { opts: {} });
+      }).toThrow('Input key not defined');
+    });
+
+    it('throws and error if the input key is already used in the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+              steps:
+              - step1:
+              - step2:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.addStepBundleInput('sb1', { input1: 'value2' });
+      }).toThrow("Input 'input1' already exists in step bundle 'sb1'");
+    });
+  });
 });

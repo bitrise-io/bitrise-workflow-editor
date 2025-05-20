@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import useStepBundleInputs from '@/components/unified-editor/StepBundleConfig/hooks/useStepBundleInputs';
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import StepBundleService from '@/core/services/StepBundleService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
@@ -15,7 +16,6 @@ const StepBundleConfigurationTab = () => {
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const { stepBundle, ...context } = useStepBundleConfigContext();
 
-  const appendStepBundleInput = useBitriseYmlStore((s) => s.appendStepBundleInput);
   const deleteStepBundleInput = useBitriseYmlStore((s) => s.deleteStepBundleInput);
   const updateStepBundleInput = useBitriseYmlStore((s) => s.updateStepBundleInput);
   const updateStepBundleInputInstanceValue = useBitriseYmlStore((s) => s.updateStepBundleInputInstanceValue);
@@ -68,7 +68,7 @@ const StepBundleConfigurationTab = () => {
     if (mode === 'edit') {
       updateStepBundleInput(stepBundle?.id || '', index, data);
     } else {
-      appendStepBundleInput(stepBundle?.id || '', data);
+      StepBundleService.addStepBundleInput(stepBundle?.id || '', data);
     }
     setPreselectedCategory(undefined);
     setSelectedInputIndex(-1);
