@@ -1,5 +1,5 @@
-import { isBoolean, isEqual, isNull, mapKeys, mapValues } from 'es-toolkit';
-import { isEmpty, isNumber } from 'es-toolkit/compat';
+import { isEqual, mapKeys, mapValues } from 'es-toolkit';
+import { isEmpty } from 'es-toolkit/compat';
 
 import { BitriseYml, EnvironmentItemModel, EnvironmentItemOptionsModel, EnvModel } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -19,22 +19,6 @@ function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel,
     ...(copy.step_bundles[bundleId].inputs ?? []),
     StepBundleService.sanitizeInputOpts(newInput),
   ];
-
-  return copy;
-}
-
-function deleteStepBundleInput(bundleId: string, index: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.step_bundles?.[bundleId]) {
-    return copy;
-  }
-
-  copy.step_bundles?.[bundleId].inputs?.splice(index, 1);
-
-  if (shouldRemoveField(copy.step_bundles?.[bundleId].inputs, undefined)) {
-    delete copy.step_bundles?.[bundleId].inputs;
-  }
 
   return copy;
 }
@@ -228,20 +212,10 @@ function getUniqueStepCvss(yml: BitriseYml) {
   return Array.from(cvss);
 }
 
-// UTILITY FUNCTIONS
-
-function shouldRemoveField<T>(modified: T, original: T) {
-  const modifiedIsEmpty = !isBoolean(modified) && !isNumber(modified) && !isNull(modified) && isEmpty(modified);
-  const originalIsEmpty = !isBoolean(original) && !isNumber(original) && !isNull(original) && isEmpty(original);
-
-  return modifiedIsEmpty && (!originalIsEmpty || original === undefined);
-}
-
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
   appendStepBundleInput,
-  deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleInputInstanceValue,
 };
