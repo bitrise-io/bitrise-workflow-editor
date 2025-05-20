@@ -8,7 +8,6 @@ import { SelectionParent } from '@/components/unified-editor/WorkflowCard/Workfl
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
@@ -21,10 +20,6 @@ type Props = {
 
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const stepBundles = useStepBundles();
-
-  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-  }));
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
     useStepBundlesPageStore(
@@ -154,7 +149,11 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
       newStepBundleId: string,
       stepIndices: number[],
     ) => {
-      groupStepsToStepBundle(undefined, parentStepBundleId, newStepBundleId, stepIndices);
+      StepBundleService.groupStepsToStepBundle(newStepBundleId, {
+        source: 'step_bundles',
+        sourceId: parentStepBundleId || '',
+        steps: stepIndices,
+      });
       setSelectedStepIndices([Math.min(...stepIndices)]);
       openDialog({
         type: StepBundlesPageDialogType.STEP_BUNDLE,
@@ -163,7 +162,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         selectedStepIndices: [Math.min(...stepIndices)],
       })();
     },
-    [groupStepsToStepBundle, openDialog, setSelectedStepIndices],
+    [openDialog, setSelectedStepIndices],
   );
 
   const upgradeStepInStepBundle = useCallback((bundleId: string, stepIndex: number, version: string) => {

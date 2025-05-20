@@ -2,7 +2,7 @@ import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig
 import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
 import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
-import { StepBundleBasedOnSource } from '@/core/models/StepBundle';
+import { StepBundleCreationSource } from '@/core/models/StepBundle';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -37,7 +37,7 @@ const Drawers = () => {
   };
 
   const handleCreateStepBundle = (newId: string, baseEntityId?: string) => {
-    const [type, baseId] = baseEntityId ? (baseEntityId.split('#') as [StepBundleBasedOnSource, string]) : [];
+    const [type, baseId] = baseEntityId ? (baseEntityId.split('#') as [StepBundleCreationSource, string]) : [];
     StepBundleService.createStepBundle(newId, type && baseId ? { source: type, sourceId: baseId } : undefined);
   };
 

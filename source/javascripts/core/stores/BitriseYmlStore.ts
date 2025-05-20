@@ -45,24 +45,6 @@ export const bitriseYmlStore = createStore(
           };
         });
       },
-      groupStepsToStepBundle(
-        parentWorkflowId: string | undefined,
-        parentStepBundleId: string | undefined,
-        newStepBundleId: string,
-        selectedStepIndices: number[],
-      ) {
-        return set((state) => {
-          return {
-            yml: BitriseYmlService.groupStepsToStepBundle(
-              parentWorkflowId,
-              parentStepBundleId,
-              newStepBundleId,
-              selectedStepIndices,
-              state.yml,
-            ),
-          };
-        });
-      },
       updateStepBundle: (stepBundleId: string, stepBundle: StepBundleModel) => {
         return set((state) => {
           return {

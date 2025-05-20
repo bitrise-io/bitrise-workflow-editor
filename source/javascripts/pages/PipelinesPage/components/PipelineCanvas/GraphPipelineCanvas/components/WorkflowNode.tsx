@@ -12,7 +12,6 @@ import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
@@ -86,10 +85,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
-
-  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-  }));
 
   useResizeObserver({
     ref,
@@ -356,7 +351,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         newStepBundleId: string,
         stepIndices: number[],
       ) => {
-        groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, stepIndices);
+        const source = parentWorkflowId ? 'workflows' : 'step_bundles';
+        const sourceId = parentWorkflowId || parentStepBundleId || '';
+
+        StepBundleService.groupStepsToStepBundle(newStepBundleId, { source, sourceId, steps: stepIndices });
         setSelectedStepIndices([Math.min(...stepIndices)]);
         if (parentWorkflowId) {
           openDialog({
@@ -431,7 +429,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
-    groupStepsToStepBundle,
   ]);
 
   const containerProps = useMemo(

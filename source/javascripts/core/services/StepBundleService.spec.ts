@@ -86,14 +86,14 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - step1
-              - step2
-              - bundle::sb1
+              - step1:
+              - step2:
+              - bundle::sb1:
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
         `,
       });
 
@@ -103,18 +103,18 @@ describe('StepBundleService', () => {
         workflows:
           primary:
             steps:
-            - step1
-            - step2
-            - bundle::sb1
+            - step1:
+            - step2:
+            - bundle::sb1:
         step_bundles:
           sb1:
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
           sb2:
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
       `);
     });
 
@@ -125,9 +125,9 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - step1
-              - step2
-              - bundle::sb1
+              - step1:
+              - step2:
+              - bundle::sb1:
           step_bundles:
             sb1:
               title: 'Step bundle'
@@ -138,8 +138,8 @@ describe('StepBundleService', () => {
               inputs:
               - input1: 'my_input_value'
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
         `,
       });
 
@@ -149,9 +149,9 @@ describe('StepBundleService', () => {
         workflows:
           primary:
             steps:
-            - step1
-            - step2
-            - bundle::sb1
+            - step1:
+            - step2:
+            - bundle::sb1:
         step_bundles:
           sb1:
             title: 'Step bundle'
@@ -162,8 +162,8 @@ describe('StepBundleService', () => {
             inputs:
             - input1: 'my_input_value'
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
           sb2:
             title: 'Step bundle'
             summary: 'Step bundle summary'
@@ -173,8 +173,8 @@ describe('StepBundleService', () => {
             inputs:
             - input1: 'my_input_value'
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
       `);
     });
 
@@ -185,14 +185,14 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - step1
-              - step2
-              - bundle::sb1
+              - step1:
+              - step2:
+              - bundle::sb1:
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
         `,
       });
 
@@ -202,19 +202,19 @@ describe('StepBundleService', () => {
         workflows:
           primary:
             steps:
-            - step1
-            - step2
-            - bundle::sb1
+            - step1:
+            - step2:
+            - bundle::sb1:
         step_bundles:
           sb1:
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
           sb2:
             steps:
-            - step1
-            - step2
-            - bundle::sb1
+            - step1:
+            - step2:
+            - bundle::sb1:
       `);
     });
 
@@ -242,14 +242,14 @@ describe('StepBundleService', () => {
               envs:
               - MY_ENV_VAR: 'my_value'
               steps:
-              - step1
-              - step2
-              - bundle::sb1
+              - step1:
+              - step2:
+              - bundle::sb1:
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
         `,
       });
 
@@ -276,14 +276,14 @@ describe('StepBundleService', () => {
             envs:
             - MY_ENV_VAR: 'my_value'
             steps:
-            - step1
-            - step2
-            - bundle::sb1
+            - step1:
+            - step2:
+            - bundle::sb1:
         step_bundles:
           sb1:
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
           sb2:
             title: 'Workflow'
             summary: 'Workflow summary'
@@ -291,9 +291,9 @@ describe('StepBundleService', () => {
             envs:
             - MY_ENV_VAR: 'my_value'
             steps:
-            - step1
-            - step2
-            - bundle::sb1
+            - step1:
+            - step2:
+            - bundle::sb1:
       `);
     });
 
@@ -310,7 +310,7 @@ describe('StepBundleService', () => {
 
       expect(() => {
         StepBundleService.createStepBundle('sb1');
-      }).toThrow('step_bundles.sb1 already exists');
+      }).toThrow("Step bundle 'sb1' already exists");
     });
 
     it('should throws an error if the based on entity is not found', () => {
@@ -320,14 +320,14 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - step1
-              - step2
-              - bundle::sb1
+              - step1:
+              - step2:
+              - bundle::sb1:
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
         `,
       });
 
@@ -372,18 +372,17 @@ describe('StepBundleService', () => {
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
             sb2:
               steps:
               - step5
-              - bundle::sb1
               - bundle::sb1:
               - bundle::sb1: {}
               - step6
             sb3:
               steps:
-              - bundle::sb1
+              - bundle::sb1:
         `,
       });
 
@@ -395,18 +394,17 @@ describe('StepBundleService', () => {
         step_bundles:
           sb4:
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
           sb2:
             steps:
             - step5
-            - bundle::sb4
             - bundle::sb4:
             - bundle::sb4: {}
             - step6
           sb3:
             steps:
-            - bundle::sb4
+            - bundle::sb4:
       `);
     });
 
@@ -417,22 +415,21 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - step1
-              - bundle::sb1
-              - step2
+              - step1:
+              - bundle::sb1:
+              - step2:
             secondary:
               steps:
-              - bundle::sb1
               - bundle::sb1:
               - bundle::sb1: {}
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
             sb2:
               steps:
-              - step5
+              - step5:
         `,
       });
 
@@ -442,22 +439,21 @@ describe('StepBundleService', () => {
         workflows:
           primary:
             steps:
-            - step1
-            - bundle::sb4
-            - step2
+            - step1:
+            - bundle::sb4:
+            - step2:
           secondary:
             steps:
-            - bundle::sb4
             - bundle::sb4:
             - bundle::sb4: {}
         step_bundles:
           sb4:
             steps:
-            - step3
-            - step4
+            - step3:
+            - step4:
           sb2:
             steps:
-            - step5
+            - step5:
       `);
     });
 
@@ -474,7 +470,7 @@ describe('StepBundleService', () => {
 
       expect(() => {
         StepBundleService.renameStepBundle('sb2', 'sb4');
-      }).toThrow('step_bundles.sb2 not found');
+      }).toThrow("Step bundle 'sb2' not found");
     });
 
     it('should throw an error if the new step bundle id already exists', () => {
@@ -491,7 +487,7 @@ describe('StepBundleService', () => {
 
       expect(() => {
         StepBundleService.renameStepBundle('sb1', 'sb2');
-      }).toThrow('step_bundles.sb2 already exists');
+      }).toThrow("Step bundle 'sb2' already exists");
     });
   });
 
@@ -548,18 +544,17 @@ describe('StepBundleService', () => {
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
             sb2:
               steps:
-              - step5
-              - bundle::sb1
+              - step5:
               - bundle::sb1:
               - bundle::sb1: {}
-              - step6
+              - step6:
             sb3:
               steps:
-              - bundle::sb1
+              - bundle::sb1:
         `,
       });
 
@@ -571,8 +566,8 @@ describe('StepBundleService', () => {
         step_bundles:
           sb2:
             steps:
-            - step5
-            - step6
+            - step5:
+            - step6:
       `);
     });
 
@@ -583,22 +578,21 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - step1
-              - bundle::sb1
-              - step2
+              - step1:
+              - bundle::sb1:
+              - step2:
             secondary:
               steps:
-              - bundle::sb1
               - bundle::sb1:
               - bundle::sb1: {}
           step_bundles:
             sb1:
               steps:
-              - step3
-              - step4
+              - step3:
+              - step4:
             sb2:
               steps:
-              - step5
+              - step5:
         `,
       });
 
@@ -608,13 +602,13 @@ describe('StepBundleService', () => {
         workflows:
           primary:
             steps:
-            - step1
-            - step2
+            - step1:
+            - step2:
           secondary: {}
         step_bundles:
           sb2:
             steps:
-            - step5
+            - step5:
       `);
     });
 
@@ -631,7 +625,156 @@ describe('StepBundleService', () => {
 
       expect(() => {
         StepBundleService.deleteStepBundle('sb2');
-      }).toThrow('step_bundles.sb2 not found');
+      }).toThrow("Step bundle 'sb2' not found");
+    });
+  });
+
+  describe('groupStepsToStepBundle', () => {
+    it('creates a new step bundle from the selected steps of another step bundle, and replaces the steps with the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+              - step3:
+              - step4: {}
+              - step5:
+        `,
+      });
+
+      StepBundleService.groupStepsToStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1', steps: [1, 2, 3] });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          sb1:
+            steps:
+            - step1:
+            - bundle::sb2: {}
+            - step5:
+          sb2:
+            steps:
+            - step2:
+            - step3:
+            - step4: {}
+      `);
+    });
+
+    it('creates a new step bundle from the selected steps of a workflow, and replaces the steps with the step bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary:
+              steps:
+              - step1:
+              - step2:
+              - step3:
+              - step4: {}
+              - step5:
+        `,
+      });
+
+      StepBundleService.groupStepsToStepBundle('sb1', { source: 'workflows', sourceId: 'primary', steps: [1, 2, 3] });
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        workflows:
+          primary:
+            steps:
+            - step1:
+            - bundle::sb1: {}
+            - step5:
+        step_bundles:
+          sb1:
+            steps:
+            - step2:
+            - step3:
+            - step4: {}
+      `);
+    });
+
+    it('should throw an error if the step bundle id already exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1: {}
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.groupStepsToStepBundle('sb1', { source: 'step_bundles', sourceId: 'sb1', steps: [1, 2, 3] });
+      }).toThrow("Step bundle 'sb1' already exists");
+    });
+
+    it('should throw an error if the source entity is not found', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary: {}
+          step_bundles:
+            sb1:
+              steps:
+              - step1:
+              - step2:
+              - step3:
+              - step4: {}
+              - step5:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.groupStepsToStepBundle('sb2', { source: 'workflows', sourceId: 'sb1', steps: [1, 2, 3] });
+      }).toThrow('workflows.sb1 not found');
+    });
+
+    it('should throw an error if the steps are not found', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary:
+              steps:
+              - step1:
+              - step2:
+              - step3:
+              - step4: {}
+              - step5:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.groupStepsToStepBundle('sb2', { source: 'workflows', sourceId: 'primary', steps: [4, 5] });
+      }).toThrow('Step at index 5 not found in workflows.primary');
+    });
+
+    it('should throw an error if one of the steps is a with group', () => {
+      initializeStore({
+        version: '',
+        ymlString: `
+          workflows:
+            primary:
+              steps:
+              - step1:
+              - with: {}
+              - step3:
+              - step4: {}
+              - step5:
+        `,
+      });
+
+      expect(() => {
+        StepBundleService.groupStepsToStepBundle('sb2', { source: 'workflows', sourceId: 'primary', steps: [0, 1] });
+      }).toThrow('Step at index 1 in workflows.primary is a with group, and cannot be used in a step bundle');
     });
   });
 });

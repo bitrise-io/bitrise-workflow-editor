@@ -3,7 +3,7 @@ import { isEmpty } from 'es-toolkit/compat';
 import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 
 import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
-import { STEP_BUNDLE_KEYS, StepBundleBasedOnSource } from '../models/StepBundle';
+import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
 // eslint-disable-next-line import/no-cycle
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
@@ -125,7 +125,7 @@ function sanitizeInputKey(key: string) {
   return key.replace(/[^a-zA-Z0-9_]/g, '').trim();
 }
 
-function getCreationSourceOrThrowError(doc: Document, at: { source: StepBundleBasedOnSource; sourceId: string }) {
+function getCreationSourceOrThrowError(doc: Document, at: { source: StepBundleCreationSource; sourceId: string }) {
   const { source, sourceId } = at;
   const entity = doc.getIn([source, sourceId]);
 
@@ -136,22 +136,36 @@ function getCreationSourceOrThrowError(doc: Document, at: { source: StepBundleBa
   return entity;
 }
 
-function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
-  const stepBundle = doc.getIn(['step_bundles', id]);
-  if (stepBundle) {
-    throw new Error(`step_bundles.${id} already exists`);
-  }
-}
-
 function getStepBundleOrThrowError(doc: Document, id: string) {
   const stepBundle = doc.getIn(['step_bundles', id]);
   if (!stepBundle || !isMap(stepBundle)) {
-    throw new Error(`step_bundles.${id} not found`);
+    throw new Error(`Step bundle '${id}' not found`);
   }
   return stepBundle;
 }
 
-function createStepBundle(id: string, basedOn?: { source: StepBundleBasedOnSource; sourceId: string }) {
+function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
+  const stepBundle = doc.getIn(['step_bundles', id]);
+  if (stepBundle) {
+    throw new Error(`Step bundle '${id}' already exists`);
+  }
+}
+
+function getSourceStepOrThrowError(
+  doc: Document,
+  at: { source: StepBundleCreationSource; sourceId: string; stepIndex: number },
+) {
+  const source = getCreationSourceOrThrowError(doc, at);
+  const step = source.getIn(['steps', at.stepIndex]);
+
+  if (!step || !isMap(step)) {
+    throw new Error(`Step at index ${at.stepIndex} not found in ${at.source}.${at.sourceId}`);
+  }
+
+  return step;
+}
+
+function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSource; sourceId: string }) {
   updateBitriseYmlDocument(({ doc }) => {
     throwIfStepBundleAlreadyExists(doc, id);
 
@@ -185,9 +199,7 @@ function renameStepBundle(id: string, newId: string) {
     const newCvs = idToCvs(newId);
 
     YamlUtils.updateKey({ doc, paths }, `step_bundles.${id}`, newId);
-    YamlUtils.updateValue({ doc, paths }, `step_bundles.*.steps.*`, newCvs, cvs);
     YamlUtils.updateKey({ doc, paths }, `step_bundles.*.steps.*.${cvs}`, newCvs);
-    YamlUtils.updateValue({ doc, paths }, `workflows.*.steps.*`, newCvs, cvs);
     YamlUtils.updateKey({ doc, paths }, `workflows.*.steps.*.${cvs}`, newCvs);
 
     return doc;
@@ -211,6 +223,47 @@ function deleteStepBundle(id: string) {
   });
 }
 
+function groupStepsToStepBundle(
+  id: string,
+  from: { source: StepBundleCreationSource; sourceId: string; steps: number[] },
+) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const source = getCreationSourceOrThrowError(doc, from);
+    throwIfStepBundleAlreadyExists(doc, id);
+
+    function isWithGroup(node: unknown) {
+      return isMap(node) ? node.has('with') : node === 'with';
+    }
+
+    const indices = [...from.steps].sort((a, b) => a - b);
+    const sourceSteps = source.get('steps') as YAMLMap;
+    const steps = indices.map((index) => {
+      const step = getSourceStepOrThrowError(doc, { source: from.source, sourceId: from.sourceId, stepIndex: index });
+
+      if (isWithGroup(step)) {
+        throw new Error(
+          `Step at index ${index} in ${from.source}.${from.sourceId} is a with group, and cannot be used in a step bundle`,
+        );
+      }
+
+      return step;
+    });
+
+    const cvs = idToCvs(id);
+    const stepBundle = doc.createNode({ steps }) as YAMLMap;
+    doc.addIn(['step_bundles', id], stepBundle);
+
+    sourceSteps.set(indices[0], doc.createNode({ [cvs]: {} }));
+
+    const reverseIndices = indices.slice(1).reverse();
+    reverseIndices.forEach((index) => {
+      sourceSteps.delete(index);
+    });
+
+    return doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -225,4 +278,5 @@ export default {
   createStepBundle,
   renameStepBundle,
   deleteStepBundle,
+  groupStepsToStepBundle,
 };

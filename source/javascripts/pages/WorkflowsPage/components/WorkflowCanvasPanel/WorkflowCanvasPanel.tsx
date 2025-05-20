@@ -11,7 +11,6 @@ import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -44,10 +43,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         setSelectedStepIndices: s.setSelectedStepIndices,
       })),
     );
-
-  const { groupStepsToStepBundle } = useBitriseYmlStore((s) => ({
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-  }));
 
   const runButtonAriaLabel = useMemo(() => {
     if (WorkflowService.isUtilityWorkflow(workflowId)) {
@@ -320,7 +315,9 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       newStepBundleId: string,
       stepIndices: number[],
     ) => {
-      groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, stepIndices);
+      const source = parentWorkflowId ? 'workflows' : 'step_bundles';
+      const sourceId = parentWorkflowId || parentStepBundleId || '';
+      StepBundleService.groupStepsToStepBundle(newStepBundleId, { source, sourceId, steps: stepIndices });
       setSelectedStepIndices([Math.min(...stepIndices)]);
       if (parentWorkflowId) {
         openDialog({
@@ -338,7 +335,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         })();
       }
     },
-    [groupStepsToStepBundle, openDialog, setSelectedStepIndices],
+    [openDialog, setSelectedStepIndices],
   );
 
   const handleMoveStepInStepBundle = useCallback(

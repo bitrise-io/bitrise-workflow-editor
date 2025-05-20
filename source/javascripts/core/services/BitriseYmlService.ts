@@ -7,61 +7,12 @@ import {
   EnvironmentItemOptionsModel,
   EnvModel,
   StepBundleModel,
-  StepModel,
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
 // eslint-disable-next-line import/no-cycle
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
-
-function groupStepsToStepBundle(
-  parentWorkflowId: string | undefined,
-  parentStepBundleId: string | undefined,
-  newStepBundleId: string,
-  selectedStepIndices: number[],
-  yml: BitriseYml,
-): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  // If there aren't any selected steps or steps are missing in the YML, just return the YML
-  let stepsInEntity;
-  if (parentWorkflowId) {
-    stepsInEntity = copy.workflows?.[parentWorkflowId]?.steps;
-  }
-  if (parentStepBundleId) {
-    stepsInEntity = copy.step_bundles?.[parentStepBundleId]?.steps;
-  }
-  if (!selectedStepIndices.length || !stepsInEntity) {
-    return copy;
-  }
-
-  // Remove step / steps from a workflow and make sure that the removed step / steps are not part of a with group or a step bundle
-  const sortedIndices = selectedStepIndices.sort((a, b) => b - a);
-  const removedSteps = sortedIndices
-    .filter((stepIndex) => {
-      if (Object.keys(stepsInEntity[stepIndex])[0].startsWith('with')) {
-        return false;
-      }
-      return true;
-    })
-    .map((stepIndex) => {
-      return stepsInEntity.splice(stepIndex, 1)[0];
-    }) as Array<{ [key: string]: StepModel }>;
-
-  // Create and add selected step / steps to the step bundle
-  copy.step_bundles = {
-    ...copy.step_bundles,
-    [newStepBundleId]: { steps: removedSteps.reverse() },
-  };
-
-  // Push the created step bundle to the workflow or step_bundle, which contained the selected step / steps
-  const insertPosition = sortedIndices.reverse()[0];
-  stepsInEntity.splice(insertPosition, 0, {
-    [StepBundleService.idToCvs(newStepBundleId)]: {},
-  });
-  return copy;
-}
 
 function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -311,7 +262,6 @@ function shouldRemoveField<T>(modified: T, original: T) {
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
-  groupStepsToStepBundle,
   updateStepBundle,
   appendStepBundleInput,
   deleteStepBundleInput,
