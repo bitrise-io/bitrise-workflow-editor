@@ -1,7 +1,6 @@
 import { omit } from 'es-toolkit';
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { StepBundle } from '@/core/models/Step';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 import useSearchParams from './useSearchParams';
@@ -14,22 +13,14 @@ function selectValidStepBundleId(stepBundleIds: string[], requestedId?: string |
 }
 
 type UseSelectedStepBundleResult = [
-  selectedStepBundle: StepBundle,
+  selectedStepBundleId: string,
   setSelectedStepBundle: (stepBundleId?: string | null) => void,
 ];
 
 const useSelectedStepBundle = (): UseSelectedStepBundleResult => {
-  const stepBundles = useStepBundles();
-  const stepBundleIds = Object.keys(stepBundles);
+  const stepBundleIds = useStepBundles((s) => Object.keys(s));
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedStepBundleId = selectValidStepBundleId(stepBundleIds, searchParams.step_bundle_id);
-
-  const selectedStepBundle = useMemo(() => {
-    return {
-      id: selectedStepBundleId,
-      userValues: stepBundles[selectedStepBundleId],
-    };
-  }, [selectedStepBundleId, stepBundles]);
 
   const setSelectedStepBundle = useCallback(
     (stepBundleId?: string | null) => {
@@ -50,10 +41,7 @@ const useSelectedStepBundle = (): UseSelectedStepBundleResult => {
     }
   }, [searchParams.step_bundle_id, selectedStepBundleId, setSelectedStepBundle]);
 
-  return useMemo(
-    () => [selectedStepBundle as StepBundle, setSelectedStepBundle],
-    [selectedStepBundle, setSelectedStepBundle],
-  );
+  return useMemo(() => [selectedStepBundleId, setSelectedStepBundle], [selectedStepBundleId, setSelectedStepBundle]);
 };
 
 export default useSelectedStepBundle;

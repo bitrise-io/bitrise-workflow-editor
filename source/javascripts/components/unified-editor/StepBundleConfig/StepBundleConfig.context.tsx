@@ -1,14 +1,10 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
+import { createContext, PropsWithChildren, useContext } from 'react';
 
 import { StepBundle } from '@/core/models/Step';
-import useStep from '@/hooks/useStep';
-import useStepBundle from '@/hooks/useStepBundle';
-
-type State = { stepBundle: StepBundle | undefined } & Props;
-const Context = createContext<State>({
-  stepBundle: undefined,
-  stepIndex: -1,
-});
+import StepBundleService from '@/core/services/StepBundleService';
+import StepService from '@/core/services/StepService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 type Props = PropsWithChildren<{
   stepBundleId?: string;
@@ -17,23 +13,58 @@ type Props = PropsWithChildren<{
   stepIndex: number;
 }>;
 
+const Context = createContext<Omit<Props, 'children'>>({
+  stepIndex: -1,
+});
+
 // This function can work 3 different ways:
 // 1. If stepBundleId is provided, it fetches the step bundle by its id.
 // 2. If parentWorkflowId and stepIndex are provided, it fetches the stepBundle from the parentWorkflow at stepIndex.
 // 3. If parentStepBundleId and stepIndex are provided, it fetches the stepBundle from the parentStepBundle at stepIndex.
-const StepBundleConfigProvider = (props: Props) => {
-  const { stepBundleId, parentWorkflowId, parentStepBundleId, children, stepIndex } = props;
-  const stepLike = useStep({ stepBundleId: parentStepBundleId, stepIndex, workflowId: parentWorkflowId });
-
-  const stepBundle = useStepBundle(stepBundleId || stepLike?.data?.id || '');
-
-  const contextValue = useMemo(() => ({ stepBundle, ...props }), [stepBundle, props]);
-
-  return <Context.Provider value={contextValue}>{children}</Context.Provider>;
+const StepBundleConfigProvider = ({ children, ...props }: Props) => {
+  return <Context.Provider value={props}>{children}</Context.Provider>;
 };
 
-export const useStepBundleConfigContext = () => {
-  return useContext<State>(Context);
+type UseStepBundleConfigContextResult = Omit<Props, 'children'> & {
+  stepBundle?: StepBundle;
 };
+
+export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>(
+  selector?: (state: UseStepBundleConfigContextResult) => U,
+): U {
+  const defaultStepLibrary = useDefaultStepLibrary();
+  const { stepBundleId, parentWorkflowId, parentStepBundleId, stepIndex } = useContext(Context);
+
+  return useBitriseYmlStore(({ yml }) => {
+    const result: UseStepBundleConfigContextResult = { stepBundleId, parentWorkflowId, parentStepBundleId, stepIndex };
+
+    if (stepBundleId) {
+      const stepBundle = yml.step_bundles?.[stepBundleId];
+      result.stepBundle = stepBundle ? StepBundleService.ymlInstanceToStepBundle(stepBundleId, stepBundle) : undefined;
+    }
+
+    if (parentWorkflowId && stepIndex >= 0) {
+      const stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
+      const [cvs, stepBundle] = Object.entries(stepListItemModel || {})[0];
+
+      result.stepBundle =
+        stepBundle && StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
+          ? StepBundleService.ymlInstanceToStepBundle(StepBundleService.cvsToId(cvs), stepBundle)
+          : undefined;
+    }
+
+    if (parentStepBundleId && stepIndex >= 0) {
+      const stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
+      const [cvs, stepBundle] = Object.entries(stepListItemModel || {})[0];
+
+      result.stepBundle =
+        stepBundle && StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
+          ? StepBundleService.ymlInstanceToStepBundle(StepBundleService.cvsToId(cvs), stepBundle)
+          : undefined;
+    }
+
+    return selector ? selector(result) : result;
+  }) as U;
+}
 
 export default StepBundleConfigProvider;

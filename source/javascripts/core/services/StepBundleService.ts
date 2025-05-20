@@ -3,6 +3,7 @@ import { isEmpty } from 'es-toolkit/compat';
 import { Document, isMap, isScalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import { EnvironmentItemModel, StepBundleModel, StepBundles, Workflows } from '../models/BitriseYml';
+import { StepBundle } from '../models/Step';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
 // eslint-disable-next-line import/no-cycle
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
@@ -100,6 +101,15 @@ function idToCvs(id: string) {
     return id;
   }
   return `bundle::${id}`;
+}
+
+function ymlInstanceToStepBundle(id: string, stepBundle: StepBundleModel): StepBundle {
+  return {
+    cvs: idToCvs(id),
+    id,
+    title: stepBundle.title,
+    userValues: stepBundle,
+  };
 }
 
 function sanitizeInputOpts(input: EnvironmentItemModel) {
@@ -305,6 +315,23 @@ function deleteStepBundleInput(id: string, index: number) {
   });
 }
 
+type K = keyof StepBundleModel;
+type V<T extends K> = StepBundleModel[T];
+function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const stepBundle = getStepBundleOrThrowError(doc, id);
+
+    if (value) {
+      stepBundle.flow = false;
+      stepBundle.set(field, value);
+    } else {
+      stepBundle.delete(field);
+    }
+
+    return doc;
+  });
+}
+
 export default {
   getDependantWorkflows,
   getUsedByText,
@@ -314,6 +341,7 @@ export default {
   getStepBundleChain,
   cvsToId,
   idToCvs,
+  ymlInstanceToStepBundle,
   sanitizeInputOpts,
   sanitizeInputKey,
   createStepBundle,
@@ -322,4 +350,5 @@ export default {
   groupStepsToStepBundle,
   addStepBundleInput,
   deleteStepBundleInput,
+  updateStepBundleField,
 };

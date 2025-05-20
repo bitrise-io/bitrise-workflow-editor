@@ -15,13 +15,19 @@ const useDependantWorkflows = (props: Props) => {
 
   const workflows = useWorkflows((s) => {
     return Object.fromEntries(
-      Object.entries(s).map(([id, { before_run, after_run }]) => {
-        return [id, { before_run, after_run }];
+      Object.entries(s).map(([id, { before_run, after_run, steps }]) => {
+        return [id, { before_run, after_run, steps }];
       }),
     );
   });
 
-  const stepBundles = useStepBundles();
+  const stepBundles = useStepBundles((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([id, stepBundle]) => {
+        return [id, { steps: stepBundle.steps }];
+      }),
+    );
+  });
 
   return useMemo(() => {
     if (workflowId) {

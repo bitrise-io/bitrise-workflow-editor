@@ -20,9 +20,7 @@ type Props = Omit<DialogProps, 'title'> & {
 
 const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, ...props }: Props) => {
   const workflowIds = useWorkflows((s) => Object.keys(s));
-
-  const stepBundles = useStepBundles();
-  const stepBundleIds = Object.keys(stepBundles);
+  const stepBundleIds = useStepBundles((s) => Object.keys(s));
 
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 

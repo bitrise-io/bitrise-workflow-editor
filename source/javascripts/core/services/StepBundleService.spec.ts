@@ -1004,4 +1004,71 @@ describe('StepBundleService', () => {
       }).toThrow("Input at index '1' not found in step bundle 'sb1'");
     });
   });
+
+  describe('updateStepBundleField', () => {
+    it('should update the specified field of the step_bundle', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          step_bundles:
+            bundle::sb1:
+              title: Old Title
+              summary: "Old Summary"
+              description: 'Old Description'
+        `,
+      });
+
+      StepBundleService.updateStepBundleField('bundle::sb1', 'title', 'New Title');
+      StepBundleService.updateStepBundleField('bundle::sb1', 'summary', 'New Summary');
+      StepBundleService.updateStepBundleField('bundle::sb1', 'description', 'New Description');
+
+      const expectedYml = yaml`
+        step_bundles:
+          bundle::sb1:
+            title: New Title
+            summary: "New Summary"
+            description: 'New Description'
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove the specified field if the value is empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          step_bundles:
+            bundle::sb1:
+              title: Old Title
+              summary: "Old Summary"
+              description: 'Old Description'
+        `,
+      });
+
+      StepBundleService.updateStepBundleField('bundle::sb1', 'title', '');
+      StepBundleService.updateStepBundleField('bundle::sb1', 'summary', '');
+      StepBundleService.updateStepBundleField('bundle::sb1', 'description', '');
+
+      const expectedYml = yaml`
+        step_bundles:
+          bundle::sb1: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the step_bundle does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          step_bundles:
+            bundle::sb1: {}
+        `,
+      });
+
+      expect(() => StepBundleService.updateStepBundleField('non-existing-bundle', 'title', 'New Title')).toThrow(
+        `Step bundle 'non-existing-bundle' not found`,
+      );
+    });
+  });
 });

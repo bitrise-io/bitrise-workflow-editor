@@ -19,7 +19,13 @@ type Props = {
 };
 
 const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
-  const stepBundles = useStepBundles();
+  const stepBundles = useStepBundles((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([id, stepBundle]) => {
+        return [id, { steps: stepBundle.steps }];
+      }),
+    );
+  });
 
   const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
     useStepBundlesPageStore(

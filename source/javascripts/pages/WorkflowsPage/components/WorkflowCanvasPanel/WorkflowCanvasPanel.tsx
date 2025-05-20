@@ -28,8 +28,15 @@ const containerProps: CardProps = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
-  const stepBundles = useStepBundles();
   const hasUnsavedChanges = useYmlHasChanges();
+
+  const stepBundles = useStepBundles((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([id, stepBundle]) => {
+        return [id, { steps: stepBundle.steps }];
+      }),
+    );
+  });
 
   const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
     useWorkflowsPageStore(

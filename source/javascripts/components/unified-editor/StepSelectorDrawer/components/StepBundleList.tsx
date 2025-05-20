@@ -14,7 +14,14 @@ type StepBundleListProps = {
 };
 
 const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListProps) => {
-  const stepBundles = useStepBundles();
+  const stepBundles = useStepBundles((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([id, stepBundle]) => {
+        return [id, { steps: stepBundle.steps }];
+      }),
+    );
+  });
+
   const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
   const bundleIds = Object.keys(stepBundles).filter((id) => {
     if (excludedStepBundleId) {

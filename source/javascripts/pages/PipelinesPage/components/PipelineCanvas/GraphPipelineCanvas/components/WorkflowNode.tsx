@@ -74,8 +74,15 @@ const ParallelWorkflowIndicator = memo(() => {
 const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const hovered = useHover(ref);
-  const stepBundles = useStepBundles();
   const { selectedPipeline } = usePipelineSelector();
+
+  const stepBundles = useStepBundles((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([_id, stepBundle]) => {
+        return [_id, { steps: stepBundle.steps }];
+      }),
+    );
+  });
 
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);

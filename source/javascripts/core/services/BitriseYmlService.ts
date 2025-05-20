@@ -1,31 +1,40 @@
 import { isBoolean, isEqual, isNull, mapKeys, mapValues } from 'es-toolkit';
 import { isEmpty, isNumber } from 'es-toolkit/compat';
 
-import {
-  BitriseYml,
-  EnvironmentItemModel,
-  EnvironmentItemOptionsModel,
-  EnvModel,
-  StepBundleModel,
-} from '../models/BitriseYml';
+import { BitriseYml, EnvironmentItemModel, EnvironmentItemOptionsModel, EnvModel } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { deepCloneSimpleObject } from '../utils/CommonUtils';
 // eslint-disable-next-line import/no-cycle
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
-function updateStepBundle(stepBundleId: string, stepBundle: StepBundleModel, yml: BitriseYml): BitriseYml {
+function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  mapValues(stepBundle, (value: string, key: never) => {
-    if (copy.step_bundles?.[stepBundleId]) {
-      if (value) {
-        copy.step_bundles[stepBundleId][key] = value as never;
-      } else if (shouldRemoveField(value, yml.step_bundles?.[stepBundleId]?.[key])) {
-        delete copy.step_bundles[stepBundleId][key];
-      }
-    }
-  });
+  if (!copy.step_bundles?.[bundleId]) {
+    return copy;
+  }
+
+  copy.step_bundles[bundleId].inputs = [
+    ...(copy.step_bundles[bundleId].inputs ?? []),
+    StepBundleService.sanitizeInputOpts(newInput),
+  ];
+
+  return copy;
+}
+
+function deleteStepBundleInput(bundleId: string, index: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.step_bundles?.[bundleId]) {
+    return copy;
+  }
+
+  copy.step_bundles?.[bundleId].inputs?.splice(index, 1);
+
+  if (shouldRemoveField(copy.step_bundles?.[bundleId].inputs, undefined)) {
+    delete copy.step_bundles?.[bundleId].inputs;
+  }
 
   return copy;
 }
@@ -231,7 +240,8 @@ function shouldRemoveField<T>(modified: T, original: T) {
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
-  updateStepBundle,
+  appendStepBundleInput,
+  deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleInputInstanceValue,
 };
