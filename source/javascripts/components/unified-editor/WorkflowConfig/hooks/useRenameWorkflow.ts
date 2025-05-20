@@ -26,7 +26,6 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
   }, [onChange, shouldRunOnChange, nextWorkflowId]);
 
   useEffect(() => {
-    console.log('shouldFinishRenaming', shouldFinishRenaming, prevWorkflowId);
     if (shouldFinishRenaming) {
       setIsRenaming(false);
       WorkflowService.deleteWorkflow(prevWorkflowId);
@@ -42,9 +41,7 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
         WorkflowService.createWorkflow(selectedWorkflowId, newWorkflowId);
 
         setNextWorkflowId(newWorkflowId);
-        console.log('setNextWorkflowId', newWorkflowId);
         setPrevWorkflowId(selectedWorkflowId);
-        console.log('setPrevWorkflowId', selectedWorkflowId);
       }
     },
     [selectedWorkflowId],
