@@ -1,4 +1,5 @@
 export type MachineType = {
+  availableOnStacks: string[];
   id: string;
   name: string;
   ram: string;
@@ -6,9 +7,11 @@ export type MachineType = {
   cpuCount: string;
   cpuDescription: string;
   creditPerMinute?: number;
+  osId: string;
 };
 
 export type MachineTypeOption = {
+  osId?: string;
   value: string;
   label: string;
 };

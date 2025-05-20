@@ -32,6 +32,8 @@ type SelectStackAndMachineResult = {
   isInvalidStack: boolean;
   selectedMachineType: MachineTypeWithValue;
   availableMachineTypeOptions: MachineTypeOption[];
+  promotedMachineTypeOptions: MachineTypeOption[];
+  isMachineTypePromotionTrialMode: boolean;
   isInvalidMachineType: boolean;
   isMachineTypeSelectionDisabled: boolean;
 };
@@ -50,6 +52,7 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
 
 function createMachineType(override?: PartialDeep<MachineTypeWithValue>): MachineTypeWithValue {
   const base: MachineTypeWithValue = {
+    availableOnStacks: [],
     id: '',
     value: '',
     name: '',
@@ -58,6 +61,7 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
     cpuCount: '',
     cpuDescription: '',
     creditPerMinute: 0,
+    osId: 'Other',
   };
 
   return toMerged(base, override || {}) as MachineTypeWithValue;
@@ -72,6 +76,10 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     defaultMachineTypeIdOfOSs = {},
     selectedMachineTypeId,
     availableMachineTypes = [],
+    machineTypePromotion = {
+      isTrialMode: false,
+      promotedMachineTypes: [],
+    },
     runningBuildsOnPrivateCloud,
     withoutDefaultOptions = false,
   } = props;
@@ -81,6 +89,8 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     selectedMachineType: createMachineType(),
     availableStackOptions: availableStacks.map(StackService.toStackOption),
     availableMachineTypeOptions: availableMachineTypes.map(MachineTypeService.toMachineOption),
+    promotedMachineTypeOptions: machineTypePromotion.promotedMachineTypes.map(MachineTypeService.toMachineOption),
+    isMachineTypePromotionTrialMode: machineTypePromotion.isTrialMode,
     isInvalidStack: false,
     isInvalidMachineType: false,
     isMachineTypeSelectionDisabled: false,
@@ -153,6 +163,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
         {
           value: '',
           label: `Default (${defaultMachineType.name})`,
+          osId: defaultMachineType.osId,
         },
         ...result.availableMachineTypeOptions,
       ];
@@ -161,11 +172,18 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
         {
           value: '',
           label: `Default (${defaultMachineTypeOfOS.name})`,
+          osId: defaultMachineTypeOfOS.osId,
         },
         ...result.availableMachineTypeOptions,
       ];
     }
   }
+
+  result.promotedMachineTypeOptions = machineTypePromotion.promotedMachineTypes
+    .filter((machine) => {
+      return machine.availableOnStacks.includes(result.selectedStack.id);
+    })
+    .map(MachineTypeService.toMachineOption);
 
   if (isInvalidMachineType) {
     result.isInvalidMachineType = true;
