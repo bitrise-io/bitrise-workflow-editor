@@ -8,21 +8,6 @@ import { deepCloneSimpleObject } from '../utils/CommonUtils';
 import StepBundleService from './StepBundleService';
 import StepService from './StepService';
 
-function appendStepBundleInput(bundleId: string, newInput: EnvironmentItemModel, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.step_bundles?.[bundleId]) {
-    return copy;
-  }
-
-  copy.step_bundles[bundleId].inputs = [
-    ...(copy.step_bundles[bundleId].inputs ?? []),
-    StepBundleService.sanitizeInputOpts(newInput),
-  ];
-
-  return copy;
-}
-
 function updateStepBundleInput(
   bundleId: string,
   index: number,
@@ -215,7 +200,6 @@ function getUniqueStepCvss(yml: BitriseYml) {
 export default {
   getUniqueStepIds,
   getUniqueStepCvss,
-  appendStepBundleInput,
   updateStepBundleInput,
   updateStepBundleInputInstanceValue,
 };
