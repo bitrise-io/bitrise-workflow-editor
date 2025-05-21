@@ -57,8 +57,8 @@ function toYmlValue(value: unknown) {
   }
 
   // 2. Boolean handling
-  const trueVals = ['true', 'yes', 'on'];
-  const falseVals = ['false', 'no', 'off'];
+  const trueVals = ['true'];
+  const falseVals = ['false'];
   if (trueVals.includes(lowerValue)) {
     return true;
   }
@@ -299,6 +299,8 @@ function updateValue(value: string, index: number, key: string, source: EnvVarSo
     if (typeof ymlValue === 'number' && value.includes('.')) {
       const digits = String(value).split('.')[1].length || 0;
       scalar.minFractionDigits = digits;
+    } else {
+      scalar.minFractionDigits = 0;
     }
 
     env.setIn([key], scalar);

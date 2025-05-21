@@ -107,17 +107,31 @@ describe('EnvVarService', () => {
     });
 
     describe('booleans', () => {
-      ['true', 'TRUE', 'yes', 'YES', 'on', 'ON'].forEach((value) => {
+      ['true', 'TRUE'].forEach((value) => {
         it(`converts "${value}" to true boolean`, () => {
           const result = EnvVarService.toYmlValue(value);
           expect(result).toBe(true);
         });
       });
 
-      ['false', 'FALSE', 'no', 'NO', 'off', 'OFF'].forEach((value) => {
+      ['yes', 'YES', 'on', 'ON'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = EnvVarService.toYmlValue(value);
+          expect(result).toBe(value);
+        });
+      });
+
+      ['false', 'FALSE'].forEach((value) => {
         it(`converts "${value}" to false boolean`, () => {
           const result = EnvVarService.toYmlValue(value);
           expect(result).toBe(false);
+        });
+      });
+
+      ['no', 'NO', 'off', 'OFF'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = EnvVarService.toYmlValue(value);
+          expect(result).toBe(value);
         });
       });
     });
@@ -1052,6 +1066,40 @@ describe('EnvVarService', () => {
         `);
       });
 
+      it('sets the fraction digits from the number when the number is a float', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            app:
+              envs:
+              - SERVICE_VERSION: 2`,
+        });
+
+        EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          app:
+            envs:
+            - SERVICE_VERSION: 3.1415
+        `);
+      });
+
+      it('resets the fraction digits to 0 when the number is an integer', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            app:
+              envs:
+              - SERVICE_VERSION: 3.14`,
+        });
+
+        EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          app:
+            envs:
+            - SERVICE_VERSION: 2
+        `);
+      });
+
       it('throws an error when env_var is not found at index', () => {
         initializeStore({
           version: '',
@@ -1102,6 +1150,44 @@ describe('EnvVarService', () => {
             wf1:
               envs:
               - NODE_VERSION: 22
+        `);
+      });
+
+      it('sets the fraction digits from the number when the number is a float', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - SERVICE_VERSION: 2`,
+        });
+
+        EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.Workflow, 'wf1');
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          workflows:
+              wf1:
+                envs:
+                - SERVICE_VERSION: 3.1415
+        `);
+      });
+
+      it('resets the fraction digits to 0 when the number is an integer', () => {
+        initializeStore({
+          version: '',
+          ymlString: yaml`
+            workflows:
+              wf1:
+                envs:
+                - SERVICE_VERSION: 3.14`,
+        });
+
+        EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.Workflow, 'wf1');
+        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+          workflows:
+              wf1:
+                envs:
+                - SERVICE_VERSION: 2
         `);
       });
 
