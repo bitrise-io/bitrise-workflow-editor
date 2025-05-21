@@ -26,6 +26,7 @@ const WorkflowsPage = () => {
             type: WorkflowsPageDialogType.CREATE_WORKFLOW,
           })}
         />
+        <Drawers />
       </Box>
     );
   }
