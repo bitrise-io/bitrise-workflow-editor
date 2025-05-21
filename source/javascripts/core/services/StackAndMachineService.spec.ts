@@ -1287,7 +1287,7 @@ describe('StackAndMachineService', () => {
             StackAndMachineSource.Workflow,
             'nonexistent',
           );
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });

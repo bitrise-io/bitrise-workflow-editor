@@ -66,12 +66,3 @@ export function updateBitriseYmlDocument(mutator: YamlMutator /* , event = Bitri
 
   // dispatchBitriseYmlEvent(event);
 }
-
-export function getBitriseYmlDocument() {
-  return bitriseYmlStore.getState().ymlDocument.clone();
-}
-
-export function isWorkflowExists(id: string): boolean {
-  const doc = getBitriseYmlDocument();
-  return doc.hasIn(['workflows', id]);
-}

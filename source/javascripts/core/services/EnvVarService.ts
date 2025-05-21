@@ -1,10 +1,11 @@
 import { Scalar } from 'yaml';
 
-import { bitriseYmlStore, isWorkflowExists, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YamlUtils from '@/core/utils/YamlUtils';
 
 import { EnvironmentItemModel } from '../models/BitriseYml';
 import { EnvVar, EnvVarSource } from '../models/EnvVar';
+import WorkflowService from './WorkflowService';
 
 const EMPTY_ENV_VAR: EnvVar = {
   key: '',
@@ -106,13 +107,13 @@ function toYml(envVar: EnvVar): EnvironmentItemModel {
   return envVarYml;
 }
 
-function validateSourceId(source?: EnvVarSource, sourceId?: string) {
+function validateSourceId(source?: EnvVarSource, sourceId?: string, doc = bitriseYmlStore.getState().ymlDocument) {
   if (source === EnvVarSource.Workflow && !sourceId) {
     throw new Error('sourceId is required when source is Workflow');
   }
 
-  if (source === EnvVarSource.Workflow && sourceId && !isWorkflowExists(sourceId)) {
-    throw new Error(`Workflow is not found at path: workflows.${sourceId}`);
+  if (source === EnvVarSource.Workflow && sourceId) {
+    WorkflowService.getWorkflowOrThrowError(sourceId, doc);
   }
 }
 
@@ -196,7 +197,7 @@ function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
 
 function append(envVar: EnvVar, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
+    validateSourceId(source, sourceId, doc);
 
     const path = getEnvPath(source, sourceId);
     const envs = YamlUtils.getSeqIn(doc, path, true);
@@ -213,7 +214,7 @@ function create(source: EnvVarSource, sourceId?: string): void {
 
 function remove(index: number, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
+    validateSourceId(source, sourceId, doc);
 
     const path = getEnvPath(source, sourceId, index);
     const envs = YamlUtils.getSeqIn(doc, path);
@@ -229,7 +230,7 @@ function remove(index: number, source: EnvVarSource, sourceId?: string) {
 
 function reorder(newIndices: number[], source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
+    validateSourceId(source, sourceId, doc);
 
     const path = getEnvPath(source, sourceId);
     const envs = YamlUtils.getSeqIn(doc, path);
@@ -251,7 +252,7 @@ function reorder(newIndices: number[], source: EnvVarSource, sourceId?: string) 
 
 function updateKey(newKey: string, index: number, oldKey: string, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
+    validateSourceId(source, sourceId, doc);
 
     const path = getEnvPath(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
@@ -271,7 +272,7 @@ function updateKey(newKey: string, index: number, oldKey: string, source: EnvVar
 
 function updateValue(value: string, index: number, key: string, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
+    validateSourceId(source, sourceId, doc);
 
     const path = getEnvPath(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);
@@ -308,7 +309,7 @@ function updateValue(value: string, index: number, key: string, source: EnvVarSo
 
 function updateIsExpand(isExpand: boolean, index: number, source: EnvVarSource, sourceId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, sourceId);
+    validateSourceId(source, sourceId, doc);
 
     const path = getEnvPath(source, sourceId, index);
     const env = YamlUtils.getMapIn(doc, path);

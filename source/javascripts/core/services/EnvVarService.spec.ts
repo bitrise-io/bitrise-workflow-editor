@@ -320,7 +320,7 @@ describe('EnvVarService', () => {
     it('throws an error when workflow is not found', () => {
       expect(() => {
         EnvVarService.getAll(EnvVarSource.Workflow, 'nonexistent');
-      }).toThrow('Workflow is not found at path: workflows.nonexistent');
+      }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
     });
   });
 
@@ -458,7 +458,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.create(EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });
@@ -591,7 +591,7 @@ describe('EnvVarService', () => {
             EnvVarSource.Workflow,
             'nonexistent',
           );
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });
@@ -756,7 +756,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.remove(0, EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });
@@ -879,7 +879,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.reorder([0, 1], EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });
@@ -1017,7 +1017,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });
@@ -1164,7 +1164,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });
@@ -1339,7 +1339,7 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflow, 'nonexistent');
-        }).toThrow('Workflow is not found at path: workflows.nonexistent');
+        }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
   });

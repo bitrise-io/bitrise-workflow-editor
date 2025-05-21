@@ -6,10 +6,11 @@ import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
 import { MachineType, MachineTypeOption } from '../models/MachineType';
 import { Stack, StackOption } from '../models/Stack';
-import { isWorkflowExists, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 import MachineTypeService from './MachineTypeService';
 import StackService from './StackService';
+import WorkflowService from './WorkflowService';
 
 type FieldKeys = keyof Required<Meta>['bitrise.io'];
 
@@ -248,13 +249,17 @@ function changeStackAndMachine({
   };
 }
 
-function validateSourceId(source?: StackAndMachineSource, sourceId?: string) {
+function validateSourceId(
+  source?: StackAndMachineSource,
+  sourceId?: string,
+  doc = bitriseYmlStore.getState().ymlDocument,
+) {
   if (source === StackAndMachineSource.Workflow && !sourceId) {
     throw new Error('sourceId is required when source is Workflow');
   }
 
-  if (source === StackAndMachineSource.Workflow && sourceId && !isWorkflowExists(sourceId)) {
-    throw new Error(`Workflow is not found at path: workflows.${sourceId}`);
+  if (source === StackAndMachineSource.Workflow && sourceId) {
+    WorkflowService.getWorkflowOrThrowError(sourceId, doc);
   }
 }
 
@@ -278,7 +283,8 @@ function updateFieldValue(
   source: StackAndMachineSource,
   sourceId?: string,
 ) {
-  validateSourceId(source, sourceId);
+  validateSourceId(source, sourceId, doc);
+
   const path = getMetaPath(source, sourceId);
   const meta = YamlUtils.getMapIn(doc, path, true);
 
