@@ -1,5 +1,6 @@
 /* eslint-disable import/no-import-module-exports */
-import { Box, Button, Image, Link, Provider as BitkitProvider, Text } from '@bitrise/bitkit';
+import { Box, Button, Image, Link, Provider as BitkitProvider, Text, useToast } from '@bitrise/bitkit';
+import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -50,12 +51,27 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 };
 
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
+  const toast = useToast();
   const isLoaded = useRef(false);
   const hasChanges = useYmlHasChanges();
 
   useCiConfigSettings();
   const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug() });
-  useEventListener('beforeunload', (e) => RuntimeUtils.isProduction() && hasChanges && e.preventDefault());
+
+  useEventListener('beforeunload', (e) => {
+    // NOTE: The return is important for the browser to show the dialog
+    return RuntimeUtils.isProduction() && hasChanges && e.preventDefault();
+  });
+
+  useEventListener('error', (e) => {
+    datadogRum.addError(e);
+    toast({ duration: null, status: 'error', isClosable: true, description: e.message || 'Unknown error' });
+  });
+
+  useEventListener('unhandledrejection', (e) => {
+    datadogRum.addError(e.reason);
+    toast({ duration: null, status: 'error', isClosable: true, description: e.reason?.message || 'Unknown error' });
+  });
 
   useEffect(() => {
     if (!isLoaded.current && data) {

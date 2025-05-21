@@ -157,6 +157,9 @@ function getWorkflowOrThrowError(id: string, doc: Document) {
 
 function createWorkflow(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
+    if (doc.hasIn(['workflows', id])) {
+      throw new Error(`Workflow ${id} already exists. Please choose a different name.`);
+    }
     doc.setIn(['workflows', id], baseId ? getWorkflowOrThrowError(baseId, doc).clone() : doc.createNode({}));
     return doc;
   });
