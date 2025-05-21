@@ -1164,11 +1164,12 @@ describe('EnvVarService', () => {
         });
 
         EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.Workflow, 'wf1');
+
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           workflows:
-              wf1:
-                envs:
-                - SERVICE_VERSION: 3.1415
+            wf1:
+              envs:
+              - SERVICE_VERSION: 3.1415
         `);
       });
 
@@ -1185,9 +1186,9 @@ describe('EnvVarService', () => {
         EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.Workflow, 'wf1');
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           workflows:
-              wf1:
-                envs:
-                - SERVICE_VERSION: 2
+            wf1:
+              envs:
+              - SERVICE_VERSION: 2
         `);
       });
 
