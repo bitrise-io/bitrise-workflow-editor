@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  Checkbox,
   ControlButton,
   Icon,
   Input,
@@ -15,7 +14,7 @@ import {
   Toggletip,
   Tr,
 } from '@bitrise/bitkit';
-import { Tfoot } from '@chakra-ui/react';
+import { Checkbox, Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 

@@ -20,7 +20,7 @@ function getUniqueStepIds(yml: BitriseYml) {
           StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
           StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
         ) {
-          stepLike.steps?.forEach((stepObj) => {
+          stepLike?.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               const { id } = StepService.parseStepCVS(String(cvs), defaultStepLibrary);
               ids.add(id);
@@ -49,7 +49,7 @@ function getUniqueStepCvss(yml: BitriseYml) {
           StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
           StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
         ) {
-          stepLike.steps?.forEach((stepObj) => {
+          stepLike?.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               cvss.add(String(cvs));
             });

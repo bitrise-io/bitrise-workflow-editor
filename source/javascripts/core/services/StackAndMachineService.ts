@@ -83,7 +83,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     defaultMachineTypeIdOfOSs = {},
     selectedMachineTypeId,
     availableMachineTypes = [],
-    hasDedicatedMachine,
+    runningBuildsOnPrivateCloud,
     withoutDefaultOptions = false,
   } = props;
 
@@ -139,13 +139,13 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     return result;
   }
 
-  if (hasDedicatedMachine) {
+  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
+
+  if (runningBuildsOnPrivateCloud && selectableMachines.length === 0) {
     result.isMachineTypeSelectionDisabled = true;
     result.availableMachineTypeOptions = [{ label: 'Dedicated Machine', value: '' }];
     return result;
   }
-
-  const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
 
   const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, projectMachineTypeId);
   const selectedMachineType = MachineTypeService.getMachineById(selectableMachines, selectedMachineTypeId);

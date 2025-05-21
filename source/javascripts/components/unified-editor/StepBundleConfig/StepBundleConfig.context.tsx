@@ -49,7 +49,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
       const [cvs, stepBundleInWorkflow] = Object.entries(stepListItemModel || {})[0];
 
       const id = StepBundleService.cvsToId(cvs);
-      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow);
+      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow ?? {});
 
       result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
         ? StepBundleService.ymlInstanceToStepBundle(id, stepBundle)
@@ -61,7 +61,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
       const [cvs, stepBundleInStepBundle] = Object.entries(stepListItemModel || {})[0];
 
       const id = StepBundleService.cvsToId(cvs);
-      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInStepBundle);
+      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInStepBundle ?? {});
 
       result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
         ? StepBundleService.ymlInstanceToStepBundle(id, stepBundle)

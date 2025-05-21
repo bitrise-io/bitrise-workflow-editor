@@ -461,16 +461,16 @@ workflows:
 
                 # Installing Swiftlint 0.35.0
                 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
-      - activate-ssh-key: { }
-      - certificate-and-profile-installer@1.10.2: { }
+      - activate-ssh-key:
+      - certificate-and-profile-installer@1.10.2:
       - authenticate-host-with-netrc@0.9.4:
           inputs:
             - username: $username
             - password: $PAT
             - host: github.com
-      - xamarin-user-management: { }
-      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: { }
-      - bundle::install_deps: { }
+      - xamarin-user-management:
+      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
+      - bundle::install_deps:
       - with:
           container: ruby
           services:
