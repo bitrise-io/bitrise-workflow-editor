@@ -10,8 +10,8 @@ import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import PipelineService from '@/core/services/PipelineService';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
+import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
@@ -19,6 +19,7 @@ import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 
 const Drawers = ({ children }: PropsWithChildren) => {
+  const enabledSteps = useUniqueStepIds('set');
   const [, setSearchParams] = useSearchParams();
 
   const {
@@ -35,10 +36,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     isDialogMounted,
     setStepBundleId,
   } = usePipelinesPageStore();
-
-  const { getUniqueStepIds } = useBitriseYmlStore((s) => ({
-    getUniqueStepIds: s.getUniqueStepIds,
-  }));
 
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
@@ -140,7 +137,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(PipelinesPageDialogType.STEP_SELECTOR) && (
         <StepSelectorDrawer
-          enabledSteps={new Set(getUniqueStepIds())}
+          enabledSteps={enabledSteps}
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
           onSelectStep={handleAddStep}

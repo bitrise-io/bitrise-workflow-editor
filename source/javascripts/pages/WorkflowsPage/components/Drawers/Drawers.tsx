@@ -11,12 +11,13 @@ import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/Wor
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
+import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 
 const Drawers = ({ children }: PropsWithChildren) => {
+  const enabledSteps = useUniqueStepIds('set');
   const [, setSearchParams] = useSearchParams();
 
   const {
@@ -31,12 +32,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     isDialogMounted,
     parentWorkflowId,
   } = useWorkflowsPageStore();
-
-  const { getUniqueStepIds } = useBitriseYmlStore((s) => ({
-    getUniqueStepIds: s.getUniqueStepIds,
-  }));
-
-  const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);

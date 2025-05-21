@@ -1,11 +1,8 @@
 import { omitBy } from 'es-toolkit';
 import { Document, parseDocument } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
-import { combine } from 'zustand/middleware';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
-// eslint-disable-next-line import/no-cycle
-import BitriseYmlService from '@/core/services/BitriseYmlService';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 import YamlUtils from '../utils/YamlUtils';
@@ -16,22 +13,13 @@ export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 export type YamlMutator = (ctx: YamlMutatorCtx) => Document;
 export type YamlMutatorCtx = { doc: Document; paths: string[] };
 
-export const bitriseYmlStore = createStore(
-  combine(
-    {
-      discardKey: Date.now(),
-      yml: {} as BitriseYml,
-      ymlDocument: new Document(),
-      savedYmlDocument: new Document(),
-      savedYmlVersion: '',
-    },
-    (_, get) => ({
-      getUniqueStepIds() {
-        return BitriseYmlService.getUniqueStepIds(get().yml);
-      },
-    }),
-  ),
-);
+export const bitriseYmlStore = createStore(() => ({
+  discardKey: Date.now(),
+  yml: {} as BitriseYml,
+  ymlDocument: new Document(),
+  savedYmlDocument: new Document(),
+  savedYmlVersion: '',
+}));
 
 export function initializeStore({
   version,

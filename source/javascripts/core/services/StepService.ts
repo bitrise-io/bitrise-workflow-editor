@@ -22,7 +22,6 @@ import {
   Step,
   StepLikeYmlObject,
 } from '../models/Step';
-// eslint-disable-next-line import/no-cycle
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 import EnvVarService from './EnvVarService';

@@ -2,7 +2,6 @@ import { mapValues } from 'es-toolkit';
 
 import { BitriseYml } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
-// eslint-disable-next-line import/no-cycle
 import StepService from './StepService';
 
 function getUniqueStepIds(yml: BitriseYml) {

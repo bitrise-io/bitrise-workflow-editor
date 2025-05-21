@@ -11,7 +11,6 @@ import {
 } from '../models/BitriseYml';
 import { StepBundle } from '../models/Step';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
-// eslint-disable-next-line import/no-cycle
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
 

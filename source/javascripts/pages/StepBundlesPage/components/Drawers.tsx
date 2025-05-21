@@ -5,20 +5,15 @@ import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import { StepBundleCreationSource } from '@/core/models/StepBundle';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const Drawers = () => {
+  const enabledSteps = useUniqueStepIds('set');
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =
     useStepBundlesPageStore();
-
-  const { getUniqueStepIds } = useBitriseYmlStore((s) => ({
-    getUniqueStepIds: s.getUniqueStepIds,
-  }));
-
-  const enabledSteps = new Set(getUniqueStepIds());
 
   const handleAddStepToStepBundle = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);

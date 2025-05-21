@@ -1,6 +1,5 @@
 import { Scalar } from 'yaml';
 
-// eslint-disable-next-line import/no-cycle
 import { bitriseYmlStore, isWorkflowExists, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YamlUtils from '@/core/utils/YamlUtils';
 
