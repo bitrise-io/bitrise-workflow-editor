@@ -325,7 +325,7 @@ function removeChainedWorkflow(
 }
 
 function setChainedWorkflows(workflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     if (placement !== 'before_run' && placement !== 'after_run') {
       throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
     }
@@ -349,7 +349,11 @@ function setChainedWorkflows(workflowId: string, placement: ChainedWorkflowPlace
     }
 
     if (chainedWorkflowSequence.items.length === 0) {
-      YamlUtils.deleteNodeByPath({ doc, paths }, `workflows.${workflowId}.${placement}`, `workflows.*.*`);
+      YamlUtils.deleteNodeByPath(
+        { doc, paths: YamlUtils.collectPaths(doc.toJSON()) },
+        `workflows.${workflowId}.${placement}`,
+        `workflows.*.*`,
+      );
     }
 
     return doc;
