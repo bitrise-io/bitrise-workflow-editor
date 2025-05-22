@@ -233,7 +233,7 @@ describe('YamlUtils', () => {
       const seq = YamlUtils.getSeqIn(ctx.doc, asArr('new_root.new_mapping.new_sequence'), true);
 
       expect(seq).toBeDefined();
-      expect(seq?.items.length).toBe(0);
+      expect(seq.items).toHaveLength(0);
       expect(ctx.doc.getIn(asArr('new_root.new_mapping.new_sequence'))).toBe(seq);
     });
 
@@ -245,12 +245,28 @@ describe('YamlUtils', () => {
       const seq = YamlUtils.getSeqIn(ctx.doc, asArr('flow_root.flow_mapping.new_seq'), true);
 
       expect(seq).toBeDefined();
-      expect(seq?.items.length).toBe(0);
+      expect(seq.items).toHaveLength(0);
       expect(stringify(ctx.doc.get('flow_root'))).toEqual(yaml`
         flow_mapping:
           new_seq: []
         flow_sequence: []
       `);
+    });
+
+    it('should create and return sequence when createIfNotExists is true and one of its parent is missing', () => {
+      const doc = parseDocument(yaml`
+        workflows:
+          wf1:
+            steps:
+      `);
+
+      expect(doc.hasIn(asArr('workflows.wf1.steps.0.script.inputs'))).toBe(false);
+
+      const seq = YamlUtils.getSeqIn(doc, asArr('workflows.wf1.steps.0.script.inputs'), true);
+
+      expect(seq).toBeDefined();
+      expect(seq.items).toHaveLength(0);
+      expect(doc.getIn(asArr('workflows.wf1.steps.0.script.inputs'))).toBe(seq);
     });
   });
 
@@ -271,7 +287,7 @@ describe('YamlUtils', () => {
       const map = YamlUtils.getMapIn(ctx.doc, asArr('new_root.new_mapping.new_map'), true);
 
       expect(map).toBeDefined();
-      expect(map?.items.length).toBe(0);
+      expect(map.items).toHaveLength(0);
       expect(ctx.doc.getIn(asArr('new_root.new_mapping.new_map'))).toBe(map);
     });
 
@@ -283,12 +299,27 @@ describe('YamlUtils', () => {
       const map = YamlUtils.getMapIn(ctx.doc, asArr('flow_root.flow_mapping.new_map'), true);
 
       expect(map).toBeDefined();
-      expect(map?.items.length).toBe(0);
+      expect(map.items).toHaveLength(0);
       expect(stringify(ctx.doc.get('flow_root'))).toEqual(yaml`
         flow_mapping:
           new_map: {}
         flow_sequence: []
       `);
+    });
+
+    it('should create and return map when createIfNotExists is true and one of its parent is missing', () => {
+      const doc = parseDocument(yaml`
+        workflows:
+          wf1:
+      `);
+
+      expect(doc.hasIn(asArr('workflows.wf1.steps.0.script'))).toBe(false);
+
+      const map = YamlUtils.getSeqIn(doc, asArr('workflows.wf1.steps.0.script'), true);
+
+      expect(map).toBeDefined();
+      expect(map.items).toHaveLength(0);
+      expect(doc.getIn(asArr('workflows.wf1.steps.0.script'))).toBe(map);
     });
   });
 

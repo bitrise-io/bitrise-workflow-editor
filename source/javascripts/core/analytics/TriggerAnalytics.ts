@@ -27,17 +27,17 @@ function getTrackingData(source: TriggerSource, sourceId: string) {
     Object.values(pipelines).reduce(
       (acc, pipeline) =>
         acc +
-        (pipeline.triggers?.push?.length || 0) +
-        (pipeline.triggers?.pull_request?.length || 0) +
-        (pipeline.triggers?.tag?.length || 0),
+        (pipeline?.triggers?.push?.length || 0) +
+        (pipeline?.triggers?.pull_request?.length || 0) +
+        (pipeline?.triggers?.tag?.length || 0),
       0,
     ) +
     Object.values(workflows).reduce(
       (acc, workflow) =>
         acc +
-        (workflow.triggers?.push?.length || 0) +
-        (workflow.triggers?.pull_request?.length || 0) +
-        (workflow.triggers?.tag?.length || 0),
+        (workflow?.triggers?.push?.length || 0) +
+        (workflow?.triggers?.pull_request?.length || 0) +
+        (workflow?.triggers?.tag?.length || 0),
       0,
     );
 
@@ -82,17 +82,17 @@ function trackTargetBasedTriggersEnabledToggled(source: TriggerSource, sourceId:
     Object.values(pipelines).reduce(
       (acc, pipeline) =>
         acc +
-        (pipeline.triggers?.push?.filter((t) => t.enabled !== false).length || 0) +
-        (pipeline.triggers?.pull_request?.filter((t) => t.enabled !== false).length || 0) +
-        (pipeline.triggers?.tag?.filter((t) => t.enabled !== false).length || 0),
+        (pipeline?.triggers?.push?.filter((t) => t.enabled !== false).length || 0) +
+        (pipeline?.triggers?.pull_request?.filter((t) => t.enabled !== false).length || 0) +
+        (pipeline?.triggers?.tag?.filter((t) => t.enabled !== false).length || 0),
       0,
     ) +
     Object.values(workflows).reduce(
       (acc, workflow) =>
         acc +
-        (workflow.triggers?.push?.filter((t) => t.enabled !== false).length || 0) +
-        (workflow.triggers?.pull_request?.filter((t) => t.enabled !== false).length || 0) +
-        (workflow.triggers?.tag?.filter((t) => t.enabled !== false).length || 0),
+        (workflow?.triggers?.push?.filter((t) => t.enabled !== false).length || 0) +
+        (workflow?.triggers?.pull_request?.filter((t) => t.enabled !== false).length || 0) +
+        (workflow?.triggers?.tag?.filter((t) => t.enabled !== false).length || 0),
       0,
     );
 

@@ -57,8 +57,8 @@ function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
     return false;
   }
 
-  return Object.entries(pipeline.workflows ?? {}).some(([workflowId, { uses }]) => {
-    return WorkflowService.getWorkflowChain(yml.workflows ?? {}, uses || workflowId).some((wfId) => {
+  return Object.entries(pipeline.workflows ?? {}).some(([workflowId, wf]) => {
+    return WorkflowService.getWorkflowChain(yml.workflows ?? {}, wf?.uses || workflowId).some((wfId) => {
       return yml.workflows?.[wfId]?.steps?.some((stepYmlObject) => {
         const cvs = Object.keys(stepYmlObject)[0];
         const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL);
@@ -99,13 +99,13 @@ function convertToGraphPipeline(pipeline: PipelineModel, stages: Stages = {}): P
 
       workflows[workflowName] = {
         ...(previousWorkflows.length && { depends_on: previousWorkflows }),
-        ...(stage.abort_on_fail !== undefined && {
+        ...(stage?.abort_on_fail !== undefined && {
           abort_on_fail: stage.abort_on_fail,
         }),
-        ...(stage.should_always_run !== undefined && {
+        ...(stage?.should_always_run !== undefined && {
           should_always_run: stage.should_always_run ? 'workflow' : 'off',
         }),
-        ...(workflowObj.run_if && {
+        ...(workflowObj?.run_if && {
           run_if: { expression: workflowObj.run_if },
         }),
       };

@@ -121,13 +121,13 @@ function countInPipelines(id: string, pipelines?: Pipelines, stages?: Stages) {
   const pipelineIdsWhereWorkflowIsUsed = new Set<string>();
 
   Object.entries(pipelines ?? {}).forEach(([pipelineId, pipeline]) => {
-    if (Object.keys(pipeline.workflows ?? {}).includes(id)) {
+    if (Object.keys(pipeline?.workflows ?? {}).includes(id)) {
       pipelineIdsWhereWorkflowIsUsed.add(pipelineId);
     }
 
-    pipeline.stages?.forEach((stageObj) => {
+    pipeline?.stages?.forEach((stageObj) => {
       Object.entries(stageObj ?? {}).forEach(([stageId, stage]) => {
-        stage.workflows?.forEach((workflowObj) => {
+        stage?.workflows?.forEach((workflowObj) => {
           if (Object.keys(workflowObj ?? {}).includes(id)) {
             pipelineIdsWhereWorkflowIsUsed.add(pipelineId);
           }

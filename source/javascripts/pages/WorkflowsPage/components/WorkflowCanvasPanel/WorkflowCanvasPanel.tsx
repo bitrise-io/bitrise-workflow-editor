@@ -33,7 +33,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
-        return [id, { steps: stepBundle.steps }];
+        return [id, { steps: stepBundle?.steps }];
       }),
     );
   });

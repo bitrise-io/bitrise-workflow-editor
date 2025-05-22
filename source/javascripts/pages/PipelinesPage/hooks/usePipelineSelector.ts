@@ -10,7 +10,7 @@ const usePipelineSelector = () => {
 
     return {
       keys: entries.map(([id]) => id),
-      options: Object.fromEntries(entries.map(([id, pipeline]) => [id, pipeline.title || id])),
+      options: Object.fromEntries(entries.map(([id, pipeline]) => [id, pipeline?.title || id])),
     };
   });
 

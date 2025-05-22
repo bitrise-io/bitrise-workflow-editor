@@ -154,7 +154,7 @@ function getWorkflowEnvs(workflowId: string): EnvVar[] {
     const allWorkflowEnvs: EnvVar[] = [];
 
     Object.entries(workflows).forEach(([id, workflow]) => {
-      const workflowEnvs = workflow.envs || [];
+      const workflowEnvs = workflow?.envs || [];
       workflowEnvs.forEach((envVar) => {
         allWorkflowEnvs.push(fromYml(envVar, `Workflow: ${id}`));
       });

@@ -9,7 +9,7 @@ function getUniqueStepIds(yml: BitriseYml) {
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
   mapValues(yml.workflows || {}, (workflow) => {
-    workflow.steps?.forEach((stepLikeObject) => {
+    workflow?.steps?.forEach((stepLikeObject) => {
       mapValues(stepLikeObject, (stepLike, cvsLike) => {
         if (StepService.isStep(String(cvsLike), defaultStepLibrary, stepLike)) {
           const { id } = StepService.parseStepCVS(String(cvsLike), defaultStepLibrary);
@@ -39,7 +39,7 @@ function getUniqueStepCvss(yml: BitriseYml) {
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
   mapValues(yml.workflows || {}, (workflow) => {
-    workflow.steps?.forEach((stepLikeObject) => {
+    workflow?.steps?.forEach((stepLikeObject) => {
       mapValues(stepLikeObject, (stepLike, cvsLike) => {
         if (StepService.isStep(String(cvsLike), defaultStepLibrary, stepLike)) {
           cvss.add(String(cvsLike));

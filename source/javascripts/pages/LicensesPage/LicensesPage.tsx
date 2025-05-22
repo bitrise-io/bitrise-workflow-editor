@@ -47,7 +47,7 @@ const LicensesPage = () => {
           </Thead>
           <Tbody>
             {Object.keys(workflows).map((wfId) => {
-              const value = workflows[wfId].meta?.['bitrise.io']?.license_pool_id || '';
+              const value = workflows[wfId]?.meta?.['bitrise.io']?.license_pool_id || '';
               return (
                 <Tr key={wfId}>
                   <Td>{wfId}</Td>

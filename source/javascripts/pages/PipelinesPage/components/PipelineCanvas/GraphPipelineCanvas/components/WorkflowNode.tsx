@@ -79,7 +79,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([_id, stepBundle]) => {
-        return [_id, { steps: stepBundle.steps }];
+        return [_id, { steps: stepBundle?.steps }];
       }),
     );
   });

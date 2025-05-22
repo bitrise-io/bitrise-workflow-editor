@@ -39,7 +39,7 @@ function validateName(newStepBundleName: string, initStepBundleName: string, ste
 function getDirectDependants(workflows: Workflows, cvs: string) {
   const directDependants: string[] = [];
   Object.entries(workflows ?? {}).forEach(([workflowId, workflow]) => {
-    workflow.steps?.forEach((step) => {
+    workflow?.steps?.forEach((step) => {
       if (Object.keys(step)[0] === cvs) {
         directDependants.push(workflowId);
       }

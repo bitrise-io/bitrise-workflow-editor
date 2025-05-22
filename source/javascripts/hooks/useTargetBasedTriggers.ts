@@ -10,12 +10,12 @@ function useAllTargetBasedTriggers() {
   const triggers: TargetBasedTrigger[] = [];
 
   Object.entries(pipelines).forEach(([sourceId, pipelineObj]) => {
-    const pipelineTriggers = TriggerService.toTargetBasedTriggers('pipelines', sourceId, pipelineObj.triggers || {});
+    const pipelineTriggers = TriggerService.toTargetBasedTriggers('pipelines', sourceId, pipelineObj?.triggers || {});
     triggers.push(...pipelineTriggers.push, ...pipelineTriggers.pull_request, ...pipelineTriggers.tag);
   });
 
   Object.entries(workflows).forEach(([sourceId, workflowObj]) => {
-    const workflowTriggers = TriggerService.toTargetBasedTriggers('workflows', sourceId, workflowObj.triggers || {});
+    const workflowTriggers = TriggerService.toTargetBasedTriggers('workflows', sourceId, workflowObj?.triggers || {});
     triggers.push(...workflowTriggers.push, ...workflowTriggers.pull_request, ...workflowTriggers.tag);
   });
 

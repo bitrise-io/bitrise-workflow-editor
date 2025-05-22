@@ -46,15 +46,33 @@ function isPairKeyEqual(pair: Pair, key: string) {
   return isScalarKeyEqual(pair, key) || isNonScalarKeyEqual(pair, key);
 }
 
+function createMissingNodes(doc: Document, path: unknown[]) {
+  const ancestorPath = [];
+
+  for (const part of path.slice(0, -1)) {
+    ancestorPath.push(part);
+
+    const node = doc.getIn(ancestorPath);
+    const shouldCreateEmptyNode = !node || (!isScalar(node) && !node) || (isScalar(node) && !node.value);
+
+    if (shouldCreateEmptyNode) {
+      const nextPart = path[ancestorPath.length];
+      const shouldBeSequence = typeof nextPart === 'number' || (!isNaN(Number(nextPart)) && Number(nextPart) >= 0);
+      const emptyNode = shouldBeSequence ? doc.createNode([], { flow: false }) : doc.createNode({}, { flow: false });
+      doc.setIn(ancestorPath, emptyNode);
+    }
+  }
+}
+
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLSeq;
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLSeq | undefined;
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLSeq | undefined {
   if (!doc.hasIn(path) && createIfNotExists) {
+    createMissingNodes(doc, path);
     const parent = doc.getIn(path.slice(0, -1));
     if (isCollection(parent) && parent.items.length === 0) {
       parent.flow = false;
     }
-
     doc.setIn(path, doc.createNode([]));
   }
 
@@ -69,6 +87,7 @@ function getMapIn(doc: Document, path: unknown[], createIfNotExists: true): YAML
 function getMapIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLMap | undefined;
 function getMapIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLMap | undefined {
   if (!doc.hasIn(path) && createIfNotExists) {
+    createMissingNodes(doc, path);
     const parent = doc.getIn(path.slice(0, -1));
     if (isCollection(parent) && parent.items.length === 0) {
       parent.flow = false;
