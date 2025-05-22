@@ -35,6 +35,7 @@ const stacks: Stack[] = [
 
 const machines: MachineType[] = [
   {
+    availableOnStacks: [],
     id: 'standard',
     name: 'Standard',
     creditPerMinute: 1,
@@ -42,8 +43,10 @@ const machines: MachineType[] = [
     chip: 'AMD',
     cpuCount: '4',
     cpuDescription: '4 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'elite',
     name: 'Elite',
     creditPerMinute: 1,
@@ -51,8 +54,10 @@ const machines: MachineType[] = [
     chip: 'AMD',
     cpuCount: '8',
     cpuDescription: '8 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m1',
     name: 'M1',
     creditPerMinute: 2,
@@ -60,8 +65,10 @@ const machines: MachineType[] = [
     chip: 'M1',
     cpuCount: '8',
     cpuDescription: '8 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m2',
     name: 'M2',
     creditPerMinute: 3,
@@ -69,8 +76,10 @@ const machines: MachineType[] = [
     chip: 'M2',
     cpuCount: '12',
     cpuDescription: '12 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m3',
     name: 'M3',
     creditPerMinute: 4,
@@ -78,8 +87,10 @@ const machines: MachineType[] = [
     chip: 'M3',
     cpuCount: '16',
     cpuDescription: '16 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m4',
     name: 'M4',
     creditPerMinute: 8,
@@ -87,8 +98,10 @@ const machines: MachineType[] = [
     chip: 'M4',
     cpuCount: '24',
     cpuDescription: '24 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'joker',
     name: 'Joker',
     creditPerMinute: 16,
@@ -96,6 +109,7 @@ const machines: MachineType[] = [
     chip: 'Joker',
     cpuCount: '64',
     cpuDescription: '64 cores',
+    osId: 'osx',
   },
 ];
 
@@ -577,7 +591,10 @@ describe('changeStackAndMachine', () => {
         },
       });
 
-      expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: 'mac-m1' });
+      expect(result).toEqual({
+        stackId: 'osx-xcode-15',
+        machineTypeId: 'mac-m1',
+      });
     });
 
     it('keeps a specific stack with default machine type of OS', () => {
@@ -596,7 +613,10 @@ describe('changeStackAndMachine', () => {
         },
       });
 
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'elite' });
+      expect(result).toEqual({
+        stackId: 'linux-ubuntu-22',
+        machineTypeId: 'elite',
+      });
     });
 
     it('keeps a specific stack with the first available machine type', () => {
@@ -615,7 +635,10 @@ describe('changeStackAndMachine', () => {
         },
       });
 
-      expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'standard' });
+      expect(result).toEqual({
+        stackId: 'linux-ubuntu-22',
+        machineTypeId: 'standard',
+      });
     });
   });
 });
