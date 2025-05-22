@@ -139,7 +139,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
       }
 
       async function loadStepOutputs() {
-        const cvss = BitriseYmlService.getUniqueStepCvss(yml).filter((cvs) => {
+        const cvss = BitriseYmlService.getUniqueStepCvss().filter((cvs) => {
           return StepService.isBitriseLibraryStep(cvs, steplib);
         });
 

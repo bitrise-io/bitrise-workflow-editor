@@ -1,7 +1,7 @@
 import { toMerged } from 'es-toolkit';
 import { createContext, PropsWithChildren, useContext } from 'react';
 
-import { StepBundle } from '@/core/models/Step';
+import { StepBundleInstance } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -23,7 +23,7 @@ const StepBundleConfigProvider = ({ children, ...props }: Props) => {
 };
 
 type UseStepBundleConfigContextResult = Omit<Props, 'children'> & {
-  stepBundle?: StepBundle;
+  stepBundle?: StepBundleInstance;
 };
 
 // This function can work 3 different ways:

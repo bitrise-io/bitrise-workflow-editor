@@ -1,11 +1,12 @@
 import { mapValues } from 'es-toolkit';
 
-import { BitriseYml } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
+import { bitriseYmlStore } from '../stores/BitriseYmlStore';
 import StepService from './StepService';
 
-function getUniqueStepIds(yml: BitriseYml) {
+function getUniqueStepIds() {
   const ids = new Set<string>();
+  const { yml } = bitriseYmlStore.getState();
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
   mapValues(yml.workflows || {}, (workflow) => {
@@ -16,16 +17,26 @@ function getUniqueStepIds(yml: BitriseYml) {
           ids.add(id);
         }
 
-        if (
-          StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
-          StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
-        ) {
+        if (StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)) {
           stepLike?.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               const { id } = StepService.parseStepCVS(String(cvs), defaultStepLibrary);
               ids.add(id);
             });
           });
+        }
+
+        if (StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike)) {
+          const { id: stepBundleId } = StepService.parseStepCVS(String(cvsLike), defaultStepLibrary);
+          const stepBundle = yml.step_bundles?.[stepBundleId];
+          if (stepBundle) {
+            stepBundle.steps?.forEach((stepObj) => {
+              mapValues(stepObj, (_, cvs) => {
+                const { id } = StepService.parseStepCVS(String(cvs), defaultStepLibrary);
+                ids.add(id);
+              });
+            });
+          }
         }
       });
     });
@@ -34,8 +45,9 @@ function getUniqueStepIds(yml: BitriseYml) {
   return Array.from(ids);
 }
 
-function getUniqueStepCvss(yml: BitriseYml) {
+function getUniqueStepCvss() {
   const cvss = new Set<string>();
+  const { yml } = bitriseYmlStore.getState();
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 
   mapValues(yml.workflows || {}, (workflow) => {
@@ -45,15 +57,24 @@ function getUniqueStepCvss(yml: BitriseYml) {
           cvss.add(String(cvsLike));
         }
 
-        if (
-          StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike) ||
-          StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)
-        ) {
+        if (StepService.isWithGroup(String(cvsLike), defaultStepLibrary, stepLike)) {
           stepLike?.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               cvss.add(String(cvs));
             });
           });
+        }
+
+        if (StepService.isStepBundle(String(cvsLike), defaultStepLibrary, stepLike)) {
+          const { id: stepBundleId } = StepService.parseStepCVS(String(cvsLike), defaultStepLibrary);
+          const stepBundle = yml.step_bundles?.[stepBundleId];
+          if (stepBundle) {
+            stepBundle.steps?.forEach((stepObj) => {
+              mapValues(stepObj, (_, cvs) => {
+                cvss.add(String(cvs));
+              });
+            });
+          }
         }
       });
     });

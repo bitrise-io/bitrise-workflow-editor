@@ -11,7 +11,7 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import {
   EnvironmentItemModel,
   EnvironmentItemOptionsModel,
-  StepBundleModel,
+  StepBundleOverrideModel,
   StepListItemModel,
   StepModel,
   WithModel,
@@ -171,7 +171,7 @@ function isStepBundle(
   cvs: string,
   defaultStepLibrary: string,
   _step?: StepListItemModel[0],
-): _step is StepBundleModel | null {
+): _step is StepBundleOverrideModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.BUNDLE;
 }

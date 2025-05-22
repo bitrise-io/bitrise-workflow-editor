@@ -9,7 +9,7 @@ import {
   StepBundles,
   Workflows,
 } from '../models/BitriseYml';
-import { StepBundle } from '../models/Step';
+import { StepBundleInstance } from '../models/Step';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
@@ -108,7 +108,7 @@ function idToCvs(id: string) {
   return `bundle::${id}`;
 }
 
-function ymlInstanceToStepBundle(id: string, stepBundle: StepBundleModel): StepBundle {
+function ymlInstanceToStepBundle(id: string, stepBundle: StepBundleModel): StepBundleInstance {
   return {
     cvs: idToCvs(id),
     id,

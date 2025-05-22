@@ -48,6 +48,8 @@ export type StepBundleModel = {
   description?: string;
 };
 
+export type StepBundleOverrideModel = Omit<StepBundleModel, 'steps'>;
+
 export type IncludeItemModel = {
   path: string;
   repository?: string;
@@ -257,7 +259,7 @@ export type TriggerMapItemModelRegexCondition =
     };
 
 export type StepListItemModel = {
-  [stepId: string]: StepModel | WithModel | StepBundleModel | null;
+  [stepId: string]: StepModel | WithModel | StepBundleOverrideModel | null;
 };
 
 export type ContainerModel = {

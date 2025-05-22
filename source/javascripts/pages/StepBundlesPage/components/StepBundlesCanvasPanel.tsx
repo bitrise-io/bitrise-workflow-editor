@@ -1,5 +1,4 @@
 import { Box } from '@bitrise/bitkit';
-import { ReactFlowProvider } from '@xyflow/react';
 import { useCallback } from 'react';
 
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
@@ -176,36 +175,34 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   }, []);
 
   return (
-    <ReactFlowProvider>
-      <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
-        <Box p="12" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
-          <StepBundlesSelector />
-        </Box>
-        <Box
-          display="flex"
-          flexDir="column"
-          flex="1"
-          alignItems="center"
-          overflowY="auto"
-          p="16"
-          bg="background/secondary"
-        >
-          <WorkflowCardContextProvider
-            onAddStepToStepBundle={openStepSelectorDrawer}
-            onCloneStepInStepBundle={handleCloneStep}
-            onDeleteStepInStepBundle={handleDeleteStep}
-            onMoveStepInStepBundle={handleMoveStep}
-            onSelectStep={handleSelectStep}
-            onUpgradeStepInStepBundle={upgradeStepInStepBundle}
-            onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
-            selectedStepIndices={selectedStepIndices}
-            selectionParent={selectionParent}
-          >
-            <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
-          </WorkflowCardContextProvider>
-        </Box>
+    <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
+      <Box p="12" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
+        <StepBundlesSelector />
       </Box>
-    </ReactFlowProvider>
+      <Box
+        display="flex"
+        flexDir="column"
+        flex="1"
+        alignItems="center"
+        overflowY="auto"
+        p="16"
+        bg="background/secondary"
+      >
+        <WorkflowCardContextProvider
+          onAddStepToStepBundle={openStepSelectorDrawer}
+          onCloneStepInStepBundle={handleCloneStep}
+          onDeleteStepInStepBundle={handleDeleteStep}
+          onMoveStepInStepBundle={handleMoveStep}
+          onSelectStep={handleSelectStep}
+          onUpgradeStepInStepBundle={upgradeStepInStepBundle}
+          onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
+          selectedStepIndices={selectedStepIndices}
+          selectionParent={selectionParent}
+        >
+          <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
+        </WorkflowCardContextProvider>
+      </Box>
+    </Box>
   );
 };
 
