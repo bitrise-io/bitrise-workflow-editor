@@ -65,7 +65,7 @@ export const WithInvalidStackRollbackVersion: Story = {
         machine_type_id: 'm2.large',
         stack_rollback_version: '1.0.0',
       });
-      return { yml, ymlDocument: parseDocument(BitriseYmlApi.toYml(yml)) };
+      return { yml, ymlDocument: parseDocument(BitriseYmlApi.toYml(yml), { keepSourceTokens: true }) };
     })(),
   },
 };
@@ -80,7 +80,7 @@ export const WithDeprecatedMachines: Story = {
         stack: 'linux-ubuntu-22.04',
         machine_type_id: 'standard',
       });
-      return { yml, ymlDocument: parseDocument(BitriseYmlApi.toYml(yml)) };
+      return { yml, ymlDocument: parseDocument(BitriseYmlApi.toYml(yml), { keepSourceTokens: true }) };
     })(),
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

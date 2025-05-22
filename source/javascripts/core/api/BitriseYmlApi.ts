@@ -1,4 +1,4 @@
-import { parse, Scalar, stringify } from 'yaml';
+import { Document, isDocument, parse, Scalar, stringify, visit } from 'yaml';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -23,6 +23,44 @@ function tabbedValueReplacer(_: unknown, value: unknown) {
   return value;
 }
 
+/**
+ * Detects the YAML styles used in the document.
+ * It checks for the following styles:
+ * - Indentation style for block sequences
+ * - Padding style for flow collections
+ */
+function detectYmlStyles(doc: Document) {
+  let indents = 0;
+  let paddings = 0;
+
+  visit(doc, {
+    Node(_, { srcToken }) {
+      if (srcToken?.type === 'flow-collection') {
+        const startOffset = srcToken.start.offset;
+        const endOffset = srcToken.end.find((s) => ['flow-map-end', 'flow-seq-end'].includes(s.type))?.offset ?? 0;
+
+        if (endOffset - startOffset > 2) {
+          paddings += srcToken.items.some((item) => item.start.some((s) => s.type === 'space')) ? 1 : -1;
+        }
+      }
+      if (srcToken?.type === 'block-map') {
+        srcToken.items.forEach((blockMapItem) => {
+          if (blockMapItem.value?.type === 'block-seq') {
+            blockMapItem.value.items.forEach((item) => {
+              indents += item.start.some((s) => s.type === 'seq-item-ind' && s.indent > srcToken.indent) ? 1 : -1;
+            });
+          }
+        });
+      }
+    },
+  });
+
+  return {
+    indentSeq: indents > 0,
+    flowCollectionPadding: paddings >= 0,
+  };
+}
+
 function toYml(model?: unknown): string {
   if (!model) {
     return '';
@@ -32,11 +70,20 @@ function toYml(model?: unknown): string {
     return model;
   }
 
+  let ymlStyleOptions = {
+    indentSeq: true,
+    flowCollectionPadding: true,
+  };
+
+  if (isDocument(model)) {
+    ymlStyleOptions = detectYmlStyles(model);
+  }
+
   return stringify(model, tabbedValueReplacer, {
     version: '1.1',
-    indentSeq: false,
     schema: 'yaml-1.1',
     aliasDuplicateObjects: false,
+    ...ymlStyleOptions,
   });
 }
 

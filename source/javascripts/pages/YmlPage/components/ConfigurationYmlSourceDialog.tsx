@@ -22,7 +22,6 @@ import { useCopyToClipboard } from 'usehooks-ts';
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
@@ -419,7 +418,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
                 if (data) {
                   saveCiConfig(
                     {
-                      yml: BitriseYmlApi.fromYml(data.ymlString),
+                      ymlString: data.ymlString,
                       projectSlug: PageProps.appSlug(),
                       tabOpenDuringSave: currentPage,
                     },

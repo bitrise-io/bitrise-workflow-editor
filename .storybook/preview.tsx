@@ -52,8 +52,8 @@ const preview: Preview = {
       useEffect(() => {
         bitriseYmlStore.setState({
           yml: TEST_BITRISE_YML,
-          ymlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML)),
-          savedYmlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML)),
+          ymlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML), { keepSourceTokens: true }),
+          savedYmlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML), { keepSourceTokens: true }),
           savedYmlVersion: '',
         });
       }, []);

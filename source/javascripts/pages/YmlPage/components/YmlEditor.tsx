@@ -24,7 +24,7 @@ const YmlEditor = () => {
 
   const handleEditorChange = (modifiedYmlString?: string) => {
     try {
-      bitriseYmlStore.setState({ ymlDocument: parseDocument(modifiedYmlString ?? '') });
+      bitriseYmlStore.setState({ ymlDocument: parseDocument(modifiedYmlString ?? '', { keepSourceTokens: true }) });
     } catch (error) {
       // TODO: Should we show a notification here? This happens when the YML is invalid while typing.
     }

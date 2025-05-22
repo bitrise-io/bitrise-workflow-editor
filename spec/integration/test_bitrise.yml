@@ -30,11 +30,8 @@ pipelines:
       push:
         - branch: main
     workflows:
-      tmp:
-        depends_on:
-          - wf1
-        parallel: "4"
-      wf1: { }
+      tmp: { depends_on: [ wf1 ], parallel: 4 }
+      wf1: {}
       wf2:
         depends_on:
           - wf1
@@ -53,45 +50,45 @@ pipelines:
           - wf5
   pl1:
     stages:
-      - st1: { }
+      - st1: {}
   pl2:
     stages:
-      - st1: { }
-      - st2: { }
+      - st1: {}
+      - st2: {}
   pl3:
     stages:
-      - st3: { }
-      - st2: { }
-      - st1: { }
+      - st3: {}
+      - st2: {}
+      - st1: {}
   pl4:
     stages:
-      - st4: { }
-      - st5: { }
+      - st4: {}
+      - st5: {}
 stages:
   st1:
     workflows:
-      - wf1: { }
+      - wf1: {}
   st2:
     workflows:
-      - wf2: { }
-      - wf3: { }
+      - wf2: {}
+      - wf3: {}
   st3:
     workflows:
-      - wf1: { }
-      - wf2: { }
-      - wf3: { }
-      - wf4: { }
-      - wf5: { }
-      - wf6: { }
+      - wf1: {}
+      - wf2: {}
+      - wf3: {}
+      - wf4: {}
+      - wf5: {}
+      - wf6: {}
   st4:
     workflows:
-      - wf1: { }
-      - wf1: { }
-      - wf1: { }
-      - wf2: { }
+      - wf1: {}
+      - wf1: {}
+      - wf1: {}
+      - wf2: {}
   st5:
     workflows:
-      - wf3: { }
+      - wf3: {}
 workflows:
   custom-steplib-steps:
     triggers:
@@ -153,7 +150,7 @@ workflows:
             - lane: bitbucket2
   local-steps:
     steps:
-      - path::./spec/integration/fixture/test_local_step: { }
+      - path::./spec/integration/fixture/test_local_step: {}
       - path::./spec/integration/fixture/test_local_step:
           title: A local step with overwritten title & input
           inputs:
@@ -237,7 +234,7 @@ workflows:
                 meta:
                   bitrise.io:
                     stack: osx-xcode-11.3.x
-      - activate-ssh-key: { }
+      - activate-ssh-key: {}
       - script@1.1:
           title: Install Swiftlint 0.35
           inputs:
@@ -253,17 +250,17 @@ workflows:
       - git-clone@4.0.17:
           inputs:
             - clone_depth: "0"
-      - cache-pull@2.1.3: { }
-      - cache-pull@2: { }
-      - authenticate-with-github-oauth@0: { }
-      - cache-pull@2.1: { }
+      - cache-pull@2.1.3: {}
+      - cache-pull@2: {}
+      - authenticate-with-github-oauth@0: {}
+      - cache-pull@2.1: {}
       - fastlane@2.6:
           title: Carthage Bootstrap
           asset_urls:
             icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
           inputs:
             - lane: download_carthage_from_artifactory
-      - deploy-to-itunesconnect-application-loader: { }
+      - deploy-to-itunesconnect-application-loader: {}
       - fastlane-match@0.2:
           title: Fastlane Match Development
           inputs:
@@ -279,7 +276,7 @@ workflows:
       - virtual-device-testing-for-ios@0.9:
           inputs:
             - test_devices: iphonexsmax,12.1,en,portrait
-      - deploy-to-bitrise-io@1.7.1: { }
+      - deploy-to-bitrise-io@1.7.1: {}
       - cache-push@2:
           inputs:
             - ignore_check_on_paths: '!./Pods'
@@ -321,7 +318,8 @@ workflows:
     steps:
       - git::https://github.com/bitrise-steplib/steps-script:
           title: A script step referenced by git URL
-          summary: All non-overwritten attributes should be the step's default value from step.yml in the step's repository.
+          summary: All non-overwritten attributes should be the step's default value from
+            step.yml in the step's repository.
           inputs:
             - content: |
                 #!/usr/bin/env bash
@@ -331,10 +329,10 @@ workflows:
                 set -x
 
                 # This step is referenced by git URL
-      - git::https://github.com/bitrise-steplib/steps-script@master: { }
+      - git::https://github.com/bitrise-steplib/steps-script@master: {}
       - git::https://github.com/bitrise-steplib/steps-script@master:
           title: ""
-      - path::./spec/integration/fixture/test_local_step: { }
+      - path::./spec/integration/fixture/test_local_step: {}
       - path::./spec/integration/fixture/test_local_step:
           title: A local step with overwritten title & input
           inputs:
@@ -386,9 +384,9 @@ workflows:
           is_expand: false
         project: vrbo
     steps:
-      - activate-ssh-key: { }
-      - git-clone@4.0.17: { }
-      - script@1: { }
+      - activate-ssh-key: {}
+      - git-clone@4.0.17: {}
+      - script@1: {}
   wf4:
     after_run:
       - wf5
@@ -397,14 +395,14 @@ workflows:
           is_expand: false
         project: testproject
     steps:
-      - script@1: { }
-      - path::./spec/integration/fixture/untitled_step: { }
+      - script@1: {}
+      - path::./spec/integration/fixture/untitled_step: {}
       - path::./spec/integration/fixture/test_local_step:
           summary: A local step with overwritten summary
           description: This local step has its description overwritten
           is_always_run: true
-      - path::./spec/integration/fixture/test_local_step: { }
-      - azure-devops-status@1: { }
+      - path::./spec/integration/fixture/test_local_step: {}
+      - azure-devops-status@1: {}
   wf5:
     envs:
       - opts:
@@ -414,8 +412,8 @@ workflows:
       - script@1:
           inputs:
             - content: '#!/usr/bin/env bash'
-      - xamarin-user-management: { }
-      - pull-intermediate-files: { }
+      - xamarin-user-management: {}
+      - pull-intermediate-files: {}
     meta:
       bitrise.io:
         license_pool_id: pool-1
@@ -486,7 +484,7 @@ step_bundles:
           title: Project path
         project_path: null
       - foo: bar
-        opts: { }
+        opts: {}
       - distribution_method: development
         opts:
           is_required: true
@@ -505,17 +503,17 @@ step_bundles:
           title: GitHub (org) (https) step
           inputs:
             - lane: github1
-      - activate-ssh-key: { }
+      - activate-ssh-key: {}
       - git-clone@4.0.17:
           inputs:
             - clone_depth: "0"
-      - cache-pull@2.1.3: { }
-      - deploy-to-bitrise-io@1.7.1: { }
+      - cache-pull@2.1.3: {}
+      - deploy-to-bitrise-io@1.7.1: {}
   test:
     steps:
-      - activate-ssh-key@4.1.1: { }
-      - open-vpn@0.1.2: { }
+      - activate-ssh-key@4.1.1: {}
+      - open-vpn@0.1.2: {}
   verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
     steps:
-      - theappspajamas-service-account-key-installer@0.0.3: { }
-      - android-manifest-info@1.0.2: { }
+      - theappspajamas-service-account-key-installer@0.0.3: {}
+      - android-manifest-info@1.0.2: {}

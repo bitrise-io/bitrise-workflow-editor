@@ -695,16 +695,16 @@ describe('WorkflowService', () => {
         workflows:
           base-workflow:
             steps:
-            - script:
-                title: Base Workflow
-                inputs:
-                - content: echo "Hello from Base Workflow"
+              - script:
+                  title: Base Workflow
+                  inputs:
+                    - content: echo "Hello from Base Workflow"
           new-workflow:
             steps:
-            - script:
-                title: Base Workflow
-                inputs:
-                - content: echo "Hello from Base Workflow"
+              - script:
+                  title: Base Workflow
+                  inputs:
+                    - content: echo "Hello from Base Workflow"
       `;
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);

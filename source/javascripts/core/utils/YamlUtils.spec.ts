@@ -465,8 +465,8 @@ describe('YamlUtils', () => {
         - implementation: >
             Writing comprehensive examples to showcase YAML features.
         - testing:
-          - ensure valid YAML
-          - check parsers for compatibility
+            - ensure valid YAML
+            - check parsers for compatibility
         - new_key: ""
       `);
     });

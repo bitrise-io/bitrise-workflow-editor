@@ -25,7 +25,10 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
       if (currentText === undefined) {
         return true;
       }
-      bitriseYmlStore.setState({ ymlDocument: parseDocument(currentText), discardKey: Date.now() });
+      bitriseYmlStore.setState({
+        ymlDocument: parseDocument(currentText, { keepSourceTokens: true }),
+        discardKey: Date.now(),
+      });
       return true;
     } catch (error) {
       setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);

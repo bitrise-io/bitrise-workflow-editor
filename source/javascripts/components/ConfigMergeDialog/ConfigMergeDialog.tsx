@@ -192,10 +192,10 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
       setClientError(undefined);
       saveCiConfig(
         {
-          yml: BitriseYmlApi.fromYml(finalYmlEditor.current?.getValue() || ''),
           version: remoteVersion,
           projectSlug: PageProps.appSlug(),
           tabOpenDuringSave: currentPage,
+          ymlString: finalYmlEditor.current?.getValue() || '',
         },
         {
           onError: (error) => {
