@@ -31,7 +31,7 @@ const EnvVarsCard = () => {
     >
       <Box m="-24px" width="auto">
         <SortableEnvVars
-          source={EnvVarSource.Workflow}
+          source={EnvVarSource.Workflows}
           sourceId={sourceId}
           listenForExternalChanges
           onValidationErrorsChange={setErrorCount}

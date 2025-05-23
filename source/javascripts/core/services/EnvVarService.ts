@@ -108,11 +108,11 @@ function toYml(envVar: EnvVar): EnvironmentItemModel {
 }
 
 function validateSourceId(source?: EnvVarSource, sourceId?: string, doc = bitriseYmlStore.getState().ymlDocument) {
-  if (source === EnvVarSource.Workflow && !sourceId) {
+  if (source === EnvVarSource.Workflows && !sourceId) {
     throw new Error('sourceId is required when source is Workflow');
   }
 
-  if (source === EnvVarSource.Workflow && sourceId) {
+  if (source === EnvVarSource.Workflows && sourceId) {
     WorkflowService.getWorkflowOrThrowError(sourceId, doc);
   }
 }
@@ -120,11 +120,11 @@ function validateSourceId(source?: EnvVarSource, sourceId?: string, doc = bitris
 function getEnvPath(source: EnvVarSource, sourceId?: string, index?: number, key?: string) {
   let path: (string | number)[] = [];
 
-  if (source === EnvVarSource.Project) {
+  if (source === EnvVarSource.App) {
     path = ['app', 'envs'];
   }
 
-  if (source === EnvVarSource.Workflow && sourceId) {
+  if (source === EnvVarSource.Workflows && sourceId) {
     path = ['workflows', sourceId, 'envs'];
   }
 
@@ -163,7 +163,7 @@ function getWorkflowEnvs(workflowId: string): EnvVar[] {
     return allWorkflowEnvs;
   }
 
-  validateSourceId(EnvVarSource.Workflow, workflowId);
+  validateSourceId(EnvVarSource.Workflows, workflowId);
 
   // Return environment variables from a specific workflow
   const workflowEnvs = workflows[workflowId]?.envs || [];
@@ -182,12 +182,12 @@ function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
   }
 
   // Get project-level environment variables
-  if (source === EnvVarSource.Project) {
+  if (source === EnvVarSource.App) {
     return getAppEnvs();
   }
 
   // Get workflow-specific environment variables
-  if (source === EnvVarSource.Workflow && sourceId) {
+  if (source === EnvVarSource.Workflows && sourceId) {
     return getWorkflowEnvs(sourceId);
   }
 
@@ -223,7 +223,7 @@ function remove(index: number, source: EnvVarSource, sourceId?: string) {
       throw new Error(`Environment variable is not found at path: ${path.join('.')}`);
     }
 
-    YamlUtils.safeDeleteIn(doc, path, source === EnvVarSource.Project ? ['app', 'envs'] : ['envs']);
+    YamlUtils.safeDeleteIn(doc, path, source === EnvVarSource.App ? ['app', 'envs'] : ['envs']);
     return doc;
   });
 }

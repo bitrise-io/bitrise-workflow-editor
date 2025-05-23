@@ -301,7 +301,7 @@ describe('EnvVarService', () => {
     });
 
     it('returns all env_vars from app.envs', () => {
-      const result = EnvVarService.getAll(EnvVarSource.Project);
+      const result = EnvVarService.getAll(EnvVarSource.App);
       expect(result).toEqual([
         { key: 'SERVICE_VERSION', value: '1.2.3', source: 'Project envs' },
         { key: 'PROJECT_NAME', value: 'Mando', source: 'Project envs' },
@@ -309,7 +309,7 @@ describe('EnvVarService', () => {
     });
 
     it('returns all env_vars from all workflows', () => {
-      const result = EnvVarService.getAll(EnvVarSource.Workflow, '*');
+      const result = EnvVarService.getAll(EnvVarSource.Workflows, '*');
       expect(result).toEqual([
         { key: 'NODE_VERSION', value: 'lts', source: 'Workflow: wf1', isExpand: false },
         { key: 'ENVIRONMENT', value: 'production', source: 'Workflow: wf1', isExpand: true },
@@ -318,7 +318,7 @@ describe('EnvVarService', () => {
     });
 
     it('returns all env_vars from a specific workflow', () => {
-      const result = EnvVarService.getAll(EnvVarSource.Workflow, 'wf1');
+      const result = EnvVarService.getAll(EnvVarSource.Workflows, 'wf1');
       expect(result).toEqual([
         { key: 'NODE_VERSION', value: 'lts', source: 'Workflow: wf1', isExpand: false },
         { key: 'ENVIRONMENT', value: 'production', source: 'Workflow: wf1', isExpand: true },
@@ -327,13 +327,13 @@ describe('EnvVarService', () => {
 
     it('throws an error when source is Workflow and sourceId is not provided', () => {
       expect(() => {
-        EnvVarService.getAll(EnvVarSource.Workflow);
+        EnvVarService.getAll(EnvVarSource.Workflows);
       }).toThrow('sourceId is required when source is Workflow');
     });
 
     it('throws an error when workflow is not found', () => {
       expect(() => {
-        EnvVarService.getAll(EnvVarSource.Workflow, 'nonexistent');
+        EnvVarService.getAll(EnvVarSource.Workflows, 'nonexistent');
       }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
     });
   });
@@ -349,7 +349,7 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 1.2.3`,
         });
 
-        EnvVarService.create(EnvVarSource.Project);
+        EnvVarService.create(EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -368,7 +368,7 @@ describe('EnvVarService', () => {
           ymlString: '',
         });
 
-        EnvVarService.create(EnvVarSource.Project);
+        EnvVarService.create(EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -395,7 +395,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.create(EnvVarSource.Workflow, 'wf1');
+        EnvVarService.create(EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -423,7 +423,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.create(EnvVarSource.Workflow, 'wf1');
+        EnvVarService.create(EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -453,7 +453,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.create(EnvVarSource.Workflow);
+          EnvVarService.create(EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -471,7 +471,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.create(EnvVarSource.Workflow, 'nonexistent');
+          EnvVarService.create(EnvVarSource.Workflows, 'nonexistent');
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
@@ -488,10 +488,7 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 1.2.3`,
         });
 
-        EnvVarService.append(
-          { key: 'PROJECT_NAME', value: 'Mando', source: 'app', isExpand: false },
-          EnvVarSource.Project,
-        );
+        EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'app', isExpand: false }, EnvVarSource.App);
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
           app:
@@ -506,7 +503,7 @@ describe('EnvVarService', () => {
       it('creates app.envs when it does not exist', () => {
         initializeStore({ version: '', ymlString: '' });
 
-        EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'app' }, EnvVarSource.Project);
+        EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'app' }, EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -532,7 +529,7 @@ describe('EnvVarService', () => {
           `,
         });
 
-        EnvVarService.append({ key: 'ENVIRONMENT', value: 'production', source: 'wf1' }, EnvVarSource.Workflow, 'wf1');
+        EnvVarService.append({ key: 'ENVIRONMENT', value: 'production', source: 'wf1' }, EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -558,7 +555,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' }, EnvVarSource.Workflow, 'wf1');
+        EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' }, EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -584,7 +581,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' }, EnvVarSource.Workflow);
+          EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' }, EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -602,7 +599,7 @@ describe('EnvVarService', () => {
         expect(() => {
           EnvVarService.append(
             { key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' },
-            EnvVarSource.Workflow,
+            EnvVarSource.Workflows,
             'nonexistent',
           );
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
@@ -622,7 +619,7 @@ describe('EnvVarService', () => {
               - PROJECT_NAME: Mando`,
         });
 
-        EnvVarService.remove(1, EnvVarSource.Project);
+        EnvVarService.remove(1, EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -642,7 +639,7 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 1.2.3`,
         });
 
-        EnvVarService.remove(0, EnvVarSource.Project);
+        EnvVarService.remove(0, EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toBe(yaml`
@@ -661,7 +658,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.remove(3, EnvVarSource.Project);
+          EnvVarService.remove(3, EnvVarSource.App);
         }).toThrow('Environment variable is not found at path: app.envs.3');
       });
     });
@@ -681,7 +678,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.remove(1, EnvVarSource.Workflow, 'wf1');
+        EnvVarService.remove(1, EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -709,7 +706,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.remove(0, EnvVarSource.Workflow, 'wf2');
+        EnvVarService.remove(0, EnvVarSource.Workflows, 'wf2');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -737,7 +734,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.remove(3, EnvVarSource.Workflow, 'wf1');
+          EnvVarService.remove(3, EnvVarSource.Workflows, 'wf1');
         }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
@@ -753,7 +750,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.remove(0, EnvVarSource.Workflow);
+          EnvVarService.remove(0, EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -769,7 +766,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.remove(0, EnvVarSource.Workflow, 'nonexistent');
+          EnvVarService.remove(0, EnvVarSource.Workflows, 'nonexistent');
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
@@ -788,7 +785,7 @@ describe('EnvVarService', () => {
               - ENVIRONMENT: production`,
         });
 
-        EnvVarService.reorder([1, 2, 0], EnvVarSource.Project);
+        EnvVarService.reorder([1, 2, 0], EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -811,7 +808,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.reorder([0, 1, 2], EnvVarSource.Project);
+          EnvVarService.reorder([0, 1, 2], EnvVarSource.App);
         }).toThrow('The number of indices (3) does not match the number of environment variables (2)');
       });
     });
@@ -832,7 +829,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.reorder([1, 2, 0], EnvVarSource.Workflow, 'wf1');
+        EnvVarService.reorder([1, 2, 0], EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -860,7 +857,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.reorder([0, 1, 2], EnvVarSource.Workflow, 'wf1');
+          EnvVarService.reorder([0, 1, 2], EnvVarSource.Workflows, 'wf1');
         }).toThrow('The number of indices (3) does not match the number of environment variables (2)');
       });
 
@@ -876,7 +873,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.reorder([0, 1], EnvVarSource.Workflow);
+          EnvVarService.reorder([0, 1], EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -892,7 +889,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.reorder([0, 1], EnvVarSource.Workflow, 'nonexistent');
+          EnvVarService.reorder([0, 1], EnvVarSource.Workflows, 'nonexistent');
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
@@ -909,7 +906,7 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 1.2.3`,
         });
 
-        EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 0, 'SERVICE_VERSION', EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -930,7 +927,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 3, 'SERVICE_VERSION', EnvVarSource.Project);
+          EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 3, 'SERVICE_VERSION', EnvVarSource.App);
         }).toThrow('Environment variable is not found at path: app.envs.3');
       });
 
@@ -945,7 +942,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 1, 'SERVICE_VERSION', EnvVarSource.Project);
+          EnvVarService.updateKey('SERVICE_BUILD_NUMBER', 1, 'SERVICE_VERSION', EnvVarSource.App);
         }).toThrow('Environment variable key mismatch "SERVICE_VERSION" at path: app.envs.1');
       });
     });
@@ -961,7 +958,7 @@ describe('EnvVarService', () => {
                 - NODE_VERSION: lts`,
         });
 
-        EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
+        EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -984,7 +981,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateKey('NODE', 3, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
+          EnvVarService.updateKey('NODE', 3, 'NODE_VERSION', EnvVarSource.Workflows, 'wf1');
         }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
@@ -1000,7 +997,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateKey('NODE', 1, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
+          EnvVarService.updateKey('NODE', 1, 'NODE_VERSION', EnvVarSource.Workflows, 'wf1');
         }).toThrow('Environment variable key mismatch "NODE_VERSION" at path: workflows.wf1.envs.1');
       });
 
@@ -1015,7 +1012,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflow);
+          EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -1030,7 +1027,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'nonexistent');
+          EnvVarService.updateKey('NODE', 0, 'NODE_VERSION', EnvVarSource.Workflows, 'nonexistent');
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
@@ -1050,10 +1047,10 @@ describe('EnvVarService', () => {
               - NODE_VERSION: '0.14.0'`,
         });
 
-        EnvVarService.updateValue('2.0', 0, 'SERVICE_VERSION', EnvVarSource.Project);
-        EnvVarService.updateValue('Grogu', 1, 'PROJECT_NAME', EnvVarSource.Project);
-        EnvVarService.updateValue('staging', 2, 'ENVIRONMENT', EnvVarSource.Project);
-        EnvVarService.updateValue('0.15.0', 3, 'NODE_VERSION', EnvVarSource.Project);
+        EnvVarService.updateValue('2.0', 0, 'SERVICE_VERSION', EnvVarSource.App);
+        EnvVarService.updateValue('Grogu', 1, 'PROJECT_NAME', EnvVarSource.App);
+        EnvVarService.updateValue('staging', 2, 'ENVIRONMENT', EnvVarSource.App);
+        EnvVarService.updateValue('0.15.0', 3, 'NODE_VERSION', EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1075,7 +1072,7 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 2`,
         });
 
-        EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.App);
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           app:
             envs:
@@ -1092,7 +1089,7 @@ describe('EnvVarService', () => {
               - SERVICE_VERSION: 3.14`,
         });
 
-        EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.Project);
+        EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.App);
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           app:
             envs:
@@ -1111,7 +1108,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateValue('2.0', 3, 'SERVICE_VERSION', EnvVarSource.Project);
+          EnvVarService.updateValue('2.0', 3, 'SERVICE_VERSION', EnvVarSource.App);
         }).toThrow('Environment variable is not found at path: app.envs.3');
       });
 
@@ -1126,7 +1123,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateValue('2.0', 1, 'SERVICE_VERSION', EnvVarSource.Project);
+          EnvVarService.updateValue('2.0', 1, 'SERVICE_VERSION', EnvVarSource.App);
         }).toThrow('Environment variable key mismatch "SERVICE_VERSION" at path: app.envs.1');
       });
     });
@@ -1142,7 +1139,7 @@ describe('EnvVarService', () => {
                 - NODE_VERSION: lts`,
         });
 
-        EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
+        EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1163,7 +1160,7 @@ describe('EnvVarService', () => {
                 - SERVICE_VERSION: 2`,
         });
 
-        EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.Workflow, 'wf1');
+        EnvVarService.updateValue('3.1415', 0, 'SERVICE_VERSION', EnvVarSource.Workflows, 'wf1');
 
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           workflows:
@@ -1183,7 +1180,7 @@ describe('EnvVarService', () => {
                 - SERVICE_VERSION: 3.14`,
         });
 
-        EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.Workflow, 'wf1');
+        EnvVarService.updateValue('2', 0, 'SERVICE_VERSION', EnvVarSource.Workflows, 'wf1');
         expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
           workflows:
             wf1:
@@ -1204,7 +1201,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateValue('22', 3, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
+          EnvVarService.updateValue('22', 3, 'NODE_VERSION', EnvVarSource.Workflows, 'wf1');
         }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
@@ -1220,7 +1217,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateValue('22', 1, 'NODE_VERSION', EnvVarSource.Workflow, 'wf1');
+          EnvVarService.updateValue('22', 1, 'NODE_VERSION', EnvVarSource.Workflows, 'wf1');
         }).toThrow('Environment variable key mismatch "NODE_VERSION" at path: workflows.wf1.envs.1');
       });
 
@@ -1235,7 +1232,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflow);
+          EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -1250,7 +1247,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflow, 'nonexistent');
+          EnvVarService.updateValue('22', 0, 'NODE_VERSION', EnvVarSource.Workflows, 'nonexistent');
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });
@@ -1268,7 +1265,7 @@ describe('EnvVarService', () => {
               - PROJECT_NAME: Mando`,
         });
 
-        EnvVarService.updateIsExpand(false, 0, EnvVarSource.Project);
+        EnvVarService.updateIsExpand(false, 0, EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1293,7 +1290,7 @@ describe('EnvVarService', () => {
                   is_expand: false`,
         });
 
-        EnvVarService.updateIsExpand(true, 1, EnvVarSource.Project);
+        EnvVarService.updateIsExpand(true, 1, EnvVarSource.App);
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1315,7 +1312,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateIsExpand(false, 3, EnvVarSource.Project);
+          EnvVarService.updateIsExpand(false, 3, EnvVarSource.App);
         }).toThrow('Environment variable is not found at path: app.envs.3');
       });
     });
@@ -1335,7 +1332,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflow, 'wf1');
+        EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1368,7 +1365,7 @@ describe('EnvVarService', () => {
                 - PARALLEL: 4`,
         });
 
-        EnvVarService.updateIsExpand(true, 1, EnvVarSource.Workflow, 'wf1');
+        EnvVarService.updateIsExpand(true, 1, EnvVarSource.Workflows, 'wf1');
 
         const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
         expect(actualYml).toEqual(yaml`
@@ -1395,7 +1392,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateIsExpand(false, 3, EnvVarSource.Workflow, 'wf1');
+          EnvVarService.updateIsExpand(false, 3, EnvVarSource.Workflows, 'wf1');
         }).toThrow('Environment variable is not found at path: workflows.wf1.envs.3');
       });
 
@@ -1410,7 +1407,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflow);
+          EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflows);
         }).toThrow('sourceId is required when source is Workflow');
       });
 
@@ -1425,7 +1422,7 @@ describe('EnvVarService', () => {
         });
 
         expect(() => {
-          EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflow, 'nonexistent');
+          EnvVarService.updateIsExpand(false, 0, EnvVarSource.Workflows, 'nonexistent');
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
     });

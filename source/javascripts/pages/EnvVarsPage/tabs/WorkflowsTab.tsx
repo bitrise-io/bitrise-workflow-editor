@@ -24,7 +24,7 @@ const WorkflowsTab = () => {
           <Text as="h3" textStyle="heading/h3">
             {workflowId}
           </Text>
-          <EnvVarsTable source={EnvVarSource.Workflow} sourceId={workflowId} />
+          <EnvVarsTable source={EnvVarSource.Workflows} sourceId={workflowId} />
           {workflowIds.length - 1 > index && <Divider />}
         </Fragment>
       ))}

@@ -6,6 +6,6 @@ export type EnvVar = {
 };
 
 export enum EnvVarSource {
-  Project = 'project',
-  Workflow = 'workflow',
+  App = 'app',
+  Workflows = 'workflows',
 }
