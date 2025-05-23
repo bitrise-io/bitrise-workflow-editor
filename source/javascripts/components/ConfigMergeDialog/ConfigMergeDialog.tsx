@@ -20,6 +20,7 @@ import { useRef, useState } from 'react';
 import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { ClientError } from '@/core/api/client';
 import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
@@ -105,7 +106,14 @@ function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
 function useInitialCiConfigs() {
   const projectSlug = PageProps.appSlug();
 
-  return useQuery({
+  type Response = {
+    yourYml: string;
+    baseYml: string;
+    remoteYml: string;
+    remoteVersion: string;
+  };
+
+  return useQuery<Response, ClientError>({
     queryKey: ['initial-ci-configs', projectSlug],
     queryFn: async ({ signal }) => {
       return {
@@ -144,10 +152,12 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
 
   if (initialError || !data) {
     return (
-      <Notification status="error">
-        <Text textStyle="comp/notification/title">Error fetching initial configs</Text>
-        <Text>{initialError?.message || 'Initial configs not found'}</Text>
-      </Notification>
+      <Box px="32">
+        <Notification status="error">
+          <Text textStyle="comp/notification/title">Error fetching initial configs</Text>
+          <Text>{initialError?.message || 'Initial configs not found'}</Text>
+        </Notification>
+      </Box>
     );
   }
 
