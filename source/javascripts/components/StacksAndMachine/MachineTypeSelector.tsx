@@ -53,7 +53,10 @@ const MachineTypeSelector = ({
   const machineTypePromotion = getMachineTypePromotionTexts(isMachineTypePromotionTrialMode);
 
   const toggletip = (icon: ReactNode) => (
-    <Toggletip button={{ href: '#', label: 'Reach out to sales' }} label={machineTypePromotion.toggleTipText}>
+    <Toggletip
+      button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
+      label={machineTypePromotion.toggleTipText}
+    >
       {icon}
     </Toggletip>
   );
