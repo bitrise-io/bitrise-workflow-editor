@@ -11,7 +11,7 @@ const LoadingState = ({ rows = 4 }: Props) => {
         .fill(null)
         .map(() => {
           return (
-            <Skeleton key={Math.random()} paddingBlock="12" display="flex" flexDirection="column" gap="4" isActive>
+            <Skeleton key={Math.random()} paddingBlock="12" display="flex" flexDirection="column" gap="4">
               <SkeletonBox height="22" width={Math.random() * 128 + 128} />
               <SkeletonBox height="16" width="96" />
             </Skeleton>

@@ -216,7 +216,7 @@ const StepCard = ({
           )}
 
           {isLoading ? (
-            <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
+            <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4}>
               <SkeletonBox height="32" width="32" borderRadius="4" />
               <Box display="flex" flexDir="column" gap="4">
                 <SkeletonBox height="14" width="150px" />

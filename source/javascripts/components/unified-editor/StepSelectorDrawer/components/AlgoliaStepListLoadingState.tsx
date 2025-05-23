@@ -10,7 +10,7 @@ const AlgoliaStepListLoadingState = () => {
   const columns = useCalculateColumns(ref);
 
   return (
-    <Skeleton ref={ref} display="flex" flexDirection="column" gap={GAP} isActive>
+    <Skeleton ref={ref} display="flex" flexDirection="column" gap={GAP}>
       <SkeletonBox height={CATEGORY_HEIGHT} width={150} />
       {range(16 * columns).map((row) => (
         <Box key={row} display="grid" gap={GAP} height={STEP_HEIGHT} gridTemplateColumns={`repeat(${columns}, 1fr)`}>
