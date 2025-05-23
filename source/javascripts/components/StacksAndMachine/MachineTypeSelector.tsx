@@ -1,4 +1,13 @@
-import { Avatar, AvatarProps, Dropdown, DropdownDetailedOption, DropdownGroup, DropdownOption } from '@bitrise/bitkit';
+import {
+  Avatar,
+  AvatarProps,
+  Dropdown,
+  DropdownDetailedOption,
+  DropdownGroup,
+  DropdownOption,
+  Toggletip,
+} from '@bitrise/bitkit';
+import { ReactNode } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 
 import { MachineTypeOption } from '@/core/models/MachineType';
@@ -9,10 +18,14 @@ export const getMachineTypePromotionTexts = (isTrialMode: boolean) => {
     ? {
         availableText: 'Available during the trial',
         promotedText: 'Available on paid plans',
+        toggleTipText:
+          'Select your machine type for builds. Options vary by plan. If you need stronger machines during your trial, contact sales.',
       }
     : {
         availableText: 'Available on your plan',
         promotedText: 'Available on other plans',
+        toggleTipText:
+          'Select your machine type for builds. Options vary by plan. If you need stronger machines contact sales.',
       };
 };
 
@@ -39,12 +52,19 @@ const MachineTypeSelector = ({
 }: Props) => {
   const machineTypePromotion = getMachineTypePromotionTexts(isMachineTypePromotionTrialMode);
 
+  const toggletip = (icon: ReactNode) => (
+    <Toggletip button={{ href: '#', label: 'Reach out to sales' }} label={machineTypePromotion.toggleTipText}>
+      {icon}
+    </Toggletip>
+  );
+
   return (
     <Dropdown
       disabled={isLoading || isDisabled}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
       helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
       label="Machine type"
+      labelHelp={toggletip}
       onChange={(e) => onChange(e.target.value as string)}
       required
       search={false}
@@ -104,23 +124,6 @@ const MachineTypeSelector = ({
         );
       })}
     </Dropdown>
-    // <Select
-    //   isRequired
-    //   label="Machine type"
-    //   isLoading={isLoading}
-    //   value={machineType.value}
-    //   isDisabled={isDisabled}
-    //   errorText={isInvalid ? 'Invalid machine type' : undefined}
-    //   helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
-    //   onChange={(e) => onChange(e.target.value)}
-    //   flex="1"
-    // >
-    //   {options.map(({ value, label }) => (
-    //     <option key={value} value={value}>
-    //       {label}
-    //     </option>
-    //   ))}
-    // </Select>
   );
 };
 
