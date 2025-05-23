@@ -1,13 +1,12 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useToast } from '@bitrise/bitkit';
-import { useCallback, useState } from 'react';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
+import { useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { initializeStore } from '@/core/stores/BitriseYmlStore';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useFormatYml } from '@/hooks/useFormattedYml';
 
 type Props = {
   isOpen: boolean;
@@ -17,18 +16,17 @@ type Props = {
 const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   const toast = useToast();
   const [, copyToClipboard] = useCopyToClipboard();
-  const [formattedYml, setFormattedYml] = useState<string>();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
-  const yml = useBitriseYmlStore((s) => s.yml);
-  const {
-    mutate: formatYml,
-    isPending: isPendingFormatYml,
-    error: errorFormatYml,
-  } = useFormatYml({ onSuccess: setFormattedYml });
+  const [isCopiedOrDownloded, setIsCopiedOrDownloaded] = useState(false);
 
-  const copy = useCallback(
-    async (text: string) => {
-      if (await copyToClipboard(text)) {
+  const handleCopyToClipboard = () => {
+    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'update_configuration_yml_modal',
+    });
+
+    copyToClipboard(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).then((isCopied) => {
+      if (isCopied) {
         toast({
           title: 'Copied to clipboard',
           description:
@@ -36,6 +34,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
           status: 'success',
           isClosable: true,
         });
+        setIsCopiedOrDownloaded(true);
       } else {
         toast({
           title: 'Failed to copy to clipboard',
@@ -44,26 +43,6 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
           isClosable: true,
         });
       }
-    },
-    [copyToClipboard, toast],
-  );
-
-  const handleCopyToClipboard = async () => {
-    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'update_configuration_yml_modal',
-    });
-
-    formatYml(yml, {
-      onSuccess: copy,
-      onError: () => {
-        toast({
-          title: 'Failed to copy to clipboard',
-          description: 'Something went wrong while copying the configuration YAML content.',
-          status: 'error',
-          isClosable: true,
-        });
-      },
     });
   };
 
@@ -73,25 +52,13 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
       source: 'update_configuration_yml_modal',
     });
 
-    formatYml(yml, {
-      onSuccess: (data) => download(data, 'bitrise.yml', 'application/yaml;charset=utf-8'),
-      onError: () => {
-        toast({
-          title: 'Failed to download',
-          description: 'Something went wrong while downloading the configuration YAML file.',
-          status: 'error',
-          isClosable: true,
-        });
-      },
-    });
-  };
+    download(
+      BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
+      'bitrise.yml',
+      'application/yaml;charset=utf-8',
+    );
 
-  const handleDoneClick = () => {
-    // NOTE: Instead of re-fetching, we can just update the store's saved yml with the formatted yml
-    // Pro: Even if the user didn't save the YML to their repo yet, we still have all their changes.
-    if (formattedYml) {
-      initializeStore({ ymlString: formattedYml, version: '' });
-    }
+    setIsCopiedOrDownloaded(true);
   };
 
   return (
@@ -113,7 +80,6 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
             variant="tertiary"
             width="fit-content"
             leftIconName="Download"
-            isDisabled={isPendingFormatYml}
             onClick={handleDownloadClick}
           >
             Download changed version
@@ -123,7 +89,6 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
             variant="tertiary"
             width="fit-content"
             leftIconName="Duplicate"
-            isDisabled={isPendingFormatYml}
             onClick={handleCopyToClipboard}
           >
             Copy changed configuration
@@ -133,17 +98,12 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-        {errorFormatYml && (
-          <Notification marginBlockStart="24" status="error">
-            {errorFormatYml.getResponseErrorMessage() || 'Failed to prepare the configuration YAML changes'}
-          </Notification>
-        )}
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button isDisabled={!formattedYml} onClick={handleDoneClick}>
+        <Button isDisabled={!isCopiedOrDownloded} onClick={onClose}>
           Done
         </Button>
       </DialogFooter>

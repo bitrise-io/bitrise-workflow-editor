@@ -22,6 +22,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
@@ -30,7 +31,6 @@ import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings, usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import { useFormatYml } from '@/hooks/useFormattedYml';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
@@ -121,7 +121,6 @@ type BitriseToGitSectionProps = {
 const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) => {
   const toast = useToast();
   const [, copyToClipboard] = useCopyToClipboard();
-  const { mutate: formatYml, isPending } = useFormatYml();
 
   const gitRepoSlug = PageProps.app()?.gitRepoSlug;
   const defaultBranch = PageProps.app()?.defaultBranch;
@@ -131,30 +130,20 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
       yml_source: 'bitrise',
       source: 'configuration_yml_source',
     });
-    formatYml(bitriseYmlStore.getState().yml, {
-      onSuccess: async (formattedYml) => {
-        const isCopied = await copyToClipboard(formattedYml);
-        if (isCopied) {
-          toast({
-            status: 'success',
-            description: 'Copied to clipboard',
-            isClosable: true,
-          });
-        } else {
-          toast({
-            status: 'error',
-            description: 'Copy to clipboard failed',
-            isClosable: true,
-          });
-        }
-      },
-      onError: () => {
+    copyToClipboard(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).then((isCopied) => {
+      if (isCopied) {
         toast({
-          status: 'error',
-          description: 'Copy preparation failed',
+          status: 'success',
+          description: 'Copied to clipboard',
           isClosable: true,
         });
-      },
+      } else {
+        toast({
+          status: 'error',
+          description: 'Copy to clipboard failed',
+          isClosable: true,
+        });
+      }
     });
   };
 
@@ -163,16 +152,11 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
       yml_source: 'bitrise',
       source: 'configuration_yml_source',
     });
-    formatYml(bitriseYmlStore.getState().yml, {
-      onSuccess: (formattedYml) => download(formattedYml, 'bitrise.yml', 'application/yaml;charset=utf-8'),
-      onError: () => {
-        toast({
-          status: 'error',
-          description: 'Download preparation failed',
-          isClosable: true,
-        });
-      },
-    });
+    download(
+      BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
+      'bitrise.yml',
+      'application/yaml;charset=utf-8',
+    );
   };
 
   return (
@@ -204,24 +188,10 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             repository.{' '}
           </Text>
           <Box display="flex" gap="8" pb="24">
-            <Button
-              size="sm"
-              width="fit-content"
-              variant="secondary"
-              isDisabled={isPending}
-              leftIconName="Download"
-              onClick={onDownloadClick}
-            >
+            <Button size="sm" width="fit-content" variant="secondary" leftIconName="Download" onClick={onDownloadClick}>
               Download bitrise.yml
             </Button>
-            <Button
-              size="sm"
-              width="fit-content"
-              variant="secondary"
-              isDisabled={isPending}
-              leftIconName="Duplicate"
-              onClick={onCopyClick}
-            >
+            <Button size="sm" width="fit-content" variant="secondary" leftIconName="Duplicate" onClick={onCopyClick}>
               Copy YML contents
             </Button>
           </Box>

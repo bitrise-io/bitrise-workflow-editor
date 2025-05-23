@@ -1,4 +1,4 @@
-import { Document, isDocument, parse, Scalar, stringify, visit } from 'yaml';
+import { Document, Node, parse, stringify, visit } from 'yaml';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -8,32 +8,11 @@ import Client from './client';
 const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
 
 // TRANSFORMATIONS
-
-// NOTE: When the value is a string and contains a tab characters, the eemeli/yaml
-// will stringify it as multi-line block string, but keep the tab characters. It's not optimal
-// for us, because it's not a valid YAML for the Bitrise CLI. So we need to keep the single
-// line string with double quotes. This is a workaround for the issue.
-function tabbedValueReplacer(_: unknown, value: unknown) {
-  if (typeof value === 'string' && /\t/.test(value)) {
-    const scalar = new Scalar(value);
-    scalar.type = 'QUOTE_DOUBLE';
-    return scalar;
-  }
-
-  return value;
-}
-
-/**
- * Detects the YAML styles used in the document.
- * It checks for the following styles:
- * - Indentation style for block sequences
- * - Padding style for flow collections
- */
-function detectYmlStyles(doc: Document) {
+function toYml(model: Document | Node | null): string {
   let indents = 0;
   let paddings = 0;
 
-  visit(doc, {
+  visit(model, {
     Node(_, { srcToken }) {
       if (srcToken?.type === 'flow-collection') {
         const startOffset = srcToken.start.offset;
@@ -53,37 +32,22 @@ function detectYmlStyles(doc: Document) {
         });
       }
     },
+    Scalar(__, node) {
+      if (typeof node.value === 'string' && /\t/.test(node.value)) {
+        // eslint-disable-next-line no-param-reassign
+        node.type = 'BLOCK_LITERAL';
+        // eslint-disable-next-line no-param-reassign
+        node.value = node.value.replace(/\t/g, '  ');
+      }
+    },
   });
 
-  return {
-    indentSeq: indents > 0,
-    flowCollectionPadding: paddings >= 0,
-  };
-}
-
-function toYml(model?: unknown): string {
-  if (!model) {
-    return '';
-  }
-
-  if (typeof model === 'string') {
-    return model;
-  }
-
-  let ymlStyleOptions = {
-    indentSeq: true,
-    flowCollectionPadding: true,
-  };
-
-  if (isDocument(model)) {
-    ymlStyleOptions = detectYmlStyles(model);
-  }
-
-  return stringify(model, tabbedValueReplacer, {
+  return stringify(model, {
     version: '1.1',
     schema: 'yaml-1.1',
+    indentSeq: indents > 0,
     aliasDuplicateObjects: false,
-    ...ymlStyleOptions,
+    flowCollectionPadding: paddings >= 0,
   });
 }
 
@@ -114,7 +78,6 @@ type SaveCiConfigOptions = {
 };
 
 // API CALLS
-const FORMAT_YML_PATH = `/api/cli/format`;
 const BITRISE_YML_PATH = `/api/app/:projectSlug/config.yml`;
 const LOCAL_BITRISE_YML_PATH = `/api/bitrise-yml`;
 
@@ -158,22 +121,6 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: S
   });
 }
 
-async function formatCiConfig(data: string, signal?: AbortSignal): Promise<string> {
-  const response = await Client.text(FORMAT_YML_PATH, {
-    signal,
-    body: JSON.stringify({
-      app_config_datastore_yaml: data,
-    }),
-    headers: {
-      Accept: 'application/x-yaml, application/json',
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  });
-
-  return response || toYml(data);
-}
-
 export type { GetCiConfigResult };
 
 export default {
@@ -182,6 +129,4 @@ export default {
   getCiConfig,
   ciConfigPath,
   saveCiConfig,
-  formatCiConfig,
-  FORMAT_YML_PATH,
 };

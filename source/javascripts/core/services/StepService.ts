@@ -533,8 +533,8 @@ function updateStepInput(source: Source, sourceId: string, index: number, input:
     const newValue = EnvVarService.toYmlValue(value);
     if (newValue === '') {
       YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs', inputIndex], ['inputs']);
-    } else {
-      inputPair.value = EnvVarService.toYmlValue(value);
+    } else if (isScalar(inputPair.value)) {
+      inputPair.value.value = newValue;
     }
 
     return doc;

@@ -80,7 +80,7 @@ function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false): YA
     return undefined;
   }
 
-  return doc.getIn(path) as YAMLSeq;
+  return doc.getIn(path, true) as YAMLSeq;
 }
 
 function getMapIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLMap;
@@ -256,8 +256,8 @@ function collectPaths(obj: unknown, prefix = '') {
   return paths;
 }
 
-type GetPairInSeqByKeyReturn = [Pair | undefined, number | undefined];
-function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists: true): [Pair, number];
+type GetPairInSeqByKeyReturn = [Pair<Scalar, Scalar> | undefined, number | undefined];
+function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists: true): [Pair<Scalar, Scalar>, number];
 function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists?: boolean): GetPairInSeqByKeyReturn;
 function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists = false): GetPairInSeqByKeyReturn {
   for (let i = 0; i < seq.items.length; i++) {
@@ -265,7 +265,7 @@ function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists = false)
     if (isMap(maybeMap)) {
       for (const maybePair of maybeMap.items) {
         if (isPairKeyEqual(maybePair, key)) {
-          return [maybePair, i];
+          return [maybePair as Pair<Scalar, Scalar>, i];
         }
       }
     }
