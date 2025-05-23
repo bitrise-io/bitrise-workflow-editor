@@ -135,7 +135,7 @@ const SecretCard = (props: SecretCardProps) => {
   const secretValueElement = () => {
     if (isSecretValueLoading) {
       return (
-        <Skeleton isActive height="40">
+        <Skeleton height="40">
           <SkeletonBox width="100%" height="100%" borderRadius="4" />
         </Skeleton>
       );
