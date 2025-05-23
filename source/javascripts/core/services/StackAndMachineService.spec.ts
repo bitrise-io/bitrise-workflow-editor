@@ -212,7 +212,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Machine type options
     const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
     expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
   });
 
@@ -233,7 +233,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Machine type options
     const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
     expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
   });
 
@@ -260,7 +260,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Machine type options
     const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
     expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
 
     // Invalid machine type option
@@ -314,7 +314,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Machine type options
     expect(result.isMachineTypeSelectionDisabled).toBe(false);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
+    expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
     const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
     expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
   });
