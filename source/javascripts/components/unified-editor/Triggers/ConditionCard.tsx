@@ -18,32 +18,35 @@ import { Checkbox, Tfoot } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
-import { FormItems, TriggerType } from '../../Triggers.types';
+import { TargetBasedTrigger, TriggerType } from '@/core/models/Trigger';
+import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 
-type ConditionCardProps = {
-  fields: FieldArrayWithId<FormItems, 'conditions', 'id'>[];
+type Props = {
+  triggerType?: TriggerType;
+  fields: FieldArrayWithId<LegacyTrigger | TargetBasedTrigger, 'conditions', 'uniqueId'>[];
   append?: () => void;
   optionsMap: Record<string, string>;
   remove: (index: number) => void;
   labelsMap: Record<string, string>;
-  triggerType?: TriggerType;
 };
 
 const CONDITION_HELPERTEXT_MAP: Record<string, string> = {
+  branch: 'If you leave it blank, Bitrise will start builds for any branch.',
+  push_branch: 'If you leave it blank, Bitrise will start builds for any branch.',
   target_branch: 'If you leave it blank, Bitrise will start builds for any target branch.',
   pull_request_target_branch: 'If you leave it blank, Bitrise will start builds for any target branch.',
   source_branch: 'If you leave it blank, Bitrise will start builds for any source branch.',
   pull_request_source_branch: 'If you leave it blank, Bitrise will start builds for any source branch.',
   name: 'If you leave it blank, Bitrise will start builds for any tag.',
+  tag: 'If you leave it blank, Bitrise will start builds for any tag.',
 };
 
-const ConditionCard = (props: ConditionCardProps) => {
-  const { fields, append, optionsMap, remove, triggerType } = props;
-  const { control, watch, setValue } = useFormContext<FormItems>();
+const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Props) => {
+  const { control, watch, setValue } = useFormContext<LegacyTrigger | TargetBasedTrigger>();
   const { conditions } = watch();
 
   const isTagCondition = useMemo(() => {
-    return conditions.some((condition) => condition.type === 'name');
+    return conditions.some((condition) => condition.type === 'name' || condition.type === 'tag');
   }, [conditions]);
 
   return (
@@ -62,7 +65,7 @@ const ConditionCard = (props: ConditionCardProps) => {
             const { isLastCommitOnly, isRegex, type } = cond;
 
             return (
-              <Tr key={fieldItem.id}>
+              <Tr key={fieldItem.uniqueId}>
                 <Td height="auto" paddingBlock="12" verticalAlign="top">
                   <Controller
                     name={`conditions.${index}.type`}
@@ -86,7 +89,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                       </Select>
                     )}
                   />
-                  {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') ? (
+                  {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (
                     <Checkbox
                       marginBlockStart="12"
                       isChecked={isLastCommitOnly}
@@ -97,7 +100,7 @@ const ConditionCard = (props: ConditionCardProps) => {
                         <Icon name="Info" size="16" marginLeft="5" />
                       </Toggletip>
                     </Checkbox>
-                  ) : null}
+                  )}
                 </Td>
                 <Td height="auto" paddingBlock="12" verticalAlign="top">
                   <Controller

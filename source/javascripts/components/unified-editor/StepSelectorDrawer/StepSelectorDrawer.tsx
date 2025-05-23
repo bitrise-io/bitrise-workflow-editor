@@ -1,5 +1,4 @@
 import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
-import { ReactFlowProvider } from '@xyflow/react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -87,19 +86,17 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
             {tabId === 'stepBundle' && <StepBundleFilter mt="24" mb="12" />}
           </FloatingDrawerHeader>
           <FloatingDrawerBody pt="12">
-            <ReactFlowProvider>
-              <TabPanels>
-                <TabPanel>
-                  <AlgoliaStepList
-                    enabledSteps={stepLimitReached ? enabledSteps : undefined}
-                    onSelectStep={onSelectStep}
-                  />
-                </TabPanel>
-                <TabPanel display="flex" flexDir="column" gap="12">
-                  <StepBundleList onSelectStep={onSelectStep} excludedStepBundleId={parentStepBundleId} />
-                </TabPanel>
-              </TabPanels>
-            </ReactFlowProvider>
+            <TabPanels>
+              <TabPanel>
+                <AlgoliaStepList
+                  enabledSteps={stepLimitReached ? enabledSteps : undefined}
+                  onSelectStep={onSelectStep}
+                />
+              </TabPanel>
+              <TabPanel display="flex" flexDir="column" gap="12">
+                <StepBundleList onSelectStep={onSelectStep} excludedStepBundleId={parentStepBundleId} />
+              </TabPanel>
+            </TabPanels>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
       </FloatingDrawer>

@@ -13,23 +13,4 @@ function useAlgoliaSteps() {
   });
 }
 
-function useAlgoliaStep({ cvs, enabled = true }: { cvs: string; enabled?: boolean }) {
-  const defaultStepLibrary = useDefaultStepLibrary();
-  return useQuery({
-    queryKey: ['algolia-steps', { cvs, defaultStepLibrary }] as const,
-    queryFn: () => StepApi.getAlgoliaStepByCvs(cvs, defaultStepLibrary),
-    enabled: Boolean(cvs && enabled),
-    staleTime: Infinity,
-  });
-}
-
-function useAlgoliaStepInputs({ cvs, enabled = true }: { cvs: string; enabled?: boolean }) {
-  return useQuery({
-    queryKey: ['algolia-steps', { cvs }, 'inputs'] as const,
-    queryFn: () => StepApi.getAlgoliaStepInputsByCvs(cvs),
-    enabled: Boolean(cvs && enabled),
-    staleTime: Infinity,
-  });
-}
-
-export { useAlgoliaStep, useAlgoliaStepInputs, useAlgoliaSteps };
+export { useAlgoliaSteps };

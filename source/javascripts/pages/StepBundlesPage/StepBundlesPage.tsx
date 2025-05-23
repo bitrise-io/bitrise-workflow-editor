@@ -10,11 +10,10 @@ import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundlesPage.store';
 
 const StepBundlesPage = () => {
-  const stepBundles = useStepBundles();
-  const stepBundlesIds = Object.keys(stepBundles);
+  const stepBundlesIds = useStepBundles((s) => Object.keys(s));
   const { openDialog } = useStepBundlesPageStore();
   const { closeDialog } = useStepBundlesPageStore();
-  const [{ id: stepBundleId }] = useSelectedStepBundle();
+  const [stepBundleId] = useSelectedStepBundle();
   const hasStepBundles = stepBundlesIds.length > 0;
 
   useEffect(() => {

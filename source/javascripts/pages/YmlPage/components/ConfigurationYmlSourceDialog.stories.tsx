@@ -1,15 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import {
-  getCiConfig,
-  getYmlSettings,
-  postCiConfig,
-  postFormatYml,
-  putYmlSettings,
-} from './ConfigurationYmlSource.mswMocks';
+import { getCiConfig, getYmlSettings, postCiConfig, putYmlSettings } from './ConfigurationYmlSource.mswMocks';
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
-const defaultMswHandlers = [getCiConfig(), putYmlSettings(), postCiConfig(), postFormatYml(), getYmlSettings()];
+const defaultMswHandlers = [getCiConfig(), putYmlSettings(), postCiConfig(), getYmlSettings()];
 
 export default {
   component: ConfigurationYmlSourceDialog,

@@ -3,8 +3,8 @@ import { toMerged } from 'es-toolkit';
 import { useMemo } from 'react';
 
 import StepApi, { StepApiResult } from '@/core/api/StepApi';
-import { StepListItemModel } from '@/core/models/BitriseYml';
-import { Step, StepBundle, StepLike, WithGroup } from '@/core/models/Step';
+import { StepBundleModel, StepModel } from '@/core/models/BitriseYml';
+import { Step, StepBundleInstance, StepLike, WithGroup } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
@@ -17,14 +17,13 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
 
   return useBitriseYmlStore(({ yml }) => {
-    let stepObjectFromYml: StepListItemModel | undefined;
+    let stepObjectFromYml: StepModel | WithGroup | StepBundleModel | null | undefined;
 
     if (props.workflowId) {
       const { workflowId, stepIndex } = props;
       stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
     } else if (props.stepBundleId) {
       const { stepBundleId, stepIndex } = props;
-      // TODO: Investigate why this type override is needed
       stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
     }
 
@@ -40,10 +39,10 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
     const icon = StepService.resolveIcon(cvs, defaultStepLibrary, step);
 
     if (StepService.isWithGroup(cvs, defaultStepLibrary, step)) {
-      return { data: { cvs, id, title, icon, userValues: step } };
+      return { data: { cvs, id, title, icon, userValues: step ?? {} } };
     }
     if (StepService.isStepBundle(cvs, defaultStepLibrary, step)) {
-      return { data: { cvs, id, title, icon, userValues: step } };
+      return { data: { cvs, id, title, icon, userValues: step ?? {} } };
     }
 
     return {
@@ -112,7 +111,7 @@ function useStepFromApi(cvs = ''): ApiStepResult {
 
 type UseStepResult = {
   isLoading: boolean;
-  data?: Step | WithGroup | StepBundle;
+  data?: StepLike;
   error?: Error | null;
 };
 
@@ -144,7 +143,7 @@ const useStep = (props: UseStepProps): UseStepResult => {
 
     if (StepService.isStepBundle(cvs, defaultStepLibrary, userValues)) {
       return {
-        data: ymlData as StepBundle,
+        data: ymlData as StepBundleInstance,
         isLoading: false,
       };
     }

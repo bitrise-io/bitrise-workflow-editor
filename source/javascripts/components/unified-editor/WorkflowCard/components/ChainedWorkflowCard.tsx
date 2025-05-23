@@ -29,7 +29,7 @@ type Props = {
 
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
-  const workflow = useWorkflow(id);
+  const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,7 +60,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
   const isHighlighted = isSelected({ workflowId: id });
   const isPlaceholder = sortable.isDragging;
-  const title = workflow?.userValues?.title || id;
+  const title = workflow?.title || id;
 
   const cardProps = useMemo(() => {
     const common: CardProps = {

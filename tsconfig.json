@@ -4,7 +4,7 @@
     "outDir": "./build",
     "typeRoots": [
       "./node_modules/@types",
-      "./source/javascripts/typings"
+      "source/javascripts/typings"
     ],
     "paths": {
       "@/*": [
@@ -42,7 +42,8 @@
     "playwright.config.ts",
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
-    "source/javascripts/**/*.tsx"
+    "source/javascripts/**/*.tsx",
+    "spec/__mocks__/zustand.ts"
   ],
   "exclude": [
     ".storybook",

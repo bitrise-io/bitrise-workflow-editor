@@ -59,15 +59,3 @@ export const putYmlSettings = (error?: string) => {
     return new HttpResponse(null, { status: 204 });
   });
 };
-
-export const postFormatYml = (error?: string) => {
-  return http.post(BitriseYmlApi.FORMAT_YML_PATH, async ({ request }) => {
-    await delay();
-    if (error) {
-      return HttpResponse.json({ error_msg: error }, { status: 400 });
-    }
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { app_config_datastore_yaml } = (await request.json()) as { app_config_datastore_yaml: string };
-    return HttpResponse.text(app_config_datastore_yaml, { status: 200 });
-  });
-};

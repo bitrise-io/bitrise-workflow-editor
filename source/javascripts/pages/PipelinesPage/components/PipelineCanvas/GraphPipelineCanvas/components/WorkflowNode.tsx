@@ -9,11 +9,10 @@ import { SelectionParent } from '@/components/unified-editor/WorkflowCard/Workfl
 import { LibraryType } from '@/core/models/Step';
 import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import StepBundleService from '@/core/services/StepBundleService';
-import { moveStepIndices } from '@/core/services/StepService';
+import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { useWorkflows } from '@/hooks/useWorkflows';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
@@ -75,9 +74,15 @@ const ParallelWorkflowIndicator = memo(() => {
 const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
   const hovered = useHover(ref);
-  const workflows = useWorkflows();
-  const stepBundles = useStepBundles();
   const { selectedPipeline } = usePipelineSelector();
+
+  const stepBundles = useStepBundles((s) => {
+    return Object.fromEntries(
+      Object.entries(s).map(([_id, stepBundle]) => {
+        return [_id, { steps: stepBundle?.steps }];
+      }),
+    );
+  });
 
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
@@ -87,32 +92,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
-
-  const {
-    moveStep,
-    cloneStep,
-    deleteStep,
-    upgradeStep,
-    cloneStepInStepBundle,
-    deleteStepInStepBundle,
-    groupStepsToStepBundle,
-    moveStepInStepBundle,
-    upgradeStepInStepBundle,
-    setChainedWorkflows,
-    removeChainedWorkflow,
-  } = useBitriseYmlStore((s) => ({
-    moveStep: s.moveStep,
-    cloneStep: s.cloneStep,
-    deleteStep: s.deleteStep,
-    upgradeStep: s.changeStepVersion,
-    cloneStepInStepBundle: s.cloneStepInStepBundle,
-    deleteStepInStepBundle: s.deleteStepInStepBundle,
-    groupStepsToStepBundle: s.groupStepsToStepBundle,
-    moveStepInStepBundle: s.moveStepInStepBundle,
-    upgradeStepInStepBundle: s.changeStepVersionInStepBundle,
-    setChainedWorkflows: s.setChainedWorkflows,
-    removeChainedWorkflow: s.removeChainedWorkflow,
-  }));
 
   useResizeObserver({
     ref,
@@ -148,7 +127,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       switch (action) {
         case 'remove': {
           // Close the dialog if the selected workflow is in the deleted workflow's chain
-          if (WorkflowService.getWorkflowChain(workflows, workflowId).includes(selectedWorkflowId)) {
+          if (
+            WorkflowService.getWorkflowChain(bitriseYmlStore.getState().yml?.workflows ?? {}, workflowId).includes(
+              selectedWorkflowId,
+            )
+          ) {
             closeDialog();
           }
           break;
@@ -311,9 +294,11 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           }
         }
       },
-      handleUpgradeStep: upgradeStep,
+      handleUpgradeStep: (workflowId: string, stepIndex: number, version: string) => {
+        StepService.changeStepVersion('workflows', workflowId, stepIndex, version);
+      },
       handleMoveStep: (workflowId: string, stepIndex: number, targetIndex: number) => {
-        moveStep(workflowId, stepIndex, targetIndex);
+        StepService.moveStep('workflows', workflowId, stepIndex, targetIndex);
         handleStepActionChange({
           workflowId,
           stepIndex,
@@ -322,7 +307,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleCloneStep: (workflowId: string, stepIndex: number) => {
-        cloneStep(workflowId, stepIndex);
+        StepService.cloneStep('workflows', workflowId, stepIndex);
         handleStepActionChange({
           workflowId,
           stepIndex,
@@ -330,7 +315,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleDeleteStep: (workflowId: string, stepIndices: number[], cvs?: string) => {
-        deleteStep(workflowId, stepIndices);
+        StepService.deleteStep('workflows', workflowId, stepIndices);
         handleStepActionChange({
           workflowId,
           stepIndex: stepIndices[0],
@@ -351,7 +336,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           },
         })(),
       handleCloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
-        cloneStepInStepBundle(stepBundleId, stepIndex);
+        StepService.cloneStep('step_bundles', stepBundleId, stepIndex);
         handleStepActionChange({
           stepBundleId,
           stepIndex,
@@ -359,7 +344,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         });
       },
       handleDeleteStepInStepBundle: (stepBundleId: string, stepIndices: number[]) => {
-        deleteStepInStepBundle(stepBundleId, stepIndices);
+        StepService.deleteStep('step_bundles', stepBundleId, stepIndices);
         handleStepActionChange({
           stepBundleId,
           stepIndex: stepIndices[0],
@@ -373,7 +358,10 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         newStepBundleId: string,
         stepIndices: number[],
       ) => {
-        groupStepsToStepBundle(parentWorkflowId, parentStepBundleId, newStepBundleId, stepIndices);
+        const source = parentWorkflowId ? 'workflows' : 'step_bundles';
+        const sourceId = parentWorkflowId || parentStepBundleId || '';
+
+        StepBundleService.groupStepsToStepBundle(newStepBundleId, { source, sourceId, steps: stepIndices });
         setSelectedStepIndices([Math.min(...stepIndices)]);
         if (parentWorkflowId) {
           openDialog({
@@ -392,7 +380,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         }
       },
       handleMoveStepInStepBundle: (stepBundleId: string, stepIndex: number, targetIndex: number) => {
-        moveStepInStepBundle(stepBundleId, stepIndex, targetIndex);
+        StepService.moveStep('step_bundles', stepBundleId, stepIndex, targetIndex);
         handleStepActionChange({
           stepBundleId,
           stepIndex,
@@ -400,7 +388,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           action: 'move',
         });
       },
-      handleUpgradeStepInStepBundle: upgradeStepInStepBundle,
+      handleUpgradeStepInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => {
+        StepService.changeStepVersion('step_bundles', stepBundleId, stepIndex, version);
+      },
       handleEditWorkflow: (workflowId: string, parentWorkflowId?: string) =>
         openDialog({
           type: PipelinesPageDialogType.WORKFLOW_CONFIG,
@@ -423,7 +413,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         placement: ChainedWorkflowPlacement,
         chainedIds: string[],
       ) => {
-        setChainedWorkflows(parentWorkflowId, placement, chainedIds);
+        WorkflowService.setChainedWorkflows(parentWorkflowId, placement, chainedIds);
       },
       handleRemoveChainedWorkflow: (
         parentWorkflowId: string,
@@ -431,15 +421,12 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         deletedWorkflowId: string,
         deletedWorkflowIndex: number,
       ) => {
-        removeChainedWorkflow(parentWorkflowId, placement, deletedWorkflowId, deletedWorkflowIndex);
+        WorkflowService.removeChainedWorkflow(parentWorkflowId, placement, deletedWorkflowId, deletedWorkflowIndex);
         handleWorkflowActionDialogChange(deletedWorkflowId, 'remove');
       },
     };
   }, [
     uses,
-    upgradeStep,
-    upgradeStepInStepBundle,
-    workflows,
     selectedWorkflowId,
     closeDialog,
     selectionParent,
@@ -449,15 +436,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
-    moveStep,
-    cloneStep,
-    deleteStep,
-    cloneStepInStepBundle,
-    deleteStepInStepBundle,
-    groupStepsToStepBundle,
-    moveStepInStepBundle,
-    setChainedWorkflows,
-    removeChainedWorkflow,
   ]);
 
   const containerProps = useMemo(

@@ -1,27 +1,26 @@
 import { DialogProps } from '@bitrise/bitkit';
 
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
+import { StepBundleCreationSource } from '@/core/models/StepBundle';
 import StepBundleService from '@/core/services/StepBundleService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
-export enum StepBundleBaseEntityType {
-  STEP_BUNDLES = 'step_bundles',
-  WORKFLOWS = 'workflows',
-}
+type BaseEntityGroup = {
+  ids: string[];
+  groupLabel?: string;
+  type: StepBundleCreationSource;
+};
 
 type Props = Omit<DialogProps, 'title'> & {
   onCreateStepBundle: (stepBundleId: string, baseEntityId?: string) => void;
 };
 
 const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, ...props }: Props) => {
-  const workflows = useWorkflows();
-  const workflowIds = Object.keys(workflows);
-
-  const stepBundles = useStepBundles();
-  const stepBundleIds = Object.keys(stepBundles);
+  const workflowIds = useWorkflows((s) => Object.keys(s));
+  const stepBundleIds = useStepBundles((s) => Object.keys(s));
 
   const [, setSelectedStepBundle] = useSelectedStepBundle();
 
@@ -34,11 +33,11 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
     onCloseComplete?.();
   };
 
-  const baseEntities = [
+  const baseEntities: BaseEntityGroup[] = [
     {
       ids: stepBundleIds,
       groupLabel: utilityWorkflowIds.length ? 'Step bundles' : undefined,
-      type: StepBundleBaseEntityType.STEP_BUNDLES,
+      type: 'step_bundles',
     },
   ];
 
@@ -46,12 +45,12 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
     baseEntities.push({
       ids: utilityWorkflowIds,
       groupLabel: 'Utility workflows',
-      type: StepBundleBaseEntityType.WORKFLOWS,
+      type: 'workflows',
     });
   }
 
   return (
-    <CreateEntityDialog<StepBundleBaseEntityType>
+    <CreateEntityDialog<StepBundleCreationSource>
       baseEntities={baseEntities}
       entityName="Step bundle"
       onClose={onClose}

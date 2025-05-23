@@ -1,19 +1,11 @@
-import { useMemo } from 'react';
-
 import useWorkflow from '@/hooks/useWorkflow';
 
 const useWorkflowStackAndMachine = (id: string) => {
-  const workflow = useWorkflow(id);
-  const meta = workflow?.userValues.meta?.['bitrise.io'];
-
-  return useMemo(
-    () => ({
-      stackId: meta?.stack || '',
-      machineTypeId: meta?.machine_type_id || '',
-      stackRollbackVersion: meta?.stack_rollback_version || '',
-    }),
-    [meta],
-  );
+  return useWorkflow(id, (s) => ({
+    stackId: s?.userValues.meta?.['bitrise.io']?.stack || '',
+    machineTypeId: s?.userValues.meta?.['bitrise.io']?.machine_type_id || '',
+    stackRollbackVersion: s?.userValues.meta?.['bitrise.io']?.stack_rollback_version || '',
+  }));
 };
 
 export default useWorkflowStackAndMachine;

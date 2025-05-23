@@ -1,6 +1,7 @@
-import { compact, uniq } from 'es-toolkit';
+import { compact, isString, uniq } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import semver from 'semver';
+import { Document, isMap, isScalar, Scalar } from 'yaml';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
@@ -10,12 +11,17 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import {
   EnvironmentItemModel,
   EnvironmentItemOptionsModel,
-  StepBundleModel,
+  StepBundleOverrideModel,
   StepListItemModel,
   StepModel,
   WithModel,
 } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, LibraryType, Step } from '../models/Step';
+import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import YamlUtils from '../utils/YamlUtils';
+import EnvVarService from './EnvVarService';
+
+type Source = 'workflows' | 'step_bundles';
 
 // https://devcenter.bitrise.io/en/references/steps-reference/step-reference-id-format.html
 // <step_lib_source>::<step-id>@<version>:
@@ -165,7 +171,7 @@ function isStepBundle(
   cvs: string,
   defaultStepLibrary: string,
   _step?: StepListItemModel[0],
-): _step is StepBundleModel | null {
+): _step is StepBundleOverrideModel | null {
   const { library } = parseStepCVS(cvs, defaultStepLibrary);
   return library === LibraryType.BUNDLE;
 }
@@ -425,6 +431,134 @@ export const moveStepIndices = (
   }
 };
 
+function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) {
+  const entity = doc.getIn([source, sourceId]);
+
+  if (!entity || !isMap(entity)) {
+    throw new Error(`${source}.${sourceId} not found`);
+  }
+
+  return entity;
+}
+
+function getStepOrThrowError(source: Source, sourceId: string, stepIndex: number, doc: Document) {
+  const entity = getSourceOrThrowError(source, sourceId, doc);
+  const step = entity.getIn(['steps', stepIndex]);
+
+  if (!step || !isMap(step)) {
+    throw new Error(`Step at index ${stepIndex} not found in ${source}.${sourceId}`);
+  }
+
+  return step;
+}
+
+function addStep(source: Source, sourceId: string, cvs: string, to: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    getSourceOrThrowError(source, sourceId, doc);
+
+    const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    steps.items.splice(to, 0, doc.createNode({ [cvs]: {} }));
+
+    return doc;
+  });
+}
+
+function moveStep(source: Source, sourceId: string, from: number, to: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getStepOrThrowError(source, sourceId, from, doc);
+    const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+
+    steps.items.splice(from, 1);
+    steps.items.splice(to, 0, step);
+
+    return doc;
+  });
+}
+
+function cloneStep(source: Source, sourceId: string, index: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getStepOrThrowError(source, sourceId, index, doc);
+    const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+
+    steps.items.splice(index + 1, 0, step.clone());
+
+    return doc;
+  });
+}
+
+function deleteStep(source: Source, sourceId: string, indices: number | number[]) {
+  updateBitriseYmlDocument(({ doc }) => {
+    // Sort indices in descending order to handle the shifting problem
+    // By removing higher indices first, we avoid affecting the position of lower indices
+    const indexArray = Array.isArray(indices) ? [...indices].sort((a, b) => b - a) : [indices];
+
+    indexArray.forEach((index) => {
+      getStepOrThrowError(source, sourceId, index, doc);
+      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index], ['steps']);
+    });
+
+    return doc;
+  });
+}
+
+type Key = keyof StepModel;
+type Value<T extends Key> = StepModel[T];
+
+function updateStepField<T extends Key>(source: Source, sourceId: string, index: number, field: T, value: Value<T>) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getStepOrThrowError(source, sourceId, index, doc);
+    const stepData = step.items[0].value;
+
+    if (!isMap(stepData)) {
+      return doc;
+    }
+
+    if (value) {
+      stepData.flow = false;
+      stepData.set(field, value);
+    } else {
+      stepData.delete(field);
+    }
+
+    return doc;
+  });
+}
+
+function updateStepInput(source: Source, sourceId: string, index: number, input: string, value: unknown) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const cvs = (getStepOrThrowError(source, sourceId, index, doc).items[0].key as Scalar).value;
+    const inputsSeq = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs'], true);
+    const [inputPair, inputIndex] = YamlUtils.getPairInSeqByKey(inputsSeq, input, true);
+
+    const newValue = EnvVarService.toYmlValue(value);
+    if (newValue === '') {
+      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs', inputIndex], ['inputs']);
+    } else if (isScalar(inputPair.value)) {
+      inputPair.value.value = newValue;
+    }
+
+    return doc;
+  });
+}
+
+function changeStepVersion(source: Source, sourceId: string, index: number, version: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getStepOrThrowError(source, sourceId, index, doc);
+    const stepCVSScalar = step.items[0].key;
+
+    if (!isScalar(stepCVSScalar) || !isString(stepCVSScalar.value)) {
+      return doc;
+    }
+
+    const cvs = stepCVSScalar.value;
+    const defaultStepLibrary = (doc.get('default_step_lib_source') as string) || BITRISE_STEP_LIBRARY_URL;
+
+    stepCVSScalar.value = updateVersion(cvs, defaultStepLibrary, version);
+
+    return doc;
+  });
+}
+
 export default {
   parseStepCVS,
   canUpdateVersion,
@@ -446,4 +580,11 @@ export default {
   calculateChange,
   toYmlInput,
   moveStepIndices,
+  addStep,
+  moveStep,
+  cloneStep,
+  deleteStep,
+  updateStepField,
+  updateStepInput,
+  changeStepVersion,
 };

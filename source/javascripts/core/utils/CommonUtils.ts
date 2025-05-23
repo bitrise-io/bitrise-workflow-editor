@@ -1,7 +1,3 @@
-function deepCloneSimpleObject<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj)) as T;
-}
-
 function generateUniqueEntityId(existingIds: string[], prefix: string, i = 0) {
   const potentialId = i === 0 ? prefix : `${prefix}_${i}`;
   if (existingIds?.includes(potentialId)) {
@@ -60,4 +56,4 @@ function getCookie(cname: string): string {
   return '';
 }
 
-export { deepCloneSimpleObject, download, findScrollContainer, generateUniqueEntityId, getCookie, getFormattedDate };
+export { download, findScrollContainer, generateUniqueEntityId, getCookie, getFormattedDate };

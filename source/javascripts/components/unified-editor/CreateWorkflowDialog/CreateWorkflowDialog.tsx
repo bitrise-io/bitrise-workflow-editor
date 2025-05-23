@@ -13,8 +13,7 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...props }: Props) => {
-  const workflows = useWorkflows();
-  const workflowIds = Object.keys(workflows);
+  const workflowIds = useWorkflows((s) => Object.keys(s));
   const [, setSelectedWorkflow] = useSelectedWorkflow();
 
   useEffect(() => {
