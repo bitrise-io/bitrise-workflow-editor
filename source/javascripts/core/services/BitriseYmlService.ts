@@ -2,8 +2,8 @@ import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { bitriseYmlStore } from '../stores/BitriseYmlStore';
 import StepService from './StepService';
 
-function getUniqueStepItems<T>(selector: (cvs: string, defaultStepLib: string) => T): T[] {
-  const items = new Set<T>();
+function getUniqueStepItems(selector: (cvs: string, defaultStepLib: string) => string) {
+  const items = new Set<string>();
   const { yml } = bitriseYmlStore.getState();
   const defaultStepLibrary = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 

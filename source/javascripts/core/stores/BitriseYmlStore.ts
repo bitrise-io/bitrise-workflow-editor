@@ -27,7 +27,7 @@ type InitStoreOptions = {
 };
 
 export function initializeStore({ version, ymlString, discardKey }: InitStoreOptions) {
-  const doc = parseDocument(ymlString, { keepSourceTokens: true });
+  const doc = parseDocument(ymlString, { keepSourceTokens: true, stringKeys: true });
 
   bitriseYmlStore.setState(
     omitBy(

@@ -62,7 +62,7 @@ const EnvVarPopover = ({
   const handleOnCreate = useCallback(
     (envVar: EnvVar) => {
       dispatchEnvVarCreated({ envVar, source: EnvVarSource.Workflows, sourceId: workflowId });
-      EnvVarService.append(envVar, EnvVarSource.Workflows, workflowId);
+      EnvVarService.append(envVar, { source: EnvVarSource.Workflows, sourceId: workflowId });
       onSelect(envVar);
     },
     [onSelect, workflowId],

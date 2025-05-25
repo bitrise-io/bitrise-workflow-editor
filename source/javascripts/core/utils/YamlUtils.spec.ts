@@ -1,4 +1,4 @@
-import { parseDocument, stringify, YAMLSeq } from 'yaml';
+import { parseDocument, Scalar, stringify, YAMLSeq } from 'yaml';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 import { YamlMutatorCtx } from '../stores/BitriseYmlStore';
@@ -57,6 +57,7 @@ describe('YamlUtils', () => {
     it('should update a value in the document', () => {
       YamlUtils.updateValue(ctx, 'root', 'new value');
       expect(ctx.doc.getIn(asArr('root'))).toBe('new value');
+      expect(ctx.doc.getIn(asArr('root'), true)).toBeInstanceOf(Scalar);
     });
 
     it('should update a value in the document with a glob', () => {
@@ -69,6 +70,12 @@ describe('YamlUtils', () => {
       YamlUtils.updateValue(ctx, 'complex_mapping.country.states.*.name', 'new value', 'Texas');
       expect(ctx.doc.getIn(asArr('complex_mapping.country.states.0.name'))).toBe('California');
       expect(ctx.doc.getIn(asArr('complex_mapping.country.states.1.name'))).toBe('new value');
+    });
+
+    it('should update a null value with the new value as a scalar', () => {
+      YamlUtils.updateValue(ctx, 'scalars.null_value', 'new value');
+      expect(ctx.doc.getIn(asArr('scalars.null_value'))).toBe('new value');
+      expect(ctx.doc.getIn(asArr('scalars.null_value'), true)).toBeInstanceOf(Scalar);
     });
 
     it('should not update when the path is not found', () => {

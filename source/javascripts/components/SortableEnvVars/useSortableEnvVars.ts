@@ -61,7 +61,7 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
       });
 
       setEnvs(reorderedEnvs);
-      EnvVarService.reorder(newIndices, source, sourceId);
+      EnvVarService.reorder(newIndices, { source, sourceId });
     }
 
     setActiveItem(undefined);
@@ -73,27 +73,27 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
 
   const onAdd = () => {
     setEnvs([...envs, { uniqueId: crypto.randomUUID(), ...EnvVarService.EMPTY_ENV_VAR }]);
-    EnvVarService.create(source, sourceId);
+    EnvVarService.create({ source, sourceId });
   };
 
   const onRemove = (index: number) => () => {
     setEnvs(envs.filter((_, i) => i !== index));
-    EnvVarService.remove(index, source, sourceId);
+    EnvVarService.remove({ source, sourceId, index });
   };
 
   const onKeyChange = (index: number) => (key: string) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, key } : env)));
-    updateKeyDebounced(key, index, envs[index].key, source, sourceId);
+    updateKeyDebounced(key, { source, sourceId, index, oldKey: envs[index].key });
   };
 
   const onValueChange = (index: number) => (value: string) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, value } : env)));
-    updateValueDebounced(value, index, envs[index].key, source, sourceId);
+    updateValueDebounced(value, { source, sourceId, index, key: envs[index].key });
   };
 
   const onIsExpandChange = (index: number) => (isExpand: boolean) => {
     setEnvs(envs.map((env, i) => (i === index ? { ...env, isExpand } : env)));
-    EnvVarService.updateIsExpand(isExpand, index, source, sourceId);
+    EnvVarService.updateIsExpand(isExpand, { source, sourceId, index });
   };
 
   const countValidationErrors = () => {

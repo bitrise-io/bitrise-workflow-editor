@@ -420,7 +420,6 @@ function updateLegacyTrigger(trigger: LegacyTrigger) {
       changeLegacyTriggerEnabled(doc, trigger.isActive, trigger.index);
     }
 
-    // doc.setIn(['trigger_map', trigger.index], doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
 }

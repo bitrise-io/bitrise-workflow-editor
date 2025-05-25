@@ -3,6 +3,14 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
   const isEnvVar = typeof parallel === 'string' && parallel.startsWith('$');
   const isPositiveInteger = isIntegerValue(parallel) && Number(parallel) > 0;
 
+  if (isEmpty) {
+    return true;
+  }
+
+  if (!isPositiveInteger && !isEnvVar) {
+    return 'Parallel copies should be a positive integer or a valid environment variable.';
+  }
+
   if (isPositiveInteger && Number(parallel) > 500) {
     return 'The maximum number of parallel copies is 500.';
   }
@@ -36,11 +44,7 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
     }
   }
 
-  if (isEmpty || isEnvVar || isPositiveInteger) {
-    return true;
-  }
-
-  return 'Parallel copies should be a positive integer or a valid environment variable.';
+  return true;
 }
 
 function isIntegerValue(value?: string | number) {

@@ -34,16 +34,11 @@ function removeIfEmpty(doc: Document, path: string[], glob: Glob, afterRemove?: 
   }
 }
 
-function isScalarKeyEqual(pair: Pair, key: string): pair is Pair<Scalar> {
-  return isScalar(pair.key) && pair.key.value === key;
-}
-
-function isNonScalarKeyEqual(pair: Pair, key: string) {
-  return !isScalar(pair.key) && (pair.key as string).toString() === key;
-}
-
-function isPairKeyEqual(pair: Pair, key: string) {
-  return isScalarKeyEqual(pair, key) || isNonScalarKeyEqual(pair, key);
+function isPairKeyEqual(pair: Pair, key: string): pair is Pair<Scalar> {
+  if (!isScalar(pair.key)) {
+    throw new Error(`Key is not a scalar: ${pair.key}`);
+  }
+  return pair.key.value === key;
 }
 
 function createMissingNodes(doc: Document, path: unknown[]) {
@@ -128,10 +123,8 @@ function safeDeleteIn(doc: Document, path: unknown[], removeEmptyParent: boolean
 
 function updateMapKey(map: YAMLMap, oldKey: string, newKey: string) {
   map.items = map.items.map((pair) => {
-    if (isScalarKeyEqual(pair, oldKey)) {
+    if (isPairKeyEqual(pair, oldKey)) {
       pair.key.value = newKey;
-    } else if (isNonScalarKeyEqual(pair, oldKey)) {
-      pair.key = newKey;
     }
 
     return pair;
