@@ -28,6 +28,47 @@ export const promotionTexts = {
   },
 };
 
+const getMachineTypeDropdownOptions = ({
+  isEnabled,
+  machineTypeOptions,
+}: {
+  isEnabled: boolean;
+  machineTypeOptions: MachineTypeOption[];
+}) => {
+  return machineTypeOptions.map(({ label, osId, value }) => {
+    if (!osId) {
+      return (
+        <DropdownOption isDisabled={!isEnabled} key={value} value={value}>
+          {label}
+        </DropdownOption>
+      );
+    }
+
+    let iconName: AvatarProps['iconName'] = 'Other';
+    switch (osId) {
+      case 'linux': {
+        iconName = 'Linux';
+        break;
+      }
+      case 'osx': {
+        iconName = 'Apple';
+        break;
+      }
+    }
+
+    return (
+      <DropdownDetailedOption
+        isDisabled={!isEnabled}
+        key={value}
+        value={value}
+        icon={<Avatar variant="brand" size="24" iconName={iconName} />}
+        title={label}
+        subtitle=""
+      />
+    );
+  });
+};
+
 type Props = {
   availableOptions: MachineTypeOption[];
   machineType: MachineTypeWithValue;
@@ -56,39 +97,6 @@ const MachineTypeSelector = ({
 
     return promotionTexts[machineTypePromotionMode];
   }, [machineTypePromotionMode]);
-
-  const optionForMachineType = ({ label: optionLabel, osId, value }: MachineTypeOption, isEnabled: boolean) => {
-    if (!osId) {
-      return (
-        <DropdownOption isDisabled={!isEnabled} key={value} value={value}>
-          {optionLabel}
-        </DropdownOption>
-      );
-    }
-
-    let iconName: AvatarProps['iconName'] = 'Other';
-    switch (osId) {
-      case 'linux': {
-        iconName = 'Linux';
-        break;
-      }
-      case 'osx': {
-        iconName = 'Apple';
-        break;
-      }
-    }
-
-    return (
-      <DropdownDetailedOption
-        isDisabled={!isEnabled}
-        key={value}
-        value={value}
-        icon={<Avatar variant="brand" size="24" iconName={iconName} />}
-        title={optionLabel}
-        subtitle=""
-      />
-    );
-  };
 
   const toggletip = (icon: ReactNode) => {
     if (!machineTypePromotion) {
@@ -136,12 +144,18 @@ const MachineTypeSelector = ({
             return (
               <Fragment key={label}>
                 <DropdownGroup label={label}>
-                  {machines.map((machineTypeOption) => optionForMachineType(machineTypeOption, isEnabled))}
+                  {getMachineTypeDropdownOptions({
+                    isEnabled,
+                    machineTypeOptions: machines,
+                  })}
                 </DropdownGroup>
               </Fragment>
             );
           })
-        : availableOptions.map((machineTypeOption) => optionForMachineType(machineTypeOption, true))}
+        : getMachineTypeDropdownOptions({
+            isEnabled: true,
+            machineTypeOptions: availableOptions,
+          })}
     </Dropdown>
   );
 };
