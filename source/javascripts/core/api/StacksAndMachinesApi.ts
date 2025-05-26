@@ -38,8 +38,8 @@ type StacksAndMachinesResponse = {
       };
     };
   };
-  machine_type_promotion: {
-    is_trial_mode: boolean;
+  machine_type_promotion?: {
+    mode: 'trial' | 'upsell';
     promoted_machine_types: {
       available_on_stacks: string[];
       id: string;
@@ -103,7 +103,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     });
   });
 
-  response.machine_type_promotion.promoted_machine_types.forEach((machine_type) => {
+  response.machine_type_promotion?.promoted_machine_types.forEach((machine_type) => {
     promotedMachineTypes.push({
       availableOnStacks: machine_type.available_on_stacks,
       id: machine_type.id,
@@ -123,8 +123,8 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     defaultMachineTypeIdOfOSs,
     defaultStackId: response.default_stack_id,
     defaultMachineTypeId: response.default_machine_id,
-    machineTypePromotion: {
-      isTrialMode: response.machine_type_promotion.is_trial_mode,
+    machineTypePromotion: response.machine_type_promotion && {
+      mode: response.machine_type_promotion.mode,
       promotedMachineTypes,
     },
     runningBuildsOnPrivateCloud: response.running_builds_on_private_cloud,

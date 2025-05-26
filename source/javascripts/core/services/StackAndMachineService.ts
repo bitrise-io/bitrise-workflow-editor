@@ -33,7 +33,7 @@ type SelectStackAndMachineResult = {
   selectedMachineType: MachineTypeWithValue;
   availableMachineTypeOptions: MachineTypeOption[];
   promotedMachineTypeOptions: MachineTypeOption[];
-  isMachineTypePromotionTrialMode: boolean;
+  machineTypePromotionMode?: 'trial' | 'upsell';
   isInvalidMachineType: boolean;
   isMachineTypeSelectionDisabled: boolean;
 };
@@ -77,7 +77,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     selectedMachineTypeId,
     availableMachineTypes = [],
     machineTypePromotion = {
-      isTrialMode: false,
+      mode: 'trial',
       promotedMachineTypes: [],
     },
     runningBuildsOnPrivateCloud,
@@ -90,7 +90,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     availableStackOptions: availableStacks.map(StackService.toStackOption),
     availableMachineTypeOptions: availableMachineTypes.map(MachineTypeService.toMachineOption),
     promotedMachineTypeOptions: machineTypePromotion.promotedMachineTypes.map(MachineTypeService.toMachineOption),
-    isMachineTypePromotionTrialMode: machineTypePromotion.isTrialMode,
+    machineTypePromotionMode: machineTypePromotion.mode,
     isInvalidStack: false,
     isInvalidMachineType: false,
     isMachineTypeSelectionDisabled: false,

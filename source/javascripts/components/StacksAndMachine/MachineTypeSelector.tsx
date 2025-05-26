@@ -7,26 +7,25 @@ import {
   DropdownOption,
   Toggletip,
 } from '@bitrise/bitkit';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 
 import { MachineTypeOption } from '@/core/models/MachineType';
 import { MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
-export const getMachineTypePromotionTexts = (isTrialMode: boolean) => {
-  return isTrialMode
-    ? {
-        availableText: 'Available during the trial',
-        promotedText: 'Available on paid plans',
-        toggleTipText:
-          'Select your machine type for builds. Options vary by plan. If you need stronger machines during your trial, contact sales.',
-      }
-    : {
-        availableText: 'Available on your plan',
-        promotedText: 'Available on other plans',
-        toggleTipText:
-          'Select your machine type for builds. Options vary by plan. If you need stronger machines contact sales.',
-      };
+export const promotionTexts = {
+  trial: {
+    availableText: 'Available during the trial',
+    promotedText: 'Available on paid plans',
+    toggleTipText:
+      'Select your machine type for builds. Options vary by plan. If you need stronger machines during your trial, contact sales.',
+  },
+  upsell: {
+    availableText: 'Available on your plan',
+    promotedText: 'Available on other plans',
+    toggleTipText:
+      'Select your machine type for builds. Options vary by plan. If you need stronger machines contact sales.',
+  },
 };
 
 type Props = {
@@ -37,7 +36,7 @@ type Props = {
   isLoading: boolean;
   isDisabled: boolean;
   isInvalid: boolean;
-  isMachineTypePromotionTrialMode: boolean;
+  machineTypePromotionMode?: 'trial' | 'upsell';
 };
 
 const MachineTypeSelector = ({
@@ -46,20 +45,68 @@ const MachineTypeSelector = ({
   isLoading,
   isDisabled,
   isInvalid,
-  isMachineTypePromotionTrialMode,
+  machineTypePromotionMode,
   onChange,
   promotedOptions,
 }: Props) => {
-  const machineTypePromotion = getMachineTypePromotionTexts(isMachineTypePromotionTrialMode);
+  const machineTypePromotion = useMemo(() => {
+    if (!machineTypePromotionMode) {
+      return null;
+    }
 
-  const toggletip = (icon: ReactNode) => (
-    <Toggletip
-      button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
-      label={machineTypePromotion.toggleTipText}
-    >
-      {icon}
-    </Toggletip>
-  );
+    return promotionTexts[machineTypePromotionMode];
+  }, [machineTypePromotionMode]);
+
+  const optionForMachineType = ({ label: optionLabel, osId, value }: MachineTypeOption, isEnabled: boolean) => {
+    if (!osId) {
+      return (
+        <DropdownOption isDisabled={!isEnabled} key={value} value={value}>
+          {optionLabel}
+        </DropdownOption>
+      );
+    }
+
+    let iconName: AvatarProps['iconName'] = 'Other';
+    switch (osId) {
+      case 'linux': {
+        iconName = 'Linux';
+        break;
+      }
+      case 'osx': {
+        iconName = 'Apple';
+        break;
+      }
+    }
+
+    return (
+      <DropdownDetailedOption
+        isDisabled={!isEnabled}
+        key={value}
+        value={value}
+        icon={<Avatar variant="brand" size="24" iconName={iconName} />}
+        title={optionLabel}
+        subtitle=""
+      />
+    );
+  };
+
+  const toggletip = (icon: ReactNode) => {
+    if (!machineTypePromotion) {
+      return null;
+    }
+
+    return (
+      <Toggletip
+        button={{
+          href: 'https://bitrise.io/demo',
+          label: 'Reach out to sales',
+        }}
+        label={machineTypePromotion.toggleTipText}
+      >
+        {icon}
+      </Toggletip>
+    );
+  };
 
   return (
     <Dropdown
@@ -73,59 +120,28 @@ const MachineTypeSelector = ({
       search={false}
       value={machineType.value}
     >
-      {[
-        {
-          isEnabled: true,
-          label: machineTypePromotion.availableText,
-          options: availableOptions,
-        },
-        {
-          isEnabled: false,
-          label: machineTypePromotion.promotedText,
-          options: promotedOptions,
-        },
-      ].map(({ isEnabled, label, options }) => {
-        const machineOptions = options?.map(({ label: optionLabel, value, osId }) => {
-          if (!osId) {
+      {machineTypePromotion && promotedOptions && promotedOptions.length > 0
+        ? [
+            {
+              isEnabled: true,
+              label: machineTypePromotion.availableText,
+              machines: availableOptions,
+            },
+            {
+              isEnabled: false,
+              label: machineTypePromotion.promotedText,
+              machines: promotedOptions,
+            },
+          ].map(({ isEnabled, label, machines }) => {
             return (
-              <DropdownOption isDisabled={!isEnabled} key={value} value={value}>
-                {optionLabel}
-              </DropdownOption>
+              <Fragment key={label}>
+                <DropdownGroup label={label}>
+                  {machines.map((machineTypeOption) => optionForMachineType(machineTypeOption, isEnabled))}
+                </DropdownGroup>
+              </Fragment>
             );
-          }
-
-          let iconName: AvatarProps['iconName'] = 'Other';
-          switch (osId) {
-            case 'linux': {
-              iconName = 'Linux';
-              break;
-            }
-            case 'osx': {
-              iconName = 'Apple';
-              break;
-            }
-          }
-
-          return (
-            <DropdownDetailedOption
-              isDisabled={!isEnabled}
-              key={value}
-              value={value}
-              icon={<Avatar variant="brand" size="24" iconName={iconName} />}
-              title={optionLabel}
-              subtitle=""
-            />
-          );
-        });
-
-        const promotedMachinesExist = promotedOptions && promotedOptions.length > 0;
-
-        return (
-          <Fragment key={label}>
-            {promotedMachinesExist ? <DropdownGroup label={label}>{machineOptions}</DropdownGroup> : machineOptions}
-          </Fragment>
-        );
-      })}
+          })
+        : availableOptions.map((machineTypeOption) => optionForMachineType(machineTypeOption, true))}
     </Dropdown>
   );
 };

@@ -214,11 +214,11 @@ export const getStacksAndMachines = (options?: Options) => {
                 },
               },
             },
-      machine_type_promotion: {
-        is_trial_mode: true,
-        promoted_machine_types: options?.privateCloud
-          ? []
-          : [
+      machine_type_promotion: options?.privateCloud
+        ? undefined
+        : {
+            mode: 'trial',
+            promoted_machine_types: [
               {
                 id: 'machine-y1',
                 name: 'Machine Y1',
@@ -260,7 +260,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 available_on_stacks: [],
               },
             ],
-      },
+          },
     } satisfies StacksAndMachinesResponse);
   });
 };
