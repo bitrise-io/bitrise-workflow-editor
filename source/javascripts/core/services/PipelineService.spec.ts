@@ -4,6 +4,41 @@ import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
 import PipelineService from './PipelineService';
 
 describe('PipelineService', () => {
+  describe('isIntegerValue', () => {
+    it('should return true for valid integers', () => {
+      expect(PipelineService.isIntegerValue(42)).toBe(true);
+      expect(PipelineService.isIntegerValue('42')).toBe(true);
+      expect(PipelineService.isIntegerValue(0)).toBe(true);
+      expect(PipelineService.isIntegerValue('0')).toBe(true);
+      expect(PipelineService.isIntegerValue(-1)).toBe(true);
+    });
+
+    it('should return false for non-integers', () => {
+      expect(PipelineService.isIntegerValue('foo')).toBe(false);
+      expect(PipelineService.isIntegerValue(undefined)).toBe(false);
+      expect(PipelineService.isIntegerValue(1.5)).toBe(false);
+      expect(PipelineService.isIntegerValue('1.5')).toBe(false);
+      expect(PipelineService.isIntegerValue('$FOO')).toBe(false);
+    });
+  });
+
+  describe('asIntegerIfPossible', () => {
+    it('should convert valid numbers to integers', () => {
+      expect(PipelineService.asIntegerIfPossible('42')).toBe(42);
+      expect(PipelineService.asIntegerIfPossible(42)).toBe(42);
+      expect(PipelineService.asIntegerIfPossible('0')).toBe(0);
+      expect(PipelineService.asIntegerIfPossible(0)).toBe(0);
+      expect(PipelineService.asIntegerIfPossible('-1')).toBe(-1);
+    });
+
+    it('should return original value for non-integers', () => {
+      expect(PipelineService.asIntegerIfPossible('foo')).toBe('foo');
+      expect(PipelineService.asIntegerIfPossible('$FOO')).toBe('$FOO');
+      expect(PipelineService.asIntegerIfPossible('1.5')).toBe('1.5');
+      expect(PipelineService.asIntegerIfPossible(undefined)).toBeUndefined();
+    });
+  });
+
   describe('isGraph', () => {
     it('returns true if the pipeline has workflows', () => {
       const pipeline: PipelineModel = { workflows: {} };
@@ -144,6 +179,70 @@ describe('PipelineService', () => {
 
     it('trims whitespace from the name', () => {
       expect(PipelineService.sanitizeName('  name  ')).toBe('name');
+    });
+  });
+
+  describe('validateParallel', () => {
+    it('should return true when parallel is not provided', () => {
+      expect(PipelineService.validateParallel()).toBe(true);
+    });
+
+    it('should return true when parallel starts with $', () => {
+      expect(PipelineService.validateParallel('$FOO')).toBe(true);
+      expect(PipelineService.validateParallel('$A123')).toBe(true);
+    });
+
+    it('should return true when parallel is a positive integer', () => {
+      expect(PipelineService.validateParallel(42)).toBe(true);
+      expect(PipelineService.validateParallel('42')).toBe(true);
+      expect(PipelineService.validateParallel(1)).toBe(true);
+    });
+
+    it('should return error message for invalid values', () => {
+      const expectedError = 'Parallel copies should be a positive integer or a valid environment variable.';
+      expect(PipelineService.validateParallel('foo')).toBe(expectedError);
+      expect(PipelineService.validateParallel(-1)).toBe(expectedError);
+      expect(PipelineService.validateParallel(0)).toBe(expectedError);
+      expect(PipelineService.validateParallel('0')).toBe(expectedError);
+      expect(PipelineService.validateParallel(1.5)).toBe(expectedError);
+      expect(PipelineService.validateParallel('1.5')).toBe(expectedError);
+    });
+
+    describe('collision detection when parallel is positive integer', () => {
+      it('should return true when collision not detected', () => {
+        expect(PipelineService.validateParallel(3, 'foo', ['bar'])).toBe(true);
+      });
+
+      it('should return error message when collision detected', () => {
+        expect(PipelineService.validateParallel(3, 'foo', ['bar', 'foo', 'foo_1', 'foo_2'])).toBe(
+          'Cannot create 3 parallel Workflows because the following IDs already exist: foo_1, foo_2.',
+        );
+      });
+    });
+
+    describe('collision detection when parallel is environment variable', () => {
+      it('should return true when collision not detected', () => {
+        expect(PipelineService.validateParallel('$ENV', 'foo', ['bar'])).toBe(true);
+      });
+
+      it('should return error message when possible collision detected', () => {
+        expect(PipelineService.validateParallel('$ENV', 'foo', ['bar', 'foo', 'foo_1', 'foo_2'])).toBe(
+          'The environment variable $ENV might create Workflow IDs that conflict with existing Workflows: foo_1, foo_2.',
+        );
+      });
+    });
+
+    describe('maximum parallel copies', () => {
+      it('should return true when parallel is less than or equal to 500', () => {
+        expect(PipelineService.validateParallel(500)).toBe(true);
+        expect(PipelineService.validateParallel('500')).toBe(true);
+        expect(PipelineService.validateParallel(499)).toBe(true);
+      });
+
+      it('should return error message when parallel is greater than 500', () => {
+        expect(PipelineService.validateParallel(501)).toBe('The maximum number of parallel copies is 500.');
+        expect(PipelineService.validateParallel('501')).toBe('The maximum number of parallel copies is 500.');
+      });
     });
   });
 
@@ -712,7 +811,7 @@ describe('PipelineService', () => {
         ymlString: yaml`
           pipelines:
             pipeline1:
-              workflows: 
+              workflows:
                 wf1: {}
           workflows:
             wf1: {}
@@ -744,7 +843,7 @@ describe('PipelineService', () => {
         ymlString: yaml`
           pipelines:
             pipeline1:
-              workflows: 
+              workflows:
                 wf1: {}
           workflows:
             wf1: {}
