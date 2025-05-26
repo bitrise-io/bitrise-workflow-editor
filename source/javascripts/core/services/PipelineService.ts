@@ -267,7 +267,7 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
     const pipeline = getPipelineOrThrowError(id, doc);
 
     if (value) {
-      pipeline.flow = false;
+      YamlUtils.unflowCollectionIsEmpty(pipeline);
       pipeline.set(field, value);
     } else {
       pipeline.delete(field);
@@ -283,11 +283,12 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
     const workflows = YamlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'], true);
-    workflows.flow = false;
 
     if (workflows.has(workflowId)) {
       throw new Error(`Workflow ${workflowId} already exists in pipeline ${pipelineId}.`);
     }
+
+    YamlUtils.unflowCollectionIsEmpty(workflows);
 
     if (dependsOn) {
       getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
@@ -328,7 +329,7 @@ function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflow
     const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
 
     if (value) {
-      workflow.flow = false;
+      YamlUtils.unflowCollectionIsEmpty(workflow);
       workflow.setIn(field.split('.'), value);
     } else {
       YamlUtils.deleteNodeByPath(

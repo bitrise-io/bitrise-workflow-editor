@@ -217,7 +217,7 @@ function getTriggerMapItemConditionOrThrowError(doc: Document, index: number, co
 function addLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map'], true);
-    triggerMap.flow = false;
+    YamlUtils.unflowCollectionIsEmpty(triggerMap);
     triggerMap.add(doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
@@ -239,7 +239,7 @@ function changeLegacyTriggerEnabled(doc: Document, enabled: boolean, index: numb
     return;
   }
 
-  trigger.flow = false;
+  YamlUtils.unflowCollectionIsEmpty(trigger);
   trigger.set('enabled', false);
 }
 
@@ -252,7 +252,7 @@ function updateLegacyTriggerEnabled(trigger: LegacyTrigger) {
 
 function updateLegacyTriggerDraftPr(doc: Document, isDraftPr: boolean | undefined, index: number) {
   const trigger = getTriggerMapItemOrThrowError(doc, index);
-  trigger.flow = false;
+  YamlUtils.unflowCollectionIsEmpty(trigger);
 
   if (isDraftPr === false) {
     trigger.set('draft_pull_request_enabled', false);
@@ -276,7 +276,7 @@ function updateLegacyTriggerSource(doc: Document, legacyTrigger: LegacyTrigger) 
 
 function addLegacyTriggerCondition(doc: Document, condition: LegacyCondition, index: number) {
   const trigger = getTriggerMapItemOrThrowError(doc, index);
-  trigger.flow = false;
+  YamlUtils.unflowCollectionIsEmpty(trigger);
   trigger.set(condition.type, doc.createNode(fromLegacyCondition(condition)));
 }
 
@@ -591,9 +591,9 @@ function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: 
       return doc;
     }
 
-    entity.flow = false;
+    YamlUtils.unflowCollectionIsEmpty(entity);
     const triggers = YamlUtils.getMapIn(doc, [source, sourceId, 'triggers'], true);
-    triggers.flow = false;
+    YamlUtils.unflowCollectionIsEmpty(triggers);
     triggers.set('enabled', false);
 
     return doc;
@@ -604,7 +604,7 @@ function addTrigger(trigger: TargetBasedTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     const entity = getSourceOrThrowError(doc, { source, sourceId });
-    entity.flow = false;
+    YamlUtils.unflowCollectionIsEmpty(entity);
 
     const triggers = YamlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
     triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
@@ -625,7 +625,7 @@ function changeTriggerEnabled(
     return;
   }
 
-  trigger.flow = false;
+  YamlUtils.unflowCollectionIsEmpty(trigger);
   trigger.set('enabled', false);
 }
 
@@ -662,7 +662,7 @@ function updateTriggerDraftPr(
   at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
 ) {
   const entity = getTriggerOrThrowError(doc, at);
-  entity.flow = false;
+  YamlUtils.unflowCollectionIsEmpty(entity);
 
   if (isDraftPr === false) {
     entity.set('draft_enabled', false);
@@ -677,7 +677,7 @@ function addTriggerCondition(
   at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
 ) {
   const entity = getTriggerOrThrowError(doc, at);
-  entity.flow = false;
+  YamlUtils.unflowCollectionIsEmpty(entity);
   entity.set(condition.type, doc.createNode(fromTargetBasedCondition(condition)));
 }
 

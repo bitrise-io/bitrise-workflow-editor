@@ -1,7 +1,7 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 
-import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
+import PipelineService from '@/core/services/PipelineService';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -35,7 +35,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   let tooltipLabel = `${parallel} parallel copies` as ReactNode;
   let tooltipAriaLabel = `${parallel} parallel copies`;
 
-  if (!GraphPipelineWorkflowService.isIntegerValue(parallel)) {
+  if (!PipelineService.isIntegerValue(parallel)) {
     badgeContent = '$';
     tooltipLabel = (
       <>

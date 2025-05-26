@@ -59,15 +59,19 @@ function createMissingNodes(doc: Document, path: unknown[]) {
   }
 }
 
+function unflowCollectionIsEmpty(node: unknown) {
+  if (isCollection(node) && node.items.length === 0 && node.flow) {
+    node.flow = false;
+  }
+}
+
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLSeq;
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLSeq | undefined;
 function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLSeq | undefined {
   if (!doc.hasIn(path) && createIfNotExists) {
     createMissingNodes(doc, path);
     const parent = doc.getIn(path.slice(0, -1));
-    if (isCollection(parent) && parent.items.length === 0) {
-      parent.flow = false;
-    }
+    unflowCollectionIsEmpty(parent);
     doc.setIn(path, doc.createNode([]));
   }
 
@@ -84,9 +88,7 @@ function getMapIn(doc: Document, path: unknown[], createIfNotExists = false): YA
   if (!doc.hasIn(path) && createIfNotExists) {
     createMissingNodes(doc, path);
     const parent = doc.getIn(path.slice(0, -1));
-    if (isCollection(parent) && parent.items.length === 0) {
-      parent.flow = false;
-    }
+    unflowCollectionIsEmpty(parent);
     doc.setIn(path, doc.createNode({}));
   }
 
@@ -291,4 +293,5 @@ export default {
   deleteNodeByValue,
   areDocumentsEqual,
   getPairInSeqByKey,
+  unflowCollectionIsEmpty,
 };

@@ -514,7 +514,7 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
     }
 
     if (value) {
-      stepData.flow = false;
+      YamlUtils.unflowCollectionIsEmpty(stepData);
       stepData.set(field, value);
     } else {
       stepData.delete(field);

@@ -4,7 +4,6 @@ import { ChangeEventHandler, useState } from 'react';
 
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { EnvVarPopover } from '@/components/VariablePopover';
-import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
 import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
@@ -125,7 +124,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
 
   const validateAndPersist = (parallel: string | number) => {
     const stringValue = String(parallel);
-    const validationError = GraphPipelineWorkflowService.validateParallel(stringValue, workflowId, existingWorkflowIds);
+    const validationError = PipelineService.validateParallel(stringValue, workflowId, existingWorkflowIds);
 
     setError(validationError === true ? undefined : validationError);
 

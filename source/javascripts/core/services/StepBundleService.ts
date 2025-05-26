@@ -429,7 +429,7 @@ function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
     const stepBundle = getStepBundleOrThrowError(doc, id);
 
     if (value) {
-      stepBundle.flow = false;
+      YamlUtils.unflowCollectionIsEmpty(stepBundle);
       stepBundle.set(field, value);
     } else {
       stepBundle.delete(field);
