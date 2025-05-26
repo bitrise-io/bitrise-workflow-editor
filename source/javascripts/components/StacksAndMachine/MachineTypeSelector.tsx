@@ -1,19 +1,10 @@
-import {
-  Avatar,
-  AvatarProps,
-  Dropdown,
-  DropdownDetailedOption,
-  DropdownGroup,
-  DropdownOption,
-  Toggletip,
-} from '@bitrise/bitkit';
-import { ReactNode, useMemo } from 'react';
-import { Fragment } from 'react/jsx-runtime';
+import { Avatar, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip, TypeIconName } from '@bitrise/bitkit';
+import { ReactNode } from 'react';
 
 import { MachineTypeOption } from '@/core/models/MachineType';
 import { MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
-export const promotionTexts = {
+export const PROMOTION_TEXTS = {
   trial: {
     availableText: 'Available during the trial',
     promotedText: 'Available on paid plans',
@@ -28,134 +19,96 @@ export const promotionTexts = {
   },
 };
 
-const getMachineTypeDropdownOptions = ({
-  isEnabled,
-  machineTypeOptions,
-}: {
-  isEnabled: boolean;
-  machineTypeOptions: MachineTypeOption[];
-}) => {
-  return machineTypeOptions.map(({ label, osId, value }) => {
-    if (!osId) {
-      return (
-        <DropdownOption isDisabled={!isEnabled} key={value} value={value}>
-          {label}
-        </DropdownOption>
-      );
-    }
+const getIconName = (osId?: string): TypeIconName | undefined => {
+  switch (osId) {
+    case 'linux':
+      return 'Linux';
+    case 'osx':
+      return 'Apple';
+    default:
+      return undefined;
+  }
+};
 
-    let iconName: AvatarProps['iconName'] = 'Other';
-    switch (osId) {
-      case 'linux': {
-        iconName = 'Linux';
-        break;
-      }
-      case 'osx': {
-        iconName = 'Apple';
-        break;
-      }
-    }
-
+const renderOptions = (machines: MachineTypeOption[], isDisabled?: boolean) => {
+  return machines.map((machine) => {
+    const iconName = getIconName(machine.osId);
     return (
       <DropdownDetailedOption
-        isDisabled={!isEnabled}
-        key={value}
-        value={value}
-        icon={<Avatar variant="brand" size="24" iconName={iconName} />}
-        title={label}
+        key={machine.value}
+        value={machine.value}
+        title={machine.label}
         subtitle=""
+        isDisabled={isDisabled}
+        icon={iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
       />
     );
   });
 };
 
 type Props = {
-  availableOptions: MachineTypeOption[];
-  machineType: MachineTypeWithValue;
-  onChange: (machineId: string) => void;
-  promotedOptions: MachineTypeOption[];
   isLoading: boolean;
-  isDisabled: boolean;
   isInvalid: boolean;
-  machineTypePromotionMode?: 'trial' | 'upsell';
+  isDisabled: boolean;
+  machineType: MachineTypeWithValue;
+  availableOptions: MachineTypeOption[];
+  promotionType?: 'trial' | 'upsell';
+  promotedOptions: MachineTypeOption[];
+  onChange: (machineId: string) => void;
 };
 
 const MachineTypeSelector = ({
+  isLoading,
+  isInvalid,
+  isDisabled,
   machineType,
   availableOptions,
-  isLoading,
-  isDisabled,
-  isInvalid,
-  machineTypePromotionMode,
-  onChange,
   promotedOptions,
+  promotionType,
+  onChange,
 }: Props) => {
-  const machineTypePromotion = useMemo(() => {
-    if (!machineTypePromotionMode) {
-      return null;
-    }
-
-    return promotionTexts[machineTypePromotionMode];
-  }, [machineTypePromotionMode]);
-
   const toggletip = (icon: ReactNode) => {
-    if (!machineTypePromotion) {
+    if (!promotionType) {
       return null;
     }
 
     return (
       <Toggletip
-        button={{
-          href: 'https://bitrise.io/demo',
-          label: 'Reach out to sales',
-        }}
-        label={machineTypePromotion.toggleTipText}
+        label={PROMOTION_TEXTS[promotionType].toggleTipText}
+        button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
       >
         {icon}
       </Toggletip>
     );
   };
 
+  const hasPromotion = promotionType && promotedOptions.length > 0;
+
   return (
     <Dropdown
+      flex="1"
+      required
+      search={false}
+      label="Machine type"
+      labelHelp={toggletip}
       disabled={isLoading || isDisabled}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
       helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
-      label="Machine type"
-      labelHelp={toggletip}
       onChange={(e) => onChange(e.target.value as string)}
-      required
-      search={false}
       value={machineType.value}
     >
-      {machineTypePromotion && promotedOptions && promotedOptions.length > 0
-        ? [
-            {
-              isEnabled: true,
-              label: machineTypePromotion.availableText,
-              machines: availableOptions,
-            },
-            {
-              isEnabled: false,
-              label: machineTypePromotion.promotedText,
-              machines: promotedOptions,
-            },
-          ].map(({ isEnabled, label, machines }) => {
-            return (
-              <Fragment key={label}>
-                <DropdownGroup label={label}>
-                  {getMachineTypeDropdownOptions({
-                    isEnabled,
-                    machineTypeOptions: machines,
-                  })}
-                </DropdownGroup>
-              </Fragment>
-            );
-          })
-        : getMachineTypeDropdownOptions({
-            isEnabled: true,
-            machineTypeOptions: availableOptions,
-          })}
+      {!hasPromotion ? (
+        renderOptions(availableOptions)
+      ) : (
+        <>
+          <DropdownGroup label={PROMOTION_TEXTS[promotionType].availableText}>
+            {renderOptions(availableOptions)}
+          </DropdownGroup>
+          <DropdownGroup label={PROMOTION_TEXTS[promotionType].promotedText}>
+            {renderOptions(promotedOptions, true)}
+          </DropdownGroup>
+        </>
+      )}
     </Dropdown>
   );
 };

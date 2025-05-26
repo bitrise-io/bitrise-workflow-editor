@@ -124,8 +124,8 @@ const StackAndMachine = ({
           isDisabled={isMachineTypeSelectionDisabled}
           availableOptions={availableMachineTypeOptions}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
+          promotionType={data?.machineTypePromotion?.mode}
           promotedOptions={promotedMachineTypeOptions}
-          machineTypePromotionMode={data?.machineTypePromotion?.mode}
         />
       </Box>
       {useRollbackVersion && (
