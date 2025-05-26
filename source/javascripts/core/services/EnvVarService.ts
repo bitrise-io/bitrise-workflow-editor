@@ -1,4 +1,4 @@
-import { Document, isMap, isSeq, Scalar } from 'yaml';
+import { Document, isMap, Scalar } from 'yaml';
 
 import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YamlUtils from '@/core/utils/YamlUtils';
@@ -139,7 +139,7 @@ function getWorkflowOrThrowError(doc: Document, at: { sourceId?: string }) {
 
 function getSourceOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }) {
   if (at.source === EnvVarSource.App) {
-    const app = doc.getIn(['app']);
+    const app = YamlUtils.getMapIn(doc, ['app']);
 
     if (!app || !isMap(app)) {
       throw new Error(`The 'app' section is not found`);
@@ -157,9 +157,9 @@ function getSourceOrThrowError(doc: Document, at: { source: EnvVarSource; source
 
 function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }) {
   const source = getSourceOrThrowError(doc, at);
-  const envs = source.get('envs');
+  const envs = YamlUtils.getSeqIn(source, ['envs']);
 
-  if (!envs || !isSeq(envs)) {
+  if (!envs) {
     if (at.source === EnvVarSource.App) {
       throw new Error(`The 'app.envs' section doesn't exist`);
     }
@@ -171,9 +171,9 @@ function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sou
 
 function getEnvVarOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string; index: number }) {
   const envs = getEnvVarSeqOrThrowError(doc, at);
-  const env = envs.get(at.index);
+  const env = YamlUtils.getMapIn(envs, [at.index]);
 
-  if (!env || !isMap(env)) {
+  if (!env) {
     if (at.source === EnvVarSource.App) {
       throw new Error(`Project-level environment variable not found, index ${at.index} is out of bounds`);
     }

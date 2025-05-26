@@ -212,8 +212,8 @@ function deleteWorkflow(ids: string | string[]) {
       return false;
     }
 
-    const stage = node.get(stageId);
-    if (!isMap(stage)) {
+    const stage = YamlUtils.getMapIn(node, [stageId]);
+    if (!stage) {
       return false;
     }
 

@@ -41,20 +41,20 @@ function isPairKeyEqual(pair: Pair, key: string): pair is Pair<Scalar> {
   return pair.key.value === key;
 }
 
-function createMissingNodes(doc: Document, path: unknown[]) {
+function createMissingNodes(root: Document | YAMLMap | YAMLSeq, path: unknown[]) {
   const ancestorPath = [];
 
   for (const part of path.slice(0, -1)) {
     ancestorPath.push(part);
 
-    const node = doc.getIn(ancestorPath);
+    const node = root.getIn(ancestorPath);
     const shouldCreateEmptyNode = !node || (!isScalar(node) && !node) || (isScalar(node) && !node.value);
 
     if (shouldCreateEmptyNode) {
       const nextPart = path[ancestorPath.length];
       const shouldBeSequence = typeof nextPart === 'number' || (!isNaN(Number(nextPart)) && Number(nextPart) >= 0);
-      const emptyNode = shouldBeSequence ? doc.createNode([], { flow: false }) : doc.createNode({}, { flow: false });
-      doc.setIn(ancestorPath, emptyNode);
+      const emptyNode = shouldBeSequence ? new YAMLSeq() : new YAMLMap();
+      root.setIn(ancestorPath, emptyNode);
     }
   }
 }
@@ -65,38 +65,46 @@ function unflowCollectionIsEmpty(node: unknown) {
   }
 }
 
-function getSeqIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLSeq;
-function getSeqIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLSeq | undefined;
-function getSeqIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLSeq | undefined {
-  if (!doc.hasIn(path) && createIfNotExists) {
-    createMissingNodes(doc, path);
-    const parent = doc.getIn(path.slice(0, -1));
-    unflowCollectionIsEmpty(parent);
-    doc.setIn(path, doc.createNode([]));
+function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[]): YAMLSeq | undefined;
+function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists: true): YAMLSeq;
+function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists = false): YAMLSeq | undefined {
+  if (!root.hasIn(path) && createIfNotExists) {
+    createMissingNodes(root, path);
+    unflowCollectionIsEmpty(path.length > 1 ? root.getIn(path.slice(0, -1)) : root);
+    root.setIn(path, new YAMLSeq());
   }
 
-  if (!doc.hasIn(path)) {
+  if (!root.hasIn(path)) {
     return undefined;
   }
 
-  return doc.getIn(path, true) as YAMLSeq;
+  const seq = root.getIn(path);
+  if (!isSeq(seq)) {
+    throw new Error(`Expected a YAMLSeq at path "${toDotNotation(path)}", but found: ${seq}`);
+  }
+
+  return seq;
 }
 
-function getMapIn(doc: Document, path: unknown[], createIfNotExists: true): YAMLMap;
-function getMapIn(doc: Document, path: unknown[], createIfNotExists?: boolean): YAMLMap | undefined;
-function getMapIn(doc: Document, path: unknown[], createIfNotExists = false): YAMLMap | undefined {
-  if (!doc.hasIn(path) && createIfNotExists) {
-    createMissingNodes(doc, path);
-    const parent = doc.getIn(path.slice(0, -1));
-    unflowCollectionIsEmpty(parent);
-    doc.setIn(path, doc.createNode({}));
+function getMapIn(root: Document | YAMLMap | YAMLSeq, path: unknown[]): YAMLMap | undefined;
+function getMapIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists: true): YAMLMap;
+function getMapIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists = false): YAMLMap | undefined {
+  if (!root.hasIn(path) && createIfNotExists) {
+    createMissingNodes(root, path);
+    unflowCollectionIsEmpty(path.length > 1 ? root.getIn(path.slice(0, -1)) : root);
+    root.setIn(path, new YAMLMap());
   }
 
-  if (!doc.hasIn(path)) {
+  if (!root.hasIn(path)) {
     return undefined;
   }
 
-  return doc.getIn(path) as YAMLMap;
+  const map = root.getIn(path);
+  if (!isMap(map)) {
+    throw new Error(`Expected a YAMLMap at path "${toDotNotation(path)}", but found: ${map}`);
+  }
+
+  return map;
 }
 
 function safeDeleteIn(doc: Document, path: unknown[], removeEmptyParent: boolean | unknown[] = false) {

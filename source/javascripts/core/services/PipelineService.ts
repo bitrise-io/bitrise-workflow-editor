@@ -187,9 +187,9 @@ function getPipelineOrThrowError(id: string, doc: Document) {
 
 function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string, doc: Document) {
   const pipeline = getPipelineOrThrowError(pipelineId, doc);
-  const workflow = pipeline.getIn(['workflows', workflowId]);
+  const workflow = YamlUtils.getMapIn(pipeline, ['workflows', workflowId]);
 
-  if (!workflow || !isMap(workflow)) {
+  if (!workflow) {
     throw new Error(`Workflow ${workflowId} not found in pipeline ${pipelineId}.`);
   }
 
@@ -346,9 +346,7 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
-    YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on'], true).add(
-      doc.createNode(dependsOn),
-    );
+    YamlUtils.getSeqIn(workflow, ['depends_on'], true).add(doc.createNode(dependsOn));
 
     return doc;
   });

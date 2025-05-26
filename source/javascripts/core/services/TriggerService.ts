@@ -195,8 +195,8 @@ function getTriggerMapOrThrowError(doc: Document) {
 function getTriggerMapItemOrThrowError(doc: Document, index: number) {
   const triggerMap = getTriggerMapOrThrowError(doc);
 
-  const trigger = triggerMap.getIn([index]);
-  if (!trigger || !isMap(trigger)) {
+  const trigger = YamlUtils.getMapIn(triggerMap, [index]);
+  if (!trigger) {
     throw new Error(`Trigger is not found at path trigger_map.${index}`);
   }
 
@@ -540,9 +540,9 @@ function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTrigger
 
 function getSourceOrThrowError(doc: Document, at: { source: TriggerSource; sourceId: string }) {
   const { source, sourceId } = at;
-  const entity = doc.getIn([source, sourceId]);
+  const entity = YamlUtils.getMapIn(doc, [source, sourceId]);
 
-  if (!entity || !isMap(entity)) {
+  if (!entity) {
     throw new Error(`${source}.${sourceId} not found`);
   }
 
@@ -555,9 +555,9 @@ function getTriggerOrThrowError(
 ) {
   const { source, sourceId, triggerType, index } = at;
   const entity = getSourceOrThrowError(doc, { source, sourceId });
-  const trigger = entity.getIn(['triggers', triggerType, index]);
+  const trigger = YamlUtils.getMapIn(entity, ['triggers', triggerType, index]);
 
-  if (!trigger || !isMap(trigger)) {
+  if (!trigger) {
     throw new Error(`Trigger is not found at path ${source}.${sourceId}.triggers.${triggerType}.${index}`);
   }
 

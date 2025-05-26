@@ -432,9 +432,9 @@ export const moveStepIndices = (
 };
 
 function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) {
-  const entity = doc.getIn([source, sourceId]);
+  const entity = YamlUtils.getMapIn(doc, [source, sourceId]);
 
-  if (!entity || !isMap(entity)) {
+  if (!entity) {
     throw new Error(`${source}.${sourceId} not found`);
   }
 
@@ -443,7 +443,7 @@ function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) 
 
 function getStepOrThrowError(source: Source, sourceId: string, stepIndex: number, doc: Document) {
   const entity = getSourceOrThrowError(source, sourceId, doc);
-  const step = entity.getIn(['steps', stepIndex]);
+  const step = YamlUtils.getMapIn(entity, ['steps', stepIndex]);
 
   if (!step || !isMap(step)) {
     throw new Error(`Step at index ${stepIndex} not found in ${source}.${sourceId}`);
