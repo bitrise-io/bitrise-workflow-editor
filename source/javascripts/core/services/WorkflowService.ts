@@ -188,7 +188,7 @@ function updateWorkflowField<T extends WK>(id: string, field: T, value: WV<T>) {
     const workflow = getWorkflowOrThrowError(id, doc);
 
     if (value) {
-      workflow.flow = false;
+      YamlUtils.unflowCollectionIsEmpty(workflow);
       workflow.set(field, value);
     } else {
       workflow.delete(field);
