@@ -2,9 +2,9 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 
-import { isEmpty } from 'es-toolkit/compat';
+import { isEmpty, isEqual } from 'es-toolkit/compat';
 import { Glob, isMatch } from 'picomatch';
-import { Document, isCollection, isMap, isPair, isScalar, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+import { Document, isCollection, isMap, isNode, isPair, isScalar, isSeq, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 
@@ -279,7 +279,23 @@ function getPairInSeqByKey(seq: YAMLSeq, key: string, createIfNotExists = false)
   return [undefined, undefined];
 }
 
+function isInSeq(seq: unknown, item: unknown, index?: number) {
+  if (!isSeq(seq) && !Array.isArray(seq)) {
+    return false;
+  }
+
+  const items = isSeq(seq) ? seq.toJSON() : seq;
+  const primitive = isNode(item) ? item.toJSON() : item;
+
+  if (typeof index === 'number') {
+    return isEqual(items[index], primitive);
+  }
+
+  return items.some((i) => isEqual(i, primitive));
+}
+
 export default {
+  isInSeq,
   getSeqIn,
   getMapIn,
   updateKey,

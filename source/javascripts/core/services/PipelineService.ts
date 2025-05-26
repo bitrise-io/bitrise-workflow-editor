@@ -1,6 +1,6 @@
 import { omit, uniq } from 'es-toolkit';
 import { Get, Paths } from 'type-fest';
-import { Document, isMap, isScalar } from 'yaml';
+import { Document, isMap } from 'yaml';
 
 import { BitriseYml, GraphPipelineWorkflowModel, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
@@ -196,16 +196,6 @@ function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string,
   return workflow;
 }
 
-function hasPipelineWorkflowDependsOn(pipelineId: string, workflowId: string, dependsOn: string, doc: Document) {
-  const dependsOns = YamlUtils.getSeqIn(doc, ['pipelines', pipelineId, 'workflows', workflowId, 'depends_on']);
-
-  if (!dependsOns) {
-    return false;
-  }
-
-  return dependsOns.items.some((item) => isScalar(item) && item.toString() === dependsOn);
-}
-
 function createPipeline(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     if (baseId) {
@@ -349,10 +339,10 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
       throw new Error(`Workflow ${workflowId} cannot depend on itself.`);
     }
 
-    getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
+    const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
     getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
 
-    if (hasPipelineWorkflowDependsOn(pipelineId, workflowId, dependsOn, doc)) {
+    if (YamlUtils.isInSeq(workflow.get('depends_on'), dependsOn)) {
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
@@ -366,10 +356,10 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
 
 function removePipelineWorkflowDependency(pipelineId: string, workflowId: string, dependsOn: string) {
   updateBitriseYmlDocument(({ doc, paths }) => {
-    getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
+    const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
     getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
 
-    if (!hasPipelineWorkflowDependsOn(pipelineId, workflowId, dependsOn, doc)) {
+    if (!YamlUtils.isInSeq(workflow.get('depends_on'), dependsOn)) {
       throw new Error(`Workflow ${workflowId} does not depend on ${dependsOn}.`);
     }
 

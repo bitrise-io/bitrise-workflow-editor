@@ -1,5 +1,5 @@
 import { isEmpty } from 'es-toolkit/compat';
-import { Document, isMap, isScalar, isSeq } from 'yaml';
+import { Document, isMap, isSeq } from 'yaml';
 
 import { Pipelines, Stages, WorkflowModel, Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
@@ -304,10 +304,7 @@ function removeChainedWorkflow(
       throw new Error(`Workflow ${parentWorkflowId} does not have a ${placement} workflow chain.`);
     }
 
-    const isChainedWorkflowExists = chainedWorkflows.items.some((item, index) => {
-      return isScalar(item) && item.value === chainedWorkflowId && index === chainedWorkflowIndex;
-    });
-
+    const isChainedWorkflowExists = YamlUtils.isInSeq(chainedWorkflows, chainedWorkflowId, chainedWorkflowIndex);
     if (!isChainedWorkflowExists) {
       throw new Error(
         `Workflow ${chainedWorkflowId} is not in the ${placement} workflow chain of ${parentWorkflowId}.`,

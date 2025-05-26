@@ -1,4 +1,4 @@
-import { parseDocument, Scalar, stringify, YAMLSeq } from 'yaml';
+import { parseDocument, Scalar, stringify, YAMLMap, YAMLSeq } from 'yaml';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 import { YamlMutatorCtx } from '../stores/BitriseYmlStore';
@@ -476,6 +476,73 @@ describe('YamlUtils', () => {
           - check parsers for compatibility
         - new_key: ""
       `);
+    });
+  });
+
+  describe('isInSeq', () => {
+    it('should return true if primitive in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('sequence_example')) as YAMLSeq;
+      expect(YamlUtils.isInSeq(seq, 'banana')).toBe(true);
+    });
+
+    it('should return true if scalar in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('sequence_example')) as YAMLSeq;
+      expect(YamlUtils.isInSeq(seq, new Scalar('banana'))).toBe(true);
+    });
+
+    it('should return true if item in a sequence by index', () => {
+      const seq = ctx.doc.getIn(asArr('sequence_example'));
+      expect(YamlUtils.isInSeq(seq, 'apple', 0)).toBe(true);
+    });
+
+    it('should return true if object in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('complex_mapping.country.states'));
+      expect(YamlUtils.isInSeq(seq, { name: 'California', capital: 'Sacramento' })).toBe(true);
+    });
+
+    it('should return true if a YAMLMap in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('complex_mapping.country.states'));
+      const map = YamlUtils.getMapIn(ctx.doc, asArr('complex_mapping.country.states.0'));
+      expect(YamlUtils.isInSeq(seq, map)).toBe(true);
+    });
+
+    it('should return false if item not in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('sequence_example'));
+      expect(YamlUtils.isInSeq(seq, 'nonexistent')).toBe(false);
+    });
+
+    it('should return false if item not in a sequence by index', () => {
+      const seq = ctx.doc.getIn(asArr('sequence_example'));
+      expect(YamlUtils.isInSeq(seq, 'apple', 1)).toBe(false);
+    });
+
+    it('should return false if object not in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('complex_mapping.country.states'));
+      expect(YamlUtils.isInSeq(seq, { name: 'Nonexistent', capital: 'Nowhere' })).toBe(false);
+    });
+
+    it('should return false if a YAMLMap not in a sequence by index', () => {
+      const seq = ctx.doc.getIn(asArr('complex_mapping.country.states'));
+      const map = YamlUtils.getMapIn(ctx.doc, asArr('complex_mapping.country.states.0'));
+      expect(YamlUtils.isInSeq(seq, map, 1)).toBe(false);
+    });
+
+    it('should return false if a YAMLMap not in a sequence', () => {
+      const seq = ctx.doc.getIn(asArr('complex_mapping.country.states'));
+      const map = ctx.doc.createNode({ name: 'Nonexistent', capital: 'Nowhere' }) as YAMLMap;
+      expect(YamlUtils.isInSeq(seq, map)).toBe(false);
+    });
+
+    it('should return false if sequence is empty', () => {
+      const seq = new YAMLSeq();
+      expect(YamlUtils.isInSeq(seq, 'anything')).toBe(false);
+    });
+
+    it('should return false if sequence is not a YAMLSeq', () => {
+      expect(YamlUtils.isInSeq(ctx.doc.createNode({}), 'anything')).toBe(false);
+      expect(YamlUtils.isInSeq(ctx.doc.createNode(123), 'anything')).toBe(false);
+      expect(YamlUtils.isInSeq(ctx.doc.createNode(null), 'anything')).toBe(false);
+      expect(YamlUtils.isInSeq(ctx.doc.createNode(undefined), 'anything')).toBe(false);
     });
   });
 });
