@@ -1,0 +1,248 @@
+import { YAMLMap, YAMLSeq } from 'yaml';
+
+import YmlUtils from './YmlUtils';
+
+describe('YmlUtils', () => {
+  describe('collectPaths', () => {
+    it('should collect paths from a YAML document', () => {
+      const root = YmlUtils.toDoc(`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+              - clone: {}
+          wf2:
+            steps:
+              - deploy: {}
+      `);
+
+      const paths = YmlUtils.collectPaths(root, ['workflows', '*', 'steps', '*']);
+
+      expect(paths).toEqual([
+        ['workflows', 'wf2', 'steps', 0, 'deploy'],
+        ['workflows', 'wf1', 'steps', 1, 'clone'],
+        ['workflows', 'wf1', 'steps', 0, 'script'],
+      ]);
+    });
+  });
+
+  describe('getSeqIn', () => {
+    it('should return YAMLSeq at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: []`);
+      expect(YmlUtils.getSeqIn(root, ['workflows'])).toBeInstanceOf(YAMLSeq);
+    });
+
+    it('should return undefined if YAMLSeq does not exist and createIfNotExists is false', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: []`);
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'])).toBeUndefined();
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: []`);
+    });
+
+    it('should create YAMLSeq if it does not exist and createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows: 
+          wf1: {}
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps', 0, 'script', 'inputs'], true)).toBeInstanceOf(
+        YAMLSeq,
+      );
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                inputs: []
+      `);
+    });
+
+    it('should create root YAMLSeq if it does not exist and createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml``);
+      expect(YmlUtils.getSeqIn(root, ['workflows'], true)).toBeInstanceOf(YAMLSeq);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: []`);
+    });
+
+    it('should throw an error if the path does not point to a YAMLSeq', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+      expect(() => YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps', 0])).toThrow(
+        'Expected a YAMLSeq at path "workflows.wf1.steps.0", but found YAMLMap',
+      );
+    });
+  });
+
+  describe('getMapIn', () => {
+    it('should return YAMLMap at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+      expect(YmlUtils.getMapIn(root, ['workflows'])).toBeInstanceOf(YAMLMap);
+    });
+
+    it('should return undefined if YAMLMap does not exist and createIfNotExists is false', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'steps'])).toBeUndefined();
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should create YAMLMap if it does not exist and createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows: 
+          wf1: {}
+      `);
+
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'steps', 0, 'script'], true)).toBeInstanceOf(YAMLMap);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+    });
+
+    it('should create root YAMLMap if it does not exist and createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml``);
+      expect(YmlUtils.getMapIn(root, ['workflows'], true)).toBeInstanceOf(YAMLMap);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should throw an error if the path does not point to a YAMLMap', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                inputs:
+                - key: value
+      `);
+
+      expect(() => YmlUtils.getMapIn(root, ['workflows', 'wf1', 'steps', 0, 'script', 'inputs', 0, 'key'])).toThrow(
+        'Expected a YAMLMap at path "workflows.wf1.steps.0.script.inputs.0.key", but found Scalar',
+      );
+    });
+  });
+
+  describe('deleteByPath', () => {
+    it('should delete an item at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2: {}
+      `);
+
+      YmlUtils.deleteByPath(root, ['workflows', 'wf1', 'steps', '0']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf2: {}
+      `);
+    });
+
+    it('should not delete anything if the path does not exist', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+      YmlUtils.deleteByPath(root, ['workflows', 'wf1'], ['workflows']);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should delete an empty collection if it becomes empty after deletion', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+
+      YmlUtils.deleteByPath(root, ['workflows', 'wf1', 'steps', '0'], ['workflows']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should call afterRemove callback with the deleted node', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+
+      const afterRemove = jest.fn();
+
+      const deletedNodes = [
+        root.getIn(['workflows', 'wf1'], true),
+        root.getIn(['workflows', 'wf1', 'steps'], true),
+        root.getIn(['workflows', 'wf1', 'steps', '0'], true),
+      ];
+
+      YmlUtils.deleteByPath(root, ['workflows', 'wf1', 'steps', '0'], ['workflows'], afterRemove);
+
+      expect(afterRemove).toHaveBeenCalledTimes(3);
+      expect(afterRemove).toHaveBeenCalledWith(deletedNodes[0]);
+      expect(afterRemove).toHaveBeenCalledWith(deletedNodes[1]);
+      expect(afterRemove).toHaveBeenCalledWith(deletedNodes[2]);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should not delete the parent if it is not empty', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            title: Workflow 1
+            steps:
+            - script: {}
+          wf2: {}
+      `);
+
+      YmlUtils.deleteByPath(root, ['workflows', 'wf1', 'steps', '0']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            title: Workflow 1
+          wf2: {}
+      `);
+    });
+
+    it('should delete multiple items matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      YmlUtils.deleteByPath(root, ['workflows', '*', 'steps', '*'], ['workflows']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should not delete the parent if keep contains wildcard', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - clone: {}
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      YmlUtils.deleteByPath(root, ['workflows', '*', 'steps', '*'], ['workflows', '*']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1: {}
+          wf2: {}
+      `);
+    });
+  });
+});
