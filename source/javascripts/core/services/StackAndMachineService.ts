@@ -44,7 +44,11 @@ function isSelfHostedStack(stack: Stack) {
 }
 
 function getOsOfStack(stack: Stack): string {
-  return stack.id.split('-')[0];
+  const absolutelyNotAnAPI = stack.id.split('-')[0];
+  if (absolutelyNotAnAPI === 'ubuntu') {
+    return 'linux';
+  }
+  return absolutelyNotAnAPI;
 }
 
 function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType[] {
@@ -59,6 +63,7 @@ function toStackOption(stack: Stack): StackOption {
   return {
     value: stack.id,
     label: stack.name,
+    status: stack.status,
   };
 }
 
@@ -86,6 +91,7 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
     id: '',
     value: '',
     name: '',
+    status: 'unknown',
     description: '',
     machineTypes: [],
   };
@@ -145,6 +151,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       {
         value: '',
         label: `Default (${defaultStack.name})`,
+        status: defaultStack.status,
       },
       ...result.availableStackOptions,
     ];
@@ -164,6 +171,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.availableStackOptions.push({
       value: selectedStackId,
       label: selectedStackId,
+      status: 'unknown',
     });
   } else if (selectedStack) {
     result.selectedStack = { ...selectedStack, value: selectedStack.id };

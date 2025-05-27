@@ -1,6 +1,8 @@
 import { Box, Checkbox, Icon, Link, Select, Text, Tooltip } from '@bitrise/bitkit';
+import { groupBy } from 'es-toolkit';
+import { useMemo } from 'react';
 
-import { StackOption } from '@/core/models/StackAndMachine';
+import { StackOption, StackStatus } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {
@@ -46,6 +48,12 @@ type Props = {
   onChange: (stackId: string, useRollbackVersion?: boolean) => void;
 };
 
+type StackGroup = {
+  status: StackStatus;
+  label: string;
+  options: StackOption[];
+};
+
 const StackSelector = ({
   isLoading,
   isInvalid,
@@ -55,6 +63,32 @@ const StackSelector = ({
   options,
   onChange,
 }: Props) => {
+  const groupedStackList: StackGroup[] = useMemo(() => {
+    const groupedStacks = groupBy(options, (o) => o.status);
+    return [
+      {
+        status: 'edge',
+        label: 'Edge Stacks',
+        options: groupedStacks.edge || [],
+      },
+      {
+        status: 'stable',
+        label: 'Stable Stacks',
+        options: groupedStacks.stable || [],
+      },
+      {
+        status: 'unknown',
+        label: 'Uncategorized',
+        options: groupedStacks.unknown || [],
+      },
+      {
+        status: 'frozen',
+        label: 'Frozen Stacks',
+        options: groupedStacks.frozen || [],
+      },
+    ];
+  }, [options]);
+
   return (
     <Box flex="1">
       <Select
@@ -66,11 +100,17 @@ const StackSelector = ({
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
         onChange={(e) => onChange(e.target.value)}
       >
-        {options.map(({ value, label }) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
+        {groupedStackList.map((group) =>
+          group.options.length > 0 ? (
+            <optgroup key={group.status} label={group.label}>
+              {group.options.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </optgroup>
+          ) : null,
+        )}
       </Select>
       <Checkbox
         isDisabled={!isRollbackVersionAvailable}

@@ -1,6 +1,9 @@
+export type StackStatus = 'edge' | 'stable' | 'frozen' | 'unknown';
+
 export type Stack = {
   id: string;
   name: string;
+  status: StackStatus;
   description: string;
   descriptionUrl?: string;
   machineTypes: string[];
@@ -10,6 +13,7 @@ export type Stack = {
 export type StackOption = {
   value: string;
   label: string;
+  status: StackStatus;
 };
 
 export type MachineType = {
