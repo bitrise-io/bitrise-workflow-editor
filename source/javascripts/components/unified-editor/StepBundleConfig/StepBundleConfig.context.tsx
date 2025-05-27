@@ -44,7 +44,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
       result.stepBundle = stepBundle ? StepBundleService.ymlInstanceToStepBundle(stepBundleId, stepBundle) : undefined;
     }
 
-    if (parentWorkflowId && stepIndex >= 0) {
+    if (!stepBundleId && parentWorkflowId && stepIndex >= 0) {
       const stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
       const [cvs, stepBundleInWorkflow] = Object.entries(stepListItemModel || {})[0];
 
@@ -56,7 +56,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
         : undefined;
     }
 
-    if (parentStepBundleId && stepIndex >= 0) {
+    if (!stepBundleId && !parentWorkflowId && parentStepBundleId && stepIndex >= 0) {
       const stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
       const [cvs, stepBundleInStepBundle] = Object.entries(stepListItemModel || {})[0];
 
