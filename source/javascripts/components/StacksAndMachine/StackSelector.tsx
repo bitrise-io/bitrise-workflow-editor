@@ -1,6 +1,6 @@
 import { Box, Checkbox, Icon, Link, Select, Text, Tooltip } from '@bitrise/bitkit';
 
-import { StackOption } from '@/core/models/Stack';
+import { StackOption } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {

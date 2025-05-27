@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import StackService from '@/core/services/StackService';
+import StackAndMachineService from '@/core/services/StackAndMachineService';
 import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
 
 import useProjectStackAndMachine from './useProjectStackAndMachine';
@@ -13,7 +13,7 @@ const useWorkflowStackName = (workflowId: string = '') => {
   const { stackId: workflowStackId } = useWorkflowStackAndMachine(workflowId);
 
   const stackId = workflowStackId || projectStackId || '';
-  const stack = StackService.getStackById(data?.availableStacks || [], stackId);
+  const stack = StackAndMachineService.getStackById(data?.availableStacks || [], stackId);
 
   return useMemo(() => {
     return stack?.name || stackId || 'Unknown stack';

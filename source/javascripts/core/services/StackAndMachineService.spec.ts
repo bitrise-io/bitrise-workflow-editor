@@ -1,8 +1,5 @@
-import { MachineType } from '@/core/models/MachineType';
-import { Stack } from '@/core/models/Stack';
-import MachineTypeService from '@/core/services/MachineTypeService';
+import { MachineType, Stack } from '@/core/models/StackAndMachine';
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
-import StackService from '@/core/services/StackService';
 
 import BitriseYmlApi from '../api/BitriseYmlApi';
 import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
@@ -38,6 +35,7 @@ const stacks: Stack[] = [
 
 const machines: MachineType[] = [
   {
+    availableOnStacks: [],
     id: 'standard',
     name: 'Standard',
     creditPerMinute: 1,
@@ -45,8 +43,10 @@ const machines: MachineType[] = [
     chip: 'AMD',
     cpuCount: '4',
     cpuDescription: '4 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'elite',
     name: 'Elite',
     creditPerMinute: 1,
@@ -54,8 +54,10 @@ const machines: MachineType[] = [
     chip: 'AMD',
     cpuCount: '8',
     cpuDescription: '8 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m1',
     name: 'M1',
     creditPerMinute: 2,
@@ -63,8 +65,10 @@ const machines: MachineType[] = [
     chip: 'M1',
     cpuCount: '8',
     cpuDescription: '8 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m2',
     name: 'M2',
     creditPerMinute: 3,
@@ -72,8 +76,10 @@ const machines: MachineType[] = [
     chip: 'M2',
     cpuCount: '12',
     cpuDescription: '12 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m3',
     name: 'M3',
     creditPerMinute: 4,
@@ -81,8 +87,10 @@ const machines: MachineType[] = [
     chip: 'M3',
     cpuCount: '16',
     cpuDescription: '16 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'mac-m4',
     name: 'M4',
     creditPerMinute: 8,
@@ -90,8 +98,10 @@ const machines: MachineType[] = [
     chip: 'M4',
     cpuCount: '24',
     cpuDescription: '24 cores',
+    osId: 'osx',
   },
   {
+    availableOnStacks: [],
     id: 'joker',
     name: 'Joker',
     creditPerMinute: 16,
@@ -99,6 +109,7 @@ const machines: MachineType[] = [
     chip: 'Joker',
     cpuCount: '64',
     cpuDescription: '64 cores',
+    osId: 'osx',
   },
 ];
 
@@ -127,7 +138,7 @@ describe('StackAndMachineService', () => {
       // Stack options
       const [defaultStack, ...stackOptions] = result.availableStackOptions;
       expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-      expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
+      expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
     });
 
     it('returns the selected stack when a valid stack is selected', () => {
@@ -153,7 +164,7 @@ describe('StackAndMachineService', () => {
       // Stack options
       const [defaultStack, ...stackOptions] = result.availableStackOptions;
       expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-      expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
+      expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
     });
 
     it('returns the invalid stack when an invalid stack is selected', () => {
@@ -179,7 +190,7 @@ describe('StackAndMachineService', () => {
       // Stack options
       const [defaultStack, ...stackOptions] = result.availableStackOptions;
       expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-      expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackService.toStackOption));
+      expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
       // Invalid stack option
       expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11' }]);
@@ -200,10 +211,10 @@ describe('StackAndMachineService', () => {
       expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
 
       // Machine type options
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
       const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-      expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
+      expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
     });
 
     it('returns the selected machine type when a valid machine type is selected', () => {
@@ -223,10 +234,10 @@ describe('StackAndMachineService', () => {
       );
 
       // Machine type options
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
       const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-      expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
+      expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
     });
 
     it('returns the invalid machine type when an invalid machine type is selected', () => {
@@ -250,10 +261,10 @@ describe('StackAndMachineService', () => {
       );
 
       // Machine type options
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
       const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-      expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
+      expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
 
       // Invalid machine type option
       expect(machineOptions.slice(-1)).toEqual([{ value: 'mac-intel', label: 'mac-intel' }]);
@@ -306,9 +317,9 @@ describe('StackAndMachineService', () => {
       // Machine type options
       expect(result.isMachineTypeSelectionDisabled).toBe(false);
       const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)' });
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-      expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
+      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
+      expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
     });
 
     it('returns disabled selection for dedicated accounts with no available machines', () => {
@@ -329,6 +340,68 @@ describe('StackAndMachineService', () => {
       // Machine type options
       expect(result.isMachineTypeSelectionDisabled).toBe(true);
       expect(result.availableMachineTypeOptions).toEqual([{ label: 'Dedicated Machine', value: '' }]);
+    });
+
+    it('returns promoted machine types when available', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
+        machineTypePromotion: {
+          mode: 'trial',
+          promotedMachineTypes: [
+            {
+              id: 'mac-m5',
+              name: 'M5',
+              creditPerMinute: 16,
+              ram: '128GB',
+              chip: 'M5',
+              cpuCount: '36',
+              cpuDescription: '36 cores',
+              osId: 'osx',
+              availableOnStacks: ['osx-xcode-16'],
+            },
+            {
+              id: 'mac-m6',
+              name: 'M6',
+              creditPerMinute: 32,
+              ram: '256GB',
+              chip: 'M6',
+              cpuCount: '48',
+              cpuDescription: '48 cores',
+              osId: 'osx',
+              availableOnStacks: ['osx-xcode-16'],
+            },
+          ],
+        },
+      });
+
+      // Machine type options
+      expect(result.machineTypePromotionMode).toBe('trial');
+      expect(result.promotedMachineTypeOptions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ value: 'mac-m5' }),
+          expect.objectContaining({ value: 'mac-m6' }),
+        ]),
+      );
+    });
+
+    it('returns no promoted machine types when promotion type is undefined', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: '',
+        availableStacks: stacks,
+        availableMachineTypes: machines,
+        projectStackId: 'osx-xcode-16',
+        projectMachineTypeId: 'mac-m1',
+      });
+
+      // Machine type options
+      expect(result.machineTypePromotionMode).toBeUndefined();
+      expect(result.promotedMachineTypeOptions).toEqual([]);
     });
 
     describe('withoutDefaultOptions', () => {
@@ -354,7 +427,7 @@ describe('StackAndMachineService', () => {
         );
 
         // Stack options
-        expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+        expect(result.availableStackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
         // Machine type
         expect(result.isInvalidMachineType).toBe(false);
@@ -363,8 +436,10 @@ describe('StackAndMachineService', () => {
         );
 
         // Machine type options
-        const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-        expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+        const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
+        expect(result.availableMachineTypeOptions).toEqual(
+          selectableMachines.map(StackAndMachineService.toMachineOption),
+        );
       });
 
       it('returns the selected stack and the default machine type of the stack', () => {
@@ -393,7 +468,7 @@ describe('StackAndMachineService', () => {
         );
 
         // Stack options
-        expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+        expect(result.availableStackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
         // Machine type
         expect(result.isInvalidMachineType).toBe(false);
@@ -402,8 +477,10 @@ describe('StackAndMachineService', () => {
         );
 
         // Machine type options
-        const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-        expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+        const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
+        expect(result.availableMachineTypeOptions).toEqual(
+          selectableMachines.map(StackAndMachineService.toMachineOption),
+        );
       });
     });
   });
@@ -583,7 +660,10 @@ describe('StackAndMachineService', () => {
           },
         });
 
-        expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: 'mac-m1' });
+        expect(result).toEqual({
+          stackId: 'osx-xcode-15',
+          machineTypeId: 'mac-m1',
+        });
       });
 
       it('keeps a specific stack with default machine type of OS', () => {
@@ -602,7 +682,10 @@ describe('StackAndMachineService', () => {
           },
         });
 
-        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'elite' });
+        expect(result).toEqual({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: 'elite',
+        });
       });
 
       it('keeps a specific stack with the first available machine type', () => {
@@ -621,7 +704,10 @@ describe('StackAndMachineService', () => {
           },
         });
 
-        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: 'standard' });
+        expect(result).toEqual({
+          stackId: 'linux-ubuntu-22',
+          machineTypeId: 'standard',
+        });
       });
     });
   });
