@@ -119,10 +119,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     defaultMachineTypeIdOfOSs = {},
     selectedMachineTypeId,
     availableMachineTypes = [],
-    machineTypePromotion = {
-      mode: 'trial',
-      promotedMachineTypes: [],
-    },
+    machineTypePromotion,
     runningBuildsOnPrivateCloud,
     withoutDefaultOptions = false,
   } = props;
@@ -132,8 +129,8 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     selectedMachineType: createMachineType(),
     availableStackOptions: availableStacks.map(toStackOption),
     availableMachineTypeOptions: availableMachineTypes.map(toMachineOption),
-    promotedMachineTypeOptions: machineTypePromotion.promotedMachineTypes.map(toMachineOption),
-    machineTypePromotionMode: machineTypePromotion.mode,
+    promotedMachineTypeOptions: machineTypePromotion?.promotedMachineTypes.map(toMachineOption) ?? [],
+    machineTypePromotionMode: machineTypePromotion?.mode,
     isInvalidStack: false,
     isInvalidMachineType: false,
     isMachineTypeSelectionDisabled: false,
@@ -222,7 +219,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     }
   }
 
-  result.promotedMachineTypeOptions = machineTypePromotion.promotedMachineTypes
+  result.promotedMachineTypeOptions = (machineTypePromotion?.promotedMachineTypes ?? [])
     .filter((machine) => {
       return machine.availableOnStacks.includes(result.selectedStack.id);
     })

@@ -336,6 +336,68 @@ describe('prepareStackAndMachineSelectionData', () => {
     expect(result.availableMachineTypeOptions).toEqual([{ label: 'Dedicated Machine', value: '' }]);
   });
 
+  it('returns promoted machine types when available', () => {
+    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+      selectedStackId: '',
+      selectedMachineTypeId: '',
+      availableStacks: stacks,
+      availableMachineTypes: machines,
+      projectStackId: 'osx-xcode-16',
+      projectMachineTypeId: 'mac-m1',
+      machineTypePromotion: {
+        mode: 'trial',
+        promotedMachineTypes: [
+          {
+            id: 'mac-m5',
+            name: 'M5',
+            creditPerMinute: 16,
+            ram: '128GB',
+            chip: 'M5',
+            cpuCount: '36',
+            cpuDescription: '36 cores',
+            osId: 'osx',
+            availableOnStacks: ['osx-xcode-16'],
+          },
+          {
+            id: 'mac-m6',
+            name: 'M6',
+            creditPerMinute: 32,
+            ram: '256GB',
+            chip: 'M6',
+            cpuCount: '48',
+            cpuDescription: '48 cores',
+            osId: 'osx',
+            availableOnStacks: ['osx-xcode-16'],
+          },
+        ],
+      },
+    });
+
+    // Machine type options
+    expect(result.machineTypePromotionMode).toBe('trial');
+    expect(result.promotedMachineTypeOptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: 'mac-m5' }),
+        expect.objectContaining({ value: 'mac-m6' }),
+      ]),
+    );
+  });
+
+  it('returns no promoted machine types when promotion type is undefined', () => {
+    const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+      selectedStackId: '',
+      selectedMachineTypeId: '',
+      availableStacks: stacks,
+      availableMachineTypes: machines,
+      projectStackId: 'osx-xcode-16',
+      projectMachineTypeId: 'mac-m1',
+    });
+
+    // Machine type options
+    expect(result.machineTypePromotionMode).toBeUndefined();
+    expect(result.promotedMachineTypeOptions).toEqual([]);
+  });
+
   describe('withoutDefaultOptions', () => {
     it('returns the project stack and machine type when empty stack and machine type values are selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
