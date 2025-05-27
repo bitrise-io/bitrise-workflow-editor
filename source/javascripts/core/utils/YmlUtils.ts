@@ -20,7 +20,7 @@ import {
 type Root = Document | Node;
 type Path = (string | number)[];
 type WildcardPath = ('*' | string | number)[];
-type DeletedCallback = (deleted: Node, path: Path) => void;
+type Deleted = (deleted: Node, path: Path) => void;
 
 const SAFE_DELIMITER = '!#{{SAFE_DELIMITER}}#!';
 
@@ -100,6 +100,18 @@ function collectPaths(root: Root, pathWithWildcard: Path = []) {
         return [...result, item];
       }, [] as Path);
     });
+}
+
+function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = [], strict = false): [Path, Path][] {
+  const matchingPaths = collectPaths(root, path);
+  const matchingKeeps = collectPaths(root, keep);
+
+  return matchingPaths.map((p) => {
+    if (strict) {
+      return [p.splice(0, path.length), matchingKeeps.find((kp) => isEqual(p, kp))?.splice(0, keep.length) || keep];
+    }
+    return [p, matchingKeeps.find((kp) => isEqual(p, kp))?.splice(0, keep.length) || keep];
+  });
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
@@ -185,24 +197,14 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
   return node;
 }
 
-function deleteByPath(root: Root, path: WildcardPath, keep: Path = [], deleted?: DeletedCallback) {
+function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], deleted?: Deleted) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
   if (path.includes('*')) {
-    collectPaths(root, path).forEach((p) => {
-      let matchingKeep = keep;
-
-      if (keep.includes('*')) {
-        collectPaths(root, keep).forEach((kp) => {
-          if (isEqual(p.slice(0, keep.length), kp.slice(0, keep.length))) {
-            matchingKeep = kp.slice(0, keep.length);
-          }
-        });
-      }
-
-      deleteByPath(root, p, matchingKeep, deleted);
+    getMatchingPaths(root, path, keep).forEach((matchingPaths) => {
+      deleteByPath(root, ...matchingPaths, deleted);
     });
 
     return;
@@ -221,24 +223,14 @@ function deleteByPath(root: Root, path: WildcardPath, keep: Path = [], deleted?:
   }
 }
 
-function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: Path = [], deleted?: DeletedCallback) {
+function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: WildcardPath = [], deleted?: Deleted) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
   if (path.includes('*')) {
-    collectPaths(root, path).forEach((p) => {
-      let matchingKeep = keep;
-
-      if (keep.includes('*')) {
-        collectPaths(root, keep).forEach((kp) => {
-          if (isEqual(p.slice(0, keep.length), kp.slice(0, keep.length))) {
-            matchingKeep = kp.slice(0, keep.length);
-          }
-        });
-      }
-
-      deleteByValue(root, p.slice(0, path.length), value, matchingKeep, deleted);
+    getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
+      deleteByValue(root, matchingPaths[0], value, matchingPaths[1], deleted);
     });
 
     return;
@@ -247,13 +239,6 @@ function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: Pat
   const deletedNode = root.getIn(path, true);
   if (isNode(deletedNode) && isEqual(deletedNode.toJSON(), value)) {
     deleteByPath(root, path, keep, deleted);
-  }
-
-  const parentPath = path.slice(0, -1);
-  const parentNode = root.getIn(parentPath, true);
-
-  if (!isEqual(parentPath, keep) && isNode(parentNode) && isEmpty(toJSON(parentNode))) {
-    deleteByPath(root, parentPath, keep, deleted);
   }
 }
 

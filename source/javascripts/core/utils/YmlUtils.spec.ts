@@ -253,10 +253,76 @@ describe('YmlUtils', () => {
   describe('deleteByValue', () => {
     it('should delete an item with a specific value at the specified path', () => {
       const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.deleteByValue(root, ['steps', 0, 'script', 'title'], 'Script Step', ['steps', 0, 'script']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script: {}
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should not delete anything if the value does not match', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.deleteByValue(root, ['steps', 0, 'script', 'title'], 'Not Exists', ['steps', 0, 'script']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should delete multiple items matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
         workflows:
           wf1:
             steps:
             - script: {}
+            - deploy: {}
+          wf2:
+            steps:
+            - deploy: {}
+            - clone: {}
+      `);
+
+      YmlUtils.deleteByValue(root, ['workflows', '*', 'steps', '*'], { deploy: {} }, ['workflows']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2:
+            steps:
+            - clone: {}
+      `);
+    });
+
+    it('should not delete the parent if it is not empty', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            title: Workflow 1
+            steps:
+            - deploy: {}
           wf2:
             steps:
             - deploy: {}
@@ -267,8 +333,7 @@ describe('YmlUtils', () => {
       expect(YmlUtils.toYml(root)).toEqual(yaml`
         workflows:
           wf1:
-            steps:
-            - script: {}
+            title: Workflow 1
       `);
     });
   });
