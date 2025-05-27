@@ -1006,7 +1006,7 @@ describe('StepBundleService', () => {
   });
 
   describe('updateStepBundleInput', () => {
-    it('updates the keys of the input in the step bundle', () => {
+    it('updates the key of the input in the step bundle', () => {
       initializeStore({
         version: '',
         ymlString: `
