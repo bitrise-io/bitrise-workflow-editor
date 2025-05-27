@@ -1,5 +1,4 @@
 import { compact, isString, uniq } from 'es-toolkit';
-import { isEmpty } from 'es-toolkit/compat';
 import semver from 'semver';
 import { Document, isMap, isScalar, Scalar } from 'yaml';
 
@@ -8,14 +7,7 @@ import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
 import type { StepApiResult } from '@/core/api/StepApi';
 import VersionUtils from '@/core/utils/VersionUtils';
 
-import {
-  EnvironmentItemModel,
-  EnvironmentItemOptionsModel,
-  StepBundleOverrideModel,
-  StepListItemModel,
-  StepModel,
-  WithModel,
-} from '../models/BitriseYml';
+import { StepBundleOverrideModel, StepListItemModel, StepModel, WithModel } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, LibraryType, Step } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
@@ -370,28 +362,6 @@ function calculateChange(
   };
 }
 
-function toYmlInput(
-  name: string,
-  newValue: unknown,
-  opts?: EnvironmentItemOptionsModel,
-): EnvironmentItemModel | undefined {
-  if (!newValue || !String(newValue).trim()) {
-    return undefined;
-  }
-
-  const result = { [name]: newValue, ...(!isEmpty(opts) ? { opts } : {}) };
-
-  if (['true', 'false'].includes(String(newValue))) {
-    return { ...result, [name]: String(newValue) === 'true' };
-  }
-
-  if (!Number.isNaN(Number(newValue))) {
-    return { ...result, [name]: Number(newValue) };
-  }
-
-  return result;
-}
-
 export const moveStepIndices = (
   action: 'move' | 'clone' | 'remove',
   indices: number[],
@@ -578,7 +548,6 @@ export default {
   getStepCategories,
   getInputNames,
   calculateChange,
-  toYmlInput,
   moveStepIndices,
   addStep,
   moveStep,

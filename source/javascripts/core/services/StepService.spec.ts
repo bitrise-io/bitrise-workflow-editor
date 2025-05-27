@@ -1076,54 +1076,6 @@ describe('StepService', () => {
     });
   });
 
-  describe('toYmlInput', () => {
-    it('should return undefined if the new value is empty', () => {
-      const result = StepService.toYmlInput('is_debug', '');
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined if the new value is only whitespaces', () => {
-      const result = StepService.toYmlInput('is_debug', '   ');
-      expect(result).toBeUndefined();
-    });
-
-    it('should return a boolean input if the new value is a boolean string', () => {
-      let result = StepService.toYmlInput('is_debug', 'true');
-      expect(result).toEqual({ is_debug: true });
-
-      result = StepService.toYmlInput('is_debug', 'false');
-      expect(result).toEqual({ is_debug: false });
-    });
-
-    it('should return a number input if the new value is a numeric string', () => {
-      let result = StepService.toYmlInput('timeout', '0');
-      expect(result).toEqual({ timeout: 0 });
-
-      result = StepService.toYmlInput('timeout', '1');
-      expect(result).toEqual({ timeout: 1 });
-
-      result = StepService.toYmlInput('timeout', '30');
-      expect(result).toEqual({ timeout: 30 });
-    });
-
-    it('should return a string input if the new value is a non-numeric, non-boolean string', () => {
-      const result = StepService.toYmlInput('name', 'new_name');
-      expect(result).toEqual({ name: 'new_name' });
-    });
-
-    it('should include opts if provided and not empty', () => {
-      const opts = { is_required: true };
-      const result = StepService.toYmlInput('name', 'new_name', opts);
-      expect(result).toEqual({ name: 'new_name', opts });
-    });
-
-    it('should not include opts if provided and empty', () => {
-      const opts = {};
-      const result = StepService.toYmlInput('name', 'new_name', opts);
-      expect(result).toEqual({ name: 'new_name' });
-    });
-  });
-
   describe('moveStepIndices', () => {
     test('move a not selected before a selected', () => {
       const result = StepService.moveStepIndices('move', [0, 2], 3, 1);
@@ -1250,6 +1202,60 @@ describe('StepService', () => {
       `;
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should move the step to end of the steps if the new index is out ouf bounds', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - cache@2: {}
+              - build@2: {}
+        `,
+      });
+
+      StepService.moveStep('workflows', 'primary', 1, 4);
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - build@2: {}
+              - cache@2: {}
+        `,
+      );
+    });
+
+    it('should move the step relative to the end of the steps', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - cache@2: {}
+              - build@2: {}
+        `,
+      });
+
+      StepService.moveStep('workflows', 'primary', 0, -1);
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - cache@2: {}
+              - script@1: {}
+              - build@2: {}
+        `,
+      );
     });
 
     it('should throw an error if the workflow or step bundle does not exist', () => {
@@ -1464,6 +1470,30 @@ describe('StepService', () => {
             - script@1:
                 title: New title
             - cache@2: {}
+      `;
+
+      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+    });
+
+    it('should remove a step field if the new value is empty', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  title: Old title
+        `,
+      });
+
+      StepService.updateStepField('workflows', 'primary', 0, 'title', '');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
       `;
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
