@@ -14,6 +14,9 @@ describe('YmlUtils', () => {
           wf2:
             steps:
               - deploy: {}
+          123:
+            steps:
+              - test: {}
       `);
 
       const paths = YmlUtils.collectPaths(root, ['workflows', '*', 'steps', '*']);
@@ -22,6 +25,7 @@ describe('YmlUtils', () => {
         ['workflows', 'wf2', 'steps', 0, 'deploy'],
         ['workflows', 'wf1', 'steps', 1, 'clone'],
         ['workflows', 'wf1', 'steps', 0, 'script'],
+        ['workflows', '123', 'steps', 0, 'test'],
       ]);
     });
   });
@@ -40,7 +44,7 @@ describe('YmlUtils', () => {
 
     it('should create YAMLSeq if it does not exist and createIfNotExists is true', () => {
       const root = YmlUtils.toDoc(yaml`
-        workflows: 
+        workflows:
           wf1: {}
       `);
 
@@ -90,7 +94,7 @@ describe('YmlUtils', () => {
 
     it('should create YAMLMap if it does not exist and createIfNotExists is true', () => {
       const root = YmlUtils.toDoc(yaml`
-        workflows: 
+        workflows:
           wf1: {}
       `);
 

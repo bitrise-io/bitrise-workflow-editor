@@ -90,11 +90,16 @@ function collectPaths(root: Root, pathWithWildcard: Path = []) {
   const flattened = Object.keys(flattenObject(toJSON(root), { delimiter: SAFE_DELIMITER }));
   const escapedPath = pathWithWildcard.map((part) => part.toString().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'));
   const widlcardPattern = new RegExp(`^${escapedPath.join(SAFE_DELIMITER).replace(/\\\*/g, '.*')}$`);
-  const filtered = flattened.filter((path) => widlcardPattern.test(path));
 
-  filtered.sort((a, b) => b.localeCompare(a));
-
-  return filtered.map((path) => path.split(SAFE_DELIMITER).map((p) => (!isNaN(Number(p)) ? Number(p) : p)));
+  return flattened
+    .filter((path) => widlcardPattern.test(path))
+    .sort((a, b) => b.localeCompare(a))
+    .map((path) => {
+      return path.split(SAFE_DELIMITER).reduce((result, part) => {
+        const item = !isNaN(Number(part)) && isSeq(root.getIn(result)) ? Number(part) : part;
+        return [...result, item];
+      }, [] as Path);
+    });
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
