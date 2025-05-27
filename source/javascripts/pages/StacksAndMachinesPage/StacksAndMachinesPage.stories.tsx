@@ -75,7 +75,7 @@ export const WithDeprecatedMachines: Story = {
   parameters: {
     bitriseYmlStore: (() => {
       set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-        stack: 'linux-ubuntu-22.04',
+        stack: 'ubuntu-jammy-22.04-bitrise-2024',
         machine_type_id: 'standard',
       });
       return { yml: TEST_BITRISE_YML };
