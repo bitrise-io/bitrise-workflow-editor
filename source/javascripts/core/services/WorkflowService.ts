@@ -158,7 +158,7 @@ function getWorkflowOrThrowError(id: string, doc: Document) {
 function createWorkflow(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     if (doc.hasIn(['workflows', id])) {
-      throw new Error(`Workflow ${id} already exists. Please choose a different name.`);
+      throw new Error(`Workflow '${id}' already exists`);
     }
     doc.setIn(['workflows', id], baseId ? getWorkflowOrThrowError(baseId, doc).clone() : doc.createNode({}));
     return doc;
@@ -168,6 +168,11 @@ function createWorkflow(id: string, baseId?: string) {
 function renameWorkflow(id: string, newName: string) {
   updateBitriseYmlDocument(({ doc, paths }) => {
     getWorkflowOrThrowError(id, doc);
+
+    if (doc.hasIn(['workflows', newName])) {
+      throw new Error(`Workflow '${newName}' already exists`);
+    }
+
     YamlUtils.updateKey({ doc, paths }, `workflows.${id}`, newName);
     YamlUtils.updateKey({ doc, paths }, `stages.*.workflows.*.${id}`, newName);
     YamlUtils.updateKey({ doc, paths }, `pipelines.*.workflows.${id}`, newName);

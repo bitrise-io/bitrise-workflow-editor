@@ -709,6 +709,20 @@ describe('WorkflowService', () => {
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
     });
+
+    it('should throw an error if id is already exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            existing-workflow: {}
+        `,
+      });
+
+      expect(() => WorkflowService.createWorkflow('existing-workflow')).toThrow(
+        "Workflow 'existing-workflow' already exists",
+      );
+    });
   });
 
   describe('renameWorkflow', () => {
@@ -809,6 +823,19 @@ describe('WorkflowService', () => {
       expect(() => WorkflowService.renameWorkflow('non-existing-workflow', 'new-name')).toThrow(
         `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
       );
+    });
+
+    it('should throw an error if the new name already exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+      });
+
+      expect(() => WorkflowService.renameWorkflow('wf1', 'wf2')).toThrow("Workflow 'wf2' already exists");
     });
   });
 
@@ -1049,6 +1076,20 @@ describe('WorkflowService', () => {
 
       expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
     });
+
+    it('should throw an error if the workflow to delete does not exist', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          workflows:
+            wf1: {}
+        `,
+      });
+
+      expect(() => WorkflowService.deleteWorkflow('non-existing-workflow')).toThrow(
+        `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
+      );
+    });
   });
 
   describe('addChainedWorkflow', () => {
@@ -1156,6 +1197,21 @@ describe('WorkflowService', () => {
           }).toThrow(
             `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
           );
+        });
+
+        it('throw an error when insert chained workflow to invalid placement', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+          });
+
+          expect(() => {
+            WorkflowService.addChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2');
+          }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
         });
       });
     });
@@ -1299,6 +1355,22 @@ describe('WorkflowService', () => {
           expect(() => {
             WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 2);
           }).toThrow(`Workflow wf2 is not in the ${placement} workflow chain of wf1.`);
+        });
+
+        it('throw an error if the placement is invalid', () => {
+          initializeStore({
+            version: '',
+            ymlString: yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+            wf3: {}
+          `,
+          });
+
+          expect(() => {
+            WorkflowService.removeChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2', 0);
+          }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
         });
       });
     });
