@@ -726,7 +726,7 @@ describe('StackAndMachineService', () => {
         `);
       });
 
-      it('removes stack ID meta.[bitrise.io] when stack ID is empty', () => {
+      it('removes stack ID from meta.[bitrise.io] when stack ID is empty', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -752,7 +752,7 @@ describe('StackAndMachineService', () => {
         `);
       });
 
-      it('removes machine type ID at meta.[bitrise.io] when machine type ID is empty', () => {
+      it('removes machine type ID from meta.[bitrise.io] when machine type ID is empty', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
@@ -778,7 +778,7 @@ describe('StackAndMachineService', () => {
         `);
       });
 
-      it('removes stack rollback version at meta.[bitrise.io] when stack rollback version is empty', () => {
+      it('removes stack rollback version from meta.[bitrise.io] when stack rollback version is empty', () => {
         initializeStore({
           version: '',
           ymlString: yaml`
