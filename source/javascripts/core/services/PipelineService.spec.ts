@@ -543,6 +543,21 @@ describe('PipelineService', () => {
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
       );
     });
+
+    it('should throw an error if the pipeline id already exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              workflows: {}
+        `,
+      });
+
+      expect(() => PipelineService.createPipeline('existing_pipeline')).toThrow(
+        'Pipeline existing_pipeline already exists',
+      );
+    });
   });
 
   describe('renamePipeline', () => {
@@ -585,6 +600,23 @@ describe('PipelineService', () => {
 
       expect(() => PipelineService.renamePipeline('non_existent_pipeline', 'new_name')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
+      );
+    });
+
+    it('should throw an error if the new pipeline name already exists', () => {
+      initializeStore({
+        version: '',
+        ymlString: yaml`
+          pipelines:
+            existing_pipeline:
+              workflows: {}
+            another_pipeline:
+              workflows: {}
+        `,
+      });
+
+      expect(() => PipelineService.renamePipeline('existing_pipeline', 'another_pipeline')).toThrow(
+        'Pipeline another_pipeline already exists',
       );
     });
   });
@@ -889,7 +921,7 @@ describe('PipelineService', () => {
       );
     });
 
-    it('should throw an error if the based_on workflow is not part of the pipeline', () => {
+    it('should throw an error if the depends_on workflow is not part of the pipeline', () => {
       initializeStore({
         version: '',
         ymlString: yaml`
@@ -1174,7 +1206,7 @@ describe('PipelineService', () => {
       );
     });
 
-    it('should throw an error if the based_on workflow does not exist', () => {
+    it('should throw an error if the depends_on workflow is not part of the pipeline', () => {
       initializeStore({
         version: '',
         ymlString: yaml`
@@ -1302,7 +1334,7 @@ describe('PipelineService', () => {
       ).toThrow('Workflow non_existent_workflow not found in pipeline pipeline1.');
     });
 
-    it('should throw an error if the based_on workflow does not exist', () => {
+    it('should throw an error if the depends_on workflow is not part of the pipeline', () => {
       initializeStore({
         version: '',
         ymlString: yaml`

@@ -198,6 +198,10 @@ function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string,
 
 function createPipeline(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
+    if (YamlUtils.getMapIn(doc, ['pipelines', id])) {
+      throw new Error(`Pipeline ${id} already exists`);
+    }
+
     if (baseId) {
       const basePipelineNode = getPipelineOrThrowError(baseId, doc);
       const basePipelineJson = basePipelineNode.toJSON();
@@ -223,6 +227,11 @@ function createPipeline(id: string, baseId?: string) {
 function renamePipeline(id: string, newName: string) {
   updateBitriseYmlDocument(({ doc, paths }) => {
     getPipelineOrThrowError(id, doc);
+
+    if (YamlUtils.getMapIn(doc, ['pipelines', newName])) {
+      throw new Error(`Pipeline ${newName} already exists`);
+    }
+
     YamlUtils.updateKey({ doc, paths }, `pipelines.${id}`, newName);
     YamlUtils.updateValue({ doc, paths }, `trigger_map.*.pipeline`, newName, id);
     return doc;
