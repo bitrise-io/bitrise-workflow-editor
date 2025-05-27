@@ -1,7 +1,7 @@
 import { Avatar, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip, TypeIconName } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
-import { MachineTypeOption } from '@/core/models/MachineType';
+import { MachineTypeOption } from '@/core/models/StackAndMachine';
 import { MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
 export const PROMOTION_TEXTS = {

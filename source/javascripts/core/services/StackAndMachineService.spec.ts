@@ -1,8 +1,5 @@
-import { MachineType } from '@/core/models/MachineType';
-import { Stack } from '@/core/models/Stack';
-import MachineTypeService from '@/core/services/MachineTypeService';
+import { MachineType, Stack } from '@/core/models/StackAndMachine';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
-import StackService from '@/core/services/StackService';
 
 const stacks: Stack[] = [
   {
@@ -137,7 +134,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Stack options
     const [defaultStack, ...stackOptions] = result.availableStackOptions;
     expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-    expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
+    expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
   });
 
   it('returns the selected stack when a valid stack is selected', () => {
@@ -163,7 +160,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Stack options
     const [defaultStack, ...stackOptions] = result.availableStackOptions;
     expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-    expect(stackOptions).toEqual(stacks.map(StackService.toStackOption));
+    expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
   });
 
   it('returns the invalid stack when an invalid stack is selected', () => {
@@ -189,7 +186,7 @@ describe('prepareStackAndMachineSelectionData', () => {
     // Stack options
     const [defaultStack, ...stackOptions] = result.availableStackOptions;
     expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
-    expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackService.toStackOption));
+    expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
     // Invalid stack option
     expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11' }]);
@@ -210,10 +207,10 @@ describe('prepareStackAndMachineSelectionData', () => {
     expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
 
     // Machine type options
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+    const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
     expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-    expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
   });
 
   it('returns the selected machine type when a valid machine type is selected', () => {
@@ -231,10 +228,10 @@ describe('prepareStackAndMachineSelectionData', () => {
     expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: 'mac-m2', id: 'mac-m2', name: 'M2' }));
 
     // Machine type options
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+    const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
     expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-    expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
   });
 
   it('returns the invalid machine type when an invalid machine type is selected', () => {
@@ -258,10 +255,10 @@ describe('prepareStackAndMachineSelectionData', () => {
     );
 
     // Machine type options
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
+    const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
     expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-    expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
 
     // Invalid machine type option
     expect(machineOptions.slice(-1)).toEqual([{ value: 'mac-intel', label: 'mac-intel' }]);
@@ -315,8 +312,8 @@ describe('prepareStackAndMachineSelectionData', () => {
     expect(result.isMachineTypeSelectionDisabled).toBe(false);
     const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
     expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-    const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-    expect(machineOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+    const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
+    expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
   });
 
   it('returns disabled selection for dedicated accounts with no available machines', () => {
@@ -362,7 +359,7 @@ describe('prepareStackAndMachineSelectionData', () => {
       );
 
       // Stack options
-      expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+      expect(result.availableStackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
       // Machine type
       expect(result.isInvalidMachineType).toBe(false);
@@ -371,8 +368,10 @@ describe('prepareStackAndMachineSelectionData', () => {
       );
 
       // Machine type options
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-      expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
+      expect(result.availableMachineTypeOptions).toEqual(
+        selectableMachines.map(StackAndMachineService.toMachineOption),
+      );
     });
 
     it('returns the selected stack and the default machine type of the stack', () => {
@@ -401,7 +400,7 @@ describe('prepareStackAndMachineSelectionData', () => {
       );
 
       // Stack options
-      expect(result.availableStackOptions).toEqual(stacks.map(StackService.toStackOption));
+      expect(result.availableStackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
       // Machine type
       expect(result.isInvalidMachineType).toBe(false);
@@ -410,8 +409,10 @@ describe('prepareStackAndMachineSelectionData', () => {
       );
 
       // Machine type options
-      const selectableMachines = MachineTypeService.getMachinesOfStack(machines, result.selectedStack);
-      expect(result.availableMachineTypeOptions).toEqual(selectableMachines.map(MachineTypeService.toMachineOption));
+      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
+      expect(result.availableMachineTypeOptions).toEqual(
+        selectableMachines.map(StackAndMachineService.toMachineOption),
+      );
     });
   });
 });

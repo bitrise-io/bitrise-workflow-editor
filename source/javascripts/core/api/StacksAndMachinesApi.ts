@@ -1,7 +1,6 @@
 import { mapValues } from 'es-toolkit';
 
-import { MachineType } from '../models/MachineType';
-import { Stack } from '../models/Stack';
+import { MachineType, Stack } from '../models/StackAndMachine';
 import Client from './client';
 
 type StacksAndMachinesResponse = {
