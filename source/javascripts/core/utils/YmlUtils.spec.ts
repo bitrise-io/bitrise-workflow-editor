@@ -173,18 +173,18 @@ describe('YmlUtils', () => {
 
       const afterRemove = jest.fn();
 
-      const deletedNodes = [
-        root.getIn(['workflows', 'wf1'], true),
-        root.getIn(['workflows', 'wf1', 'steps'], true),
-        root.getIn(['workflows', 'wf1', 'steps', '0'], true),
+      const afterRemoveParams = [
+        [root.getIn(['workflows', 'wf1'], true), ['workflows', 'wf1']],
+        [root.getIn(['workflows', 'wf1', 'steps'], true), ['workflows', 'wf1', 'steps']],
+        [root.getIn(['workflows', 'wf1', 'steps', '0'], true), ['workflows', 'wf1', 'steps', '0']],
       ];
 
       YmlUtils.deleteByPath(root, ['workflows', 'wf1', 'steps', '0'], ['workflows'], afterRemove);
 
       expect(afterRemove).toHaveBeenCalledTimes(3);
-      expect(afterRemove).toHaveBeenCalledWith(deletedNodes[0]);
-      expect(afterRemove).toHaveBeenCalledWith(deletedNodes[1]);
-      expect(afterRemove).toHaveBeenCalledWith(deletedNodes[2]);
+      expect(afterRemove).toHaveBeenCalledWith(...afterRemoveParams[0]);
+      expect(afterRemove).toHaveBeenCalledWith(...afterRemoveParams[1]);
+      expect(afterRemove).toHaveBeenCalledWith(...afterRemoveParams[2]);
       expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
     });
 
@@ -242,6 +242,29 @@ describe('YmlUtils', () => {
         workflows:
           wf1: {}
           wf2: {}
+      `);
+    });
+  });
+
+  describe('deleteByValue', () => {
+    it('should delete an item with a specific value at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      YmlUtils.deleteByValue(root, ['workflows', '*', 'steps', '*'], { deploy: {} }, ['workflows']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
       `);
     });
   });

@@ -17,8 +17,10 @@ import {
   YAMLSeq,
 } from 'yaml';
 
+type Root = Document | Node;
 type Path = (string | number)[];
-type RootNode = Document | Node;
+type WildcardPath = ('*' | string | number)[];
+type DeletedCallback = (deleted: Node, path: Path) => void;
 
 const SAFE_DELIMITER = '!#{{SAFE_DELIMITER}}#!';
 
@@ -29,7 +31,7 @@ function toDoc(raw: string) {
   });
 }
 
-function toYml(root: RootNode) {
+function toYml(root: Root) {
   let indents = 0;
   let paddings = 0;
 
@@ -70,7 +72,7 @@ function toYml(root: RootNode) {
   });
 }
 
-function toJSON(root: RootNode) {
+function toJSON(root: Root) {
   return root.toJSON();
 }
 
@@ -80,7 +82,7 @@ function unflowEmptyCollection(node: unknown) {
   }
 }
 
-function collectPaths(root: RootNode, pathWithWildcard: Path = []) {
+function collectPaths(root: Root, pathWithWildcard: Path = []) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
@@ -95,12 +97,12 @@ function collectPaths(root: RootNode, pathWithWildcard: Path = []) {
   return filtered.map((path) => path.split(SAFE_DELIMITER).map((p) => (!isNaN(Number(p)) ? Number(p) : p)));
 }
 
-const isEqualsCache = new WeakMap<RootNode, WeakMap<RootNode, boolean>>();
-function isEquals(a: RootNode, b: RootNode) {
+const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
+function isEquals(a: Root, b: Root) {
   if (a === b) return true;
 
   if (!isEqualsCache.has(a)) {
-    isEqualsCache.set(a, new WeakMap<RootNode, boolean>());
+    isEqualsCache.set(a, new WeakMap<Root, boolean>());
   }
 
   const aCache = isEqualsCache.get(a)!;
@@ -109,17 +111,15 @@ function isEquals(a: RootNode, b: RootNode) {
     return aCache.get(b)!;
   }
 
-  const result = toYml(a) === toYml(b);
+  aCache.set(b, toYml(a) === toYml(b));
 
-  aCache.set(b, result);
-
-  return result;
+  return aCache.get(b)!;
 }
 
-function getSeqIn(root: RootNode, path: Path): YAMLSeq | undefined;
-function getSeqIn(root: RootNode, path: Path, createIfNotExists: true): YAMLSeq;
-function getSeqIn(root: RootNode, path: Path, createIfNotExists?: boolean): YAMLSeq | undefined;
-function getSeqIn(root: RootNode, path: Path, createIfNotExists = false) {
+function getSeqIn(root: Root, path: Path): YAMLSeq | undefined;
+function getSeqIn(root: Root, path: Path, createIfNotExists: true): YAMLSeq;
+function getSeqIn(root: Root, path: Path, createIfNotExists?: boolean): YAMLSeq | undefined;
+function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
@@ -148,10 +148,10 @@ function getSeqIn(root: RootNode, path: Path, createIfNotExists = false) {
   return node;
 }
 
-function getMapIn(root: RootNode, path: Path): YAMLMap | undefined;
-function getMapIn(root: RootNode, path: Path, createIfNotExists: true): YAMLMap;
-function getMapIn(root: RootNode, path: Path, createIfNotExists: false): YAMLMap | undefined;
-function getMapIn(root: RootNode, path: Path, createIfNotExists = false) {
+function getMapIn(root: Root, path: Path): YAMLMap | undefined;
+function getMapIn(root: Root, path: Path, createIfNotExists: true): YAMLMap;
+function getMapIn(root: Root, path: Path, createIfNotExists: false): YAMLMap | undefined;
+function getMapIn(root: Root, path: Path, createIfNotExists = false) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
@@ -180,7 +180,7 @@ function getMapIn(root: RootNode, path: Path, createIfNotExists = false) {
   return node;
 }
 
-function deleteByPath(root: RootNode, path: Path, keep: Path = [], afterRemove?: (deleted: Node) => void) {
+function deleteByPath(root: Root, path: WildcardPath, keep: Path = [], deleted?: DeletedCallback) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
@@ -197,7 +197,7 @@ function deleteByPath(root: RootNode, path: Path, keep: Path = [], afterRemove?:
         });
       }
 
-      deleteByPath(root, p, matchingKeep, afterRemove);
+      deleteByPath(root, p, matchingKeep, deleted);
     });
 
     return;
@@ -205,14 +205,50 @@ function deleteByPath(root: RootNode, path: Path, keep: Path = [], afterRemove?:
 
   const deletedNode = root.getIn(path, true);
   if (isNode(deletedNode) && root.deleteIn(path)) {
-    afterRemove?.(deletedNode);
+    deleted?.(deletedNode, path);
   }
 
   const parentPath = path.slice(0, -1);
   const parentNode = root.getIn(parentPath, true);
 
   if (!isEqual(parentPath, keep) && isNode(parentNode) && isEmpty(toJSON(parentNode))) {
-    deleteByPath(root, parentPath, keep, afterRemove);
+    deleteByPath(root, parentPath, keep, deleted);
+  }
+}
+
+function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: Path = [], deleted?: DeletedCallback) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (path.includes('*')) {
+    collectPaths(root, path).forEach((p) => {
+      let matchingKeep = keep;
+
+      if (keep.includes('*')) {
+        collectPaths(root, keep).forEach((kp) => {
+          if (isEqual(p.slice(0, keep.length), kp.slice(0, keep.length))) {
+            matchingKeep = kp.slice(0, keep.length);
+          }
+        });
+      }
+
+      deleteByValue(root, p.slice(0, path.length), value, matchingKeep, deleted);
+    });
+
+    return;
+  }
+
+  const deletedNode = root.getIn(path, true);
+  if (isNode(deletedNode) && isEqual(deletedNode.toJSON(), value)) {
+    deleteByPath(root, path, keep, deleted);
+  }
+
+  const parentPath = path.slice(0, -1);
+  const parentNode = root.getIn(parentPath, true);
+
+  if (!isEqual(parentPath, keep) && isNode(parentNode) && isEmpty(toJSON(parentNode))) {
+    deleteByPath(root, parentPath, keep, deleted);
   }
 }
 
@@ -223,5 +259,6 @@ export default {
   getSeqIn,
   getMapIn,
   deleteByPath,
+  deleteByValue,
   collectPaths,
 };
