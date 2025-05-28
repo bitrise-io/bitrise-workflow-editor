@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { useUnmount } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
-import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, setBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
@@ -20,13 +20,10 @@ const YmlEditor = () => {
     return <LoadingState />;
   }
 
-  const hasErrorsInYml = (ymlString?: string) => {
-    return YmlUtils.toDoc(ymlString || '').errors.length > 0;
-  };
-
   const handleEditorChange = (modifiedYmlString?: string) => {
-    if (!hasErrorsInYml(modifiedYmlString)) {
-      updateBitriseYmlDocumentByString(modifiedYmlString ?? '');
+    const doc = YmlUtils.toDoc(modifiedYmlString || '');
+    if (doc.errors.length === 0) {
+      setBitriseYmlDocument(doc);
     }
   };
 

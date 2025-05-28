@@ -84,7 +84,13 @@ const DiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
   };
 
   return (
-    <Dialog {...rest} onClose={handleClose} title="View and edit YAML changes" size="full">
+    <Dialog
+      {...rest}
+      size="full"
+      onClose={handleClose}
+      minHeight={['100dvh', 'unset']}
+      title="View and edit YAML changes"
+    >
       <DiffEditorDialogBody ref={bodyRef} />
     </Dialog>
   );
