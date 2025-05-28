@@ -360,10 +360,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
                 const { data, error } = await getCiConfigFromBitrise();
                 setAsyncError(error);
                 if (data) {
-                  initializeStoreAndClose({
-                    ymlString: data.ymlString,
-                    version: data.version ?? '',
-                  });
+                  initializeStoreAndClose(data);
                 }
               },
               onError: setAsyncError,
@@ -413,10 +410,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
             const { data, error } = await getCiConfigFromRepo();
             setAsyncError(error);
             if (data) {
-              initializeStoreAndClose({
-                ymlString: data.ymlString,
-                version: data.version ?? '',
-              });
+              initializeStoreAndClose(data);
             }
           },
           onError: setAsyncError,
@@ -435,11 +429,9 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
           onSuccess: async () => {
             const { data, error } = await getCiConfigFromRepo();
             setAsyncError(error);
-            if (data)
-              initializeStoreAndClose({
-                ymlString: data.ymlString,
-                version: data.version ?? '',
-              });
+            if (data) {
+              initializeStoreAndClose(data);
+            }
           },
           onError: setAsyncError,
         },

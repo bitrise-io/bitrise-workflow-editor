@@ -1,27 +1,33 @@
 import Editor, { OnMount } from '@monaco-editor/react';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import { useUnmount } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
+import YmlUtils from '@/core/utils/YmlUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 
 const YmlEditor = () => {
   const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
 
-  useEffect(() => {
-    return () => {
-      monacoEditorRef.current?.dispose();
-    };
-  }, []);
+  useUnmount(() => {
+    monacoEditorRef.current?.dispose();
+  });
 
   if (isLoadingSetting) {
     return <LoadingState />;
   }
 
+  const hasErrorsInYml = (ymlString?: string) => {
+    return YmlUtils.toDoc(ymlString || '').errors.length > 0;
+  };
+
   const handleEditorChange = (modifiedYmlString?: string) => {
-    updateBitriseYmlDocumentByString(modifiedYmlString ?? '');
+    if (!hasErrorsInYml(modifiedYmlString)) {
+      updateBitriseYmlDocumentByString(modifiedYmlString ?? '');
+    }
   };
 
   const handleEditorDidMount: OnMount = (editor) => {
@@ -33,7 +39,7 @@ const YmlEditor = () => {
       theme="vs-dark"
       language="yaml"
       keepCurrentModel
-      value={getYmlString()}
+      defaultValue={getYmlString()}
       onChange={handleEditorChange}
       onMount={handleEditorDidMount}
       beforeMount={(monaco) => {
