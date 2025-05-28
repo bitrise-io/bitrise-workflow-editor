@@ -47,6 +47,10 @@ export function initializeBitriseYmlDocument({ ymlString, version }: { ymlString
   bitriseYmlStore.setState({ version, ymlDocument: doc, savedYmlDocument: doc });
 }
 
+export function setBitriseYmlDocument(ymlDocument: Document) {
+  bitriseYmlStore.setState({ ymlDocument });
+}
+
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
   const doc = bitriseYmlStore.getState().ymlDocument.clone();
   const paths = YamlUtils.collectPaths(bitriseYmlStore.getState().ymlDocument.toJSON());

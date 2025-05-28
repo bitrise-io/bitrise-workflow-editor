@@ -1,8 +1,9 @@
-import { Box, Dialog, DialogBody, DialogProps, Notification, Text } from '@bitrise/bitkit';
+import { Box, Dialog, DialogBody, DialogProps, List, ListItem, Notification, Text } from '@bitrise/bitkit';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { YAMLError } from 'yaml';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { forceRefreshStates, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { forceRefreshStates, setBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -12,7 +13,7 @@ import DiffEditor from './DiffEditor';
 const DiffEditorDialogBody = forwardRef((_, ref) => {
   const currentPage = useCurrentPage();
   const [currentText, setCurrentText] = useState<string>();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [yamlErrors, setYamlErrors] = useState<YAMLError[]>([]);
 
   const { modifiedText, originalText } = useBitriseYmlStore((s) => ({
     modifiedText: YmlUtils.toYml(s.ymlDocument),
@@ -20,21 +21,26 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
   }));
 
   const trySaveChanges = () => {
-    try {
-      if (currentText === undefined) {
-        return true;
-      }
-      updateBitriseYmlDocumentByString(currentText);
-      forceRefreshStates();
+    setYamlErrors([]);
+
+    if (currentText === undefined) {
       return true;
-    } catch (error) {
-      setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);
+    }
+
+    const doc = YmlUtils.toDoc(currentText);
+    if (doc.errors.length > 0) {
+      setYamlErrors(doc.errors);
       segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
         tab_name: currentPage,
         source: 'diff',
       });
       return false;
     }
+
+    setBitriseYmlDocument(doc);
+    forceRefreshStates();
+
+    return true;
   };
 
   useImperativeHandle(ref, () => ({ trySaveChanges }));
@@ -45,10 +51,18 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
         <Notification status="info">
           You can edit the right side of the diff view, and your changes will be saved
         </Notification>
-        {errorMessage && (
+        {yamlErrors.length > 0 && (
           <Notification status="error">
-            <Text textStyle="comp/notification/title">Error saving...</Text>
-            <Text>{errorMessage}</Text>
+            <Text textStyle="comp/notification/title">
+              Your YAML contains errors, please fix them before closing the dialog.
+            </Text>
+            <List>
+              {yamlErrors.slice(0, 4).map((error) => (
+                <ListItem key={error.pos.join('.') + error.code} textStyle="comp/notification/description">
+                  {error.message}
+                </ListItem>
+              ))}
+            </List>
           </Notification>
         )}
         <Box flex="1">
