@@ -281,7 +281,6 @@ module.exports = {
         '!iPadShowKeyboard',
         '!inPlaceReplace',
         '!inlayHints',
-
         '!inlineEdit',
         '!inlineEdits',
         '!inspectTokens',
