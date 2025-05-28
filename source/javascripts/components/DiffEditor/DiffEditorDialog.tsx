@@ -1,4 +1,4 @@
-import { Box, Dialog, DialogBody, DialogProps, List, ListItem, Notification, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogProps, List, ListItem, Notification, Text } from '@bitrise/bitkit';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { YAMLError } from 'yaml';
 
@@ -46,31 +46,27 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
   useImperativeHandle(ref, () => ({ trySaveChanges }));
 
   return (
-    <DialogBody>
-      <Box display="flex" gap="16" flexDirection="column" height="calc(100% - 32px)">
-        <Notification status="info">
-          You can edit the right side of the diff view, and your changes will be saved
+    <DialogBody flex="1" display="flex" gap="16" flexDirection="column">
+      <Notification status="info">
+        You can edit the right side of the diff view, and your changes will be saved
+      </Notification>
+      {yamlErrors.length > 0 && (
+        <Notification status="error">
+          <Text textStyle="comp/notification/title">
+            Your YAML contains errors, please fix them before closing the dialog.
+          </Text>
+          <List>
+            {yamlErrors.slice(0, 4).map((error) => (
+              <ListItem key={error.pos.join('.') + error.code} textStyle="comp/notification/description">
+                {error.message}
+              </ListItem>
+            ))}
+          </List>
         </Notification>
-        {yamlErrors.length > 0 && (
-          <Notification status="error">
-            <Text textStyle="comp/notification/title">
-              Your YAML contains errors, please fix them before closing the dialog.
-            </Text>
-            <List>
-              {yamlErrors.slice(0, 4).map((error) => (
-                <ListItem key={error.pos.join('.') + error.code} textStyle="comp/notification/description">
-                  {error.message}
-                </ListItem>
-              ))}
-            </List>
-          </Notification>
-        )}
-        <Box flex="1">
-          {originalText && modifiedText && (
-            <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={setCurrentText} />
-          )}
-        </Box>
-      </Box>
+      )}
+      {originalText && modifiedText && (
+        <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={setCurrentText} />
+      )}
     </DialogBody>
   );
 });

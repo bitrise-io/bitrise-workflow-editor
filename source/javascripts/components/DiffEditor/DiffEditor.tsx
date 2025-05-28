@@ -39,6 +39,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
       onMount={handleEditorDidMount}
       keepCurrentModifiedModel
       keepCurrentOriginalModel
+      wrapperProps={{ style: { flex: 1, display: 'flex' } }}
       beforeMount={(monaco) => {
         MonacoUtils.configureForYaml(monaco);
         MonacoUtils.configureEnvVarsCompletionProvider(monaco);
