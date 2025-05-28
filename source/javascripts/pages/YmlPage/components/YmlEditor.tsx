@@ -13,7 +13,10 @@ const YmlEditor = () => {
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
 
   useUnmount(() => {
-    monacoEditorRef.current?.dispose();
+    if (monacoEditorRef.current) {
+      monacoEditorRef.current.dispose();
+      monacoEditorRef.current = undefined;
+    }
   });
 
   if (isLoadingSetting) {
@@ -21,7 +24,11 @@ const YmlEditor = () => {
   }
 
   const handleEditorChange = (modifiedYmlString?: string) => {
-    const doc = YmlUtils.toDoc(modifiedYmlString || '');
+    if (!monacoEditorRef.current || typeof modifiedYmlString !== 'string') {
+      return;
+    }
+
+    const doc = YmlUtils.toDoc(modifiedYmlString);
     if (doc.errors.length === 0) {
       setBitriseYmlDocument(doc);
     }
