@@ -33,6 +33,18 @@ if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   });
 }
 
+const OriginalResizeObserver = window.ResizeObserver;
+window.ResizeObserver = class extends OriginalResizeObserver {
+  constructor(callback: ResizeObserverCallback) {
+    const wrappedCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => {
+      window.requestAnimationFrame(() => {
+        callback(entries, observer);
+      });
+    };
+    super(wrappedCallback);
+  }
+};
+
 const DefaultQueryClient = new QueryClient({
   defaultOptions: {
     queries: {

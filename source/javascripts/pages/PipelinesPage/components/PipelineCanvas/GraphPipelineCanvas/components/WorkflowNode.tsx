@@ -93,12 +93,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
-  useResizeObserver({
-    ref,
-    onResize: ({ height }) => {
-      requestAnimationFrame(() => updateNode(id, { height }));
-    },
-  });
+  useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
 
   const uses = 'uses' in data ? data.uses : undefined;
   const parallel = 'parallel' in data ? data.parallel : undefined;
