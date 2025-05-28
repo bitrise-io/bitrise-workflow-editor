@@ -1,7 +1,7 @@
 import { MachineType, Stack } from '@/core/models/StackAndMachine';
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 const stacks: Stack[] = [
   {
@@ -714,16 +714,15 @@ describe('StackAndMachineService', () => {
   describe('updateStackAndMachine', () => {
     describe('root-level', () => {
       it('updates stack ID at meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
                 machine_type_id: mac-m1
                 stack_rollback_version: v1
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1', stackRollbackVersion: 'v1' },
@@ -740,16 +739,15 @@ describe('StackAndMachineService', () => {
       });
 
       it('updates machine type ID at meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
                 machine_type_id: mac-m1
                 stack_rollback_version: v1
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: 'mac-m2', stackRollbackVersion: 'v1' },
@@ -766,16 +764,15 @@ describe('StackAndMachineService', () => {
       });
 
       it('updates stack rollback version at meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
                 machine_type_id: mac-m1
                 stack_rollback_version: v1
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: 'v2' },
@@ -792,10 +789,7 @@ describe('StackAndMachineService', () => {
       });
 
       it('creates meta.[bitrise.io] when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`format_version: ''`,
-        });
+        updateBitriseYmlDocumentByString(yaml`format_version: ''`);
 
         StackAndMachineService.updateStackAndMachine({ stackId: 'osx-xcode-16' }, StackAndMachineSource.Root);
 
@@ -808,16 +802,15 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes stack ID from meta.[bitrise.io] when stack ID is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
                 machine_type_id: mac-m1
                 stack_rollback_version: v1
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: '', machineTypeId: 'mac-m1', stackRollbackVersion: 'v1' },
@@ -833,16 +826,15 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes machine type ID from meta.[bitrise.io] when machine type ID is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
                 machine_type_id: mac-m1
                 stack_rollback_version: v1
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: '', stackRollbackVersion: 'v1' },
@@ -858,16 +850,15 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes stack rollback version from meta.[bitrise.io] when stack rollback version is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
                 machine_type_id: mac-m1
                 stack_rollback_version: v1
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: '' },
@@ -883,15 +874,14 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes meta.[bitrise.io] when its last key is removed', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             format_version: ''
             meta:
               bitrise.io:
                 stack: osx-xcode-15
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine({ stackId: '' }, StackAndMachineSource.Root);
 
@@ -901,9 +891,8 @@ describe('StackAndMachineService', () => {
 
     describe('workflow-level override', () => {
       it('updates stack ID at workflows.[id].meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -921,7 +910,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1' },
@@ -951,9 +940,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('updates machine type ID at workflows.[id].meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -971,7 +959,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: 'mac-m2' },
@@ -1001,9 +989,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('updates stack rollback version at workflows.[id].meta.[bitrise.io]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1022,7 +1009,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: 'v2' },
@@ -1053,9 +1040,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('creates workflows.[id].meta.[bitrise.io] when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1074,7 +1060,7 @@ describe('StackAndMachineService', () => {
               deploy:
                 steps: []
           `,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-16' },
@@ -1107,9 +1093,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes stack ID at workflows.[id].meta.[bitrise.io] when stack ID is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1127,7 +1112,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: '', machineTypeId: 'mac-m1' },
@@ -1156,9 +1141,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes machine type ID at workflows.[id].meta.[bitrise.io] when machine type ID is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1176,7 +1160,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: '' },
@@ -1205,9 +1189,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes stack rollback version at workflows.[id].meta.[bitrise.io] when stack rollback version is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1226,7 +1209,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         StackAndMachineService.updateStackAndMachine(
           { stackId: 'osx-xcode-15', machineTypeId: 'mac-m1', stackRollbackVersion: '' },
@@ -1256,9 +1239,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('removes workflow.[id].meta.[bitrise.io], but keeps workflow.[id] when its last key is removed', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1276,7 +1258,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
         StackAndMachineService.updateStackAndMachine({ stackId: '' }, StackAndMachineSource.Workflow, 'test');
         expect(getYmlString()).toEqual(yaml`
           meta:
@@ -1297,9 +1279,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1317,7 +1298,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         expect(() => {
           StackAndMachineService.updateStackAndMachine(
@@ -1328,9 +1309,8 @@ describe('StackAndMachineService', () => {
       });
 
       it('throws an error if the workflow does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             meta:
               bitrise.io:
                 stack: osx-xcode-15
@@ -1348,7 +1328,7 @@ describe('StackAndMachineService', () => {
                     stack: osx-xcode-15
               deploy:
                 steps: []`,
-        });
+        );
 
         expect(() => {
           StackAndMachineService.updateStackAndMachine(

@@ -1,7 +1,7 @@
 import { StepApiResult } from '@/core/api/StepApi';
 
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, Step } from '../models/Step';
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import StepService from './StepService';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
@@ -29,9 +29,8 @@ function expectErrors(callbacks: VoidFunction[], errors: string[]) {
 
 describe('StepService', () => {
   beforeEach(() => {
-    initializeStore({
-      version: '',
-      ymlString: yaml`
+    updateBitriseYmlDocumentByString(
+      yaml`
         workflows:
           primary:
             steps:
@@ -43,7 +42,7 @@ describe('StepService', () => {
             - script@1: {}
             - cache@2: {}
       `,
-    });
+    );
   });
 
   describe('parseStepCVS', () => {
@@ -1204,9 +1203,8 @@ describe('StepService', () => {
     });
 
     it('should move the step to end of the steps if the new index is out ouf bounds', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1214,7 +1212,7 @@ describe('StepService', () => {
               - cache@2: {}
               - build@2: {}
         `,
-      });
+      );
 
       StepService.moveStep('workflows', 'primary', 1, 4);
 
@@ -1231,9 +1229,8 @@ describe('StepService', () => {
     });
 
     it('should move the step relative to the end of the steps', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1241,7 +1238,7 @@ describe('StepService', () => {
               - cache@2: {}
               - build@2: {}
         `,
-      });
+      );
 
       StepService.moveStep('workflows', 'primary', 0, -1);
 
@@ -1372,9 +1369,8 @@ describe('StepService', () => {
     });
 
     it('should be able to delete multiple steps', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1384,7 +1380,7 @@ describe('StepService', () => {
               - deploy@2: {}
               - analyze@2: {}
         `,
-      });
+      );
 
       StepService.deleteStep('workflows', 'primary', [1, 2, 3]);
 
@@ -1475,16 +1471,15 @@ describe('StepService', () => {
     });
 
     it('should remove a step field if the new value is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
               - script@1:
                   title: Old title
         `,
-      });
+      );
 
       StepService.updateStepField('workflows', 'primary', 0, 'title', '');
 
@@ -1518,9 +1513,8 @@ describe('StepService', () => {
 
   describe('updateStepInput', () => {
     it('should update an existing step input', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1529,7 +1523,7 @@ describe('StepService', () => {
                   - is_debug: false
                   - is_test: false
         `,
-      });
+      );
 
       StepService.updateStepInput('workflows', 'primary', 0, 'is_test', 'true');
 
@@ -1570,9 +1564,8 @@ describe('StepService', () => {
     });
 
     it('should remove the step input if empty string is given', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1581,7 +1574,7 @@ describe('StepService', () => {
                   - is_debug: false
                   - is_test: true
         `,
-      });
+      );
 
       StepService.updateStepInput('workflows', 'primary', 0, 'is_debug', '');
 
@@ -1598,9 +1591,8 @@ describe('StepService', () => {
     });
 
     it('should remove the step inputs field if remove the last input', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1608,7 +1600,7 @@ describe('StepService', () => {
                   inputs:
                   - is_debug: false
         `,
-      });
+      );
 
       StepService.updateStepInput('workflows', 'primary', 0, 'is_debug', '');
 
@@ -1623,9 +1615,8 @@ describe('StepService', () => {
     });
 
     it('should not override existing input opts', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1636,7 +1627,7 @@ describe('StepService', () => {
                     opts:
                       is_expand: true
         `,
-      });
+      );
 
       StepService.updateStepInput('workflows', 'primary', 0, 'is_test', 'true');
 
@@ -1695,9 +1686,8 @@ describe('StepService', () => {
     });
 
     it('should append version if the step does not have one', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1709,7 +1699,7 @@ describe('StepService', () => {
               - script@1: {}
               - cache: {}
         `,
-      });
+      );
 
       StepService.changeStepVersion('workflows', 'primary', 0, '1.2.3');
       StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '2.3.x');

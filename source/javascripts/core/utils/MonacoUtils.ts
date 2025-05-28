@@ -9,7 +9,7 @@ import SecretApi from '../api/SecretApi';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import BitriseYmlService from '../services/BitriseYmlService';
 import StepService from '../services/StepService';
-import { bitriseYmlStore } from '../stores/BitriseYmlStore';
+import { getBitriseYml } from '../stores/BitriseYmlStore';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
 
@@ -44,8 +44,8 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
   monacoInstance.languages.registerCompletionItemProvider(['yaml', 'shell'], {
     triggerCharacters: ['$'],
     async provideCompletionItems(model, position, _, token) {
+      const yml = getBitriseYml();
       const appSlug = PageProps.appSlug();
-      const { yml } = bitriseYmlStore.getState();
       const projectType = yml?.project_type || 'other';
       const steplib = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
 

@@ -24,7 +24,7 @@ import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfig
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
-import { getYmlString, initializeStore } from '@/core/stores/BitriseYmlStore';
+import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import { download, getFormattedDate } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -319,12 +319,10 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
     isPendingSaveYmlSettings || isFetchingCiConfigFromRepo || isFetchingCiConfigFromBitrise || isPendingSaveCiConfig;
 
   const initializeStoreAndClose = (data: { ymlString: string; version: string }) => {
-    onClose();
-    initializeStore(data);
+    initializeBitriseYmlDocument(data);
     queryClient.invalidateQueries({
       queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(PageProps.appSlug())],
     });
-
     toast({
       status: 'success',
       title: 'Source successfully changed',
@@ -337,6 +335,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
     segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
       yml_source: selectedSource,
     });
+    forceRefreshStates();
   };
 
   const onValidateAndSave = () => {

@@ -3,7 +3,7 @@ import { ChangeEventHandler } from 'react';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
 import WorkflowService from '@/core/services/WorkflowService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 
 import DeleteWorkflowDialog from '../../DeleteWorkflowDialog/DeleteWorkflowDialog';
 import PriorityInput from '../../PriorityInput/PriorityInput';
@@ -20,7 +20,7 @@ type Props = {
 const NameInput = ({ onRename }: Pick<Props, 'onRename'>) => {
   const rename = useRenameWorkflow(onRename);
   const value = useWorkflowConfigContext((s) => s?.id || '');
-  const otherWorkflows = Object.keys(bitriseYmlStore.getState().yml.workflows ?? {});
+  const otherWorkflows = Object.keys(getBitriseYml().workflows ?? {});
 
   const handleCommit = (newValue: string) => {
     if (newValue !== value) {

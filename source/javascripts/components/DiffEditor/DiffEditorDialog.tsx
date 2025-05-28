@@ -1,9 +1,8 @@
 import { Box, Dialog, DialogBody, DialogProps, Notification, Text } from '@bitrise/bitkit';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { parseDocument } from 'yaml';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { forceRefreshStates, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -25,10 +24,8 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
       if (currentText === undefined) {
         return true;
       }
-      bitriseYmlStore.setState({
-        ymlDocument: parseDocument(currentText, { keepSourceTokens: true }),
-        discardKey: Date.now(),
-      });
+      updateBitriseYmlDocumentByString(currentText);
+      forceRefreshStates();
       return true;
     } catch (error) {
       setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);

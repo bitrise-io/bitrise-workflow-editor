@@ -1,6 +1,6 @@
 import { Document, isMap, Scalar } from 'yaml';
 
-import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, getBitriseYml, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YamlUtils from '@/core/utils/YamlUtils';
 
 import { EnvironmentItemModel } from '../models/BitriseYml';
@@ -184,13 +184,14 @@ function getEnvVarOrThrowError(doc: Document, at: { source: EnvVarSource; source
 }
 
 function getAppEnvs() {
-  const { yml } = bitriseYmlStore.getState();
+  const yml = getBitriseYml();
   const appEnvs = yml.app?.envs || [];
   return appEnvs.map((e) => fromYml(e, 'Project envs'));
 }
 
 function getWorkflowEnvs(workflowId: string): EnvVar[] {
-  const { yml, ymlDocument } = bitriseYmlStore.getState();
+  const yml = getBitriseYml();
+  const { ymlDocument } = bitriseYmlStore.getState();
   const workflows = yml.workflows || {};
 
   // Return environment variables from all workflows

@@ -3,7 +3,12 @@ import { useCallback, useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, getYmlString, initializeStore } from '@/core/stores/BitriseYmlStore';
+import {
+  bitriseYmlStore,
+  discardBitriseYmlDocument,
+  getYmlString,
+  initializeBitriseYmlDocument,
+} from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -62,7 +67,7 @@ const Header = () => {
   });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
-    onSuccess: initializeStore,
+    onSuccess: initializeBitriseYmlDocument,
     onError: (error: ClientError) => {
       if (error.status === 409) {
         openMergeDialog();
@@ -97,22 +102,17 @@ const Header = () => {
 
       save({
         projectSlug: appSlug,
-        tabOpenDuringSave: currentPage,
-        version: bitriseYmlStore.getState().savedYmlVersion,
         ymlString: getYmlString(),
+        tabOpenDuringSave: currentPage,
+        version: bitriseYmlStore.getState().version,
       });
     },
     [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],
   );
 
   const onDiscard = () => {
-    segmentTrack('Workflow Editor Discard Button Clicked', {
-      tab_name: currentPage,
-    });
-    bitriseYmlStore.setState((s) => ({
-      discardKey: Date.now(),
-      ymlDocument: s.savedYmlDocument.clone(),
-    }));
+    segmentTrack('Workflow Editor Discard Button Clicked', { tab_name: currentPage });
+    discardBitriseYmlDocument();
   };
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { EnvVarSource } from '../models/EnvVar';
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import EnvVarService from './EnvVarService';
 
 describe('EnvVarService', () => {
@@ -266,9 +266,8 @@ describe('EnvVarService', () => {
 
   describe('getAll', () => {
     beforeAll(() => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           app:
             envs:
               - SERVICE_VERSION: 1.2.3
@@ -285,7 +284,7 @@ describe('EnvVarService', () => {
             wf2:
               envs:
                 - PARALLEL: 4`,
-      });
+      );
     });
 
     it('returns all project and all workflow env_vars from the yml', () => {
@@ -340,13 +339,12 @@ describe('EnvVarService', () => {
   describe('create', () => {
     describe('project-level envs', () => {
       it('creates an empty env_var at the end of app.envs', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3`,
-        });
+        );
 
         EnvVarService.create({ source: EnvVarSource.App });
 
@@ -361,10 +359,7 @@ describe('EnvVarService', () => {
       });
 
       it('creates app.envs when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: '',
-        });
+        updateBitriseYmlDocumentByString(yaml``);
 
         EnvVarService.create({ source: EnvVarSource.App });
 
@@ -380,9 +375,8 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('appends an empty env_var to the end of workflows.[id].envs', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -390,7 +384,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.create({ source: EnvVarSource.Workflows, sourceId: 'wf1' });
 
@@ -409,15 +403,14 @@ describe('EnvVarService', () => {
       });
 
       it('creates workflows.[id].envs when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1: {}
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.create({ source: EnvVarSource.Workflows, sourceId: 'wf1' });
 
@@ -435,9 +428,8 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -445,7 +437,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         expect(() => {
           EnvVarService.create({ source: EnvVarSource.Workflows });
@@ -453,9 +445,8 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -463,7 +454,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         expect(() => {
           EnvVarService.create({ source: EnvVarSource.Workflows, sourceId: 'nonexistent' });
@@ -475,13 +466,12 @@ describe('EnvVarService', () => {
   describe('append', () => {
     describe('project-level envs', () => {
       it('appends env_var to the end of app.envs', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3`,
-        });
+        );
 
         EnvVarService.append(
           { key: 'PROJECT_NAME', value: 'Mando', source: 'app', isExpand: false },
@@ -498,7 +488,7 @@ describe('EnvVarService', () => {
       });
 
       it('creates app.envs when it does not exist', () => {
-        initializeStore({ version: '', ymlString: '' });
+        updateBitriseYmlDocumentByString(yaml``);
 
         EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'app' }, { source: EnvVarSource.App });
 
@@ -512,9 +502,8 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('appends env_var to the end of workflows.[id].envs', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -523,7 +512,7 @@ describe('EnvVarService', () => {
                 envs:
                 - PARALLEL: 4
           `,
-        });
+        );
 
         EnvVarService.append(
           { key: 'ENVIRONMENT', value: 'production', source: 'wf1' },
@@ -543,15 +532,14 @@ describe('EnvVarService', () => {
       });
 
       it('creates workflows.[id].envs when it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1: {}
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.append(
           { key: 'PROJECT_NAME', value: 'Mando', source: 'wf1' },
@@ -570,15 +558,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
           `,
-        });
+        );
 
         expect(() => {
           EnvVarService.append(
@@ -589,15 +576,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
           `,
-        });
+        );
 
         expect(() => {
           EnvVarService.append(
@@ -612,14 +598,13 @@ describe('EnvVarService', () => {
   describe('remove', () => {
     describe('project-level envs', () => {
       it('removes env_var at app.envs.[index]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         EnvVarService.remove({ source: EnvVarSource.App, index: 1 });
 
@@ -631,14 +616,13 @@ describe('EnvVarService', () => {
       });
 
       it('removes app.envs when removing last env_var', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             format_version: ''
             app:
               envs:
               - SERVICE_VERSION: 1.2.3`,
-        });
+        );
 
         EnvVarService.remove({ source: EnvVarSource.App, index: 0 });
 
@@ -648,14 +632,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.remove({ source: EnvVarSource.App, index: 3 });
@@ -665,9 +648,8 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('removes env_var at workflows.[id].envs.[index]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -676,7 +658,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf1', index: 1 });
 
@@ -692,9 +674,8 @@ describe('EnvVarService', () => {
       });
 
       it('removes workflows.[id].envs when removing last env_var, but keeps workflows.[id]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -703,7 +684,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf2', index: 0 });
 
@@ -718,9 +699,8 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -729,7 +709,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         expect(() => {
           EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf1', index: 3 });
@@ -737,15 +717,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.remove({ source: EnvVarSource.Workflows, index: 0 });
@@ -753,15 +732,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'nonexistent', index: 0 });
@@ -773,15 +751,14 @@ describe('EnvVarService', () => {
   describe('reorder', () => {
     describe('project-level envs', () => {
       it('reorders env_vars at app.envs', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando
               - ENVIRONMENT: production`,
-        });
+        );
 
         EnvVarService.reorder([1, 2, 0], { source: EnvVarSource.App });
 
@@ -795,14 +772,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when indices.length != envs.length', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.reorder([0, 1, 2], { source: EnvVarSource.App });
@@ -812,9 +788,8 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('reorders env_vars at workflows.[id].envs', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -824,7 +799,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.reorder([1, 2, 0], { source: EnvVarSource.Workflows, sourceId: 'wf1' });
 
@@ -842,15 +817,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when indices.length != envs.length', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.reorder([0, 1, 2], { source: EnvVarSource.Workflows, sourceId: 'wf1' });
@@ -858,15 +832,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.reorder([0, 1], { source: EnvVarSource.Workflows });
@@ -874,15 +847,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.reorder([0, 1], { source: EnvVarSource.Workflows, sourceId: 'nonexistent' });
@@ -894,13 +866,12 @@ describe('EnvVarService', () => {
   describe('updateKey', () => {
     describe('project-level envs', () => {
       it('updates env_var key at app.envs.[index]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3`,
-        });
+        );
 
         EnvVarService.updateKey('SERVICE_BUILD_NUMBER', {
           source: EnvVarSource.App,
@@ -916,14 +887,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateKey('SERVICE_BUILD_NUMBER', {
@@ -935,14 +905,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var key mismatch at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateKey('SERVICE_BUILD_NUMBER', {
@@ -956,14 +925,13 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('updates env_var key at workflows.[id].envs.[index]', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         EnvVarService.updateKey('NODE', {
           source: EnvVarSource.Workflows,
@@ -981,15 +949,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateKey('NODE', {
@@ -1002,15 +969,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var key mismatch at index', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateKey('NODE', {
@@ -1023,14 +989,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateKey('NODE', { source: EnvVarSource.Workflows, index: 0, oldKey: 'NODE_VERSION' });
@@ -1038,14 +1003,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateKey('NODE', {
@@ -1062,16 +1026,15 @@ describe('EnvVarService', () => {
   describe('updateValue', () => {
     describe('project-level envs', () => {
       it('updates env_var value at app.envs.[index]', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: "Mando"
               - ENVIRONMENT: 'production'
               - NODE_VERSION: '0.14.0'`,
-        });
+        );
 
         EnvVarService.updateValue('2.0', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
         EnvVarService.updateValue('Grogu', { source: EnvVarSource.App, index: 1, key: 'PROJECT_NAME' });
@@ -1089,13 +1052,12 @@ describe('EnvVarService', () => {
       });
 
       it('sets the fraction digits from the number when the number is a float', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 2`,
-        });
+        );
 
         EnvVarService.updateValue('3.1415', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
         expect(getYmlString()).toEqual(yaml`
@@ -1106,13 +1068,12 @@ describe('EnvVarService', () => {
       });
 
       it('resets the fraction digits to 0 when the number is an integer', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 3.14`,
-        });
+        );
 
         EnvVarService.updateValue('2', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
         expect(getYmlString()).toEqual(yaml`
@@ -1123,14 +1084,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateValue('2.0', { source: EnvVarSource.App, index: 3, key: 'SERVICE_VERSION' });
@@ -1138,14 +1098,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var key mismatch at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateValue('2.0', { source: EnvVarSource.App, index: 1, key: 'SERVICE_VERSION' });
@@ -1155,14 +1114,13 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('updates env_var value at workflows.[id].envs.[index]', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         EnvVarService.updateValue('22', {
           source: EnvVarSource.Workflows,
@@ -1180,14 +1138,13 @@ describe('EnvVarService', () => {
       });
 
       it('sets the fraction digits from the number when the number is a float', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - SERVICE_VERSION: 2`,
-        });
+        );
 
         EnvVarService.updateValue('3.1415', {
           source: EnvVarSource.Workflows,
@@ -1205,14 +1162,13 @@ describe('EnvVarService', () => {
       });
 
       it('resets the fraction digits to 0 when the number is an integer', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - SERVICE_VERSION: 3.14`,
-        });
+        );
 
         EnvVarService.updateValue('2', {
           source: EnvVarSource.Workflows,
@@ -1229,15 +1185,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateValue('22', {
@@ -1250,15 +1205,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var key mismatch at index', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateValue('22', {
@@ -1271,14 +1225,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateValue('22', {
@@ -1290,14 +1243,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateValue('22', {
@@ -1314,14 +1266,13 @@ describe('EnvVarService', () => {
   describe('updateIsExpand', () => {
     describe('project-level envs', () => {
       it('updates the isExpand property of the env_var with false', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         EnvVarService.updateIsExpand(false, { source: EnvVarSource.App, index: 0 });
 
@@ -1336,16 +1287,15 @@ describe('EnvVarService', () => {
       });
 
       it('updates the isExpand property of the env_var with true', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando
                 opts:
                   is_expand: false`,
-        });
+        );
 
         EnvVarService.updateIsExpand(true, { source: EnvVarSource.App, index: 1 });
 
@@ -1358,14 +1308,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
               - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateIsExpand(false, { source: EnvVarSource.App, index: 3 });
@@ -1375,9 +1324,8 @@ describe('EnvVarService', () => {
 
     describe('workflow-level envs', () => {
       it('updates the isExpand property of the env_var with false', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -1386,7 +1334,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.updateIsExpand(false, { source: EnvVarSource.Workflows, sourceId: 'wf1', index: 0 });
 
@@ -1405,9 +1353,8 @@ describe('EnvVarService', () => {
       });
 
       it('updates the isExpand property of the env_var with true', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
@@ -1418,7 +1365,7 @@ describe('EnvVarService', () => {
               wf2:
                 envs:
                 - PARALLEL: 4`,
-        });
+        );
 
         EnvVarService.updateIsExpand(true, { source: EnvVarSource.Workflows, sourceId: 'wf1', index: 1 });
 
@@ -1435,15 +1382,14 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when env_var is not found at index', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts
                 - PROJECT_NAME: Mando`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateIsExpand(false, { source: EnvVarSource.Workflows, sourceId: 'wf1', index: 3 });
@@ -1451,14 +1397,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateIsExpand(false, { source: EnvVarSource.Workflows, index: 0 });
@@ -1466,14 +1411,13 @@ describe('EnvVarService', () => {
       });
 
       it('throws an error when workflow is not found', () => {
-        initializeStore({
-          version: '1',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             workflows:
               wf1:
                 envs:
                 - NODE_VERSION: lts`,
-        });
+        );
 
         expect(() => {
           EnvVarService.updateIsExpand(false, { source: EnvVarSource.Workflows, sourceId: 'nonexistent', index: 0 });

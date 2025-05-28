@@ -21,7 +21,7 @@ import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
-import { getYmlString, initializeStore } from '@/core/stores/BitriseYmlStore';
+import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -141,8 +141,9 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
     isPending: isSaving,
   } = useSaveCiConfig({
     onSuccess: ({ ymlString, version }) => {
+      initializeBitriseYmlDocument({ ymlString, version });
+      forceRefreshStates();
       onClose();
-      initializeStore({ ymlString, version, discardKey: Date.now() });
     },
   });
 

@@ -1,6 +1,6 @@
 import StepBundleService from '@/core/services/StepBundleService';
 
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 describe('StepBundleService', () => {
   describe('validateName', () => {
@@ -61,12 +61,11 @@ describe('StepBundleService', () => {
 
   describe('createStepBundle', () => {
     it('creates an empty step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}`,
-      });
+      );
 
       StepBundleService.createStepBundle('sb1');
 
@@ -79,9 +78,8 @@ describe('StepBundleService', () => {
     });
 
     it('creates a step bundle based on another step bundle (simple)', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -94,7 +92,7 @@ describe('StepBundleService', () => {
               - step3:
               - step4:
         `,
-      });
+      );
 
       StepBundleService.createStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1' });
 
@@ -118,9 +116,8 @@ describe('StepBundleService', () => {
     });
 
     it('creates a step bundle based on another step bundle (complex)', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -140,7 +137,7 @@ describe('StepBundleService', () => {
               - step3:
               - step4:
         `,
-      });
+      );
 
       StepBundleService.createStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1' });
 
@@ -178,9 +175,8 @@ describe('StepBundleService', () => {
     });
 
     it('creates a step bundle based on a workflow (simple)', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -193,7 +189,7 @@ describe('StepBundleService', () => {
               - step3:
               - step4:
         `,
-      });
+      );
 
       StepBundleService.createStepBundle('sb2', { source: 'workflows', sourceId: 'primary' });
 
@@ -218,9 +214,8 @@ describe('StepBundleService', () => {
     });
 
     it('creates a step bundle based on a workflow (complex)', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               title: 'Workflow'
@@ -250,7 +245,7 @@ describe('StepBundleService', () => {
               - step3:
               - step4:
         `,
-      });
+      );
 
       StepBundleService.createStepBundle('sb2', { source: 'workflows', sourceId: 'primary' });
 
@@ -297,15 +292,14 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step bundle id already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
             sb1: {}
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.createStepBundle('sb1');
@@ -313,9 +307,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throws an error if the based on entity is not found', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -328,7 +321,7 @@ describe('StepBundleService', () => {
               - step3:
               - step4:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.createStepBundle('sb3', { source: 'step_bundles', sourceId: 'sb2' });
@@ -338,9 +331,8 @@ describe('StepBundleService', () => {
 
   describe('renameStepBundle', () => {
     it('renames a step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -348,7 +340,7 @@ describe('StepBundleService', () => {
             sb2: {}
             sb3: {}
         `,
-      });
+      );
 
       StepBundleService.renameStepBundle('sb2', 'sb4');
 
@@ -363,9 +355,8 @@ describe('StepBundleService', () => {
     });
 
     it('renames the step bundle references in other step bundles', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -383,7 +374,7 @@ describe('StepBundleService', () => {
               steps:
               - bundle::sb1:
         `,
-      });
+      );
 
       StepBundleService.renameStepBundle('sb1', 'sb4');
 
@@ -408,9 +399,8 @@ describe('StepBundleService', () => {
     });
 
     it('renames the step bundle references in workflows', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -430,7 +420,7 @@ describe('StepBundleService', () => {
               steps:
               - step5:
         `,
-      });
+      );
 
       StepBundleService.renameStepBundle('sb1', 'sb4');
 
@@ -457,15 +447,14 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the old step bundle id does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
             sb1: {}
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.renameStepBundle('sb2', 'sb4');
@@ -473,16 +462,15 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the new step bundle id already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
             sb1: {}
             sb2: {}
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.renameStepBundle('sb1', 'sb2');
@@ -492,9 +480,8 @@ describe('StepBundleService', () => {
 
   describe('deleteStepBundle', () => {
     it('deletes a step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -502,7 +489,7 @@ describe('StepBundleService', () => {
             sb2: {}
             sb3: {}
         `,
-      });
+      );
 
       StepBundleService.deleteStepBundle('sb2');
 
@@ -516,15 +503,14 @@ describe('StepBundleService', () => {
     });
 
     it('deletes the step_bundles when deleting the last step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
             sb1: {}
         `,
-      });
+      );
 
       StepBundleService.deleteStepBundle('sb1');
 
@@ -535,9 +521,8 @@ describe('StepBundleService', () => {
     });
 
     it('deletes the step bundle references from other step bundles', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -555,7 +540,7 @@ describe('StepBundleService', () => {
               steps:
               - bundle::sb1:
         `,
-      });
+      );
 
       StepBundleService.deleteStepBundle('sb1');
 
@@ -571,9 +556,8 @@ describe('StepBundleService', () => {
     });
 
     it('deletes the step bundle references from workflows', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -593,7 +577,7 @@ describe('StepBundleService', () => {
               steps:
               - step5:
         `,
-      });
+      );
 
       StepBundleService.deleteStepBundle('sb1');
 
@@ -612,15 +596,14 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step bundle id does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
             sb1: {}
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.deleteStepBundle('sb2');
@@ -630,9 +613,8 @@ describe('StepBundleService', () => {
 
   describe('groupStepsToStepBundle', () => {
     it('creates a new step bundle from the selected steps of another step bundle, and replaces the steps with the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -644,7 +626,7 @@ describe('StepBundleService', () => {
               - step4: {}
               - step5:
         `,
-      });
+      );
 
       StepBundleService.groupStepsToStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1', steps: [1, 2, 3] });
 
@@ -666,9 +648,8 @@ describe('StepBundleService', () => {
     });
 
     it('creates a new step bundle from the selected steps of a workflow, and replaces the steps with the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -678,7 +659,7 @@ describe('StepBundleService', () => {
               - step4: {}
               - step5:
         `,
-      });
+      );
 
       StepBundleService.groupStepsToStepBundle('sb1', { source: 'workflows', sourceId: 'primary', steps: [1, 2, 3] });
 
@@ -699,15 +680,14 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step bundle id already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
             sb1: {}
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.groupStepsToStepBundle('sb1', { source: 'step_bundles', sourceId: 'sb1', steps: [1, 2, 3] });
@@ -715,9 +695,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the source entity is not found', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -729,7 +708,7 @@ describe('StepBundleService', () => {
               - step4: {}
               - step5:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.groupStepsToStepBundle('sb2', { source: 'workflows', sourceId: 'sb1', steps: [1, 2, 3] });
@@ -737,9 +716,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the steps are not found', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -749,7 +727,7 @@ describe('StepBundleService', () => {
               - step4: {}
               - step5:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.groupStepsToStepBundle('sb2', { source: 'workflows', sourceId: 'primary', steps: [4, 5] });
@@ -757,9 +735,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if one of the steps is a with group', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -769,7 +746,7 @@ describe('StepBundleService', () => {
               - step4: {}
               - step5:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.groupStepsToStepBundle('sb2', { source: 'workflows', sourceId: 'primary', steps: [0, 1] });
@@ -779,9 +756,8 @@ describe('StepBundleService', () => {
 
   describe('addStepBundleInput', () => {
     it('adds a new input to the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -792,7 +768,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.addStepBundleInput('sb1', { input2: 'value2', opts: { is_required: true } });
 
@@ -813,9 +789,8 @@ describe('StepBundleService', () => {
     });
 
     it('creates the inputs array if it does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -824,7 +799,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.addStepBundleInput('sb1', { input1: 'value1' });
 
@@ -842,9 +817,8 @@ describe('StepBundleService', () => {
     });
 
     it('throws an error if the step bundle does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -853,7 +827,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.addStepBundleInput('sb2', { input1: 'value1' });
@@ -861,9 +835,8 @@ describe('StepBundleService', () => {
     });
 
     it('throws an error if the input is not valid', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -872,7 +845,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.addStepBundleInput('sb1', { opts: {} });
@@ -880,9 +853,8 @@ describe('StepBundleService', () => {
     });
 
     it('throws and error if the input key is already used in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -893,7 +865,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.addStepBundleInput('sb1', { input1: 'value2' });
@@ -903,9 +875,8 @@ describe('StepBundleService', () => {
 
   describe('deleteStepBundleInput', () => {
     it('deletes an input from the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -917,7 +888,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.deleteStepBundleInput('sb1', 1);
 
@@ -935,9 +906,8 @@ describe('StepBundleService', () => {
     });
 
     it('deletes the inputs array when deleting the last input', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -948,7 +918,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.deleteStepBundleInput('sb1', 0);
 
@@ -964,9 +934,8 @@ describe('StepBundleService', () => {
     });
 
     it('throws an error if the step bundle does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -975,7 +944,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.deleteStepBundleInput('sb2', 0);
@@ -983,9 +952,8 @@ describe('StepBundleService', () => {
     });
 
     it('throws an error if the input does not exist in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -996,7 +964,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.deleteStepBundleInput('sb1', 1);
@@ -1006,9 +974,8 @@ describe('StepBundleService', () => {
 
   describe('updateStepBundleInput', () => {
     it('updates the key of the input in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1021,7 +988,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input2: 'value1', opts: { is_required: true } });
 
@@ -1041,9 +1008,8 @@ describe('StepBundleService', () => {
     });
 
     it('updates the value of the input in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1056,7 +1022,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: { is_required: true } });
 
@@ -1076,9 +1042,8 @@ describe('StepBundleService', () => {
     });
 
     it('should create the opts, if not exists yet', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1089,7 +1054,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value1', opts: { is_required: true } });
 
@@ -1109,9 +1074,8 @@ describe('StepBundleService', () => {
     });
 
     it('should update the opts of the input in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1126,7 +1090,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInput('sb1', 0, {
         input1: 'value1',
@@ -1151,9 +1115,8 @@ describe('StepBundleService', () => {
     });
 
     it('should remove the opts if empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1166,7 +1129,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: {} });
 
@@ -1184,9 +1147,8 @@ describe('StepBundleService', () => {
     });
 
     it('should remove the opts becomes empty after the updates', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1199,7 +1161,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: { is_required: false } });
 
@@ -1217,9 +1179,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step bundle does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1228,7 +1189,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.updateStepBundleInput('sb2', 0, { input1: 'value1' });
@@ -1236,9 +1197,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the input does not exist in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: `
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary: {}
           step_bundles:
@@ -1249,7 +1209,7 @@ describe('StepBundleService', () => {
               - step1:
               - step2:
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.updateStepBundleInput('sb1', 1, { input1: 'value2' });
@@ -1259,16 +1219,15 @@ describe('StepBundleService', () => {
 
   describe('updateStepBundleField', () => {
     it('should update the specified field of the step_bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           step_bundles:
             bundle::sb1:
               title: Old Title
               summary: "Old Summary"
               description: 'Old Description'
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleField('bundle::sb1', 'title', 'New Title');
       StepBundleService.updateStepBundleField('bundle::sb1', 'summary', 'New Summary');
@@ -1286,16 +1245,15 @@ describe('StepBundleService', () => {
     });
 
     it('should remove the specified field if the value is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           step_bundles:
             bundle::sb1:
               title: Old Title
               summary: "Old Summary"
               description: 'Old Description'
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleField('bundle::sb1', 'title', '');
       StepBundleService.updateStepBundleField('bundle::sb1', 'summary', '');
@@ -1310,13 +1268,12 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step_bundle does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           step_bundles:
             bundle::sb1: {}
         `,
-      });
+      );
 
       expect(() => StepBundleService.updateStepBundleField('non-existing-bundle', 'title', 'New Title')).toThrow(
         `Step bundle 'non-existing-bundle' not found`,
@@ -1326,9 +1283,8 @@ describe('StepBundleService', () => {
 
   describe('updateStepBundleInputInstanceValue', () => {
     it('should update the value of the specified Step Bundle instance input', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1349,7 +1305,7 @@ describe('StepBundleService', () => {
               - input2: 'value2'
               - input3: "value3"
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
         cvs: 'bundle::sb1',
@@ -1398,9 +1354,8 @@ describe('StepBundleService', () => {
     });
 
     it('should update the value of the specified Step Bundle instance input in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           step_bundles:
             sb1:
               inputs:
@@ -1415,7 +1370,7 @@ describe('StepBundleService', () => {
                   - input2: 'value2'
                   - input3: "value3"
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
         cvs: 'bundle::sb1',
@@ -1458,9 +1413,8 @@ describe('StepBundleService', () => {
     });
 
     it('should add the input if it does not exist in the instance', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1482,7 +1436,7 @@ describe('StepBundleService', () => {
               - input3: "value3"
               - input4: value4
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInputInstanceValue('input4', 'value4_added', {
         cvs: 'bundle::sb1',
@@ -1519,9 +1473,8 @@ describe('StepBundleService', () => {
     });
 
     it('should remove the input if the value is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1542,7 +1495,7 @@ describe('StepBundleService', () => {
               - input2: 'value2'
               - input3: "value3"
         `,
-      });
+      );
 
       StepBundleService.updateStepBundleInputInstanceValue('input2', '', {
         cvs: 'bundle::sb1',
@@ -1576,9 +1529,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step bundle does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1586,7 +1538,7 @@ describe('StepBundleService', () => {
           step_bundles:
             sb1: {}
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
@@ -1599,9 +1551,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the input does not exist in the step bundle', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1611,7 +1562,7 @@ describe('StepBundleService', () => {
               inputs:
               - input1: value1
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.updateStepBundleInputInstanceValue('input4', 'value4_updated', {
@@ -1624,9 +1575,8 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the step bundle instance does not exist in the workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             primary:
               steps:
@@ -1636,7 +1586,7 @@ describe('StepBundleService', () => {
               inputs:
               - input1: value1
         `,
-      });
+      );
 
       expect(() => {
         StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {
@@ -1649,10 +1599,7 @@ describe('StepBundleService', () => {
     });
 
     it('should throw an error if the source is not exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml``,
-      });
+      updateBitriseYmlDocumentByString(yaml``);
 
       expect(() => {
         StepBundleService.updateStepBundleInputInstanceValue('input1', 'value1_updated', {

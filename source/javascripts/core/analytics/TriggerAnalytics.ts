@@ -2,7 +2,7 @@ import { TargetBasedTrigger, TriggerSource } from '@/core/models/Trigger';
 
 import { TriggerMapItemModelRegexCondition } from '../models/BitriseYml';
 import { LegacyTrigger } from '../models/Trigger.legacy';
-import { bitriseYmlStore } from '../stores/BitriseYmlStore';
+import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { segmentTrack } from './SegmentBaseTracking';
 
 function getTriggerConditions(trigger: LegacyTrigger | TargetBasedTrigger) {
@@ -19,9 +19,10 @@ function getTriggerConditions(trigger: LegacyTrigger | TargetBasedTrigger) {
 function getTrackingData(source: TriggerSource, sourceId: string) {
   const propName = source === 'workflows' ? 'workflow_name' : 'pipeline_name';
 
-  const numberOfLegacyTriggers = bitriseYmlStore.getState().yml.trigger_map?.length || 0;
-  const pipelines = bitriseYmlStore.getState().yml.pipelines || {};
-  const workflows = bitriseYmlStore.getState().yml.workflows || {};
+  const yml = getBitriseYml();
+  const numberOfLegacyTriggers = yml.trigger_map?.length || 0;
+  const pipelines = yml.pipelines || {};
+  const workflows = yml.workflows || {};
 
   const numberOfTargetBasedTriggers =
     Object.values(pipelines).reduce(
@@ -41,7 +42,7 @@ function getTrackingData(source: TriggerSource, sourceId: string) {
       0,
     );
 
-  const target = bitriseYmlStore.getState().yml[source]?.[sourceId] || {};
+  const target = yml[source]?.[sourceId] || {};
   const isTriggersEnabledOnTarget = target.triggers?.enabled !== false;
   const numberOfTriggersOnTarget =
     (target.triggers?.push?.length || 0) +
@@ -75,8 +76,9 @@ function trackTriggerEnabledToggled(
 }
 
 function trackTargetBasedTriggersEnabledToggled(source: TriggerSource, sourceId: string, isEnabled: boolean) {
-  const pipelines = bitriseYmlStore.getState().yml.pipelines || {};
-  const workflows = bitriseYmlStore.getState().yml.workflows || {};
+  const yml = getBitriseYml();
+  const pipelines = yml.pipelines || {};
+  const workflows = yml.workflows || {};
 
   const numberOfEnabledTargetBasedTriggers =
     Object.values(pipelines).reduce(

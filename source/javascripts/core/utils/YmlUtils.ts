@@ -17,6 +17,8 @@ import {
   YAMLSeq,
 } from 'yaml';
 
+import { BitriseYml } from '../models/BitriseYml';
+
 type Root = Document | Node;
 type Path = (string | number)[];
 type WildcardPath = ('*' | string | number)[];
@@ -73,7 +75,7 @@ function toYml(root: Root) {
 }
 
 function toJSON(root: Root) {
-  return root.toJSON();
+  return root.toJSON() as BitriseYml;
 }
 
 function unflowEmptyCollection(node: unknown) {
@@ -245,6 +247,7 @@ function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: Wil
 export default {
   toDoc,
   toYml,
+  toJSON,
   isEquals,
   getSeqIn,
   getMapIn,

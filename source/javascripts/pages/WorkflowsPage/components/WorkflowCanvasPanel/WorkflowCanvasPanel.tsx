@@ -9,7 +9,7 @@ import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
@@ -175,7 +175,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
       // Close the dialog if the selected workflow is chained to the deleted workflow
       if (
-        WorkflowService.getWorkflowChain(bitriseYmlStore.getState().yml?.workflows ?? {}, deletedWorkflowId).includes(
+        WorkflowService.getWorkflowChain(getBitriseYml().workflows ?? {}, deletedWorkflowId).includes(
           selectedWorkflowId,
         )
       ) {

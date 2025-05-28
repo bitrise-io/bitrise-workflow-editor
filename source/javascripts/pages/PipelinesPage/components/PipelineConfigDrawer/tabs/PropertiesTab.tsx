@@ -5,7 +5,7 @@ import EditableInput from '@/components/EditableInput/EditableInput';
 import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/components/GitStatusNameInput';
 import PipelineService from '@/core/services/PipelineService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
@@ -50,7 +50,7 @@ const NameInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
 };
 
 const SummaryInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
-  const defaultValue = bitriseYmlStore.getState().yml.pipelines?.[pipelineId]?.summary || '';
+  const defaultValue = getBitriseYml().pipelines?.[pipelineId]?.summary || '';
 
   return (
     <Textarea
@@ -63,7 +63,7 @@ const SummaryInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
 };
 
 const DescriptionInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
-  const defaultValue = bitriseYmlStore.getState().yml.pipelines?.[pipelineId]?.description || '';
+  const defaultValue = getBitriseYml().pipelines?.[pipelineId]?.description || '';
 
   return (
     <Textarea

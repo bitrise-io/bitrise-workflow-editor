@@ -1,9 +1,8 @@
 import Editor, { OnMount } from '@monaco-editor/react';
 import { useEffect, useRef } from 'react';
-import { parseDocument } from 'yaml';
 
 import LoadingState from '@/components/LoadingState';
-import { bitriseYmlStore, getYmlString } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 
@@ -22,11 +21,7 @@ const YmlEditor = () => {
   }
 
   const handleEditorChange = (modifiedYmlString?: string) => {
-    try {
-      bitriseYmlStore.setState({ ymlDocument: parseDocument(modifiedYmlString ?? '', { keepSourceTokens: true }) });
-    } catch (error) {
-      // TODO: Should we show a notification here? This happens when the YML is invalid while typing.
-    }
+    updateBitriseYmlDocumentByString(modifiedYmlString ?? '');
   };
 
   const handleEditorDidMount: OnMount = (editor) => {

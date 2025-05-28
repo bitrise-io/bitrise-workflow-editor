@@ -9,7 +9,7 @@ import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
 import Client from '@/core/api/client';
-import { initializeStore } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
@@ -75,7 +75,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (!isLoaded.current && data) {
-      initializeStore(data);
+      initializeBitriseYmlDocument(data);
       setTimeout(preloadRoutes, 1000);
       isLoaded.current = true;
     }

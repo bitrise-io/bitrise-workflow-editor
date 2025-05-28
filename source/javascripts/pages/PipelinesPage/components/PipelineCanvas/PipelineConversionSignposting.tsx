@@ -7,7 +7,7 @@ import {
   trackConvertPipelineBannerDisplayed,
 } from '@/core/analytics/PipelineAnalytics';
 import PipelineService from '@/core/services/PipelineService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
 import usePipelineConversionSignposting from '../../hooks/usePipelineConversionSignposting';
@@ -16,7 +16,7 @@ import usePipelineSelector from '../../hooks/usePipelineSelector';
 const PipelineConversionSignposting = () => {
   const { selectedPipeline, onSelectPipeline } = usePipelineSelector();
   const numberOfStages = useMemo(() => {
-    const pipeline = PipelineService.getPipeline(selectedPipeline, bitriseYmlStore.getState().yml);
+    const pipeline = PipelineService.getPipeline(selectedPipeline, getBitriseYml());
     return PipelineService.numberOfStages(pipeline ?? {});
   }, [selectedPipeline]);
 
@@ -37,7 +37,7 @@ const PipelineConversionSignposting = () => {
   }, [selectedPipeline, numberOfStages, hidePipelineConversionSignpostingFor]);
 
   const handleConvertClick = useCallback(() => {
-    const pipelineIds = Object.keys(bitriseYmlStore.getState().yml.pipelines ?? {});
+    const pipelineIds = Object.keys(getBitriseYml().pipelines ?? {});
 
     let suffix = 0;
     let newPipelineId = [selectedPipeline, 'converted'].join('_');
@@ -49,7 +49,7 @@ const PipelineConversionSignposting = () => {
     PipelineService.createPipeline(newPipelineId, selectedPipeline);
     trackConvertPipelineBannerCtaClicked(newPipelineId, selectedPipeline);
 
-    if (PipelineService.hasStepInside(newPipelineId, 'pull-intermediate-files', bitriseYmlStore.getState().yml)) {
+    if (PipelineService.hasStepInside(newPipelineId, 'pull-intermediate-files', getBitriseYml())) {
       displayPipelineConversionNotificationFor(newPipelineId);
     }
 

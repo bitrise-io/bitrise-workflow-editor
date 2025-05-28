@@ -1,6 +1,6 @@
 import { TriggerSource } from '../models/Trigger';
 import { LegacyTrigger } from '../models/Trigger.legacy';
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import TriggerService from './TriggerService';
 
 describe('TriggerService', () => {
@@ -154,13 +154,12 @@ describe('TriggerService', () => {
 
     describe('addLegacyTrigger', () => {
       it('should append a legacy trigger to the trigger_map', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           trigger_map:
           - push_branch: master
             workflow: primary`,
-        });
+        );
 
         TriggerService.addLegacyTrigger({
           uniqueId: '1',
@@ -182,10 +181,7 @@ describe('TriggerService', () => {
       });
 
       it('should create trigger_map if it does not exist', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml``,
-        });
+        updateBitriseYmlDocumentByString(yaml``);
 
         TriggerService.addLegacyTrigger({
           uniqueId: '1',
@@ -205,11 +201,10 @@ describe('TriggerService', () => {
       });
 
       it('should disable flow on trigger_map', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           trigger_map: []`,
-        });
+        );
 
         TriggerService.addLegacyTrigger({
           uniqueId: '1',
@@ -231,15 +226,14 @@ describe('TriggerService', () => {
 
     describe('removeLegacyTrigger', () => {
       it('should remove a legacy trigger from the trigger_map', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
           - pull_request_target_branch: develop
             workflow: primary`,
-        });
+        );
 
         TriggerService.removeLegacyTrigger(1);
 
@@ -251,15 +245,14 @@ describe('TriggerService', () => {
       });
 
       it('should remove the trigger_map when removing the last trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           workflows:
             primary: {}
           trigger_map:
           - push_branch: master
             workflow: primary`,
-        });
+        );
 
         TriggerService.removeLegacyTrigger(0);
 
@@ -270,10 +263,7 @@ describe('TriggerService', () => {
       });
 
       it('should throw an error if trigger_map is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml``,
-        });
+        updateBitriseYmlDocumentByString(yaml``);
 
         expect(() => {
           TriggerService.removeLegacyTrigger(0);
@@ -281,13 +271,12 @@ describe('TriggerService', () => {
       });
 
       it('should throw an error if trigger is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           trigger_map:
           - push_branch: master
             workflow: primary`,
-        });
+        );
 
         expect(() => {
           TriggerService.removeLegacyTrigger(1);
@@ -297,13 +286,12 @@ describe('TriggerService', () => {
 
     describe('updateLegacyTrigger', () => {
       it('should create the enabled property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -323,15 +311,14 @@ describe('TriggerService', () => {
       });
 
       it('should update the enabled property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - type: pull_request
               workflow: primary
               enabled: true
               pull_request_target_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -352,14 +339,13 @@ describe('TriggerService', () => {
       });
 
       it('should remove the enabled property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - tag: master
               enabled: false
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -378,13 +364,12 @@ describe('TriggerService', () => {
       });
 
       it('should create the draft_pull_request_enabled property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - pull_request_target_branch: master
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -405,15 +390,14 @@ describe('TriggerService', () => {
       });
 
       it('should update the draft_pull_request_enabled property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - type: pull_request
               workflow: primary
               draft_pull_request_enabled: true
               pull_request_target_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -435,15 +419,14 @@ describe('TriggerService', () => {
       });
 
       it('should delete the draft_pull_request_enabled property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - type: pull_request
               workflow: primary
               draft_pull_request_enabled: false
               pull_request_target_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -464,12 +447,11 @@ describe('TriggerService', () => {
       });
 
       it('should create the workflow property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -488,13 +470,12 @@ describe('TriggerService', () => {
       });
 
       it('should update the workflow property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - workflow: primary
               push_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -513,13 +494,12 @@ describe('TriggerService', () => {
       });
 
       it('should replace the workflow property of a trigger with the pipeline property', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - workflow: primary
               push_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -538,12 +518,11 @@ describe('TriggerService', () => {
       });
 
       it('should create the pipeline property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -562,13 +541,12 @@ describe('TriggerService', () => {
       });
 
       it('should update the pipeline property of a trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - pipeline: ci-pipeline
               push_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -588,13 +566,12 @@ describe('TriggerService', () => {
       });
 
       it('should replace the pipeline property of a trigger with the workflow property', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - pipeline: ci-pipeline
               push_branch: master`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -613,13 +590,12 @@ describe('TriggerService', () => {
       });
 
       it('should add a new condition to the trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -642,14 +618,13 @@ describe('TriggerService', () => {
       });
 
       it('should remove a condition from the trigger', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -668,14 +643,13 @@ describe('TriggerService', () => {
       });
 
       it('should update the value of a condition in the trigger (string value)', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -698,15 +672,14 @@ describe('TriggerService', () => {
       });
 
       it('should update the value of a condition in the trigger (regex value)', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message:
                 regex: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -730,14 +703,13 @@ describe('TriggerService', () => {
       });
 
       it('should update the value to *, if value is empty', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -760,14 +732,13 @@ describe('TriggerService', () => {
       });
 
       it('should set the regex property of a trigger (string value to regex)', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -791,14 +762,13 @@ describe('TriggerService', () => {
       });
 
       it('should set the regex property of a trigger (string value (*) to regex value (.*))', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message: "*"`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -822,15 +792,14 @@ describe('TriggerService', () => {
       });
 
       it('should set the regex property of a trigger (regex value is unchanged)', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message:
                 regex: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -854,15 +823,14 @@ describe('TriggerService', () => {
       });
 
       it('should remove the regex property of a trigger (regex value to string value)', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message:
                 regex: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -885,15 +853,14 @@ describe('TriggerService', () => {
       });
 
       it('should remove the regex property of a trigger (regex value (.*) to string value(*))', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message:
                 regex: .*`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -916,14 +883,13 @@ describe('TriggerService', () => {
       });
 
       it('should remove the regex property of a trigger (string value is unchanged)', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
               commit_message: ci`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -946,9 +912,8 @@ describe('TriggerService', () => {
       });
 
       it('should update a legacy push trigger in the trigger_map', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
@@ -956,7 +921,7 @@ describe('TriggerService', () => {
               workflow: primary
             - tag: v1.0.0
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -983,9 +948,8 @@ describe('TriggerService', () => {
       });
 
       it('should update a legacy pull_request trigger in the trigger_map', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
@@ -993,7 +957,7 @@ describe('TriggerService', () => {
               workflow: primary
             - tag: v1.0.0
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -1022,9 +986,8 @@ describe('TriggerService', () => {
       });
 
       it('should update a legacy tag trigger in the trigger_map', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
             trigger_map:
             - push_branch: master
               workflow: primary
@@ -1032,7 +995,7 @@ describe('TriggerService', () => {
               workflow: primary
             - tag: v1.0.0
               workflow: primary`,
-        });
+        );
 
         TriggerService.updateLegacyTrigger({
           uniqueId: '1',
@@ -1056,10 +1019,7 @@ describe('TriggerService', () => {
       });
 
       it('should throw an error if trigger_map is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml``,
-        });
+        updateBitriseYmlDocumentByString(yaml``);
 
         expect(() => {
           TriggerService.updateLegacyTrigger({
@@ -1074,13 +1034,12 @@ describe('TriggerService', () => {
       });
 
       it('should throw an error if trigger is not found', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           trigger_map:
           - push_branch: master
             workflow: primary`,
-        });
+        );
 
         expect(() => {
           TriggerService.updateLegacyTrigger({
@@ -1097,14 +1056,13 @@ describe('TriggerService', () => {
 
     describe('udateTriggerMap', () => {
       it('should update trigger map with new triggers', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           trigger_map:
           - push_branch: master
           - tag: v1.0.0
           - pull_request_target_branch: develop`,
-        });
+        );
 
         TriggerService.updateTriggerMap({
           push: [
@@ -1158,15 +1116,14 @@ describe('TriggerService', () => {
       });
 
       it('should remove the trigger_map if undefined is provided', () => {
-        initializeStore({
-          version: '',
-          ymlString: yaml`
+        updateBitriseYmlDocumentByString(
+          yaml`
           workflows:
             primary: {}
           trigger_map:
           - push_branch: master
             workflow: primary`,
-        });
+        );
 
         TriggerService.updateTriggerMap(undefined);
 
@@ -1186,15 +1143,14 @@ describe('TriggerService', () => {
       ].forEach(({ source, sourceId }) => {
         describe(`${source}`, () => {
           it('should update triggers.enabled (enabled: false)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             TriggerService.updateEnabled(false, { source, sourceId });
 
@@ -1209,12 +1165,11 @@ describe('TriggerService', () => {
           });
 
           it('should create triggers when it does not exist (enabled: false)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}: {}`,
-            });
+            );
 
             TriggerService.updateEnabled(false, { source, sourceId });
 
@@ -1227,13 +1182,12 @@ describe('TriggerService', () => {
           });
 
           it('should disable flow on triggers (enabled: false)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers: {}`,
-            });
+            );
 
             TriggerService.updateEnabled(false, { source, sourceId });
 
@@ -1246,16 +1200,15 @@ describe('TriggerService', () => {
           });
 
           it('should remove triggers.enabled (enabled: true)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                       enabled: false`,
-            });
+            );
 
             TriggerService.updateEnabled(true, { source, sourceId });
 
@@ -1269,14 +1222,13 @@ describe('TriggerService', () => {
           });
 
           it('should remove triggers entirely when enabled is the only key (enabled: true)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       enabled: false`,
-            });
+            );
 
             TriggerService.updateEnabled(true, { source, sourceId });
             expect(getYmlString()).toEqual(yaml`
@@ -1286,15 +1238,14 @@ describe('TriggerService', () => {
           });
 
           it(`should throw an error if ${source}.${sourceId} is not found`, () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}-different:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             expect(() => {
               TriggerService.updateEnabled(false, { source, sourceId });
@@ -1311,15 +1262,14 @@ describe('TriggerService', () => {
       ].forEach(({ source, sourceId }) => {
         describe(`${source}`, () => {
           it('should add a push trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             TriggerService.addTrigger({
               uniqueId: '1',
@@ -1350,15 +1300,14 @@ describe('TriggerService', () => {
           });
 
           it('should add a pull_request trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - target_branch: master`,
-            });
+            );
 
             TriggerService.addTrigger({
               uniqueId: '1',
@@ -1380,15 +1329,14 @@ describe('TriggerService', () => {
           });
 
           it('should add a tag trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       tag:
                       - name: 'beta'`,
-            });
+            );
 
             TriggerService.addTrigger({
               uniqueId: '1',
@@ -1410,12 +1358,11 @@ describe('TriggerService', () => {
           });
 
           it('should create triggers when it does not exist', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}: {}`,
-            });
+            );
 
             TriggerService.addTrigger({
               uniqueId: '1',
@@ -1435,13 +1382,12 @@ describe('TriggerService', () => {
           });
 
           it('should disable flow on triggers', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers: {}`,
-            });
+            );
 
             TriggerService.addTrigger({
               uniqueId: '1',
@@ -1462,12 +1408,11 @@ describe('TriggerService', () => {
           });
 
           it(`should throw an error if ${source}.${sourceId} is not found`, () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}-different: {}`,
-            });
+            );
 
             expect(() => {
               TriggerService.addTrigger({
@@ -1491,16 +1436,15 @@ describe('TriggerService', () => {
       ].forEach(({ source, sourceId }) => {
         describe(`${source}`, () => {
           it('should remove a push trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                       - branch: dev`,
-            });
+            );
 
             TriggerService.removeTrigger({
               uniqueId: '1',
@@ -1521,16 +1465,15 @@ describe('TriggerService', () => {
           });
 
           it('should remove a pull_request trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - target_branch: master
                       - target_branch: dev`,
-            });
+            );
 
             TriggerService.removeTrigger({
               uniqueId: '1',
@@ -1551,16 +1494,15 @@ describe('TriggerService', () => {
           });
 
           it('should remove a tag trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       tag:
                       - name: 'beta'
                       - name: '.*'`,
-            });
+            );
 
             TriggerService.removeTrigger({
               uniqueId: '1',
@@ -1581,15 +1523,14 @@ describe('TriggerService', () => {
           });
 
           it('should remove triggers, when removing the last trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             TriggerService.removeTrigger({
               uniqueId: '1',
@@ -1607,15 +1548,14 @@ describe('TriggerService', () => {
           });
 
           it(`should throw an error if ${source}.${sourceId} is not found`, () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}-different:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             expect(() => {
               TriggerService.removeTrigger({
@@ -1630,15 +1570,14 @@ describe('TriggerService', () => {
           });
 
           it('should throw an error if specific trigger is not found', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             expect(() => {
               TriggerService.removeTrigger({
@@ -1662,15 +1601,14 @@ describe('TriggerService', () => {
       ].forEach(({ source, sourceId }) => {
         describe(`${source}`, () => {
           it('should create the enabled property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1692,16 +1630,15 @@ describe('TriggerService', () => {
           });
 
           it('should update the enabled property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - enabled: true
                         target_branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1723,16 +1660,15 @@ describe('TriggerService', () => {
           });
 
           it('should remove the enabled property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       tag:
                       - name: master
                         enabled: false`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1753,15 +1689,14 @@ describe('TriggerService', () => {
           });
 
           it('should create the priority property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1784,16 +1719,15 @@ describe('TriggerService', () => {
           });
 
           it('should update the priority property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - priority: 1
                         target_branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1816,16 +1750,15 @@ describe('TriggerService', () => {
           });
 
           it('should delete the priority property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       tag:
                       - priority: 1
                         name: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1847,15 +1780,14 @@ describe('TriggerService', () => {
           });
 
           it('should create the draft_enabled property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - target_branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1878,16 +1810,15 @@ describe('TriggerService', () => {
           });
 
           it('should update the draft_enabled property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - draft_enabled: true
                         target_branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1910,16 +1841,15 @@ describe('TriggerService', () => {
           });
 
           it('should delete the draft_enabled property of a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - target_branch: master
                         draft_enabled: false`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1941,15 +1871,14 @@ describe('TriggerService', () => {
           });
 
           it('should add a new condition to a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -1979,9 +1908,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove a condition from a trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -1989,7 +1917,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           regex: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2010,16 +1938,15 @@ describe('TriggerService', () => {
           });
 
           it('should update the value of a condition in a trigger (string value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2044,9 +1971,8 @@ describe('TriggerService', () => {
           });
 
           it('should update the value of a condition in a trigger (pattern value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2054,7 +1980,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           pattern: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2080,9 +2006,8 @@ describe('TriggerService', () => {
           });
 
           it('should update the value of a condition in a trigger (regex value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2090,7 +2015,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           regex: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2116,16 +2041,15 @@ describe('TriggerService', () => {
           });
 
           it('should update the value to *, if value is empty', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2150,16 +2074,15 @@ describe('TriggerService', () => {
           });
 
           it('should set the regex property of a trigger (string value to regex value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2189,16 +2112,15 @@ describe('TriggerService', () => {
           });
 
           it('should set the regex property of a trigger (string value (*) to regex value (.*))', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: '*'`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2224,9 +2146,8 @@ describe('TriggerService', () => {
           });
 
           it('should set the regex property of a trigger (pattern value to regex value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2234,7 +2155,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           pattern: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2260,9 +2181,8 @@ describe('TriggerService', () => {
           });
 
           it('should set the regex property of a trigger (pattern value (*) to regex value (.*))', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2270,7 +2190,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           pattern: '*'`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2296,9 +2216,8 @@ describe('TriggerService', () => {
           });
 
           it('should set the regex property of a trigger (regex value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2306,7 +2225,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           regex: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2332,9 +2251,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the regex property of a trigger (regex value to string value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2342,7 +2260,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           regex: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2367,9 +2285,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the regex property of a trigger (regex value (.*) to string value (*))', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2377,7 +2294,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           regex: .*`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2402,9 +2319,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the regex property of a trigger (regex value to pattern value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2413,7 +2329,7 @@ describe('TriggerService', () => {
                         commit_message:
                           regex: ci
                           last_commit: true`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2440,9 +2356,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the regex property of a trigger (regex value (.*) to pattern value (*))', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2451,7 +2366,7 @@ describe('TriggerService', () => {
                         commit_message:
                           regex: .*
                           last_commit: true`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2478,9 +2393,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the regex property of a trigger (pattern value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2488,7 +2402,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           pattern: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2514,16 +2428,15 @@ describe('TriggerService', () => {
           });
 
           it('should remove the regex property of a trigger (string value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2548,16 +2461,15 @@ describe('TriggerService', () => {
           });
 
           it('should set the last_commit property of a trigger (string value to pattern value)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2588,9 +2500,8 @@ describe('TriggerService', () => {
           });
 
           it('should set the last_commit property of a trigger (pattern value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2598,7 +2509,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           pattern: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2625,9 +2536,8 @@ describe('TriggerService', () => {
           });
 
           it('should set the last_commit property of a trigger (regex value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2635,7 +2545,7 @@ describe('TriggerService', () => {
                       - branch: master
                         commit_message:
                           regex: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2662,9 +2572,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the last_commit property of a trigger (regex value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2673,7 +2582,7 @@ describe('TriggerService', () => {
                         commit_message:
                           regex: ci
                           last_commit: true`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2699,9 +2608,8 @@ describe('TriggerService', () => {
           });
 
           it('should remove the last_commit property of a trigger (pattern value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2710,7 +2618,7 @@ describe('TriggerService', () => {
                         commit_message:
                           pattern: ci
                           last_commit: true`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2736,16 +2644,15 @@ describe('TriggerService', () => {
           });
 
           it('should remove the last_commit property of a trigger (string value is unchanged)', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       push:
                       - branch: master
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2770,9 +2677,8 @@ describe('TriggerService', () => {
           });
 
           it('should update an push trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
@@ -2780,7 +2686,7 @@ describe('TriggerService', () => {
                       - branch: master
                         priority: 1
                         commit_message: ci`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2811,16 +2717,15 @@ describe('TriggerService', () => {
           });
 
           it('should update a pull_request trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       pull_request:
                       - target_branch: master
                         draft_enabled: false`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2853,15 +2758,14 @@ describe('TriggerService', () => {
           });
 
           it('should update a tag trigger', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}:
                     triggers:
                       tag:
                       - name: 'beta'`,
-            });
+            );
 
             TriggerService.updateTrigger({
               uniqueId: '1',
@@ -2885,16 +2789,15 @@ describe('TriggerService', () => {
           });
 
           it(`should throw an error if ${source}.${sourceId} is not found`, () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}-different:
                     triggers:
                       push:
                       - branch: master
                       - branch: dev`,
-            });
+            );
 
             expect(() => {
               TriggerService.updateTrigger({
@@ -2909,12 +2812,11 @@ describe('TriggerService', () => {
           });
 
           it('should throw an error if specific trigger is not found', () => {
-            initializeStore({
-              version: '',
-              ymlString: yaml`
+            updateBitriseYmlDocumentByString(
+              yaml`
                 ${source}:
                   ${sourceId}: {}`,
-            });
+            );
 
             expect(() => {
               TriggerService.updateTrigger({

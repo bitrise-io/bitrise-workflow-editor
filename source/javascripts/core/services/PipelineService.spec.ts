@@ -1,5 +1,5 @@
 import { BitriseYml, PipelineModel, Stages } from '../models/BitriseYml';
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import PipelineService from './PipelineService';
 
 describe('PipelineService', () => {
@@ -416,11 +416,10 @@ describe('PipelineService', () => {
 
   describe('createPipeline', () => {
     it('should create a pipeline with empty workflows if base pipeline is missing', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
         `,
-      });
+      );
 
       PipelineService.createPipeline('new_pipeline');
 
@@ -434,9 +433,8 @@ describe('PipelineService', () => {
     });
 
     it('should create a pipeline based on an other graph pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             base_pipeline:
               workflows:
@@ -444,7 +442,7 @@ describe('PipelineService', () => {
                 wf2:
                   depends_on: [ wf1 ]
         `,
-      });
+      );
 
       PipelineService.createPipeline('new_pipeline', 'base_pipeline');
 
@@ -466,9 +464,8 @@ describe('PipelineService', () => {
     });
 
     it('should create a pipeline based on a staged pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             base_pipeline:
               title: Staged Pipeline
@@ -488,7 +485,7 @@ describe('PipelineService', () => {
             wf2: {}
             wf3: {}
         `,
-      });
+      );
 
       PipelineService.createPipeline('new_pipeline', 'base_pipeline');
 
@@ -526,9 +523,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the base pipeline is not found', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             base_pipeline:
               workflows:
@@ -536,7 +532,7 @@ describe('PipelineService', () => {
                 wf2:
                   depends_on: [ wf1 ]
         `,
-      });
+      );
 
       expect(() => PipelineService.createPipeline('new_pipeline', 'non_existent_pipeline')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -544,14 +540,13 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline id already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               workflows: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.createPipeline('existing_pipeline')).toThrow(
         'Pipeline existing_pipeline already exists',
@@ -561,9 +556,8 @@ describe('PipelineService', () => {
 
   describe('renamePipeline', () => {
     it('should rename the pipeline and update references', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             old_pipeline:
               workflows: {}
@@ -571,7 +565,7 @@ describe('PipelineService', () => {
           - type: push
             pipeline: old_pipeline
         `,
-      });
+      );
 
       PipelineService.renamePipeline('old_pipeline', 'new_pipeline');
 
@@ -588,14 +582,13 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               workflows: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.renamePipeline('non_existent_pipeline', 'new_name')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -603,16 +596,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the new pipeline name already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               workflows: {}
             another_pipeline:
               workflows: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.renamePipeline('existing_pipeline', 'another_pipeline')).toThrow(
         'Pipeline another_pipeline already exists',
@@ -622,9 +614,8 @@ describe('PipelineService', () => {
 
   describe('deletePipeline', () => {
     it('should delete the pipeline and its references', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline_to_delete:
               workflows: {}
@@ -634,7 +625,7 @@ describe('PipelineService', () => {
           - type: push
             pipeline: pipeline_to_delete
         `,
-      });
+      );
 
       PipelineService.deletePipeline('pipeline_to_delete');
 
@@ -648,9 +639,8 @@ describe('PipelineService', () => {
     });
 
     it('should delete multiple pipelines and their references', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
@@ -666,7 +656,7 @@ describe('PipelineService', () => {
           - type: tag
             pipeline: pipeline3
         `,
-      });
+      );
 
       PipelineService.deletePipeline(['pipeline1', 'pipeline2']);
 
@@ -683,9 +673,8 @@ describe('PipelineService', () => {
     });
 
     it('should remove pipelines section if all pipelines are deleted', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           format_version: '1.0'
           pipelines:
             pipeline1:
@@ -698,7 +687,7 @@ describe('PipelineService', () => {
           - type: pull_request
             pipeline: pipeline2
         `,
-      });
+      );
 
       PipelineService.deletePipeline(['pipeline1', 'pipeline2']);
 
@@ -710,14 +699,13 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               workflows: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.deletePipeline('non_existent_pipeline')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -727,15 +715,14 @@ describe('PipelineService', () => {
 
   describe('updatePipelineField', () => {
     it('should update an existing pipeline field', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               title: Old Title
               workflows: {}
         `,
-      });
+      );
 
       PipelineService.updatePipelineField('existing_pipeline', 'title', 'New Title');
 
@@ -750,14 +737,13 @@ describe('PipelineService', () => {
     });
 
     it('should set a non-existing pipeline field', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               workflows: {}
         `,
-      });
+      );
 
       PipelineService.updatePipelineField('existing_pipeline', 'title', 'New Title');
 
@@ -772,15 +758,14 @@ describe('PipelineService', () => {
     });
 
     it('should delete the field if the value is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               title: Old Title
               workflows: {}
         `,
-      });
+      );
 
       PipelineService.updatePipelineField('existing_pipeline', 'title', '');
 
@@ -794,14 +779,13 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             existing_pipeline:
               workflows: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.updatePipelineField('non_existent_pipeline', 'title', 'New Title')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -811,16 +795,15 @@ describe('PipelineService', () => {
 
   describe('addWorkflowToPipeline', () => {
     it('should add a root workflow to the given pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       PipelineService.addWorkflowToPipeline('pipeline1', 'wf1');
 
@@ -837,9 +820,8 @@ describe('PipelineService', () => {
     });
 
     it('should add a dependant workflow to the given pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -848,7 +830,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       PipelineService.addWorkflowToPipeline('pipeline1', 'wf2', 'wf1');
 
@@ -869,9 +851,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow is already there', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -879,7 +860,7 @@ describe('PipelineService', () => {
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addWorkflowToPipeline('pipeline1', 'wf1')).toThrow(
         'Workflow wf1 already exists in pipeline pipeline1.',
@@ -887,16 +868,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addWorkflowToPipeline('non_existent_pipeline', 'wf1')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -904,16 +884,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addWorkflowToPipeline('pipeline1', 'non_existent_workflow')).toThrow(
         "Workflow non_existent_workflow not found. Ensure that the workflow exists in the 'workflows' section.",
@@ -921,9 +900,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the depends_on workflow is not part of the pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
@@ -931,7 +909,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addWorkflowToPipeline('pipeline1', 'wf2', 'wf1')).toThrow(
         'Workflow wf1 not found in pipeline pipeline1.',
@@ -941,9 +919,8 @@ describe('PipelineService', () => {
 
   describe('removeWorkflowFromPipeline', () => {
     it('should remove the workflow and references from the given pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -959,7 +936,7 @@ describe('PipelineService', () => {
             wf2: {}
             wf3: {}
         `,
-      });
+      );
 
       PipelineService.removeWorkflowFromPipeline('pipeline1', 'wf1');
       PipelineService.removeWorkflowFromPipeline('pipeline2', 'wf3');
@@ -981,16 +958,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.removeWorkflowFromPipeline('non_existent_pipeline', 'wf1')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -998,16 +974,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.removeWorkflowFromPipeline('pipeline1', 'non_existent_workflow')).toThrow(
         'Workflow non_existent_workflow not found in pipeline pipeline1.',
@@ -1015,9 +990,8 @@ describe('PipelineService', () => {
     });
 
     it('should NOT remove the workflows field if it becomes empty after removal', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1025,7 +999,7 @@ describe('PipelineService', () => {
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       PipelineService.removeWorkflowFromPipeline('pipeline1', 'wf1');
 
@@ -1043,9 +1017,8 @@ describe('PipelineService', () => {
 
   describe('updatePipelineWorkflowField', () => {
     it('should update the workflow field in the given pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1053,7 +1026,7 @@ describe('PipelineService', () => {
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       PipelineService.updatePipelineWorkflowField('pipeline1', 'wf1', 'run_if.expression', '.CI');
 
@@ -1072,9 +1045,8 @@ describe('PipelineService', () => {
     });
 
     it('should remove the workflow field if the value is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1084,7 +1056,7 @@ describe('PipelineService', () => {
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       PipelineService.updatePipelineWorkflowField('pipeline1', 'wf1', 'run_if.expression', '');
 
@@ -1101,16 +1073,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() =>
         PipelineService.updatePipelineWorkflowField('non_existent_pipeline', 'wf1', 'run_if.expression', '.CI'),
@@ -1120,16 +1091,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() =>
         PipelineService.updatePipelineWorkflowField('pipeline1', 'non_existent_workflow', 'run_if.expression', '.CI'),
@@ -1139,9 +1109,8 @@ describe('PipelineService', () => {
 
   describe('addPipelineWorkflowDependency', () => {
     it('should add a dependency to the workflow in the given pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1151,7 +1120,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf2', 'wf1');
 
@@ -1172,16 +1141,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addPipelineWorkflowDependency('non_existent_pipeline', 'wf1', 'wf2')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -1189,16 +1157,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'non_existent_workflow', 'wf2')).toThrow(
         'Workflow non_existent_workflow not found in pipeline pipeline1.',
@@ -1206,9 +1173,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the depends_on workflow is not part of the pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1217,7 +1183,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf1', 'non_existent_workflow')).toThrow(
         'Workflow non_existent_workflow not found in pipeline pipeline1.',
@@ -1225,9 +1191,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow is already a dependency', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1239,7 +1204,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf2', 'wf1')).toThrow(
         'Workflow wf2 already depends on wf1.',
@@ -1247,9 +1212,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw error if workflow is dependent on itself', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1257,7 +1221,7 @@ describe('PipelineService', () => {
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf1', 'wf1')).toThrow(
         'Workflow wf1 cannot depend on itself.',
@@ -1267,9 +1231,8 @@ describe('PipelineService', () => {
 
   describe('removePipelineWorkflowDependency', () => {
     it('should remove the dependency from the workflow in the given pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1281,7 +1244,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       PipelineService.removePipelineWorkflowDependency('pipeline1', 'wf2', 'wf1');
 
@@ -1300,16 +1263,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the pipeline does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => PipelineService.removePipelineWorkflowDependency('non_existent_pipeline', 'wf1', 'wf2')).toThrow(
         "Pipeline non_existent_pipeline not found. Ensure that the pipeline exists in the 'pipelines' section.",
@@ -1317,16 +1279,15 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows: {}
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() =>
         PipelineService.removePipelineWorkflowDependency('pipeline1', 'non_existent_workflow', 'wf2'),
@@ -1334,9 +1295,8 @@ describe('PipelineService', () => {
     });
 
     it('should throw an error if the depends_on workflow is not part of the pipeline', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             pipeline1:
               workflows:
@@ -1345,7 +1305,7 @@ describe('PipelineService', () => {
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() =>
         PipelineService.removePipelineWorkflowDependency('pipeline1', 'wf1', 'non_existent_workflow'),

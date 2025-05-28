@@ -1,6 +1,6 @@
 import { Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
-import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
@@ -659,10 +659,7 @@ describe('WorkflowService', () => {
 
   describe('createWorkflow', () => {
     it('should create an empty workflow if base workflow is missing', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml``,
-      });
+      updateBitriseYmlDocumentByString(yaml``);
 
       WorkflowService.createWorkflow('new-workflow');
 
@@ -675,18 +672,15 @@ describe('WorkflowService', () => {
     });
 
     it('should create a workflow based on an other workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
-          workflows:
-            base-workflow:
-              steps:
-                - script:
-                    title: Base Workflow
-                    inputs:
-                      - content: echo "Hello from Base Workflow"
-        `,
-      });
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          base-workflow:
+            steps:
+              - script:
+                  title: Base Workflow
+                  inputs:
+                    - content: echo "Hello from Base Workflow"
+      `);
 
       WorkflowService.createWorkflow('new-workflow', 'base-workflow');
 
@@ -710,13 +704,10 @@ describe('WorkflowService', () => {
     });
 
     it('should throw an error if id is already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(yaml`
           workflows:
             existing-workflow: {}
-        `,
-      });
+        `);
 
       expect(() => WorkflowService.createWorkflow('existing-workflow')).toThrow(
         "Workflow 'existing-workflow' already exists",
@@ -726,9 +717,7 @@ describe('WorkflowService', () => {
 
   describe('renameWorkflow', () => {
     it('should be rename an existing workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(yaml`
           pipelines:
             graph:
               workflows:
@@ -764,8 +753,7 @@ describe('WorkflowService', () => {
           trigger_map:
           - workflow: 'wf1'
           - workflow: 'wf2'
-        `,
-      });
+        `);
 
       WorkflowService.renameWorkflow('wf2', 'wf3');
 
@@ -811,13 +799,10 @@ describe('WorkflowService', () => {
     });
 
     it('should throw an error if the workflow to rename does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(yaml`
           workflows:
             wf1: {}
-        `,
-      });
+        `);
 
       expect(() => WorkflowService.renameWorkflow('non-existing-workflow', 'new-name')).toThrow(
         `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
@@ -825,14 +810,13 @@ describe('WorkflowService', () => {
     });
 
     it('should throw an error if the new name already exists', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() => WorkflowService.renameWorkflow('wf1', 'wf2')).toThrow("Workflow 'wf2' already exists");
     });
@@ -840,16 +824,15 @@ describe('WorkflowService', () => {
 
   describe('updateWorkflowField', () => {
     it('should update the specified field of the workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1:
               title: Old Title
               summary: "Old Summary"
               description: 'Old Description'
         `,
-      });
+      );
 
       WorkflowService.updateWorkflowField('wf1', 'title', 'New Title');
       WorkflowService.updateWorkflowField('wf1', 'summary', 'New Summary');
@@ -867,16 +850,15 @@ describe('WorkflowService', () => {
     });
 
     it('should remove the specified field if the value is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1:
               title: Old Title
               summary: "Old Summary"
               description: 'Old Description'
         `,
-      });
+      );
 
       WorkflowService.updateWorkflowField('wf1', 'title', '');
       WorkflowService.updateWorkflowField('wf1', 'summary', '');
@@ -891,13 +873,10 @@ describe('WorkflowService', () => {
     });
 
     it('should throw an error if the workflow does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(yaml`
           workflows:
             wf1: {}
-        `,
-      });
+        `);
 
       expect(() => WorkflowService.updateWorkflowField('non-existing-workflow', 'title', 'New Title')).toThrow(
         `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
@@ -907,9 +886,8 @@ describe('WorkflowService', () => {
 
   describe('deleteWorkflow', () => {
     it('should remove a workflow in the whole yml completely', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           pipelines:
             graph1:
               workflows:
@@ -965,7 +943,7 @@ describe('WorkflowService', () => {
           - workflow: 'wf2'
           - workflow: 'wf3'
         `,
-      });
+      );
 
       WorkflowService.deleteWorkflow('wf1');
 
@@ -1009,9 +987,8 @@ describe('WorkflowService', () => {
     });
 
     it('should keep pipelines with stage references which have workflows', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
             wf2: {}
@@ -1032,7 +1009,7 @@ describe('WorkflowService', () => {
               - st1: {}
               - st2: {}
         `,
-      });
+      );
 
       WorkflowService.deleteWorkflow('wf1');
 
@@ -1053,9 +1030,8 @@ describe('WorkflowService', () => {
     });
 
     it('should NOT remove the pipeline workflows property when last workflow removed in it', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
           pipelines:
@@ -1063,7 +1039,7 @@ describe('WorkflowService', () => {
               workflows:
                 wf1: {}
         `,
-      });
+      );
 
       WorkflowService.deleteWorkflow('wf1');
 
@@ -1077,13 +1053,12 @@ describe('WorkflowService', () => {
     });
 
     it('should throw an error if the workflow to delete does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => WorkflowService.deleteWorkflow('non-existing-workflow')).toThrow(
         `Workflow non-existing-workflow not found. Ensure that the workflow exists in the 'workflows' section.`,
@@ -1097,14 +1072,13 @@ describe('WorkflowService', () => {
     placements.forEach((placement) => {
       describe(`when placement is '${placement}'`, () => {
         it('should create placement with chained workflow', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1: {}
                 wf2: {}
             `,
-          });
+          );
 
           const expectedYml = yaml`
             workflows:
@@ -1120,16 +1094,15 @@ describe('WorkflowService', () => {
         });
 
         it('should insert chainable workflow to the end of the list', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1:
                   ${placement}: [ wf2 ]
                 wf2: {}
                 wf3: {}
             `,
-          });
+          );
 
           WorkflowService.addChainedWorkflow('wf1', placement, 'wf3');
 
@@ -1145,15 +1118,14 @@ describe('WorkflowService', () => {
         });
 
         it('should be able to insert chained workflow multiple times', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1:
                   ${placement}: [ wf2 ]
                 wf2: {}
             `,
-          });
+          );
 
           WorkflowService.addChainedWorkflow('wf1', placement, 'wf2');
 
@@ -1168,13 +1140,12 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error when insert chained workflow into a non-existent workflow', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1: {}
             `,
-          });
+          );
 
           expect(() => {
             WorkflowService.addChainedWorkflow('non-existing-workflow', placement, 'wf1');
@@ -1184,13 +1155,12 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error when insert non-existent chained workflow', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1: {}
             `,
-          });
+          );
           expect(() => {
             WorkflowService.addChainedWorkflow('wf1', placement, 'non-existing-workflow');
           }).toThrow(
@@ -1199,14 +1169,13 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error when insert chained workflow to invalid placement', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
           workflows:
             wf1: {}
             wf2: {}
         `,
-          });
+          );
 
           expect(() => {
             WorkflowService.addChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2');
@@ -1216,14 +1185,13 @@ describe('WorkflowService', () => {
     });
 
     it('throw an error when insert chained workflow to invalid placement', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() => {
         WorkflowService.addChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2');
@@ -1237,9 +1205,8 @@ describe('WorkflowService', () => {
     placements.forEach((placement) => {
       describe(`when placement is '${placement}'`, () => {
         it('should remove workflow from the target placement', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1:
                   before_run: [ wf2, wf3, wf2 ]
@@ -1248,7 +1215,7 @@ describe('WorkflowService', () => {
                   - wf3
                   - wf2
             `,
-          });
+          );
 
           WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 0);
 
@@ -1278,16 +1245,15 @@ describe('WorkflowService', () => {
         });
 
         it('should remove placement when placement is empty', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1:
                   before_run: [ wf2 ]
                   after_run:
                   - wf2
             `,
-          });
+          );
 
           WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 0);
 
@@ -1311,13 +1277,12 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error if the parentWorkflowId does not exist', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1: {}
             `,
-          });
+          );
 
           expect(() => {
             WorkflowService.removeChainedWorkflow('non-existing-workflow', placement, 'wf1', 0);
@@ -1327,14 +1292,13 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error if the chainedWorkflowId does not match the index', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1:
                   ${placement}: [ wf2, wf3 ]
             `,
-          });
+          );
 
           expect(() => {
             WorkflowService.removeChainedWorkflow('wf1', placement, 'wf3', 0);
@@ -1342,14 +1306,13 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error if the index is out of range', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
+          updateBitriseYmlDocumentByString(
+            yaml`
               workflows:
                 wf1:
                   ${placement}: [ wf2, wf3 ]
             `,
-          });
+          );
 
           expect(() => {
             WorkflowService.removeChainedWorkflow('wf1', placement, 'wf2', 2);
@@ -1357,15 +1320,14 @@ describe('WorkflowService', () => {
         });
 
         it('throw an error if the placement is invalid', () => {
-          initializeStore({
-            version: '',
-            ymlString: yaml`
-          workflows:
-            wf1: {}
-            wf2: {}
-            wf3: {}
-          `,
-          });
+          updateBitriseYmlDocumentByString(
+            yaml`
+              workflows:
+                wf1: {}
+                wf2: {}
+                wf3: {}
+              `,
+          );
 
           expect(() => {
             WorkflowService.removeChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2', 0);
@@ -1375,14 +1337,13 @@ describe('WorkflowService', () => {
     });
 
     it('throw an error when insert chained workflow to invalid placement', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
             wf2: {}
         `,
-      });
+      );
 
       expect(() => {
         WorkflowService.removeChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2', 0);
@@ -1392,16 +1353,15 @@ describe('WorkflowService', () => {
 
   describe('setChainedWorkflows', () => {
     it('should set the before workflows for the target workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1:
               after_run: [ wf2, wf3 ]
             wf2: {}
             wf3: {}
         `,
-      });
+      );
 
       WorkflowService.setChainedWorkflows('wf1', 'before_run', ['wf2', 'wf3']);
 
@@ -1420,16 +1380,15 @@ describe('WorkflowService', () => {
     });
 
     it('should set the after workflows for the target workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1:
               before_run: [ wf2, wf3 ]
             wf2: {}
             wf3: {}
         `,
-      });
+      );
 
       WorkflowService.setChainedWorkflows('wf1', 'after_run', ['wf2', 'wf3']);
 
@@ -1448,9 +1407,8 @@ describe('WorkflowService', () => {
     });
 
     it('should replace the after workflows for the target workflow', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1:
               after_run: [ 'wf2', "wf3", wf4 ]
@@ -1458,7 +1416,7 @@ describe('WorkflowService', () => {
             wf3: {}
             wf4: {}
         `,
-      });
+      );
 
       WorkflowService.setChainedWorkflows('wf1', 'after_run', ['wf4', 'wf3', 'wf2']);
 
@@ -1475,16 +1433,15 @@ describe('WorkflowService', () => {
     });
 
     it('should remove before workflows if it is empty', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1:
               before_run: [ wf2, wf3 ]
             wf2: {}
             wf3: {}
         `,
-      });
+      );
 
       WorkflowService.setChainedWorkflows('wf1', 'before_run', []);
 
@@ -1499,13 +1456,12 @@ describe('WorkflowService', () => {
     });
 
     it('throw an error if the workflow to set does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => {
         WorkflowService.setChainedWorkflows('non-existing-workflow', 'after_run', ['wf2']);
@@ -1515,13 +1471,12 @@ describe('WorkflowService', () => {
     });
 
     it('throw an error if the chained workflow to set does not exist', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
         `,
-      });
+      );
 
       expect(() => {
         WorkflowService.setChainedWorkflows('wf1', 'after_run', ['non-existing-workflow']);
@@ -1531,15 +1486,14 @@ describe('WorkflowService', () => {
     });
 
     it('throw an error if the placement is invalid', () => {
-      initializeStore({
-        version: '',
-        ymlString: yaml`
+      updateBitriseYmlDocumentByString(
+        yaml`
           workflows:
             wf1: {}
             wf2: {}
             wf3: {}
           `,
-      });
+      );
 
       expect(() => {
         WorkflowService.setChainedWorkflows('wf1', 'invalid_placement' as ChainedWorkflowPlacement, ['wf2', 'wf3']);

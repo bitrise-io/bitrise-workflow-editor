@@ -11,7 +11,7 @@ import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
@@ -128,9 +128,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         case 'remove': {
           // Close the dialog if the selected workflow is in the deleted workflow's chain
           if (
-            WorkflowService.getWorkflowChain(bitriseYmlStore.getState().yml?.workflows ?? {}, workflowId).includes(
-              selectedWorkflowId,
-            )
+            WorkflowService.getWorkflowChain(getBitriseYml().workflows ?? {}, workflowId).includes(selectedWorkflowId)
           ) {
             closeDialog();
           }
