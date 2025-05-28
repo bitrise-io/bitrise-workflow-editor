@@ -1,4 +1,4 @@
-import { YAMLMap, YAMLSeq } from 'yaml';
+import { isMap, YAMLMap, YAMLSeq } from 'yaml';
 
 import YmlUtils from './YmlUtils';
 
@@ -329,6 +329,108 @@ describe('YmlUtils', () => {
       `);
 
       YmlUtils.deleteByValue(root, ['workflows', '*', 'steps', '*'], { deploy: {} }, ['workflows']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            title: Workflow 1
+      `);
+    });
+  });
+
+  describe('deleteByPredicate', () => {
+    it('should delete an item matching a predicate at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+            content: "Hello World"
+        - script:
+            title: Script Step
+            content: "Another Script"
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.deleteByPredicate(
+        root,
+        ['steps', '*'],
+        (node) => isMap(node) && node.getIn(['script', 'content']) === 'Hello World',
+      );
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script:
+            title: Script Step
+            content: "Another Script"
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should not delete anything if the predicate does not match', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.deleteByPredicate(root, ['steps', '*'], (node) => node === 'Not Exists');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should delete multiple items matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - deploy: {}
+          wf2:
+            steps:
+            - deploy: {}
+            - clone: {}
+      `);
+
+      YmlUtils.deleteByPredicate(root, ['workflows', '*', 'steps', '*'], (node) => isMap(node) && node.has('deploy'), [
+        'workflows',
+      ]);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2:
+            steps:
+            - clone: {}
+      `);
+    });
+
+    it('should not delete the parent if it is not empty', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            title: Workflow 1
+            steps:
+            - deploy: {}
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      YmlUtils.deleteByPredicate(root, ['workflows', '*', 'steps', '*'], (node) => isMap(node) && node.has('deploy'), [
+        'workflows',
+      ]);
 
       expect(YmlUtils.toYml(root)).toEqual(yaml`
         workflows:
