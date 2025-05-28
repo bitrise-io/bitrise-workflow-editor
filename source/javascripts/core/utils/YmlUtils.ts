@@ -244,6 +244,30 @@ function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: Wil
   }
 }
 
+function deleteByPredicate(
+  root: Root,
+  path: WildcardPath,
+  predicate: (node?: unknown) => boolean,
+  keep: WildcardPath = [],
+  deleted?: Deleted,
+) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (path.includes('*')) {
+    getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
+      deleteByPredicate(root, matchingPaths[0], predicate, matchingPaths[1], deleted);
+    });
+
+    return;
+  }
+
+  if (predicate(root.getIn(path, true))) {
+    deleteByPath(root, path, keep, deleted);
+  }
+}
+
 export default {
   toDoc,
   toYml,
@@ -253,5 +277,6 @@ export default {
   getMapIn,
   deleteByPath,
   deleteByValue,
+  deleteByPredicate,
   collectPaths,
 };
