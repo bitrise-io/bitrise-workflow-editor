@@ -1,6 +1,5 @@
-import BitriseYmlApi from '../api/BitriseYmlApi';
 import { EnvVarSource } from '../models/EnvVar';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 import EnvVarService from './EnvVarService';
 
 describe('EnvVarService', () => {
@@ -351,8 +350,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.create({ source: EnvVarSource.App });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
             app:
               envs:
               - SERVICE_VERSION: 1.2.3
@@ -370,8 +368,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.create({ source: EnvVarSource.App });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - "": ""
@@ -397,8 +394,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.create({ source: EnvVarSource.Workflows, sourceId: 'wf1' });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -425,8 +421,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.create({ source: EnvVarSource.Workflows, sourceId: 'wf1' });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -492,8 +487,7 @@ describe('EnvVarService', () => {
           { key: 'PROJECT_NAME', value: 'Mando', source: 'app', isExpand: false },
           { source: EnvVarSource.App },
         );
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 1.2.3
@@ -508,8 +502,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.append({ key: 'PROJECT_NAME', value: 'Mando', source: 'app' }, { source: EnvVarSource.App });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - PROJECT_NAME: Mando
@@ -537,8 +530,7 @@ describe('EnvVarService', () => {
           { source: EnvVarSource.Workflows, sourceId: 'wf1' },
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -566,8 +558,7 @@ describe('EnvVarService', () => {
           { source: EnvVarSource.Workflows, sourceId: 'wf1' },
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -632,8 +623,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.remove({ source: EnvVarSource.App, index: 1 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 1.2.3
@@ -652,8 +642,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.remove({ source: EnvVarSource.App, index: 0 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toBe(yaml`
+        expect(getYmlString()).toBe(yaml`
           format_version: ''
         `);
       });
@@ -691,8 +680,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf1', index: 1 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -719,8 +707,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf2', index: 0 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -798,8 +785,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.reorder([1, 2, 0], { source: EnvVarSource.App });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - PROJECT_NAME: Mando
@@ -842,8 +828,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.reorder([1, 2, 0], { source: EnvVarSource.Workflows, sourceId: 'wf1' });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -923,8 +908,7 @@ describe('EnvVarService', () => {
           oldKey: 'SERVICE_VERSION',
         });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_BUILD_NUMBER: 1.2.3
@@ -988,8 +972,7 @@ describe('EnvVarService', () => {
           oldKey: 'NODE_VERSION',
         });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -1095,8 +1078,7 @@ describe('EnvVarService', () => {
         EnvVarService.updateValue('staging', { source: EnvVarSource.App, index: 2, key: 'ENVIRONMENT' });
         EnvVarService.updateValue('0.15.0', { source: EnvVarSource.App, index: 3, key: 'NODE_VERSION' });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 2.0
@@ -1116,7 +1098,7 @@ describe('EnvVarService', () => {
         });
 
         EnvVarService.updateValue('3.1415', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 3.1415
@@ -1133,7 +1115,7 @@ describe('EnvVarService', () => {
         });
 
         EnvVarService.updateValue('2', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 2
@@ -1189,8 +1171,7 @@ describe('EnvVarService', () => {
           key: 'NODE_VERSION',
         });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -1215,7 +1196,7 @@ describe('EnvVarService', () => {
           key: 'SERVICE_VERSION',
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -1239,7 +1220,7 @@ describe('EnvVarService', () => {
           index: 0,
           key: 'SERVICE_VERSION',
         });
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -1344,8 +1325,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.updateIsExpand(false, { source: EnvVarSource.App, index: 0 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 1.2.3
@@ -1369,8 +1349,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.updateIsExpand(true, { source: EnvVarSource.App, index: 1 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           app:
             envs:
             - SERVICE_VERSION: 1.2.3
@@ -1411,8 +1390,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.updateIsExpand(false, { source: EnvVarSource.Workflows, sourceId: 'wf1', index: 0 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:
@@ -1444,8 +1422,7 @@ describe('EnvVarService', () => {
 
         EnvVarService.updateIsExpand(true, { source: EnvVarSource.Workflows, sourceId: 'wf1', index: 1 });
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           workflows:
             wf1:
               envs:

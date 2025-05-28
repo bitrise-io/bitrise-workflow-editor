@@ -3,8 +3,7 @@ import { useEffect, useRef } from 'react';
 import { parseDocument } from 'yaml';
 
 import LoadingState from '@/components/LoadingState';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 
@@ -39,6 +38,7 @@ const YmlEditor = () => {
       theme="vs-dark"
       language="yaml"
       keepCurrentModel
+      value={getYmlString()}
       onChange={handleEditorChange}
       onMount={handleEditorDidMount}
       beforeMount={(monaco) => {
@@ -48,7 +48,6 @@ const YmlEditor = () => {
       options={{
         readOnly: isLoadingSetting || ymlSettings?.usesRepositoryYml,
       }}
-      defaultValue={BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)}
     />
   );
 };

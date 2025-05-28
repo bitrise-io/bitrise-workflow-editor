@@ -9,6 +9,7 @@ import { bitriseYmlStore, initializeStore } from "../source/javascripts/core/sto
 import { useEffect } from "react";
 import BitriseYmlApi from "../source/javascripts/core/api/BitriseYmlApi.ts";
 import { parseDocument } from "yaml";
+import YmlUtils from "../source/javascripts/core/utils/YmlUtils.ts";
 
 initialize({ serviceWorker: { url: "./mockServiceWorker.js" } });
 
@@ -52,8 +53,8 @@ const preview: Preview = {
       useEffect(() => {
         bitriseYmlStore.setState({
           yml: TEST_BITRISE_YML,
-          ymlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML), { keepSourceTokens: true }),
-          savedYmlDocument: parseDocument(BitriseYmlApi.toYml(TEST_BITRISE_YML), { keepSourceTokens: true }),
+          ymlDocument: YmlUtils.toDoc(YmlUtils.toYml(TEST_BITRISE_YML)),
+          savedYmlDocument: YmlUtils.toDoc(YmlUtils.toYml(TEST_BITRISE_YML)),
           savedYmlVersion: '',
         });
       }, []);

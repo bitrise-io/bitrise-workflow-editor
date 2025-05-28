@@ -5,12 +5,19 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { BitriseYml } from '@/core/models/BitriseYml';
 
 import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 
 export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
 export type YamlMutator = (ctx: YamlMutatorCtx) => Document;
 export type YamlMutatorCtx = { doc: Document; paths: string[] };
+
+type InitStoreOptions = {
+  version: string;
+  ymlString: string;
+  discardKey?: number;
+};
 
 export const bitriseYmlStore = createStore(() => ({
   discardKey: Date.now(),
@@ -20,11 +27,13 @@ export const bitriseYmlStore = createStore(() => ({
   savedYmlVersion: '',
 }));
 
-type InitStoreOptions = {
-  version: string;
-  ymlString: string;
-  discardKey?: number;
-};
+bitriseYmlStore.subscribe((curr, prev) => {
+  if (YmlUtils.isEquals(curr.ymlDocument, prev.ymlDocument)) {
+    bitriseYmlStore.setState({
+      yml: curr.ymlDocument.toJSON(),
+    });
+  }
+});
 
 export function initializeStore({ version, ymlString, discardKey }: InitStoreOptions) {
   const doc = parseDocument(ymlString, { keepSourceTokens: true, stringKeys: true });
@@ -43,14 +52,6 @@ export function initializeStore({ version, ymlString, discardKey }: InitStoreOpt
   );
 }
 
-bitriseYmlStore.subscribe((curr, prev) => {
-  if (!YamlUtils.areDocumentsEqual(curr.ymlDocument, prev.ymlDocument)) {
-    bitriseYmlStore.setState({
-      yml: curr.ymlDocument.toJSON(),
-    });
-  }
-});
-
 export function updateBitriseYmlDocument(mutator: YamlMutator /* , event = BitriseYmlEvent.Updated */) {
   const doc = bitriseYmlStore.getState().ymlDocument.clone();
   const paths = YamlUtils.collectPaths(bitriseYmlStore.getState().yml);
@@ -66,4 +67,12 @@ export function updateBitriseYmlDocument(mutator: YamlMutator /* , event = Bitri
   bitriseYmlStore.setState({ ymlDocument: mutatedDocument });
 
   // dispatchBitriseYmlEvent(event);
+}
+
+export function getYmlString(from?: 'savedYmlDocument'): string {
+  if (from === 'savedYmlDocument') {
+    return YmlUtils.toYml(bitriseYmlStore.getState().savedYmlDocument);
+  }
+
+  return YmlUtils.toYml(bitriseYmlStore.getState().ymlDocument);
 }

@@ -1,8 +1,7 @@
 import { MachineType, Stack } from '@/core/models/StackAndMachine';
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 
-import BitriseYmlApi from '../api/BitriseYmlApi';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 
 const stacks: Stack[] = [
   {
@@ -731,8 +730,7 @@ describe('StackAndMachineService', () => {
           StackAndMachineSource.Root,
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-16
@@ -758,8 +756,7 @@ describe('StackAndMachineService', () => {
           StackAndMachineSource.Root,
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -785,8 +782,7 @@ describe('StackAndMachineService', () => {
           StackAndMachineSource.Root,
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -803,8 +799,7 @@ describe('StackAndMachineService', () => {
 
         StackAndMachineService.updateStackAndMachine({ stackId: 'osx-xcode-16' }, StackAndMachineSource.Root);
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           format_version: ''
           meta:
             bitrise.io:
@@ -829,8 +824,7 @@ describe('StackAndMachineService', () => {
           StackAndMachineSource.Root,
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               machine_type_id: mac-m1
@@ -855,8 +849,7 @@ describe('StackAndMachineService', () => {
           StackAndMachineSource.Root,
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -881,8 +874,7 @@ describe('StackAndMachineService', () => {
           StackAndMachineSource.Root,
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -903,8 +895,7 @@ describe('StackAndMachineService', () => {
 
         StackAndMachineService.updateStackAndMachine({ stackId: '' }, StackAndMachineSource.Root);
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toBe(yaml`format_version: ''`);
+        expect(getYmlString()).toBe(yaml`format_version: ''`);
       });
     });
 
@@ -938,8 +929,7 @@ describe('StackAndMachineService', () => {
           'primary',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -989,8 +979,7 @@ describe('StackAndMachineService', () => {
           'primary',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -1041,8 +1030,7 @@ describe('StackAndMachineService', () => {
           'primary',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -1094,8 +1082,7 @@ describe('StackAndMachineService', () => {
           'deploy',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -1148,8 +1135,7 @@ describe('StackAndMachineService', () => {
           'primary',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -1198,8 +1184,7 @@ describe('StackAndMachineService', () => {
           'primary',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -1249,8 +1234,7 @@ describe('StackAndMachineService', () => {
           'primary',
         );
 
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15
@@ -1294,8 +1278,7 @@ describe('StackAndMachineService', () => {
                 steps: []`,
         });
         StackAndMachineService.updateStackAndMachine({ stackId: '' }, StackAndMachineSource.Workflow, 'test');
-        const actualYml = BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument);
-        expect(actualYml).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           meta:
             bitrise.io:
               stack: osx-xcode-15

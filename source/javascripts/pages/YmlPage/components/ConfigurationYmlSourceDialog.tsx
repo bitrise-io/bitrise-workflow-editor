@@ -22,10 +22,9 @@ import { useCopyToClipboard } from 'usehooks-ts';
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '@/core/stores/BitriseYmlStore';
 import { download, getFormattedDate } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -130,7 +129,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
       yml_source: 'bitrise',
       source: 'configuration_yml_source',
     });
-    copyToClipboard(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).then((isCopied) => {
+    copyToClipboard(getYmlString()).then((isCopied) => {
       if (isCopied) {
         toast({
           status: 'success',
@@ -152,11 +151,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
       yml_source: 'bitrise',
       source: 'configuration_yml_source',
     });
-    download(
-      BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
-      'bitrise.yml',
-      'application/yaml;charset=utf-8',
-    );
+    download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
   return (

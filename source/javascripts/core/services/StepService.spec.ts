@@ -1,8 +1,7 @@
 import { StepApiResult } from '@/core/api/StepApi';
 
-import BitriseYmlApi from '../api/BitriseYmlApi';
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, Step } from '../models/Step';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 import StepService from './StepService';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
@@ -1131,7 +1130,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should add a step to an existing step bundle', () => {
@@ -1151,7 +1150,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throws an error if the workflow or step bundle does not exist', () => {
@@ -1182,7 +1181,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should move a step to a new position in an existing step bundle', () => {
@@ -1201,7 +1200,7 @@ describe('StepService', () => {
             - script@1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should move the step to end of the steps if the new index is out ouf bounds', () => {
@@ -1219,7 +1218,7 @@ describe('StepService', () => {
 
       StepService.moveStep('workflows', 'primary', 1, 4);
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(
+      expect(getYmlString()).toEqual(
         yaml`
           workflows:
             primary:
@@ -1246,7 +1245,7 @@ describe('StepService', () => {
 
       StepService.moveStep('workflows', 'primary', 0, -1);
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(
+      expect(getYmlString()).toEqual(
         yaml`
           workflows:
             primary:
@@ -1294,7 +1293,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should clone a step in an existing step bundle', () => {
@@ -1314,7 +1313,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow or step bundle does not exist', () => {
@@ -1351,7 +1350,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should delete a step in an existing step bundle', () => {
@@ -1369,7 +1368,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should be able to delete multiple steps', () => {
@@ -1397,7 +1396,7 @@ describe('StepService', () => {
             - analyze@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should delete steps field if it is empty', () => {
@@ -1413,7 +1412,7 @@ describe('StepService', () => {
             - script@1: {}
             - cache@2: {}
       `;
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow or step bundle does not exist', () => {
@@ -1452,7 +1451,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should update a step field in an existing step bundle', () => {
@@ -1472,7 +1471,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove a step field if the new value is empty', () => {
@@ -1496,7 +1495,7 @@ describe('StepService', () => {
             - script@1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow or step bundle does not exist', () => {
@@ -1544,7 +1543,7 @@ describe('StepService', () => {
                 - is_test: true
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should add a new step input if it does not exist', () => {
@@ -1567,7 +1566,7 @@ describe('StepService', () => {
             - cache@2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the step input if empty string is given', () => {
@@ -1595,7 +1594,7 @@ describe('StepService', () => {
                 - is_test: true
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the step inputs field if remove the last input', () => {
@@ -1620,7 +1619,7 @@ describe('StepService', () => {
             - script@1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should not override existing input opts', () => {
@@ -1653,7 +1652,7 @@ describe('StepService', () => {
                     is_expand: true
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow or step bundle does not exist', () => {
@@ -1692,7 +1691,7 @@ describe('StepService', () => {
             - cache@2.3: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should append version if the step does not have one', () => {
@@ -1728,7 +1727,7 @@ describe('StepService', () => {
             - cache@2.3: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the step version is empty string is given', () => {
@@ -1748,7 +1747,7 @@ describe('StepService', () => {
             - cache: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow or step bundle does not exist', () => {

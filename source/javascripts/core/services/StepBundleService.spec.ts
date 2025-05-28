@@ -1,7 +1,6 @@
 import StepBundleService from '@/core/services/StepBundleService';
 
-import BitriseYmlApi from '../api/BitriseYmlApi';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 
 describe('StepBundleService', () => {
   describe('validateName', () => {
@@ -71,7 +70,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.createStepBundle('sb1');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -99,7 +98,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.createStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1' });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             steps:
@@ -145,7 +144,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.createStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1' });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             steps:
@@ -198,7 +197,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.createStepBundle('sb2', { source: 'workflows', sourceId: 'primary' });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             steps:
@@ -255,7 +254,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.createStepBundle('sb2', { source: 'workflows', sourceId: 'primary' });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             title: 'Workflow'
@@ -353,7 +352,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.renameStepBundle('sb2', 'sb4');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -388,7 +387,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.renameStepBundle('sb1', 'sb4');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -435,7 +434,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.renameStepBundle('sb1', 'sb4');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             steps:
@@ -507,7 +506,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.deleteStepBundle('sb2');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -529,7 +528,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.deleteStepBundle('sb1');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
       `);
@@ -560,7 +559,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.deleteStepBundle('sb1');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -598,7 +597,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.deleteStepBundle('sb1');
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             steps:
@@ -649,7 +648,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.groupStepsToStepBundle('sb2', { source: 'step_bundles', sourceId: 'sb1', steps: [1, 2, 3] });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -683,7 +682,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.groupStepsToStepBundle('sb1', { source: 'workflows', sourceId: 'primary', steps: [1, 2, 3] });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary:
             steps:
@@ -797,7 +796,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.addStepBundleInput('sb1', { input2: 'value2', opts: { is_required: true } });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -829,7 +828,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.addStepBundleInput('sb1', { input1: 'value1' });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -922,7 +921,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.deleteStepBundleInput('sb1', 1);
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -953,7 +952,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.deleteStepBundleInput('sb1', 0);
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1026,7 +1025,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input2: 'value1', opts: { is_required: true } });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1061,7 +1060,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: { is_required: true } });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1094,7 +1093,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value1', opts: { is_required: true } });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1134,7 +1133,7 @@ describe('StepBundleService', () => {
         opts: { is_required: true, category: 'primary', is_dont_change_value: false, is_expand: true },
       });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1171,7 +1170,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: {} });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1204,7 +1203,7 @@ describe('StepBundleService', () => {
 
       StepBundleService.updateStepBundleInput('sb1', 0, { input1: 'value2', opts: { is_required: false } });
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+      expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
         step_bundles:
@@ -1283,7 +1282,7 @@ describe('StepBundleService', () => {
             description: 'New Description'
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the specified field if the value is empty', () => {
@@ -1307,7 +1306,7 @@ describe('StepBundleService', () => {
           bundle::sb1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the step_bundle does not exist', () => {
@@ -1395,7 +1394,7 @@ describe('StepBundleService', () => {
             - input3: "value3"
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should update the value of the specified Step Bundle instance input in the step bundle', () => {
@@ -1455,7 +1454,7 @@ describe('StepBundleService', () => {
                 - input3: "value3_updated"
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should add the input if it does not exist in the instance', () => {
@@ -1516,7 +1515,7 @@ describe('StepBundleService', () => {
             - input4: value4
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the input if the value is empty', () => {
@@ -1573,7 +1572,7 @@ describe('StepBundleService', () => {
             - input3: "value3"
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the step bundle does not exist', () => {

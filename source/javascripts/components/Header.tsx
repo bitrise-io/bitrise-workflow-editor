@@ -2,9 +2,8 @@ import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useRespon
 import { useCallback, useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString, initializeStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -100,7 +99,7 @@ const Header = () => {
         projectSlug: appSlug,
         tabOpenDuringSave: currentPage,
         version: bitriseYmlStore.getState().savedYmlVersion,
-        ymlString: BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
+        ymlString: getYmlString(),
       });
     },
     [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],

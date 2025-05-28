@@ -1,7 +1,6 @@
-import BitriseYmlApi from '../api/BitriseYmlApi';
 import { TriggerSource } from '../models/Trigger';
 import { LegacyTrigger } from '../models/Trigger.legacy';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 import TriggerService from './TriggerService';
 
 describe('TriggerService', () => {
@@ -172,13 +171,13 @@ describe('TriggerService', () => {
           conditions: [{ type: 'pull_request_source_branch', value: 'dev' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
-        trigger_map:
-        - push_branch: master
-          workflow: primary
-        - type: pull_request
-          workflow: primary
-          pull_request_source_branch: dev
+        expect(getYmlString()).toEqual(yaml`
+          trigger_map:
+          - push_branch: master
+            workflow: primary
+          - type: pull_request
+            workflow: primary
+            pull_request_source_branch: dev
       `);
       });
 
@@ -197,7 +196,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
         trigger_map:
         - type: push
           workflow: primary
@@ -221,7 +220,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
         trigger_map:
         - type: push
           workflow: primary
@@ -244,7 +243,7 @@ describe('TriggerService', () => {
 
         TriggerService.removeLegacyTrigger(1);
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
         trigger_map:
         - push_branch: master
           workflow: primary
@@ -264,7 +263,7 @@ describe('TriggerService', () => {
 
         TriggerService.removeLegacyTrigger(0);
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
       `);
@@ -315,7 +314,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -343,7 +342,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - type: pull_request
             workflow: primary
@@ -371,7 +370,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'tag', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - tag: master
             workflow: primary
@@ -397,7 +396,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - pull_request_target_branch: master
             workflow: primary
@@ -426,7 +425,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - type: pull_request
             workflow: primary
@@ -456,7 +455,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'pull_request_target_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - type: pull_request
             workflow: primary
@@ -481,7 +480,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -506,7 +505,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - workflow: secondary
             push_branch: master
@@ -531,7 +530,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             pipeline: ci-pipeline
@@ -555,7 +554,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             pipeline: ci-pipeline
@@ -580,7 +579,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - pipeline: release-pipeline
             push_branch: master
@@ -606,7 +605,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -634,7 +633,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -661,7 +660,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'push_branch', value: 'master' }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -690,7 +689,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -721,7 +720,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -752,7 +751,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -782,7 +781,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -813,7 +812,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -845,7 +844,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -877,7 +876,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -908,7 +907,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -938,7 +937,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -971,7 +970,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -1009,7 +1008,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -1044,7 +1043,7 @@ describe('TriggerService', () => {
           conditions: [{ type: 'tag', value: '^v\\d+\\.\\d+\\.\\d+$', isRegex: true }],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
           trigger_map:
           - push_branch: master
             workflow: primary
@@ -1142,7 +1141,7 @@ describe('TriggerService', () => {
           ],
         });
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
         trigger_map:
         - type: push
           pipeline: ci-pipeline
@@ -1171,7 +1170,7 @@ describe('TriggerService', () => {
 
         TriggerService.updateTriggerMap(undefined);
 
-        expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+        expect(getYmlString()).toEqual(yaml`
         workflows:
           primary: {}
       `);
@@ -1199,7 +1198,7 @@ describe('TriggerService', () => {
 
             TriggerService.updateEnabled(false, { source, sourceId });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1219,7 +1218,7 @@ describe('TriggerService', () => {
 
             TriggerService.updateEnabled(false, { source, sourceId });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1238,7 +1237,7 @@ describe('TriggerService', () => {
 
             TriggerService.updateEnabled(false, { source, sourceId });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1260,7 +1259,7 @@ describe('TriggerService', () => {
 
             TriggerService.updateEnabled(true, { source, sourceId });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1280,7 +1279,7 @@ describe('TriggerService', () => {
             });
 
             TriggerService.updateEnabled(true, { source, sourceId });
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}: {}
             `);
@@ -1338,7 +1337,7 @@ describe('TriggerService', () => {
               isActive: true,
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1370,7 +1369,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'source_branch', value: 'dev' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1400,7 +1399,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'name', value: '*' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1426,7 +1425,7 @@ describe('TriggerService', () => {
               isActive: true,
               conditions: [{ type: 'branch', value: 'master' }],
             });
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1453,7 +1452,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1512,7 +1511,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'branch', value: 'dev' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1542,7 +1541,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'target_branch', value: 'dev' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1572,7 +1571,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'name', value: '.*', isRegex: true }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1601,7 +1600,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}: {}
             `);
@@ -1682,7 +1681,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1713,7 +1712,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'target_branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1744,7 +1743,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'name', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1774,7 +1773,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1806,7 +1805,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'target_branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1838,7 +1837,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'name', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1868,7 +1867,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'target_branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1900,7 +1899,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'target_branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1932,7 +1931,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'target_branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -1968,7 +1967,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2001,7 +2000,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'branch', value: 'master' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2034,7 +2033,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2069,7 +2068,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2105,7 +2104,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2140,7 +2139,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2178,7 +2177,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2213,7 +2212,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2249,7 +2248,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2285,7 +2284,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2321,7 +2320,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2357,7 +2356,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2392,7 +2391,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2428,7 +2427,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2466,7 +2465,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2503,7 +2502,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2538,7 +2537,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2576,7 +2575,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2613,7 +2612,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2650,7 +2649,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2688,7 +2687,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2725,7 +2724,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2760,7 +2759,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2797,7 +2796,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2838,7 +2837,7 @@ describe('TriggerService', () => {
               ],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:
@@ -2874,7 +2873,7 @@ describe('TriggerService', () => {
               conditions: [{ type: 'name', value: 'beta' }],
             });
 
-            expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(yaml`
+            expect(getYmlString()).toEqual(yaml`
               ${source}:
                 ${sourceId}:
                   triggers:

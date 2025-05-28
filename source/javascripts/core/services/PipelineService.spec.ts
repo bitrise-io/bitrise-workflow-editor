@@ -1,6 +1,5 @@
-import BitriseYmlApi from '../api/BitriseYmlApi';
 import { BitriseYml, PipelineModel, Stages } from '../models/BitriseYml';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 import PipelineService from './PipelineService';
 
 describe('PipelineService', () => {
@@ -431,7 +430,7 @@ describe('PipelineService', () => {
             workflows: {}
         `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should create a pipeline based on an other graph pipeline', () => {
@@ -463,7 +462,7 @@ describe('PipelineService', () => {
                 depends_on: [ wf1 ]
         `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should create a pipeline based on a staged pipeline', () => {
@@ -523,7 +522,7 @@ describe('PipelineService', () => {
           wf3: {}
         `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the base pipeline is not found', () => {
@@ -585,7 +584,7 @@ describe('PipelineService', () => {
           pipeline: new_pipeline
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {
@@ -645,7 +644,7 @@ describe('PipelineService', () => {
             workflows: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should delete multiple pipelines and their references', () => {
@@ -680,7 +679,7 @@ describe('PipelineService', () => {
           pipeline: pipeline3
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove pipelines section if all pipelines are deleted', () => {
@@ -707,7 +706,7 @@ describe('PipelineService', () => {
         format_version: '1.0'
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {
@@ -747,7 +746,7 @@ describe('PipelineService', () => {
             workflows: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should set a non-existing pipeline field', () => {
@@ -769,7 +768,7 @@ describe('PipelineService', () => {
             title: New Title
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should delete the field if the value is empty', () => {
@@ -791,7 +790,7 @@ describe('PipelineService', () => {
             workflows: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {
@@ -834,7 +833,7 @@ describe('PipelineService', () => {
           wf1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should add a dependant workflow to the given pipeline', () => {
@@ -866,7 +865,7 @@ describe('PipelineService', () => {
           wf2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow is already there', () => {
@@ -978,7 +977,7 @@ describe('PipelineService', () => {
           wf3: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {
@@ -1038,7 +1037,7 @@ describe('PipelineService', () => {
           wf1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
   });
 
@@ -1069,7 +1068,7 @@ describe('PipelineService', () => {
           wf1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the workflow field if the value is empty', () => {
@@ -1098,7 +1097,7 @@ describe('PipelineService', () => {
           wf1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {
@@ -1169,7 +1168,7 @@ describe('PipelineService', () => {
           wf2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {
@@ -1297,7 +1296,7 @@ describe('PipelineService', () => {
           wf2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the pipeline does not exist', () => {

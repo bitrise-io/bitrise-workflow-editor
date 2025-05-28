@@ -2,8 +2,7 @@ import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure }
 import { useMemo } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -43,11 +42,7 @@ const YmlEditorHeader = () => {
       yml_source: 'bitrise',
       source: 'yml_editor_header',
     });
-    download(
-      BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
-      'bitrise.yml',
-      'application/yaml;charset=utf-8',
-    );
+    download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
   return (

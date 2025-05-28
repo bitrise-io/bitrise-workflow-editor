@@ -1,7 +1,6 @@
-import BitriseYmlApi from '../api/BitriseYmlApi';
 import { Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
-import { bitriseYmlStore, initializeStore } from '../stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
@@ -672,7 +671,7 @@ describe('WorkflowService', () => {
           new-workflow: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should create a workflow based on an other workflow', () => {
@@ -707,7 +706,7 @@ describe('WorkflowService', () => {
                     - content: echo "Hello from Base Workflow"
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if id is already exists', () => {
@@ -808,7 +807,7 @@ describe('WorkflowService', () => {
         - workflow: 'wf3'
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow to rename does not exist', () => {
@@ -864,7 +863,7 @@ describe('WorkflowService', () => {
             description: 'New Description'
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove the specified field if the value is empty', () => {
@@ -888,7 +887,7 @@ describe('WorkflowService', () => {
           wf1: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow does not exist', () => {
@@ -1006,7 +1005,7 @@ describe('WorkflowService', () => {
         - workflow: 'wf3'
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should keep pipelines with stage references which have workflows', () => {
@@ -1050,7 +1049,7 @@ describe('WorkflowService', () => {
             - st2: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should NOT remove the pipeline workflows property when last workflow removed in it', () => {
@@ -1074,7 +1073,7 @@ describe('WorkflowService', () => {
             workflows: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should throw an error if the workflow to delete does not exist', () => {
@@ -1117,7 +1116,7 @@ describe('WorkflowService', () => {
 
           WorkflowService.addChainedWorkflow('wf1', placement, 'wf2');
 
-          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+          expect(getYmlString()).toEqual(expectedYml);
         });
 
         it('should insert chainable workflow to the end of the list', () => {
@@ -1142,7 +1141,7 @@ describe('WorkflowService', () => {
               wf3: {}
           `;
 
-          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+          expect(getYmlString()).toEqual(expectedYml);
         });
 
         it('should be able to insert chained workflow multiple times', () => {
@@ -1165,7 +1164,7 @@ describe('WorkflowService', () => {
               wf2: {}
           `;
 
-          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+          expect(getYmlString()).toEqual(expectedYml);
         });
 
         it('throw an error when insert chained workflow into a non-existent workflow', () => {
@@ -1275,7 +1274,7 @@ describe('WorkflowService', () => {
             `;
           }
 
-          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+          expect(getYmlString()).toEqual(expectedYml);
         });
 
         it('should remove placement when placement is empty', () => {
@@ -1308,7 +1307,7 @@ describe('WorkflowService', () => {
             `;
           }
 
-          expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+          expect(getYmlString()).toEqual(expectedYml);
         });
 
         it('throw an error if the parentWorkflowId does not exist', () => {
@@ -1417,7 +1416,7 @@ describe('WorkflowService', () => {
           wf3: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should set the after workflows for the target workflow', () => {
@@ -1445,7 +1444,7 @@ describe('WorkflowService', () => {
           wf3: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should replace the after workflows for the target workflow', () => {
@@ -1472,7 +1471,7 @@ describe('WorkflowService', () => {
           wf4: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('should remove before workflows if it is empty', () => {
@@ -1496,7 +1495,7 @@ describe('WorkflowService', () => {
           wf3: {}
       `;
 
-      expect(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).toEqual(expectedYml);
+      expect(getYmlString()).toEqual(expectedYml);
     });
 
     it('throw an error if the workflow to set does not exist', () => {

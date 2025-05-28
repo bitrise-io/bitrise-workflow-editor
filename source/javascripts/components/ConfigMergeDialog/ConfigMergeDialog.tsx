@@ -21,7 +21,7 @@ import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, initializeStore } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -117,8 +117,8 @@ function useInitialCiConfigs() {
     queryKey: ['initial-ci-configs', projectSlug],
     queryFn: async ({ signal }) => {
       return {
-        yourYml: BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
-        baseYml: BitriseYmlApi.toYml(bitriseYmlStore.getState().savedYmlDocument),
+        yourYml: getYmlString(),
+        baseYml: getYmlString('savedYmlDocument'),
         ...(await BitriseYmlApi.getCiConfig({ projectSlug, signal }).then(async (res) => ({
           remoteYml: res.ymlString,
           remoteVersion: res.version,

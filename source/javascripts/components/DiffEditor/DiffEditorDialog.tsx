@@ -3,8 +3,8 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { parseDocument } from 'yaml';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useCurrentPage from '@/hooks/useCurrentPage';
 
@@ -16,8 +16,8 @@ const DiffEditorDialogBody = forwardRef((_, ref) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { modifiedText, originalText } = useBitriseYmlStore((s) => ({
-    modifiedText: BitriseYmlApi.toYml(s.ymlDocument),
-    originalText: BitriseYmlApi.toYml(s.savedYmlDocument),
+    modifiedText: YmlUtils.toYml(s.ymlDocument),
+    originalText: YmlUtils.toYml(s.savedYmlDocument),
   }));
 
   const trySaveChanges = () => {

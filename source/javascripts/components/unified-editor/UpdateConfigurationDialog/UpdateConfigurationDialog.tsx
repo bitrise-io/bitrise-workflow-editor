@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 
@@ -25,7 +24,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
       source: 'update_configuration_yml_modal',
     });
 
-    copyToClipboard(BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument)).then((isCopied) => {
+    copyToClipboard(getYmlString()).then((isCopied) => {
       if (isCopied) {
         toast({
           title: 'Copied to clipboard',
@@ -52,11 +51,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
       source: 'update_configuration_yml_modal',
     });
 
-    download(
-      BitriseYmlApi.toYml(bitriseYmlStore.getState().ymlDocument),
-      'bitrise.yml',
-      'application/yaml;charset=utf-8',
-    );
+    download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
 
     setIsCopiedOrDownloaded(true);
   };
