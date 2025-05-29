@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Document } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 
@@ -16,6 +17,7 @@ export const bitriseYmlStore = createStore(() => ({
   ymlDocument: new Document(),
   savedYmlDocument: new Document(),
   __invalidYmlString: undefined as string | undefined,
+  __savedInvalidYmlString: undefined as string | undefined,
 }));
 
 export function getBitriseYml() {
@@ -23,23 +25,28 @@ export function getBitriseYml() {
 }
 
 export function getYmlString(from?: 'savedYmlDocument'): string {
+  const { __invalidYmlString, __savedInvalidYmlString, savedYmlDocument, ymlDocument } = bitriseYmlStore.getState();
+
   if (from === 'savedYmlDocument') {
-    return YmlUtils.toYml(bitriseYmlStore.getState().savedYmlDocument);
+    return __savedInvalidYmlString ?? YmlUtils.toYml(savedYmlDocument);
   }
 
-  return YmlUtils.toYml(bitriseYmlStore.getState().ymlDocument);
+  return __invalidYmlString ?? YmlUtils.toYml(ymlDocument);
 }
 
 export function forceRefreshStates() {
-  bitriseYmlStore.setState({ discardKey: Date.now() });
+  bitriseYmlStore.setState({
+    discardKey: Date.now(),
+  });
 }
 
 export function discardBitriseYmlDocument() {
-  const { savedYmlDocument } = bitriseYmlStore.getState();
+  const { __savedInvalidYmlString, savedYmlDocument } = bitriseYmlStore.getState();
+
   bitriseYmlStore.setState({
-    ymlDocument: savedYmlDocument.clone(),
     discardKey: Date.now(),
-    __invalidYmlString: undefined,
+    ymlDocument: savedYmlDocument.clone(),
+    __invalidYmlString: __savedInvalidYmlString,
   });
 }
 
@@ -47,9 +54,14 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
   const doc = YmlUtils.toDoc(ymlString);
 
   if (doc.errors.length === 0) {
-    bitriseYmlStore.setState({ ymlDocument: doc, __invalidYmlString: undefined });
+    bitriseYmlStore.setState({
+      ymlDocument: doc,
+      __invalidYmlString: undefined,
+    });
   } else {
-    bitriseYmlStore.setState({ __invalidYmlString: ymlString });
+    bitriseYmlStore.setState({
+      __invalidYmlString: ymlString,
+    });
   }
 }
 
@@ -57,9 +69,19 @@ export function initializeBitriseYmlDocument({ ymlString, version }: { ymlString
   const doc = YmlUtils.toDoc(ymlString);
 
   if (doc.errors.length === 0) {
-    bitriseYmlStore.setState({ version, ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined });
+    bitriseYmlStore.setState({
+      version,
+      ymlDocument: doc,
+      savedYmlDocument: doc,
+      __invalidYmlString: undefined,
+      __savedInvalidYmlString: undefined,
+    });
   } else {
-    bitriseYmlStore.setState({ __invalidYmlString: ymlString });
+    bitriseYmlStore.setState({
+      version,
+      __invalidYmlString: ymlString,
+      __savedInvalidYmlString: ymlString,
+    });
   }
 }
 
@@ -67,5 +89,8 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
   const doc = bitriseYmlStore.getState().ymlDocument.clone();
   const paths = YamlUtils.collectPaths(bitriseYmlStore.getState().ymlDocument.toJSON());
 
-  bitriseYmlStore.setState({ ymlDocument: mutator({ doc, paths }), __invalidYmlString: undefined });
+  bitriseYmlStore.setState({
+    ymlDocument: mutator({ doc, paths }),
+    __invalidYmlString: undefined,
+  });
 }

@@ -158,6 +158,19 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const { yourYml = '', baseYml = '', remoteYml = '', remoteVersion } = toMerged(data ?? {}, nextData ?? {});
   const { mergedYml, decorations } = mergeYamls(yourYml, baseYml, remoteYml);
 
+  const calculateAndSetYmlStatus = (ymlString?: string) => {
+    if (ymlString) {
+      const doc = YmlUtils.toDoc(ymlString);
+      if (doc.errors.length > 0) {
+        setYmlStatus('invalid');
+      } else if (doc.warnings.length > 0) {
+        setYmlStatus('warnings');
+      } else {
+        setYmlStatus('valid');
+      }
+    }
+  };
+
   const onFinalYmlEditorMount = (editor: MonacoDiffEditor) => {
     finalYmlEditor.current = editor.getModifiedEditor();
 
@@ -178,20 +191,12 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
 
       finalYmlEditor.current?.removeDecorations(Array.from(removableDecorationIds));
 
-      const currentText = finalYmlEditor.current?.getValue();
-      if (currentText) {
-        const doc = YmlUtils.toDoc(currentText);
-        if (doc.errors.length > 0) {
-          setYmlStatus('invalid');
-        } else if (doc.warnings.length > 0) {
-          setYmlStatus('warnings');
-        } else {
-          setYmlStatus('valid');
-        }
-      }
+      calculateAndSetYmlStatus(finalYmlEditor.current?.getValue());
     });
 
     editor.createDecorationsCollection(decorations);
+
+    calculateAndSetYmlStatus(finalYmlEditor.current?.getValue());
   };
 
   const handleCancel = () => {
@@ -369,7 +374,11 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
           <Button variant="secondary" isDisabled={isLoading} onClick={handleCancel}>
             Cancel
           </Button>
-          <Tooltip isDisabled={ymlStatus !== 'invalid'} label="YAML is invalid, please fix it before applying changes">
+          <Tooltip
+            placement="top-end"
+            isDisabled={ymlStatus !== 'invalid'}
+            label="YAML is invalid, please fix it before applying changes"
+          >
             <Button variant="primary" isLoading={isLoading} isDisabled={ymlStatus === 'invalid'} onClick={handleSave}>
               Save results
             </Button>

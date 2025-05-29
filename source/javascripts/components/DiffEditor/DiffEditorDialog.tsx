@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import {
   Button,
   ButtonGroup,
@@ -14,9 +15,8 @@ import { ModalCloseButton, ModalHeader } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
-import { forceRefreshStates, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { forceRefreshStates, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
@@ -26,11 +26,8 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   const [ymlStatus, setYmlStatus] = useState(useYmlValidationStatus());
   const [currentText, setCurrentText] = useState<string | undefined>();
 
-  const { modifiedText, originalText } = useBitriseYmlStore((s) => ({
-    // eslint-disable-next-line no-underscore-dangle
-    modifiedText: s.__invalidYmlString ?? YmlUtils.toYml(s.ymlDocument),
-    originalText: YmlUtils.toYml(s.savedYmlDocument),
-  }));
+  const modifiedText = getYmlString();
+  const originalText = getYmlString('savedYmlDocument');
 
   const isApplyChangesDisabled = currentText === undefined || ymlStatus === 'invalid' || currentText === modifiedText;
 
@@ -96,7 +93,11 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Tooltip isDisabled={ymlStatus !== 'invalid'} label="YAML is invalid, please fix it before applying changes">
+          <Tooltip
+            placement="top-end"
+            isDisabled={ymlStatus !== 'invalid'}
+            label="YAML is invalid, please fix it before applying changes"
+          >
             <Button variant="primary" isDisabled={isApplyChangesDisabled} onClick={applyChanges}>
               Apply changes
             </Button>
