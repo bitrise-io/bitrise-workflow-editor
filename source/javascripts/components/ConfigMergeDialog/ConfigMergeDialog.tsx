@@ -9,13 +9,16 @@ import {
   Icon,
   Notification,
   Text,
+  Tooltip,
 } from '@bitrise/bitkit';
+import { ModalCloseButton, ModalHeader } from '@chakra-ui/react';
 import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { toMerged } from 'es-toolkit';
 import type { editor } from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';
 import { useRef, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -24,8 +27,11 @@ import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
+import YmlUtils from '@/core/utils/YmlUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
+
+import YmlValidationBadge from '../YmlValidationBadge';
 
 type Props = Omit<DialogProps, 'title'>;
 
@@ -133,6 +139,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const [clientError, setClientError] = useState<Error>();
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
   const finalYmlEditor = useRef<ReturnType<MonacoDiffEditor['getModifiedEditor']>>();
+  const [ymlStatus, setYmlStatus] = useState<'invalid' | 'valid' | 'warnings'>('valid');
   const [nextData, setNextData] = useState<Partial<ReturnType<typeof useInitialCiConfigs>['data']>>();
 
   const {
@@ -147,23 +154,8 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
     },
   });
 
-  if (isFetching) {
-    return <LoadingState />;
-  }
-
-  if (initialError || !data) {
-    return (
-      <Box px="32">
-        <Notification status="error">
-          <Text textStyle="comp/notification/title">Error fetching initial configs</Text>
-          <Text>{initialError?.message || 'Initial configs not found'}</Text>
-        </Notification>
-      </Box>
-    );
-  }
-
   const isLoading = isSaving || isFetching;
-  const { yourYml, baseYml, remoteYml, remoteVersion } = toMerged(data, nextData ?? {});
+  const { yourYml = '', baseYml = '', remoteYml = '', remoteVersion } = toMerged(data ?? {}, nextData ?? {});
   const { mergedYml, decorations } = mergeYamls(yourYml, baseYml, remoteYml);
 
   const onFinalYmlEditorMount = (editor: MonacoDiffEditor) => {
@@ -185,6 +177,18 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
       }, new Set<string>([]));
 
       finalYmlEditor.current?.removeDecorations(Array.from(removableDecorationIds));
+
+      const currentText = finalYmlEditor.current?.getValue();
+      if (currentText) {
+        const doc = YmlUtils.toDoc(currentText);
+        if (doc.errors.length > 0) {
+          setYmlStatus('invalid');
+        } else if (doc.warnings.length > 0) {
+          setYmlStatus('warnings');
+        } else {
+          setYmlStatus('valid');
+        }
+      }
     });
 
     editor.createDecorationsCollection(decorations);
@@ -199,14 +203,20 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   };
 
   const handleSave = () => {
+    const ymlString = finalYmlEditor.current?.getValue();
+
+    if (!ymlString) {
+      return;
+    }
+
     try {
       setClientError(undefined);
       saveCiConfig(
         {
+          ymlString,
           version: remoteVersion,
           projectSlug: PageProps.appSlug(),
           tabOpenDuringSave: currentPage,
-          ymlString: finalYmlEditor.current?.getValue() || '',
         },
         {
           onError: (error) => {
@@ -226,8 +236,48 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
     }
   };
 
+  useEventListener(
+    'keydown',
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (ymlStatus !== 'invalid') {
+          handleSave();
+        }
+      }
+    },
+    undefined,
+    { capture: true },
+  );
+
+  if (isFetching) {
+    return <LoadingState />;
+  }
+
+  if (initialError || !data) {
+    return (
+      <Box px="32">
+        <Notification status="error">
+          <Text textStyle="comp/notification/title">Error fetching initial configs</Text>
+          <Text>{initialError?.message || 'Initial configs not found'}</Text>
+        </Notification>
+      </Box>
+    );
+  }
+
   return (
     <>
+      <ModalHeader display="flex" gap="16" alignItems="center">
+        <Text as="h1" textStyle="comp/dialog/title">
+          Review changes
+        </Text>
+        <YmlValidationBadge status={ymlStatus} />
+      </ModalHeader>
+      <ModalCloseButton size="large">
+        <Icon name="Cross" />
+      </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
         <Text>
           There are changes outside your current editing session. Review the differences and resolve any conflicts to
@@ -319,9 +369,11 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
           <Button variant="secondary" isDisabled={isLoading} onClick={handleCancel}>
             Cancel
           </Button>
-          <Button variant="primary" isLoading={isLoading} onClick={handleSave}>
-            Save results
-          </Button>
+          <Tooltip isDisabled={ymlStatus !== 'invalid'} label="YAML is invalid, please fix it before applying changes">
+            <Button variant="primary" isLoading={isLoading} isDisabled={ymlStatus === 'invalid'} onClick={handleSave}>
+              Save results
+            </Button>
+          </Tooltip>
         </ButtonGroup>
       </DialogFooter>
     </>
@@ -341,12 +393,13 @@ const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
 
   return (
     <Dialog
+      {...props}
+      title=""
       size="full"
       isOpen={isOpen}
+      variant="empty"
       onClose={handleClose}
-      title="Review changes"
       minHeight={['100dvh', 'unset']}
-      {...props}
     >
       <ConfigMergeDialogContent onClose={onClose} />
       <style>{`

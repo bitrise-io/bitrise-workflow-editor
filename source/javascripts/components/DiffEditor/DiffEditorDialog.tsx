@@ -96,7 +96,7 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Tooltip isDisabled={ymlStatus === 'invalid'} label="YAML is invalid, please fix it before applying changes">
+          <Tooltip isDisabled={ymlStatus !== 'invalid'} label="YAML is invalid, please fix it before applying changes">
             <Button variant="primary" isDisabled={isApplyChangesDisabled} onClick={applyChanges}>
               Apply changes
             </Button>

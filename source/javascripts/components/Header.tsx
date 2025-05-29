@@ -198,7 +198,7 @@ const Header = () => {
         >
           Discard
         </Button>
-        <Tooltip isDisabled={ymlStatus === 'invalid'} label="YAML is invalid, please fix it before saving.">
+        <Tooltip isDisabled={ymlStatus !== 'invalid'} label="YAML is invalid, please fix it before saving.">
           <Button
             size="sm"
             className="save"
