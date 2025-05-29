@@ -1,12 +1,14 @@
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { useMemo } from 'react';
 
+import YmlValidationBadge from '@/components/YmlValidationBadge';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
 
@@ -15,6 +17,7 @@ const YmlEditorHeader = () => {
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const { isRepositoryYmlAvailable } = PageProps.limits() ?? {};
 
+  const ymlStatus = useYmlValidationStatus();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
 
@@ -47,9 +50,12 @@ const YmlEditorHeader = () => {
 
   return (
     <Box display="flex" flexDirection={['column', 'row']} gap="16" alignItems={['flex-start', 'center']} p="32">
-      <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
+      <Text as="h2" alignSelf="flex-start" textStyle="heading/h2">
         Configuration YAML
       </Text>
+      <Box marginInlineEnd="auto">
+        <YmlValidationBadge status={ymlStatus} />
+      </Box>
       {isWebsiteMode && !isYmlSettingsLoading && !ymlSettings?.usesRepositoryYml && (
         <Button leftIconName="Download" size="sm" variant="tertiary" onClick={onDownloadClick}>
           Download

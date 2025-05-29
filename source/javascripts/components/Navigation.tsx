@@ -9,6 +9,7 @@ import {
   SidebarProps,
   TypeIconName,
   useResponsive,
+  useToast,
 } from '@bitrise/bitkit';
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
@@ -18,6 +19,7 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useSearchParams from '@/hooks/useSearchParams';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { paths } from '@/routes';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -39,12 +41,29 @@ function usePathWithSearchParams() {
 }
 
 const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
+  const toast = useToast();
   const { isMobile } = useResponsive();
   const [hashPath, navigate] = useHashLocation();
   const isSelected = hashPath.startsWith(path);
+  const ymlStatus = useYmlValidationStatus();
+
+  const handleNavigation = useCallback(() => {
+    if (ymlStatus === 'invalid' && !path.startsWith(paths.yml)) {
+      toast({
+        status: 'error',
+        title: 'Invalid YAML',
+        description: 'Please fix the errors in your YAML configuration before navigating.',
+        duration: null,
+        isClosable: true,
+      });
+      return;
+    }
+
+    navigate(path);
+  }, [ymlStatus, navigate, path, toast]);
 
   return (
-    <SidebarItem selected={Boolean(isSelected)} onClick={() => navigate(path)}>
+    <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation}>
       <SidebarItemIcon name={icon} />
       {!isMobile && <SidebarItemLabel>{children}</SidebarItemLabel>}
     </SidebarItem>

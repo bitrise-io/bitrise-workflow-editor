@@ -1,5 +1,16 @@
-import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
-import { useCallback, useEffect } from 'react';
+import {
+  Box,
+  Breadcrumb,
+  BreadcrumbLink,
+  Button,
+  Text,
+  Tooltip,
+  useDisclosure,
+  useResponsive,
+  useToast,
+} from '@bitrise/bitkit';
+import { useCallback } from 'react';
+import { useEventListener } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
@@ -15,6 +26,7 @@ import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
@@ -31,6 +43,7 @@ const Header = () => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
+  const ymlStatus = useYmlValidationStatus();
 
   const {
     isOpen: isDiffViewerOpen,
@@ -115,18 +128,24 @@ const Header = () => {
     discardBitriseYmlDocument();
   };
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's' && hasChanges && !isSaving) {
-        e.preventDefault();
-        saveCIConfig('save_changes_keyboard_shortcut_pressed');
+  useEventListener('keydown', (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && hasChanges && !isSaving) {
+      e.preventDefault();
+
+      if (ymlStatus === 'invalid') {
+        toast({
+          title: 'YAML is invalid',
+          description: 'Please fix the errors in your YAML configuration before saving.',
+          status: 'error',
+          duration: null,
+          isClosable: true,
+        });
+        return;
       }
-    };
 
-    document.addEventListener('keydown', handler);
-
-    return () => document.removeEventListener('keydown', handler);
-  }, [hasChanges, isSaving, saveCIConfig]);
+      saveCIConfig('save_changes_keyboard_shortcut_pressed');
+    }
+  });
 
   return (
     <Box
@@ -179,16 +198,18 @@ const Header = () => {
         >
           Discard
         </Button>
-        <Button
-          size="sm"
-          className="save"
-          variant="primary"
-          isLoading={isSaving}
-          isDisabled={!hasChanges}
-          onClick={() => saveCIConfig('save_changes_button')}
-        >
-          Save changes
-        </Button>
+        <Tooltip isDisabled={ymlStatus === 'invalid'} label="YAML is invalid, please fix it before saving.">
+          <Button
+            size="sm"
+            className="save"
+            variant="primary"
+            isLoading={isSaving}
+            isDisabled={!hasChanges || ymlStatus === 'invalid'}
+            onClick={() => saveCIConfig('save_changes_button')}
+          >
+            Save changes
+          </Button>
+        </Tooltip>
       </Box>
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
       <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />

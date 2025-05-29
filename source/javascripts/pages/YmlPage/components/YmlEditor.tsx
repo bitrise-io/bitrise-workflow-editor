@@ -3,9 +3,8 @@ import { useRef } from 'react';
 import { useUnmount } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
-import { getYmlString, setBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
-import YmlUtils from '@/core/utils/YmlUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 
 const YmlEditor = () => {
@@ -28,10 +27,7 @@ const YmlEditor = () => {
       return;
     }
 
-    const doc = YmlUtils.toDoc(modifiedYmlString);
-    if (doc.errors.length === 0) {
-      setBitriseYmlDocument(doc);
-    }
+    updateBitriseYmlDocumentByString(modifiedYmlString);
   };
 
   const handleEditorDidMount: OnMount = (editor) => {

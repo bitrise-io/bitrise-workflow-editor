@@ -6,7 +6,23 @@ import LazyRoute from '@/components/LazyRoute';
 import Navigation from '@/components/Navigation';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { paths, routes } from '@/routes';
+
+const InvalidYmlRedirect = () => {
+  const ymlStatus = useYmlValidationStatus();
+  const [currentPath] = useHashLocation();
+
+  if (ymlStatus !== 'invalid' || currentPath.startsWith(paths.yml)) {
+    return null;
+  }
+
+  const redirectTo = currentPath.includes('?')
+    ? `${paths.yml}${currentPath.substring(currentPath.indexOf('?'))}`
+    : paths.yml;
+
+  return <Redirect to={redirectTo} replace />;
+};
 
 const MainLayout = () => {
   return (
@@ -16,6 +32,7 @@ const MainLayout = () => {
         <Navigation borderRight="1px solid" borderColor="border/regular" pt="24" />
         <Box flex="1" overflowX="hidden" overflowY="auto">
           <Router hook={useHashLocation} searchHook={useHashSearch}>
+            <InvalidYmlRedirect />
             <Switch>
               {routes.map(({ path, component }) => (
                 <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
