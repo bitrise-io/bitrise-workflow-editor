@@ -22,7 +22,8 @@ import { BitriseYml } from '../models/BitriseYml';
 type Root = Document | Node;
 type Path = (string | number)[];
 type WildcardPath = ('*' | string | number)[];
-type Deleted = (deleted: Node, path: Path) => void;
+type Where = (node?: unknown) => boolean;
+type Callback = (node: Node, path: Path) => void;
 
 const SAFE_DELIMITER = '!#{{SAFE_DELIMITER}}#!';
 
@@ -84,7 +85,7 @@ function unflowEmptyCollection(node: unknown) {
   }
 }
 
-function collectPaths(root: Root, pathWithWildcard: Path = []) {
+function collectPaths(root: Root, pathWithWildcard: WildcardPath = []) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
@@ -93,15 +94,17 @@ function collectPaths(root: Root, pathWithWildcard: Path = []) {
   const escapedPath = pathWithWildcard.map((part) => part.toString().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'));
   const widlcardPattern = new RegExp(`^${escapedPath.join(SAFE_DELIMITER).replace(/\\\*/g, '.*')}$`);
 
-  return flattened
-    .filter((path) => widlcardPattern.test(path))
-    .sort((a, b) => b.localeCompare(a))
-    .map((path) => {
-      return path.split(SAFE_DELIMITER).reduce((result, part) => {
-        const item = !isNaN(Number(part)) && isSeq(root.getIn(result)) ? Number(part) : part;
-        return [...result, item];
-      }, [] as Path);
-    });
+  const filterMatchingPaths = (path: string) => widlcardPattern.test(path);
+  const sortPathsInDescendingOrder = (a: string, b: string) => b.localeCompare(a);
+
+  const splitPath = (path: string) => {
+    return path.split(SAFE_DELIMITER).reduce((result, part) => {
+      const item = !isNaN(Number(part)) && isSeq(root.getIn(result)) ? Number(part) : part;
+      return [...result, item];
+    }, [] as Path);
+  };
+
+  return flattened.filter(filterMatchingPaths).sort(sortPathsInDescendingOrder).map(splitPath);
 }
 
 function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = [], strict = false): [Path, Path][] {
@@ -199,14 +202,14 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
   return node;
 }
 
-function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], deleted?: Deleted) {
+function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], cb?: Callback) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
   if (path.includes('*')) {
     getMatchingPaths(root, path, keep).forEach((matchingPaths) => {
-      deleteByPath(root, ...matchingPaths, deleted);
+      deleteByPath(root, ...matchingPaths, cb);
     });
 
     return;
@@ -214,57 +217,51 @@ function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], d
 
   const deletedNode = root.getIn(path, true);
   if (isNode(deletedNode) && root.deleteIn(path)) {
-    deleted?.(deletedNode, path);
+    cb?.(deletedNode, path);
   }
 
   const parentPath = path.slice(0, -1);
   const parentNode = root.getIn(parentPath, true);
 
   if (!isEqual(parentPath, keep) && isNode(parentNode) && isEmpty(toJSON(parentNode))) {
-    deleteByPath(root, parentPath, keep, deleted);
+    deleteByPath(root, parentPath, keep, cb);
   }
 }
 
-function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: WildcardPath = [], deleted?: Deleted) {
+function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: WildcardPath = [], cb?: Callback) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
   if (path.includes('*')) {
     getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
-      deleteByValue(root, matchingPaths[0], value, matchingPaths[1], deleted);
+      deleteByValue(root, matchingPaths[0], value, matchingPaths[1], cb);
     });
 
     return;
   }
 
   const deletedNode = root.getIn(path, true);
-  if (isNode(deletedNode) && isEqual(deletedNode.toJSON(), value)) {
-    deleteByPath(root, path, keep, deleted);
+  if (isEqual(isNode(deletedNode) ? toJSON(deletedNode) : deletedNode, value)) {
+    deleteByPath(root, path, keep, cb);
   }
 }
 
-function deleteByPredicate(
-  root: Root,
-  path: WildcardPath,
-  predicate: (node?: unknown) => boolean,
-  keep: WildcardPath = [],
-  deleted?: Deleted,
-) {
+function deleteByPredicate(root: Root, path: WildcardPath, where: Where, keep: WildcardPath = [], cb?: Callback) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
   if (path.includes('*')) {
     getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
-      deleteByPredicate(root, matchingPaths[0], predicate, matchingPaths[1], deleted);
+      deleteByPredicate(root, matchingPaths[0], where, matchingPaths[1], cb);
     });
 
     return;
   }
 
-  if (predicate(root.getIn(path, true))) {
-    deleteByPath(root, path, keep, deleted);
+  if (where(root.getIn(path, true))) {
+    deleteByPath(root, path, keep, cb);
   }
 }
 

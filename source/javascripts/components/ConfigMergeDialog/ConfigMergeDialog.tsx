@@ -27,9 +27,9 @@ import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
-import YmlUtils from '@/core/utils/YmlUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import { getYmlValidationStatus } from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 
@@ -158,19 +158,6 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const { yourYml = '', baseYml = '', remoteYml = '', remoteVersion } = toMerged(data ?? {}, nextData ?? {});
   const { mergedYml, decorations } = mergeYamls(yourYml, baseYml, remoteYml);
 
-  const calculateAndSetYmlStatus = (ymlString?: string) => {
-    if (ymlString) {
-      const doc = YmlUtils.toDoc(ymlString);
-      if (doc.errors.length > 0) {
-        setYmlStatus('invalid');
-      } else if (doc.warnings.length > 0) {
-        setYmlStatus('warnings');
-      } else {
-        setYmlStatus('valid');
-      }
-    }
-  };
-
   const onFinalYmlEditorMount = (editor: MonacoDiffEditor) => {
     finalYmlEditor.current = editor.getModifiedEditor();
 
@@ -190,13 +177,11 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
       }, new Set<string>([]));
 
       finalYmlEditor.current?.removeDecorations(Array.from(removableDecorationIds));
-
-      calculateAndSetYmlStatus(finalYmlEditor.current?.getValue());
+      setYmlStatus(getYmlValidationStatus(finalYmlEditor.current?.getValue()));
     });
 
     editor.createDecorationsCollection(decorations);
-
-    calculateAndSetYmlStatus(finalYmlEditor.current?.getValue());
+    setYmlStatus(getYmlValidationStatus(finalYmlEditor.current?.getValue()));
   };
 
   const handleCancel = () => {

@@ -16,8 +16,7 @@ import { useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { forceRefreshStates, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import YmlUtils from '@/core/utils/YmlUtils';
-import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import useYmlValidationStatus, { getYmlValidationStatus } from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor from './DiffEditor';
@@ -43,14 +42,7 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   const handleChange = (text: string) => {
     setCurrentText(text);
-    const doc = YmlUtils.toDoc(text);
-    if (doc.errors.length > 0) {
-      setYmlStatus('invalid');
-    } else if (doc.warnings.length > 0) {
-      setYmlStatus('warnings');
-    } else {
-      setYmlStatus('valid');
-    }
+    setYmlStatus(getYmlValidationStatus(text));
   };
 
   useEventListener(
