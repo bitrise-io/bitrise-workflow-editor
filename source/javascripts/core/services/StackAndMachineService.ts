@@ -44,7 +44,16 @@ function isSelfHostedStack(stack: Stack) {
 }
 
 function getOsOfStack(stack: Stack): string {
-  return stack.id.split('-')[0];
+  switch (stack.os) {
+    case 'macos':
+      // This is a workaround to keep it compatible with other data structures returned by the API.
+      // It should be cleaned up once the API response uses `macos` everywhere.
+      return 'osx';
+    case 'linux':
+      return 'linux';
+    default:
+      return 'unknown';
+  }
 }
 
 function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType[] {
@@ -88,6 +97,7 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
     name: '',
     description: '',
     machineTypes: [],
+    os: 'unknown',
   };
 
   return toMerged(base, override || {}) as StackWithValue;
