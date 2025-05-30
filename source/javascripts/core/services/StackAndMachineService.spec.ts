@@ -8,6 +8,7 @@ const stacks: Stack[] = [
     description:
       'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
     machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
+    os: 'macos',
   },
   {
     id: 'osx-xcode-15',
@@ -15,18 +16,21 @@ const stacks: Stack[] = [
     description:
       'Xcode 15.0.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
     machineTypes: ['mac-m1', 'mac-m2', 'joker'],
+    os: 'macos',
   },
   {
     id: 'linux-ubuntu-22',
     name: 'Ubuntu 22.04',
     description: 'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
     machineTypes: ['standard', 'elite', 'joker'],
+    os: 'linux',
   },
   {
     id: 'agent-pool-stack',
     name: 'Self-hosted agent',
     description: '',
     machineTypes: [],
+    os: 'unknown',
   },
 ];
 
