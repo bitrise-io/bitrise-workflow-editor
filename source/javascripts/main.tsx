@@ -56,7 +56,7 @@ const DefaultQueryClient = new QueryClient({
 
 const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ resetError }) => {
   useEffect(() => {
-    // resetError();
+    resetError();
   }, [resetError]);
 
   return null;
