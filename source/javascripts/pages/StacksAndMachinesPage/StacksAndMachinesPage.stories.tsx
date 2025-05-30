@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
+import { parseDocument, stringify } from 'yaml';
 
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 
@@ -55,15 +56,15 @@ export const FreeUser: Story = {
   },
 };
 
-export const WithInvalidPreviousStackVersion: Story = {
+export const WithInvalidStackRollbackVersion: Story = {
   parameters: {
     bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
         stack: 'osx-xcode-15',
         machine_type_id: 'm2.large',
         stack_rollback_version: '1.0.0',
       });
-      return { yml: TEST_BITRISE_YML };
+      return { yml, ymlDocument: parseDocument(stringify(yml), { keepSourceTokens: true }) };
     })(),
   },
 };
@@ -74,11 +75,11 @@ export const WithDeprecatedMachines: Story = {
   },
   parameters: {
     bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
         stack: 'linux-ubuntu-22.04',
         machine_type_id: 'standard',
       });
-      return { yml: TEST_BITRISE_YML };
+      return { yml, ymlDocument: parseDocument(stringify(yml), { keepSourceTokens: true }) };
     })(),
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

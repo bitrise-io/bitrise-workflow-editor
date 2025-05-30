@@ -14,7 +14,7 @@ import { useState } from 'react';
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
 import { Secret } from '@/core/models/Secret';
 import PageProps from '@/core/utils/PageProps';
-import { useSecrets } from '@/hooks/useSecrets';
+import { useSecrets, useUpsertSecret } from '@/hooks/useSecrets';
 
 import CreateSecret from './components/CreateSecret';
 import FilterInput from './components/FilterInput';
@@ -24,7 +24,6 @@ type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  onCreate: (item: Secret) => void;
   onSelect: (item: Secret) => void;
 };
 
@@ -33,12 +32,23 @@ const filterPredicate = (item: Secret, filter: string): boolean =>
     item.key.toUpperCase().includes(filter.toUpperCase()) || item.source?.toUpperCase().includes(filter.toUpperCase()),
   );
 
-const SecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
   const appSlug = PageProps.appSlug();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading, data: secrets = [] } = useSecrets({
     appSlug,
     options: { enabled: shouldLoadVars },
+  });
+
+  const { mutate: createSecret } = useUpsertSecret({
+    appSlug: PageProps.appSlug(),
+    options: {
+      onSuccess: (data) => {
+        if (data) {
+          onSelect(data);
+        }
+      },
+    },
   });
 
   const {
@@ -56,7 +66,7 @@ const SecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: 
     items: secrets,
     mode: initialMode,
     isOpen: initialIsOpen,
-    onCreate,
+    onCreate: createSecret,
     onSelect,
     filterPredicate,
     onOpen: () => setShouldLoadVars(true),

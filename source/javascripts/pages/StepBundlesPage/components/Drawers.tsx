@@ -2,51 +2,38 @@ import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig
 import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
 import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
+import { StepBundleCreationSource } from '@/core/models/StepBundle';
+import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
-import CreateStepBundleDialog, {
-  StepBundleBaseEntityType,
-} from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
+import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const Drawers = () => {
+  const enabledSteps = useUniqueStepIds('set');
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =
     useStepBundlesPageStore();
 
-  const { addStepToStepBundle, createStepBundle, getUniqueStepIds } = useBitriseYmlStore((s) => ({
-    addStepToStepBundle: s.addStepToStepBundle,
-    createStepBundle: s.createStepBundle,
-    getUniqueStepIds: s.getUniqueStepIds,
-  }));
-
-  const enabledSteps = new Set(getUniqueStepIds());
-
   const handleAddStepToStepBundle = (cvs: string) => {
-    const { library } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
-    addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-    if (library === LibraryType.BUNDLE) {
-      openDialog({
-        type: StepBundlesPageDialogType.STEP_BUNDLE,
-        stepBundleId,
-      })();
+    const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
+    const source = 'step_bundles';
+    const sourceId = stepBundleId;
+    const wantsToAddAStepBundle = library === LibraryType.BUNDLE;
+
+    if (wantsToAddAStepBundle) {
+      StepService.addStep(source, sourceId, cvs, selectedStepIndices[0]);
+      openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE, stepBundleId })();
     } else {
-      openDialog({
-        type: StepBundlesPageDialogType.STEP_CONFIG,
-        selectedStepIndices,
-        stepBundleId,
-      })();
+      StepService.addStep(source, sourceId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      openDialog({ type: StepBundlesPageDialogType.STEP_CONFIG, selectedStepIndices, stepBundleId })();
     }
   };
 
   const handleCreateStepBundle = (newId: string, baseEntityId?: string) => {
-    const [type, baseId] = baseEntityId?.split('#') || [];
-    if (!type || type === StepBundleBaseEntityType.STEP_BUNDLES) {
-      createStepBundle(newId, baseId);
-    }
-    if (type === StepBundleBaseEntityType.WORKFLOWS) {
-      createStepBundle(newId, undefined, baseId);
-    }
+    const [type, baseId] = baseEntityId ? (baseEntityId.split('#') as [StepBundleCreationSource, string]) : [];
+    StepBundleService.createStepBundle(newId, type && baseId ? { source: type, sourceId: baseId } : undefined);
   };
 
   return (

@@ -43,12 +43,6 @@ func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := utility.ValidateBitriseConfigAndSecret(contStr, config.MinimalValidSecrets); err != nil {
-		log.Errorf("Validation error: %s", err)
-		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(contStr, err.Error()))
-		return
-	}
-
 	AppendBitriseConfigVersionHeader(w, contStr)
 	w.Header().Set("Content-Type", "text/yaml")
 	w.WriteHeader(200)

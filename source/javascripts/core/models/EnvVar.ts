@@ -4,3 +4,8 @@ export type EnvVar = {
   source: string;
   isExpand?: boolean;
 };
+
+export enum EnvVarSource {
+  App = 'app',
+  Workflows = 'workflows',
+}

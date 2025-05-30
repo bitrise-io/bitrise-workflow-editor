@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import StepBundleService from '@/core/services/StepBundleService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundleId: string) => void) => {
@@ -8,12 +9,6 @@ const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundl
   const [isRenaming, setIsRenaming] = useState(false);
   const [nextStepBundleId, setNextStepBundleId] = useState(stepBundleId);
   const [prevStepBundleId, setPrevStepBundleId] = useState(stepBundleId);
-
-  const { createStepBundle, renameStepBundle, deleteStepBundle } = useBitriseYmlStore((s) => ({
-    createStepBundle: s.createStepBundle,
-    renameStepBundle: s.renameStepBundle,
-    deleteStepBundle: s.deleteStepBundle,
-  }));
 
   const isNewStepBundlePersisted = stepBundleIdsInTheStore.includes(nextStepBundleId);
   const isNewStepBundleSelected = nextStepBundleId === stepBundleId;
@@ -30,23 +25,23 @@ const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundl
   useEffect(() => {
     if (shouldFinishRenaming) {
       setIsRenaming(false);
-      deleteStepBundle(prevStepBundleId);
+      StepBundleService.deleteStepBundle(prevStepBundleId);
     }
-  }, [deleteStepBundle, shouldFinishRenaming, prevStepBundleId]);
+  }, [shouldFinishRenaming, prevStepBundleId]);
 
   return useCallback(
     (newStepBundleId: string) => {
       if (stepBundleId) {
         setIsRenaming(true);
 
-        renameStepBundle(stepBundleId, newStepBundleId);
-        createStepBundle(stepBundleId, newStepBundleId);
+        StepBundleService.renameStepBundle(stepBundleId, newStepBundleId);
+        StepBundleService.createStepBundle(stepBundleId, { source: 'step_bundles', sourceId: newStepBundleId });
 
         setNextStepBundleId(newStepBundleId);
         setPrevStepBundleId(stepBundleId);
       }
     },
-    [createStepBundle, renameStepBundle, stepBundleId],
+    [stepBundleId],
   );
 };
 

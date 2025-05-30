@@ -14,7 +14,7 @@ import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 const PipelineCanvas = () => {
   const { selectedPipeline } = usePipelineSelector();
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
-  const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline].workflows ? 'graph' : 'staged'));
+  const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline]?.workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
 
   return (

@@ -2,8 +2,6 @@ import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitri
 import { useState } from 'react';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
-import { EnvVar } from '@/core/models/EnvVar';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
@@ -20,17 +18,10 @@ const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
     const { stepBundleId, workflowId } = useStepDrawerContext();
     const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
-    const appendWorkflowEnvVar = useBitriseYmlStore((s) => s.appendWorkflowEnvVar);
 
     const insertVariable = (key: string) => {
       setValue(`$${key}`);
       onChange?.(`$${key}`);
-    };
-
-    const createEnvVar = (envVar: EnvVar) => {
-      window.dispatchEvent(new CustomEvent('workflow::envs::created', { detail: envVar }));
-      appendWorkflowEnvVar(workflowId, envVar);
-      insertVariable(envVar.key);
     };
 
     return (
@@ -65,10 +56,9 @@ const StepSelectInput = forwardRef(
         <Box pt="24">
           <EnvVarPopover
             size="md"
-            onCreate={createEnvVar}
-            onSelect={({ key }) => insertVariable(key)}
-            stepBundleId={stepBundleId}
             workflowId={workflowId}
+            stepBundleId={stepBundleId}
+            onSelect={({ key }) => insertVariable(key)}
           />
         </Box>
       </Box>

@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useSessionStorage } from 'usehooks-ts';
 
 import PipelineService from '@/core/services/PipelineService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 
 const usePipelineConversionSignposting = () => {
@@ -11,7 +11,7 @@ const usePipelineConversionSignposting = () => {
 
   const isPipelineConversionSignpostingHiddenFor = useCallback(
     (pipelineId: string) => {
-      const isGraph = PipelineService.isGraph(bitriseYmlStore.getState().yml.pipelines?.[pipelineId] ?? {});
+      const isGraph = PipelineService.isGraph(getBitriseYml().pipelines?.[pipelineId] ?? {});
       return isGraph || state.includes(pipelineId);
     },
     [state],

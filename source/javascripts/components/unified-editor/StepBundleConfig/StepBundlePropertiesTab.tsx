@@ -1,11 +1,8 @@
 import { Button, Textarea, useDisclosure } from '@bitrise/bitkit';
-import { ChangeEventHandler, useState } from 'react';
-import { useDebounceCallback } from 'usehooks-ts';
+import { ChangeEventHandler } from 'react';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
-import { StepBundleModel } from '@/core/models/BitriseYml';
 import StepBundleService from '@/core/services/StepBundleService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
@@ -17,61 +14,71 @@ type StepBundlePropertiesTabProps = {
   onRename?: (newStepBundleId: string) => void;
 };
 
-const StepBundlePropertiesTab = (props: StepBundlePropertiesTabProps) => {
-  const { onDelete, onRename } = props;
-  const { stepBundle } = useStepBundleConfigContext();
-  const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
-  const stepBundles = useStepBundles();
-  const stepBundleIds = Object.keys(stepBundles);
-  const updateStepBundle = useBitriseYmlStore((s) => s.updateStepBundle);
-  const debouncedUpdateStepBundle = useDebounceCallback(updateStepBundle, 100);
-  const [{ summary, description }, setValues] = useState({
-    summary: stepBundle?.userValues.summary || '',
-    description: stepBundle?.userValues.description || '',
-  });
-  const rename = useRenameStepBundle(stepBundle?.id, onRename);
+const NameInput = ({ onRename }: Pick<StepBundlePropertiesTabProps, 'onRename'>) => {
+  const value = useStepBundleConfigContext((s) => s.stepBundle?.id);
+  const stepBundleIds = useStepBundles((s) => Object.keys(s));
+  const rename = useRenameStepBundle(value, onRename);
 
   const handleNameChange = (newStepBundleId: string) => {
-    if (newStepBundleId !== stepBundle?.id) {
+    if (newStepBundleId !== value) {
       rename(newStepBundleId);
     }
   };
 
+  return (
+    <EditableInput
+      isRequired
+      name="name"
+      label="Name"
+      value={value}
+      marginBlockEnd="16"
+      sanitize={StepBundleService.sanitizeName}
+      validate={(v) => StepBundleService.validateName(v, value || '', stepBundleIds)}
+      onCommit={handleNameChange}
+    />
+  );
+};
+
+const SummaryInput = () => {
+  const id = useStepBundleConfigContext((s) => s.stepBundle?.id || '');
+  const value = useStepBundleConfigContext((s) => s.stepBundle?.userValues.summary || '');
+
   const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    setValues((prev) => ({ ...prev, summary: e.target.value }));
-    debouncedUpdateStepBundle(stepBundle?.id || '', { summary: e.target.value } as StepBundleModel);
+    StepBundleService.updateStepBundleField(id, 'summary', e.target.value);
   };
 
+  return <Textarea label="Summary" value={value} onChange={handleSummaryChange} marginBlockEnd="16" />;
+};
+
+const DescriptionInput = () => {
+  const id = useStepBundleConfigContext((s) => s.stepBundle?.id || '');
+  const value = useStepBundleConfigContext((s) => s.stepBundle?.userValues.description || '');
+
   const handleDescriptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    setValues((prev) => ({ ...prev, description: e.target.value }));
-    debouncedUpdateStepBundle(stepBundle?.id || '', {
-      description: e.target.value,
-    } as StepBundleModel);
+    StepBundleService.updateStepBundleField(id, 'description', e.target.value);
   };
+
+  return <Textarea label="Description" value={value} onChange={handleDescriptionChange} />;
+};
+
+const StepBundlePropertiesTab = ({ onDelete, onRename }: StepBundlePropertiesTabProps) => {
+  const id = useStepBundleConfigContext((s) => s.stepBundle?.id || '');
+  const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
   return (
     <>
-      <EditableInput
-        isRequired
-        name="name"
-        label="Name"
-        value={stepBundle?.id}
-        sanitize={StepBundleService.sanitizeName}
-        validate={(v) => StepBundleService.validateName(v, stepBundle?.id || '', stepBundleIds)}
-        onCommit={handleNameChange}
-        marginBlockEnd="16"
-      />
-      <Textarea label="Summary" value={summary} onChange={handleSummaryChange} marginBlockEnd="16" />
-      <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
+      <NameInput onRename={onRename} />
+      <SummaryInput />
+      <DescriptionInput />
       {!!onDelete && (
         <>
           <Button leftIconName="Trash" variant="secondary" isDanger marginBlockStart="24" onClick={openDeleteDialog}>
             Delete Step bundle
           </Button>
           <DeleteStepBundleDialog
+            stepBundleId={id}
             isOpen={isDeleteDialogOpen}
             onClose={closeDeleteDialog}
-            stepBundleId={stepBundle?.id || ''}
             onDeleteStepBundle={onDelete}
           />
         </>

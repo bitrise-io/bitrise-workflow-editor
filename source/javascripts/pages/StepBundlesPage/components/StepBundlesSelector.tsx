@@ -5,10 +5,9 @@ import { useStepBundles } from '@/hooks/useStepBundles';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
 
 const StepBundlesSelector = () => {
-  const stepBundles = useStepBundles();
-  const stepBundleIds = Object.keys(stepBundles);
+  const stepBundleIds = useStepBundles((s) => Object.keys(s));
   const openDialog = useStepBundlesPageStore((s) => s.openDialog);
-  const [{ id: selectedStepBundleId }, setSelectedStepBundle] = useSelectedStepBundle();
+  const [selectedStepBundleId, setSelectedStepBundle] = useSelectedStepBundle();
 
   const onCreateStepBundle = () => {
     openDialog({ type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE })();

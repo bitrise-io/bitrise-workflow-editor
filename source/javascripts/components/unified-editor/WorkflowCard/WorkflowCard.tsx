@@ -1,7 +1,7 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 
-import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
+import PipelineService from '@/core/services/PipelineService';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -35,7 +35,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   let tooltipLabel = `${parallel} parallel copies` as ReactNode;
   let tooltipAriaLabel = `${parallel} parallel copies`;
 
-  if (!GraphPipelineWorkflowService.isIntegerValue(parallel)) {
+  if (!PipelineService.isIntegerValue(parallel)) {
     badgeContent = '$';
     tooltipLabel = (
       <>
@@ -63,7 +63,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
   const workflowId = uses || id;
 
   const containerRef = useRef(null);
-  const workflow = useWorkflow(workflowId);
+  const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
@@ -108,7 +108,7 @@ const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, container
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <WorkflowName parallel={parallel}>{uses ? id : workflow.userValues.title || id}</WorkflowName>
+          <WorkflowName parallel={parallel}>{uses ? id : workflow.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {uses ? `Uses ${uses}` : stackName}
           </Text>

@@ -1,11 +1,10 @@
 import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
 import { uniq } from 'es-toolkit';
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import { ChangeEventHandler, useState } from 'react';
 
 import DetailedHelperText from '@/components/DetailedHelperText';
 import { EnvVarPopover } from '@/components/VariablePopover';
-import { EnvVar } from '@/core/models/EnvVar';
-import GraphPipelineWorkflowService from '@/core/services/GraphPipelineWorkflowService';
+import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useShallow } from '@/hooks/useShallow';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -13,25 +12,6 @@ import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store
 type PipelineConditionInputProps = {
   pipelineId: string;
   workflowId: string;
-};
-
-const PipelineConditionsCard = () => {
-  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
-
-  return (
-    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
-      <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
-
-      <Divider my="24" />
-      <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
-
-      <Divider my="24" />
-      <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
-
-      <Divider my="24" />
-      <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
-    </ExpandableCard>
-  );
 };
 
 const ButtonContent = () => {
@@ -54,12 +34,8 @@ const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputPro
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
   );
 
-  const updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled = useBitriseYmlStore(
-    (s) => s.updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled,
-  );
-
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    updatePipelineWorkflowConditionAbortPipelineOnFailureEnabled(pipelineId, workflowId, e.target.checked);
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'abort_on_fail', e.target.checked);
   };
 
   return (
@@ -76,7 +52,7 @@ const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputPro
 const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const options = [
     {
-      value: 'off',
+      value: '',
       label: 'Off',
       helperText: 'This Workflow or its dependent Workflows won’t start if previous Workflows failed.',
     },
@@ -88,17 +64,18 @@ const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps
   ];
 
   const value = useBitriseYmlStore(
-    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? 'off',
+    (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.should_always_run ?? '',
   );
 
   const helperText = options.find((o) => o.value === value)?.helperText;
 
-  const updatePipelineWorkflowConditionShouldAlwaysRun = useBitriseYmlStore(
-    (s) => s.updatePipelineWorkflowConditionShouldAlwaysRun,
-  );
-
   const handleChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    updatePipelineWorkflowConditionShouldAlwaysRun(pipelineId, workflowId, e.target.value);
+    PipelineService.updatePipelineWorkflowField(
+      pipelineId,
+      workflowId,
+      'should_always_run',
+      e.target.value === 'workflow' ? 'workflow' : undefined,
+    );
   };
 
   return (
@@ -117,12 +94,8 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
   );
 
-  const updatePipelineWorkflowConditionRunIfExpression = useBitriseYmlStore(
-    (s) => s.updatePipelineWorkflowConditionRunIfExpression,
-  );
-
   const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    updatePipelineWorkflowConditionRunIfExpression(pipelineId, workflowId, e.target.value);
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'run_if.expression', e.target.value);
   };
 
   return (
@@ -137,7 +110,6 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 };
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
-  const updatePipelineWorkflowParallel = useBitriseYmlStore((s) => s.updatePipelineWorkflowParallel);
   const initValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel || '');
 
   const existingWorkflowIds = useBitriseYmlStore((s) => {
@@ -147,34 +119,29 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     ]);
   });
 
-  const appendProjectEnvVar = useBitriseYmlStore((s) => s.appendProjectEnvVar);
-
   const [value, setValue] = useState(initValue);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setValue(e.target.value);
-  };
-
-  const createEnvVar = (envVar: EnvVar) => {
-    appendProjectEnvVar(envVar);
-    insertVariable(envVar.key);
-  };
-
-  const insertVariable = (key: string) => {
-    setValue(`$${key}`);
-  };
-
-  useEffect(() => {
-    const stringValue = String(value);
-    const validationError = GraphPipelineWorkflowService.validateParallel(stringValue, workflowId, existingWorkflowIds);
+  const validateAndPersist = (parallel: string | number) => {
+    const stringValue = String(parallel);
+    const validationError = PipelineService.validateParallel(stringValue, workflowId, existingWorkflowIds);
 
     setError(validationError === true ? undefined : validationError);
 
     if (validationError === true) {
-      updatePipelineWorkflowParallel(pipelineId, workflowId, stringValue);
+      PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'parallel', stringValue);
     }
-  }, [value, pipelineId, workflowId, existingWorkflowIds, updatePipelineWorkflowParallel]);
+  };
+
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setValue(e.target.value);
+    validateAndPersist(e.target.value);
+  };
+
+  const insertVariable = (key: string) => {
+    setValue(`$${key}`);
+    validateAndPersist(`$${key}`);
+  };
 
   return (
     <Input
@@ -191,11 +158,30 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
       onChange={handleChange}
       rightAddon={
         <Box paddingRight="4">
-          <EnvVarPopover size="sm" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
+          <EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />
         </Box>
       }
       rightAddonPlacement="inside"
     />
+  );
+};
+
+const PipelineConditionsCard = () => {
+  const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
+
+  return (
+    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
+      <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
+
+      <Divider my="24" />
+      <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
+    </ExpandableCard>
   );
 };
 

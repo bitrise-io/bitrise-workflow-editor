@@ -16,50 +16,38 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
-import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
+import ConditionCard from '@/components/unified-editor/Triggers/ConditionCard';
 import {
-  ConditionType,
-  FormItems,
+  LEGACY_LABELS_MAP,
+  LEGACY_OPTIONS_MAP,
   LegacyPrConditionType,
-  TriggerItem,
-} from '@/components/unified-editor/Triggers/Triggers.types';
-
-import { checkIsConditionsUsed } from '../../TriggersPage.utils';
+  LegacyTrigger,
+} from '@/core/models/Trigger.legacy';
+import TriggerService from '@/core/services/TriggerService';
+import usePipelineIds from '@/hooks/usePipelineIds';
+import useWorkflowIds from '@/hooks/useWorkflowIds';
 
 type DialogProps = {
-  currentTriggers: TriggerItem[];
   isOpen: boolean;
+  editedItem?: LegacyTrigger;
+  currentTriggers: LegacyTrigger[];
+
+  onAdd: (trigger: LegacyTrigger) => void;
+  onEdit: (trigger: LegacyTrigger) => void;
   onClose: () => void;
-  pipelines: string[];
-  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
-  editedItem?: TriggerItem;
-  workflows: string[];
 };
 
-const LABELS_MAP: Record<LegacyPrConditionType, string> = {
-  pull_request_target_branch: 'Enter a target branch',
-  pull_request_source_branch: 'Enter a source branch',
-  pull_request_label: 'Enter a label',
-  pull_request_comment: 'Enter a comment',
-  commit_message: 'Enter a commit message',
-  changed_files: 'Enter a path',
-};
-
-const OPTIONS_MAP: Record<LegacyPrConditionType, string> = {
-  pull_request_target_branch: 'Target branch',
-  pull_request_source_branch: 'Source branch',
-  pull_request_label: 'PR label',
-  pull_request_comment: 'PR comment',
-  commit_message: 'Commit message',
-  changed_files: 'File change',
-};
+const OPTIONS_MAP = LEGACY_OPTIONS_MAP.pull_request;
+const LABELS_MAP = LEGACY_LABELS_MAP.pull_request;
 
 const AddPrTriggerDialog = (props: DialogProps) => {
-  const { currentTriggers, isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;
-  const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
-
+  const { isOpen, editedItem, currentTriggers, onAdd, onEdit, onClose } = props;
   const isEditMode = !!editedItem;
 
+  const pipelines = usePipelineIds();
+  const workflows = useWorkflowIds(true);
+
+  const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
   const dialogStages: ProgressIndicatorProps['stages'] = [
     {
       action: activeStageIndex === 1 ? { onClick: () => setActiveStageIndex(0) } : undefined,
@@ -68,8 +56,14 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     { label: 'Target' },
   ];
 
-  const defaultValues: FormItems = useMemo(() => {
-    return {
+  const defaultValues: LegacyTrigger = useMemo(
+    () => ({
+      uniqueId: editedItem?.uniqueId ?? crypto.randomUUID(),
+      source: '',
+      index: -1,
+      triggerType: 'pull_request',
+      isDraftPr: true,
+      isActive: true,
       conditions: [
         {
           isRegex: false,
@@ -77,21 +71,15 @@ const AddPrTriggerDialog = (props: DialogProps) => {
           value: '',
         },
       ],
-      id: crypto.randomUUID(),
-      pipelineable: '',
-      source: 'pull_request',
-      isDraftPr: true,
-      isActive: true,
       ...editedItem,
-    };
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedItem, isOpen]);
+    [editedItem, isOpen],
+  );
 
-  const formMethods = useForm<FormItems>({
-    defaultValues,
-  });
-
+  const formMethods = useForm<LegacyTrigger>({ defaultValues });
   const { control, formState, reset, handleSubmit, watch, setValue } = formMethods;
+  const { conditions, source, isDraftPr } = watch();
 
   useEffect(() => {
     reset(defaultValues);
@@ -100,6 +88,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'conditions',
+    keyName: 'uniqueId',
   });
 
   const onFormCancel = () => {
@@ -108,7 +97,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     setActiveStageIndex(0);
   };
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: LegacyTrigger) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -119,14 +108,25 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 
       return newCondition;
     });
-    onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
+
+    if (isEditMode) {
+      onEdit(filteredData);
+    } else {
+      onAdd(filteredData);
+    }
+
     onFormCancel();
   };
 
   const onAppend = () => {
-    const availableTypes = Object.keys(OPTIONS_MAP) as ConditionType[];
+    const availableTypes = Object.keys(OPTIONS_MAP) as LegacyPrConditionType[];
     const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
+
+    if (!newType) {
+      return;
+    }
+
     append({
       type: newType,
       value: '',
@@ -134,9 +134,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const { conditions, pipelineable, isDraftPr } = watch();
-
-  let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
+  let isConditionsUsed = TriggerService.isLegacyConditionUsed(currentTriggers, watch());
 
   // Because draft PR checkbox is a condition
   if (formState.dirtyFields.isDraftPr) {
@@ -150,7 +148,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     }
   });
 
-  const isPipelineableMissing = !pipelineable;
+  const isPipelineableMissing = !source;
 
   return (
     <FormProvider {...formMethods}>
@@ -215,14 +213,14 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                 Select the Pipeline or Workflow you want Bitrise to run when trigger conditions are met.
               </Text>
               <Controller
-                name="pipelineable"
+                name="source"
                 control={control}
                 render={({ field }) => (
                   <Select placeholder="Select a Pipeline or Workflow" {...field}>
                     {pipelines.length && (
                       <optgroup label="Pipelines">
                         {pipelines.map((p) => (
-                          <option key={p} value={`pipeline#${p}`}>
+                          <option key={p} value={`pipelines#${p}`}>
                             {p}
                           </option>
                         ))}
@@ -231,7 +229,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                     {workflows.length && (
                       <optgroup label="Workflows">
                         {workflows.map((p) => (
-                          <option key={p} value={`workflow#${p}`}>
+                          <option key={p} value={`workflows#${p}`}>
                             {p}
                           </option>
                         ))}

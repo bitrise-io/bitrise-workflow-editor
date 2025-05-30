@@ -17,10 +17,6 @@ type ApiSecretItem = { [key: string]: unknown } & {
   };
 };
 
-type SecretsApiResponse = {
-  envs: Array<ApiSecretItem>;
-};
-
 type MonolithSecretItem = {
   id: string;
   name: string;
@@ -219,7 +215,7 @@ async function deleteSecret({
   });
 }
 
-export type { SecretsApiResponse, SecretsLocalResponse, SecretsMonolithResponse };
+export type { SecretsLocalResponse, SecretsMonolithResponse };
 
 export default {
   getSecrets,

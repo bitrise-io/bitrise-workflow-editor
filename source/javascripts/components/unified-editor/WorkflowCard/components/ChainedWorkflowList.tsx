@@ -43,9 +43,8 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
 }
 
 const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
-  const workflows = useWorkflows();
   const { droppableContainers } = useDndContext();
-  const workflowIds = useMemo(() => Object.keys(workflows), [workflows]);
+  const workflowIds = useWorkflows((s) => Object.keys(s));
 
   const { onChainedWorkflowsUpdate } = useWorkflowActions();
   const isAfterRun = placement === 'after_run';

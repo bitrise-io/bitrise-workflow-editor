@@ -1,10 +1,10 @@
 import { Input, InputProps, Link } from '@bitrise/bitkit';
 
-export interface PriorityInputProps extends Omit<InputProps, 'onChange' | 'value'> {
+export type PriorityInputProps = Omit<InputProps, 'onChange' | 'value'> & {
   onChange: (newValue?: number) => void;
   value?: number;
   helperText: string;
-}
+};
 
 const PriorityInput = (props: PriorityInputProps) => {
   const { onChange, value, helperText, ...rest } = props;

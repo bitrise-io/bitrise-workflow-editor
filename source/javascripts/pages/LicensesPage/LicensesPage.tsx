@@ -1,14 +1,13 @@
 import { Box, Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
+import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import GlobalProps from '@/core/utils/GlobalProps';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useGetLicensePoolsQuery } from '@/hooks/useLicensePools';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 const LicensesPage = () => {
   const workflows = useWorkflows();
   const workspaceSlug = GlobalProps.workspaceSlug();
-  const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
   const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
 
   return (
@@ -48,17 +47,20 @@ const LicensesPage = () => {
           </Thead>
           <Tbody>
             {Object.keys(workflows).map((wfId) => {
-              const value = workflows[wfId].meta?.['bitrise.io']?.license_pool_id || '';
+              const value = workflows[wfId]?.meta?.['bitrise.io']?.license_pool_id || '';
               return (
                 <Tr key={wfId}>
                   <Td>{wfId}</Td>
                   <Td>
                     <Select
                       placeholder={!value ? 'No license pool selected' : undefined}
+                      isDisabled={!wfId}
                       onChange={(e) => {
-                        updateWorkflowMeta(wfId || '', {
-                          license_pool_id: e.target.value,
-                        });
+                        StackAndMachineService.updateLicensePoolId(
+                          e.target.value,
+                          StackAndMachineSource.Workflow,
+                          wfId,
+                        );
                       }}
                       size="md"
                       value={value}

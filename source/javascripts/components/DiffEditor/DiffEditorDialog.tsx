@@ -1,94 +1,109 @@
-import { Box, Dialog, DialogBody, DialogProps, Notification, Text } from '@bitrise/bitkit';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+/* eslint-disable no-underscore-dangle */
+import {
+  Button,
+  ButtonGroup,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogProps,
+  Icon,
+  Notification,
+  Text,
+  Tooltip,
+} from '@bitrise/bitkit';
+import { ModalCloseButton, ModalHeader } from '@chakra-ui/react';
+import { useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 
-import LoadingState from '@/components/LoadingState';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { bitriseYmlStore, updateYmlInStore } from '@/core/stores/BitriseYmlStore';
-import useCurrentPage from '@/hooks/useCurrentPage';
-import useFormattedYml from '@/hooks/useFormattedYml';
+import { forceRefreshStates, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import useYmlValidationStatus, { getYmlValidationStatus } from '@/hooks/useYmlValidationStatus';
 
+import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor from './DiffEditor';
 
-const DiffEditorDialogBody = forwardRef((_, ref) => {
-  const currentPage = useCurrentPage();
-  const [currentText, setCurrentText] = useState<string>();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
+  const [ymlStatus, setYmlStatus] = useState(useYmlValidationStatus());
+  const [currentText, setCurrentText] = useState<string | undefined>();
 
-  const {
-    data: originalText,
-    error: originalYmlFormatError,
-    isLoading: isOriginalYmlFormatLoading,
-  } = useFormattedYml(bitriseYmlStore.getState().savedYml);
+  const modifiedText = getYmlString();
+  const originalText = getYmlString('savedYmlDocument');
 
-  const {
-    data: modifiedText,
-    error: modifiedYmlFormatError,
-    isLoading: isModifiedYmlFormatLoading,
-  } = useFormattedYml(bitriseYmlStore.getState().yml);
+  const isApplyChangesDisabled = currentText === undefined || ymlStatus === 'invalid' || currentText === modifiedText;
 
-  useEffect(() => {
-    if (modifiedYmlFormatError) {
-      setErrorMessage(`Failed to format modified YML: ${modifiedYmlFormatError.message}`);
-    } else if (originalYmlFormatError) {
-      setErrorMessage(`Failed to format original YML: ${originalYmlFormatError.message}`);
+  const applyChanges = () => {
+    if (currentText === undefined) {
+      return;
     }
-  }, [modifiedYmlFormatError, originalYmlFormatError]);
 
-  const trySaveChanges = () => {
-    try {
-      if (currentText === undefined) {
-        return true;
-      }
-      updateYmlInStore(currentText, Date.now());
-      return true;
-    } catch (error) {
-      setErrorMessage(`Invalid YML format: ${(error as Error)?.message}`);
-      segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-        tab_name: currentPage,
-        source: 'diff',
-      });
-      return false;
-    }
+    updateBitriseYmlDocumentByString(currentText);
+    forceRefreshStates();
+    onClose();
   };
 
-  useImperativeHandle(ref, () => ({ trySaveChanges }));
+  const handleChange = (text: string) => {
+    setCurrentText(text);
+    setYmlStatus(getYmlValidationStatus(text));
+  };
 
-  const isLoading = isModifiedYmlFormatLoading || isOriginalYmlFormatLoading;
+  useEventListener(
+    'keydown',
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isApplyChangesDisabled) {
+          applyChanges();
+        }
+      }
+    },
+    undefined,
+    { capture: true },
+  );
 
   return (
-    <DialogBody>
-      <Box display="flex" gap="16" flexDirection="column" height="calc(100% - 32px)">
+    <>
+      <ModalHeader display="flex" gap="16" alignItems="center">
+        <Text as="h1" textStyle="comp/dialog/title">
+          View and edit YAML changes
+        </Text>
+        <YmlValidationBadge status={ymlStatus} />
+      </ModalHeader>
+      <ModalCloseButton size="large">
+        <Icon name="Cross" />
+      </ModalCloseButton>
+      <DialogBody flex="1" display="flex" gap="16" flexDirection="column">
         <Notification status="info">
           You can edit the right side of the diff view, and your changes will be saved
         </Notification>
-        {errorMessage && (
-          <Notification status="error">
-            <Text textStyle="comp/notification/title">Error saving...</Text>
-            <Text>{errorMessage}</Text>
-          </Notification>
+        {originalText && modifiedText && (
+          <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={handleChange} />
         )}
-        <Box flex="1">
-          {isLoading && <LoadingState />}
-          {originalText && modifiedText && (
-            <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={setCurrentText} />
-          )}
-        </Box>
-      </Box>
-    </DialogBody>
+      </DialogBody>
+      <DialogFooter>
+        <ButtonGroup spacing="16">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Tooltip
+            placement="top-end"
+            isDisabled={ymlStatus !== 'invalid'}
+            label="YAML is invalid, please fix it before applying changes"
+          >
+            <Button variant="primary" isDisabled={isApplyChangesDisabled} onClick={applyChanges}>
+              Apply changes
+            </Button>
+          </Tooltip>
+        </ButtonGroup>
+      </DialogFooter>
+    </>
   );
-});
+};
 
 const DiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
-  const bodyRef = useRef<{ trySaveChanges: () => string | undefined }>(null);
-  const handleClose = () => {
-    if (bodyRef.current?.trySaveChanges()) {
-      onClose?.();
-    }
-  };
-
   return (
-    <Dialog {...rest} onClose={handleClose} title="View and edit YAML changes" size="full">
-      <DiffEditorDialogBody ref={bodyRef} />
+    <Dialog {...rest} variant="empty" title="" size="full" onClose={onClose} minHeight={['100dvh', 'unset']}>
+      <DiffEditorDialogBody onClose={onClose} />
     </Dialog>
   );
 };

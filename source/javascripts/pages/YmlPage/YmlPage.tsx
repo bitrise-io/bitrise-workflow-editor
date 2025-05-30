@@ -7,7 +7,6 @@ import YourCiConfigIsSplitNotification from '@/pages/YmlPage/components/YourCiCo
 import YmlEditor from './components/YmlEditor';
 import YmlEditorHeader from './components/YmlEditorHeader';
 
-// TODO: implement onConfigSourceChangeSaved function
 const YmlPage = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 

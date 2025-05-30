@@ -15,44 +15,37 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
-import ConditionCard from '@/components/unified-editor/Triggers/components/AddTrigger/ConditionCard';
+import ConditionCard from '@/components/unified-editor/Triggers/ConditionCard';
 import {
-  ConditionType,
-  FormItems,
+  LEGACY_LABELS_MAP,
+  LEGACY_OPTIONS_MAP,
   LegacyPushConditionType,
-  TriggerItem,
-} from '@/components/unified-editor/Triggers/Triggers.types';
+  LegacyTrigger,
+} from '@/core/models/Trigger.legacy';
+import TriggerService from '@/core/services/TriggerService';
+import usePipelineIds from '@/hooks/usePipelineIds';
+import useWorkflowIds from '@/hooks/useWorkflowIds';
 
-import { checkIsConditionsUsed } from '../../TriggersPage.utils';
+const OPTIONS_MAP = LEGACY_OPTIONS_MAP.push;
+const LABELS_MAP = LEGACY_LABELS_MAP.push;
 
 type DialogProps = {
-  currentTriggers: TriggerItem[];
   isOpen: boolean;
+  editedItem?: LegacyTrigger;
+  currentTriggers: LegacyTrigger[];
+  onAdd: (trigger: LegacyTrigger) => void;
+  onEdit: (trigger: LegacyTrigger) => void;
   onClose: () => void;
-  pipelines: string[];
-  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
-  editedItem?: TriggerItem;
-  workflows: string[];
-};
-
-const LABELS_MAP: Record<LegacyPushConditionType, string> = {
-  push_branch: 'Push branch',
-  commit_message: 'Enter a commit message',
-  changed_files: 'Enter a path',
-};
-
-const OPTIONS_MAP: Record<LegacyPushConditionType, string> = {
-  push_branch: 'Push branch',
-  commit_message: 'Commit message',
-  changed_files: 'File change',
 };
 
 const AddPushTriggerDialog = (props: DialogProps) => {
-  const { currentTriggers, isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;
-  const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
-
+  const { isOpen, editedItem, currentTriggers, onAdd, onEdit, onClose } = props;
   const isEditMode = !!editedItem;
 
+  const pipelines = usePipelineIds();
+  const workflows = useWorkflowIds(true);
+
+  const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
   const dialogStages: ProgressIndicatorProps['stages'] = [
     {
       action: activeStageIndex === 1 ? { onClick: () => setActiveStageIndex(0) } : undefined,
@@ -61,7 +54,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     { label: 'Target' },
   ];
 
-  const defaultValues: FormItems = useMemo(() => {
+  const defaultValues: LegacyTrigger = useMemo(() => {
     return {
       conditions: [
         {
@@ -70,20 +63,22 @@ const AddPushTriggerDialog = (props: DialogProps) => {
           value: '',
         },
       ],
-      id: crypto.randomUUID(),
-      pipelineable: '',
-      source: 'push',
+      uniqueId: editedItem?.uniqueId ?? crypto.randomUUID(),
+      source: '',
+      index: currentTriggers.length,
+      triggerType: 'push',
       isActive: true,
       ...editedItem,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedItem, isOpen]);
 
-  const formMethods = useForm<FormItems>({
+  const formMethods = useForm<LegacyTrigger>({
     defaultValues,
   });
 
   const { control, reset, handleSubmit, watch } = formMethods;
+  const { conditions, source } = watch();
 
   useEffect(() => {
     reset(defaultValues);
@@ -92,6 +87,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
   const { append, fields, remove } = useFieldArray({
     control,
     name: 'conditions',
+    keyName: 'uniqueId',
   });
 
   const onFormCancel = () => {
@@ -100,7 +96,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     setActiveStageIndex(0);
   };
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: LegacyTrigger) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -110,14 +106,24 @@ const AddPushTriggerDialog = (props: DialogProps) => {
       }
       return newCondition;
     });
-    onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
+
+    if (isEditMode) {
+      onEdit(filteredData);
+    } else {
+      onAdd(filteredData);
+    }
     onFormCancel();
   };
 
   const onAppend = () => {
-    const availableTypes = Object.keys(OPTIONS_MAP) as ConditionType[];
+    const availableTypes = Object.keys(OPTIONS_MAP) as LegacyPushConditionType[];
     const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
+
+    if (!newType) {
+      return;
+    }
+
     append({
       type: newType,
       value: '',
@@ -125,9 +131,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const { conditions, pipelineable } = watch();
-
-  const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
+  const isConditionsUsed = TriggerService.isLegacyConditionUsed(currentTriggers, watch());
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
@@ -136,7 +140,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     }
   });
 
-  const isPipelineableMissing = !pipelineable;
+  const isPipelineableMissing = !source;
 
   return (
     <FormProvider {...formMethods}>
@@ -182,14 +186,14 @@ const AddPushTriggerDialog = (props: DialogProps) => {
                 Select the Pipeline or Workflow you want Bitrise to run when trigger conditions are met.
               </Text>
               <Controller
-                name="pipelineable"
+                name="source"
                 control={control}
                 render={({ field }) => (
                   <Select placeholder="Select a Pipeline or Workflow" {...field}>
                     {pipelines.length && (
                       <optgroup label="Pipelines">
                         {pipelines.map((p) => (
-                          <option key={p} value={`pipeline#${p}`}>
+                          <option key={p} value={`pipelines#${p}`}>
                             {p}
                           </option>
                         ))}
@@ -198,7 +202,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
                     {workflows.length && (
                       <optgroup label="Workflows">
                         {workflows.map((p) => (
-                          <option key={p} value={`workflow#${p}`}>
+                          <option key={p} value={`workflows#${p}`}>
                             {p}
                           </option>
                         ))}

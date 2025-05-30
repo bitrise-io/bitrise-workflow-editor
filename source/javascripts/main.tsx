@@ -1,5 +1,6 @@
 /* eslint-disable import/no-import-module-exports */
-import { Box, Button, Image, Link, Provider as BitkitProvider, Text } from '@bitrise/bitkit';
+import { Box, Button, Image, Link, Provider as BitkitProvider, Text, useToast } from '@bitrise/bitkit';
+import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -8,7 +9,7 @@ import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
 import Client from '@/core/api/client';
-import { initializeStore } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
@@ -32,6 +33,18 @@ if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   });
 }
 
+const OriginalResizeObserver = window.ResizeObserver;
+window.ResizeObserver = class extends OriginalResizeObserver {
+  constructor(callback: ResizeObserverCallback) {
+    const wrappedCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => {
+      window.requestAnimationFrame(() => {
+        callback(entries, observer);
+      });
+    };
+    super(wrappedCallback);
+  }
+};
+
 const DefaultQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -50,16 +63,31 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 };
 
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
+  const toast = useToast();
   const isLoaded = useRef(false);
   const hasChanges = useYmlHasChanges();
 
   useCiConfigSettings();
   const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug() });
-  useEventListener('beforeunload', (e) => RuntimeUtils.isProduction() && hasChanges && e.preventDefault());
+
+  useEventListener('beforeunload', (e) => {
+    // NOTE: The return is important for the browser to show the dialog
+    return RuntimeUtils.isProduction() && hasChanges && e.preventDefault();
+  });
+
+  useEventListener('error', (e) => {
+    datadogRum.addError(e);
+    toast({ duration: null, status: 'error', isClosable: true, description: e.message || 'Unknown error' });
+  });
+
+  useEventListener('unhandledrejection', (e) => {
+    datadogRum.addError(e.reason);
+    toast({ duration: null, status: 'error', isClosable: true, description: e.reason?.message || 'Unknown error' });
+  });
 
   useEffect(() => {
     if (!isLoaded.current && data) {
-      initializeStore(data);
+      initializeBitriseYmlDocument(data);
       setTimeout(preloadRoutes, 1000);
       isLoaded.current = true;
     }

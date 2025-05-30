@@ -28,11 +28,11 @@ function toLicensePools(response: LicencePoolsResponse): Array<LicensePool> {
   }));
 }
 
-export function getWorkspaceLicensesPoolsPath(workspaceSlug: string): string {
+function getWorkspaceLicensesPoolsPath(workspaceSlug: string): string {
   return `/organizations/${workspaceSlug}/license_pools`;
 }
 
-export async function getWorkspaceLicensePools({
+async function getWorkspaceLicensePools({
   workspaceSlug,
   signal,
 }: {

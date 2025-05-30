@@ -1,7 +1,6 @@
 import { omit } from 'es-toolkit';
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { Workflow } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import useSearchParams from './useSearchParams';
@@ -27,22 +26,14 @@ function selectValidWorkflowId(workflowIds: string[], requestedId?: string | nul
 }
 
 type UseSelectedWorkflowResult = [
-  selectedWorkflow: Workflow,
+  selectedWorkflowId: string,
   setSelectedWorkflow: (workflowId?: string | null) => void,
 ];
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
-  const workflows = useWorkflows();
-  const workflowIds = Object.keys(workflows);
+  const workflowIds = useWorkflows((s) => Object.keys(s));
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
-
-  const selectedWorkflow = useMemo(() => {
-    return {
-      id: selectedWorkflowId,
-      userValues: workflows[selectedWorkflowId],
-    };
-  }, [selectedWorkflowId, workflows]);
 
   const setSelectedWorkflow = useCallback(
     (workflowId?: string | null) => {
@@ -63,7 +54,7 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
     }
   }, [searchParams.workflow_id, selectedWorkflowId, setSelectedWorkflow]);
 
-  return useMemo(() => [selectedWorkflow, setSelectedWorkflow], [selectedWorkflow, setSelectedWorkflow]);
+  return useMemo(() => [selectedWorkflowId, setSelectedWorkflow], [selectedWorkflowId, setSelectedWorkflow]);
 };
 
 export default useSelectedWorkflow;

@@ -1,4 +1,4 @@
-import { StepBundleModel, StepModel, WithModel } from './BitriseYml';
+import { StepBundleOverrideModel, StepModel, WithModel } from './BitriseYml';
 
 export const BITRISE_STEP_LIBRARY_URL = 'https://github.com/bitrise-io/bitrise-steplib.git';
 export const BITRISE_STEP_LIBRARY_SSH_URL = 'git@github.com:bitrise-io/bitrise-steplib.git';
@@ -37,15 +37,15 @@ export type WithGroup = {
   userValues: WithModel;
 };
 
-export type StepBundle = {
+export type StepBundleInstance = {
   cvs: string;
   id: string;
   title?: string;
   icon?: string;
-  userValues: StepBundleModel;
+  userValues: StepBundleOverrideModel;
 };
 
-export type StepLike = Step | WithGroup | StepBundle;
+export type StepLike = Step | WithGroup | StepBundleInstance;
 
 export type ResolvedStepInfo = Partial<{
   version: string; // 2 || 2.1 || 2.1.6

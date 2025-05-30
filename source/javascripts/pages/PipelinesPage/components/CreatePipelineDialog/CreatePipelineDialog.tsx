@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
 import { trackCreatePipelineDialogShown, trackPipelineCreated } from '@/core/analytics/PipelineAnalytics';
 import PipelineService from '@/core/services/PipelineService';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
@@ -32,7 +32,7 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
   const handleCreatePipeline = (pipelineId: string, basePipelineId?: string) => {
     onCreatePipeline(pipelineId, basePipelineId);
 
-    const { yml } = bitriseYmlStore.getState();
+    const yml = getBitriseYml();
     const basePipeline = PipelineService.getPipeline(basePipelineId ?? '', yml);
     // eslint-disable-next-line no-nested-ternary
     const basePipelineType = PipelineService.getPipelineType(basePipelineId ?? '', yml);

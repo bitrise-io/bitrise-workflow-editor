@@ -14,7 +14,7 @@ type ConfigurationTabProps = {
 };
 
 const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) => {
-  const { id = '' } = useWorkflowConfigContext() || {};
+  const id = useWorkflowConfigContext((s) => s?.id || '');
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(id);
   const isChainedWorkflow = !!parentWorkflowId;
 
