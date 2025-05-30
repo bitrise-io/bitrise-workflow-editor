@@ -19,6 +19,7 @@ type StacksAndMachinesResponse = {
       rollback_version?: {
         [machineTypeId: string]: { free?: string; paying?: string };
       };
+      os?: string;
     };
   };
   available_machines: {
@@ -69,9 +70,20 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const promotedMachineTypes: MachineType[] = [];
   const defaultMachineTypeIdOfOSs: { [key: string]: string } = {};
 
+  const mapOSValues = (os?: string) => {
+    switch (os) {
+      case 'macos':
+        return 'macos';
+      case 'linux':
+        return 'linux';
+      default:
+        return 'unknown';
+    }
+  };
+
   mapValues(
     response.available_stacks,
-    ({ title, description = '', available_machines = [], rollback_version, ...rest }, id) => {
+    ({ title, description = '', available_machines = [], rollback_version, os, ...rest }, id) => {
       availableStacks.push({
         id: String(id),
         name: title,
@@ -80,6 +92,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
           rest['description-link-gen2-applesilicon'] || rest['description-link-gen2'] || rest['description-link'],
         machineTypes: available_machines,
         rollbackVersion: rollback_version,
+        os: mapOSValues(os),
       });
     },
   );
