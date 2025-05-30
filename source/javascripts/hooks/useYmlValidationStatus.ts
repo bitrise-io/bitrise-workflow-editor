@@ -40,8 +40,8 @@ function useYmlValidationStatus() {
 }
 
 export function getYmlValidationStatus(ymlString?: string) {
-  if (!ymlString) {
-    return 'valid' as const;
+  if (!ymlString || ymlString.trim() === '') {
+    return 'invalid' as const;
   }
 
   const doc = YmlUtils.toDoc(ymlString);
@@ -49,11 +49,11 @@ export function getYmlValidationStatus(ymlString?: string) {
     return 'invalid' as const;
   }
 
-  if (useIsAjvValidatorReady.getState() && !ajv.validate(SCHEMA_URL, doc.toJSON())) {
+  if (doc.warnings.length > 0) {
     return 'warnings' as const;
   }
 
-  if (doc.warnings.length > 0) {
+  if (useIsAjvValidatorReady.getState() && !ajv.validate(SCHEMA_URL, doc.toJSON())) {
     return 'warnings' as const;
   }
 
