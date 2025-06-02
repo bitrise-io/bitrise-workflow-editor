@@ -123,7 +123,10 @@ function updateStepInputs(workflowId: string, stepIndex: number, newInputs: EnvM
     return copy;
   }
 
-  const [, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [string, StepModel];
+  const [, stepYmlObject = {}] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [
+    string,
+    StepModel,
+  ];
 
   newInputs.forEach((input) => {
     if (!stepYmlObject.inputs) {
