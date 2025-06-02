@@ -85,7 +85,7 @@
     "@playwright/test": "^1.50.1",
     "@storybook/addon-essentials": "^8.6.2",
     "@storybook/addon-interactions": "^8.6.2",
-    "@storybook/addon-links": "^8.6.2",
+    "@storybook/addon-links": "^9.0.0",
     "@storybook/addon-queryparams": "^7.0.1",
     "@storybook/addon-webpack5-compiler-swc": "^3.0.0",
     "@storybook/react": "^8.6.2",
