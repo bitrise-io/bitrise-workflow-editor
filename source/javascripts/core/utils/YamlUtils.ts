@@ -65,8 +65,11 @@ function unflowCollectionIsEmpty(node: unknown) {
   }
 }
 
+/** @deprecated Use [YmlUtils.getSeqIn](./YmlUtils.ts) instead. */
 function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[]): YAMLSeq | undefined;
+/** @deprecated Use [YmlUtils.getSeqIn](./YmlUtils.ts) instead. */
 function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists: true): YAMLSeq;
+/** @deprecated Use [YmlUtils.getSeqIn](./YmlUtils.ts) instead. */
 function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists = false): YAMLSeq | undefined {
   if (!root.hasIn(path) && createIfNotExists) {
     createMissingNodes(root, path);
@@ -86,8 +89,11 @@ function getSeqIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfN
   return seq;
 }
 
+/** @deprecated Use [YmlUtils.getMapIn](./YmlUtils.ts) instead. */
 function getMapIn(root: Document | YAMLMap | YAMLSeq, path: unknown[]): YAMLMap | undefined;
+/** @deprecated Use [YmlUtils.getMapIn](./YmlUtils.ts) instead. */
 function getMapIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists: true): YAMLMap;
+/** @deprecated Use [YmlUtils.getMapIn](./YmlUtils.ts) instead. */
 function getMapIn(root: Document | YAMLMap | YAMLSeq, path: unknown[], createIfNotExists = false): YAMLMap | undefined {
   if (!root.hasIn(path) && createIfNotExists) {
     createMissingNodes(root, path);
@@ -144,6 +150,7 @@ function updateMapKey(map: YAMLMap, oldKey: string, newKey: string) {
 // Memoization cache for areDocumentsEqual
 const areDocumentsEqualCache = new WeakMap<Document, WeakMap<Document, boolean>>();
 
+/** @deprecated Use [YmlUtils.isEquals](./YmlUtils.ts) instead. */
 function areDocumentsEqual(a: Document, b: Document) {
   // Check if documents are the same instance
   if (a === b) return true;
