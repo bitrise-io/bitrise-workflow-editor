@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { flattenObject, isEqual } from 'es-toolkit';
+import { flattenObject, isEqual, uniqBy } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import {
   Document,
@@ -8,6 +8,7 @@ import {
   isDocument,
   isMap,
   isNode,
+  isPair,
   isSeq,
   Node,
   parseDocument,
@@ -20,9 +21,30 @@ import {
 import { BitriseYml } from '../models/BitriseYml';
 
 type Root = Document | Node;
+
+/**
+ * Type representing a path in a YAML document.
+ * It can be an array of strings or numbers, where each element represents a key or index in the YAML structure.
+ */
 type Path = (string | number)[];
+
+/**
+ * Wildcard path type, which can include '*' as a wildcard character.
+ */
 type WildcardPath = ('*' | string | number)[];
-type Where = (node?: unknown) => boolean;
+
+/**
+ * Type for a function that checks if a node matches a certain condition.
+ * @param node - The node to check.
+ * @returns A boolean indicating whether the node matches the condition.
+ */
+type Where = (node: unknown, path: Path) => boolean;
+
+/**
+ * Callback type for functions that operate on nodes.
+ * @param node - The node that was processed.
+ * @param path - The path to the node in the YAML document.
+ */
 type Callback = (node: Node, path: Path) => void;
 
 const SAFE_DELIMITER = '!#{{SAFE_DELIMITER}}#!';
@@ -79,6 +101,10 @@ function toJSON(root: Root) {
   return root.toJSON() as BitriseYml;
 }
 
+function isWildcardPath(path: Path) {
+  return path.includes('*');
+}
+
 function unflowEmptyCollection(node: unknown) {
   if (isCollection(node) && node.items.length === 0 && node.flow) {
     node.flow = false;
@@ -111,12 +137,14 @@ function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = [
   const matchingPaths = collectPaths(root, path);
   const matchingKeeps = collectPaths(root, keep);
 
-  return matchingPaths.map((p) => {
+  const result = matchingPaths.map((p) => {
     if (strict) {
       return [p.splice(0, path.length), matchingKeeps.find((kp) => isEqual(p, kp))?.splice(0, keep.length) || keep];
     }
     return [p, matchingKeeps.find((kp) => isEqual(p, kp))?.splice(0, keep.length) || keep];
   });
+
+  return uniqBy(result, (item) => item[0].join('.')) as [Path, Path][]; // Ensure unique paths
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
@@ -138,12 +166,20 @@ function isEquals(a: Root, b: Root) {
   return aCache.get(b)!;
 }
 
+function isEqualValues(a: unknown, b: unknown) {
+  return isEqual(isNode(a) ? toJSON(a) : a, isNode(b) ? toJSON(b) : b);
+}
+
 function getSeqIn(root: Root, path: Path): YAMLSeq | undefined;
 function getSeqIn(root: Root, path: Path, createIfNotExists: true): YAMLSeq;
 function getSeqIn(root: Root, path: Path, createIfNotExists?: boolean): YAMLSeq | undefined;
 function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when getting a YAMLSeq');
   }
 
   if (!root.hasIn(path) && !createIfNotExists) {
@@ -178,6 +214,10 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when getting a YAMLMap');
+  }
+
   if (!root.hasIn(path) && !createIfNotExists) {
     return undefined;
   }
@@ -207,7 +247,7 @@ function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], c
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
-  if (path.includes('*')) {
+  if (isWildcardPath(path)) {
     getMatchingPaths(root, path, keep).forEach((matchingPaths) => {
       deleteByPath(root, ...matchingPaths, cb);
     });
@@ -233,7 +273,7 @@ function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: Wil
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
-  if (path.includes('*')) {
+  if (isWildcardPath(path)) {
     getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
       deleteByValue(root, matchingPaths[0], value, matchingPaths[1], cb);
     });
@@ -252,7 +292,7 @@ function deleteByPredicate(root: Root, path: WildcardPath, where: Where, keep: W
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
-  if (path.includes('*')) {
+  if (isWildcardPath(path)) {
     getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
       deleteByPredicate(root, matchingPaths[0], where, matchingPaths[1], cb);
     });
@@ -260,8 +300,67 @@ function deleteByPredicate(root: Root, path: WildcardPath, where: Where, keep: W
     return;
   }
 
-  if (where(root.getIn(path, true))) {
+  if (where(root.getIn(path, true), path)) {
     deleteByPath(root, path, keep, cb);
+  }
+}
+
+function updateKeyByPath(root: Root, path: WildcardPath, newKey: string, cb?: Callback) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    getMatchingPaths(root, path).forEach(([matchingPath]) => {
+      updateKeyByPath(root, matchingPath, newKey, cb);
+    });
+
+    return;
+  }
+
+  const node = root.getIn(path, true);
+  if (!isNode(node)) {
+    throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
+  }
+
+  const parentPath = path.slice(0, -1);
+  const parentNode = root.getIn(parentPath, true);
+
+  if (!isMap(parentNode) && !isPair(parentNode)) {
+    throw new Error(`Parent node at path "${parentPath.join('.')}" is not a YAMLMap or YAMLPair`);
+  }
+
+  if (isPair(parentNode)) {
+    parentNode.key = newKey;
+  } else {
+    parentNode.items.forEach((item) => {
+      item.key = isEqualValues(item.key, path[path.length - 1]) ? newKey : item.key;
+    });
+  }
+
+  cb?.(node, path);
+}
+
+function updateKeyByPredicate(root: Root, path: WildcardPath, where: Where, newKey: string, cb?: Callback) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    getMatchingPaths(root, path, undefined, true).forEach(([matchingPath]) => {
+      updateKeyByPredicate(root, matchingPath, where, newKey, cb);
+    });
+
+    return;
+  }
+
+  const node = root.getIn(path, true);
+  if (!isNode(node)) {
+    throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
+  }
+
+  if (where(node, path)) {
+    updateKeyByPath(root, path, newKey, cb);
   }
 }
 
@@ -270,10 +369,13 @@ export default {
   toYml,
   toJSON,
   isEquals,
+  isEqualValues,
   getSeqIn,
   getMapIn,
   deleteByPath,
   deleteByValue,
   deleteByPredicate,
+  updateKeyByPath,
+  updateKeyByPredicate,
   collectPaths,
 };

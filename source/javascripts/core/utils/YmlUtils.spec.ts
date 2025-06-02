@@ -439,4 +439,242 @@ describe('YmlUtils', () => {
       `);
     });
   });
+
+  describe('updateKeyByPath', () => {
+    it('should update a key at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+
+      YmlUtils.updateKeyByPath(root, ['workflows', 'wf1', 'steps', '0', 'script'], 'newScript');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - newScript: {}
+      `);
+    });
+
+    it('should update multiple keys matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - deploy: {}
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      YmlUtils.updateKeyByPath(root, ['workflows', '*', 'steps', '*', 'deploy'], 'newStep');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - newStep: {}
+          wf2:
+            steps:
+            - newStep: {}
+      `);
+    });
+
+    it('should update keys after it has been updated', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+
+      YmlUtils.updateKeyByPath(root, ['workflows', 'wf1', 'steps', '0', 'script'], 'newScript');
+      YmlUtils.updateKeyByPath(root, ['workflows', 'wf1', 'steps', '0', 'newScript'], 'finalScript');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - finalScript: {}
+      `);
+    });
+
+    it('should call afterUpdate callback with the updated node', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      const afterUpdate = jest.fn();
+      const afterUpdatePath = ['workflows', 'wf2', 'steps', 0, 'deploy'];
+      const afterUpdateNode = root.getIn(afterUpdatePath, true);
+
+      YmlUtils.updateKeyByPath(root, ['workflows', '*', 'steps', '*', 'deploy'], 'newDeploy', afterUpdate);
+
+      expect(afterUpdate).toHaveBeenCalledTimes(1);
+      expect(afterUpdate).toHaveBeenCalledWith(afterUpdateNode, afterUpdatePath);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+          wf2:
+            steps:
+            - newDeploy: {}
+      `);
+    });
+
+    it('should throw an error if the path does not exists in the root', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+
+      expect(() => YmlUtils.updateKeyByPath(root, ['workflows', 'wf1', 'steps', '0', 'script'], 'newScript')).toThrow(
+        'Node at path "workflows.wf1.steps.0.script" is not a YAML Node',
+      );
+    });
+
+    it('should throw an error if parent is not a YAMLMap or YAMLPair', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+
+      expect(() => YmlUtils.updateKeyByPath(root, ['workflows', 'wf1', 'steps', 0], 'newScript')).toThrow(
+        'Parent node at path "workflows.wf1.steps" is not a YAMLMap or YAMLPair',
+      );
+    });
+  });
+
+  describe('updateKeyByPredicate', () => {
+    it('should update a key matching a predicate at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+            content: "Hello World"
+        - script:
+            title: Script Step
+            content: "Another Script"
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.updateKeyByPredicate(
+        root,
+        ['steps', '*', '*'],
+        (node) => isMap(node) && node.get('content') === 'Hello World',
+        'newScript',
+      );
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - newScript:
+            title: Script Step
+            content: "Hello World"
+        - script:
+            title: Script Step
+            content: "Another Script"
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should not update anything if the predicate does not match', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.updateKeyByPredicate(root, ['steps', '*', '*'], (node) => node === 'Not Exists', 'newScript');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should update multiple items matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+            - deploy:
+                title: Deploy Step
+          wf2:
+            steps:
+            - deploy:
+                title: Deploy Step
+            - clone:
+                title: Clone Step
+      `);
+
+      YmlUtils.updateKeyByPredicate(
+        root,
+        ['workflows', '*', 'steps', '*', '*'],
+        (node) => isMap(node) && node.get('title') === 'Deploy Step',
+        'newStep',
+      );
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+            - newStep:
+                title: Deploy Step
+          wf2:
+            steps:
+            - newStep:
+                title: Deploy Step
+            - clone:
+                title: Clone Step
+      `);
+    });
+
+    it('should throw an error if the path does not exists in the root', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+
+      expect(() =>
+        YmlUtils.updateKeyByPredicate(
+          root,
+          ['workflows', 'wf1', 'steps', '0', 'script'],
+          (node) => node === 'Not Exists',
+          'newScript',
+        ),
+      ).toThrow('Node at path "workflows.wf1.steps.0.script" is not a YAML Node');
+    });
+
+    it('should throw an error if parent is not a YAMLMap or YAMLPair', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+
+      expect(() =>
+        YmlUtils.updateKeyByPredicate(root, ['workflows', 'wf1', 'steps', 0], () => true, 'newScript'),
+      ).toThrow('Parent node at path "workflows.wf1.steps" is not a YAMLMap or YAMLPair');
+    });
+  });
 });
