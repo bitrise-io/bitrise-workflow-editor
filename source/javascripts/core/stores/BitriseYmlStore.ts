@@ -2,14 +2,13 @@
 import { Document } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 
-import YamlUtils from '../utils/YamlUtils';
 import YmlUtils from '../utils/YmlUtils';
 
 export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 
 export type YamlMutator = (ctx: YamlMutatorCtx) => Document;
-export type YamlMutatorCtx = { doc: Document; paths: string[] };
+export type YamlMutatorCtx = { doc: Document };
 
 export const bitriseYmlStore = createStore(() => ({
   version: '',
@@ -87,10 +86,9 @@ export function initializeBitriseYmlDocument({ ymlString, version }: { ymlString
 
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
   const doc = bitriseYmlStore.getState().ymlDocument.clone();
-  const paths = YamlUtils.collectPaths(bitriseYmlStore.getState().ymlDocument.toJSON());
 
   bitriseYmlStore.setState({
-    ymlDocument: mutator({ doc, paths }),
+    ymlDocument: mutator({ doc }),
     __invalidYmlString: undefined,
   });
 }

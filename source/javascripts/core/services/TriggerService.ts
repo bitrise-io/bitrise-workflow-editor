@@ -25,7 +25,6 @@ import {
   LegacyTrigger,
 } from '../models/Trigger.legacy';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
 import YmlUtils from '../utils/YmlUtils';
 
 function cleanConditionValue(value: string, isRegex: boolean) {
@@ -218,7 +217,7 @@ function getTriggerMapItemConditionOrThrowError(doc: Document, index: number, co
 function addLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const triggerMap = YmlUtils.getSeqIn(doc, ['trigger_map'], true);
-    YamlUtils.unflowCollectionIsEmpty(triggerMap);
+    YmlUtils.unflowEmptyCollection(triggerMap);
     triggerMap.add(doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
   });
@@ -227,7 +226,7 @@ function addLegacyTrigger(trigger: LegacyTrigger) {
 function removeLegacyTrigger(index: number) {
   updateBitriseYmlDocument(({ doc }) => {
     getTriggerMapItemOrThrowError(doc, index);
-    YamlUtils.safeDeleteIn(doc, ['trigger_map', index], ['trigger_map']);
+    YmlUtils.deleteByPath(doc, ['trigger_map', index]);
     return doc;
   });
 }
@@ -236,12 +235,12 @@ function changeLegacyTriggerEnabled(doc: Document, enabled: boolean, index: numb
   const trigger = getTriggerMapItemOrThrowError(doc, index);
 
   if (enabled) {
-    trigger.delete('enabled');
+    YmlUtils.deleteByPath(trigger, ['enabled']);
     return;
   }
 
-  YamlUtils.unflowCollectionIsEmpty(trigger);
-  trigger.set('enabled', false);
+  YmlUtils.unflowEmptyCollection(trigger);
+  YmlUtils.setIn(trigger, ['enabled'], false);
 }
 
 function updateLegacyTriggerEnabled(trigger: LegacyTrigger) {
@@ -253,12 +252,12 @@ function updateLegacyTriggerEnabled(trigger: LegacyTrigger) {
 
 function updateLegacyTriggerDraftPr(doc: Document, isDraftPr: boolean | undefined, index: number) {
   const trigger = getTriggerMapItemOrThrowError(doc, index);
-  YamlUtils.unflowCollectionIsEmpty(trigger);
+  YmlUtils.unflowEmptyCollection(trigger);
 
   if (isDraftPr === false) {
-    trigger.set('draft_pull_request_enabled', false);
+    YmlUtils.setIn(trigger, ['draft_pull_request_enabled'], false);
   } else {
-    trigger.delete('draft_pull_request_enabled');
+    YmlUtils.deleteByPath(trigger, ['draft_pull_request_enabled']);
   }
 }
 
@@ -268,23 +267,23 @@ function updateLegacyTriggerSource(doc: Document, legacyTrigger: LegacyTrigger) 
 
   if (target === 'pipelines') {
     trigger.set('pipeline', targetId);
-    trigger.delete('workflow');
+    YmlUtils.deleteByPath(trigger, ['workflow']);
   } else if (target === 'workflows') {
     trigger.set('workflow', targetId);
-    trigger.delete('pipeline');
+    YmlUtils.deleteByPath(trigger, ['pipeline']);
   }
 }
 
 function addLegacyTriggerCondition(doc: Document, condition: LegacyCondition, index: number) {
   const trigger = getTriggerMapItemOrThrowError(doc, index);
-  YamlUtils.unflowCollectionIsEmpty(trigger);
-  trigger.set(condition.type, doc.createNode(fromLegacyCondition(condition)));
+  YmlUtils.unflowEmptyCollection(trigger);
+  YmlUtils.setIn(trigger, [condition.type], fromLegacyCondition(condition));
 }
 
 function removeLegacyTriggerCondition(doc: Document, conditionType: LegacyConditionType, index: number) {
   getTriggerMapItemConditionOrThrowError(doc, index, conditionType);
   const trigger = getTriggerMapItemOrThrowError(doc, index);
-  trigger.delete(conditionType);
+  YmlUtils.deleteByPath(trigger, [conditionType]);
 }
 
 function updateLegacyTriggerConditionRegex(
@@ -300,13 +299,13 @@ function updateLegacyTriggerConditionRegex(
     if (typeof condition === 'string') {
       // set regex from string
       const finalValue = cleanConditionValue(condition, true);
-      trigger.set(conditionType, doc.createNode({ regex: finalValue }));
+      YmlUtils.setIn(trigger, [conditionType], { regex: finalValue });
       return;
     }
     if (isMap(condition) && condition.has('pattern')) {
       // set regex from pattern
       const finalValue = cleanConditionValue(condition.get('pattern') as string, true);
-      YamlUtils.updateMapKey(condition, 'pattern', 'regex');
+      YmlUtils.updateKeyByPath(condition, ['pattern'], 'regex');
       condition.set('regex', finalValue);
       return;
     }
@@ -328,7 +327,7 @@ function updateLegacyTriggerConditionRegex(
   if (isMap(condition) && condition.has('regex') && condition.has('last_commit')) {
     // set pattern from regex
     const finalValue = cleanConditionValue(condition.get('regex') as string, false);
-    YamlUtils.updateMapKey(condition, 'regex', 'pattern');
+    YmlUtils.updateKeyByPath(condition, ['regex'], 'pattern');
     condition.set('pattern', finalValue);
     return;
   }
@@ -584,18 +583,15 @@ function getTriggerConditionOrThrowError(
 
 function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: string }) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { source, sourceId } = at;
     const entity = getSourceOrThrowError(doc, at);
 
     if (enabled) {
-      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'triggers', 'enabled'], ['triggers']);
+      YmlUtils.deleteByPath(entity, ['triggers', 'enabled']);
       return doc;
     }
 
-    YamlUtils.unflowCollectionIsEmpty(entity);
-    const triggers = YmlUtils.getMapIn(doc, [source, sourceId, 'triggers'], true);
-    YamlUtils.unflowCollectionIsEmpty(triggers);
-    triggers.set('enabled', false);
+    const triggers = YmlUtils.getMapIn(entity, ['triggers'], true);
+    YmlUtils.setIn(triggers, ['enabled'], false);
 
     return doc;
   });
@@ -605,9 +601,8 @@ function addTrigger(trigger: TargetBasedTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     const entity = getSourceOrThrowError(doc, { source, sourceId });
-    YamlUtils.unflowCollectionIsEmpty(entity);
 
-    const triggers = YmlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
+    const triggers = YmlUtils.getSeqIn(entity, ['triggers', trigger.triggerType], true);
     triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
 
     return doc;
@@ -622,12 +617,11 @@ function changeTriggerEnabled(
   const trigger = getTriggerOrThrowError(doc, at);
 
   if (enabled) {
-    trigger.delete('enabled');
+    YmlUtils.deleteByPath(trigger, ['enabled']);
     return;
   }
 
-  YamlUtils.unflowCollectionIsEmpty(trigger);
-  trigger.set('enabled', false);
+  YmlUtils.setIn(trigger, ['enabled'], false);
 }
 
 function updateTriggerEnabled(trigger: TargetBasedTrigger) {
@@ -663,12 +657,11 @@ function updateTriggerDraftPr(
   at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
 ) {
   const entity = getTriggerOrThrowError(doc, at);
-  YamlUtils.unflowCollectionIsEmpty(entity);
 
   if (isDraftPr === false) {
-    entity.set('draft_enabled', false);
+    YmlUtils.setIn(entity, ['draft_enabled'], false);
   } else {
-    entity.delete('draft_enabled');
+    YmlUtils.deleteByPath(entity, ['draft_enabled']);
   }
 }
 
@@ -678,8 +671,7 @@ function addTriggerCondition(
   at: { source: TriggerSource; sourceId: string; triggerType: TriggerType; index: number },
 ) {
   const entity = getTriggerOrThrowError(doc, at);
-  YamlUtils.unflowCollectionIsEmpty(entity);
-  entity.set(condition.type, doc.createNode(fromTargetBasedCondition(condition)));
+  YmlUtils.setIn(entity, [condition.type], fromTargetBasedCondition(condition));
 }
 
 function removeTriggerCondition(
@@ -715,7 +707,7 @@ function updateTriggerConditionRegex(
     if (isMap(condition) && condition.has('pattern')) {
       // set regex from pattern
       const finalValue = cleanConditionValue(condition.get('pattern') as string, true);
-      YamlUtils.updateMapKey(condition, 'pattern', 'regex');
+      YmlUtils.updateKeyByPath(condition, ['pattern'], 'regex');
       condition.set('regex', finalValue);
       return;
     }
@@ -737,7 +729,7 @@ function updateTriggerConditionRegex(
   if (isMap(condition) && condition.has('regex') && condition.has('last_commit')) {
     // set pattern from regex
     const finalValue = cleanConditionValue(condition.get('regex') as string, false);
-    YamlUtils.updateMapKey(condition, 'regex', 'pattern');
+    YmlUtils.updateKeyByPath(condition, ['regex'], 'pattern');
     condition.set('pattern', finalValue);
     return;
   }
@@ -906,13 +898,10 @@ function updateTrigger(trigger: TargetBasedTrigger) {
 function removeTrigger(trigger: TargetBasedTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+    const sourceNode = getSourceOrThrowError(doc, { source, sourceId });
     getTriggerOrThrowError(doc, { source, sourceId, triggerType: trigger.triggerType, index: trigger.index });
 
-    YamlUtils.safeDeleteIn(
-      doc,
-      [source, sourceId, 'triggers', trigger.triggerType, trigger.index],
-      ['triggers', trigger.triggerType],
-    );
+    YmlUtils.deleteByPath(sourceNode, ['triggers', trigger.triggerType, trigger.index]);
 
     return doc;
   });

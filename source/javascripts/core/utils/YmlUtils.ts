@@ -560,6 +560,7 @@ export default {
   toTypedValue,
   isEquals,
   isEqualValues,
+  setIn,
   getSeqIn,
   getMapIn,
   isInSeq,
