@@ -1,63 +1,8 @@
-import { Document, Node, parse, stringify, visit } from 'yaml';
-
-import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import Client from './client';
 
 const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
-
-// TRANSFORMATIONS
-function toYml(model: Document | Node | null): string {
-  let indents = 0;
-  let paddings = 0;
-
-  visit(model, {
-    Node(_, { srcToken }) {
-      if (srcToken?.type === 'flow-collection') {
-        const startOffset = srcToken.start.offset;
-        const endOffset = srcToken.end.find((s) => ['flow-map-end', 'flow-seq-end'].includes(s.type))?.offset ?? 0;
-
-        if (endOffset - startOffset > 2) {
-          paddings += srcToken.items.some((item) => item.start.some((s) => s.type === 'space')) ? 1 : -1;
-        }
-      }
-      if (srcToken?.type === 'block-map') {
-        srcToken.items.forEach((blockMapItem) => {
-          if (blockMapItem.value?.type === 'block-seq') {
-            blockMapItem.value.items.forEach((item) => {
-              indents += item.start.some((s) => s.type === 'seq-item-ind' && s.indent > srcToken.indent) ? 1 : -1;
-            });
-          }
-        });
-      }
-    },
-    Scalar(__, node) {
-      if (typeof node.value === 'string' && /\t/.test(node.value)) {
-        // eslint-disable-next-line no-param-reassign
-        node.type = 'BLOCK_LITERAL';
-        // eslint-disable-next-line no-param-reassign
-        node.value = node.value.replace(/\t/g, '  ');
-      }
-    },
-  });
-
-  return stringify(model, {
-    version: '1.1',
-    schema: 'yaml-1.1',
-    indentSeq: indents > 0,
-    aliasDuplicateObjects: false,
-    flowCollectionPadding: paddings >= 0,
-  });
-}
-
-function fromYml(yml: string): BitriseYml {
-  if (!yml) {
-    return { format_version: '' };
-  }
-
-  return parse(yml);
-}
 
 type GetCiConfigOptions = {
   projectSlug: string;
@@ -124,8 +69,6 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: S
 export type { GetCiConfigResult };
 
 export default {
-  toYml,
-  fromYml,
   getCiConfig,
   ciConfigPath,
   saveCiConfig,

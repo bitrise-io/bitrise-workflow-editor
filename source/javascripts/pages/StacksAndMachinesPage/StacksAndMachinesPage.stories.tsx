@@ -1,8 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { set } from 'es-toolkit/compat';
-import { parseDocument, stringify } from 'yaml';
+import { stringify } from 'yaml';
 
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import StacksAndMachinesPage from './StacksAndMachinesPage';
 
@@ -64,7 +65,7 @@ export const WithInvalidStackRollbackVersion: Story = {
         machine_type_id: 'm2.large',
         stack_rollback_version: '1.0.0',
       });
-      return { yml, ymlDocument: parseDocument(stringify(yml), { keepSourceTokens: true }) };
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },
 };
@@ -79,7 +80,7 @@ export const WithDeprecatedMachines: Story = {
         stack: 'linux-ubuntu-22.04',
         machine_type_id: 'standard',
       });
-      return { yml, ymlDocument: parseDocument(stringify(yml), { keepSourceTokens: true }) };
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

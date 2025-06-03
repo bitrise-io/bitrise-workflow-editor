@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { delay, http, HttpResponse } from 'msw';
-import { parseDocument } from 'yaml';
 
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import ConfigMergeDialog from './ConfigMergeDialog';
 import { baseYaml, remoteYaml, yourYaml } from './ConfigMergeDialog.mocks';
@@ -30,8 +30,8 @@ const meta: Meta<typeof ConfigMergeDialog> = {
     },
     bitriseYmlStore: {
       yml: TEST_BITRISE_YML,
-      ymlDocument: parseDocument(yourYaml, { keepSourceTokens: true }),
-      savedYmlDocument: parseDocument(baseYaml, { keepSourceTokens: true }),
+      ymlDocument: YmlUtils.toDoc(yourYaml),
+      savedYmlDocument: YmlUtils.toDoc(baseYaml),
       savedYmlVersion: '',
     },
   },
