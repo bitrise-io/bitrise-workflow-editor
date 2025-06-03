@@ -160,7 +160,7 @@ function createWorkflow(id: string, baseId?: string) {
     if (doc.hasIn(['workflows', id])) {
       throw new Error(`Workflow '${id}' already exists`);
     }
-    doc.setIn(['workflows', id], baseId ? getWorkflowOrThrowError(baseId, doc).clone() : doc.createNode({}));
+    YmlUtils.setIn(doc, ['workflows', id], baseId ? getWorkflowOrThrowError(baseId, doc).clone() : {});
     return doc;
   });
 }
@@ -194,10 +194,9 @@ function updateWorkflowField<T extends WK>(id: string, field: T, value: WV<T>) {
     const workflow = getWorkflowOrThrowError(id, doc);
 
     if (value) {
-      YmlUtils.unflowEmptyCollection(workflow);
-      workflow.set(field, value);
+      YmlUtils.setIn(workflow, [field], value);
     } else {
-      workflow.delete(field);
+      YmlUtils.deleteByPath(workflow, [field]);
     }
 
     return doc;

@@ -258,7 +258,7 @@ function updateIsExpand(isExpand: boolean, at: { source: EnvVarSource; sourceId?
     if (isExpand) {
       YmlUtils.deleteByPath(env, ['opts', 'is_expand']);
     } else {
-      env.setIn(['opts', 'is_expand'], false);
+      YmlUtils.setIn(env, ['opts', 'is_expand'], false);
     }
 
     return doc;

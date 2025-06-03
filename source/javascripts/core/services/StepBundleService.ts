@@ -204,7 +204,7 @@ function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSour
     throwIfStepBundleAlreadyExists(doc, id);
 
     if (!basedOn) {
-      doc.setIn(['step_bundles', id], doc.createNode({}));
+      YmlUtils.setIn(doc, ['step_bundles', id], {});
       return doc;
     }
 
@@ -218,7 +218,7 @@ function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSour
     });
     keysToDelete.forEach((key) => baseEntity.delete(key));
 
-    doc.setIn(['step_bundles', id], baseEntity);
+    YmlUtils.setIn(doc, ['step_bundles', id], baseEntity);
 
     return doc;
   });
@@ -287,6 +287,7 @@ function groupStepsToStepBundle(
     const stepBundle = doc.createNode({ steps }) as YAMLMap;
     doc.addIn(['step_bundles', id], stepBundle);
 
+    // TODO: This is not working when it refactored to YmlUtils.setIn
     sourceSteps.set(indices[0], doc.createNode({ [cvs]: {} }));
 
     const reverseIndices = indices.slice(1).reverse();
@@ -342,9 +343,8 @@ function updateStepBundleInputValue(doc: Document, newValue: string, at: { id: s
   const input = getStepBundleInputOrThrowError(doc, at);
   const key = getStepBundleInputKeyOrThrowError(input);
 
-  const value = input.get(key);
-  if (value !== newValue) {
-    input.set(key, newValue);
+  if (!YmlUtils.isEqualValues(input.get(key), newValue)) {
+    YmlUtils.setIn(input, [key], newValue);
   }
 }
 
@@ -375,21 +375,21 @@ function updateStepBundleInputOpts(
 
   // Remove keys that are not in the new opts
   removedKeys.forEach((key) => {
-    opts.delete(key);
+    YmlUtils.deleteByPath(opts, [key]);
   });
 
   // Update keys that are in both old and new opts
   updatedKeys.forEach((key) => {
-    opts.set(key, newOpts[key as keyof EnvironmentItemOptionsModel]);
+    YmlUtils.setIn(opts, [key], newOpts[key as keyof EnvironmentItemOptionsModel]);
   });
 
   // Add keys that are in the new opts
   addedKeys.forEach((key) => {
-    opts.set(key, newOpts[key as keyof EnvironmentItemOptionsModel]);
+    YmlUtils.setIn(opts, [key], newOpts[key as keyof EnvironmentItemOptionsModel]);
   });
 
   if (isEmpty(opts.items)) {
-    input.delete('opts');
+    YmlUtils.deleteByPath(input, ['opts']);
   }
 }
 
@@ -417,8 +417,7 @@ function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
     const stepBundle = getStepBundleOrThrowError(doc, id);
 
     if (value) {
-      YmlUtils.unflowEmptyCollection(stepBundle);
-      stepBundle.set(field, value);
+      YmlUtils.setIn(stepBundle, [field], value);
     } else {
       YmlUtils.deleteByPath(stepBundle, [field]);
     }

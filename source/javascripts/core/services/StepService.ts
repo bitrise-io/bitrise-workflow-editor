@@ -483,10 +483,9 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
     }
 
     if (value) {
-      YmlUtils.unflowEmptyCollection(stepData);
-      stepData.set(field, value);
+      YmlUtils.setIn(stepData, [field], value);
     } else {
-      stepData.delete(field);
+      YmlUtils.deleteByPath(stepData, [field]);
     }
 
     return doc;

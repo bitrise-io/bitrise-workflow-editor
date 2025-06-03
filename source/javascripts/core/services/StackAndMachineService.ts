@@ -356,7 +356,7 @@ function updateFieldValue(
   const meta = YmlUtils.getMapIn(doc, path, true);
 
   if (value) {
-    meta.setIn([field], value);
+    YmlUtils.setIn(meta, [field], value);
   } else {
     YmlUtils.deleteByPath(doc, [...path, field], path.slice(0, -2));
   }

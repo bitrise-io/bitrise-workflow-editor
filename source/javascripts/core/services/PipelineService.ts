@@ -207,19 +207,18 @@ function createPipeline(id: string, baseId?: string) {
       const basePipelineJson = basePipelineNode.toJSON();
 
       if (isGraph(basePipelineJson)) {
-        doc.setIn(['pipelines', id], basePipelineNode.clone());
+        YmlUtils.setIn(doc, ['pipelines', id], basePipelineNode.clone());
         return doc;
       }
 
       const stages = YmlUtils.getMapIn(doc, ['stages'])?.toJSON();
-      const newPipelineJson = convertToGraphPipeline(basePipelineJson, stages);
-      const newPipelineNode = doc.createNode(newPipelineJson, { aliasDuplicateObjects: false });
+      YmlUtils.setIn(doc, ['pipelines', id], convertToGraphPipeline(basePipelineJson, stages));
 
-      doc.setIn(['pipelines', id], newPipelineNode);
       return doc;
     }
 
-    doc.setIn(['pipelines', id], doc.createNode(EMPTY_PIPELINE));
+    YmlUtils.setIn(doc, ['pipelines', id], EMPTY_PIPELINE);
+
     return doc;
   });
 }
@@ -267,10 +266,9 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
     const pipeline = getPipelineOrThrowError(id, doc);
 
     if (value) {
-      YmlUtils.unflowEmptyCollection(pipeline);
-      pipeline.set(field, value);
+      YmlUtils.setIn(pipeline, [field], value);
     } else {
-      pipeline.delete(field);
+      YmlUtils.deleteByPath(pipeline, [field]);
     }
 
     return doc;
@@ -292,9 +290,9 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
 
     if (dependsOn) {
       getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
-      workflows.setIn([workflowId], doc.createNode({ depends_on: [dependsOn] }));
+      YmlUtils.setIn(workflows, [workflowId], { depends_on: [dependsOn] });
     } else {
-      workflows.setIn([workflowId], doc.createNode({}));
+      YmlUtils.setIn(workflows, [workflowId], {});
     }
 
     return doc;
@@ -329,8 +327,7 @@ function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflow
     const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
 
     if (value) {
-      YmlUtils.unflowEmptyCollection(workflow);
-      workflow.setIn(field.split('.'), value);
+      YmlUtils.setIn(workflow, field.split('.'), value);
     } else {
       YmlUtils.deleteByPath(workflow, field.split('.'));
     }

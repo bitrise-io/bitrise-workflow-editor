@@ -266,10 +266,10 @@ function updateLegacyTriggerSource(doc: Document, legacyTrigger: LegacyTrigger) 
   const [target, targetId] = legacyTrigger.source.split('#') as [TriggerSource, string];
 
   if (target === 'pipelines') {
-    trigger.set('pipeline', targetId);
+    YmlUtils.setIn(trigger, ['pipeline'], targetId);
     YmlUtils.deleteByPath(trigger, ['workflow']);
   } else if (target === 'workflows') {
-    trigger.set('workflow', targetId);
+    YmlUtils.setIn(trigger, ['workflow'], targetId);
     YmlUtils.deleteByPath(trigger, ['pipeline']);
   }
 }
@@ -306,7 +306,7 @@ function updateLegacyTriggerConditionRegex(
       // set regex from pattern
       const finalValue = cleanConditionValue(condition.get('pattern') as string, true);
       YmlUtils.updateKeyByPath(condition, ['pattern'], 'regex');
-      condition.set('regex', finalValue);
+      YmlUtils.setIn(condition, ['regex'], finalValue);
       return;
     }
     if (isMap(condition) && condition.has('regex')) {
@@ -328,13 +328,13 @@ function updateLegacyTriggerConditionRegex(
     // set pattern from regex
     const finalValue = cleanConditionValue(condition.get('regex') as string, false);
     YmlUtils.updateKeyByPath(condition, ['regex'], 'pattern');
-    condition.set('pattern', finalValue);
+    YmlUtils.setIn(condition, ['pattern'], finalValue);
     return;
   }
   if (isMap(condition) && condition.has('regex') && !condition.has('last_commit')) {
     // set string from regex
     const finalValue = cleanConditionValue(condition.get('regex') as string, false);
-    trigger.set(conditionType, finalValue);
+    YmlUtils.setIn(trigger, [conditionType], finalValue);
   }
 }
 
@@ -353,11 +353,11 @@ function updateLegacyTriggerConditionValue(
   }
 
   if (isMap(condition) && condition.has('regex')) {
-    condition.set('regex', finalValue);
+    YmlUtils.setIn(condition, ['regex'], finalValue);
   } else if (isMap(condition) && condition.has('pattern')) {
-    condition.set('pattern', finalValue);
+    YmlUtils.setIn(condition, ['pattern'], finalValue);
   } else {
-    trigger.set(conditionType, finalValue);
+    YmlUtils.setIn(trigger, [conditionType], finalValue);
   }
 }
 
@@ -431,7 +431,8 @@ function updateTriggerMap(triggers?: Record<TriggerType, LegacyTrigger[]>) {
       return doc;
     }
 
-    doc.setIn(['trigger_map'], doc.createNode(toTriggerMap(triggers)));
+    YmlUtils.setIn(doc, ['trigger_map'], toTriggerMap(triggers));
+
     return doc;
   });
 }
@@ -645,9 +646,9 @@ function updateTriggerPriority(
   const entity = getTriggerOrThrowError(doc, at);
 
   if (priority === undefined) {
-    entity.delete('priority');
+    YmlUtils.deleteByPath(entity, ['priority']);
   } else {
-    entity.set('priority', priority);
+    YmlUtils.setIn(entity, ['priority'], priority);
   }
 }
 
@@ -701,14 +702,14 @@ function updateTriggerConditionRegex(
     if (typeof condition === 'string') {
       // set regex from string
       const finalValue = cleanConditionValue(condition, true);
-      trigger.set(at.conditionType, doc.createNode({ regex: finalValue }));
+      YmlUtils.setIn(trigger, [at.conditionType], { regex: finalValue });
       return;
     }
     if (isMap(condition) && condition.has('pattern')) {
       // set regex from pattern
       const finalValue = cleanConditionValue(condition.get('pattern') as string, true);
       YmlUtils.updateKeyByPath(condition, ['pattern'], 'regex');
-      condition.set('regex', finalValue);
+      YmlUtils.setIn(condition, ['regex'], finalValue);
       return;
     }
     if (isMap(condition) && condition.has('regex')) {
@@ -730,13 +731,13 @@ function updateTriggerConditionRegex(
     // set pattern from regex
     const finalValue = cleanConditionValue(condition.get('regex') as string, false);
     YmlUtils.updateKeyByPath(condition, ['regex'], 'pattern');
-    condition.set('pattern', finalValue);
+    YmlUtils.setIn(condition, ['pattern'], finalValue);
     return;
   }
   if (isMap(condition) && condition.has('regex') && !condition.has('last_commit')) {
     // set string from regex
     const finalValue = cleanConditionValue(condition.get('regex') as string, false);
-    trigger.set(at.conditionType, finalValue);
+    YmlUtils.setIn(trigger, [at.conditionType], finalValue);
   }
 }
 
@@ -758,12 +759,12 @@ function updateTriggerConditionLastCommit(
   if (isLastCommit) {
     // change string to object with last_commit set to true
     if (typeof condition === 'string') {
-      trigger.set(at.conditionType, doc.createNode({ pattern: condition, last_commit: true }));
+      YmlUtils.setIn(trigger, [at.conditionType], { pattern: condition, last_commit: true });
       return;
     }
     // set last_commit to true
     if (isMap(condition)) {
-      condition.set('last_commit', true);
+      YmlUtils.setIn(condition, ['last_commit'], true);
       return;
     }
   }
@@ -794,11 +795,11 @@ function updateTriggerConditionValue(
   }
 
   if (isMap(condition) && condition.has('regex')) {
-    condition.set('regex', finalValue);
+    YmlUtils.setIn(condition, ['regex'], finalValue);
   } else if (isMap(condition) && condition.has('pattern')) {
-    condition.set('pattern', finalValue);
+    YmlUtils.setIn(condition, ['pattern'], finalValue);
   } else {
-    trigger.set(at.conditionType, finalValue);
+    YmlUtils.setIn(trigger, [at.conditionType], finalValue);
   }
 }
 
