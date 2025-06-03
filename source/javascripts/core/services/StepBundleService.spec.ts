@@ -1244,6 +1244,23 @@ describe('StepBundleService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
 
+    it('should create the field if it does not exist', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          step_bundles:
+            bundle::sb1: {}
+        `,
+      );
+
+      StepBundleService.updateStepBundleField('bundle::sb1', 'title', 'New Title');
+
+      expect(getYmlString()).toEqual(yaml`
+        step_bundles:
+          bundle::sb1:
+            title: New Title
+      `);
+    });
+
     it('should remove the specified field if the value is empty', () => {
       updateBitriseYmlDocumentByString(
         yaml`

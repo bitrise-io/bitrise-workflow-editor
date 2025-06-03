@@ -12,7 +12,6 @@ import {
 import { StepBundleInstance } from '../models/Step';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
 import YmlUtils from '../utils/YmlUtils';
 
 const STEP_BUNDLE_REGEX = /^[A-Za-z0-9-_.]+$/;
@@ -226,23 +225,23 @@ function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSour
 }
 
 function renameStepBundle(id: string, newId: string) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     getStepBundleOrThrowError(doc, id);
     throwIfStepBundleAlreadyExists(doc, newId);
 
     const cvs = idToCvs(id);
     const newCvs = idToCvs(newId);
 
-    YamlUtils.updateKey({ doc, paths }, `step_bundles.${id}`, newId);
-    YamlUtils.updateKey({ doc, paths }, `step_bundles.*.steps.*.${cvs}`, newCvs);
-    YamlUtils.updateKey({ doc, paths }, `workflows.*.steps.*.${cvs}`, newCvs);
+    YmlUtils.updateKeyByPath(doc, ['step_bundles', id], newId);
+    YmlUtils.updateKeyByPath(doc, ['workflows', '*', 'steps', '*', cvs], newCvs);
+    YmlUtils.updateKeyByPath(doc, ['step_bundles', '*', 'steps', '*', cvs], newCvs);
 
     return doc;
   });
 }
 
 function deleteStepBundle(id: string) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     getStepBundleOrThrowError(doc, id);
 
     const cvs = idToCvs(id);
@@ -250,9 +249,9 @@ function deleteStepBundle(id: string) {
       return isMap(node) ? node.has(cvs) : node === cvs;
     }
 
-    YamlUtils.deleteNodeByPath({ doc, paths }, `step_bundles.${id}`, '*');
-    YamlUtils.deleteNodeByValue({ doc, paths }, `step_bundles.*.steps.*`, isStepBundleReference, '*');
-    YamlUtils.deleteNodeByValue({ doc, paths }, `workflows.*.steps.*`, isStepBundleReference, 'workflows.*.steps');
+    YmlUtils.deleteByPath(doc, ['step_bundles', id]);
+    YmlUtils.deleteByPredicate(doc, ['step_bundles', '*', 'steps', '*'], isStepBundleReference);
+    YmlUtils.deleteByPredicate(doc, ['workflows', '*', 'steps', '*'], isStepBundleReference, ['workflows', '*']);
 
     return doc;
   });
@@ -305,7 +304,7 @@ function addStepBundleInput(id: string, input: EnvironmentItemModel) {
     const inputs = YmlUtils.getSeqIn(stepBundle, ['inputs'], true);
 
     const key = getStepBundleInputKeyOrThrowError(input);
-    if (YamlUtils.getPairInSeqByKey(inputs, key)[0]) {
+    if (inputs.items.some((item) => isMap(item) && item.has(key))) {
       throw new Error(`Input '${key}' already exists in step bundle '${id}'`);
     }
 
@@ -316,14 +315,14 @@ function addStepBundleInput(id: string, input: EnvironmentItemModel) {
 }
 
 function deleteStepBundleInput(id: string, index: number) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     const stepBundle = getStepBundleOrThrowError(doc, id);
 
     if (!YmlUtils.getMapIn(stepBundle, ['inputs', index])) {
       throw new Error(`Input at index '${index}' not found in step bundle '${id}'`);
     }
 
-    YamlUtils.deleteNodeByPath({ doc, paths }, `step_bundles.${id}.inputs.${index}`, `step_bundles.${id}.inputs`);
+    YmlUtils.deleteByPath(stepBundle, ['inputs', index]);
 
     return doc;
   });
@@ -335,7 +334,7 @@ function updateStepBundleInputKey(doc: Document, newKey: string, at: { id: strin
 
   const newKeySanitized = sanitizeInputKey(newKey);
   if (key !== newKeySanitized) {
-    YamlUtils.updateMapKey(input, key, newKeySanitized);
+    YmlUtils.updateKeyByPath(input, [key], newKeySanitized);
   }
 }
 
@@ -418,10 +417,10 @@ function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
     const stepBundle = getStepBundleOrThrowError(doc, id);
 
     if (value) {
-      YamlUtils.unflowCollectionIsEmpty(stepBundle);
+      YmlUtils.unflowEmptyCollection(stepBundle);
       stepBundle.set(field, value);
     } else {
-      stepBundle.delete(field);
+      YmlUtils.deleteByPath(stepBundle, [field]);
     }
 
     return doc;
@@ -441,9 +440,9 @@ function updateStepBundleInputInstanceValue(
   const id = cvsToId(at.cvs);
   const { cvs, source, sourceId, stepIndex } = at;
 
-  updateBitriseYmlDocument((ctx) => {
-    const step = getSourceStepOrThrowError(ctx.doc, at).get(cvs) as YAMLMap | undefined;
-    const stepBundle = getStepBundleOrThrowError(ctx.doc, id);
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getSourceStepOrThrowError(doc, at).get(cvs) as YAMLMap | undefined;
+    const stepBundle = getStepBundleOrThrowError(doc, id);
 
     if (!step) {
       throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
@@ -464,23 +463,18 @@ function updateStepBundleInputInstanceValue(
     const shouldRemoveInstanceInput = !newValue && inputIndexInInstance >= 0;
 
     if (shouldCreateInstanceInput) {
-      const node = ctx.doc.createNode({ [key]: newValue });
-      YmlUtils.getSeqIn(step, ['inputs'], true).add(node);
+      YmlUtils.getSeqIn(step, ['inputs'], true).add(doc.createNode({ [key]: newValue }));
     }
 
     if (shouldUpdateInstanceInput) {
-      YamlUtils.updateValue(ctx, `${source}.${sourceId}.steps.${stepIndex}.${cvs}.inputs.*.${key}`, newValue);
+      YmlUtils.updateValueByPath(step, ['inputs', '*', key], newValue);
     }
 
     if (shouldRemoveInstanceInput) {
-      YamlUtils.deleteNodeByPath(
-        ctx,
-        `${source}.${sourceId}.steps.${stepIndex}.${cvs}.inputs.${inputIndexInInstance}`,
-        `${source}.${sourceId}.steps.${stepIndex}.${cvs}.inputs`,
-      );
+      YmlUtils.deleteByPath(step, ['inputs', inputIndexInInstance]);
     }
 
-    return ctx.doc;
+    return doc;
   });
 }
 
