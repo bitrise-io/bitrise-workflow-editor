@@ -204,7 +204,7 @@ function hasIn(root: Root, path: Path) {
   return root.hasIn(path);
 }
 
-function setIn(root: Root, path: Path, value: unknown) {
+function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
@@ -227,7 +227,7 @@ function setIn(root: Root, path: Path, value: unknown) {
     unflowEmptyCollection(getIn(root, parentPath));
   }
 
-  const typedValue = toTypedValue(value);
+  const typedValue = stringToTypedValue ? toTypedValue(value) : value;
 
   const existingNode = getIn(root, path, true);
   if (isPrimitive(typedValue)) {

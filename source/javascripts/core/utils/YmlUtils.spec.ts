@@ -270,6 +270,260 @@ describe('YmlUtils', () => {
     });
   });
 
+  describe('setIn', () => {
+    it('should set a value in a YMLMap at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1: {}
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'steps'], []);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+    });
+
+    it('should set a value in a YMLSeq at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'steps', 0, 'script'], {});
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+    });
+
+    it('should create intermediate structures if they do not exist', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows: {}
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'steps', 0, 'script'], {});
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+    });
+
+    it('should overwrite existing values at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Old Script
+                content: 'echo "Hello World"'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], 'New Script');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: New Script
+                content: 'echo "Hello World"'
+      `);
+    });
+
+    it('should convert string to null value when setting a null value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            retries: '3'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '~');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            retries: null
+      `);
+    });
+
+    it('should convert string to boolean when setting a boolean value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            triggers:
+              enabled: false
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'triggers', 'enabled'], 'true');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            triggers:
+              enabled: true
+      `);
+    });
+
+    it('should convert string to special float values', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            retries: '3'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '.inf');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            retries: .inf
+      `);
+    });
+
+    it('should convert string to number when setting a numeric value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            retries: '3'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '5');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            retries: 5
+      `);
+    });
+
+    it('should update minFractionDigits when setting a numeric value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            retries: 3
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '5.123');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            retries: 5.123
+      `);
+    });
+
+    it('should not convert numberic value with leading zeros', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            retries: '03'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '05');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            retries: '05'
+      `);
+    });
+
+    it('should not convert hex/octal/binary strings', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            binary: '101'
+            octal: '12'
+            hex: '1A'
+
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'binary'], '0b101');
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'octal'], '0o12');
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'hex'], '0x1A');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            binary: '0b101'
+            octal: '0o12'
+            hex: '0x1A'
+      `);
+    });
+
+    it('should not convert semver strings', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            version: '1.2.3'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'version'], '1.2.3-alpha');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            version: '1.2.3-alpha'
+      `);
+    });
+
+    it('should not convert string value when stringToTypedValue is false', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            retries: '3'
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '5', false);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            retries: '5'
+      `);
+    });
+
+    it('should throw an error if the root is not a YAML Document or YAML collection', () => {
+      const root = 'not a yaml document' as unknown as YAMLMap;
+
+      expect(() => YmlUtils.setIn(root, ['workflows', 'wf1', 'steps', 0, 'script'], {})).toThrow(
+        'Root node must be a YAML Document or YAML Collection',
+      );
+    });
+
+    it('should throw an error if the path contains a wildcard', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+
+      expect(() => YmlUtils.setIn(root, ['workflows', '*', 'steps', 0, 'script'], {})).toThrow(
+        'Path cannot contain wildcards when setting a value',
+      );
+    });
+
+    it('should throw an error if the path is empty', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+
+      expect(() => YmlUtils.setIn(root, [], {})).toThrow('Path cannot be empty when setting a value');
+    });
+  });
+
   describe('getSeqIn', () => {
     it('should return YAMLSeq at the specified path', () => {
       const root = YmlUtils.toDoc(yaml`workflows: []`);
