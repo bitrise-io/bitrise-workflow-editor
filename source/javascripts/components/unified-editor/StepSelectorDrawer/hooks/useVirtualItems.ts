@@ -40,8 +40,12 @@ function groupSteps(steps: AlgoliaStepResponse[], search: string, categories: st
   return categoryMap;
 }
 
-const useVirtualItems = ({ steps, enabledSteps, columns }: Props) => {
+const useVirtualItems = ({ steps, enabledSteps, columns = 1 }: Props) => {
   const { search, categories } = useDebouncedFilter();
+
+  // Ensure columns is a valid positive integer
+  const safeColumns = typeof columns === 'number' && columns > 0 ? columns : 1;
+  const safeMaxColumns = Math.min(safeColumns, 4); // Limit to a maximum of 4 columns
 
   const result: Array<string | AlgoliaStepResponse[]> = [];
   const groupedSteps = groupSteps(steps, search, categories, enabledSteps);
@@ -49,7 +53,7 @@ const useVirtualItems = ({ steps, enabledSteps, columns }: Props) => {
   groupedSteps.forEach((stepsOfGroup, groupTitle) => {
     result.push(groupTitle);
     while (stepsOfGroup.length) {
-      result.push([...stepsOfGroup.splice(0, columns)]);
+      result.push([...stepsOfGroup.splice(0, safeMaxColumns)]);
     }
   });
 
