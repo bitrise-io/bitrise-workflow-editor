@@ -1,7 +1,6 @@
 import { Document, isMap, Scalar } from 'yaml';
 
 import { bitriseYmlStore, getBitriseYml, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
-import YamlUtils from '@/core/utils/YamlUtils';
 
 import { EnvironmentItemModel } from '../models/BitriseYml';
 import { EnvVar, EnvVarSource } from '../models/EnvVar';
@@ -265,7 +264,7 @@ function remove(at: { source: EnvVarSource; sourceId?: string; index: number }) 
     getEnvVarOrThrowError(doc, at);
 
     const path = getEnvPath(at.source, at.sourceId, at.index);
-    YamlUtils.safeDeleteIn(doc, path, at.source === EnvVarSource.App ? ['app', 'envs'] : ['envs']);
+    YmlUtils.deleteByPath(doc, path, at.source === EnvVarSource.App ? [] : ['workflows', at.sourceId!]);
     return doc;
   });
 }
@@ -293,7 +292,8 @@ function updateKey(newKey: string, at: { source: EnvVarSource; sourceId?: string
       throw new Error(`Environment variable key is not matching "${at.oldKey}"`);
     }
 
-    YamlUtils.updateMapKey(env, at.oldKey, newKey);
+    YmlUtils.updateKeyByPath(env, [at.oldKey], newKey);
+
     return doc;
   });
 }
@@ -335,8 +335,7 @@ function updateIsExpand(isExpand: boolean, at: { source: EnvVarSource; sourceId?
     const env = getEnvVarOrThrowError(doc, at);
 
     if (isExpand) {
-      const path = getEnvPath(at.source, at.sourceId, at.index);
-      YamlUtils.safeDeleteIn(doc, [...path, 'opts', 'is_expand'], ['opts']);
+      YmlUtils.deleteByPath(env, ['opts', 'is_expand']);
     } else {
       env.setIn(['opts', 'is_expand'], false);
     }
