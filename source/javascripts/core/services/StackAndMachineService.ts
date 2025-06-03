@@ -6,7 +6,6 @@ import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
 import { MachineType, MachineTypeOption, Stack, StackOption } from '../models/StackAndMachine';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
@@ -347,7 +346,7 @@ function updateFieldValue(
   if (value) {
     meta.setIn([field], value);
   } else {
-    YamlUtils.safeDeleteIn(doc, path.concat(field), ['meta', 'bitrise.io']);
+    YmlUtils.deleteByPath(doc, [...path, field], path.slice(0, -2));
   }
 }
 
