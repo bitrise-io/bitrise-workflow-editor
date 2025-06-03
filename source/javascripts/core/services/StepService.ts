@@ -496,13 +496,13 @@ function updateStepInput(source: Source, sourceId: string, index: number, input:
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, index, doc).items[0].value as YAMLMap;
     const inputsSeq = YmlUtils.getSeqIn(step, ['inputs'], true);
-
     const inputIndex = inputsSeq.items.findIndex((item) => isMap(item) && item.has(input));
 
     const newValue = YmlUtils.toTypedValue(value);
     if (newValue === '') {
       YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
     } else if (inputIndex === -1) {
+      YmlUtils.unflowEmptyCollection(inputsSeq);
       inputsSeq.add(doc.createNode({ [input]: newValue }));
     } else {
       YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], newValue);

@@ -604,6 +604,7 @@ function addTrigger(trigger: TargetBasedTrigger) {
     const entity = getSourceOrThrowError(doc, { source, sourceId });
 
     const triggers = YmlUtils.getSeqIn(entity, ['triggers', trigger.triggerType], true);
+    YmlUtils.unflowEmptyCollection(triggers);
     triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
 
     return doc;

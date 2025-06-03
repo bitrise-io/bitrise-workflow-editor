@@ -35,7 +35,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1121,7 +1122,8 @@ describe('StepService', () => {
             steps:
             - script@1: {}
             - added@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1140,7 +1142,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1171,7 +1174,8 @@ describe('StepService', () => {
         workflows:
           primary:
             steps:
-            - cache@2: {}
+            - cache@2:
+                inputs: []
             - script@1: {}
         step_bundles:
           my_bundle:
@@ -1191,7 +1195,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1282,7 +1287,8 @@ describe('StepService', () => {
             steps:
             - script@1: {}
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1301,7 +1307,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1339,7 +1346,8 @@ describe('StepService', () => {
         workflows:
           primary:
             steps:
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1358,7 +1366,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1439,7 +1448,8 @@ describe('StepService', () => {
             steps:
             - script@1:
                 title: New title
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1458,7 +1468,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1674,7 +1685,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script@1.2.3: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:
@@ -1729,7 +1741,8 @@ describe('StepService', () => {
           primary:
             steps:
             - script: {}
-            - cache@2: {}
+            - cache@2:
+                inputs: []
         step_bundles:
           my_bundle:
             steps:

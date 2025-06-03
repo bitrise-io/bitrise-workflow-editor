@@ -187,8 +187,9 @@ function append(envVar: EnvVar, at: { source: EnvVarSource; sourceId?: string })
 
     const path = getEnvPath(at.source, at.sourceId);
     const envs = YmlUtils.getSeqIn(doc, path, true);
-    const env = doc.createNode(toYml(envVar));
-    envs.add(env);
+
+    YmlUtils.unflowEmptyCollection(envs);
+    envs.add(doc.createNode(toYml(envVar)));
 
     return doc;
   });
