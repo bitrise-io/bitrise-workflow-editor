@@ -11,6 +11,7 @@ import { StepBundleOverrideModel, StepListItemModel, StepModel, WithModel } from
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, LibraryType, Step } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 import EnvVarService from './EnvVarService';
 
 type Source = 'workflows' | 'step_bundles';
@@ -402,7 +403,7 @@ export const moveStepIndices = (
 };
 
 function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) {
-  const entity = YamlUtils.getMapIn(doc, [source, sourceId]);
+  const entity = YmlUtils.getMapIn(doc, [source, sourceId]);
 
   if (!entity) {
     throw new Error(`${source}.${sourceId} not found`);
@@ -413,7 +414,7 @@ function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) 
 
 function getStepOrThrowError(source: Source, sourceId: string, stepIndex: number, doc: Document) {
   const entity = getSourceOrThrowError(source, sourceId, doc);
-  const step = YamlUtils.getMapIn(entity, ['steps', stepIndex]);
+  const step = YmlUtils.getMapIn(entity, ['steps', stepIndex]);
 
   if (!step || !isMap(step)) {
     throw new Error(`Step at index ${stepIndex} not found in ${source}.${sourceId}`);
@@ -426,7 +427,7 @@ function addStep(source: Source, sourceId: string, cvs: string, to: number) {
   updateBitriseYmlDocument(({ doc }) => {
     getSourceOrThrowError(source, sourceId, doc);
 
-    const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
     steps.items.splice(to, 0, doc.createNode({ [cvs]: {} }));
 
     return doc;
@@ -436,7 +437,7 @@ function addStep(source: Source, sourceId: string, cvs: string, to: number) {
 function moveStep(source: Source, sourceId: string, from: number, to: number) {
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, from, doc);
-    const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
 
     steps.items.splice(from, 1);
     steps.items.splice(to, 0, step);
@@ -448,7 +449,7 @@ function moveStep(source: Source, sourceId: string, from: number, to: number) {
 function cloneStep(source: Source, sourceId: string, index: number) {
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, index, doc);
-    const steps = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
 
     steps.items.splice(index + 1, 0, step.clone());
 
@@ -496,8 +497,8 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
 
 function updateStepInput(source: Source, sourceId: string, index: number, input: string, value: unknown) {
   updateBitriseYmlDocument(({ doc }) => {
-    const cvs = (getStepOrThrowError(source, sourceId, index, doc).items[0].key as Scalar).value;
-    const inputsSeq = YamlUtils.getSeqIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs'], true);
+    const cvs = (getStepOrThrowError(source, sourceId, index, doc).items[0].key as Scalar).value as string;
+    const inputsSeq = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs'], true);
     const [inputPair, inputIndex] = YamlUtils.getPairInSeqByKey(inputsSeq, input, true);
 
     const newValue = EnvVarService.toYmlValue(value);

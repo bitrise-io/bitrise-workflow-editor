@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { flattenObject, isEqual, uniqBy } from 'es-toolkit';
+import { isEqual, isPrimitive } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import {
   Document,
@@ -9,6 +9,7 @@ import {
   isMap,
   isNode,
   isPair,
+  isScalar,
   isSeq,
   Node,
   parseDocument,
@@ -46,8 +47,6 @@ type Where = (node: unknown, path: Path) => boolean;
  * @param path - The path to the node in the YAML document.
  */
 type Callback = (node: Node, path: Path) => void;
-
-const SAFE_DELIMITER = '!#{{SAFE_DELIMITER}}#!';
 
 function toDoc(raw: string) {
   return parseDocument(raw, {
@@ -105,46 +104,82 @@ function isWildcardPath(path: Path) {
   return path.includes('*');
 }
 
+function getIn(root: Root, path: Path, keepScalar = false) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when getting a value');
+  }
+
+  if (isEmpty(path)) {
+    return root;
+  }
+
+  return root.getIn(path, keepScalar);
+}
+
+function hasIn(root: Root, path: Path) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when checking for existence');
+  }
+
+  if (isEmpty(path)) {
+    return true;
+  }
+
+  return root.hasIn(path);
+}
+
 function unflowEmptyCollection(node: unknown) {
   if (isCollection(node) && node.items.length === 0 && node.flow) {
     node.flow = false;
   }
 }
 
-function collectPaths(root: Root, pathWithWildcard: WildcardPath = []) {
+function collectPaths(root: Root) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
   }
 
-  const flattened = Object.keys(flattenObject(toJSON(root), { delimiter: SAFE_DELIMITER }));
-  const escapedPath = pathWithWildcard.map((part) => part.toString().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'));
-  const widlcardPattern = new RegExp(`^${escapedPath.join(SAFE_DELIMITER).replace(/\\\*/g, '.*')}$`);
+  function traverseAndCollectPaths(subject: unknown, ancestorPath: Path = []) {
+    const paths: Path[] = [];
 
-  const filterMatchingPaths = (path: string) => widlcardPattern.test(path);
-  const sortPathsInDescendingOrder = (a: string, b: string) => b.localeCompare(a);
+    if (Array.isArray(subject)) {
+      subject.forEach((item, index) => {
+        const path = [...ancestorPath, index];
+        paths.push(path, ...traverseAndCollectPaths(item, path));
+      });
+    } else if (typeof subject === 'object' && subject !== null) {
+      Object.entries(subject).forEach(([key, item]) => {
+        const path = [...ancestorPath, key];
+        paths.push(path, ...traverseAndCollectPaths(item, path));
+      });
+    }
 
-  const splitPath = (path: string) => {
-    return path.split(SAFE_DELIMITER).reduce((result, part) => {
-      const item = !isNaN(Number(part)) && isSeq(root.getIn(result)) ? Number(part) : part;
-      return [...result, item];
-    }, [] as Path);
-  };
+    return paths;
+  }
 
-  return flattened.filter(filterMatchingPaths).sort(sortPathsInDescendingOrder).map(splitPath);
+  return traverseAndCollectPaths(root.toJSON()).sort((a, b) => b.join('.').localeCompare(a.join('.')));
 }
 
-function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = [], strict = false): [Path, Path][] {
-  const matchingPaths = collectPaths(root, path);
-  const matchingKeeps = collectPaths(root, keep);
-
-  const result = matchingPaths.map((p) => {
-    if (strict) {
-      return [p.splice(0, path.length), matchingKeeps.find((kp) => isEqual(p, kp))?.splice(0, keep.length) || keep];
+function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = []) {
+  return collectPaths(root).reduce<[Path, Path][]>((result, possiblePath) => {
+    if (possiblePath.length !== path.length) {
+      return result;
     }
-    return [p, matchingKeeps.find((kp) => isEqual(p, kp))?.splice(0, keep.length) || keep];
-  });
 
-  return uniqBy(result, (item) => item[0].join('.')) as [Path, Path][]; // Ensure unique paths
+    if (possiblePath.every((part, index) => [part, '*'].includes(path[index]))) {
+      result.push([possiblePath, possiblePath.slice(0, keep.length)]);
+    }
+
+    return result;
+  }, []);
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
@@ -182,22 +217,22 @@ function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
     throw new Error('Path cannot contain wildcards when getting a YAMLSeq');
   }
 
-  if (!root.hasIn(path) && !createIfNotExists) {
+  if (!hasIn(root, path) && !createIfNotExists) {
     return undefined;
   }
 
-  if (!root.hasIn(path) && createIfNotExists) {
+  if (!hasIn(root, path) && createIfNotExists) {
     let parentPath = path.slice(0, -1);
 
     while (parentPath.length > 0 && !root.hasIn(parentPath)) {
       parentPath = parentPath.slice(0, -1);
     }
 
-    unflowEmptyCollection(root.getIn(parentPath));
+    unflowEmptyCollection(getIn(root, parentPath));
     root.setIn(path, new YAMLSeq());
   }
 
-  const node = root.getIn(path, true);
+  const node = getIn(root, path, true);
 
   if (!isSeq(node)) {
     throw new Error(`Expected a YAMLSeq at path "${path.join('.')}", but found ${node?.constructor.name}`);
@@ -229,17 +264,34 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
       parentPath = parentPath.slice(0, -1);
     }
 
-    unflowEmptyCollection(root.getIn(parentPath));
+    unflowEmptyCollection(getIn(root, parentPath));
     root.setIn(path, new YAMLMap());
   }
 
-  const node = root.getIn(path, true);
+  const node = getIn(root, path, true);
 
   if (!isMap(node)) {
     throw new Error(`Expected a YAMLMap at path "${path.join('.')}", but found ${node?.constructor.name}`);
   }
 
   return node;
+}
+
+function isInSeq(root: Root, path: Path, item: unknown, index?: number) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when checking if an item is in a YAMLSeq');
+  }
+
+  const seq = getSeqIn(root, path);
+  if (!seq) {
+    return false;
+  }
+
+  return seq.items.some((node, i) => isEqualValues(node, item) && (index === undefined || i === index));
 }
 
 function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], cb?: Callback) {
@@ -255,35 +307,16 @@ function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], c
     return;
   }
 
-  const deletedNode = root.getIn(path, true);
+  const deletedNode = getIn(root, path, true);
   if (isNode(deletedNode) && root.deleteIn(path)) {
     cb?.(deletedNode, path);
   }
 
   const parentPath = path.slice(0, -1);
-  const parentNode = root.getIn(parentPath, true);
+  const parentNode = getIn(root, parentPath, true);
 
   if (!isEqual(parentPath, keep) && isNode(parentNode) && isEmpty(toJSON(parentNode))) {
     deleteByPath(root, parentPath, keep, cb);
-  }
-}
-
-function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: WildcardPath = [], cb?: Callback) {
-  if (!isDocument(root) && !isCollection(root)) {
-    throw new Error('Root node must be a YAML Document or YAML Collection');
-  }
-
-  if (isWildcardPath(path)) {
-    getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
-      deleteByValue(root, matchingPaths[0], value, matchingPaths[1], cb);
-    });
-
-    return;
-  }
-
-  const deletedNode = root.getIn(path, true);
-  if (isEqual(isNode(deletedNode) ? toJSON(deletedNode) : deletedNode, value)) {
-    deleteByPath(root, path, keep, cb);
   }
 }
 
@@ -293,16 +326,20 @@ function deleteByPredicate(root: Root, path: WildcardPath, where: Where, keep: W
   }
 
   if (isWildcardPath(path)) {
-    getMatchingPaths(root, path, keep, true).forEach((matchingPaths) => {
-      deleteByPredicate(root, matchingPaths[0], where, matchingPaths[1], cb);
+    getMatchingPaths(root, path, keep).forEach(([exactPath, exactKeep]) => {
+      deleteByPredicate(root, exactPath, where, exactKeep, cb);
     });
 
     return;
   }
 
-  if (where(root.getIn(path, true), path)) {
+  if (where(getIn(root, path, true), path)) {
     deleteByPath(root, path, keep, cb);
   }
+}
+
+function deleteByValue(root: Root, path: WildcardPath, value: unknown, keep: WildcardPath = [], cb?: Callback) {
+  return deleteByPredicate(root, path, (node) => isEqualValues(node, value), keep, cb);
 }
 
 function updateKeyByPath(root: Root, path: WildcardPath, newKey: string, cb?: Callback) {
@@ -311,20 +348,20 @@ function updateKeyByPath(root: Root, path: WildcardPath, newKey: string, cb?: Ca
   }
 
   if (isWildcardPath(path)) {
-    getMatchingPaths(root, path).forEach(([matchingPath]) => {
-      updateKeyByPath(root, matchingPath, newKey, cb);
+    getMatchingPaths(root, path).forEach(([exactPath]) => {
+      updateKeyByPath(root, exactPath, newKey, cb);
     });
 
     return;
   }
 
-  const node = root.getIn(path, true);
+  const node = getIn(root, path, true);
   if (!isNode(node)) {
     throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
   }
 
   const parentPath = path.slice(0, -1);
-  const parentNode = root.getIn(parentPath, true);
+  const parentNode = getIn(root, parentPath, true);
 
   if (!isMap(parentNode) && !isPair(parentNode)) {
     throw new Error(`Parent node at path "${parentPath.join('.')}" is not a YAMLMap or YAMLPair`);
@@ -347,14 +384,14 @@ function updateKeyByPredicate(root: Root, path: WildcardPath, where: Where, newK
   }
 
   if (isWildcardPath(path)) {
-    getMatchingPaths(root, path, undefined, true).forEach(([matchingPath]) => {
-      updateKeyByPredicate(root, matchingPath, where, newKey, cb);
+    getMatchingPaths(root, path).forEach(([exactPath]) => {
+      updateKeyByPredicate(root, exactPath, where, newKey, cb);
     });
 
     return;
   }
 
-  const node = root.getIn(path, true);
+  const node = getIn(root, path, true);
   if (!isNode(node)) {
     throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
   }
@@ -362,6 +399,64 @@ function updateKeyByPredicate(root: Root, path: WildcardPath, where: Where, newK
   if (where(node, path)) {
     updateKeyByPath(root, path, newKey, cb);
   }
+}
+
+function updateValueByPath(root: Root, path: WildcardPath, newValue: unknown, cb?: Callback) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    getMatchingPaths(root, path).forEach(([exactPath]) => {
+      updateValueByPath(root, exactPath, newValue, cb);
+    });
+
+    return;
+  }
+
+  const oldNode = getIn(root, path, true);
+  if (!isNode(oldNode)) {
+    throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
+  }
+
+  if (isScalar(oldNode) && isPrimitive(newValue)) {
+    oldNode.value = newValue;
+    return cb?.(oldNode, path);
+  }
+
+  const flow = isCollection(oldNode) && !isEmpty(toJSON(oldNode)) && oldNode.flow;
+  const newNode = new Document().createNode(newValue, { flow, aliasDuplicateObjects: false });
+
+  root.setIn(path, newNode);
+
+  cb?.(newNode, path);
+}
+
+function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, newValue: unknown, cb?: Callback) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    getMatchingPaths(root, path).forEach(([exactPath]) => {
+      updateValueByPredicate(root, exactPath, where, newValue, cb);
+    });
+
+    return;
+  }
+
+  const oldNode = getIn(root, path, true);
+  if (!isNode(oldNode)) {
+    throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
+  }
+
+  if (where(oldNode, path)) {
+    updateValueByPath(root, path, newValue, cb);
+  }
+}
+
+function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
+  return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
 
 export default {
@@ -372,10 +467,15 @@ export default {
   isEqualValues,
   getSeqIn,
   getMapIn,
+  isInSeq,
   deleteByPath,
   deleteByValue,
   deleteByPredicate,
   updateKeyByPath,
   updateKeyByPredicate,
+  updateValueByPath,
+  updateValueByValue,
+  updateValueByPredicate,
   collectPaths,
+  unflowEmptyCollection,
 };

@@ -19,13 +19,28 @@ describe('YmlUtils', () => {
               - test: {}
       `);
 
-      const paths = YmlUtils.collectPaths(root, ['workflows', '*', 'steps', '*']);
+      const paths = YmlUtils.collectPaths(root);
 
       expect(paths).toEqual([
         ['workflows', 'wf2', 'steps', 0, 'deploy'],
+        ['workflows', 'wf2', 'steps', 0],
+        ['workflows', 'wf2', 'steps'],
+        ['workflows', 'wf2'],
+
         ['workflows', 'wf1', 'steps', 1, 'clone'],
+        ['workflows', 'wf1', 'steps', 1],
+
         ['workflows', 'wf1', 'steps', 0, 'script'],
+        ['workflows', 'wf1', 'steps', 0],
+        ['workflows', 'wf1', 'steps'],
+        ['workflows', 'wf1'],
+
         ['workflows', '123', 'steps', 0, 'test'],
+        ['workflows', '123', 'steps', 0],
+        ['workflows', '123', 'steps'],
+        ['workflows', '123'],
+
+        ['workflows'],
       ]);
     });
   });
@@ -267,6 +282,27 @@ describe('YmlUtils', () => {
         - script: {}
         - deploy:
             title: Deploy Step
+      `);
+    });
+
+    it('should delete an item from a sequence with a specific value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf3 ]
+          wf2:
+            depends_on: [ wf3 ]
+          wf3: {}
+      `);
+
+      YmlUtils.deleteByValue(root, ['workflows', '*', 'depends_on', '*'], 'wf3', ['workflows', '*']);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2 ]
+          wf2: {}
+          wf3: {}
       `);
     });
 
@@ -675,6 +711,420 @@ describe('YmlUtils', () => {
       expect(() =>
         YmlUtils.updateKeyByPredicate(root, ['workflows', 'wf1', 'steps', 0], () => true, 'newScript'),
       ).toThrow('Parent node at path "workflows.wf1.steps" is not a YAMLMap or YAMLPair');
+    });
+  });
+
+  describe('updateValueByPath', () => {
+    it('should update a value at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], 'New Script Title');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: New Script Title
+      `);
+    });
+
+    it('should update multiple values matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+            - deploy:
+                title: Deploy Step
+          wf2:
+            steps:
+            - deploy:
+                title: Deploy Step
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', '*', 'steps', '*', 'deploy', 'title'], 'New Deploy Title');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+            - deploy:
+                title: New Deploy Title
+          wf2:
+            steps:
+            - deploy:
+                title: New Deploy Title
+      `);
+    });
+
+    it('should update values after it has been updated', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], 'New Script Title');
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], 'Final Script Title');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Final Script Title
+      `);
+    });
+
+    it('should call afterUpdate callback with the updated node', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+          wf2:
+            steps:
+            - deploy:
+                title: Deploy Step
+      `);
+
+      const afterUpdate = jest.fn();
+
+      YmlUtils.updateValueByPath(
+        root,
+        ['workflows', '*', 'steps', '*', 'deploy', 'title'],
+        'New Deploy Title',
+        afterUpdate,
+      );
+
+      const afterUpdatePath = ['workflows', 'wf2', 'steps', 0, 'deploy', 'title'];
+      const afterUpdateNode = root.getIn(afterUpdatePath, true);
+
+      expect(afterUpdate).toHaveBeenCalledTimes(1);
+      expect(afterUpdate).toHaveBeenCalledWith(afterUpdateNode, afterUpdatePath);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+          wf2:
+            steps:
+            - deploy:
+                title: New Deploy Title
+      `);
+    });
+
+    it('should set value as null if the given newValue is undefined', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], undefined);
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: null
+      `);
+    });
+
+    it('should add a YAMLSeq as value if the given newValue is an array', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], ['a', 'b']);
+
+      expect(root.getIn(['workflows', 'wf1', 'steps', 0, 'script', 'title'], true)).toBeInstanceOf(YAMLSeq);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title:
+                - a
+                - b
+      `);
+    });
+
+    it('should add a YAMLMap as value if the given newValue is an object', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], { key: 'value' });
+
+      expect(root.getIn(['workflows', 'wf1', 'steps', 0, 'script', 'title'], true)).toBeInstanceOf(YAMLMap);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title:
+                  key: value
+      `);
+    });
+
+    it('should keep flow style for YAMLMap if the newValue is an object', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: { hello: world }
+      `);
+
+      YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script'], { hello: 'zoli' });
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: { hello: zoli }
+      `);
+    });
+
+    it('should keep scalar format when updating a value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        title: Title
+        summary: 'Summary'
+        description: "Description"
+        number_as_string: '123'
+      `);
+
+      YmlUtils.updateValueByPath(root, ['title'], 'New Title');
+      YmlUtils.updateValueByPath(root, ['summary'], 'New Summary');
+      YmlUtils.updateValueByPath(root, ['description'], 'New Description');
+      YmlUtils.updateValueByPath(root, ['number_as_string'], '126');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        title: New Title
+        summary: 'New Summary'
+        description: "New Description"
+        number_as_string: '126'
+      `);
+    });
+
+    it('should throw an error if the path does not exists in the root', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+
+      expect(() =>
+        YmlUtils.updateValueByPath(root, ['workflows', 'wf1', 'steps', 0, 'script', 'title'], 'New Script Title'),
+      ).toThrow('Node at path "workflows.wf1.steps.0.script.title" is not a YAML Node');
+    });
+  });
+
+  describe('updaeValueByValue', () => {
+    it('should update an item in a sequence if values are matching', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf3 ]
+          wf2:
+            depends_on: [ wf3 ]
+          wf3: {}
+          wf4: {}
+      `);
+
+      YmlUtils.updateValueByValue(root, ['workflows', '*', 'depends_on', '*'], 'wf3', 'wf4');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf4 ]
+          wf2:
+            depends_on: [ wf4 ]
+          wf3: {}
+          wf4: {}
+      `);
+    });
+
+    it('should update multiple items matching a wildcard path and values are matching', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf3 ]
+          wf2:
+            depends_on: [ wf3 ]
+          wf3: {}
+          wf4: {}
+      `);
+
+      YmlUtils.updateValueByValue(root, ['workflows', '*'], {}, { title: 'Empty Workflow' });
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf3 ]
+          wf2:
+            depends_on: [ wf3 ]
+          wf3:
+            title: Empty Workflow
+          wf4:
+            title: Empty Workflow
+      `);
+    });
+
+    it('should not update anything if the value does not match', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf3 ]
+          wf2:
+            depends_on: [ wf3 ]
+          wf3: {}
+      `);
+
+      YmlUtils.updateValueByValue(root, ['workflows', '*', 'depends_on', '*'], 'wf4', 'wf5');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            depends_on: [ wf2, wf3 ]
+          wf2:
+            depends_on: [ wf3 ]
+          wf3: {}
+      `);
+    });
+
+    it('should throw an error if the path does not exists in the root', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+
+      expect(() => YmlUtils.updateValueByValue(root, ['workflows', 'wf1', 'steps'], 'Old Title', 'New Title')).toThrow(
+        'Node at path "workflows.wf1.steps" is not a YAML Node',
+      );
+    });
+  });
+
+  describe('updateValueByPredicate', () => {
+    it('should update a value matching a predicate at the specified path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+            content: Hello World
+        - script:
+            title: Script Step
+            content: Another Script
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.updateValueByPredicate(
+        root,
+        ['steps', '*', '*'],
+        (node) => isMap(node) && node.get('content') === 'Hello World',
+        { title: 'Updated Script', content: 'Updated Content' },
+      );
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script:
+            title: Updated Script
+            content: Updated Content
+        - script:
+            title: Script Step
+            content: Another Script
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should not update anything if the predicate does not match', () => {
+      const root = YmlUtils.toDoc(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+
+      YmlUtils.updateValueByPredicate(root, ['steps', '*', '*'], (node) => node === 'Not Exists', {});
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        steps:
+        - script:
+            title: Script Step
+        - deploy:
+            title: Deploy Step
+      `);
+    });
+
+    it('should update multiple items matching a wildcard path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+            - deploy:
+                title: Deploy Step
+          wf2:
+            steps:
+            - deploy:
+                title: Deploy Step
+            - clone:
+                title: Clone Step
+      `);
+
+      YmlUtils.updateValueByPredicate(
+        root,
+        ['workflows', '*', 'steps', '*', '*'],
+        (node) => isMap(node) && node.get('title') === 'Deploy Step',
+        { title: 'New Deploy Step' },
+      );
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script:
+                title: Script Step
+            - deploy:
+                title: New Deploy Step
+          wf2:
+            steps:
+            - deploy:
+                title: New Deploy Step
+            - clone:
+                title: Clone Step
+      `);
+    });
+
+    it('should throw an error if the path does not exists in the root', () => {
+      const root = YmlUtils.toDoc(yaml`workflows: {}`);
+
+      expect(() =>
+        YmlUtils.updateValueByPredicate(root, ['workflows', 'wf1', 'steps'], (node) => node === 'Not Exists', {}),
+      ).toThrow('Node at path "workflows.wf1.steps" is not a YAML Node');
     });
   });
 });

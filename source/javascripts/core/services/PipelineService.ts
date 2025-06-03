@@ -6,6 +6,7 @@ import { BitriseYml, GraphPipelineWorkflowModel, PipelineModel, PipelineWorkflow
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 import StepService from './StepService';
 import WorkflowService from './WorkflowService';
 
@@ -176,7 +177,7 @@ function convertToGraphPipeline(pipeline: PipelineModel, stages: Stages = {}): P
 }
 
 function getPipelineOrThrowError(id: string, doc: Document) {
-  const pipeline = YamlUtils.getMapIn(doc, ['pipelines', id]);
+  const pipeline = YmlUtils.getMapIn(doc, ['pipelines', id]);
 
   if (!pipeline) {
     throw new Error(`Pipeline ${id} not found. Ensure that the pipeline exists in the 'pipelines' section.`);
@@ -187,7 +188,7 @@ function getPipelineOrThrowError(id: string, doc: Document) {
 
 function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string, doc: Document) {
   const pipeline = getPipelineOrThrowError(pipelineId, doc);
-  const workflow = YamlUtils.getMapIn(pipeline, ['workflows', workflowId]);
+  const workflow = YmlUtils.getMapIn(pipeline, ['workflows', workflowId]);
 
   if (!workflow) {
     throw new Error(`Workflow ${workflowId} not found in pipeline ${pipelineId}.`);
@@ -198,7 +199,7 @@ function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string,
 
 function createPipeline(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    if (YamlUtils.getMapIn(doc, ['pipelines', id])) {
+    if (YmlUtils.getMapIn(doc, ['pipelines', id])) {
       throw new Error(`Pipeline ${id} already exists`);
     }
 
@@ -211,7 +212,7 @@ function createPipeline(id: string, baseId?: string) {
         return doc;
       }
 
-      const stages = YamlUtils.getMapIn(doc, ['stages'])?.toJSON();
+      const stages = YmlUtils.getMapIn(doc, ['stages'])?.toJSON();
       const newPipelineJson = convertToGraphPipeline(basePipelineJson, stages);
       const newPipelineNode = doc.createNode(newPipelineJson, { aliasDuplicateObjects: false });
 
@@ -228,7 +229,7 @@ function renamePipeline(id: string, newName: string) {
   updateBitriseYmlDocument(({ doc, paths }) => {
     getPipelineOrThrowError(id, doc);
 
-    if (YamlUtils.getMapIn(doc, ['pipelines', newName])) {
+    if (YmlUtils.getMapIn(doc, ['pipelines', newName])) {
       throw new Error(`Pipeline ${newName} already exists`);
     }
 
@@ -239,7 +240,7 @@ function renamePipeline(id: string, newName: string) {
 }
 
 function deletePipeline(ids: string | string[]) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     const pipelines = Array.isArray(ids)
       ? [...ids].sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }))
       : [ids];
@@ -251,8 +252,8 @@ function deletePipeline(ids: string | string[]) {
         return isMap(node) && node.get('pipeline') === id;
       };
 
-      YamlUtils.deleteNodeByPath({ doc, paths }, `pipelines.${id}`, '*');
-      YamlUtils.deleteNodeByValue({ doc, paths }, `trigger_map.*`, isConnectedToPipeline, '*');
+      YmlUtils.deleteByPath(doc, ['pipelines', id]);
+      YmlUtils.deleteByPredicate(doc, ['trigger_map', '*'], isConnectedToPipeline);
     });
 
     return doc;
@@ -281,7 +282,7 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
     getPipelineOrThrowError(pipelineId, doc);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
-    const workflows = YamlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'], true);
+    const workflows = YmlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'], true);
 
     if (workflows.has(workflowId)) {
       throw new Error(`Workflow ${workflowId} already exists in pipeline ${pipelineId}.`);
@@ -301,21 +302,21 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
 }
 
 function removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
 
-    YamlUtils.deleteNodeByPath(
-      { doc, paths },
-      `pipelines.${pipelineId}.workflows.${workflowId}`,
-      `pipelines.${pipelineId}.workflows.${workflowId}`,
+    YmlUtils.deleteByPath(
+      doc,
+      ['pipelines', pipelineId, 'workflows', workflowId],
+      ['pipelines', pipelineId, 'workflows'],
     );
 
-    YamlUtils.deleteNodeByValue(
-      { doc, paths },
-      `pipelines.${pipelineId}.workflows.*.depends_on.*`,
-      workflowId,
-      `pipelines.${pipelineId}.workflows.*.depends_on`,
-    );
+    YmlUtils.deleteByValue(doc, ['pipelines', pipelineId, 'workflows', '*', 'depends_on', '*'], workflowId, [
+      'pipelines',
+      pipelineId,
+      'workflows',
+      '*',
+    ]);
 
     return doc;
   });
@@ -355,7 +356,7 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
-    YamlUtils.getSeqIn(workflow, ['depends_on'], true).add(doc.createNode(dependsOn));
+    YmlUtils.getSeqIn(workflow, ['depends_on'], true).add(doc.createNode(dependsOn));
 
     return doc;
   });

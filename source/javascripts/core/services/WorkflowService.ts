@@ -4,7 +4,7 @@ import { Document, isMap, isSeq } from 'yaml';
 import { Pipelines, Stages, WorkflowModel, Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -146,7 +146,7 @@ function countInPipelines(id: string, pipelines?: Pipelines, stages?: Stages) {
 }
 
 function getWorkflowOrThrowError(id: string, doc: Document) {
-  const workflow = YamlUtils.getMapIn(doc, ['workflows', id]);
+  const workflow = YmlUtils.getMapIn(doc, ['workflows', id]);
 
   if (!workflow) {
     throw new Error(`Workflow ${id} not found. Ensure that the workflow exists in the 'workflows' section.`);
@@ -166,22 +166,23 @@ function createWorkflow(id: string, baseId?: string) {
 }
 
 function renameWorkflow(id: string, newName: string) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     getWorkflowOrThrowError(id, doc);
 
     if (doc.hasIn(['workflows', newName])) {
       throw new Error(`Workflow '${newName}' already exists`);
     }
 
-    YamlUtils.updateKey({ doc, paths }, `workflows.${id}`, newName);
-    YamlUtils.updateKey({ doc, paths }, `stages.*.workflows.*.${id}`, newName);
-    YamlUtils.updateKey({ doc, paths }, `pipelines.*.workflows.${id}`, newName);
-    YamlUtils.updateKey({ doc, paths }, `pipelines.*.stages.*.workflows.*.${id}`, newName);
-    YamlUtils.updateValue({ doc, paths }, 'trigger_map.*.workflow', newName, id);
-    YamlUtils.updateValue({ doc, paths }, 'workflows.*.after_run.*', newName, id);
-    YamlUtils.updateValue({ doc, paths }, 'workflows.*.before_run.*', newName, id);
-    YamlUtils.updateValue({ doc, paths }, 'pipelines.*.workflows.*.uses', newName, id);
-    YamlUtils.updateValue({ doc, paths }, 'pipelines.*.workflows.*.depends_on.*', newName, id);
+    YmlUtils.updateKeyByPath(doc, ['workflows', id], newName);
+    YmlUtils.updateKeyByPath(doc, ['stages', '*', 'workflows', '*', id], newName);
+    YmlUtils.updateKeyByPath(doc, ['pipelines', '*', 'workflows', id], newName);
+    YmlUtils.updateKeyByPath(doc, ['pipelines', '*', 'stages', '*', '*', 'workflows', '*', id], newName);
+    YmlUtils.updateValueByValue(doc, ['trigger_map', '*', 'workflow'], id, newName);
+    YmlUtils.updateValueByValue(doc, ['workflows', '*', 'after_run', '*'], id, newName);
+    YmlUtils.updateValueByValue(doc, ['workflows', '*', 'before_run', '*'], id, newName);
+    YmlUtils.updateValueByValue(doc, ['pipelines', '*', 'workflows', '*', 'uses'], id, newName);
+    YmlUtils.updateValueByValue(doc, ['pipelines', '*', 'workflows', '*', 'depends_on', '*'], id, newName);
+
     return doc;
   });
 }
@@ -193,7 +194,7 @@ function updateWorkflowField<T extends WK>(id: string, field: T, value: WV<T>) {
     const workflow = getWorkflowOrThrowError(id, doc);
 
     if (value) {
-      YamlUtils.unflowCollectionIsEmpty(workflow);
+      YmlUtils.unflowEmptyCollection(workflow);
       workflow.set(field, value);
     } else {
       workflow.delete(field);
@@ -204,75 +205,51 @@ function updateWorkflowField<T extends WK>(id: string, field: T, value: WV<T>) {
 }
 
 function deleteWorkflow(ids: string | string[]) {
-  const isUsesWorkflow = (workflowId: string) => (node: unknown) => {
-    return isMap(node) && node.get('uses') === workflowId;
-  };
-
-  const isTriggerWorkflow = (workflowId: string) => (node: unknown) => {
-    return isMap(node) && node.get('workflow') === workflowId;
-  };
-
-  const isPipelineStageHasNoWorkflows = (stageId: string) => (node: unknown) => {
-    if (!isMap(node)) {
-      return false;
-    }
-
-    const stage = YamlUtils.getMapIn(node, [stageId]);
-    if (!stage) {
-      return false;
-    }
-
-    return isEmpty(stage.get('workflows'));
-  };
-
-  updateBitriseYmlDocument((ctx) => {
+  updateBitriseYmlDocument(({ doc }) => {
     const workflows = Array.isArray(ids) ? [...ids] : [ids];
 
     workflows.forEach((id) => {
-      getWorkflowOrThrowError(id, ctx.doc);
+      getWorkflowOrThrowError(id, doc);
 
-      YamlUtils.deleteNodeByPath(ctx, `workflows.${id}`, `*`);
-      YamlUtils.deleteNodeByPath(ctx, `pipelines.*.workflows.${id}`, `pipelines.*.workflows.*`);
-      YamlUtils.deleteNodeByPath(ctx, `pipelines.*.stages.*.workflows.*.${id}`, `*`);
+      YmlUtils.deleteByPath(doc, ['workflows', id]);
+      YmlUtils.deleteByPath(doc, ['stages', '*', 'workflows', '*', id]);
+      YmlUtils.deleteByPath(doc, ['pipelines', '*', 'stages', '*', '*', 'workflows', '*', id]);
+      YmlUtils.deleteByPath(doc, ['pipelines', '*', 'workflows', id], ['pipelines', '*', 'workflows']);
 
-      YamlUtils.deleteNodeByValue(ctx, `trigger_map.*`, isTriggerWorkflow(id), `*`);
-      YamlUtils.deleteNodeByValue(ctx, `workflows.*.after_run.*`, id, `workflows.*.after_run`);
-      YamlUtils.deleteNodeByValue(ctx, `workflows.*.before_run.*`, id, `workflows.*.before_run`);
+      YmlUtils.deleteByValue(doc, ['workflows', '*', 'after_run', '*'], id, ['workflows', '*']);
+      YmlUtils.deleteByValue(doc, ['workflows', '*', 'before_run', '*'], id, ['workflows', '*']);
+      YmlUtils.deleteByValue(doc, ['pipelines', '*', 'workflows', '*', 'depends_on', '*'], id, [
+        'pipelines',
+        '*',
+        'workflows',
+        '*',
+      ]);
 
-      YamlUtils.deleteNodeByValue(
-        ctx,
-        `pipelines.*.workflows.*.depends_on.*`,
-        id,
-        `pipelines.*.workflows.*.depends_on`,
-      );
-
-      YamlUtils.deleteNodeByPath(ctx, `stages.*.workflows.*.${id}`, `*`, (path) => {
-        if (/^stages\.[^.]+$/.test(YamlUtils.toDotNotation(path))) {
-          const stageId = path[path.length - 1];
-          YamlUtils.deleteNodeByValue(ctx, `pipelines.*.stages.*`, isPipelineStageHasNoWorkflows(stageId), `*`);
-        }
+      YmlUtils.deleteByPredicate(doc, ['trigger_map', '*'], (node) => {
+        return isMap(node) && node.get('workflow') === id;
       });
 
-      YamlUtils.deleteNodeByValue(
-        ctx,
-        `pipelines.*.workflows.*`,
-        isUsesWorkflow(id),
-        `pipelines.*.workflows`,
-        (path) => {
-          if (/^pipelines\.[^.]+\.workflows\.[^.]+$/.test(YamlUtils.toDotNotation(path))) {
-            const dependantWorkflowId = path[path.length - 1];
-            YamlUtils.deleteNodeByValue(
-              ctx,
-              `pipelines.*.workflows.*.depends_on.*`,
-              dependantWorkflowId,
-              `pipelines.*.workflows.*.depends_on`,
-            );
-          }
+      YmlUtils.deleteByPredicate(doc, ['pipelines', '*', 'stages', '*', '*'], (node, path) => {
+        return isMap(node) && isEmpty(node.get('workflows')) && isEmpty(doc.getIn(['stages', path[path.length - 1]]));
+      });
+
+      YmlUtils.deleteByPredicate(
+        doc,
+        ['pipelines', '*', 'workflows', '*'],
+        (node) => isMap(node) && node.get('uses') === id,
+        ['pipelines', '*', 'workflows'],
+        (_, path) => {
+          YmlUtils.deleteByValue(doc, ['pipelines', '*', 'workflows', '*', 'depends_on', '*'], path[path.length - 1], [
+            'pipelines',
+            '*',
+            'workflows',
+            '*',
+          ]);
         },
       );
     });
 
-    return ctx.doc;
+    return doc;
   });
 }
 
@@ -282,10 +259,10 @@ function addChainedWorkflow(prentWorkflowId: string, placement: ChainedWorkflowP
       throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
     }
 
-    getWorkflowOrThrowError(prentWorkflowId, doc);
+    const parentWorkflow = getWorkflowOrThrowError(prentWorkflowId, doc);
     getWorkflowOrThrowError(chainableWorkflowId, doc);
 
-    YamlUtils.getSeqIn(doc, ['workflows', prentWorkflowId, placement], true).add(doc.createNode(chainableWorkflowId));
+    YmlUtils.getSeqIn(parentWorkflow, [placement], true).add(doc.createNode(chainableWorkflowId));
 
     return doc;
   });
@@ -297,30 +274,26 @@ function removeChainedWorkflow(
   chainedWorkflowId: string,
   chainedWorkflowIndex: number,
 ) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     if (placement !== 'before_run' && placement !== 'after_run') {
       throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
     }
 
-    getWorkflowOrThrowError(parentWorkflowId, doc);
+    const workflow = getWorkflowOrThrowError(parentWorkflowId, doc);
 
-    const chainedWorkflows = YamlUtils.getSeqIn(doc, ['workflows', parentWorkflowId, placement]);
+    const chainedWorkflows = YmlUtils.getSeqIn(workflow, [placement]);
     if (!chainedWorkflows || !isSeq(chainedWorkflows)) {
       throw new Error(`Workflow ${parentWorkflowId} does not have a ${placement} workflow chain.`);
     }
 
-    const isChainedWorkflowExists = YamlUtils.isInSeq(chainedWorkflows, chainedWorkflowId, chainedWorkflowIndex);
+    const isChainedWorkflowExists = YmlUtils.isInSeq(chainedWorkflows, [], chainedWorkflowId, chainedWorkflowIndex);
     if (!isChainedWorkflowExists) {
       throw new Error(
         `Workflow ${chainedWorkflowId} is not in the ${placement} workflow chain of ${parentWorkflowId}.`,
       );
     }
 
-    YamlUtils.deleteNodeByPath(
-      { doc, paths },
-      `workflows.${parentWorkflowId}.${placement}.${chainedWorkflowIndex}`,
-      `workflows.*`,
-    );
+    YmlUtils.deleteByPath(workflow, [placement, chainedWorkflowIndex]);
 
     return doc;
   });
@@ -332,30 +305,25 @@ function setChainedWorkflows(workflowId: string, placement: ChainedWorkflowPlace
       throw new Error(`Invalid placement: ${placement}. It should be 'before_run' or 'after_run'.`);
     }
 
-    getWorkflowOrThrowError(workflowId, doc);
-
-    const chainedWorkflowSequence = YamlUtils.getSeqIn(doc, ['workflows', workflowId, placement], true);
+    const workflow = getWorkflowOrThrowError(workflowId, doc);
+    const chainedWorkflows = YmlUtils.getSeqIn(workflow, [placement], true);
 
     chainedWorkflowIds.forEach((chainedWorkflowId, index) => {
       getWorkflowOrThrowError(chainedWorkflowId, doc);
 
-      if (chainedWorkflowSequence.get(index)) {
-        chainedWorkflowSequence.set(index, chainedWorkflowId);
+      if (chainedWorkflows.get(index)) {
+        chainedWorkflows.set(index, chainedWorkflowId);
       } else {
-        chainedWorkflowSequence.add(doc.createNode(chainedWorkflowId));
+        chainedWorkflows.add(doc.createNode(chainedWorkflowId));
       }
     });
 
-    if (chainedWorkflowSequence.items.length > chainedWorkflowIds.length) {
-      chainedWorkflowSequence.items = chainedWorkflowSequence.items.slice(0, chainedWorkflowIds.length);
+    if (chainedWorkflows.items.length > chainedWorkflowIds.length) {
+      chainedWorkflows.items = chainedWorkflows.items.slice(0, chainedWorkflowIds.length);
     }
 
-    if (chainedWorkflowSequence.items.length === 0) {
-      YamlUtils.deleteNodeByPath(
-        { doc, paths: YamlUtils.collectPaths(doc.toJSON()) },
-        `workflows.${workflowId}.${placement}`,
-        `workflows.*.*`,
-      );
+    if (chainedWorkflows.items.length === 0) {
+      YmlUtils.deleteByPath(workflow, [placement]);
     }
 
     return doc;

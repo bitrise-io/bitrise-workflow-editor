@@ -26,6 +26,7 @@ import {
 } from '../models/Trigger.legacy';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 
 function cleanConditionValue(value: string, isRegex: boolean) {
   const trimmed = value.trim();
@@ -184,7 +185,7 @@ function convertToTargetBasedTrigger(trigger: LegacyTrigger): TargetBasedTrigger
 }
 
 function getTriggerMapOrThrowError(doc: Document) {
-  const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map']);
+  const triggerMap = YmlUtils.getSeqIn(doc, ['trigger_map']);
   if (!triggerMap || !isSeq(triggerMap)) {
     throw new Error('trigger_map not found');
   }
@@ -195,7 +196,7 @@ function getTriggerMapOrThrowError(doc: Document) {
 function getTriggerMapItemOrThrowError(doc: Document, index: number) {
   const triggerMap = getTriggerMapOrThrowError(doc);
 
-  const trigger = YamlUtils.getMapIn(triggerMap, [index]);
+  const trigger = YmlUtils.getMapIn(triggerMap, [index]);
   if (!trigger) {
     throw new Error(`Trigger is not found at path trigger_map.${index}`);
   }
@@ -216,7 +217,7 @@ function getTriggerMapItemConditionOrThrowError(doc: Document, index: number, co
 
 function addLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
-    const triggerMap = YamlUtils.getSeqIn(doc, ['trigger_map'], true);
+    const triggerMap = YmlUtils.getSeqIn(doc, ['trigger_map'], true);
     YamlUtils.unflowCollectionIsEmpty(triggerMap);
     triggerMap.add(doc.createNode(toTriggerMapItemModel(trigger)));
     return doc;
@@ -540,7 +541,7 @@ function toTargetBasedItemModel(trigger: TargetBasedTrigger): TargetBasedTrigger
 
 function getSourceOrThrowError(doc: Document, at: { source: TriggerSource; sourceId: string }) {
   const { source, sourceId } = at;
-  const entity = YamlUtils.getMapIn(doc, [source, sourceId]);
+  const entity = YmlUtils.getMapIn(doc, [source, sourceId]);
 
   if (!entity) {
     throw new Error(`${source}.${sourceId} not found`);
@@ -555,7 +556,7 @@ function getTriggerOrThrowError(
 ) {
   const { source, sourceId, triggerType, index } = at;
   const entity = getSourceOrThrowError(doc, { source, sourceId });
-  const trigger = YamlUtils.getMapIn(entity, ['triggers', triggerType, index]);
+  const trigger = YmlUtils.getMapIn(entity, ['triggers', triggerType, index]);
 
   if (!trigger) {
     throw new Error(`Trigger is not found at path ${source}.${sourceId}.triggers.${triggerType}.${index}`);
@@ -592,7 +593,7 @@ function updateEnabled(enabled: boolean, at: { source: TriggerSource; sourceId: 
     }
 
     YamlUtils.unflowCollectionIsEmpty(entity);
-    const triggers = YamlUtils.getMapIn(doc, [source, sourceId, 'triggers'], true);
+    const triggers = YmlUtils.getMapIn(doc, [source, sourceId, 'triggers'], true);
     YamlUtils.unflowCollectionIsEmpty(triggers);
     triggers.set('enabled', false);
 
@@ -606,7 +607,7 @@ function addTrigger(trigger: TargetBasedTrigger) {
     const entity = getSourceOrThrowError(doc, { source, sourceId });
     YamlUtils.unflowCollectionIsEmpty(entity);
 
-    const triggers = YamlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
+    const triggers = YmlUtils.getSeqIn(doc, [source, sourceId, 'triggers', trigger.triggerType], true);
     triggers.add(doc.createNode(toTargetBasedItemModel(trigger)));
 
     return doc;

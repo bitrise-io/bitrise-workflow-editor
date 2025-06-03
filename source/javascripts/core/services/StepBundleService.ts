@@ -13,6 +13,7 @@ import { StepBundleInstance } from '../models/Step';
 import { STEP_BUNDLE_KEYS, StepBundleCreationSource } from '../models/StepBundle';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 
 const STEP_BUNDLE_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -143,7 +144,7 @@ function sanitizeInputKey(key: string) {
 function getCreationSourceOrThrowError(doc: Document, at: { source: StepBundleCreationSource; sourceId: string }) {
   const { source, sourceId } = at;
 
-  const entity = YamlUtils.getMapIn(doc, [source, sourceId]);
+  const entity = YmlUtils.getMapIn(doc, [source, sourceId]);
   if (!entity) {
     throw new Error(`${source}.${sourceId} not found`);
   }
@@ -156,7 +157,7 @@ function getSourceStepOrThrowError(
   at: { source: StepBundleCreationSource; sourceId: string; stepIndex: number },
 ) {
   const source = getCreationSourceOrThrowError(doc, at);
-  const step = YamlUtils.getMapIn(source, ['steps', at.stepIndex]);
+  const step = YmlUtils.getMapIn(source, ['steps', at.stepIndex]);
 
   if (!step) {
     throw new Error(`Step at index ${at.stepIndex} not found in ${at.source}.${at.sourceId}`);
@@ -166,7 +167,7 @@ function getSourceStepOrThrowError(
 }
 
 function getStepBundleOrThrowError(doc: Document, id: string) {
-  const stepBundle = YamlUtils.getMapIn(doc, ['step_bundles', id]);
+  const stepBundle = YmlUtils.getMapIn(doc, ['step_bundles', id]);
   if (!stepBundle) {
     throw new Error(`Step bundle '${id}' not found`);
   }
@@ -174,7 +175,7 @@ function getStepBundleOrThrowError(doc: Document, id: string) {
 }
 
 function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
-  if (YamlUtils.getMapIn(doc, ['step_bundles', id])) {
+  if (YmlUtils.getMapIn(doc, ['step_bundles', id])) {
     throw new Error(`Step bundle '${id}' already exists`);
   }
 }
@@ -182,7 +183,7 @@ function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
 function getStepBundleInputOrThrowError(doc: Document, at: { id: string; index: number }) {
   const stepBundle = getStepBundleOrThrowError(doc, at.id);
 
-  const input = YamlUtils.getMapIn(stepBundle, ['inputs', at.index]);
+  const input = YmlUtils.getMapIn(stepBundle, ['inputs', at.index]);
   if (!input) {
     throw new Error(`Input at index '${at.index}' not found in step bundle '${at.id}'`);
   }
@@ -270,7 +271,7 @@ function groupStepsToStepBundle(
     }
 
     const indices = [...from.steps].sort((a, b) => a - b);
-    const sourceSteps = YamlUtils.getSeqIn(source, ['steps'], true);
+    const sourceSteps = YmlUtils.getSeqIn(source, ['steps'], true);
     const steps = indices.map((index) => {
       const step = getSourceStepOrThrowError(doc, { source: from.source, sourceId: from.sourceId, stepIndex: index });
 
@@ -301,7 +302,7 @@ function groupStepsToStepBundle(
 function addStepBundleInput(id: string, input: EnvironmentItemModel) {
   updateBitriseYmlDocument(({ doc }) => {
     const stepBundle = getStepBundleOrThrowError(doc, id);
-    const inputs = YamlUtils.getSeqIn(stepBundle, ['inputs'], true);
+    const inputs = YmlUtils.getSeqIn(stepBundle, ['inputs'], true);
 
     const key = getStepBundleInputKeyOrThrowError(input);
     if (YamlUtils.getPairInSeqByKey(inputs, key)[0]) {
@@ -318,7 +319,7 @@ function deleteStepBundleInput(id: string, index: number) {
   updateBitriseYmlDocument(({ doc, paths }) => {
     const stepBundle = getStepBundleOrThrowError(doc, id);
 
-    if (!YamlUtils.getMapIn(stepBundle, ['inputs', index])) {
+    if (!YmlUtils.getMapIn(stepBundle, ['inputs', index])) {
       throw new Error(`Input at index '${index}' not found in step bundle '${id}'`);
     }
 
@@ -359,7 +360,7 @@ function updateStepBundleInputOpts(
     return;
   }
 
-  const opts = YamlUtils.getMapIn(input, ['opts'], true);
+  const opts = YmlUtils.getMapIn(input, ['opts'], true);
   const oldKeys = Object.keys(opts.toJSON());
   const newKeys = Object.keys(newOpts);
 
@@ -448,10 +449,10 @@ function updateStepBundleInputInstanceValue(
       throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
     }
 
-    const inputsInInstance = YamlUtils.getSeqIn(step, ['inputs']);
+    const inputsInInstance = YmlUtils.getSeqIn(step, ['inputs']);
     const inputIndexInInstance = inputsInInstance?.items.findIndex((input) => isMap(input) && input.has(key)) ?? -1;
 
-    const inputsInDefaults = YamlUtils.getSeqIn(stepBundle, ['inputs']);
+    const inputsInDefaults = YmlUtils.getSeqIn(stepBundle, ['inputs']);
     const inputIndexInDefaults = inputsInDefaults?.items.findIndex((input) => isMap(input) && input.has(key)) ?? -1;
 
     if (inputIndexInDefaults < 0) {
@@ -464,7 +465,7 @@ function updateStepBundleInputInstanceValue(
 
     if (shouldCreateInstanceInput) {
       const node = ctx.doc.createNode({ [key]: newValue });
-      YamlUtils.getSeqIn(step, ['inputs'], true).add(node);
+      YmlUtils.getSeqIn(step, ['inputs'], true).add(node);
     }
 
     if (shouldUpdateInstanceInput) {

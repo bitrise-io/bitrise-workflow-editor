@@ -5,6 +5,7 @@ import YamlUtils from '@/core/utils/YamlUtils';
 
 import { EnvironmentItemModel } from '../models/BitriseYml';
 import { EnvVar, EnvVarSource } from '../models/EnvVar';
+import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
 const EMPTY_ENV_VAR: EnvVar = {
@@ -139,7 +140,7 @@ function getWorkflowOrThrowError(doc: Document, at: { sourceId?: string }) {
 
 function getSourceOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }) {
   if (at.source === EnvVarSource.App) {
-    const app = YamlUtils.getMapIn(doc, ['app']);
+    const app = YmlUtils.getMapIn(doc, ['app']);
 
     if (!app || !isMap(app)) {
       throw new Error(`The 'app' section is not found`);
@@ -157,7 +158,7 @@ function getSourceOrThrowError(doc: Document, at: { source: EnvVarSource; source
 
 function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }) {
   const source = getSourceOrThrowError(doc, at);
-  const envs = YamlUtils.getSeqIn(source, ['envs']);
+  const envs = YmlUtils.getSeqIn(source, ['envs']);
 
   if (!envs) {
     if (at.source === EnvVarSource.App) {
@@ -171,7 +172,7 @@ function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sou
 
 function getEnvVarOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string; index: number }) {
   const envs = getEnvVarSeqOrThrowError(doc, at);
-  const env = YamlUtils.getMapIn(envs, [at.index]);
+  const env = YmlUtils.getMapIn(envs, [at.index]);
 
   if (!env) {
     if (at.source === EnvVarSource.App) {
@@ -247,7 +248,7 @@ function append(envVar: EnvVar, at: { source: EnvVarSource; sourceId?: string })
     }
 
     const path = getEnvPath(at.source, at.sourceId);
-    const envs = YamlUtils.getSeqIn(doc, path, true);
+    const envs = YmlUtils.getSeqIn(doc, path, true);
     const env = doc.createNode(toYml(envVar));
     envs.add(env);
 

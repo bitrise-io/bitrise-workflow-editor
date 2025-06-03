@@ -7,6 +7,7 @@ import { Meta } from '../models/BitriseYml';
 import { MachineType, MachineTypeOption, Stack, StackOption } from '../models/StackAndMachine';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YamlUtils from '../utils/YamlUtils';
+import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
 type FieldKeys = keyof Required<Meta>['bitrise.io'];
@@ -341,7 +342,7 @@ function updateFieldValue(
   validateSourceId(source, sourceId, doc);
 
   const path = getMetaPath(source, sourceId);
-  const meta = YamlUtils.getMapIn(doc, path, true);
+  const meta = YmlUtils.getMapIn(doc, path, true);
 
   if (value) {
     meta.setIn([field], value);
