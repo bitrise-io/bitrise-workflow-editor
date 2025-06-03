@@ -1,6 +1,6 @@
 import { compact, isString, uniq } from 'es-toolkit';
 import semver from 'semver';
-import { Document, isMap, isScalar, Scalar } from 'yaml';
+import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
@@ -10,9 +10,7 @@ import VersionUtils from '@/core/utils/VersionUtils';
 import { StepBundleOverrideModel, StepListItemModel, StepModel, WithModel } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, LibraryType, Step } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
 import YmlUtils from '../utils/YmlUtils';
-import EnvVarService from './EnvVarService';
 
 type Source = 'workflows' | 'step_bundles';
 
@@ -465,7 +463,7 @@ function deleteStep(source: Source, sourceId: string, indices: number | number[]
 
     indexArray.forEach((index) => {
       getStepOrThrowError(source, sourceId, index, doc);
-      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index], ['steps']);
+      YmlUtils.deleteByPath(doc, [source, sourceId, 'steps', index], [source, sourceId]);
     });
 
     return doc;
@@ -485,7 +483,7 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
     }
 
     if (value) {
-      YamlUtils.unflowCollectionIsEmpty(stepData);
+      YmlUtils.unflowEmptyCollection(stepData);
       stepData.set(field, value);
     } else {
       stepData.delete(field);
@@ -497,15 +495,18 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
 
 function updateStepInput(source: Source, sourceId: string, index: number, input: string, value: unknown) {
   updateBitriseYmlDocument(({ doc }) => {
-    const cvs = (getStepOrThrowError(source, sourceId, index, doc).items[0].key as Scalar).value as string;
-    const inputsSeq = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs'], true);
-    const [inputPair, inputIndex] = YamlUtils.getPairInSeqByKey(inputsSeq, input, true);
+    const step = getStepOrThrowError(source, sourceId, index, doc).items[0].value as YAMLMap;
+    const inputsSeq = YmlUtils.getSeqIn(step, ['inputs'], true);
 
-    const newValue = EnvVarService.toYmlValue(value);
+    const inputIndex = inputsSeq.items.findIndex((item) => isMap(item) && item.has(input));
+
+    const newValue = YmlUtils.toTypedValue(value);
     if (newValue === '') {
-      YamlUtils.safeDeleteIn(doc, [source, sourceId, 'steps', index, cvs, 'inputs', inputIndex], ['inputs']);
-    } else if (isScalar(inputPair.value)) {
-      inputPair.value.value = newValue;
+      YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
+    } else if (inputIndex === -1) {
+      inputsSeq.add(doc.createNode({ [input]: newValue }));
+    } else {
+      YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], newValue);
     }
 
     return doc;

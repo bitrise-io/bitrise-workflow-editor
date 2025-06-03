@@ -13,6 +13,7 @@ import {
   isSeq,
   Node,
   parseDocument,
+  Scalar,
   stringify,
   visit,
   YAMLMap,
@@ -100,8 +101,75 @@ function toJSON(root: Root) {
   return root.toJSON() as BitriseYml;
 }
 
+function toTypedValue(value: unknown) {
+  if (typeof value !== 'string') {
+    // Only strings need conversion here
+    return value;
+  }
+
+  const trimmed = value.trim();
+  const lowerValue = trimmed.toLowerCase();
+
+  // 0. Handle empty string
+  if (trimmed === '') {
+    return '';
+  }
+
+  // 1. Null handling
+  const nullVals = ['null', '~', ''];
+  if (nullVals.includes(lowerValue)) {
+    return null;
+  }
+
+  // 2. Boolean handling
+  const trueVals = ['true'];
+  const falseVals = ['false'];
+  if (trueVals.includes(lowerValue)) {
+    return true;
+  }
+  if (falseVals.includes(lowerValue)) {
+    return false;
+  }
+
+  // 3. Special floats (.inf, -.inf, .nan)
+  if (lowerValue === '.inf') return Infinity;
+  if (lowerValue === '-.inf') return -Infinity;
+  if (lowerValue === '.nan') return NaN;
+
+  // 4. Treat hex/octal/binary as strings
+  // i.e., if starts with 0x, 0o, 0b (case-insensitive), do NOT convert
+  if (/^0[xob]/i.test(lowerValue)) {
+    return value;
+  }
+
+  // 5. Leading zero handling
+  // i.e., if starts with 0 and is not a decimal do NOT convert
+  // "0123" remains a string, but "0.123" becomes a number
+  if (/^0\d+/.test(lowerValue) && !/^0(\.\d+)?$/.test(lowerValue)) {
+    return value;
+  }
+
+  // 6. Number parsing
+  const numberRegex = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+  if (numberRegex.test(lowerValue)) {
+    const number = Number(lowerValue);
+    if (!Number.isNaN(number)) {
+      return number;
+    }
+  }
+
+  // 6. Else return original string unchanged
+  return value;
+}
+
 function isWildcardPath(path: Path) {
   return path.includes('*');
+}
+
+function unflowEmptyCollection(node: unknown) {
+  if (isCollection(node) && node.items.length === 0 && node.flow) {
+    node.flow = false;
+  }
 }
 
 function getIn(root: Root, path: Path, keepScalar = false) {
@@ -136,10 +204,57 @@ function hasIn(root: Root, path: Path) {
   return root.hasIn(path);
 }
 
-function unflowEmptyCollection(node: unknown) {
-  if (isCollection(node) && node.items.length === 0 && node.flow) {
-    node.flow = false;
+function setIn(root: Root, path: Path, value: unknown) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
   }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when setting a value');
+  }
+
+  if (isEmpty(path)) {
+    throw new Error('Path cannot be empty when setting a value');
+  }
+
+  if (!root.hasIn(path)) {
+    let parentPath = path.slice(0, -1);
+
+    while (parentPath.length > 0 && !root.hasIn(parentPath)) {
+      parentPath = parentPath.slice(0, -1);
+    }
+
+    unflowEmptyCollection(getIn(root, parentPath));
+  }
+
+  const typedValue = toTypedValue(value);
+
+  const existingNode = getIn(root, path, true);
+  if (isPrimitive(typedValue)) {
+    let scalar: Scalar = new Scalar(typedValue);
+    scalar.type = Scalar.PLAIN;
+
+    if (isScalar(existingNode)) {
+      scalar = existingNode;
+      scalar.value = typedValue;
+    }
+
+    // If value is number, set the minFractionDigits to the number of digits in the value
+    if (typeof typedValue === 'number' && String(value).includes('.')) {
+      const digits = String(value).split('.')[1].length || 0;
+      scalar.minFractionDigits = digits;
+    } else {
+      scalar.minFractionDigits = 0;
+    }
+
+    root.setIn(path, scalar);
+    return;
+  }
+
+  const flow = isCollection(existingNode) && !isEmpty(toJSON(existingNode)) && existingNode.flow;
+  const newNode = new Document().createNode(typedValue, { flow, aliasDuplicateObjects: false });
+
+  root.setIn(path, newNode);
 }
 
 function collectPaths(root: Root) {
@@ -222,14 +337,7 @@ function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
   }
 
   if (!hasIn(root, path) && createIfNotExists) {
-    let parentPath = path.slice(0, -1);
-
-    while (parentPath.length > 0 && !root.hasIn(parentPath)) {
-      parentPath = parentPath.slice(0, -1);
-    }
-
-    unflowEmptyCollection(getIn(root, parentPath));
-    root.setIn(path, new YAMLSeq());
+    setIn(root, path, new YAMLSeq());
   }
 
   const node = getIn(root, path, true);
@@ -258,14 +366,7 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
   }
 
   if (!root.hasIn(path) && createIfNotExists) {
-    let parentPath = path.slice(0, -1);
-
-    while (parentPath.length > 0 && !root.hasIn(parentPath)) {
-      parentPath = parentPath.slice(0, -1);
-    }
-
-    unflowEmptyCollection(getIn(root, parentPath));
-    root.setIn(path, new YAMLMap());
+    setIn(root, path, new YAMLMap());
   }
 
   const node = getIn(root, path, true);
@@ -286,8 +387,8 @@ function isInSeq(root: Root, path: Path, item: unknown, index?: number) {
     throw new Error('Path cannot contain wildcards when checking if an item is in a YAMLSeq');
   }
 
-  const seq = getSeqIn(root, path);
-  if (!seq) {
+  const seq = getIn(root, path);
+  if (!isSeq(seq)) {
     return false;
   }
 
@@ -419,15 +520,8 @@ function updateValueByPath(root: Root, path: WildcardPath, newValue: unknown, cb
     throw new Error(`Node at path "${path.join('.')}" is not a YAML Node`);
   }
 
-  if (isScalar(oldNode) && isPrimitive(newValue)) {
-    oldNode.value = newValue;
-    return cb?.(oldNode, path);
-  }
-
-  const flow = isCollection(oldNode) && !isEmpty(toJSON(oldNode)) && oldNode.flow;
-  const newNode = new Document().createNode(newValue, { flow, aliasDuplicateObjects: false });
-
-  root.setIn(path, newNode);
+  setIn(root, path, newValue);
+  const newNode = getIn(root, path, true) as Node;
 
   cb?.(newNode, path);
 }
@@ -463,6 +557,7 @@ export default {
   toDoc,
   toYml,
   toJSON,
+  toTypedValue,
   isEquals,
   isEqualValues,
   getSeqIn,

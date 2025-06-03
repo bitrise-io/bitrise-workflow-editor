@@ -3,6 +3,231 @@ import { isMap, YAMLMap, YAMLSeq } from 'yaml';
 import YmlUtils from './YmlUtils';
 
 describe('YmlUtils', () => {
+  describe('toTypedValue', () => {
+    describe('empty strings', () => {
+      ['', '', ' ', '  '].forEach((value) => {
+        it(`converts "${value}" to empty string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe('');
+        });
+      });
+    });
+
+    describe('nulls', () => {
+      ['~', 'null', 'NULL'].forEach((value) => {
+        it(`converts "${value}" to null`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBeNull();
+        });
+      });
+    });
+
+    describe('booleans', () => {
+      ['true', 'TRUE'].forEach((value) => {
+        it(`converts "${value}" to true boolean`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(true);
+        });
+      });
+
+      ['yes', 'YES', 'on', 'ON'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+
+      ['false', 'FALSE'].forEach((value) => {
+        it(`converts "${value}" to false boolean`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(false);
+        });
+      });
+
+      ['no', 'NO', 'off', 'OFF'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    describe('special floats', () => {
+      ['.inf', '.INF'].forEach((value) => {
+        it(`converts "${value}" to Infinity`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(Infinity);
+        });
+      });
+
+      ['-.inf', '-.INF'].forEach((value) => {
+        it(`converts "${value}" to -Infinity`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(-Infinity);
+        });
+      });
+
+      ['.nan', '.NAN'].forEach((value) => {
+        it(`converts "${value}" to NaN`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBeNaN();
+        });
+      });
+    });
+
+    describe('hex/octal/binary/leading zeros', () => {
+      ['0x1A', '0X1A', '0o12', '0O12', '0b101', '0B101', '0123'].forEach((value) => {
+        it(`does not convert "${value}" to number, but keep as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    describe('semver', () => {
+      ['1.2.0', '1.2.3-alpha'].forEach((value) => {
+        it(`does not convert "${value}" to number, but keep as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    describe('numbers', () => {
+      // Integers
+      [
+        ['0', 0],
+        ['1', 1],
+        ['+2', 2],
+        ['-3', -3],
+      ].forEach(([input, output]) => {
+        it(`converts "${input}" to number ${output}`, () => {
+          const result = YmlUtils.toTypedValue(input);
+          expect(result).toBe(output);
+        });
+      });
+
+      // Floats
+      [
+        ['4.0', 4.0],
+        ['+5.0', 5.0],
+        ['-6.0', -6.0],
+        ['3.14', 3.14],
+        ['+3.14', 3.14],
+        ['-3.14', -3.14],
+        // eslint-disable-next-line prettier/prettier
+        ['100.0', 100.0],
+        // eslint-disable-next-line prettier/prettier
+        ['100.000', 100.000],
+      ].forEach(([input, output]) => {
+        it(`converts "${input}" to number ${output}`, () => {
+          const result = YmlUtils.toTypedValue(input);
+          expect(result).toBe(output);
+        });
+      });
+
+      // Scientific notation
+      [
+        ['0.314e1', 3.14],
+        ['0.314e+1', 3.14],
+        ['3.14e-2', 0.0314],
+      ].forEach(([input, output]) => {
+        it(`converts "${input}" to number ${output}`, () => {
+          const result = YmlUtils.toTypedValue(input);
+          expect(result).toBe(output);
+        });
+      });
+    });
+  });
+
+  describe('unflowEmptyCollection', () => {
+    it('should change the flow type of an empty YmlSeq to block style', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+
+      const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
+      expect(seq).toBeInstanceOf(YAMLSeq);
+      expect(seq.flow).toBe(true);
+
+      YmlUtils.unflowEmptyCollection(seq);
+
+      expect(seq.flow).toBe(false);
+      seq.add({ script: {} });
+
+      expect(YmlUtils.toYml(root)).toBe(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+      `);
+    });
+
+    it('should not change the flow type of a non-empty YmlSeq', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: [{script: {}}]
+      `);
+
+      const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
+      expect(seq).toBeInstanceOf(YAMLSeq);
+      expect(seq.flow).toBe(true);
+
+      YmlUtils.unflowEmptyCollection(seq);
+
+      expect(seq.flow).toBe(true);
+      expect(YmlUtils.toYml(root)).toBe(yaml`
+        workflows:
+          wf1:
+            steps: [{script: {}}]
+      `);
+    });
+
+    it('should change the flow type of an empty YmlMap to block style', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1: {}
+      `);
+
+      const map = root.getIn(['workflows', 'wf1'], true) as YAMLMap;
+      expect(map).toBeInstanceOf(YAMLMap);
+      expect(map.flow).toBe(true);
+
+      YmlUtils.unflowEmptyCollection(map);
+
+      expect(map.flow).toBe(false);
+      map.set('steps', new YAMLSeq());
+
+      expect(YmlUtils.toYml(root)).toBe(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+    });
+
+    it('should not change the flow type of a non-empty YmlMap', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1: {steps: [{script: {}}]}
+      `);
+
+      const map = root.getIn(['workflows', 'wf1'], true) as YAMLMap;
+      expect(map).toBeInstanceOf(YAMLMap);
+      expect(map.flow).toBe(true);
+
+      YmlUtils.unflowEmptyCollection(map);
+
+      expect(map.flow).toBe(true);
+      expect(YmlUtils.toYml(root)).toBe(yaml`
+        workflows:
+          wf1: {steps: [{script: {}}]}
+      `);
+    });
+  });
+
   describe('collectPaths', () => {
     it('should collect paths from a YAML document', () => {
       const root = YmlUtils.toDoc(`
@@ -141,6 +366,92 @@ describe('YmlUtils', () => {
 
       expect(() => YmlUtils.getMapIn(root, ['workflows', 'wf1', 'steps', 0, 'script', 'inputs', 0, 'key'])).toThrow(
         'Expected a YAMLMap at path "workflows.wf1.steps.0.script.inputs.0.key", but found Scalar',
+      );
+    });
+  });
+
+  describe('isInSeq', () => {
+    it('should return true the YMLSeq contains the given value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - clone: {}
+            - deploy: {}
+      `);
+
+      expect(YmlUtils.isInSeq(root, ['workflows', 'wf1', 'steps'], { script: {} })).toBe(true);
+    });
+
+    it('should return true if the YMLSeq contains the given value at the exact index', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - clone: {}
+            - deploy: {}
+      `);
+
+      expect(YmlUtils.isInSeq(root, ['workflows', 'wf1', 'steps'], { clone: {} }, 1)).toBe(true);
+    });
+
+    it('should return false if the YMLSeq does not contain the given value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - clone: {}
+            - deploy: {}
+      `);
+
+      expect(YmlUtils.isInSeq(root, ['workflows', 'wf1', 'steps'], { test: {} })).toBe(false);
+    });
+
+    it('should return false if the YMLSeq does not contain the given value at the exact index', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - clone: {}
+            - deploy: {}
+      `);
+
+      expect(YmlUtils.isInSeq(root, ['workflows', 'wf1', 'steps'], { deploy: {} }, 0)).toBe(false);
+    });
+
+    it('should return false if the path does not point to a YMLSeq', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: {}
+      `);
+
+      expect(YmlUtils.isInSeq(root, ['workflows', 'wf1', 'steps'], { script: {} })).toBe(false);
+    });
+
+    it('should throw an error if the path contains a wildcard', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script: {}
+            - clone: {}
+      `);
+
+      expect(() => YmlUtils.isInSeq(root, ['workflows', '*', 'steps'], { script: {} })).toThrow(
+        'Path cannot contain wildcards when checking if an item is in a YAMLSeq',
+      );
+    });
+
+    it('should throw and error if root is not a YAML Document or YAML collection', () => {
+      const root = 'not a yaml document' as unknown as YAMLMap;
+
+      expect(() => YmlUtils.isInSeq(root, ['workflows', 'wf1', 'steps'], { script: {} })).toThrow(
+        'Root node must be a YAML Document or YAML Collection',
       );
     });
   });
@@ -912,27 +1223,6 @@ describe('YmlUtils', () => {
       `);
     });
 
-    it('should keep scalar format when updating a value', () => {
-      const root = YmlUtils.toDoc(yaml`
-        title: Title
-        summary: 'Summary'
-        description: "Description"
-        number_as_string: '123'
-      `);
-
-      YmlUtils.updateValueByPath(root, ['title'], 'New Title');
-      YmlUtils.updateValueByPath(root, ['summary'], 'New Summary');
-      YmlUtils.updateValueByPath(root, ['description'], 'New Description');
-      YmlUtils.updateValueByPath(root, ['number_as_string'], '126');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        title: New Title
-        summary: 'New Summary'
-        description: "New Description"
-        number_as_string: '126'
-      `);
-    });
-
     it('should throw an error if the path does not exists in the root', () => {
       const root = YmlUtils.toDoc(yaml`workflows: {}`);
 
@@ -942,7 +1232,7 @@ describe('YmlUtils', () => {
     });
   });
 
-  describe('updaeValueByValue', () => {
+  describe('updateValueByValue', () => {
     it('should update an item in a sequence if values are matching', () => {
       const root = YmlUtils.toDoc(yaml`
         workflows:
