@@ -610,6 +610,27 @@ describe('PipelineService', () => {
         'Pipeline another_pipeline already exists',
       );
     });
+
+    it('should be able to rename a newly created pipeline', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        pipelines:
+          pl1:
+            workflows: {}
+      `);
+
+      PipelineService.createPipeline('new_pipeline');
+      PipelineService.renamePipeline('new_pipeline', 'renamed_pipeline');
+
+      const expectedYml = yaml`
+        pipelines:
+          pl1:
+            workflows: {}
+          renamed_pipeline:
+            workflows: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
   });
 
   describe('deletePipeline', () => {

@@ -820,6 +820,24 @@ describe('WorkflowService', () => {
 
       expect(() => WorkflowService.renameWorkflow('wf1', 'wf2')).toThrow("Workflow 'wf2' already exists");
     });
+
+    it('should be able to rename a newly created workflow', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          wf1: {}
+      `);
+
+      WorkflowService.createWorkflow('new-workflow');
+      WorkflowService.renameWorkflow('new-workflow', 'renamed-workflow');
+
+      const expectedYml = yaml`
+        workflows:
+          wf1: {}
+          renamed-workflow: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
   });
 
   describe('updateWorkflowField', () => {

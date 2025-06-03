@@ -5,7 +5,6 @@ import { Document, isMap } from 'yaml';
 import { BitriseYml, GraphPipelineWorkflowModel, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
 import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
-import YamlUtils from '../utils/YamlUtils';
 import YmlUtils from '../utils/YmlUtils';
 import StepService from './StepService';
 import WorkflowService from './WorkflowService';
@@ -226,15 +225,16 @@ function createPipeline(id: string, baseId?: string) {
 }
 
 function renamePipeline(id: string, newName: string) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     getPipelineOrThrowError(id, doc);
 
     if (YmlUtils.getMapIn(doc, ['pipelines', newName])) {
       throw new Error(`Pipeline ${newName} already exists`);
     }
 
-    YamlUtils.updateKey({ doc, paths }, `pipelines.${id}`, newName);
-    YamlUtils.updateValue({ doc, paths }, `trigger_map.*.pipeline`, newName, id);
+    YmlUtils.updateKeyByPath(doc, ['pipelines', id], newName);
+    YmlUtils.updateValueByValue(doc, ['trigger_map', '*', 'pipeline'], id, newName);
+
     return doc;
   });
 }
@@ -267,7 +267,7 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
     const pipeline = getPipelineOrThrowError(id, doc);
 
     if (value) {
-      YamlUtils.unflowCollectionIsEmpty(pipeline);
+      YmlUtils.unflowEmptyCollection(pipeline);
       pipeline.set(field, value);
     } else {
       pipeline.delete(field);
@@ -288,7 +288,7 @@ function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn
       throw new Error(`Workflow ${workflowId} already exists in pipeline ${pipelineId}.`);
     }
 
-    YamlUtils.unflowCollectionIsEmpty(workflows);
+    YmlUtils.unflowEmptyCollection(workflows);
 
     if (dependsOn) {
       getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
@@ -325,18 +325,14 @@ function removeWorkflowFromPipeline(pipelineId: string, workflowId: string) {
 type PWK = Paths<GraphPipelineWorkflowModel>;
 type PVV<T extends PWK> = Get<GraphPipelineWorkflowModel, T>;
 function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflowId: string, field: T, value: PVV<T>) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
 
     if (value) {
-      YamlUtils.unflowCollectionIsEmpty(workflow);
+      YmlUtils.unflowEmptyCollection(workflow);
       workflow.setIn(field.split('.'), value);
     } else {
-      YamlUtils.deleteNodeByPath(
-        { doc, paths },
-        `pipelines.${pipelineId}.workflows.${workflowId}.${field}`,
-        `pipelines.${pipelineId}.workflows.${workflowId}.*`,
-      );
+      YmlUtils.deleteByPath(workflow, field.split('.'));
     }
 
     return doc;
@@ -352,7 +348,7 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
     const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
     getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
 
-    if (YamlUtils.isInSeq(workflow.get('depends_on'), dependsOn)) {
+    if (YmlUtils.isInSeq(workflow, ['depends_on'], dependsOn)) {
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
@@ -363,20 +359,15 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
 }
 
 function removePipelineWorkflowDependency(pipelineId: string, workflowId: string, dependsOn: string) {
-  updateBitriseYmlDocument(({ doc, paths }) => {
+  updateBitriseYmlDocument(({ doc }) => {
     const workflow = getPipelineWorkflowOrThrowError(pipelineId, workflowId, doc);
     getPipelineWorkflowOrThrowError(pipelineId, dependsOn, doc);
 
-    if (!YamlUtils.isInSeq(workflow.get('depends_on'), dependsOn)) {
+    if (!YmlUtils.isInSeq(workflow, ['depends_on'], dependsOn)) {
       throw new Error(`Workflow ${workflowId} does not depend on ${dependsOn}.`);
     }
 
-    YamlUtils.deleteNodeByValue(
-      { doc, paths },
-      `pipelines.${pipelineId}.workflows.${workflowId}.depends_on.*`,
-      dependsOn,
-      `pipelines.${pipelineId}.workflows.${workflowId}.depends_on`,
-    );
+    YmlUtils.deleteByValue(workflow, ['depends_on', '*'], dependsOn);
 
     return doc;
   });
