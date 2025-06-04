@@ -204,6 +204,40 @@ function hasIn(root: Root, path: Path) {
   return root.hasIn(path);
 }
 
+function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when adding a value');
+  }
+
+  const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
+
+  const node = getIn(root, path, true);
+  unflowEmptyCollection(node);
+
+  if (isPrimitive(valueToWrite)) {
+    const scalar = new Scalar(valueToWrite);
+    scalar.type = Scalar.PLAIN;
+
+    // If value is number, set the minFractionDigits to the number of digits in the value
+    if (typeof valueToWrite === 'number' && String(value).includes('.')) {
+      const digits = String(value).split('.')[1].length || 0;
+      scalar.minFractionDigits = digits;
+    } else {
+      scalar.minFractionDigits = 0;
+    }
+
+    root.addIn(path, scalar);
+    return;
+  }
+
+  const newNode = new Document(valueToWrite, { flow: false, stringKeys: true, aliasDuplicateObjects: false }).contents;
+  root.addIn(path, newNode);
+}
+
 function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
@@ -227,20 +261,20 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
     unflowEmptyCollection(getIn(root, parentPath));
   }
 
-  const typedValue = stringToTypedValue ? toTypedValue(value) : value;
+  const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
 
   const existingNode = getIn(root, path, true);
-  if (isPrimitive(typedValue)) {
-    let scalar: Scalar = new Scalar(typedValue);
+  if (isPrimitive(valueToWrite)) {
+    let scalar: Scalar = new Scalar(valueToWrite);
     scalar.type = Scalar.PLAIN;
 
     if (isScalar(existingNode)) {
       scalar = existingNode;
-      scalar.value = typedValue;
+      scalar.value = valueToWrite;
     }
 
     // If value is number, set the minFractionDigits to the number of digits in the value
-    if (typeof typedValue === 'number' && String(value).includes('.')) {
+    if (typeof valueToWrite === 'number' && String(value).includes('.')) {
       const digits = String(value).split('.')[1].length || 0;
       scalar.minFractionDigits = digits;
     } else {
@@ -252,7 +286,7 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
   }
 
   const flow = isCollection(existingNode) && !isEmpty(toJSON(existingNode)) && existingNode.flow;
-  const newNode = new Document().createNode(typedValue, { flow, aliasDuplicateObjects: false });
+  const newNode = new Document(valueToWrite, { flow, aliasDuplicateObjects: false, stringKeys: true }).contents;
 
   root.setIn(path, newNode);
 }
@@ -560,6 +594,7 @@ export default {
   toTypedValue,
   isEquals,
   isEqualValues,
+  addIn,
   setIn,
   getSeqIn,
   getMapIn,

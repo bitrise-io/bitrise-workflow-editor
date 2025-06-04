@@ -502,8 +502,7 @@ function updateStepInput(source: Source, sourceId: string, index: number, input:
     if (newValue === '') {
       YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
     } else if (inputIndex === -1) {
-      YmlUtils.unflowEmptyCollection(inputsSeq);
-      inputsSeq.add(doc.createNode({ [input]: newValue }));
+      YmlUtils.addIn(inputsSeq, [], { [input]: newValue });
     } else {
       YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], newValue);
     }

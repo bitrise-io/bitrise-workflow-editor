@@ -309,8 +309,7 @@ function addStepBundleInput(id: string, input: EnvironmentItemModel) {
       throw new Error(`Input '${key}' already exists in step bundle '${id}'`);
     }
 
-    YmlUtils.unflowEmptyCollection(inputs);
-    inputs.add(doc.createNode(sanitizeInputOpts(input)));
+    YmlUtils.addIn(inputs, [], sanitizeInputOpts(input));
 
     return doc;
   });
@@ -464,8 +463,7 @@ function updateStepBundleInputInstanceValue(
 
     if (shouldCreateInstanceInput) {
       const inputs = YmlUtils.getSeqIn(step, ['inputs'], true);
-      YmlUtils.unflowEmptyCollection(inputs);
-      inputs.add(doc.createNode({ [key]: newValue }));
+      YmlUtils.addIn(inputs, [], { [key]: newValue });
     }
 
     if (shouldUpdateInstanceInput) {
