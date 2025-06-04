@@ -284,15 +284,12 @@ function groupStepsToStepBundle(
     });
 
     const cvs = idToCvs(id);
-    const stepBundle = doc.createNode({ steps }) as YAMLMap;
-    doc.addIn(['step_bundles', id], stepBundle);
-
-    // TODO: This is not working when it refactored to YmlUtils.setIn
-    sourceSteps.set(indices[0], doc.createNode({ [cvs]: {} }));
+    YmlUtils.addIn(doc, ['step_bundles', id], { steps });
+    YmlUtils.setIn(sourceSteps, [indices[0]], { [cvs]: {} });
 
     const reverseIndices = indices.slice(1).reverse();
     reverseIndices.forEach((index) => {
-      sourceSteps.delete(index);
+      YmlUtils.deleteByPath(sourceSteps, [index]);
     });
 
     return doc;
