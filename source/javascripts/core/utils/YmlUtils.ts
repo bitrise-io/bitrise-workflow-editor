@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { isEqual, isNil, isPlainObject, isPrimitive } from 'es-toolkit';
+import { isEqual, isNil, isPrimitive } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import {
   Document,
@@ -276,51 +276,21 @@ function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
     throw new Error('Path cannot contain wildcards when adding a value');
   }
 
-  if (isSeq(root) && !isEmpty(path)) {
-    const index = Number(path[0]);
-    if (!Number.isInteger(index) || index < 0) {
-      throw new Error('Path must start with an index for YAMLSeq');
-    }
+  const existingNode = getIn(root, path);
+
+  if (existingNode && !isSeq(existingNode)) {
+    throw new Error(
+      `Path should reference a YAMLSeq, but found ${existingNode.constructor.name} at path "${path.join('.')}"`,
+    );
   }
 
-  const existingNode = getIn(root, path);
   const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
 
-  if (existingNode === null) {
-    throw new Error(`Cannot add value at path "${path.join('.')}" because it is null`);
+  if (isSeq(existingNode)) {
+    setIn(root, [...path, existingNode.items.length], valueToWrite, stringToTypedValue);
+  } else {
+    setIn(root, [...path, 0], valueToWrite, stringToTypedValue);
   }
-
-  if (!existingNode) {
-    setIn(root, path, valueToWrite, stringToTypedValue);
-    return;
-  }
-
-  unflowEmptyCollection(existingNode);
-
-  if (isPrimitive(valueToWrite)) {
-    const scalar = new Scalar(valueToWrite);
-    scalar.type = Scalar.PLAIN;
-
-    // If value is number, set the minFractionDigits to the number of digits in the value
-    if (typeof valueToWrite === 'number' && String(value).includes('.')) {
-      const digits = String(value).split('.')[1].length || 0;
-      scalar.minFractionDigits = digits;
-    } else {
-      scalar.minFractionDigits = 0;
-    }
-
-    root.addIn(path, scalar);
-    return;
-  }
-
-  if (isMap(existingNode) && isPlainObject(valueToWrite)) {
-    Object.entries(valueToWrite).forEach(([key, val]) => {
-      root.addIn(path, { key, value: toNode(val, existingNode) });
-    });
-    return;
-  }
-
-  root.addIn(path, toNode(valueToWrite));
 }
 
 function collectPaths(root: Root) {

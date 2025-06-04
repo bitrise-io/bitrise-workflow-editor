@@ -573,233 +573,109 @@ describe('YmlUtils', () => {
   });
 
   describe('addIn', () => {
-    describe('YAMLSeq', () => {
-      it('should add a value to the end of an existing YMLSeq', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-
-        const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
-        YmlUtils.addIn(seq, [], { clone: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-              - clone: {}
-        `);
-      });
-
-      it('should add a value at a given index to an existing YMLSeq', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-
-        const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
-        YmlUtils.addIn(seq, [1], { clone: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-              - clone: {}
-        `);
-      });
-
-      it('should add a value at a given index and create intermediate indices in an existing YMLSeq', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-
-        const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
-        YmlUtils.addIn(seq, [2], { deploy: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-              - null
-              - deploy: {}
-        `);
-      });
-
-      it('should add a value to an empty YMLSeq', () => {
-        const root = YmlUtils.toDoc(yaml`
+    it('should unflow an empty YMLSeq when adding a value', () => {
+      const root = YmlUtils.toDoc(yaml`
           workflows:
             wf1:
               steps: []
         `);
 
-        const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
-        YmlUtils.addIn(seq, [], { script: {} });
+      YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} });
 
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
           workflows:
             wf1:
               steps:
               - script: {}
         `);
-      });
+    });
 
-      it('should add a value to a null if path points to a sequence index', () => {
-        const root = YmlUtils.toDoc(yaml`
+    it('should add a value to the end of an existing YMLSeq', () => {
+      const root = YmlUtils.toDoc(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script: {}
+        `);
+
+      YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { clone: {} });
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script: {}
+              - clone: {}
+        `);
+    });
+
+    it('should add multiple values to an existing YMLSeq', () => {
+      const root = YmlUtils.toDoc(yaml`
+          workflows:
+            wf1:
+              steps: []
+        `);
+
+      YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} });
+      YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { clone: {} });
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script: {}
+              - clone: {}
+        `);
+    });
+
+    it('should create a sequence from a null node and add a value to it', () => {
+      const root = YmlUtils.toDoc(yaml`
           workflows:
             wf1:
               steps: null
         `);
 
-        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps', 0], { script: {} });
+      YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} });
 
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
           workflows:
             wf1:
               steps:
               - script: {}
         `);
-      });
-
-      it("should throw and error if path doesn't start with an index", () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps: []
-        `);
-
-        const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
-        expect(() => YmlUtils.addIn(seq, ['script'], {})).toThrow('Path must start with an index for YAMLSeq');
-      });
-
-      it('should add a value to the end of a YMLSeq at a specified path', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps: []
-        `);
-
-        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-      });
-
-      it('should add a value at a given index to a YMLSeq at a specified path', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-
-        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps', 1], { clone: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-              - clone: {}
-        `);
-      });
-
-      it('should add a value at a given index and create intermediate indices to a YMLSeq at a specified path', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-
-        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps', 2], { deploy: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-              - null
-              - deploy: {}
-        `);
-      });
-
-      it('should create a new YMLSeq if it does not exist at the specified path', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows: {}
-        `);
-
-        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps', 0], { script: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1:
-              steps:
-              - script: {}
-        `);
-      });
     });
 
-    describe('YAMLMap', () => {
-      it('should add a value to an existing YMLMap at the specified path', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1: {}
-        `);
-
-        YmlUtils.addIn(root, ['workflows'], { wf2: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1: {}
-            wf2: {}
-        `);
-      });
-
-      it('should add multiple values to an existing YMLMap at the specified path', () => {
-        const root = YmlUtils.toDoc(yaml`
-          workflows:
-            wf1: {}
-        `);
-
-        YmlUtils.addIn(root, ['workflows'], { wf2: {}, wf3: {} });
-
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
-          workflows:
-            wf1: {}
-            wf2: {}
-            wf3: {}
-        `);
-      });
-
-      it('should unflow an empty YAMLMap when adding a value', () => {
-        const root = YmlUtils.toDoc(yaml`
+    it("should create a sequence if it doesn't exist and add a value to it", () => {
+      const root = YmlUtils.toDoc(yaml`
           workflows: {}
         `);
 
-        YmlUtils.addIn(root, ['workflows'], { wf1: {}, wf2: {} });
-        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], []);
+      YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} });
 
-        expect(YmlUtils.toYml(root)).toEqual(yaml`
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script: {}
+        `);
+    });
+
+    it('should add a value to the root node if path is empty and root node is a YMLSeq', () => {
+      const root = YmlUtils.toDoc(yaml`
           workflows:
             wf1:
               steps: []
-            wf2: {}
         `);
-      });
+
+      const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
+      YmlUtils.addIn(seq, [], { script: {} });
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script: {}
+        `);
     });
 
     it('should throw and error if the root is not a YAML Document or YAML collection', () => {
@@ -822,16 +698,13 @@ describe('YmlUtils', () => {
       );
     });
 
-    it('should throws an error if the path points to a null', () => {
+    it("should throw and error if path doesn't point to a YMLSeq", () => {
       const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            steps: null
-      `);
+          workflows:
+            wf1: {}
+        `);
 
-      expect(() => YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} })).toThrow(
-        'Cannot add value at path "workflows.wf1.steps" because it is null',
-      );
+      expect(() => YmlUtils.addIn(root, ['workflows', 'wf1'], {})).toThrow('Path should reference a YAMLSeq');
     });
   });
 
