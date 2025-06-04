@@ -44,11 +44,18 @@ function isSelfHostedStack(stack: Stack) {
 }
 
 function getOsOfStack(stack: Stack): string {
-  const absolutelyNotAnAPI = stack.id.split('-')[0];
-  if (absolutelyNotAnAPI === 'ubuntu') {
-    return 'linux';
+  switch (stack.os) {
+    case 'macos':
+      // This is a workaround to keep it compatible with other data structures returned by the API.
+      // The `stacks_and_machines` endpoint returns machine types grouped by OS, but it uses `osx` as the key for macOS at the moment.
+      // It should be cleaned up once the API response uses `macos` everywhere.
+      return 'osx';
+    case 'linux':
+      return 'linux';
+    default:
+      // Fallback to the first part of the stack ID
+      return stack.id.split('-')[0];
   }
-  return absolutelyNotAnAPI;
 }
 
 function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType[] {
@@ -94,6 +101,7 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
     status: 'unknown',
     description: '',
     machineTypes: [],
+    os: 'unknown',
   };
 
   return toMerged(base, override || {}) as StackWithValue;

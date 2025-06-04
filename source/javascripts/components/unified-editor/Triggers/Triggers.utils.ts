@@ -75,6 +75,9 @@ export const getConditionList = (trigger: TargetBasedTriggerItem) => {
 
       if (key === 'changed_files' || key === 'commit_message') {
         condition.value = isRegex ? (trigger[key] as any).regex : (trigger[key] as any).pattern;
+        if (!condition.value && typeof trigger[key] === 'string') {
+          condition.value = trigger[key];
+        }
         if ((trigger[key] as any).last_commit) {
           condition.isLastCommitOnly = true;
         }

@@ -16,7 +16,7 @@ const usePipelineStages = (): Stage[] => {
       const stageId = Object.keys(pipelineStageObj)[0];
       const stage = Object.values(pipelineStageObj)[0];
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { abort_on_fail, should_always_run } = stage;
+      const { abort_on_fail, should_always_run } = stage || {};
 
       return {
         id: stageId,

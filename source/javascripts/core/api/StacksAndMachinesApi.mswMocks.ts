@@ -19,6 +19,7 @@ export const getStacksAndMachines = (options?: Options) => {
         description?: string;
         available_machines?: string[];
         rollback_version?: any;
+        os?: string;
       }
     > = {
       'osx-xcode-16.1.x-edge': {
@@ -40,6 +41,7 @@ export const getStacksAndMachines = (options?: Options) => {
           options?.privateCloud === 'no-machines'
             ? []
             : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
+        os: 'macos',
       },
       'osx-xcode-16.0.x': {
         title: 'Xcode 16.0.x',
@@ -74,6 +76,7 @@ export const getStacksAndMachines = (options?: Options) => {
             paying: '2-82-0',
           },
         },
+        os: 'macos',
       },
       'osx-xcode-14.3.x': {
         title: 'Xcode 14.3.x',
@@ -109,6 +112,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 'machine-x',
                 'machine-z1',
               ],
+        os: 'linux',
       },
       'ubuntu-noble-24.04-bitrise-2025': {
         title: 'Ubuntu Noble - 2025 Edition',
@@ -128,6 +132,7 @@ export const getStacksAndMachines = (options?: Options) => {
           options?.privateCloud === 'no-machines'
             ? []
             : ['m2.medium', 'm2.large', 'm2.x-large', 'amd.medium', 'amd.large', 'amd.x-large'],
+        os: 'unknown',
       },
     };
 

@@ -8,6 +8,7 @@ export type Stack = {
   descriptionUrl?: string;
   machineTypes: string[];
   rollbackVersion?: Record<string, { free?: string; paying?: string }>;
+  os: 'macos' | 'linux' | 'unknown';
 };
 
 export type StackOption = {
