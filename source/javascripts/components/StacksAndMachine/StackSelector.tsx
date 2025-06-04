@@ -1,4 +1,4 @@
-import { Box, Checkbox, Icon, Link, Select, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Checkbox, Dropdown, DropdownGroup, DropdownOption, Icon, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { useMemo } from 'react';
 
 import { StackOption } from '@/core/models/StackAndMachine';
@@ -60,25 +60,26 @@ const StackSelector = ({
 
   return (
     <Box flex="1">
-      <Select
-        isRequired
+      <Dropdown
+        required
+        search={false}
         label="Stack"
-        isLoading={isLoading}
-        value={stack.value}
-        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
+        disabled={isLoading}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
-        onChange={(e) => onChange(e.target.value)}
+        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
+        value={stack.value}
+        onChange={(e) => onChange(e.target.value ?? '')}
       >
         {groups.map((group) => (
-          <optgroup key={group.status} label={group.label}>
+          <DropdownGroup key={group.status} label={group.label}>
             {group.options.map(({ value, label }) => (
-              <option key={value} value={value}>
+              <DropdownOption key={value} value={value}>
                 {label}
-              </option>
+              </DropdownOption>
             ))}
-          </optgroup>
+          </DropdownGroup>
         ))}
-      </Select>
+      </Dropdown>
       <Checkbox
         isDisabled={!isRollbackVersionAvailable}
         isChecked={isRollbackVersionAvailable && useRollbackVersion}

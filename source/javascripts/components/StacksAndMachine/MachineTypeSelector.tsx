@@ -94,8 +94,8 @@ const MachineTypeSelector = ({
       disabled={isLoading || isDisabled}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
       helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
-      onChange={(e) => onChange(e.target.value as string)}
       value={machineType.value}
+      onChange={(e) => onChange(e.target.value ?? '')}
     >
       {!hasPromotion ? (
         renderOptions(availableOptions)
