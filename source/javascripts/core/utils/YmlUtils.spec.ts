@@ -653,6 +653,23 @@ describe('YmlUtils', () => {
         `);
       });
 
+      it('should add a value to a null if path points to a sequence index', () => {
+        const root = YmlUtils.toDoc(yaml`
+          workflows:
+            wf1:
+              steps: null
+        `);
+
+        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps', 0], { script: {} });
+
+        expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script: {}
+        `);
+      });
+
       it("should throw and error if path doesn't start with an index", () => {
         const root = YmlUtils.toDoc(yaml`
           workflows:
@@ -661,7 +678,7 @@ describe('YmlUtils', () => {
         `);
 
         const seq = root.getIn(['workflows', 'wf1', 'steps'], true) as YAMLSeq;
-        expect(YmlUtils.addIn(seq, ['script'], {})).toThrow('Path must start with an index for YAMLSeq');
+        expect(() => YmlUtils.addIn(seq, ['script'], {})).toThrow('Path must start with an index for YAMLSeq');
       });
 
       it('should add a value to the end of a YMLSeq at a specified path', () => {
@@ -736,7 +753,56 @@ describe('YmlUtils', () => {
       });
     });
 
-    it('should throw and erro if the root is not a YAML Document or YAML collection', () => {
+    describe('YAMLMap', () => {
+      it('should add a value to an existing YMLMap at the specified path', () => {
+        const root = YmlUtils.toDoc(yaml`
+          workflows:
+            wf1: {}
+        `);
+
+        YmlUtils.addIn(root, ['workflows'], { wf2: {} });
+
+        expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+        `);
+      });
+
+      it('should add multiple values to an existing YMLMap at the specified path', () => {
+        const root = YmlUtils.toDoc(yaml`
+          workflows:
+            wf1: {}
+        `);
+
+        YmlUtils.addIn(root, ['workflows'], { wf2: {}, wf3: {} });
+
+        expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1: {}
+            wf2: {}
+            wf3: {}
+        `);
+      });
+
+      it('should unflow an empty YAMLMap when adding a value', () => {
+        const root = YmlUtils.toDoc(yaml`
+          workflows: {}
+        `);
+
+        YmlUtils.addIn(root, ['workflows'], { wf1: {}, wf2: {} });
+        YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], []);
+
+        expect(YmlUtils.toYml(root)).toEqual(yaml`
+          workflows:
+            wf1:
+              steps: []
+            wf2: {}
+        `);
+      });
+    });
+
+    it('should throw and error if the root is not a YAML Document or YAML collection', () => {
       const root = 'not a yaml document' as unknown as YAMLMap;
 
       expect(() => YmlUtils.addIn(root, ['workflows', 'wf1', 'steps', 0, 'script'], {})).toThrow(
@@ -753,6 +819,18 @@ describe('YmlUtils', () => {
 
       expect(() => YmlUtils.addIn(root, ['workflows', '*', 'steps', 0, 'script'], {})).toThrow(
         'Path cannot contain wildcards when adding a value',
+      );
+    });
+
+    it('should throws an error if the path points to a null', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps: null
+      `);
+
+      expect(() => YmlUtils.addIn(root, ['workflows', 'wf1', 'steps'], { script: {} })).toThrow(
+        'Cannot add value at path "workflows.wf1.steps" because it is null',
       );
     });
   });
