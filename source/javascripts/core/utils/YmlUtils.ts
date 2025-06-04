@@ -204,40 +204,6 @@ function hasIn(root: Root, path: Path) {
   return root.hasIn(path);
 }
 
-function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
-  if (!isDocument(root) && !isCollection(root)) {
-    throw new Error('Root node must be a YAML Document or YAML Collection');
-  }
-
-  if (isWildcardPath(path)) {
-    throw new Error('Path cannot contain wildcards when adding a value');
-  }
-
-  const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
-
-  const node = getIn(root, path, true);
-  unflowEmptyCollection(node);
-
-  if (isPrimitive(valueToWrite)) {
-    const scalar = new Scalar(valueToWrite);
-    scalar.type = Scalar.PLAIN;
-
-    // If value is number, set the minFractionDigits to the number of digits in the value
-    if (typeof valueToWrite === 'number' && String(value).includes('.')) {
-      const digits = String(value).split('.')[1].length || 0;
-      scalar.minFractionDigits = digits;
-    } else {
-      scalar.minFractionDigits = 0;
-    }
-
-    root.addIn(path, scalar);
-    return;
-  }
-
-  const newNode = new Document(valueToWrite, { flow: false, stringKeys: true, aliasDuplicateObjects: false }).contents;
-  root.addIn(path, newNode);
-}
-
 function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
@@ -256,6 +222,18 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
 
     while (parentPath.length > 0 && !root.hasIn(parentPath)) {
       parentPath = parentPath.slice(0, -1);
+    }
+
+    if (root.getIn(parentPath) === null) {
+      const asIndex = Number(path[path.length - 1]);
+
+      if (Number.isInteger(asIndex) && asIndex >= 0) {
+        // If the parent is null, we need to create a YAMLSeq
+        root.setIn(parentPath, new YAMLSeq());
+      } else {
+        // Otherwise, we create a YAMLMap
+        root.setIn(parentPath, new YAMLMap());
+      }
     }
 
     unflowEmptyCollection(getIn(root, parentPath));
@@ -290,6 +268,67 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
 
   root.setIn(path, newNode);
 }
+
+function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
+  if (!isDocument(root) && !isCollection(root)) {
+    throw new Error('Root node must be a YAML Document or YAML Collection');
+  }
+
+  if (isWildcardPath(path)) {
+    throw new Error('Path cannot contain wildcards when adding a value');
+  }
+
+  if (isSeq(root) && !isEmpty(path)) {
+    const index = Number(path[0]);
+    if (isNaN(index) || index < 0 || !Number.isInteger(index)) {
+      throw new Error('Path must start with an index for YAMLSeq');
+    }
+  }
+
+  const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
+
+  const node = getIn(root, path, true);
+  if (!node) {
+    setIn(root, path, valueToWrite, stringToTypedValue);
+    return;
+  }
+
+  unflowEmptyCollection(node);
+
+  if (isPrimitive(valueToWrite)) {
+    const scalar = new Scalar(valueToWrite);
+    scalar.type = Scalar.PLAIN;
+
+    // If value is number, set the minFractionDigits to the number of digits in the value
+    if (typeof valueToWrite === 'number' && String(value).includes('.')) {
+      const digits = String(value).split('.')[1].length || 0;
+      scalar.minFractionDigits = digits;
+    } else {
+      scalar.minFractionDigits = 0;
+    }
+
+    root.addIn(path, scalar);
+    return;
+  }
+
+  const newNode = new Document(valueToWrite, { flow: false, stringKeys: true, aliasDuplicateObjects: false }).contents;
+  root.addIn(path, newNode);
+}
+
+// function addToSeq(seq: YAMLSeq, value: unknown, stringToTypedValue = true) {
+//   if (!isSeq(seq)) {
+//     throw new Error('Provided node is not a YAMLSeq');
+//   }
+//   addIn(seq, [], value, stringToTypedValue);
+// }
+
+// function addToMap(map: YAMLMap, key: string, value: unknown, stringToTypedValue = true) {
+//   if (!isMap(map)) {
+//     throw new Error('Provided node is not a YAMLMap');
+//   }
+
+//   addIn(map, [key], value, stringToTypedValue);
+// }
 
 function collectPaths(root: Root) {
   if (!isDocument(root) && !isCollection(root)) {
