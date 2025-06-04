@@ -1,9 +1,8 @@
 import { Box, Checkbox, Icon, Link, Select, Text, Tooltip } from '@bitrise/bitkit';
-import { groupBy } from 'es-toolkit';
 import { useMemo } from 'react';
 
-import { StackOption, StackStatus } from '@/core/models/StackAndMachine';
-import { StackWithValue } from '@/core/services/StackAndMachineService';
+import { StackOption } from '@/core/models/StackAndMachine';
+import StackAndMachineService, { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {
   return (
@@ -48,12 +47,6 @@ type Props = {
   onChange: (stackId: string, useRollbackVersion?: boolean) => void;
 };
 
-type StackGroup = {
-  status: StackStatus;
-  label: string;
-  options: StackOption[];
-};
-
 const StackSelector = ({
   isLoading,
   isInvalid,
@@ -63,32 +56,7 @@ const StackSelector = ({
   options,
   onChange,
 }: Props) => {
-  const groupedStackList: StackGroup[] = useMemo(() => {
-    const groupedStacks = groupBy(options, (o) => o.status);
-    return [
-      {
-        status: 'edge',
-        label: 'Edge Stacks',
-        options: groupedStacks.edge || [],
-      },
-      {
-        status: 'stable',
-        label: 'Stable Stacks',
-        options: groupedStacks.stable || [],
-      },
-      {
-        status: 'unknown',
-        label: 'Uncategorized',
-        options: groupedStacks.unknown || [],
-      },
-      // We want to show frozen stacks last as they are the least preferred option
-      {
-        status: 'frozen',
-        label: 'Frozen Stacks',
-        options: groupedStacks.frozen || [],
-      },
-    ];
-  }, [options]);
+  const groups = useMemo(() => StackAndMachineService.groupStackOptionsByStatus(options), [options]);
 
   return (
     <Box flex="1">
@@ -101,17 +69,15 @@ const StackSelector = ({
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
         onChange={(e) => onChange(e.target.value)}
       >
-        {groupedStackList.map((group) =>
-          group.options.length > 0 ? (
-            <optgroup key={group.status} label={group.label}>
-              {group.options.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </optgroup>
-          ) : null,
-        )}
+        {groups.map((group) => (
+          <optgroup key={group.status} label={group.label}>
+            {group.options.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </optgroup>
+        ))}
       </Select>
       <Checkbox
         isDisabled={!isRollbackVersionAvailable}

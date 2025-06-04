@@ -1,4 +1,4 @@
-import { MachineType, Stack } from '@/core/models/StackAndMachine';
+import { MachineType, Stack, StackOption } from '@/core/models/StackAndMachine';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 
 const stacks: Stack[] = [
@@ -710,6 +710,95 @@ describe('changeStackAndMachine', () => {
         stackId: 'ubuntu-jammy-22.04-bitrise-2024',
         machineTypeId: 'standard',
       });
+    });
+  });
+
+  describe('groupStackOptionsByStatus', () => {
+    it('sorts groups according to the STACK_STATUS_ORDER', () => {
+      const stackOptions: StackOption[] = [
+        { value: 'stack1', label: 'Stack 1', status: 'frozen' },
+        { value: 'stack2', label: 'Stack 2', status: 'stable' },
+        { value: 'stack3', label: 'Stack 3', status: 'edge' },
+        { value: 'stack4', label: 'Stack 4', status: 'unknown' },
+      ];
+
+      const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
+
+      expect(result[0].status).toBe('edge');
+      expect(result[1].status).toBe('stable');
+      expect(result[2].status).toBe('unknown');
+      expect(result[3].status).toBe('frozen');
+    });
+
+    it('groups stack options by their status', () => {
+      const stackOptions: StackOption[] = [
+        { value: 'stack1', label: 'Stack 1', status: 'stable' },
+        { value: 'stack2', label: 'Stack 2', status: 'stable' },
+        { value: 'stack3', label: 'Stack 3', status: 'edge' },
+        { value: 'stack4', label: 'Stack 4', status: 'edge' },
+        { value: 'stack5', label: 'Stack 5', status: 'frozen' },
+        { value: 'stack5', label: 'Stack 5', status: 'unknown' },
+      ];
+
+      const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
+      expect(result).toEqual([
+        {
+          status: 'edge',
+          label: 'Edge Stacks',
+          options: [
+            { value: 'stack3', label: 'Stack 3', status: 'edge' },
+            { value: 'stack4', label: 'Stack 4', status: 'edge' },
+          ],
+        },
+        {
+          status: 'stable',
+          label: 'Stable Stacks',
+          options: [
+            { value: 'stack1', label: 'Stack 1', status: 'stable' },
+            { value: 'stack2', label: 'Stack 2', status: 'stable' },
+          ],
+        },
+        {
+          status: 'unknown',
+          label: 'Uncategorized',
+          options: [{ value: 'stack5', label: 'Stack 5', status: 'unknown' }],
+        },
+        {
+          status: 'frozen',
+          label: 'Frozen Stacks',
+          options: [{ value: 'stack5', label: 'Stack 5', status: 'frozen' }],
+        },
+      ]);
+    });
+
+    it('leaves out empty groups', () => {
+      const stackOptions: StackOption[] = [
+        { value: 'stack1', label: 'Stack 1', status: 'stable' },
+        { value: 'stack2', label: 'Stack 2', status: 'stable' },
+        { value: 'stack3', label: 'Stack 3', status: 'edge' },
+        { value: 'stack4', label: 'Stack 4', status: 'edge' },
+      ];
+
+      const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
+
+      expect(result).toEqual([
+        {
+          status: 'edge',
+          label: 'Edge Stacks',
+          options: [
+            { value: 'stack3', label: 'Stack 3', status: 'edge' },
+            { value: 'stack4', label: 'Stack 4', status: 'edge' },
+          ],
+        },
+        {
+          status: 'stable',
+          label: 'Stable Stacks',
+          options: [
+            { value: 'stack1', label: 'Stack 1', status: 'stable' },
+            { value: 'stack2', label: 'Stack 2', status: 'stable' },
+          ],
+        },
+      ]);
     });
   });
 });

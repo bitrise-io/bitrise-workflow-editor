@@ -1,8 +1,15 @@
-import { toMerged } from 'es-toolkit';
+import { groupBy, sortBy, toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
-import { MachineType, MachineTypeOption, Stack, StackOption } from '../models/StackAndMachine';
+import {
+  MachineType,
+  MachineTypeOption,
+  Stack,
+  STACK_STATUS_MAPPING,
+  StackGroup,
+  StackOption,
+} from '../models/StackAndMachine';
 
 export type StackWithValue = Stack & {
   value: string;
@@ -72,6 +79,19 @@ function toStackOption(stack: Stack): StackOption {
     label: stack.name,
     status: stack.status,
   };
+}
+
+function groupStackOptionsByStatus(options: StackOption[]): StackGroup[] {
+  const statusMap = groupBy(options, (o) => o.status);
+  const groups: StackGroup[] = Object.entries(statusMap).map(([status, values]) => {
+    return {
+      status: status as StackOption['status'],
+      label: STACK_STATUS_MAPPING[status as StackOption['status']].label,
+      options: values,
+    };
+  });
+
+  return sortBy(groups, [(group) => STACK_STATUS_MAPPING[group.status].order]);
 }
 
 function getMachineById(machines: MachineType[], id?: string): MachineType | undefined {
@@ -315,4 +335,5 @@ export default {
   toMachineOption,
   getStackById,
   getMachinesOfStack,
+  groupStackOptionsByStatus,
 };
