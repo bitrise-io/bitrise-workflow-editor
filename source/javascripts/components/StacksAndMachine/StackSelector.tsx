@@ -81,6 +81,7 @@ const StackSelector = ({
         label: 'Uncategorized',
         options: groupedStacks.unknown || [],
       },
+      // We want to show frozen stacks last as they are the least preferred option
       {
         status: 'frozen',
         label: 'Frozen Stacks',

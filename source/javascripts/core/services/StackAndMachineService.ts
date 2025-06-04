@@ -98,10 +98,10 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
     id: '',
     value: '',
     name: '',
-    status: 'unknown',
     description: '',
     machineTypes: [],
     os: 'unknown',
+    status: 'unknown',
   };
 
   return toMerged(base, override || {}) as StackWithValue;

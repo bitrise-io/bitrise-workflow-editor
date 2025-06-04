@@ -61,19 +61,6 @@ function getStacksAndMachinesPath(appSlug: string): string {
   return GET_STACKS_AND_MACHINES_PATH.replace(':appSlug', appSlug);
 }
 
-function mapStackStatus(status: string): StackStatus {
-  switch (status) {
-    case 'edge':
-      return 'edge';
-    case 'stable':
-      return 'stable';
-    case 'frozen':
-      return 'frozen';
-    default:
-      return 'unknown';
-  }
-}
-
 async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; signal?: AbortSignal }) {
   const response = await Client.get<StacksAndMachinesResponse>(getStacksAndMachinesPath(appSlug), {
     signal,
@@ -95,19 +82,32 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     }
   };
 
+  function mapStackStatus(status: string): StackStatus {
+    switch (status) {
+      case 'edge':
+        return 'edge';
+      case 'stable':
+        return 'stable';
+      case 'frozen':
+        return 'frozen';
+      default:
+        return 'unknown';
+    }
+  }
+
   mapValues(
     response.available_stacks,
     ({ title, description = '', available_machines = [], rollback_version, os, status, ...rest }, id) => {
       availableStacks.push({
         id: String(id),
         name: title,
-        status: mapStackStatus(status),
         description,
         descriptionUrl:
           rest['description-link-gen2-applesilicon'] || rest['description-link-gen2'] || rest['description-link'],
         machineTypes: available_machines,
         rollbackVersion: rollback_version,
         os: mapOSValues(os),
+        status: mapStackStatus(status),
       });
     },
   );

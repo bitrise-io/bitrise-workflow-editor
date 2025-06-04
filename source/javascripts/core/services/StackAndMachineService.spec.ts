@@ -22,7 +22,7 @@ const stacks: Stack[] = [
   },
   {
     id: 'ubuntu-jammy-22.04-bitrise-2024',
-    name: 'Ubuntu Jammy - 2024 Edition',
+    name: 'Ubuntu Jammy - Bitrise 2024 Edition',
     status: 'stable',
     description: 'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
     machineTypes: ['standard', 'elite', 'joker'],
@@ -31,10 +31,10 @@ const stacks: Stack[] = [
   {
     id: 'agent-pool-stack',
     name: 'Self-hosted agent',
-    status: 'unknown',
     description: '',
     machineTypes: [],
     os: 'unknown',
+    status: 'unknown',
   },
 ];
 

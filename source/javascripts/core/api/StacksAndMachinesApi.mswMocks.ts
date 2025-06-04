@@ -95,7 +95,7 @@ export const getStacksAndMachines = (options?: Options) => {
           options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
       },
       'ubuntu-jammy-22.04-bitrise-2024': {
-        title: 'Ubuntu Jammy - 2024 Edition',
+        title: 'Ubuntu Jammy - Bitrise 2024 Edition',
         status: 'stable',
         description:
           'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
@@ -115,7 +115,7 @@ export const getStacksAndMachines = (options?: Options) => {
         os: 'linux',
       },
       'ubuntu-noble-24.04-bitrise-2025': {
-        title: 'Ubuntu Noble - 2025 Edition',
+        title: 'Ubuntu Noble - Bitrise 2025 Edition',
         status: 'edge',
         description:
           'Docker container environment based on Ubuntu 24.04. Preinstalled Android SDK and other common tools.',
