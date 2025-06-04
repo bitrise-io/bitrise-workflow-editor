@@ -349,8 +349,7 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
-    const seq = YmlUtils.getSeqIn(workflow, ['depends_on'], true);
-    YmlUtils.addIn(seq, [], dependsOn);
+    YmlUtils.addIn(workflow, ['depends_on'], dependsOn);
 
     return doc;
   });

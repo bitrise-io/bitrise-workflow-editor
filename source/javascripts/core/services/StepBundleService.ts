@@ -270,7 +270,6 @@ function groupStepsToStepBundle(
     }
 
     const indices = [...from.steps].sort((a, b) => a - b);
-    const sourceSteps = YmlUtils.getSeqIn(source, ['steps'], true);
     const steps = indices.map((index) => {
       const step = getSourceStepOrThrowError(doc, { source: from.source, sourceId: from.sourceId, stepIndex: index });
 
@@ -284,12 +283,12 @@ function groupStepsToStepBundle(
     });
 
     const cvs = idToCvs(id);
-    YmlUtils.addIn(doc, ['step_bundles', id], { steps });
-    YmlUtils.setIn(sourceSteps, [indices[0]], { [cvs]: {} });
+    YmlUtils.setIn(doc, ['step_bundles', id], { steps });
+    YmlUtils.setIn(source, ['steps', indices[0]], { [cvs]: {} });
 
     const reverseIndices = indices.slice(1).reverse();
     reverseIndices.forEach((index) => {
-      YmlUtils.deleteByPath(sourceSteps, [index]);
+      YmlUtils.deleteByPath(source, ['steps', index]);
     });
 
     return doc;
@@ -459,8 +458,7 @@ function updateStepBundleInputInstanceValue(
     const shouldRemoveInstanceInput = !newValue && inputIndexInInstance >= 0;
 
     if (shouldCreateInstanceInput) {
-      const inputs = YmlUtils.getSeqIn(step, ['inputs'], true);
-      YmlUtils.addIn(inputs, [], { [key]: newValue });
+      YmlUtils.addIn(step, ['inputs'], { [key]: newValue });
     }
 
     if (shouldUpdateInstanceInput) {

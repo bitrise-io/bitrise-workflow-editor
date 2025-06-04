@@ -216,8 +216,7 @@ function getTriggerMapItemConditionOrThrowError(doc: Document, index: number, co
 
 function addLegacyTrigger(trigger: LegacyTrigger) {
   updateBitriseYmlDocument(({ doc }) => {
-    const triggerMap = YmlUtils.getSeqIn(doc, ['trigger_map'], true);
-    YmlUtils.addIn(triggerMap, [], toTriggerMapItemModel(trigger));
+    YmlUtils.addIn(doc, ['trigger_map'], toTriggerMapItemModel(trigger));
     return doc;
   });
 }
@@ -602,8 +601,7 @@ function addTrigger(trigger: TargetBasedTrigger) {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     const entity = getSourceOrThrowError(doc, { source, sourceId });
 
-    const triggers = YmlUtils.getSeqIn(entity, ['triggers', trigger.triggerType], true);
-    YmlUtils.addIn(triggers, [], toTargetBasedItemModel(trigger));
+    YmlUtils.addIn(entity, ['triggers', trigger.triggerType], toTargetBasedItemModel(trigger));
 
     return doc;
   });

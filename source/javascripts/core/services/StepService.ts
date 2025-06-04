@@ -498,13 +498,12 @@ function updateStepInput(source: Source, sourceId: string, index: number, input:
     const inputsSeq = YmlUtils.getSeqIn(step, ['inputs'], true);
     const inputIndex = inputsSeq.items.findIndex((item) => isMap(item) && item.has(input));
 
-    const newValue = YmlUtils.toTypedValue(value);
-    if (newValue === '') {
+    if (value === '') {
       YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
     } else if (inputIndex === -1) {
-      YmlUtils.addIn(inputsSeq, [], { [input]: newValue });
+      YmlUtils.addIn(inputsSeq, [], { [input]: YmlUtils.toTypedValue(value) });
     } else {
-      YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], newValue);
+      YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], value);
     }
 
     return doc;

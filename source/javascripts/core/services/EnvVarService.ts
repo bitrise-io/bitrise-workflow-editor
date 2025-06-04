@@ -185,9 +185,7 @@ function append(envVar: EnvVar, at: { source: EnvVarSource; sourceId?: string })
       getWorkflowOrThrowError(doc, at);
     }
 
-    const path = getEnvPath(at.source, at.sourceId);
-    const envs = YmlUtils.getSeqIn(doc, path, true);
-    YmlUtils.addIn(envs, [], toYml(envVar));
+    YmlUtils.addIn(doc, getEnvPath(at.source, at.sourceId), toYml(envVar));
 
     return doc;
   });
@@ -201,8 +199,12 @@ function remove(at: { source: EnvVarSource; sourceId?: string; index: number }) 
   updateBitriseYmlDocument(({ doc }) => {
     getEnvVarOrThrowError(doc, at);
 
-    const path = getEnvPath(at.source, at.sourceId, at.index);
-    YmlUtils.deleteByPath(doc, path, at.source === EnvVarSource.App ? [] : ['workflows', at.sourceId!]);
+    YmlUtils.deleteByPath(
+      doc,
+      getEnvPath(at.source, at.sourceId, at.index),
+      at.source === EnvVarSource.App ? [] : ['workflows', at.sourceId!],
+    );
+
     return doc;
   });
 }

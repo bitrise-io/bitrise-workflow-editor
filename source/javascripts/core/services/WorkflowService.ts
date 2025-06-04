@@ -261,8 +261,7 @@ function addChainedWorkflow(prentWorkflowId: string, placement: ChainedWorkflowP
     const parentWorkflow = getWorkflowOrThrowError(prentWorkflowId, doc);
     getWorkflowOrThrowError(chainableWorkflowId, doc);
 
-    const chainedWorkflows = YmlUtils.getSeqIn(parentWorkflow, [placement], true);
-    YmlUtils.addIn(chainedWorkflows, [], chainableWorkflowId);
+    YmlUtils.addIn(parentWorkflow, [placement], chainableWorkflowId);
 
     return doc;
   });
@@ -310,12 +309,7 @@ function setChainedWorkflows(workflowId: string, placement: ChainedWorkflowPlace
 
     chainedWorkflowIds.forEach((chainedWorkflowId, index) => {
       getWorkflowOrThrowError(chainedWorkflowId, doc);
-
-      if (chainedWorkflows.get(index)) {
-        chainedWorkflows.set(index, chainedWorkflowId);
-      } else {
-        YmlUtils.addIn(chainedWorkflows, [], chainedWorkflowId);
-      }
+      YmlUtils.setIn(chainedWorkflows, [index], chainedWorkflowId);
     });
 
     if (chainedWorkflows.items.length > chainedWorkflowIds.length) {
