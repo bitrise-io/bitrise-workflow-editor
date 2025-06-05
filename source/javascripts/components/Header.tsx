@@ -27,6 +27,9 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
@@ -125,6 +128,11 @@ const Header = () => {
 
   const onDiscard = () => {
     segmentTrack('Workflow Editor Discard Button Clicked', { tab_name: currentPage });
+
+    useWorkflowsPageStore.setState(useWorkflowsPageStore.getInitialState());
+    usePipelinesPageStore.setState(usePipelinesPageStore.getInitialState());
+    useStepBundlesPageStore.setState(useStepBundlesPageStore.getInitialState());
+
     discardBitriseYmlDocument();
   };
 
