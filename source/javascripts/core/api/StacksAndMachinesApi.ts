@@ -1,6 +1,6 @@
 import { mapValues } from 'es-toolkit';
 
-import { MachineType, Stack } from '../models/StackAndMachine';
+import { MachineType, Stack, StackStatus } from '../models/StackAndMachine';
 import Client from './client';
 
 type StacksAndMachinesResponse = {
@@ -11,6 +11,7 @@ type StacksAndMachinesResponse = {
   available_stacks: {
     [stackId: string]: {
       title: string;
+      status: string;
       description?: string;
       'description-link'?: string;
       'description-link-gen2'?: string;
@@ -81,9 +82,22 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     }
   };
 
+  function mapStackStatus(status: string): StackStatus {
+    switch (status) {
+      case 'edge':
+        return 'edge';
+      case 'stable':
+        return 'stable';
+      case 'frozen':
+        return 'frozen';
+      default:
+        return 'unknown';
+    }
+  }
+
   mapValues(
     response.available_stacks,
-    ({ title, description = '', available_machines = [], rollback_version, os, ...rest }, id) => {
+    ({ title, description = '', available_machines = [], rollback_version, os, status, ...rest }, id) => {
       availableStacks.push({
         id: String(id),
         name: title,
@@ -93,6 +107,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
         machineTypes: available_machines,
         rollbackVersion: rollback_version,
         os: mapOSValues(os),
+        status: mapStackStatus(status),
       });
     },
   );
