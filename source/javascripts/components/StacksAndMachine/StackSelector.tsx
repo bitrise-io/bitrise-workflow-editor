@@ -64,6 +64,7 @@ const StackSelector = ({
         required
         search={false}
         label="Stack"
+        dropdownMaxHeight="25rem"
         disabled={isLoading}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
         errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}

@@ -157,7 +157,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 default_machine_type: 'm2.medium',
                 machine_types: {
                   'm1.medium': {
-                    available_on_stacks: ['osx-xcode-15', 'osx-xcode-16'],
+                    available_on_stacks: ['osx-xcode-15.0.x', 'osx-xcode-16.0.x'],
                     name: 'M1 Medium',
                     chip: 'apple',
                     cpu_count: '4 vCPU',
@@ -166,7 +166,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 2,
                   },
                   'm1.large': {
-                    available_on_stacks: ['osx-xcode-15', 'osx-xcode-16'],
+                    available_on_stacks: ['osx-xcode-15.0.x', 'osx-xcode-16.0.x'],
                     name: 'M1 Large',
                     chip: 'apple',
                     cpu_count: '8 vCPU',
@@ -175,7 +175,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 4,
                   },
                   'm2.medium': {
-                    available_on_stacks: ['osx-xcode-15', 'osx-xcode-16', 'mixed-stack'],
+                    available_on_stacks: ['osx-xcode-15.0.x', 'osx-xcode-16.0.x', 'mixed-stack'],
                     name: 'M2 Pro Medium',
                     chip: 'apple',
                     cpu_count: '4 vCPU',
@@ -184,7 +184,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 3,
                   },
                   'm2.large': {
-                    available_on_stacks: ['osx-xcode-15', 'osx-xcode-16', 'mixed-stack'],
+                    available_on_stacks: ['osx-xcode-15.0.x', 'osx-xcode-16.0.x', 'mixed-stack'],
                     name: 'M2 Pro Large',
                     chip: 'apple',
                     cpu_count: '6 vCPU',
@@ -193,7 +193,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 5,
                   },
                   'm2.x-large': {
-                    available_on_stacks: ['osx-xcode-16', 'mixed-stack'],
+                    available_on_stacks: ['osx-xcode-16.0.x', 'mixed-stack'],
                     name: 'M2 Pro X Large',
                     chip: 'apple',
                     cpu_count: '12 vCPU',
@@ -207,7 +207,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 default_machine_type: 'amd.large',
                 machine_types: {
                   standard: {
-                    available_on_stacks: ['linux-ubuntu-22.04'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
                     name: 'Medium',
                     chip: 'intel',
                     cpu_count: '4 vCPU',
@@ -216,7 +216,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 1,
                   },
                   'intel.medium': {
-                    available_on_stacks: ['linux-ubuntu-22.04'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
                     name: 'Intel Medium',
                     chip: 'intel',
                     cpu_count: '4 vCPU',
@@ -225,7 +225,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 1,
                   },
                   'intel.large': {
-                    available_on_stacks: ['linux-ubuntu-22.04'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
                     name: 'Intel Large',
                     chip: 'intel',
                     cpu_count: '8 vCPU',
@@ -234,7 +234,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 2,
                   },
                   'amd.medium': {
-                    available_on_stacks: ['linux-ubuntu-22.04', 'mixed-stack'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'mixed-stack'],
                     name: 'EPYC Zen4 Medium',
                     chip: 'amd',
                     cpu_count: '4 vCPU',
@@ -243,7 +243,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 1,
                   },
                   'amd.large': {
-                    available_on_stacks: ['linux-ubuntu-22.04', 'mixed-stack'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'mixed-stack'],
                     name: 'EPYC Zen4 Large',
                     chip: 'amd',
                     cpu_count: '8 vCPU',
@@ -252,7 +252,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 3,
                   },
                   'amd.x-large': {
-                    available_on_stacks: ['linux-ubuntu-22.04', 'mixed-stack'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'mixed-stack'],
                     name: 'EPYC Zen4 X Large',
                     chip: 'amd',
                     cpu_count: '16 vCPU',
@@ -261,7 +261,7 @@ export const getStacksAndMachines = (options?: Options) => {
                     credit_per_min: 5,
                   },
                   'machine-x': {
-                    available_on_stacks: ['linux-ubuntu-22.04'],
+                    available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
                     name: 'Non Credit Machine',
                     chip: 'apple',
                     cpu_count: '8 vCPU',
@@ -284,7 +284,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 cpu_description: '3.7GHz',
                 ram: '32 GB RAM',
                 os_id: 'osx',
-                available_on_stacks: ['osx-xcode-16'],
+                available_on_stacks: ['osx-xcode-16.0.x'],
               },
               {
                 id: 'machine-y2',
@@ -294,7 +294,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 cpu_description: '3.7GHz',
                 ram: '32 GB RAM',
                 os_id: 'osx',
-                available_on_stacks: ['osx-xcode-16'],
+                available_on_stacks: ['osx-xcode-16.0.x'],
               },
               {
                 id: 'machine-z1',
@@ -304,7 +304,7 @@ export const getStacksAndMachines = (options?: Options) => {
                 cpu_description: '3.7GHz',
                 ram: '32 GB RAM',
                 os_id: 'linux',
-                available_on_stacks: ['linux-ubuntu-22.04'],
+                available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
               },
               {
                 id: 'machine-z2',
