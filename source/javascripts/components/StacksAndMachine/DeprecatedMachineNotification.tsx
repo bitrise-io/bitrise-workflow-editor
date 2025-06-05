@@ -32,8 +32,8 @@ const DeprecatedMachineNotification = (props: Props) => {
   if (currentDate < startDate) {
     return (
       <Notification {...notificationProps}>
-        Upgrading to newer generation Apple Silicon machines, with no extra costs. M2 Pro X Large, M2 Pro Large or M1
-        Medium machines will be deprecated and your Workflows will automatically run on newer generation Apple Silicon
+        Upgrading to newer generation Apple Silicon machines, with no extra costs. M1 Large, M1 Max Medium and M1 Max
+        Large machines will be deprecated and your Workflows will automatically run on newer generation Apple Silicon
         machines from {startDate.toLocaleDateString()}.{' '}
         <Link
           href="https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE"
@@ -49,7 +49,7 @@ const DeprecatedMachineNotification = (props: Props) => {
     return (
       <Notification {...notificationProps}>
         Your Workflows were automatically switched to newer generation Apple Silicon machines, with no extra costs. To
-        continue using the deprecated M2 Pro X Large, M2 Pro Large or M1 Medium machines until{' '}
+        continue using the deprecated M1 Large, M1 Max Medium and M1 Max Large machines until{' '}
         {endDate.toLocaleDateString()}, opt to extend the transition period in the {startDate.toLocaleDateString()}.{' '}
         <Link href={`/workspaces/${GlobalProps.workspaceSlug()}/settings/apps`} isExternal isUnderlined>
           Workspace settings
@@ -61,7 +61,7 @@ const DeprecatedMachineNotification = (props: Props) => {
     return (
       <Notification {...notificationProps}>
         Your Workflows are now running on newer generation Apple Silicon machines, with no extra costs. If you’d like to
-        keep using the deprecated M2 Pro X Large, M2 Pro Large or M1 Medium machines, reach out to support.{' '}
+        keep using the deprecated M1 Large, M1 Max Medium and M1 Max Large machines, reach out to support.{' '}
         <Link
           href="https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE"
           isExternal
