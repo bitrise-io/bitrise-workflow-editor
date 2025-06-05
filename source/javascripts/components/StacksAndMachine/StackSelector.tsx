@@ -71,7 +71,7 @@ const StackSelector = ({
         onChange={(e) => onChange(e.target.value ?? '')}
       >
         {groups.map((group) => (
-          <DropdownGroup key={group.status} label={group.label}>
+          <DropdownGroup key={group.status} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
             {group.options.map(({ value, label }) => (
               <DropdownOption key={value} value={value}>
                 {label}
