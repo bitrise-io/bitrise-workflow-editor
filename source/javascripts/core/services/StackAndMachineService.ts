@@ -1,10 +1,17 @@
-import { toMerged } from 'es-toolkit';
+import { groupBy, sortBy, toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
 import { Document } from 'yaml';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
-import { MachineType, MachineTypeOption, Stack, StackOption } from '../models/StackAndMachine';
+import {
+  MachineType,
+  MachineTypeOption,
+  Stack,
+  STACK_STATUS_MAPPING,
+  StackGroup,
+  StackOption,
+} from '../models/StackAndMachine';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -82,7 +89,21 @@ function toStackOption(stack: Stack): StackOption {
   return {
     value: stack.id,
     label: stack.name,
+    status: stack.status,
   };
+}
+
+function groupStackOptionsByStatus(options: StackOption[]): StackGroup[] {
+  const statusMap = groupBy(options, (o) => o.status);
+  const groups: StackGroup[] = Object.entries(statusMap).map(([status, values]) => {
+    return {
+      status: status as StackOption['status'],
+      label: STACK_STATUS_MAPPING[status as StackOption['status']].label,
+      options: values,
+    };
+  });
+
+  return sortBy(groups, [(group) => STACK_STATUS_MAPPING[group.status].order]);
 }
 
 function getMachineById(machines: MachineType[], id?: string): MachineType | undefined {
@@ -112,6 +133,7 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
     description: '',
     machineTypes: [],
     os: 'unknown',
+    status: 'unknown',
   };
 
   return toMerged(base, override || {}) as StackWithValue;
@@ -169,6 +191,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       {
         value: '',
         label: `Default (${defaultStack.name})`,
+        status: defaultStack.status,
       },
       ...result.availableStackOptions,
     ];
@@ -188,6 +211,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.availableStackOptions.push({
       value: selectedStackId,
       label: selectedStackId,
+      status: 'unknown',
     });
   } else if (selectedStack) {
     result.selectedStack = { ...selectedStack, value: selectedStack.id };
@@ -392,4 +416,5 @@ export default {
   getMachinesOfStack,
   updateStackAndMachine,
   updateLicensePoolId,
+  groupStackOptionsByStatus,
 };

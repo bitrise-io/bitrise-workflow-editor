@@ -1,28 +1,31 @@
-import { MachineType, Stack } from '@/core/models/StackAndMachine';
+import { MachineType, Stack, StackOption } from '@/core/models/StackAndMachine';
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 const stacks: Stack[] = [
   {
-    id: 'osx-xcode-16',
-    name: 'Xcode 16',
+    id: 'osx-xcode-16.0.x',
+    name: 'Xcode 16.0.x',
+    status: 'stable',
     description:
       'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
     machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
     os: 'macos',
   },
   {
-    id: 'osx-xcode-15',
-    name: 'Xcode 15',
+    id: 'osx-xcode-15.0.x',
+    name: 'Xcode 15.0.x',
+    status: 'stable',
     description:
       'Xcode 15.0.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
     machineTypes: ['mac-m1', 'mac-m2', 'joker'],
     os: 'macos',
   },
   {
-    id: 'linux-ubuntu-22',
-    name: 'Ubuntu 22.04',
+    id: 'ubuntu-jammy-22.04-bitrise-2024',
+    name: 'Ubuntu Jammy - Bitrise 2024 Edition',
+    status: 'stable',
     description: 'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
     machineTypes: ['standard', 'elite', 'joker'],
     os: 'linux',
@@ -33,6 +36,7 @@ const stacks: Stack[] = [
     description: '',
     machineTypes: [],
     os: 'unknown',
+    status: 'unknown',
   },
 ];
 
@@ -124,7 +128,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -133,24 +137,24 @@ describe('StackAndMachineService', () => {
       expect(result.selectedStack).toEqual(
         expect.objectContaining({
           value: '',
-          id: 'osx-xcode-16',
-          name: 'Xcode 16',
+          id: 'osx-xcode-16.0.x',
+          name: 'Xcode 16.0.x',
         }),
       );
 
       // Stack options
       const [defaultStack, ...stackOptions] = result.availableStackOptions;
-      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
+      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' });
       expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
     });
 
     it('returns the selected stack when a valid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        selectedStackId: 'osx-xcode-15',
+        selectedStackId: 'osx-xcode-15.0.x',
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -158,15 +162,15 @@ describe('StackAndMachineService', () => {
       expect(result.isInvalidStack).toBe(false);
       expect(result.selectedStack).toEqual(
         expect.objectContaining({
-          value: 'osx-xcode-15',
-          id: 'osx-xcode-15',
-          name: 'Xcode 15',
+          value: 'osx-xcode-15.0.x',
+          id: 'osx-xcode-15.0.x',
+          name: 'Xcode 15.0.x',
         }),
       );
 
       // Stack options
       const [defaultStack, ...stackOptions] = result.availableStackOptions;
-      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
+      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' });
       expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
     });
 
@@ -176,7 +180,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -192,11 +196,11 @@ describe('StackAndMachineService', () => {
 
       // Stack options
       const [defaultStack, ...stackOptions] = result.availableStackOptions;
-      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16)' });
+      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' });
       expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackAndMachineService.toStackOption));
 
       // Invalid stack option
-      expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11' }]);
+      expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11', status: 'unknown' }]);
     });
 
     it('returns the default machine type when empty machine type value is selected', () => {
@@ -205,7 +209,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -226,7 +230,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: 'mac-m2',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -249,7 +253,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: 'mac-intel',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -279,7 +283,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
@@ -308,7 +312,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
         runningBuildsOnPrivateCloud: true,
       });
@@ -331,7 +335,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: [],
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
         runningBuildsOnPrivateCloud: true,
       });
@@ -351,7 +355,7 @@ describe('StackAndMachineService', () => {
         selectedMachineTypeId: '',
         availableStacks: stacks,
         availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
         machineTypePromotion: {
           mode: 'trial',
@@ -365,7 +369,7 @@ describe('StackAndMachineService', () => {
               cpuCount: '36',
               cpuDescription: '36 cores',
               osId: 'osx',
-              availableOnStacks: ['osx-xcode-16'],
+              availableOnStacks: ['osx-xcode-16.0.x'],
             },
             {
               id: 'mac-m6',
@@ -376,7 +380,7 @@ describe('StackAndMachineService', () => {
               cpuCount: '48',
               cpuDescription: '48 cores',
               osId: 'osx',
-              availableOnStacks: ['osx-xcode-16'],
+              availableOnStacks: ['osx-xcode-16.0.x'],
             },
           ],
         },
@@ -414,7 +418,7 @@ describe('StackAndMachineService', () => {
           selectedMachineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
           projectMachineTypeId: 'mac-m1',
           withoutDefaultOptions: true,
         });
@@ -423,9 +427,9 @@ describe('StackAndMachineService', () => {
         expect(result.isInvalidStack).toBe(false);
         expect(result.selectedStack).toEqual(
           expect.objectContaining({
-            value: 'osx-xcode-16',
-            id: 'osx-xcode-16',
-            name: 'Xcode 16',
+            value: 'osx-xcode-16.0.x',
+            id: 'osx-xcode-16.0.x',
+            name: 'Xcode 16.0.x',
           }),
         );
 
@@ -447,11 +451,11 @@ describe('StackAndMachineService', () => {
 
       it('returns the selected stack and the default machine type of the stack', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-          selectedStackId: 'osx-xcode-16',
+          selectedStackId: 'osx-xcode-16.0.x',
           selectedMachineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'linux-ubuntu-22',
+          projectStackId: 'ubuntu-jammy-22.04-bitrise-2024',
           projectMachineTypeId: 'elite',
           defaultMachineTypeIdOfOSs: {
             linux: 'elite',
@@ -464,9 +468,9 @@ describe('StackAndMachineService', () => {
         expect(result.isInvalidStack).toBe(false);
         expect(result.selectedStack).toEqual(
           expect.objectContaining({
-            value: 'osx-xcode-16',
-            id: 'osx-xcode-16',
-            name: 'Xcode 16',
+            value: 'osx-xcode-16.0.x',
+            id: 'osx-xcode-16.0.x',
+            name: 'Xcode 16.0.x',
           }),
         );
 
@@ -496,7 +500,7 @@ describe('StackAndMachineService', () => {
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
         expect(result).toEqual({ stackId: '', machineTypeId: '' });
@@ -508,7 +512,7 @@ describe('StackAndMachineService', () => {
           machineTypeId: 'mac-m1',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
         expect(result).toEqual({ stackId: '', machineTypeId: 'mac-m1' });
@@ -520,7 +524,7 @@ describe('StackAndMachineService', () => {
           machineTypeId: 'standard',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
         expect(result).toEqual({ stackId: '', machineTypeId: '' });
@@ -528,132 +532,132 @@ describe('StackAndMachineService', () => {
 
       it('keeps a specific stack with the default machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-15',
+          stackId: 'osx-xcode-15.0.x',
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
-        expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: '' });
+        expect(result).toEqual({ stackId: 'osx-xcode-15.0.x', machineTypeId: '' });
       });
 
       it('keeps a specific stack with a compatible machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-15',
+          stackId: 'osx-xcode-15.0.x',
           machineTypeId: 'mac-m1',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
         expect(result).toEqual({
-          stackId: 'osx-xcode-15',
+          stackId: 'osx-xcode-15.0.x',
           machineTypeId: 'mac-m1',
         });
       });
 
       it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-15',
+          stackId: 'osx-xcode-15.0.x',
           machineTypeId: 'mac-m4',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
-        expect(result).toEqual({ stackId: 'osx-xcode-15', machineTypeId: '' });
+        expect(result).toEqual({ stackId: 'osx-xcode-15.0.x', machineTypeId: '' });
       });
 
       it('keeps the pinned default stack with the default machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-16',
+          stackId: 'osx-xcode-16.0.x',
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
-        expect(result).toEqual({ stackId: 'osx-xcode-16', machineTypeId: '' });
+        expect(result).toEqual({ stackId: 'osx-xcode-16.0.x', machineTypeId: '' });
       });
 
       it('keeps the pinned default stack with a compatible machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-16',
+          stackId: 'osx-xcode-16.0.x',
           machineTypeId: 'mac-m1',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
         expect(result).toEqual({
-          stackId: 'osx-xcode-16',
+          stackId: 'osx-xcode-16.0.x',
           machineTypeId: 'mac-m1',
         });
       });
 
       it('keeps the pinned default stack, but changes the incompatible machine type to default machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-16',
+          stackId: 'osx-xcode-16.0.x',
           machineTypeId: 'standard',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
-        expect(result).toEqual({ stackId: 'osx-xcode-16', machineTypeId: '' });
+        expect(result).toEqual({ stackId: 'osx-xcode-16.0.x', machineTypeId: '' });
       });
     });
 
     describe('stack OS changes', () => {
       it('keeps a specific stack with empty machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
-        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
+        expect(result).toEqual({ stackId: 'ubuntu-jammy-22.04-bitrise-2024', machineTypeId: '' });
       });
 
       it('keeps a specific stack with a compatible machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'joker',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
         expect(result).toEqual({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'joker',
         });
       });
 
       it('keeps a specific stack, but changes the incompatible machine type to default machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'mac-m4',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
         });
 
-        expect(result).toEqual({ stackId: 'linux-ubuntu-22', machineTypeId: '' });
+        expect(result).toEqual({ stackId: 'ubuntu-jammy-22.04-bitrise-2024', machineTypeId: '' });
       });
     });
 
     describe('machineFallbackOptions', () => {
       it('keeps a specific stack with project machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'osx-xcode-15',
+          stackId: 'osx-xcode-15.0.x',
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
           machineFallbackOptions: {
             defaultMachineTypeIdOfOSs: {
               linux: 'elite',
@@ -664,18 +668,18 @@ describe('StackAndMachineService', () => {
         });
 
         expect(result).toEqual({
-          stackId: 'osx-xcode-15',
+          stackId: 'osx-xcode-15.0.x',
           machineTypeId: 'mac-m1',
         });
       });
 
       it('keeps a specific stack with default machine type of OS', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
           machineFallbackOptions: {
             defaultMachineTypeIdOfOSs: {
               linux: 'elite',
@@ -686,18 +690,18 @@ describe('StackAndMachineService', () => {
         });
 
         expect(result).toEqual({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'elite',
         });
       });
 
       it('keeps a specific stack with the first available machine type', () => {
         const result = StackAndMachineService.changeStackAndMachine({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: '',
           availableStacks: stacks,
           availableMachineTypes: machines,
-          projectStackId: 'osx-xcode-16',
+          projectStackId: 'osx-xcode-16.0.x',
           machineFallbackOptions: {
             defaultMachineTypeIdOfOSs: {
               linux: 'large',
@@ -708,9 +712,98 @@ describe('StackAndMachineService', () => {
         });
 
         expect(result).toEqual({
-          stackId: 'linux-ubuntu-22',
+          stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'standard',
         });
+      });
+    });
+
+    describe('groupStackOptionsByStatus', () => {
+      it('sorts groups according to the STACK_STATUS_ORDER', () => {
+        const stackOptions: StackOption[] = [
+          { value: 'stack1', label: 'Stack 1', status: 'frozen' },
+          { value: 'stack2', label: 'Stack 2', status: 'stable' },
+          { value: 'stack3', label: 'Stack 3', status: 'edge' },
+          { value: 'stack4', label: 'Stack 4', status: 'unknown' },
+        ];
+
+        const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
+
+        expect(result[0].status).toBe('edge');
+        expect(result[1].status).toBe('stable');
+        expect(result[2].status).toBe('unknown');
+        expect(result[3].status).toBe('frozen');
+      });
+
+      it('groups stack options by their status', () => {
+        const stackOptions: StackOption[] = [
+          { value: 'stack1', label: 'Stack 1', status: 'stable' },
+          { value: 'stack2', label: 'Stack 2', status: 'stable' },
+          { value: 'stack3', label: 'Stack 3', status: 'edge' },
+          { value: 'stack4', label: 'Stack 4', status: 'edge' },
+          { value: 'stack5', label: 'Stack 5', status: 'frozen' },
+          { value: 'stack5', label: 'Stack 5', status: 'unknown' },
+        ];
+
+        const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
+        expect(result).toEqual([
+          {
+            status: 'edge',
+            label: 'Edge Stacks',
+            options: [
+              { value: 'stack3', label: 'Stack 3', status: 'edge' },
+              { value: 'stack4', label: 'Stack 4', status: 'edge' },
+            ],
+          },
+          {
+            status: 'stable',
+            label: 'Stable Stacks',
+            options: [
+              { value: 'stack1', label: 'Stack 1', status: 'stable' },
+              { value: 'stack2', label: 'Stack 2', status: 'stable' },
+            ],
+          },
+          {
+            status: 'unknown',
+            label: 'Uncategorized',
+            options: [{ value: 'stack5', label: 'Stack 5', status: 'unknown' }],
+          },
+          {
+            status: 'frozen',
+            label: 'Frozen Stacks',
+            options: [{ value: 'stack5', label: 'Stack 5', status: 'frozen' }],
+          },
+        ]);
+      });
+
+      it('leaves out empty groups', () => {
+        const stackOptions: StackOption[] = [
+          { value: 'stack1', label: 'Stack 1', status: 'stable' },
+          { value: 'stack2', label: 'Stack 2', status: 'stable' },
+          { value: 'stack3', label: 'Stack 3', status: 'edge' },
+          { value: 'stack4', label: 'Stack 4', status: 'edge' },
+        ];
+
+        const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
+
+        expect(result).toEqual([
+          {
+            status: 'edge',
+            label: 'Edge Stacks',
+            options: [
+              { value: 'stack3', label: 'Stack 3', status: 'edge' },
+              { value: 'stack4', label: 'Stack 4', status: 'edge' },
+            ],
+          },
+          {
+            status: 'stable',
+            label: 'Stable Stacks',
+            options: [
+              { value: 'stack1', label: 'Stack 1', status: 'stable' },
+              { value: 'stack2', label: 'Stack 2', status: 'stable' },
+            ],
+          },
+        ]);
       });
     });
   });

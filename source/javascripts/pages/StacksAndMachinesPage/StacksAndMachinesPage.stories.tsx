@@ -61,7 +61,7 @@ export const WithInvalidStackRollbackVersion: Story = {
   parameters: {
     bitriseYmlStore: (() => {
       const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-        stack: 'osx-xcode-15',
+        stack: 'osx-xcode-15.0.x',
         machine_type_id: 'm2.large',
         stack_rollback_version: '1.0.0',
       });
@@ -77,7 +77,7 @@ export const WithDeprecatedMachines: Story = {
   parameters: {
     bitriseYmlStore: (() => {
       const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
-        stack: 'linux-ubuntu-22.04',
+        stack: 'ubuntu-jammy-22.04-bitrise-2024',
         machine_type_id: 'standard',
       });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };

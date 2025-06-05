@@ -1,4 +1,4 @@
-import { Avatar, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip, TypeIconName } from '@bitrise/bitkit';
+import { Avatar, Box, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip, TypeIconName } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
 import { MachineTypeOption } from '@/core/models/StackAndMachine';
@@ -77,7 +77,9 @@ const MachineTypeSelector = ({
         label={PROMOTION_TEXTS[promotionType].toggleTipText}
         button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
       >
-        {icon}
+        <Box maxH="20px" mt="-4px">
+          {icon}
+        </Box>
       </Toggletip>
     );
   };
@@ -91,20 +93,21 @@ const MachineTypeSelector = ({
       search={false}
       label="Machine type"
       labelHelp={toggletip}
+      dropdownMaxHeight="25rem"
       disabled={isLoading || isDisabled}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
       helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
-      onChange={(e) => onChange(e.target.value as string)}
       value={machineType.value}
+      onChange={(e) => onChange(e.target.value ?? '')}
     >
       {!hasPromotion ? (
         renderOptions(availableOptions)
       ) : (
         <>
-          <DropdownGroup label={PROMOTION_TEXTS[promotionType].availableText}>
+          <DropdownGroup label={PROMOTION_TEXTS[promotionType].availableText} labelProps={{ whiteSpace: 'nowrap' }}>
             {renderOptions(availableOptions)}
           </DropdownGroup>
-          <DropdownGroup label={PROMOTION_TEXTS[promotionType].promotedText}>
+          <DropdownGroup label={PROMOTION_TEXTS[promotionType].promotedText} labelProps={{ whiteSpace: 'nowrap' }}>
             {renderOptions(promotedOptions, true)}
           </DropdownGroup>
         </>

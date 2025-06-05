@@ -1,7 +1,8 @@
-import { Box, Checkbox, Icon, Link, Select, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Checkbox, Dropdown, DropdownGroup, DropdownOption, Icon, Link, Text, Tooltip } from '@bitrise/bitkit';
+import { useMemo } from 'react';
 
 import { StackOption } from '@/core/models/StackAndMachine';
-import { StackWithValue } from '@/core/services/StackAndMachineService';
+import StackAndMachineService, { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {
   return (
@@ -55,23 +56,31 @@ const StackSelector = ({
   options,
   onChange,
 }: Props) => {
+  const groups = useMemo(() => StackAndMachineService.groupStackOptionsByStatus(options), [options]);
+
   return (
     <Box flex="1">
-      <Select
-        isRequired
+      <Dropdown
+        required
+        search={false}
         label="Stack"
-        isLoading={isLoading}
-        value={stack.value}
-        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
+        dropdownMaxHeight="25rem"
+        disabled={isLoading}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
-        onChange={(e) => onChange(e.target.value)}
+        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
+        value={stack.value}
+        onChange={(e) => onChange(e.target.value ?? '')}
       >
-        {options.map(({ value, label }) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
+        {groups.map((group) => (
+          <DropdownGroup key={group.status} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
+            {group.options.map(({ value, label }) => (
+              <DropdownOption key={value} value={value}>
+                {label}
+              </DropdownOption>
+            ))}
+          </DropdownGroup>
         ))}
-      </Select>
+      </Dropdown>
       <Checkbox
         isDisabled={!isRollbackVersionAvailable}
         isChecked={isRollbackVersionAvailable && useRollbackVersion}
