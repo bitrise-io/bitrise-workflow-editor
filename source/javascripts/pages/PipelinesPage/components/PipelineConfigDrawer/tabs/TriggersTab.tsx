@@ -1,27 +1,11 @@
-import Triggers from '@/components/unified-editor/Triggers/Triggers';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import TargerBasedTriggersTabContent from '@/components/unified-editor/Triggers/TargetBasedTriggers/TargetBasedTriggersTabContent';
 
 type Props = {
   pipelineId: string;
 };
 
 const TriggersTab = ({ pipelineId }: Props) => {
-  const { triggers, updatePipelineTriggers, updatePipelineTriggersEnabled } = useBitriseYmlStore((s) => ({
-    triggers: s.yml.pipelines?.[pipelineId]?.triggers,
-    updatePipelineTriggers: s.updatePipelineTriggers,
-    updatePipelineTriggersEnabled: s.updatePipelineTriggersEnabled,
-  }));
-
-  return (
-    <Triggers
-      additionalTrackingData={{ tab_name: 'pipelines', pipeline_name: pipelineId }}
-      id={pipelineId}
-      triggers={triggers}
-      updateTriggers={updatePipelineTriggers}
-      updateTriggersEnabled={updatePipelineTriggersEnabled}
-      entity="Pipeline"
-    />
-  );
+  return <TargerBasedTriggersTabContent source="pipelines" sourceId={pipelineId} />;
 };
 
 export default TriggersTab;

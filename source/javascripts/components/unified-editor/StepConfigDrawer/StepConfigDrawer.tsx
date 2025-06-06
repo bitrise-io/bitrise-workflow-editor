@@ -3,8 +3,8 @@ import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import StepBadge from '@/components/StepBadge';
+import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -26,10 +26,6 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 
 const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
   const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
-  const { changeStepVersion, changeStepVersionInStepBundle } = useBitriseYmlStore((s) => ({
-    changeStepVersion: s.changeStepVersion,
-    changeStepVersionInStepBundle: s.changeStepVersionInStepBundle,
-  }));
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
@@ -79,11 +75,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                         cursor="pointer"
                         textStyle="body/sm/regular"
                         onClick={() => {
-                          if (stepBundleId) {
-                            changeStepVersionInStepBundle(stepBundleId, stepIndex, latestMajorVersion);
-                          } else {
-                            changeStepVersion(workflowId, stepIndex, latestMajorVersion);
-                          }
+                          const source = stepBundleId ? 'step_bundles' : 'workflows';
+                          const sourceId = stepBundleId || workflowId;
+                          StepService.changeStepVersion(source, sourceId, stepIndex, latestMajorVersion);
                         }}
                       >
                         Latest version: {latestVersion}

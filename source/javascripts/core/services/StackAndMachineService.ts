@@ -1,7 +1,9 @@
 import { groupBy, sortBy, toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
+import { Document } from 'yaml';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
+import { Meta } from '../models/BitriseYml';
 import {
   MachineType,
   MachineTypeOption,
@@ -10,12 +12,22 @@ import {
   StackGroup,
   StackOption,
 } from '../models/StackAndMachine';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import YmlUtils from '../utils/YmlUtils';
+import WorkflowService from './WorkflowService';
 
-export type StackWithValue = Stack & {
+type FieldKeys = keyof Required<Meta>['bitrise.io'];
+
+enum StackAndMachineSource {
+  Root = 'root',
+  Workflow = 'workflow',
+}
+
+type StackWithValue = Stack & {
   value: string;
 };
 
-export type MachineTypeWithValue = MachineType & {
+type MachineTypeWithValue = MachineType & {
   value: string;
 };
 
@@ -328,6 +340,73 @@ function changeStackAndMachine({
   };
 }
 
+function validateSourceId(
+  source?: StackAndMachineSource,
+  sourceId?: string,
+  doc = bitriseYmlStore.getState().ymlDocument,
+) {
+  if (source === StackAndMachineSource.Workflow && !sourceId) {
+    throw new Error('sourceId is required when source is Workflow');
+  }
+
+  if (source === StackAndMachineSource.Workflow && sourceId) {
+    WorkflowService.getWorkflowOrThrowError(sourceId, doc);
+  }
+}
+
+function getMetaPath(source: StackAndMachineSource, sourceId?: string, field?: FieldKeys) {
+  const path = ['meta', 'bitrise.io'];
+
+  if (source === StackAndMachineSource.Workflow && sourceId) {
+    path.unshift('workflows', sourceId);
+  }
+
+  if (field) {
+    path.push(field);
+  }
+  return path;
+}
+
+function updateFieldValue(
+  doc: Document,
+  field: FieldKeys,
+  value: string,
+  source: StackAndMachineSource,
+  sourceId?: string,
+) {
+  validateSourceId(source, sourceId, doc);
+
+  const path = getMetaPath(source, sourceId);
+  const meta = YmlUtils.getMapIn(doc, path, true);
+
+  if (value) {
+    YmlUtils.setIn(meta, [field], value);
+  } else {
+    YmlUtils.deleteByPath(doc, [...path, field], path.slice(0, -2));
+  }
+}
+
+function updateStackAndMachine(
+  value: { stackId?: string; machineTypeId?: string; stackRollbackVersion?: string },
+  source: StackAndMachineSource,
+  sourceId?: string,
+) {
+  updateBitriseYmlDocument(({ doc }) => {
+    updateFieldValue(doc, 'stack', value.stackId || '', source, sourceId);
+    updateFieldValue(doc, 'machine_type_id', value.machineTypeId || '', source, sourceId);
+    updateFieldValue(doc, 'stack_rollback_version', value.stackRollbackVersion || '', source, sourceId);
+    return doc;
+  });
+}
+
+function updateLicensePoolId(licensePoolId: string, source: StackAndMachineSource, sourceId?: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    updateFieldValue(doc, 'license_pool_id', licensePoolId, source, sourceId);
+    return doc;
+  });
+}
+
+export { MachineTypeWithValue, StackAndMachineSource, StackWithValue };
 export default {
   changeStackAndMachine,
   prepareStackAndMachineSelectionData,
@@ -335,5 +414,7 @@ export default {
   toMachineOption,
   getStackById,
   getMachinesOfStack,
+  updateStackAndMachine,
+  updateLicensePoolId,
   groupStackOptionsByStatus,
 };

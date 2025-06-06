@@ -1,16 +1,35 @@
-import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
-import { cloneDeep } from 'es-toolkit';
-import { useCallback, useEffect } from 'react';
+import {
+  Box,
+  Breadcrumb,
+  BreadcrumbLink,
+  Button,
+  Text,
+  Tooltip,
+  useDisclosure,
+  useResponsive,
+  useToast,
+} from '@bitrise/bitkit';
+import { useCallback } from 'react';
+import { useEventListener } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, initializeStore } from '@/core/stores/BitriseYmlStore';
+import {
+  bitriseYmlStore,
+  discardBitriseYmlDocument,
+  getYmlString,
+  initializeBitriseYmlDocument,
+} from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
@@ -27,6 +46,7 @@ const Header = () => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
+  const ymlStatus = useYmlValidationStatus();
 
   const {
     isOpen: isDiffViewerOpen,
@@ -63,7 +83,7 @@ const Header = () => {
   });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
-    onSuccess: initializeStore,
+    onSuccess: initializeBitriseYmlDocument,
     onError: (error: ClientError) => {
       if (error.status === 409) {
         openMergeDialog();
@@ -98,36 +118,42 @@ const Header = () => {
 
       save({
         projectSlug: appSlug,
+        ymlString: getYmlString(),
         tabOpenDuringSave: currentPage,
-        yml: bitriseYmlStore.getState().yml,
-        version: bitriseYmlStore.getState().savedYmlVersion,
+        version: bitriseYmlStore.getState().version,
       });
     },
     [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],
   );
 
   const onDiscard = () => {
-    segmentTrack('Workflow Editor Discard Button Clicked', {
-      tab_name: currentPage,
-    });
-    bitriseYmlStore.setState((s) => ({
-      discardKey: Date.now(),
-      yml: cloneDeep(s.savedYml),
-    }));
+    segmentTrack('Workflow Editor Discard Button Clicked', { tab_name: currentPage });
+
+    useWorkflowsPageStore.setState(useWorkflowsPageStore.getInitialState());
+    usePipelinesPageStore.setState(usePipelinesPageStore.getInitialState());
+    useStepBundlesPageStore.setState(useStepBundlesPageStore.getInitialState());
+
+    discardBitriseYmlDocument();
   };
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's' && hasChanges && !isSaving) {
-        e.preventDefault();
-        saveCIConfig('save_changes_keyboard_shortcut_pressed');
+  useEventListener('keydown', (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && hasChanges && !isSaving) {
+      e.preventDefault();
+
+      if (ymlStatus === 'invalid') {
+        toast({
+          title: 'YAML is invalid',
+          description: 'Please fix the errors in your YAML configuration before saving.',
+          status: 'error',
+          duration: null,
+          isClosable: true,
+        });
+        return;
       }
-    };
 
-    document.addEventListener('keydown', handler);
-
-    return () => document.removeEventListener('keydown', handler);
-  }, [hasChanges, isSaving, saveCIConfig]);
+      saveCIConfig('save_changes_keyboard_shortcut_pressed');
+    }
+  });
 
   return (
     <Box
@@ -180,16 +206,22 @@ const Header = () => {
         >
           Discard
         </Button>
-        <Button
-          size="sm"
-          className="save"
-          variant="primary"
-          isLoading={isSaving}
-          isDisabled={!hasChanges}
-          onClick={() => saveCIConfig('save_changes_button')}
+        <Tooltip
+          isDisabled={ymlStatus !== 'invalid'}
+          placement={isMobile ? 'bottom' : 'bottom-start'}
+          label="YAML is invalid, please fix it before saving."
         >
-          Save changes
-        </Button>
+          <Button
+            size="sm"
+            className="save"
+            variant="primary"
+            isLoading={isSaving}
+            isDisabled={!hasChanges || ymlStatus === 'invalid'}
+            onClick={() => saveCIConfig('save_changes_button')}
+          >
+            Save changes
+          </Button>
+        </Tooltip>
       </Box>
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
       <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />

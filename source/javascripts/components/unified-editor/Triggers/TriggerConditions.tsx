@@ -1,17 +1,18 @@
 import { Box, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
 import { Fragment } from 'react';
 
-import { Condition, ConditionType, LegacyConditionType, TriggerType } from '../Triggers.types';
+import { TargetBasedCondition, TargetBasedConditionType, TriggerType } from '@/core/models/Trigger';
+import { LegacyCondition, LegacyConditionType } from '@/core/models/Trigger.legacy';
 
 type TriggerConditionsProps = {
-  conditions: Condition[];
+  conditions: LegacyCondition[] | TargetBasedCondition[];
   isDraftPr?: boolean;
   triggerType?: TriggerType;
   triggerDisabled?: boolean;
   priority?: number;
 };
 
-const iconMap: Record<LegacyConditionType | ConditionType, TypeIconName> = {
+const ICON_MAP: Record<LegacyConditionType | TargetBasedConditionType, TypeIconName> = {
   branch: 'Branch',
   push_branch: 'Branch',
   commit_message: 'Commit',
@@ -28,7 +29,7 @@ const iconMap: Record<LegacyConditionType | ConditionType, TypeIconName> = {
   name: 'Tag',
 };
 
-const toolTip: Record<LegacyConditionType | ConditionType, string> = {
+const TOOLTIP_MAP: Record<LegacyConditionType | TargetBasedConditionType, string> = {
   branch: 'Push branch',
   push_branch: 'Push branch',
   commit_message: 'Commit message',
@@ -52,9 +53,9 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
       {(!conditions || conditions.length === 0) && <Tag size="sm">No conditions.</Tag>}
       {conditions.map(({ type, value }, index) => (
         <Fragment key={type + value}>
-          <Tooltip label={triggerDisabled ? 'Disabled' : toolTip[type]}>
+          <Tooltip label={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]}>
             <Tag
-              iconName={iconMap[type]}
+              iconName={ICON_MAP[type]}
               iconColor={triggerDisabled ? 'neutral.80' : 'neutral.60'}
               size="sm"
               isDisabled={triggerDisabled}

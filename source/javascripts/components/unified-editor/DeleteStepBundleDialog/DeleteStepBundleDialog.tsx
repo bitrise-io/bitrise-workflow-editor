@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
 import { useCallback } from 'react';
 
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import StepBundleService from '@/core/services/StepBundleService';
 
 type Props = Omit<DialogProps, 'title'> & {
   stepBundleId: string;
@@ -9,13 +9,11 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const DeleteStepBundleDialog = ({ stepBundleId, onDeleteStepBundle, onClose, ...dialogProps }: Props) => {
-  const deleteStepBundle = useBitriseYmlStore((s) => s.deleteStepBundle);
-
   const handleDelete = useCallback(() => {
-    deleteStepBundle(stepBundleId);
+    StepBundleService.deleteStepBundle(stepBundleId);
     onDeleteStepBundle?.();
     onClose();
-  }, [deleteStepBundle, stepBundleId, onDeleteStepBundle, onClose]);
+  }, [stepBundleId, onDeleteStepBundle, onClose]);
 
   return (
     <Dialog title="Delete Step bundle?" onClose={onClose} {...dialogProps}>

@@ -1,7 +1,8 @@
 import TabContainer from '@/components/tabs/TabContainer';
 import TabHeader from '@/components/tabs/TabHeader';
+import { EnvVarSource } from '@/core/models/EnvVar';
 
-import EnvVarsTable from '../components/EnvVarsTable/EnvVarsTable';
+import EnvVarsTable from '../components/EnvVarsTable';
 import PrivateInfoNotification from '../components/PrivateInfoNotification';
 
 const ProjectTab = () => {
@@ -12,7 +13,7 @@ const ProjectTab = () => {
         title="Project Environment Variables"
         subtitle="Variables will also be available in builds triggered by pull requests"
       />
-      <EnvVarsTable source="project" />
+      <EnvVarsTable source={EnvVarSource.App} />
     </TabContainer>
   );
 };

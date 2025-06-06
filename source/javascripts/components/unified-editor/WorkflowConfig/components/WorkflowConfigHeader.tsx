@@ -12,7 +12,10 @@ type Props = {
 };
 
 const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
-  const { id = '', userValues } = useWorkflowConfigContext() ?? {};
+  const { id, title } = useWorkflowConfigContext((s) => ({
+    id: s?.id || '',
+    title: s?.userValues?.title,
+  }));
 
   const dependants = useDependantWorkflows({ workflowId: id });
 
@@ -23,7 +26,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
     <>
       <Box p={variant === 'panel' ? '16px 24px 0px 24px' : '0'}>
         <Text as="h3" textStyle="heading/h3">
-          {userValues?.title || id || 'Workflow'}
+          {title || id || 'Workflow'}
         </Text>
         {showSubTitle && (
           <Text textStyle="body/sm/regular" color="text/secondary">

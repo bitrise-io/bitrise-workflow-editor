@@ -1,37 +1,54 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { delay, http, HttpResponse } from 'msw';
+
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import ConfigMergeDialog from './ConfigMergeDialog';
 import { baseYaml, remoteYaml, yourYaml } from './ConfigMergeDialog.mocks';
-import { configMergeDialog } from './ConfigMergeDialog.store';
 
 type Story = StoryObj<typeof ConfigMergeDialog>;
 
 const meta: Meta<typeof ConfigMergeDialog> = {
   component: ConfigMergeDialog,
+  args: {
+    isOpen: true,
+  },
   argTypes: {
     onClose: {
       type: 'function',
     },
   },
-  beforeEach: () => {
-    configMergeDialog.setState({
-      isOpen: true,
-      isLoading: false,
-      baseYaml,
-      yourYaml,
-      remoteYaml,
-      errorMessage: '',
-    });
+  parameters: {
+    msw: {
+      handlers: [
+        http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
+          await delay();
+          return HttpResponse.text(remoteYaml);
+        }),
+      ],
+    },
+    bitriseYmlStore: {
+      yml: TEST_BITRISE_YML,
+      ymlDocument: YmlUtils.toDoc(yourYaml),
+      savedYmlDocument: YmlUtils.toDoc(baseYaml),
+      savedYmlVersion: '',
+    },
   },
 };
 
 export const Default: Story = {};
 
 export const WithError: Story = {
-  beforeEach: () => {
-    configMergeDialog.setState({
-      errorMessage: 'An error occurred',
-    });
+  parameters: {
+    msw: {
+      handlers: [
+        http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
+          await delay();
+          return HttpResponse.json({ error_msg: 'Error message' }, { status: 422 });
+        }),
+      ],
+    },
   },
 };
 

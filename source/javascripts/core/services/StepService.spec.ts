@@ -1,6 +1,7 @@
 import { StepApiResult } from '@/core/api/StepApi';
 
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, Step } from '../models/Step';
+import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import StepService from './StepService';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
@@ -20,7 +21,31 @@ const LOCAL_STEP = 'path::/path/to/my/local-step';
 const STEP_BUNDLE = 'bundle::my-bundle';
 const WITH_GROUP = 'with';
 
+function expectErrors(callbacks: VoidFunction[], errors: string[]) {
+  callbacks.forEach((callback, i) => {
+    expect(callback).toThrow(errors[i]);
+  });
+}
+
 describe('StepService', () => {
+  beforeEach(() => {
+    updateBitriseYmlDocumentByString(
+      yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `,
+    );
+  });
+
   describe('parseStepCVS', () => {
     describe('Simple step', () => {
       describe('with Bitrise default library', () => {
@@ -1050,54 +1075,6 @@ describe('StepService', () => {
     });
   });
 
-  describe('toYmlInput', () => {
-    it('should return undefined if the new value is empty', () => {
-      const result = StepService.toYmlInput('is_debug', '');
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined if the new value is only whitespaces', () => {
-      const result = StepService.toYmlInput('is_debug', '   ');
-      expect(result).toBeUndefined();
-    });
-
-    it('should return a boolean input if the new value is a boolean string', () => {
-      let result = StepService.toYmlInput('is_debug', 'true');
-      expect(result).toEqual({ is_debug: true });
-
-      result = StepService.toYmlInput('is_debug', 'false');
-      expect(result).toEqual({ is_debug: false });
-    });
-
-    it('should return a number input if the new value is a numeric string', () => {
-      let result = StepService.toYmlInput('timeout', '0');
-      expect(result).toEqual({ timeout: 0 });
-
-      result = StepService.toYmlInput('timeout', '1');
-      expect(result).toEqual({ timeout: 1 });
-
-      result = StepService.toYmlInput('timeout', '30');
-      expect(result).toEqual({ timeout: 30 });
-    });
-
-    it('should return a string input if the new value is a non-numeric, non-boolean string', () => {
-      const result = StepService.toYmlInput('name', 'new_name');
-      expect(result).toEqual({ name: 'new_name' });
-    });
-
-    it('should include opts if provided and not empty', () => {
-      const opts = { is_required: true };
-      const result = StepService.toYmlInput('name', 'new_name', opts);
-      expect(result).toEqual({ name: 'new_name', opts });
-    });
-
-    it('should not include opts if provided and empty', () => {
-      const opts = {};
-      const result = StepService.toYmlInput('name', 'new_name', opts);
-      expect(result).toEqual({ name: 'new_name' });
-    });
-  });
-
   describe('moveStepIndices', () => {
     test('move a not selected before a selected', () => {
       const result = StepService.moveStepIndices('move', [0, 2], 3, 1);
@@ -1132,6 +1109,665 @@ describe('StepService', () => {
     test('clone a not selected', () => {
       const result = StepService.moveStepIndices('clone', [1], 0);
       expect(result).toEqual([2]);
+    });
+  });
+
+  describe('addStep', () => {
+    it('should add a step to an existing workflow', () => {
+      StepService.addStep('workflows', 'primary', 'added@1', 1);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - added@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should add a step to an existing step bundle', () => {
+      StepService.addStep('step_bundles', 'my_bundle', 'added@1', 1);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - added@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throws an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.addStep('workflows', 'non_existing', 'added@1', 2),
+          () => StepService.addStep('step_bundles', 'non_existing', 'added@1', 2),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+  });
+
+  describe('moveStep', () => {
+    it('should move a step to a new position in an existing workflow', () => {
+      StepService.moveStep('workflows', 'primary', 0, 1);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - cache@2:
+                inputs: []
+            - script@1: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should move a step to a new position in an existing step bundle', () => {
+      StepService.moveStep('step_bundles', 'my_bundle', 0, 1);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - cache@2: {}
+            - script@1: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should move the step to end of the steps if the new index is out ouf bounds', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - cache@2: {}
+              - build@2: {}
+        `,
+      );
+
+      StepService.moveStep('workflows', 'primary', 1, 4);
+
+      expect(getYmlString()).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - build@2: {}
+              - cache@2: {}
+        `,
+      );
+    });
+
+    it('should move the step relative to the end of the steps', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - cache@2: {}
+              - build@2: {}
+        `,
+      );
+
+      StepService.moveStep('workflows', 'primary', 0, -1);
+
+      expect(getYmlString()).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - cache@2: {}
+              - script@1: {}
+              - build@2: {}
+        `,
+      );
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.moveStep('workflows', 'non_existing', 0, 1),
+          () => StepService.moveStep('step_bundles', 'non_existing', 0, 1),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.moveStep('workflows', 'primary', 2, 1)],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
+  describe('cloneStep', () => {
+    it('should clone a step in an existing workflow', () => {
+      StepService.cloneStep('workflows', 'primary', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should clone a step in an existing step bundle', () => {
+      StepService.cloneStep('step_bundles', 'my_bundle', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.cloneStep('workflows', 'non_existing', 0),
+          () => StepService.cloneStep('step_bundles', 'non_existing', 0),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.cloneStep('workflows', 'primary', 2)],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
+  describe('deleteStep', () => {
+    it('should delete a step in an existing workflow', () => {
+      StepService.deleteStep('workflows', 'primary', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should delete a step in an existing step bundle', () => {
+      StepService.deleteStep('step_bundles', 'my_bundle', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should be able to delete multiple steps', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1: {}
+              - cache@2: {}
+              - build@2: {}
+              - deploy@2: {}
+              - analyze@2: {}
+        `,
+      );
+
+      StepService.deleteStep('workflows', 'primary', [1, 2, 3]);
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - analyze@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should delete steps field if it is empty', () => {
+      StepService.deleteStep('workflows', 'primary', 0);
+      StepService.deleteStep('workflows', 'primary', 0);
+
+      const expectedYml = yaml`
+        workflows:
+          primary: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.deleteStep('workflows', 'non_existing', 0),
+          () => StepService.deleteStep('step_bundles', 'non_existing', 0),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.deleteStep('workflows', 'primary', 2)],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
+  describe('updateStepField', () => {
+    it('should update a step field in an existing workflow', () => {
+      StepService.updateStepField('workflows', 'primary', 0, 'title', 'New title');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1:
+                title: New title
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update a step field in an existing step bundle', () => {
+      StepService.updateStepField('step_bundles', 'my_bundle', 0, 'title', 'New title');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1:
+                title: New title
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove a step field if the new value is empty', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  title: Old title
+        `,
+      );
+
+      StepService.updateStepField('workflows', 'primary', 0, 'title', '');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.updateStepField('workflows', 'non_existing', 0, 'run_if', '.CI'),
+          () => StepService.updateStepField('step_bundles', 'non_existing', 0, 'run_if', '.CI'),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.updateStepField('workflows', 'primary', 2, 'run_if', '.CI')],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
+  describe('updateStepInput', () => {
+    it('should update an existing step input', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  inputs:
+                  - is_debug: false
+                  - is_test: false
+        `,
+      );
+
+      StepService.updateStepInput('workflows', 'primary', 0, 'is_test', 'true');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1:
+                inputs:
+                - is_debug: false
+                - is_test: true
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should add a new step input if it does not exist', () => {
+      // NOTE: Duplication is intentional here because it tests the deduplication of inputs
+      StepService.updateStepInput('workflows', 'primary', 1, 'is_test', 'false');
+      StepService.updateStepInput('workflows', 'primary', 1, 'is_test', 'true');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+            - cache@2:
+                inputs:
+                - is_test: true
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove the step input if empty string is given', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  inputs:
+                  - is_debug: false
+                  - is_test: true
+        `,
+      );
+
+      StepService.updateStepInput('workflows', 'primary', 0, 'is_debug', '');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1:
+                inputs:
+                - is_test: true
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove the step inputs field if remove the last input', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  inputs:
+                  - is_debug: false
+        `,
+      );
+
+      StepService.updateStepInput('workflows', 'primary', 0, 'is_debug', '');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should not override existing input opts', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  inputs:
+                  - is_debug: false
+                  - is_test: false
+                    opts:
+                      is_expand: true
+        `,
+      );
+
+      StepService.updateStepInput('workflows', 'primary', 0, 'is_test', 'true');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1:
+                inputs:
+                - is_debug: false
+                - is_test: true
+                  opts:
+                    is_expand: true
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.updateStepInput('workflows', 'non_existing', 0, 'is_test', 'true'),
+          () => StepService.updateStepInput('step_bundles', 'non_existing', 0, 'is_test', 'true'),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.updateStepInput('workflows', 'primary', 2, 'is_test', 'true')],
+        ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
+  describe('changeStepVersion', () => {
+    it('should upgrade the step version at the given index', () => {
+      StepService.changeStepVersion('workflows', 'primary', 0, '1.2.3');
+      StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '2.3.x');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1.2.3: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2.3: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should append version if the step does not have one', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script: {}
+              - cache@2: {}
+          step_bundles:
+            my_bundle:
+              steps:
+              - script@1: {}
+              - cache: {}
+        `,
+      );
+
+      StepService.changeStepVersion('workflows', 'primary', 0, '1.2.3');
+      StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '2.3.x');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1.2.3: {}
+            - cache@2: {}
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache@2.3: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove the step version is empty string is given', () => {
+      StepService.changeStepVersion('workflows', 'primary', 0, '');
+      StepService.changeStepVersion('step_bundles', 'my_bundle', 1, '');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script: {}
+            - cache@2:
+                inputs: []
+        step_bundles:
+          my_bundle:
+            steps:
+            - script@1: {}
+            - cache: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throw an error if the workflow or step bundle does not exist', () => {
+      expectErrors(
+        [
+          () => StepService.changeStepVersion('workflows', 'non_existing', 0, '1.2.3'),
+          () => StepService.changeStepVersion('step_bundles', 'non_existing', 0, '2.3.x'),
+        ],
+        ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
+      );
+    });
+
+    it('should throw an error if the step does not exist', () => {
+      expectErrors(
+        [() => StepService.changeStepVersion('workflows', 'primary', 2, '1.2.3')],
+        ['Step at index 2 not found in workflows.primary'],
+      );
     });
   });
 });

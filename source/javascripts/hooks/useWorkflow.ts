@@ -1,16 +1,13 @@
 import { Workflow } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const useWorkflow = (id: string): Workflow | undefined => {
+function useWorkflow<U = Workflow | undefined>(id: string, selector?: (state: Workflow | undefined) => U) {
   return useBitriseYmlStore(({ yml }) => {
-    const workflow = yml.workflows?.[id];
+    const userValues = yml.workflows?.[id];
+    const workflow = userValues ? { id, userValues } : undefined;
 
-    if (!workflow) {
-      return undefined;
-    }
-
-    return { id, userValues: workflow };
-  });
-};
+    return selector ? selector(workflow) : workflow;
+  }) as U;
+}
 
 export default useWorkflow;

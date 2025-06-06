@@ -16,7 +16,7 @@ import {
 import { isEqual } from 'es-toolkit';
 import { useCallback, useEffect, useState } from 'react';
 
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import PipelineService from '@/core/services/PipelineService';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
@@ -25,7 +25,7 @@ import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import PlaceholderNode from './components/PlaceholderWorkflowNode';
 import WorkflowNode from './components/WorkflowNode';
 import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
-import { GraphPipelineEdgeType, GraphPipelineNodeType } from './GraphPipelineCanvas.types';
+import { GraphPipelineEdgeType, GraphPipelineNodeType, isWorkflowNode } from './GraphPipelineCanvas.types';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import transformWorkflowsToGraphEntities from './utils/transformWorkflowsToGraphEntities';
@@ -51,30 +51,31 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [nodes, setNodes] = useNodesState(autoLayoutingGraphNodes(workflows, initial.nodes));
 
-  const { addPipelineWorkflowDependency, removeWorkflowFromPipeline, removePipelineWorkflowDependency } =
-    useBitriseYmlStore((s) => ({
-      removeWorkflowFromPipeline: s.removeWorkflowFromPipeline,
-      addPipelineWorkflowDependency: s.addPipelineWorkflowDependency,
-      removePipelineWorkflowDependency: s.removePipelineWorkflowDependency,
-    }));
-
   const handleEdgesDelete: OnEdgesDelete = useCallback(
     (deletedEdges) => {
-      deletedEdges.forEach((edge) => removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source));
+      deletedEdges.forEach((edge) => {
+        if (workflows.some((workflow) => workflow.id === edge.target)) {
+          PipelineService.removePipelineWorkflowDependency(selectedPipeline, edge.target, edge.source);
+        }
+      });
     },
-    [removePipelineWorkflowDependency, selectedPipeline],
+    [selectedPipeline, workflows],
   );
 
   const handleNodesDelete: OnNodesDelete = useCallback(
     (deletedNodes) => {
-      deletedNodes.forEach((node) => removeWorkflowFromPipeline(selectedPipeline, node.id));
+      deletedNodes.forEach((node) => {
+        if (isWorkflowNode(node)) {
+          PipelineService.removeWorkflowFromPipeline(selectedPipeline, node.id);
+        }
+      });
     },
-    [removeWorkflowFromPipeline, selectedPipeline],
+    [selectedPipeline],
   );
 
   const handleConnect: OnConnect = useCallback(
-    (params) => addPipelineWorkflowDependency(selectedPipeline, params.target, params.source),
-    [addPipelineWorkflowDependency, selectedPipeline],
+    (params) => PipelineService.addPipelineWorkflowDependency(selectedPipeline, params.target, params.source),
+    [selectedPipeline],
   );
 
   const handleEdgeMouseEnter: EdgeMouseHandler = useCallback(

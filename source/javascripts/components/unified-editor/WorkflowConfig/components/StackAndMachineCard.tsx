@@ -1,29 +1,28 @@
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import useWorkflowStackAndMachine from '@/hooks/useWorkflowStackAndMachine';
 
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const StackAndMachineCard = () => {
-  const workflow = useWorkflowConfigContext();
-  const workflowId = workflow?.id || '';
+  const workflowId = useWorkflowConfigContext((s) => s?.id || '');
   const { stackId, machineTypeId, stackRollbackVersion } = useWorkflowStackAndMachine(workflowId);
 
-  const updateWorkflowMeta = useBitriseYmlStore((s) => s.updateWorkflowMeta);
+  const updateWorkflowMeta = (stack: string, machine_type_id: string, stack_rollback_version: string) => {
+    StackAndMachineService.updateStackAndMachine(
+      { stackId: stack, machineTypeId: machine_type_id, stackRollbackVersion: stack_rollback_version },
+      StackAndMachineSource.Workflow,
+      workflowId,
+    );
+  };
 
   return (
     <StackAndMachine
       isExpandable
       stackId={stackId}
       machineTypeId={machineTypeId}
-      onChange={(stack, machine_type_id, stack_rollback_version) => {
-        updateWorkflowMeta(workflowId, {
-          stack,
-          machine_type_id,
-          stack_rollback_version,
-        });
-      }}
       stackRollbackVersion={stackRollbackVersion}
+      onChange={updateWorkflowMeta}
     />
   );
 };

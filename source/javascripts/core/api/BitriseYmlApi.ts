@@ -1,52 +1,8 @@
-import { parse, Scalar, stringify } from 'yaml';
-
-import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import Client from './client';
 
 const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
-
-// TRANSFORMATIONS
-
-// NOTE: When the value is a string and contains a tab characters, the eemeli/yaml
-// will stringify it as multi-line block string, but keep the tab characters. It's not optimal
-// for us, because it's not a valid YAML for the Bitrise CLI. So we need to keep the single
-// line string with double quotes. This is a workaround for the issue.
-function tabbedValueReplacer(_: unknown, value: unknown) {
-  if (typeof value === 'string' && /\t/.test(value)) {
-    const scalar = new Scalar(value);
-    scalar.type = 'QUOTE_DOUBLE';
-    return scalar;
-  }
-
-  return value;
-}
-
-function toYml(model?: unknown): string {
-  if (!model) {
-    return '';
-  }
-
-  if (typeof model === 'string') {
-    return model;
-  }
-
-  return stringify(model, tabbedValueReplacer, {
-    version: '1.1',
-    indentSeq: false,
-    schema: 'yaml-1.1',
-    aliasDuplicateObjects: false,
-  });
-}
-
-function fromYml(yml: string): BitriseYml {
-  if (!yml) {
-    return { format_version: '' };
-  }
-
-  return parse(yml);
-}
 
 type GetCiConfigOptions = {
   projectSlug: string;
@@ -67,7 +23,6 @@ type SaveCiConfigOptions = {
 };
 
 // API CALLS
-const FORMAT_YML_PATH = `/api/cli/format`;
 const BITRISE_YML_PATH = `/api/app/:projectSlug/config.yml`;
 const LOCAL_BITRISE_YML_PATH = `/api/bitrise-yml`;
 
@@ -111,30 +66,10 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: S
   });
 }
 
-async function formatCiConfig(data: string, signal?: AbortSignal): Promise<string> {
-  const response = await Client.text(FORMAT_YML_PATH, {
-    signal,
-    body: JSON.stringify({
-      app_config_datastore_yaml: data,
-    }),
-    headers: {
-      Accept: 'application/x-yaml, application/json',
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-  });
-
-  return response || toYml(data);
-}
-
 export type { GetCiConfigResult };
 
 export default {
-  toYml,
-  fromYml,
   getCiConfig,
   ciConfigPath,
   saveCiConfig,
-  formatCiConfig,
-  FORMAT_YML_PATH,
 };

@@ -2,7 +2,6 @@ import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery 
 
 import BitriseYmlApi, { GetCiConfigResult } from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
-import { BitriseYml } from '@/core/models/BitriseYml';
 import PageProps from '@/core/utils/PageProps';
 
 type UseGetCiConfigProps = {
@@ -11,8 +10,8 @@ type UseGetCiConfigProps = {
 };
 
 type UseSaveCiConfigProps = {
-  yml: BitriseYml;
   version?: string;
+  ymlString: string;
   projectSlug: string;
   tabOpenDuringSave?: string;
 };
@@ -31,16 +30,12 @@ export function useGetCiConfig(props: UseGetCiConfigProps, options?: UseGetCiCon
 
 export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
   return useMutation({
-    mutationFn: async ({ projectSlug, yml, version, tabOpenDuringSave }) => {
-      // Format the YML before saving
-      const formattedYml = await BitriseYmlApi.formatCiConfig(BitriseYmlApi.toYml(yml));
-
-      // Send the formatted YML to the server
+    mutationFn: async ({ projectSlug, ymlString, version, tabOpenDuringSave }) => {
       await BitriseYmlApi.saveCiConfig({
         version,
         projectSlug,
+        data: ymlString,
         tabOpenDuringSave,
-        data: formattedYml,
       });
 
       // Re-fetch YML to get the latest version

@@ -9,17 +9,19 @@ type HeaderProps = {
   variant: 'panel' | 'drawer';
 };
 
-const StepBundleConfigHeader = (props: HeaderProps) => {
-  const { variant } = props;
-  const { stepBundle } = useStepBundleConfigContext() ?? {};
-  const { cvs, id, userValues } = stepBundle ?? {};
+const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
+  const { cvs, title } = useStepBundleConfigContext((s) => ({
+    cvs: s.stepBundle?.cvs || '',
+    title: s.stepBundle?.userValues?.title || s.stepBundle?.id || 'Step bundle',
+  }));
+
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 
   return (
     <>
       <Box p={variant === 'panel' ? '16px 24px 0px 24px' : '0'}>
         <Text as="h3" textStyle="heading/h3">
-          {userValues?.title || id || 'Step bundle'}
+          {title}
         </Text>
         <Text textStyle="body/sm/regular" color="text/secondary">
           {StepBundleService.getUsedByText(dependants.length)}

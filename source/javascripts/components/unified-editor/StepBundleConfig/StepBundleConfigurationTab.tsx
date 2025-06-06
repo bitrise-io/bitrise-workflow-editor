@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import useStepBundleInputs from '@/components/unified-editor/StepBundleConfig/hooks/useStepBundleInputs';
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import StepBundleService from '@/core/services/StepBundleService';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import StepBundleInputsCategoryCard from './StepBundleInputs/StepBundleInputsCategoryCard';
@@ -14,11 +14,6 @@ const StepBundleConfigurationTab = () => {
   const [preselectedCategory, setPreselectedCategory] = useState<string>();
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const { stepBundle, ...context } = useStepBundleConfigContext();
-
-  const appendStepBundleInput = useBitriseYmlStore((s) => s.appendStepBundleInput);
-  const deleteStepBundleInput = useBitriseYmlStore((s) => s.deleteStepBundleInput);
-  const updateStepBundleInput = useBitriseYmlStore((s) => s.updateStepBundleInput);
-  const updateStepBundleInputInstanceValue = useBitriseYmlStore((s) => s.updateStepBundleInputInstanceValue);
 
   const categories = useStepBundleInputs({
     inputs: stepBundle?.userValues.inputs,
@@ -35,16 +30,14 @@ const StepBundleConfigurationTab = () => {
   const handleChange = (key: string, newValue: string, index: number) => {
     const input = stepBundle?.userValues.inputs?.[index];
     if (context.parentStepBundleId || context.parentWorkflowId) {
-      updateStepBundleInputInstanceValue(
-        key,
-        newValue,
-        context.parentStepBundleId,
-        context.parentWorkflowId,
-        stepBundle?.cvs || `bundle::${stepBundle?.id}`,
-        context.stepIndex,
-      );
+      StepBundleService.updateStepBundleInputInstanceValue(key, newValue, {
+        cvs: stepBundle?.cvs || `bundle::${stepBundle?.id}`,
+        source: context.parentStepBundleId ? 'step_bundles' : 'workflows',
+        sourceId: context.parentStepBundleId || context.parentWorkflowId || '',
+        stepIndex: context.stepIndex,
+      });
     } else {
-      updateStepBundleInput(stepBundle?.id || '', index, {
+      StepBundleService.updateStepBundleInput(stepBundle?.id || '', index, {
         ...input,
         [key]: newValue,
       });
@@ -52,7 +45,7 @@ const StepBundleConfigurationTab = () => {
   };
 
   const handleDelete = (index: number) => {
-    deleteStepBundleInput(stepBundle?.id || '', index);
+    StepBundleService.deleteStepBundleInput(stepBundle?.id || '', index);
   };
 
   const handleEdit = (index: number) => {
@@ -66,9 +59,9 @@ const StepBundleConfigurationTab = () => {
 
   const handleSubmit = (data: EnvironmentItemModel, index: number, mode: FormMode) => {
     if (mode === 'edit') {
-      updateStepBundleInput(stepBundle?.id || '', index, data);
+      StepBundleService.updateStepBundleInput(stepBundle?.id || '', index, data);
     } else {
-      appendStepBundleInput(stepBundle?.id || '', data);
+      StepBundleService.addStepBundleInput(stepBundle?.id || '', data);
     }
     setPreselectedCategory(undefined);
     setSelectedInputIndex(-1);

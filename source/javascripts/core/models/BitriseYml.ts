@@ -48,6 +48,8 @@ export type StepBundleModel = {
   description?: string;
 };
 
+export type StepBundleOverrideModel = Omit<StepBundleModel, 'steps'>;
+
 export type IncludeItemModel = {
   path: string;
   repository?: string;
@@ -257,7 +259,7 @@ export type TriggerMapItemModelRegexCondition =
     };
 
 export type StepListItemModel = {
-  [stepId: string]: StepModel | WithModel | StepBundleModel | null;
+  [stepId: string]: StepModel | WithModel | StepBundleOverrideModel | null;
 };
 
 export type ContainerModel = {
@@ -277,12 +279,12 @@ export type DockerCredentialModel = {
 // Helper types
 export type TriggerMap = TriggerMapItemModel[];
 export type Steps = StepListItemModel[];
-export type Stages = Record<string, StageModel>;
-export type Services = Record<string, ContainerModel>;
-export type Workflows = Record<string, WorkflowModel>;
-export type Pipelines = Record<string, PipelineModel>;
-export type Containers = Record<string, ContainerModel>;
-export type StepBundles = Record<string, StepBundleModel>;
-export type PipelineStages = Record<string, StageModel>[];
-export type StageWorkflows = Record<string, WorkflowStageConfigModel>[];
-export type PipelineWorkflows = Record<string, GraphPipelineWorkflowModel>;
+export type Stages = Record<string, StageModel | null>;
+export type Services = Record<string, ContainerModel | null>;
+export type Workflows = Record<string, WorkflowModel | null>;
+export type Pipelines = Record<string, PipelineModel | null>;
+export type Containers = Record<string, ContainerModel | null>;
+export type StepBundles = Record<string, StepBundleModel | null>;
+export type PipelineStages = Record<string, StageModel | null>[];
+export type StageWorkflows = Record<string, WorkflowStageConfigModel | null>[];
+export type PipelineWorkflows = Record<string, GraphPipelineWorkflowModel | null>;

@@ -4,64 +4,69 @@ import { useMemo } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
 import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { TriggerMapItemModelRegexCondition } from '@/core/models/BitriseYml';
+import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
+import {
+  TARGET_BASED_LABELS_MAP,
+  TARGET_BASED_OPTIONS_MAP,
+  TargetBasedConditionType,
+  TargetBasedTrigger,
+  TriggerSource,
+  TriggerType,
+} from '@/core/models/Trigger';
 
-import { ConditionType, FormItems, TargetBasedTriggerItem, TriggerType } from '../../Triggers.types';
-import { getConditionList } from '../../Triggers.utils';
-import ConditionCard from './ConditionCard';
+import ConditionCard from '../ConditionCard';
 
-type AddTriggerProps = {
-  id?: string;
+type Props = {
+  source: TriggerSource;
+  sourceId: string;
   triggerType: TriggerType;
-  onSubmit: (trigger: TargetBasedTriggerItem) => void;
+  editedItem?: TargetBasedTrigger;
+  currentTriggers: TargetBasedTrigger[];
+  onSubmit: (trigger: TargetBasedTrigger) => void;
   onCancel: () => void;
-  optionsMap: Record<ConditionType, string>;
-  labelsMap: Record<string, string>;
-  editedItem?: TargetBasedTriggerItem;
-  currentTriggers: TargetBasedTriggerItem[];
-  trackingData: Record<string, number | string | boolean>;
-  entity: 'Workflow' | 'Pipeline';
 };
 
-const AddTrigger = (props: AddTriggerProps) => {
-  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, trackingData, entity } =
-    props;
+const AddOrEditTargetBasedTrigger = (props: Props) => {
+  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit } = props;
 
-  const defaultConditions = useMemo(() => {
-    if (editedItem) {
-      return getConditionList(editedItem);
-    }
-    return [
-      {
-        type: Object.keys(optionsMap)[0] as ConditionType,
-        value: '',
-        isRegex: false,
-      },
-    ];
-  }, [editedItem, optionsMap]);
+  const optionsMap = useMemo(() => TARGET_BASED_OPTIONS_MAP[triggerType], [triggerType]);
+  const labelsMap = useMemo(() => TARGET_BASED_LABELS_MAP[triggerType], [triggerType]);
+  const entity = useMemo(() => (source === 'pipelines' ? 'Pipeline' : 'Workflow'), [source]);
 
-  const formMethods = useForm<FormItems>({
-    defaultValues: {
-      conditions: defaultConditions,
-      isDraftPr: editedItem?.draft_enabled !== false,
-      priority: editedItem?.priority,
-    },
-  });
+  const defaultValues = useMemo<TargetBasedTrigger>(
+    () => ({
+      conditions: [
+        {
+          type: Object.keys(optionsMap)[0] as TargetBasedConditionType,
+          value: '',
+          isRegex: false,
+        },
+      ],
+      uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
+      source: `${source}#${sourceId}`,
+      index: editedItem?.index || currentTriggers.length,
+      triggerType,
+      isActive: true,
+      isDraftPr: true,
+      ...editedItem,
+    }),
+    [currentTriggers.length, editedItem, optionsMap, source, sourceId, triggerType],
+  );
 
+  const formMethods = useForm<TargetBasedTrigger>({ defaultValues });
   const { control, handleSubmit, setValue, reset, watch } = formMethods;
-
   const { conditions, isDraftPr, priority } = watch();
-
-  const { append, fields, remove } = useFieldArray({
-    control,
-    name: 'conditions',
-  });
+  const { append, fields, remove } = useFieldArray({ control, name: 'conditions', keyName: 'uniqueId' });
 
   const onAppend = () => {
-    const availableTypes = Object.keys(optionsMap) as ConditionType[];
+    const availableTypes = Object.keys(optionsMap) as TargetBasedConditionType[];
     const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
+
+    if (!newType) {
+      return;
+    }
+
     append({
       type: newType,
       value: '',
@@ -69,7 +74,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     });
   };
 
-  const onFormSubmit = (data: FormItems) => {
+  const onFormSubmit = (data: TargetBasedTrigger) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -80,62 +85,25 @@ const AddTrigger = (props: AddTriggerProps) => {
       return newCondition;
     });
 
-    const newTrigger: any = {};
-    filteredData.conditions.forEach((condition) => {
-      if (triggerType === 'push' && (condition.type === 'commit_message' || condition.type === 'changed_files')) {
-        const value: TriggerMapItemModelRegexCondition = condition.isRegex
-          ? { regex: condition.value }
-          : { pattern: condition.value };
-        if (condition.isLastCommitOnly) {
-          value.last_commit = true;
-        }
-        newTrigger[condition.type] = value;
-      } else if (condition.type) {
-        newTrigger[condition.type] = condition.isRegex ? { regex: condition.value } : condition.value;
-      }
-    });
-
-    if (!data.isDraftPr) {
-      newTrigger.draft_enabled = false;
-    } else {
-      delete newTrigger.draft_enabled;
-    }
-
-    if (data.priority === undefined) {
-      delete newTrigger.priority;
-    } else {
-      newTrigger.priority = Number(data.priority);
-    }
-    onSubmit(newTrigger);
+    onSubmit(filteredData);
   };
 
   const handleSegmentTrack = () => {
-    const triggerConditions: Record<string, TriggerMapItemModelRegexCondition> = {};
-    conditions.forEach((condition) => {
-      let value = {};
-      if (condition.isRegex) {
-        value = { regex: condition.value };
-      } else {
-        value = { wildcard: condition.value };
-      }
-      triggerConditions[condition.type || ''] = value as TriggerMapItemModelRegexCondition;
-    });
-    segmentTrack(
-      editedItem
-        ? 'Workflow Editor Apply Trigger Changes Button Clicked'
-        : 'Workflow Editor Add Trigger Button Clicked',
-      {
-        ...trackingData,
-        build_trigger_type: triggerType,
-        trigger_conditions: triggerConditions,
-        trigger_origin: 'workflow_triggers',
-      },
-    );
+    if (editedItem) {
+      trackEditTrigger(watch());
+    } else {
+      trackAddTrigger(watch());
+    }
   };
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    if (isEqual(getConditionList(trigger), conditions) && isEqual(trigger.draft_enabled !== false, isDraftPr)) {
+    if (
+      trigger.uniqueId !== editedItem?.uniqueId &&
+      isEqual(trigger.conditions, conditions) &&
+      isEqual(trigger.isDraftPr, isDraftPr) &&
+      isEqual(trigger.priority, priority)
+    ) {
       isSameTriggerExist = true;
     }
   });
@@ -168,12 +136,12 @@ const AddTrigger = (props: AddTriggerProps) => {
             run.
           </Text>
           <ConditionCard
+            triggerType={triggerType}
             fields={fields}
             labelsMap={labelsMap}
             append={onAppend}
             optionsMap={optionsMap}
             remove={remove}
-            triggerType={triggerType}
           />
           {triggerType === 'pull_request' && (
             <Checkbox
@@ -225,4 +193,4 @@ const AddTrigger = (props: AddTriggerProps) => {
   );
 };
 
-export default AddTrigger;
+export default AddOrEditTargetBasedTrigger;

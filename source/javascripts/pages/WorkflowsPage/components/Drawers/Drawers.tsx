@@ -10,12 +10,14 @@ import WithGroupDrawer from '@/components/unified-editor/WithGroupDrawer/WithGro
 import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import WorkflowService from '@/core/services/WorkflowService';
 import useSearchParams from '@/hooks/useSearchParams';
+import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
 
 const Drawers = ({ children }: PropsWithChildren) => {
+  const enabledSteps = useUniqueStepIds('set');
   const [, setSearchParams] = useSearchParams();
 
   const {
@@ -31,44 +33,20 @@ const Drawers = ({ children }: PropsWithChildren) => {
     parentWorkflowId,
   } = useWorkflowsPageStore();
 
-  const { addStep, addStepToStepBundle, createWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
-    (s) => ({
-      addStep: s.addStep,
-      addStepToStepBundle: s.addStepToStepBundle,
-      createWorkflow: s.createWorkflow,
-      getUniqueStepIds: s.getUniqueStepIds,
-      addChainedWorkflow: s.addChainedWorkflow,
-    }),
-  );
-
-  const enabledSteps = new Set(getUniqueStepIds());
-
   const handleAddStep = (cvs: string) => {
     const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
     const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
-    if (library === LibraryType.BUNDLE) {
-      if (workflowId) {
-        addStep(workflowId, cvs, selectedStepIndices[0]);
-      } else {
-        addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-      }
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_BUNDLE,
-        workflowId,
-        stepBundleId,
-      })();
-    } else if (workflowId) {
-      addStep(workflowId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_CONFIG,
-        workflowId,
-      })();
+
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    const wantsToAddAStepBundle = library === LibraryType.BUNDLE;
+
+    if (wantsToAddAStepBundle) {
+      StepService.addStep(source, sourceId, cvs, selectedStepIndices[0]);
+      openDialog({ type: WorkflowsPageDialogType.STEP_BUNDLE, workflowId, stepBundleId })();
     } else {
-      addStepToStepBundle(stepBundleId, cvs, selectedStepIndices[0]);
-      openDialog({
-        type: WorkflowsPageDialogType.STEP_CONFIG,
-        stepBundleId,
-      })();
+      StepService.addStep(source, sourceId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      openDialog({ type: WorkflowsPageDialogType.STEP_CONFIG, workflowId, stepBundleId })();
     }
   };
 
@@ -99,7 +77,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.CREATE_WORKFLOW)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreateWorkflow={createWorkflow}
+          onCreateWorkflow={WorkflowService.createWorkflow}
         />
       )}
 
@@ -110,7 +88,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.CHAIN_WORKFLOW)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onChainWorkflow={addChainedWorkflow}
+          onChainWorkflow={WorkflowService.addChainedWorkflow}
         />
       )}
 
