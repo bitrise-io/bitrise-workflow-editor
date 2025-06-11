@@ -899,7 +899,7 @@ describe('EnvVarService', () => {
               - NODE_VERSION: '0.14.0'`,
         );
 
-        EnvVarService.updateValue('2.0', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
+        EnvVarService.updateValue('2.1', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
         EnvVarService.updateValue('Grogu', { source: EnvVarSource.App, index: 1, key: 'PROJECT_NAME' });
         EnvVarService.updateValue('staging', { source: EnvVarSource.App, index: 2, key: 'ENVIRONMENT' });
         EnvVarService.updateValue('0.15.0', { source: EnvVarSource.App, index: 3, key: 'NODE_VERSION' });
@@ -907,7 +907,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: 2.0
+            - SERVICE_VERSION: 2.1
             - PROJECT_NAME: "Grogu"
             - ENVIRONMENT: 'staging'
             - NODE_VERSION: '0.15.0'
