@@ -166,6 +166,20 @@ describe('YmlUtils', () => {
         });
       });
     });
+
+    describe('swat issues', () => {
+      it('floats ending in 0, as 3.20 should be kept as string', () => {
+        const value = '3.20';
+        const result = YmlUtils.toTypedValue(value);
+        expect(result).toBe(value);
+      });
+
+      it('comma-separated numbers should be kept as string', () => {
+        const value = '1234,1235';
+        const result = YmlUtils.toTypedValue(value);
+        expect(result).toBe(value);
+      });
+    });
   });
 
   describe('unflowEmptyCollection', () => {

@@ -172,6 +172,11 @@ function toTypedValue(value: unknown) {
     return value;
   }
 
+  // DO NOT CONVERT: Comma-separated numbers
+  if (/\d+,\d+/.test(lowerValue)) {
+    return value;
+  }
+
   // If it looks like a finite number (integer or float), convert to Number
   const number = Number(lowerValue);
   if (/^(\d+(\.\d*)?|\.\d+)$/.test(lowerValue) && !Number.isNaN(number)) {
