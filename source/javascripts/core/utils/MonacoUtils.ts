@@ -103,7 +103,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
         });
       });
 
-      token.onCancellationRequested(() => abortController.abort());
+      token.onCancellationRequested(() => abortController.abort('Completion request cancelled by Monaco editor'));
 
       async function loadEnvVars() {
         const envVars = await EnvVarsApi.getEnvVars({ appSlug, projectType, signal: abortController.signal });
@@ -181,7 +181,14 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
         });
       }
 
-      await Promise.all([loadEnvVars(), loadSecrets(), loadStepOutputs()]);
+      try {
+        await Promise.all([loadEnvVars(), loadSecrets(), loadStepOutputs()]);
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return { suggestions: [] };
+        }
+        throw error;
+      }
 
       return { suggestions };
     },
