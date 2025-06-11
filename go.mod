@@ -7,6 +7,7 @@ require (
 	github.com/bitrise-io/bitrise/v2 v2.31.0
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
+	github.com/bitrise-io/envman/v2 v2.5.3
 	github.com/bitrise-io/go-utils v1.0.13
 	github.com/bitrise-io/stepman v0.17.3
 	github.com/gorilla/mux v1.8.1
@@ -16,7 +17,6 @@ require (
 )
 
 require (
-	github.com/bitrise-io/envman/v2 v2.5.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -37,7 +37,7 @@ require (
 	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 // indirect
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.23
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.5 // indirect
 	github.com/daaku/go.zipexe v1.0.2 // indirect
