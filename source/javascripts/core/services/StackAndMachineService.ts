@@ -269,7 +269,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
 
   result.promotedMachineTypeOptions = (machineTypePromotion?.promotedMachineTypes ?? [])
     .filter((machine) => {
-      return machine.availableOnStacks.includes(result.selectedStack.id);
+      return !machine.availableOnStacks || machine.availableOnStacks.includes(result.selectedStack.id);
     })
     .map(toMachineOption);
 
