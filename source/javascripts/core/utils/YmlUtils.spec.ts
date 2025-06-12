@@ -30,17 +30,17 @@ describe('YmlUtils', () => {
         });
       });
 
-      ['yes', 'YES', 'on', 'ON'].forEach((value) => {
-        it(`keeps "${value}" as string`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(value);
-        });
-      });
-
       ['false', 'FALSE'].forEach((value) => {
         it(`converts "${value}" to false boolean`, () => {
           const result = YmlUtils.toTypedValue(value);
           expect(result).toBe(false);
+        });
+      });
+
+      ['yes', 'YES', 'on', 'ON'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
         });
       });
 
@@ -75,8 +75,8 @@ describe('YmlUtils', () => {
       });
     });
 
-    describe('hex/octal/binary/leading zeros', () => {
-      ['0x1A', '0X1A', '0o12', '0O12', '0b101', '0B101', '0123'].forEach((value) => {
+    describe('hex/octal/binary', () => {
+      ['0x1A', '0X1A', '0o12', '0O12', '0b101', '0B101'].forEach((value) => {
         it(`does not convert "${value}" to number, but keep as string`, () => {
           const result = YmlUtils.toTypedValue(value);
           expect(result).toBe(value);
@@ -84,8 +84,48 @@ describe('YmlUtils', () => {
       });
     });
 
-    describe('semver', () => {
-      ['1.2.0', '1.2.3-alpha'].forEach((value) => {
+    describe('scientific notation', () => {
+      [
+        ['0.314e1', '0.314e1'],
+        ['0.314E+1', '0.314E+1'],
+        ['3.14e-2', '3.14e-2'],
+      ].forEach(([input, output]) => {
+        it(`converts "${input}" to number ${output}`, () => {
+          const result = YmlUtils.toTypedValue(input);
+          expect(result).toBe(output);
+        });
+      });
+    });
+
+    describe('starting with +/-', () => {
+      ['+2', '-3', '+2.1', '-3.2', '+21', '-32', '+21.10', '-32.230', '+a', '-b'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    describe('integers with leading zeros', () => {
+      ['01', '001', '0001'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    describe('floats with trailing zeros', () => {
+      ['1.0', '1.00', '10.0', '100.00'].forEach((value) => {
+        it(`keeps "${value}" as string`, () => {
+          const result = YmlUtils.toTypedValue(value);
+          expect(result).toBe(value);
+        });
+      });
+    });
+
+    describe('version numbers', () => {
+      ['3.20', '1.2.0', '1.2.3-alpha'].forEach((value) => {
         it(`does not convert "${value}" to number, but keep as string`, () => {
           const result = YmlUtils.toTypedValue(value);
           expect(result).toBe(value);
@@ -98,8 +138,13 @@ describe('YmlUtils', () => {
       [
         ['0', 0],
         ['1', 1],
-        ['+2', 2],
-        ['-3', -3],
+        ['20', 20],
+        ['42', 42],
+        ['99', 99],
+        ['100', 100],
+        ['256', 256],
+        ['999', 999],
+        ['1000', 1000],
       ].forEach(([input, output]) => {
         it(`converts "${input}" to number ${output}`, () => {
           const result = YmlUtils.toTypedValue(input);
@@ -109,33 +154,30 @@ describe('YmlUtils', () => {
 
       // Floats
       [
-        ['4.0', 4.0],
-        ['+5.0', 5.0],
-        ['-6.0', -6.0],
+        ['0.1', 0.1],
+        ['0.123', 0.123],
+        ['1.2', 1.2],
         ['3.14', 3.14],
-        ['+3.14', 3.14],
-        ['-3.14', -3.14],
-        // eslint-disable-next-line prettier/prettier
-        ['100.0', 100.0],
-        // eslint-disable-next-line prettier/prettier
-        ['100.000', 100.000],
+        ['256.78', 256.78],
       ].forEach(([input, output]) => {
         it(`converts "${input}" to number ${output}`, () => {
           const result = YmlUtils.toTypedValue(input);
           expect(result).toBe(output);
         });
       });
+    });
 
-      // Scientific notation
-      [
-        ['0.314e1', 3.14],
-        ['0.314e+1', 3.14],
-        ['3.14e-2', 0.0314],
-      ].forEach(([input, output]) => {
-        it(`converts "${input}" to number ${output}`, () => {
-          const result = YmlUtils.toTypedValue(input);
-          expect(result).toBe(output);
-        });
+    describe('swat issues', () => {
+      it('floats ending in 0, as 3.20 should be kept as string', () => {
+        const value = '3.20';
+        const result = YmlUtils.toTypedValue(value);
+        expect(result).toBe(value);
+      });
+
+      it('comma-separated numbers should be kept as string', () => {
+        const value = '1234,1235';
+        const result = YmlUtils.toTypedValue(value);
+        expect(result).toBe(value);
       });
     });
   });

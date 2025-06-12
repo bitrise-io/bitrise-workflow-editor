@@ -117,18 +117,18 @@ function toTypedValue(value: unknown) {
   const trimmed = value.trim();
   const lowerValue = trimmed.toLowerCase();
 
-  // 0. Handle empty string
+  // Handle empty string
   if (trimmed === '') {
     return '';
   }
 
-  // 1. Null handling
-  const nullVals = ['null', '~', ''];
+  // Null handling
+  const nullVals = ['null', '~'];
   if (nullVals.includes(lowerValue)) {
     return null;
   }
 
-  // 2. Boolean handling
+  // Boolean handling
   const trueVals = ['true'];
   const falseVals = ['false'];
   if (trueVals.includes(lowerValue)) {
@@ -138,34 +138,52 @@ function toTypedValue(value: unknown) {
     return false;
   }
 
-  // 3. Special floats (.inf, -.inf, .nan)
+  // Special floats (.inf, -.inf, .nan)
   if (lowerValue === '.inf') return Infinity;
   if (lowerValue === '-.inf') return -Infinity;
   if (lowerValue === '.nan') return NaN;
 
-  // 4. Treat hex/octal/binary as strings
-  // i.e., if starts with 0x, 0o, 0b (case-insensitive), do NOT convert
+  // DO NOT CONVERT: Leading +/- signs
+  if (/^[+-]/.test(lowerValue)) {
+    return value;
+  }
+
+  // DO NOT CONVERT: Treat scientific notation
+  // If ends with exponent (e.g., 1e10, 1.5E-3), do NOT convert
+  if (/[eE][-+]?\d+/.test(lowerValue)) {
+    return value;
+  }
+
+  // DO NOT CONVERT: hex/octal/binary
+  // If starts with 0x, 0o, 0b (case-insensitive),
   if (/^0[xob]/i.test(lowerValue)) {
     return value;
   }
 
-  // 5. Leading zero handling
-  // i.e., if starts with 0 and is not a decimal do NOT convert
+  // DO NOT CONVERT: Integers with leading zeros
   // "0123" remains a string, but "0.123" becomes a number
-  if (/^0\d+/.test(lowerValue) && !/^0(\.\d+)?$/.test(lowerValue)) {
+  if (/^0\d+/.test(lowerValue)) {
     return value;
   }
 
-  // 6. Number parsing
-  const numberRegex = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
-  if (numberRegex.test(lowerValue)) {
-    const number = Number(lowerValue);
-    if (!Number.isNaN(number)) {
-      return number;
-    }
+  // DO NOT CONVERT: Floats with trailing zeros
+  // "1.2300" remains a string, but "1.23" and "100" becomes a number
+  if (lowerValue.includes('.') && lowerValue.endsWith('0')) {
+    return value;
   }
 
-  // 6. Else return original string unchanged
+  // DO NOT CONVERT: Comma-separated numbers
+  if (/\d+,\d+/.test(lowerValue)) {
+    return value;
+  }
+
+  // If it looks like a finite number (integer or float), convert to Number
+  const number = Number(lowerValue);
+  if (/^(\d+(\.\d*)?|\.\d+)$/.test(lowerValue) && !Number.isNaN(number)) {
+    return number;
+  }
+
+  // Return original string unchanged
   return value;
 }
 
