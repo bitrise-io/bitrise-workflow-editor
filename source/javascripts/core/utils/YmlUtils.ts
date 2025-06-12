@@ -103,11 +103,6 @@ function toJSON(root: Root) {
   return root.toJSON() as BitriseYml;
 }
 
-function toNode(value: unknown, copyFlowOptionFrom?: unknown) {
-  const flow = isCollection(copyFlowOptionFrom) && !isEmpty(toJSON(copyFlowOptionFrom)) && copyFlowOptionFrom.flow;
-  return PLACEHOLDER_DOC.createNode(value, { flow, aliasDuplicateObjects: false });
-}
-
 function toTypedValue(value: unknown) {
   if (typeof value !== 'string') {
     // Only strings need conversion here
@@ -143,48 +138,40 @@ function toTypedValue(value: unknown) {
   if (lowerValue === '-.inf') return -Infinity;
   if (lowerValue === '.nan') return NaN;
 
-  // DO NOT CONVERT: Leading +/- signs
-  if (/^[+-]/.test(lowerValue)) {
-    return value;
-  }
-
-  // DO NOT CONVERT: Treat scientific notation
-  // If ends with exponent (e.g., 1e10, 1.5E-3), do NOT convert
-  if (/[eE][-+]?\d+/.test(lowerValue)) {
-    return value;
-  }
-
-  // DO NOT CONVERT: hex/octal/binary
-  // If starts with 0x, 0o, 0b (case-insensitive),
-  if (/^0[xob]/i.test(lowerValue)) {
-    return value;
-  }
-
-  // DO NOT CONVERT: Integers with leading zeros
-  // "0123" remains a string, but "0.123" becomes a number
-  if (/^0\d+/.test(lowerValue)) {
-    return value;
-  }
-
-  // DO NOT CONVERT: Floats with trailing zeros
-  // "1.2300" remains a string, but "1.23" and "100" becomes a number
-  if (lowerValue.includes('.') && lowerValue.endsWith('0')) {
-    return value;
-  }
-
-  // DO NOT CONVERT: Comma-separated numbers
-  if (/\d+,\d+/.test(lowerValue)) {
-    return value;
-  }
-
-  // If it looks like a finite number (integer or float), convert to Number
-  const number = Number(lowerValue);
-  if (/^(\d+(\.\d*)?|\.\d+)$/.test(lowerValue) && !Number.isNaN(number)) {
-    return number;
-  }
-
   // Return original string unchanged
   return value;
+}
+
+function toNode(value: unknown, copyFlowOptionFrom?: unknown) {
+  const flow = isCollection(copyFlowOptionFrom) && !isEmpty(toJSON(copyFlowOptionFrom)) && copyFlowOptionFrom.flow;
+  return PLACEHOLDER_DOC.createNode(value, { flow, aliasDuplicateObjects: false });
+}
+
+const quoteNeededIfMatches = [
+  /^(on|off|yes|no)$/i, // Boolean literals
+  /^(\d+\.)?(\d+\.)?(\d+)(?:-(\w+))?$/, // Semver-like versions (e.g., 0.9, 1.0.0, 1.2.3-alpha)
+  /^[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?$/, // Numbers
+  /^[-+]?(?:0x[\da-fA-F]+|0o[0-7]+|0b[01]+)$/i, // Binary numbers, Octal numbers, Hexadecimal numbers
+  /^(\d+(.\w+)?)(,\d+(.\w+)?)+$/, // Comma-separated numbers
+  /^(\d+)(:\d+)+$/, // Time format (HH:MM:SS)
+];
+
+function toScalar(value: unknown, scalar?: unknown, stringToTypedValue = true): Scalar {
+  const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
+  let result: Scalar = new Scalar(valueToWrite);
+  result.type = Scalar.PLAIN;
+
+  if (isScalar(scalar)) {
+    result = scalar;
+    result.value = valueToWrite;
+  }
+
+  const useQuotes = quoteNeededIfMatches.some((regex) => regex.test(String(valueToWrite)));
+  if (useQuotes) {
+    result.type = Scalar.QUOTE_SINGLE;
+  }
+
+  return result;
 }
 
 function isWildcardPath(path: Path) {
@@ -262,23 +249,7 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
   const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
 
   if (isPrimitive(valueToWrite)) {
-    let scalar: Scalar = new Scalar(valueToWrite);
-    scalar.type = Scalar.PLAIN;
-
-    if (isScalar(existingNode)) {
-      scalar = existingNode;
-      scalar.value = valueToWrite;
-    }
-
-    // If value is number, set the minFractionDigits to the number of digits in the value
-    if (typeof valueToWrite === 'number' && String(value).includes('.')) {
-      const digits = String(value).split('.')[1].length || 0;
-      scalar.minFractionDigits = digits;
-    } else {
-      scalar.minFractionDigits = 0;
-    }
-
-    root.setIn(path, scalar);
+    root.setIn(path, toScalar(valueToWrite, existingNode, stringToTypedValue));
     return;
   }
 
@@ -611,7 +582,7 @@ export default {
   toDoc,
   toYml,
   toJSON,
-  toTypedValue,
+  toScalar,
   isEquals,
   isEqualValues,
   addIn,
