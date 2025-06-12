@@ -866,7 +866,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: '2.1'
+            - SERVICE_VERSION: "2.1"
             - PROJECT_NAME: "Grogu"
             - ENVIRONMENT: 'staging'
             - NODE_VERSION: '0.15.0'
@@ -885,7 +885,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: '3.1415'
+            - SERVICE_VERSION: "3.1415"
         `);
       });
 
@@ -901,7 +901,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: '2'
+            - SERVICE_VERSION: "2"
         `);
       });
 
@@ -955,7 +955,7 @@ describe('EnvVarService', () => {
           workflows:
             wf1:
               envs:
-              - NODE_VERSION: '22'
+              - NODE_VERSION: "22"
         `);
       });
 
@@ -979,7 +979,7 @@ describe('EnvVarService', () => {
           workflows:
             wf1:
               envs:
-              - SERVICE_VERSION: '3.1415'
+              - SERVICE_VERSION: "3.1415"
         `);
       });
 
@@ -1002,7 +1002,7 @@ describe('EnvVarService', () => {
           workflows:
             wf1:
               envs:
-              - SERVICE_VERSION: '2'
+              - SERVICE_VERSION: "2"
         `);
       });
 

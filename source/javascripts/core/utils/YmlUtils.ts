@@ -167,8 +167,8 @@ function toScalar(value: unknown, scalar?: unknown, stringToTypedValue = true): 
   }
 
   const useQuotes = quoteNeededIfMatches.some((regex) => regex.test(String(valueToWrite)));
-  if (useQuotes) {
-    result.type = Scalar.QUOTE_SINGLE;
+  if (useQuotes && result.type === Scalar.PLAIN) {
+    result.type = Scalar.QUOTE_DOUBLE;
   }
 
   return result;
@@ -323,6 +323,7 @@ function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = [
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
+
 function isEquals(a: Root, b: Root) {
   if (a === b) return true;
 
