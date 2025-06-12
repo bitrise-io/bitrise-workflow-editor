@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useStore } from 'zustand';
 
 import { BitriseYml } from '@/core/models/BitriseYml';
@@ -9,8 +10,12 @@ type ExtendedBitriseYmlStoreState = Omit<BitriseYmlStoreState, 'yml'> & {
 };
 
 function useBitriseYmlStore<U = ExtendedBitriseYmlStoreState>(selector?: (state: ExtendedBitriseYmlStoreState) => U) {
-  const withBitriseYml = (state: BitriseYmlStoreState) => ({ ...state, yml: state.ymlDocument.toJSON() as BitriseYml });
+  const ymlDocument = useStore(bitriseYmlStore, (state) => state.ymlDocument);
+  const ymlDocumentAsJson = useMemo(() => ymlDocument.toJSON() as BitriseYml, [ymlDocument]);
+  const withBitriseYml = useShallow((state: BitriseYmlStoreState) => ({ ...state, yml: ymlDocumentAsJson }));
+
   const finalSelector = selector ? (state: BitriseYmlStoreState) => selector(withBitriseYml(state)) : withBitriseYml;
+
   return useStore(bitriseYmlStore, useShallow(finalSelector as any)) as U;
 }
 
