@@ -44,7 +44,7 @@ describe('YmlUtils', () => {
     });
 
     describe('boolean like strings', () => {
-      ['yes', 'YES', 'on', 'ON', 'no', 'NO', 'off', 'OFF'].forEach((value) => {
+      ['yes', 'YES', 'on', 'ON', 'no', 'NO', 'off', 'OFF', 'y', 'Y', 'n', 'N'].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -53,7 +53,16 @@ describe('YmlUtils', () => {
     });
 
     describe('integers', () => {
-      ['0', '1', '-1', '+1', '20', '-20', '+20', '42', '99', '100', '256', '999', '1000'].forEach((value) => {
+      ['0', '1', '+1', '-1', '42', '+42', '-42', '100', '+100', '-100'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('integers with thousand separator', () => {
+      ['1_234', '+1_234', '-1_234', '1,234', '+1,234', '-1,234'].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -62,7 +71,20 @@ describe('YmlUtils', () => {
     });
 
     describe('integers with leading zeros', () => {
-      ['01', '001', '0001'].forEach((value) => {
+      [
+        '01234',
+        '+01234',
+        '-01234',
+        '0001234',
+        '+0001234',
+        '-0001234',
+        '001_234',
+        '+001_234',
+        '-001_234',
+        '001,234',
+        '+001,234',
+        '-001,234',
+      ].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -71,7 +93,34 @@ describe('YmlUtils', () => {
     });
 
     describe('floats', () => {
-      ['0.1', '0.123', '-1.2', '+3.14', '256.78', '.123'].forEach((value) => {
+      ['0.123', '+0.123', '-0.123', '.123', '+.123', '-.123', '123.456', '+123.456', '-123.456'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('floats with thousand separator', () => {
+      ['1_234.567', '+1_234.567', '-1_234.567', '1,234.567', '+1,234.567', '-1,234.567'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('floats with leading zeros', () => {
+      [
+        '01.234',
+        '0001.234',
+        '001_234.567',
+        '+001_234.567',
+        '-001_234.567',
+        '001,234.567',
+        '+001,234.567',
+        '-001,234.567',
+      ].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -80,7 +129,20 @@ describe('YmlUtils', () => {
     });
 
     describe('floats with trailing zeros', () => {
-      ['1.0', '1.00', '10.0', '100.00'].forEach((value) => {
+      [
+        '1.2340',
+        '+1.2340',
+        '-1.2340',
+        '1.234000',
+        '+1.234000',
+        '-1.234000',
+        '1_234.5670',
+        '+1_234.5670',
+        '-1_234.5670',
+        '1,234.5670',
+        '+1,234.5670',
+        '-1,234.5670',
+      ].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -121,7 +183,26 @@ describe('YmlUtils', () => {
     });
 
     describe('scientific notation', () => {
-      ['0.314e1', '0.314E+1', '3.14e-2'].forEach((value) => {
+      [
+        '0.314e1',
+        '+0.314e1',
+        '-0.314e1',
+        '0.314E1',
+        '+0.314E1',
+        '-0.314E1',
+        '0.314e+1',
+        '+0.314e+1',
+        '-0.314e+1',
+        '0.314E+1',
+        '+0.314E+1',
+        '-0.314E+1',
+        '0.314e-1',
+        '+0.314e-1',
+        '-0.314e-1',
+        '0.314E-1',
+        '+0.314E-1',
+        '-0.314E-1',
+      ].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -131,6 +212,15 @@ describe('YmlUtils', () => {
 
     describe('comma-separated numbers', () => {
       ['1,2', '1234,5678', '0.1,0.2', '3.14,2.71'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('underscore-separated numbers', () => {
+      ['1_2', '1234_5678', '0.1_0.2', '3.14_2.71'].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
@@ -154,7 +244,7 @@ describe('YmlUtils', () => {
     });
 
     describe('time format/port mappings', () => {
-      ['10:30', '3000:80', '10:30:20'].forEach((value) => {
+      ['10:30', '10:30:20', '3000:80'].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
