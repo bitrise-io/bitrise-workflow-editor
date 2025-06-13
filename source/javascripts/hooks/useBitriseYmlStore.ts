@@ -10,6 +10,8 @@ type ExtendedBitriseYmlStoreState = Omit<BitriseYmlStoreState, 'yml'> & {
   yml: BitriseYml;
 };
 
+// NOTE: Cached values to avoid unnecessary recalculations when multiple components use this hook
+// and the ymlDocument does not change. Document.toJSON() can be expensive for large yml files.
 let cachedYmlJson: BitriseYml | null = null;
 let cachedYmlDocument: Document | null = null;
 
