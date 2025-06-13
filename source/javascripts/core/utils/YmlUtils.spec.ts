@@ -253,7 +253,18 @@ describe('YmlUtils', () => {
     });
 
     describe('version numbers', () => {
-      ['3.20', '1.2.0', '1.2.3-alpha'].forEach((value) => {
+      [
+        '3',
+        '3.2',
+        '3.20',
+        '1.2.3',
+        '10.0.0',
+        '1.2.3-alpha',
+        '1.2.3-rc.1',
+        '1.2.3+build.456',
+        '2.0.0+20250613',
+        '1.0.0-alpha+001',
+      ].forEach((value) => {
         it(`keeps "${value}" as quoted string`, () => {
           const result = YmlUtils.toScalar(value);
           expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
