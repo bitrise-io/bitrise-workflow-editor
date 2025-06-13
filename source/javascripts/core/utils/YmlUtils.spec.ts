@@ -272,6 +272,30 @@ describe('YmlUtils', () => {
       });
     });
 
+    describe('should quote YAML special characters', () => {
+      [
+        '&anchor',
+        '*alias',
+        '%directive',
+        '#comment',
+        '!tag',
+        '?key',
+        ':value',
+        '|literal',
+        '>folded',
+        '-item',
+        '[seq',
+        '{map',
+        '@asd',
+        'value: with colon',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
     it('keeps single quote style', () => {
       const scalar = new Scalar('abc');
       scalar.type = Scalar.QUOTE_SINGLE;

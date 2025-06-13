@@ -154,6 +154,7 @@ const quoteNeededIfMatches = [
   /^[-+]?(?:0x[\da-fA-F]+|0o[0-7]+|0b[01]+)$/i, // Binary numbers, Octal numbers, Hexadecimal numbers
   /^[+-]?(\d+(\.\d+)?)([,_]\d+(\.\d+)?)+$/, // Comma or underscore separated numbers
   /^(\d+)(:\d+)+$/, // Time format (HH:MM:SS)
+  /^[&*%?:|>[\]{}\-!#@].*$/, // Special characters that may require quoting
 ];
 
 function toScalar(value: unknown, scalar?: unknown, stringToTypedValue = true): Scalar {
