@@ -501,7 +501,7 @@ function updateStepInput(source: Source, sourceId: string, index: number, input:
     if (value === '') {
       YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
     } else if (inputIndex === -1) {
-      YmlUtils.addIn(inputsSeq, [], { [input]: YmlUtils.toTypedValue(value) });
+      YmlUtils.addIn(inputsSeq, [], { [input]: YmlUtils.toScalar(value) });
     } else {
       YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], value);
     }
