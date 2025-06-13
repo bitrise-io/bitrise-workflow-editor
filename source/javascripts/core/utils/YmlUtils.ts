@@ -148,12 +148,13 @@ function toNode(value: unknown, copyFlowOptionFrom?: unknown) {
 }
 
 const quoteNeededIfMatches = [
-  /^(on|off|yes|no)$/i, // Boolean literals
-  /^(\d+\.)?(\d+\.)?(\d+)(?:-(\w+))?$/, // Semver-like versions (e.g., 0.9, 1.0.0, 1.2.3-alpha)
+  /^(on|off|yes|no|y|n)$/i, // Boolean literals
+  /^(\d+)(\.\d+){0,2}(-[\w.-]+)?(\+[\w.-]+)?$/, // Semver-like versions (e.g., 0.9, 1.0.0, 1.2.3-alpha)
   /^[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?$/, // Numbers
   /^[-+]?(?:0x[\da-fA-F]+|0o[0-7]+|0b[01]+)$/i, // Binary numbers, Octal numbers, Hexadecimal numbers
-  /^(\d+(\.\w+)?)(,\d+(\.\w+)?)+$/, // Comma-separated numbers
+  /^[+-]?(\d+(\.\d+)?)([,_]\d+(\.\d+)?)+$/, // Comma or underscore separated numbers
   /^(\d+)(:\d+)+$/, // Time format (HH:MM:SS)
+  /^[&*%?:|>[\]{}\-!#@].*$/, // Special characters that may require quoting
 ];
 
 function toScalar(value: unknown, scalar?: unknown, stringToTypedValue = true): Scalar {
