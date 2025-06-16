@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Document } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
 
 import { BitriseYml } from '../models/BitriseYml';
 import YmlUtils from '../utils/YmlUtils';
@@ -11,15 +12,18 @@ export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 export type YamlMutator = (ctx: YamlMutatorCtx) => Document;
 export type YamlMutatorCtx = { doc: Document };
 
-export const bitriseYmlStore = createStore(() => ({
-  version: '',
-  yml: {} as BitriseYml,
-  discardKey: Date.now(),
-  ymlDocument: new Document(),
-  savedYmlDocument: new Document(),
-  __invalidYmlString: undefined as string | undefined,
-  __savedInvalidYmlString: undefined as string | undefined,
-}));
+export const bitriseYmlStore = createStore(
+  subscribeWithSelector(() => ({
+    version: '',
+    yml: {} as BitriseYml,
+    hasChanges: false,
+    discardKey: Date.now(),
+    ymlDocument: new Document(),
+    savedYmlDocument: new Document(),
+    __invalidYmlString: undefined as string | undefined,
+    __savedInvalidYmlString: undefined as string | undefined,
+  })),
+);
 
 export function getBitriseYml() {
   return bitriseYmlStore.getState().yml;
@@ -95,10 +99,22 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
   });
 }
 
-bitriseYmlStore.subscribe((curr, prev) => {
-  if (!YmlUtils.isEquals(curr.ymlDocument, prev.ymlDocument)) {
+bitriseYmlStore.subscribe(
+  ({ ymlDocument, savedYmlDocument }) => {
+    return {
+      ymlDocument,
+      savedYmlDocument,
+    };
+  },
+  ({ ymlDocument, savedYmlDocument }) => {
     bitriseYmlStore.setState({
-      yml: YmlUtils.toJSON(curr.ymlDocument),
+      yml: YmlUtils.toJSON(ymlDocument),
+      hasChanges: !YmlUtils.isEquals(ymlDocument, savedYmlDocument),
     });
-  }
-});
+  },
+  {
+    equalityFn: (a, b) => {
+      return a.ymlDocument === b.ymlDocument && a.savedYmlDocument === b.savedYmlDocument;
+    },
+  },
+);

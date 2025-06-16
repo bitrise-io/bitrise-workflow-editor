@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-import YmlUtils from '@/core/utils/YmlUtils';
 
 import useBitriseYmlStore from './useBitriseYmlStore';
 
@@ -10,6 +9,6 @@ export default function useYmlHasChanges() {
     }
 
     // Check if the current YML document is different from the saved one
-    return !!s.__invalidYmlString || !YmlUtils.isEquals(s.ymlDocument, s.savedYmlDocument);
+    return !!s.__invalidYmlString || s.hasChanges;
   });
 }

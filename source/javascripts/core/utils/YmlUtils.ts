@@ -338,7 +338,9 @@ function isEquals(a: Root, b: Root) {
     return aCache.get(b)!;
   }
 
-  aCache.set(b, toYml(a) === toYml(b));
+  // NOTE: Using toString() for equality check instead of toYml() as it's faster
+  // and sufficient for our use case since it preserves all node structure and formatting.
+  aCache.set(b, a.toString() === b.toString());
 
   return aCache.get(b)!;
 }
