@@ -18,7 +18,7 @@ const StagePipelineCanvas = (props: ReactFlowProps) => {
   const nodes = usePipelineStageNodes();
   const edges = usePipelineStageEdges(nodes);
 
-  return <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} {...props} />;
+  return <ReactFlow panOnScroll nodes={nodes} edges={edges} nodeTypes={nodeTypes} {...props} />;
 };
 
 export default StagePipelineCanvas;
