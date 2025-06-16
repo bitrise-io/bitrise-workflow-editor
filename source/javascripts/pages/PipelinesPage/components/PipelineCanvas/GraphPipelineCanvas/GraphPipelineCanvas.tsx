@@ -127,6 +127,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   return (
     <>
       <ReactFlow
+        panOnScroll
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
