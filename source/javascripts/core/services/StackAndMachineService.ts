@@ -269,6 +269,14 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
 
   result.promotedMachineTypeOptions = (machineTypePromotion?.promotedMachineTypes ?? [])
     .filter((machine) => {
+      if (machine.osId !== selectedStackOS) {
+        return false;
+      }
+
+      if (!machine.availableOnStacks) {
+        return true;
+      }
+
       return machine.availableOnStacks.includes(result.selectedStack.id);
     })
     .map(toMachineOption);

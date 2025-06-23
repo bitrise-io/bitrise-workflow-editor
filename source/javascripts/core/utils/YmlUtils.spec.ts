@@ -1,14 +1,19 @@
-import { isMap, YAMLMap, YAMLSeq } from 'yaml';
+import { isMap, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import YmlUtils from './YmlUtils';
 
 describe('YmlUtils', () => {
-  describe('toTypedValue', () => {
+  describe('toScalar', () => {
+    it('should convert a string to a YAML scalar', () => {
+      const result = YmlUtils.toScalar('test');
+      expect(YmlUtils.toYml(result)).toEqual(yaml`test`);
+    });
+
     describe('empty strings', () => {
       ['', '', ' ', '  '].forEach((value) => {
         it(`converts "${value}" to empty string`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe('');
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`""`);
         });
       });
     });
@@ -16,127 +21,293 @@ describe('YmlUtils', () => {
     describe('nulls', () => {
       ['~', 'null', 'NULL'].forEach((value) => {
         it(`converts "${value}" to null`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBeNull();
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`null`);
         });
       });
     });
 
     describe('booleans', () => {
       ['true', 'TRUE'].forEach((value) => {
-        it(`converts "${value}" to true boolean`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(true);
-        });
-      });
-
-      ['yes', 'YES', 'on', 'ON'].forEach((value) => {
-        it(`keeps "${value}" as string`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(value);
+        it(`converts "${value}" to true`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`true`);
         });
       });
 
       ['false', 'FALSE'].forEach((value) => {
-        it(`converts "${value}" to false boolean`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(false);
+        it(`converts "${value}" to false`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`false`);
         });
       });
+    });
 
-      ['no', 'NO', 'off', 'OFF'].forEach((value) => {
-        it(`keeps "${value}" as string`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(value);
+    describe('boolean like strings', () => {
+      ['yes', 'YES', 'on', 'ON', 'no', 'NO', 'off', 'OFF', 'y', 'Y', 'n', 'N'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('integers', () => {
+      ['0', '1', '+1', '-1', '42', '+42', '-42', '100', '+100', '-100'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('integers with thousand separator', () => {
+      ['1_234', '+1_234', '-1_234', '1,234', '+1,234', '-1,234'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('integers with leading zeros', () => {
+      [
+        '01234',
+        '+01234',
+        '-01234',
+        '0001234',
+        '+0001234',
+        '-0001234',
+        '001_234',
+        '+001_234',
+        '-001_234',
+        '001,234',
+        '+001,234',
+        '-001,234',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('floats', () => {
+      ['0.123', '+0.123', '-0.123', '.123', '+.123', '-.123', '123.456', '+123.456', '-123.456'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('floats with thousand separator', () => {
+      ['1_234.567', '+1_234.567', '-1_234.567', '1,234.567', '+1,234.567', '-1,234.567'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('floats with leading zeros', () => {
+      [
+        '01.234',
+        '0001.234',
+        '001_234.567',
+        '+001_234.567',
+        '-001_234.567',
+        '001,234.567',
+        '+001,234.567',
+        '-001,234.567',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('floats with trailing zeros', () => {
+      [
+        '1.2340',
+        '+1.2340',
+        '-1.2340',
+        '1.234000',
+        '+1.234000',
+        '-1.234000',
+        '1_234.5670',
+        '+1_234.5670',
+        '-1_234.5670',
+        '1,234.5670',
+        '+1,234.5670',
+        '-1,234.5670',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
         });
       });
     });
 
     describe('special floats', () => {
       ['.inf', '.INF'].forEach((value) => {
-        it(`converts "${value}" to Infinity`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(Infinity);
+        it(`converts "${value}" to .inf`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`.inf`);
         });
       });
 
       ['-.inf', '-.INF'].forEach((value) => {
-        it(`converts "${value}" to -Infinity`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(-Infinity);
+        it(`converts "${value}" to -.inf`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`-.inf`);
         });
       });
 
       ['.nan', '.NAN'].forEach((value) => {
-        it(`converts "${value}" to NaN`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBeNaN();
+        it(`converts "${value}" to .nan`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`.nan`);
         });
       });
     });
 
-    describe('hex/octal/binary/leading zeros', () => {
-      ['0x1A', '0X1A', '0o12', '0O12', '0b101', '0B101', '0123'].forEach((value) => {
-        it(`does not convert "${value}" to number, but keep as string`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(value);
+    describe('hex/octal/binary', () => {
+      ['0x1A', '0X1A', '0o12', '0O12', '0b101', '0B101'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
         });
       });
     });
 
-    describe('semver', () => {
-      ['1.2.0', '1.2.3-alpha'].forEach((value) => {
-        it(`does not convert "${value}" to number, but keep as string`, () => {
-          const result = YmlUtils.toTypedValue(value);
-          expect(result).toBe(value);
+    describe('scientific notation', () => {
+      [
+        '0.314e1',
+        '+0.314e1',
+        '-0.314e1',
+        '0.314E1',
+        '+0.314E1',
+        '-0.314E1',
+        '0.314e+1',
+        '+0.314e+1',
+        '-0.314e+1',
+        '0.314E+1',
+        '+0.314E+1',
+        '-0.314E+1',
+        '0.314e-1',
+        '+0.314e-1',
+        '-0.314e-1',
+        '0.314E-1',
+        '+0.314E-1',
+        '-0.314E-1',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
         });
       });
     });
 
-    describe('numbers', () => {
-      // Integers
-      [
-        ['0', 0],
-        ['1', 1],
-        ['+2', 2],
-        ['-3', -3],
-      ].forEach(([input, output]) => {
-        it(`converts "${input}" to number ${output}`, () => {
-          const result = YmlUtils.toTypedValue(input);
-          expect(result).toBe(output);
+    describe('comma-separated numbers', () => {
+      ['1,2', '1234,5678', '0.1,0.2', '3.14,2.71'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
         });
       });
+    });
 
-      // Floats
-      [
-        ['4.0', 4.0],
-        ['+5.0', 5.0],
-        ['-6.0', -6.0],
-        ['3.14', 3.14],
-        ['+3.14', 3.14],
-        ['-3.14', -3.14],
-        // eslint-disable-next-line prettier/prettier
-        ['100.0', 100.0],
-        // eslint-disable-next-line prettier/prettier
-        ['100.000', 100.000],
-      ].forEach(([input, output]) => {
-        it(`converts "${input}" to number ${output}`, () => {
-          const result = YmlUtils.toTypedValue(input);
-          expect(result).toBe(output);
+    describe('underscore-separated numbers', () => {
+      ['1_2', '1234_5678', '0.1_0.2', '3.14_2.71'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
         });
       });
+    });
 
-      // Scientific notation
+    describe('date/time & timestamp formats', () => {
       [
-        ['0.314e1', 3.14],
-        ['0.314e+1', 3.14],
-        ['3.14e-2', 0.0314],
-      ].forEach(([input, output]) => {
-        it(`converts "${input}" to number ${output}`, () => {
-          const result = YmlUtils.toTypedValue(input);
-          expect(result).toBe(output);
+        '2023-10-01',
+        '2023-10-01T12:00:00Z',
+        '2023-10-01 12:00:00',
+        '2023-10-01T12:00:00Z',
+        '2023-10-01T12:00:00+02:00',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
         });
       });
+    });
+
+    describe('time format/port mappings', () => {
+      ['10:30', '10:30:20', '3000:80'].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('version numbers', () => {
+      [
+        '3',
+        '3.2',
+        '3.20',
+        '1.2.3',
+        '10.0.0',
+        '1.2.3-alpha',
+        '1.2.3-rc.1',
+        '1.2.3+build.456',
+        '2.0.0+20250613',
+        '1.0.0-alpha+001',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    describe('should quote YAML special characters', () => {
+      [
+        '&anchor',
+        '*alias',
+        '%directive',
+        '#comment',
+        '!tag',
+        '?key',
+        ':value',
+        '|literal',
+        '>folded',
+        '-item',
+        '[seq',
+        '{map',
+        '@asd',
+        'value: with colon',
+      ].forEach((value) => {
+        it(`keeps "${value}" as quoted string`, () => {
+          const result = YmlUtils.toScalar(value);
+          expect(YmlUtils.toYml(result)).toEqual(yaml`"${value}"`);
+        });
+      });
+    });
+
+    it('keeps single quote style', () => {
+      const scalar = new Scalar('abc');
+      scalar.type = Scalar.QUOTE_SINGLE;
+      const result = YmlUtils.toScalar('def', scalar);
+      expect(YmlUtils.toYml(result)).toEqual(yaml`'def'`);
+    });
+
+    it('keeps double quote style', () => {
+      const scalar = new Scalar('abc');
+      scalar.type = Scalar.QUOTE_DOUBLE;
+      const result = YmlUtils.toScalar('def', scalar);
+      expect(YmlUtils.toYml(result)).toEqual(yaml`"def"`);
     });
   });
 
@@ -388,7 +559,7 @@ describe('YmlUtils', () => {
       `);
     });
 
-    it('should convert string to null value when setting a null value', () => {
+    it('should set null value when "null" string is provided', () => {
       const root = YmlUtils.toDoc(yaml`
         workflows:
           wf1:
@@ -404,127 +575,6 @@ describe('YmlUtils', () => {
       `);
     });
 
-    it('should convert string to boolean when setting a boolean value', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            triggers:
-              enabled: false
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'triggers', 'enabled'], 'true');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            triggers:
-              enabled: true
-      `);
-    });
-
-    it('should convert string to special float values', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            retries: '3'
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '.inf');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            retries: .inf
-      `);
-    });
-
-    it('should convert string to number when setting a numeric value', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            retries: '3'
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '5');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            retries: 5
-      `);
-    });
-
-    it('should update minFractionDigits when setting a numeric value', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            retries: 3
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '5.123');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            retries: 5.123
-      `);
-    });
-
-    it('should not convert numberic value with leading zeros', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            retries: '03'
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '05');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            retries: '05'
-      `);
-    });
-
-    it('should not convert hex/octal/binary strings', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            binary: '101'
-            octal: '12'
-            hex: '1A'
-
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'binary'], '0b101');
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'octal'], '0o12');
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'hex'], '0x1A');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            binary: '0b101'
-            octal: '0o12'
-            hex: '0x1A'
-      `);
-    });
-
-    it('should not convert semver strings', () => {
-      const root = YmlUtils.toDoc(yaml`
-        workflows:
-          wf1:
-            version: '1.2.3'
-      `);
-
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'version'], '1.2.3-alpha');
-
-      expect(YmlUtils.toYml(root)).toEqual(yaml`
-        workflows:
-          wf1:
-            version: '1.2.3-alpha'
-      `);
-    });
-
     it('should not convert string value when stringToTypedValue is false', () => {
       const root = YmlUtils.toDoc(yaml`
         workflows:
@@ -532,12 +582,12 @@ describe('YmlUtils', () => {
             retries: '3'
       `);
 
-      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], '5', false);
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'retries'], 'null', false);
 
       expect(YmlUtils.toYml(root)).toEqual(yaml`
         workflows:
           wf1:
-            retries: '5'
+            retries: 'null'
       `);
     });
 

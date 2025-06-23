@@ -37,7 +37,7 @@ function fromYml({ opts, ...env }: EnvironmentItemModel, source = ''): EnvVar {
 }
 
 function toYml(envVar: EnvVar): EnvironmentItemModel {
-  const envVarYml: EnvironmentItemModel = { [envVar.key]: YmlUtils.toTypedValue(envVar.value) };
+  const envVarYml: EnvironmentItemModel = { [envVar.key]: YmlUtils.toScalar(envVar.value) };
 
   if (envVar.isExpand === false) {
     envVarYml.opts = { is_expand: false };

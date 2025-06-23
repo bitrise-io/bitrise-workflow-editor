@@ -86,47 +86,6 @@ describe('EnvVarService', () => {
     });
   });
 
-  describe('toYml', () => {
-    it('converts EnvVar to yaml when isExpand: false', () => {
-      const result = EnvVarService.toYml({
-        key: 'SERVICE_VERSION',
-        value: '1.2.3',
-        isExpand: false,
-        source: 'app.envs.0',
-      });
-
-      expect(result).toEqual({
-        SERVICE_VERSION: '1.2.3',
-        opts: { is_expand: false },
-      });
-    });
-
-    it('converts EnvVar to yaml when isExpand: true', () => {
-      const result = EnvVarService.toYml({
-        key: 'SERVICE_VERSION',
-        value: '1.2.3',
-        isExpand: true,
-        source: 'app.envs.0',
-      });
-
-      expect(result).toEqual({
-        SERVICE_VERSION: '1.2.3',
-      });
-    });
-
-    it('converts EnvVar to yaml when isExpand: undefined', () => {
-      const result = EnvVarService.toYml({
-        key: 'SERVICE_VERSION',
-        value: '1.2.3',
-        source: 'app.envs.0',
-      });
-
-      expect(result).toEqual({
-        SERVICE_VERSION: '1.2.3',
-      });
-    });
-  });
-
   describe('getAll', () => {
     beforeAll(() => {
       updateBitriseYmlDocumentByString(
@@ -899,7 +858,7 @@ describe('EnvVarService', () => {
               - NODE_VERSION: '0.14.0'`,
         );
 
-        EnvVarService.updateValue('2.0', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
+        EnvVarService.updateValue('2.1', { source: EnvVarSource.App, index: 0, key: 'SERVICE_VERSION' });
         EnvVarService.updateValue('Grogu', { source: EnvVarSource.App, index: 1, key: 'PROJECT_NAME' });
         EnvVarService.updateValue('staging', { source: EnvVarSource.App, index: 2, key: 'ENVIRONMENT' });
         EnvVarService.updateValue('0.15.0', { source: EnvVarSource.App, index: 3, key: 'NODE_VERSION' });
@@ -907,7 +866,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: 2.0
+            - SERVICE_VERSION: "2.1"
             - PROJECT_NAME: "Grogu"
             - ENVIRONMENT: 'staging'
             - NODE_VERSION: '0.15.0'
@@ -926,7 +885,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: 3.1415
+            - SERVICE_VERSION: "3.1415"
         `);
       });
 
@@ -942,7 +901,7 @@ describe('EnvVarService', () => {
         expect(getYmlString()).toEqual(yaml`
           app:
             envs:
-            - SERVICE_VERSION: 2
+            - SERVICE_VERSION: "2"
         `);
       });
 
@@ -996,7 +955,7 @@ describe('EnvVarService', () => {
           workflows:
             wf1:
               envs:
-              - NODE_VERSION: 22
+              - NODE_VERSION: "22"
         `);
       });
 
@@ -1020,7 +979,7 @@ describe('EnvVarService', () => {
           workflows:
             wf1:
               envs:
-              - SERVICE_VERSION: 3.1415
+              - SERVICE_VERSION: "3.1415"
         `);
       });
 
@@ -1043,7 +1002,7 @@ describe('EnvVarService', () => {
           workflows:
             wf1:
               envs:
-              - SERVICE_VERSION: 2
+              - SERVICE_VERSION: "2"
         `);
       });
 

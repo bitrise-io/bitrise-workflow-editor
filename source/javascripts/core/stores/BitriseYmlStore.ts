@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Document } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
 
+import { BitriseYml } from '../models/BitriseYml';
 import YmlUtils from '../utils/YmlUtils';
 
 export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -10,17 +12,21 @@ export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
 export type YamlMutator = (ctx: YamlMutatorCtx) => Document;
 export type YamlMutatorCtx = { doc: Document };
 
-export const bitriseYmlStore = createStore(() => ({
-  version: '',
-  discardKey: Date.now(),
-  ymlDocument: new Document(),
-  savedYmlDocument: new Document(),
-  __invalidYmlString: undefined as string | undefined,
-  __savedInvalidYmlString: undefined as string | undefined,
-}));
+export const bitriseYmlStore = createStore(
+  subscribeWithSelector(() => ({
+    version: '',
+    yml: {} as BitriseYml,
+    hasChanges: false,
+    discardKey: Date.now(),
+    ymlDocument: new Document(),
+    savedYmlDocument: new Document(),
+    __invalidYmlString: undefined as string | undefined,
+    __savedInvalidYmlString: undefined as string | undefined,
+  })),
+);
 
 export function getBitriseYml() {
-  return YmlUtils.toJSON(bitriseYmlStore.getState().ymlDocument);
+  return bitriseYmlStore.getState().yml;
 }
 
 export function getYmlString(from?: 'savedYmlDocument'): string {
@@ -92,3 +98,23 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
     __invalidYmlString: undefined,
   });
 }
+
+bitriseYmlStore.subscribe(
+  ({ ymlDocument, savedYmlDocument }) => {
+    return {
+      ymlDocument,
+      savedYmlDocument,
+    };
+  },
+  ({ ymlDocument, savedYmlDocument }) => {
+    bitriseYmlStore.setState({
+      yml: YmlUtils.toJSON(ymlDocument),
+      hasChanges: !YmlUtils.isEquals(ymlDocument, savedYmlDocument),
+    });
+  },
+  {
+    equalityFn: (a, b) => {
+      return a.ymlDocument === b.ymlDocument && a.savedYmlDocument === b.savedYmlDocument;
+    },
+  },
+);
