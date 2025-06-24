@@ -108,12 +108,19 @@ function idToCvs(id: string) {
   return `bundle::${id}`;
 }
 
-function ymlInstanceToStepBundle(id: string, stepBundle: StepBundleModel): StepBundleInstance {
+function ymlInstanceToStepBundle(
+  id: string,
+  stepBundle: StepBundleModel,
+  defaultValues?: StepBundleModel,
+  userValues?: StepBundleModel,
+): StepBundleInstance {
   return {
     cvs: idToCvs(id),
     id,
     title: stepBundle.title,
-    userValues: stepBundle,
+    mergedValues: stepBundle,
+    defaultValues: defaultValues || stepBundle,
+    userValues: userValues || {},
   };
 }
 

@@ -26,7 +26,7 @@ export type Step = {
   defaultValues?: StepModel; // The defaults are coming from the step.yml file loaded from the API
   userValues: StepModel; // The values are coming from the bitrise.yml file defined by the user
   mergedValues: StepModel; // the merged values of the defaults and user values
-  resolvedInfo: ResolvedStepInfo;
+  resolvedInfo?: ResolvedStepInfo;
 };
 
 export type WithGroup = {
@@ -34,6 +34,7 @@ export type WithGroup = {
   id: string;
   title: string;
   icon: string;
+  mergedValues: WithModel;
   userValues: WithModel;
 };
 
@@ -42,7 +43,9 @@ export type StepBundleInstance = {
   id: string;
   title?: string;
   icon?: string;
-  userValues: StepBundleOverrideModel;
+  defaultValues: StepBundleOverrideModel; // The defaults are coming from step_bundles
+  userValues: StepBundleOverrideModel; // The values are coming from the instance of step bundle
+  mergedValues: StepBundleOverrideModel; // The merged values of the defaults and user values
 };
 
 export type StepLike = Step | WithGroup | StepBundleInstance;
