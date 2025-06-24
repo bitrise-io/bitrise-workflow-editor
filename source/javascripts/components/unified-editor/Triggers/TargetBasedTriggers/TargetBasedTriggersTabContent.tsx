@@ -1,6 +1,7 @@
 import { Box, Card, Toggle } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import AddTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddTriggerDialog';
 import { trackTargetBasedTriggersEnabledToggled, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TriggerType } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
@@ -108,6 +109,21 @@ const TargetBasedTriggersTabContent = (props: Props) => {
           onDeleteTrigger={handleDeleteTrigger}
           onUpdateTriggerEnabled={handleTriggerEnabledToggled}
         />
+        {triggerType !== undefined && (
+          <AddTriggerDialog
+            triggerType={triggerType}
+            source={source}
+            sourceId={sourceId}
+            currentTriggers={triggers.items[triggerType] || []}
+            onSubmit={onSubmit}
+            onCancel={() => {
+              setTriggerType(undefined);
+              setEditedItem(undefined);
+            }}
+            isOpen
+            editedItem={editedItem?.trigger}
+          />
+        )}
       </Box>
     </>
   );

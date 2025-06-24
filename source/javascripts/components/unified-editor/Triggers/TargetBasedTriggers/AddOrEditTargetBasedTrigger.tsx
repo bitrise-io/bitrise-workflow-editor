@@ -108,10 +108,6 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
     }
   });
 
-  const title = editedItem
-    ? `Edit ${triggerType.replace('_', ' ')} trigger`
-    : `Add ${triggerType.replace('_', ' ')} trigger`;
-
   const handleCancel = () => {
     reset();
     onCancel();
@@ -131,9 +127,6 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
     <FormProvider {...formMethods}>
       <Box as="form" display="flex" flexDir="column" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
         <Box>
-          <Text textStyle="heading/h4" marginBlockEnd="4">
-            {title}
-          </Text>
           <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
             Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this {entity} should
             run.
