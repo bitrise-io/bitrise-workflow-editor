@@ -1,4 +1,3 @@
-import { Dialog, DialogBody } from '@bitrise/bitkit';
 import { useMemo } from 'react';
 
 import AddOrEditTargetBasedTrigger from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTargetBasedTrigger';
@@ -30,19 +29,16 @@ const EditTargetBasedTriggerDialog = ({ isOpen, editedItem, currentTriggers, onE
   }
 
   return (
-    <Dialog title="Edit trigger" maxWidth="640" isOpen={isOpen} onClose={onClose}>
-      <DialogBody>
-        <AddOrEditTargetBasedTrigger
-          source={source}
-          sourceId={sourceId}
-          editedItem={editedItem}
-          triggerType={editedItem.triggerType}
-          currentTriggers={currentTriggers}
-          onSubmit={handleEdit}
-          onCancel={onClose}
-        />
-      </DialogBody>
-    </Dialog>
+    <AddOrEditTargetBasedTrigger
+      source={source}
+      sourceId={sourceId}
+      editedItem={editedItem}
+      triggerType={editedItem.triggerType}
+      currentTriggers={currentTriggers}
+      onSubmit={handleEdit}
+      onCancel={onClose}
+      isOpen={isOpen}
+    />
   );
 };
 

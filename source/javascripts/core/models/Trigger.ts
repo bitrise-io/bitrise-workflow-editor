@@ -2,7 +2,7 @@ import { IterableElement } from 'type-fest';
 
 import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel, TriggersModel } from './BitriseYml';
 
-export type TriggerSource = 'workflows' | 'pipelines';
+export type TriggerSource = 'workflows' | 'pipelines' | 'legacy';
 export type TriggerType = keyof Omit<TriggersModel, 'enabled'>;
 export const TYPE_MAP: Record<TriggerType, string> = {
   push: 'Push',

@@ -5,13 +5,13 @@ import {
   Dialog,
   DialogBody,
   DialogFooter,
-  Divider,
   Link,
+  Select,
   Tooltip,
 } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
 import { useMemo } from 'react';
-import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
 import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
@@ -23,6 +23,9 @@ import {
   TriggerSource,
   TriggerType,
 } from '@/core/models/Trigger';
+import { LegacyTrigger } from '@/core/models/Trigger.legacy';
+import usePipelineIds from '@/hooks/usePipelineIds';
+import useWorkflowIds from '@/hooks/useWorkflowIds';
 
 import ConditionCard from '../ConditionCard';
 
@@ -31,14 +34,18 @@ type Props = {
   sourceId: string;
   triggerType: TriggerType;
   editedItem?: TargetBasedTrigger;
-  currentTriggers: TargetBasedTrigger[];
-  onSubmit: (trigger: TargetBasedTrigger) => void;
+  currentTriggers: TargetBasedTrigger[] | LegacyTrigger[];
+  onSubmit: (trigger: any) => void;
   onCancel: () => void;
   isOpen: boolean;
+  isLegacy?: boolean;
 };
 
 const AddOrEditTargetBasedTrigger = (props: Props) => {
-  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen } = props;
+  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, isLegacy } = props;
+
+  const pipelines = usePipelineIds();
+  const workflows = useWorkflowIds(true);
 
   const optionsMap = useMemo(() => TARGET_BASED_OPTIONS_MAP[triggerType], [triggerType]);
   const labelsMap = useMemo(() => TARGET_BASED_LABELS_MAP[triggerType], [triggerType]);
@@ -149,6 +156,34 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
         onSubmit={handleSubmit(onFormSubmit)}
       >
         <DialogBody>
+          {isLegacy && (
+            <Controller
+              name="source"
+              control={control}
+              render={({ field }) => (
+                <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired mb="24" {...field}>
+                  {pipelines.length && (
+                    <optgroup label="Pipelines">
+                      {pipelines.map((p) => (
+                        <option key={p} value={`pipelines#${p}`}>
+                          {p}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {workflows.length && (
+                    <optgroup label="Workflows">
+                      {workflows.map((p) => (
+                        <option key={p} value={`workflows#${p}`}>
+                          {p}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </Select>
+              )}
+            />
+          )}
           <ConditionCard
             triggerType={triggerType}
             fields={fields}
@@ -178,15 +213,20 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
               Include draft pull requests
             </Checkbox>
           )}
-          <Divider marginBlock="24" />
-          <PriorityInput
-            onChange={(newValue) => setValue('priority', newValue)}
-            value={priority}
-            helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
-          />
+          {!isLegacy && (
+            <PriorityInput
+              onChange={(newValue) => setValue('priority', newValue)}
+              value={priority}
+              helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
+              mt="24"
+            />
+          )}
         </DialogBody>
         <DialogFooter>
           <ButtonGroup spacing="16">
+            <Button variant="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
             <Tooltip
               isDisabled={!isSameTriggerExist && !hasEmptyCondition}
               label={
@@ -199,9 +239,6 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
                 {editedItem ? 'Apply changes' : 'Add trigger'}
               </Button>
             </Tooltip>
-            <Button variant="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
           </ButtonGroup>
         </DialogFooter>
       </Dialog>
