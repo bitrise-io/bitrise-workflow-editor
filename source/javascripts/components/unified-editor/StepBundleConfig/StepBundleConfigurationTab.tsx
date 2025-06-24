@@ -8,7 +8,7 @@ import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import StepBundleConfigInputs from './StepBundleConfigInputs';
 
 const StepBundleConfigurationTab = () => {
-  const { stepBundle, stepBundleId, parentStepBundleId, parentWorkflowId } = useStepBundleConfigContext();
+  const { stepBundle, stepBundleId, parentStepBundleId, parentWorkflowId, stepIndex } = useStepBundleConfigContext();
 
   const defaultValues = stepBundle?.defaultValues ?? {};
   const userValues = stepBundle?.userValues ?? {};
@@ -16,23 +16,36 @@ const StepBundleConfigurationTab = () => {
 
   const isDefaultMode = !parentStepBundleId && !parentWorkflowId;
 
+  const at = {
+    cvs: stepBundle?.cvs || `bundle::${stepBundle?.id}`,
+    source: parentStepBundleId ? 'step_bundles' : ('workflows' as 'step_bundles' | 'workflows'),
+    sourceId: parentStepBundleId || parentWorkflowId || '',
+    stepIndex,
+  };
+
   const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     if (stepBundleId) {
       if (isDefaultMode) {
         StepBundleService.updateStepBundleField(stepBundleId, 'is_always_run', e.currentTarget.checked);
+      } else {
+        StepBundleService.updateStepBundleInstanceField('is_always_run', e.currentTarget.checked, at);
       }
     }
   };
 
   const onIsAlwaysRunReset = () => {
     if (stepBundleId) {
-      StepBundleService.updateStepBundleField(stepBundleId, 'is_always_run', undefined);
+      StepBundleService.updateStepBundleInstanceField('is_always_run', undefined, at);
     }
   };
 
   const onRunIfChange = (runIf: string) => {
     if (stepBundleId) {
-      StepBundleService.updateStepBundleField(stepBundleId, 'run_if', runIf);
+      if (isDefaultMode) {
+        StepBundleService.updateStepBundleField(stepBundleId, 'run_if', runIf);
+      } else {
+        StepBundleService.updateStepBundleInstanceField('run_if', runIf, at);
+      }
     }
   };
 

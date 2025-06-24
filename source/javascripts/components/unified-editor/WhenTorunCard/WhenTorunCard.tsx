@@ -27,7 +27,7 @@ const WhenToRunCard = (props: WhenToRunCardPorps) => {
   } = props;
   return (
     <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">When to run</Text>}>
-      <Box display="flex" paddingBlockStart="4" alignItems="center" gap="4" minHeight="32">
+      <Box display="flex" alignItems="center" gap="4" minHeight="32">
         <Text flex="1">Run even if previous Step(s) failed</Text>
         {!!onIsAlwaysRunReset && (
           <IconButton

@@ -429,6 +429,36 @@ function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
   });
 }
 
+function updateStepBundleInstanceField<T extends K>(
+  field: T,
+  value: V<T>,
+  at: {
+    cvs: string;
+    source: StepBundleCreationSource;
+    sourceId: string;
+    stepIndex: number;
+  },
+) {
+  const id = cvsToId(at.cvs);
+  const { cvs, source, sourceId, stepIndex } = at;
+
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getSourceStepOrThrowError(doc, at).get(cvs) as YAMLMap | undefined;
+
+    if (!step) {
+      throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
+    }
+
+    if (value !== undefined && value !== '') {
+      YmlUtils.setIn(step, [field], value);
+    } else {
+      YmlUtils.deleteByPath(step, [field]);
+    }
+
+    return doc;
+  });
+}
+
 function updateStepBundleInputInstanceValue(
   key: string,
   newValue: string,
@@ -500,5 +530,6 @@ export default {
   deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleField,
+  updateStepBundleInstanceField,
   updateStepBundleInputInstanceValue,
 };

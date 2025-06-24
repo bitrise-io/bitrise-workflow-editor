@@ -467,8 +467,8 @@ workflows:
             - password: $PAT
             - host: github.com
       - xamarin-user-management:
-      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
-      - bundle::install_deps:
+      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: {}
+      - bundle::install_deps: {}
       - with:
           container: ruby
           services:
