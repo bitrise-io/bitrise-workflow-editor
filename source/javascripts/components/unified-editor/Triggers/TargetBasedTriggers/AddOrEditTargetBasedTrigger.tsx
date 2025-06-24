@@ -1,4 +1,14 @@
-import { Box, Button, ButtonGroup, Checkbox, Divider, Link, Text, Tooltip } from '@bitrise/bitkit';
+import {
+  Button,
+  ButtonGroup,
+  Checkbox,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  Divider,
+  Link,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
 import { useMemo } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
@@ -24,10 +34,11 @@ type Props = {
   currentTriggers: TargetBasedTrigger[];
   onSubmit: (trigger: TargetBasedTrigger) => void;
   onCancel: () => void;
+  isOpen: boolean;
 };
 
 const AddOrEditTargetBasedTrigger = (props: Props) => {
-  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit } = props;
+  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen } = props;
 
   const optionsMap = useMemo(() => TARGET_BASED_OPTIONS_MAP[triggerType], [triggerType]);
   const labelsMap = useMemo(() => TARGET_BASED_LABELS_MAP[triggerType], [triggerType]);
@@ -96,6 +107,10 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
     }
   };
 
+  const title = editedItem
+    ? `Edit ${triggerType.replace('_', ' ')} trigger`
+    : `Add ${triggerType.replace('_', ' ')} trigger`;
+
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
     if (
@@ -125,12 +140,15 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
 
   return (
     <FormProvider {...formMethods}>
-      <Box as="form" display="flex" flexDir="column" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
-        <Box>
-          <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
-            Specify {Object.keys(optionsMap).length > 1 ? 'conditions' : 'a condition'} for when this {entity} should
-            run.
-          </Text>
+      <Dialog
+        as="form"
+        maxWidth="640"
+        isOpen={isOpen}
+        onClose={onCancel}
+        title={title}
+        onSubmit={handleSubmit(onFormSubmit)}
+      >
+        <DialogBody>
           <ConditionCard
             triggerType={triggerType}
             fields={fields}
@@ -166,25 +184,27 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
             value={priority}
             helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
           />
-        </Box>
-        <ButtonGroup spacing="16" paddingY="24" paddingBlockStart="32" marginBlockStart="auto">
-          <Tooltip
-            isDisabled={!isSameTriggerExist && !hasEmptyCondition}
-            label={
-              isSameTriggerExist
-                ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
-                : 'Please fill all conditions.'
-            }
-          >
-            <Button type="submit" onClick={handleSegmentTrack} isDisabled={isSameTriggerExist || hasEmptyCondition}>
-              {editedItem ? 'Apply changes' : 'Add trigger'}
+        </DialogBody>
+        <DialogFooter>
+          <ButtonGroup spacing="16">
+            <Tooltip
+              isDisabled={!isSameTriggerExist && !hasEmptyCondition}
+              label={
+                isSameTriggerExist
+                  ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
+                  : 'Please fill all conditions.'
+              }
+            >
+              <Button type="submit" onClick={handleSegmentTrack} isDisabled={isSameTriggerExist || hasEmptyCondition}>
+                {editedItem ? 'Apply changes' : 'Add trigger'}
+              </Button>
+            </Tooltip>
+            <Button variant="secondary" onClick={handleCancel}>
+              Cancel
             </Button>
-          </Tooltip>
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </ButtonGroup>
-      </Box>
+          </ButtonGroup>
+        </DialogFooter>
+      </Dialog>
     </FormProvider>
   );
 };
