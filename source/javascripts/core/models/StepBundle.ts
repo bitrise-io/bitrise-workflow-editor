@@ -9,4 +9,6 @@ export const STEP_BUNDLE_KEYS = [
   'envs',
   'inputs',
   'steps',
+  'is_always_run',
+  'run_if',
 ] as const satisfies readonly (keyof StepBundleModel)[];

@@ -59,6 +59,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
             stepBundleInWorkflow || undefined,
           )
         : undefined;
+      result.stepBundleId = id;
     }
 
     if (!stepBundleId && !parentWorkflowId && parentStepBundleId && stepIndex >= 0) {
@@ -76,6 +77,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
             stepBundleInStepBundle || undefined,
           )
         : undefined;
+      result.stepBundleId = id;
     }
 
     return selector ? selector(result) : result;
