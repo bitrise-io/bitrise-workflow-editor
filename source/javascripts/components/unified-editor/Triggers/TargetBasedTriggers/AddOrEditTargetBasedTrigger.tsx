@@ -23,17 +23,22 @@ import {
   TriggerSource,
   TriggerType,
 } from '@/core/models/Trigger';
-import { LegacyTrigger } from '@/core/models/Trigger.legacy';
+import {
+  LEGACY_LABELS_MAP,
+  LEGACY_OPTIONS_MAP,
+  LegacyConditionType,
+  LegacyTrigger,
+} from '@/core/models/Trigger.legacy';
 import usePipelineIds from '@/hooks/usePipelineIds';
 import useWorkflowIds from '@/hooks/useWorkflowIds';
 
 import ConditionCard from '../ConditionCard';
 
 type Props = {
-  source: TriggerSource;
+  source: TriggerSource | '';
   sourceId: string;
   triggerType: TriggerType;
-  editedItem?: TargetBasedTrigger;
+  editedItem?: TargetBasedTrigger | LegacyTrigger;
   currentTriggers: TargetBasedTrigger[] | LegacyTrigger[];
   onSubmit: (trigger: any) => void;
   onCancel: () => void;
@@ -47,21 +52,26 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
   const pipelines = usePipelineIds();
   const workflows = useWorkflowIds(true);
 
-  const optionsMap = useMemo(() => TARGET_BASED_OPTIONS_MAP[triggerType], [triggerType]);
-  const labelsMap = useMemo(() => TARGET_BASED_LABELS_MAP[triggerType], [triggerType]);
+  const optionsMap = useMemo(() => {
+    return isLegacy ? LEGACY_OPTIONS_MAP[triggerType] : TARGET_BASED_OPTIONS_MAP[triggerType];
+  }, [triggerType, isLegacy]);
+
+  const labelsMap = useMemo(() => {
+    return isLegacy ? LEGACY_LABELS_MAP[triggerType] : TARGET_BASED_LABELS_MAP[triggerType];
+  }, [isLegacy, triggerType]);
   const entity = useMemo(() => (source === 'pipelines' ? 'Pipeline' : 'Workflow'), [source]);
 
-  const defaultValues = useMemo<TargetBasedTrigger>(
+  const defaultValues = useMemo<TargetBasedTrigger | LegacyTrigger>(
     () => ({
       conditions: [
         {
-          type: Object.keys(optionsMap)[0] as TargetBasedConditionType,
+          type: Object.keys(optionsMap)[0],
           value: '',
           isRegex: false,
         },
-      ],
+      ] as TargetBasedTrigger['conditions'] | LegacyTrigger['conditions'],
       uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
-      source: `${source}#${sourceId}`,
+      source: `${source}#${sourceId}` || '',
       index: editedItem?.index || currentTriggers.length,
       triggerType,
       isActive: true,
@@ -71,13 +81,13 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
     [currentTriggers.length, editedItem, optionsMap, source, sourceId, triggerType],
   );
 
-  const formMethods = useForm<TargetBasedTrigger>({ defaultValues });
+  const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
   const { control, handleSubmit, setValue, reset, watch } = formMethods;
   const { conditions, isDraftPr, priority } = watch();
   const { append, fields, remove } = useFieldArray({ control, name: 'conditions', keyName: 'uniqueId' });
 
   const onAppend = () => {
-    const availableTypes = Object.keys(optionsMap) as TargetBasedConditionType[];
+    const availableTypes = Object.keys(optionsMap) as TargetBasedConditionType[] | LegacyConditionType[];
     const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
 
@@ -92,7 +102,7 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
     });
   };
 
-  const onFormSubmit = (data: TargetBasedTrigger) => {
+  const onFormSubmit = (data: TargetBasedTrigger | LegacyTrigger) => {
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
@@ -101,7 +111,7 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
         newCondition.value = newCondition.isRegex ? '.*' : '*';
       }
       return newCondition;
-    });
+    }) as TargetBasedTrigger['conditions'] | LegacyTrigger['conditions'];
 
     onSubmit(filteredData);
   };

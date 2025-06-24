@@ -148,12 +148,13 @@ const LegacyTriggers = () => {
         <AddOrEditTargetBasedTrigger
           triggerType={triggerType}
           currentTriggers={triggers[triggerType]}
+          editedItem={editedItem}
           onSubmit={onSubmit}
           onCancel={onCloseDialog}
           isOpen={isOpen}
           isLegacy
-          source="legacy"
-          sourceId="legacy"
+          source=""
+          sourceId=""
         />
       )}
     </>
