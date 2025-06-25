@@ -38,7 +38,7 @@ const EditTargetBasedTriggerDialog = ({ isOpen, editedItem, currentTriggers, onE
       onSubmit={handleEdit}
       onCancel={onClose}
       isOpen={isOpen}
-      variant="legacy"
+      variant="target-based"
     />
   );
 };
