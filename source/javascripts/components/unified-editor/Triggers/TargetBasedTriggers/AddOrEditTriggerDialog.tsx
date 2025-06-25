@@ -25,7 +25,7 @@ type Props = {
   variant: 'legacy' | 'target-based';
 };
 
-const AddOrEditTargetBasedTrigger = (props: Props) => {
+const AddOrEditTriggerDialog = (props: Props) => {
   const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, variant } = props;
 
   const optionsMap = useMemo(() => {
@@ -122,4 +122,4 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
   );
 };
 
-export default AddOrEditTargetBasedTrigger;
+export default AddOrEditTriggerDialog;

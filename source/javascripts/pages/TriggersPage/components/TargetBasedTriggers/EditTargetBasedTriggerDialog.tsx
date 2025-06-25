@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import AddOrEditTargetBasedTrigger from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTargetBasedTrigger';
+import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
 import { TargetBasedTrigger, TriggerSource } from '@/core/models/Trigger';
 
 type Props = {
@@ -29,7 +29,7 @@ const EditTargetBasedTriggerDialog = ({ isOpen, editedItem, currentTriggers, onE
   }
 
   return (
-    <AddOrEditTargetBasedTrigger
+    <AddOrEditTriggerDialog
       source={source}
       sourceId={sourceId}
       editedItem={editedItem}

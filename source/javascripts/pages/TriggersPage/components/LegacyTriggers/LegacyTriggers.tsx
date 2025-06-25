@@ -1,7 +1,7 @@
 import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
-import AddOrEditTargetBasedTrigger from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTargetBasedTrigger';
+import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
 import { TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import TriggerService from '@/core/services/TriggerService';
@@ -147,7 +147,7 @@ const LegacyTriggers = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <AddOrEditTargetBasedTrigger
+      <AddOrEditTriggerDialog
         triggerType={triggerType}
         currentTriggers={triggers[triggerType]}
         editedItem={editedItem}

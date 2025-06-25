@@ -126,7 +126,9 @@ const TriggerFormBody = (props: Props) => {
         <PriorityInput
           onChange={(newValue) => setValue('priority', newValue)}
           value={priority}
-          helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
+          helperText={`Assign a priority to builds started by this trigger. 
+            Enter a value from -100 (lowest) to +100 (highest). This setting overrides 
+            the priority assigned to this ${entity}.`}
           mt="24"
         />
       )}
