@@ -5,7 +5,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import StepService from '@/core/services/StepService';
 import StepVariableService from '@/core/services/StepVariableService';
 
-import WhenToRunCard from '../../WhenTorunCard/WhenTorunCard';
+import WhenToRunCard from '../../WhenToRunCard/WhenToRunCard';
 import StepInputGroup from '../components/StepInputGroup';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 

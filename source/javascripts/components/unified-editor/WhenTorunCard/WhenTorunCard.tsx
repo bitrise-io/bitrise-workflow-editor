@@ -3,7 +3,7 @@ import { ChangeEventHandler } from 'react';
 
 import StepInput from '../StepConfigDrawer/components/StepInput';
 
-type WhenToRunCardPorps = {
+type WhenToRunCardProps = {
   defaultValuesRunIf?: string;
   isAlwaysRun?: boolean;
   isSkippable?: boolean;
@@ -14,7 +14,7 @@ type WhenToRunCardPorps = {
   userValuesRunIf?: string;
 };
 
-const WhenToRunCard = (props: WhenToRunCardPorps) => {
+const WhenToRunCard = (props: WhenToRunCardProps) => {
   const {
     defaultValuesRunIf,
     isAlwaysRun,

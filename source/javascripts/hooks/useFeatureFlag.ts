@@ -3,7 +3,7 @@ import { initialize, LDClient } from 'launchdarkly-js-client-sdk';
 import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
-  'enable-wfe-diff-editor': false,
+  'enable-wfe-step-bundles-when-to-run': false,
 };
 
 type FeatureFlags = typeof defaultValues;
