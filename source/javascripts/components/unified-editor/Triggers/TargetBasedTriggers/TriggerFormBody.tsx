@@ -4,14 +4,19 @@ import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
 import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import {
-  Condition,
   TARGET_BASED_LABELS_MAP,
   TARGET_BASED_OPTIONS_MAP,
   TargetBasedConditionType,
+  TargetBasedTrigger,
   TriggerSource,
   TriggerType,
 } from '@/core/models/Trigger';
-import { LEGACY_LABELS_MAP, LEGACY_OPTIONS_MAP, LegacyConditionType } from '@/core/models/Trigger.legacy';
+import {
+  LEGACY_LABELS_MAP,
+  LEGACY_OPTIONS_MAP,
+  LegacyConditionType,
+  LegacyTrigger,
+} from '@/core/models/Trigger.legacy';
 import usePipelineIds from '@/hooks/usePipelineIds';
 import useWorkflowIds from '@/hooks/useWorkflowIds';
 
@@ -28,7 +33,7 @@ const TriggerFormBody = (props: Props) => {
   const pipelines = usePipelineIds();
   const workflows = useWorkflowIds(true);
 
-  const { control, setValue, watch } = useFormContext();
+  const { control, setValue, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
   const { conditions, isDraftPr, priority } = watch();
   const { append, fields, remove } = useFieldArray({ control, name: 'conditions', keyName: 'uniqueId' });
 
@@ -44,9 +49,7 @@ const TriggerFormBody = (props: Props) => {
 
   const onAppend = () => {
     const availableTypes = Object.keys(optionsMap) as TargetBasedConditionType[] | LegacyConditionType[];
-    const usedTypes = conditions.map(
-      (condition: Condition<LegacyConditionType> | Condition<TargetBasedConditionType>) => condition.type,
-    );
+    const usedTypes = conditions.map((condition) => condition.type);
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
 
     if (!newType) {

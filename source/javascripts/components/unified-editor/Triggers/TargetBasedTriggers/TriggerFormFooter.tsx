@@ -14,7 +14,7 @@ type Props = {
 
 const TriggerFormFooter = (props: Props) => {
   const { editedItem, onCancel, currentTriggers = [] } = props;
-  const { reset, watch } = useFormContext();
+  const { reset, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
   const { conditions, isDraftPr, priority } = watch();
 
   let isSameTriggerExist = false;
