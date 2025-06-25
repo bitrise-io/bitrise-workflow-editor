@@ -67,6 +67,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
             setEditedItem(undefined);
           }}
           isOpen
+          variant="target-based"
         />
       )}
       <Box display={triggerType !== undefined ? 'none' : 'block'}>

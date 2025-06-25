@@ -1,38 +1,17 @@
-import {
-  Button,
-  ButtonGroup,
-  Checkbox,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Link,
-  Select,
-  Tooltip,
-} from '@bitrise/bitkit';
-import { isEqual } from 'es-toolkit';
+import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
 import { useMemo } from 'react';
-import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
-import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
-import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
+import TriggerFormBody from '@/components/unified-editor/Triggers/TargetBasedTriggers/TriggerFormBody';
+import TriggerFormFooter from '@/components/unified-editor/Triggers/TargetBasedTriggers/TriggerFormFooter';
 import {
-  TARGET_BASED_LABELS_MAP,
   TARGET_BASED_OPTIONS_MAP,
   TargetBasedConditionType,
   TargetBasedTrigger,
   TriggerSource,
   TriggerType,
 } from '@/core/models/Trigger';
-import {
-  LEGACY_LABELS_MAP,
-  LEGACY_OPTIONS_MAP,
-  LegacyConditionType,
-  LegacyTrigger,
-} from '@/core/models/Trigger.legacy';
-import usePipelineIds from '@/hooks/usePipelineIds';
-import useWorkflowIds from '@/hooks/useWorkflowIds';
-
-import ConditionCard from '../ConditionCard';
+import { LEGACY_OPTIONS_MAP, LegacyConditionType, LegacyTrigger } from '@/core/models/Trigger.legacy';
 
 type Props = {
   source: TriggerSource | '';
@@ -43,64 +22,66 @@ type Props = {
   onSubmit: (trigger: any) => void;
   onCancel: () => void;
   isOpen: boolean;
-  isLegacy?: boolean;
+  variant: 'legacy' | 'target-based';
 };
 
 const AddOrEditTargetBasedTrigger = (props: Props) => {
-  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, isLegacy } = props;
-
-  const pipelines = usePipelineIds();
-  const workflows = useWorkflowIds(true);
+  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, variant } = props;
 
   const optionsMap = useMemo(() => {
-    return isLegacy ? LEGACY_OPTIONS_MAP[triggerType] : TARGET_BASED_OPTIONS_MAP[triggerType];
-  }, [triggerType, isLegacy]);
+    return variant === 'legacy' ? LEGACY_OPTIONS_MAP[triggerType] : TARGET_BASED_OPTIONS_MAP[triggerType];
+  }, [triggerType, variant]);
 
-  const labelsMap = useMemo(() => {
-    return isLegacy ? LEGACY_LABELS_MAP[triggerType] : TARGET_BASED_LABELS_MAP[triggerType];
-  }, [isLegacy, triggerType]);
-  const entity = useMemo(() => (source === 'pipelines' ? 'Pipeline' : 'Workflow'), [source]);
+  const defaultValues = useMemo(() => {
+    const commonProps = {
+      uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
+      index: editedItem?.index || currentTriggers.length,
+      triggerType,
+      isActive: true,
+      isDraftPr: true,
+    };
 
-  const defaultValues = useMemo<any>(
-    () => ({
+    if (variant === 'legacy') {
+      const legacyDefaults: LegacyTrigger = {
+        ...commonProps,
+        conditions: [
+          {
+            type: Object.keys(optionsMap)[0] as LegacyConditionType,
+            value: '',
+            isRegex: false,
+          },
+        ],
+        source: '',
+      };
+
+      if (editedItem) {
+        return { ...legacyDefaults, ...editedItem };
+      }
+
+      return legacyDefaults;
+    }
+
+    const targetBasedDefaults: TargetBasedTrigger = {
+      ...commonProps,
       conditions: [
         {
-          type: Object.keys(optionsMap)[0],
+          type: Object.keys(optionsMap)[0] as TargetBasedConditionType,
           value: '',
           isRegex: false,
         },
       ],
-      uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
-      index: editedItem?.index || currentTriggers.length,
-      source: isLegacy ? '' : `${source}#${sourceId}`,
-      triggerType,
-      isActive: true,
-      isDraftPr: true,
-      ...editedItem,
-    }),
-    [currentTriggers.length, editedItem, isLegacy, optionsMap, source, sourceId, triggerType],
-  );
+      source: source && sourceId && `${source}#${sourceId}`,
+    };
 
-  const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
-  const { control, handleSubmit, setValue, reset, watch } = formMethods;
-  const { conditions, isDraftPr, priority } = watch();
-  const { append, fields, remove } = useFieldArray({ control, name: 'conditions', keyName: 'uniqueId' });
-
-  const onAppend = () => {
-    const availableTypes = Object.keys(optionsMap) as TargetBasedConditionType[] | LegacyConditionType[];
-    const usedTypes = conditions.map((condition) => condition.type);
-    const newType = availableTypes.find((type) => !usedTypes.includes(type));
-
-    if (!newType) {
-      return;
+    if (editedItem) {
+      return { ...targetBasedDefaults, ...editedItem };
     }
 
-    append({
-      type: newType,
-      value: '',
-      isRegex: false,
-    });
-  };
+    return targetBasedDefaults;
+  }, [currentTriggers.length, editedItem, optionsMap, source, sourceId, triggerType, variant]);
+
+  const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
+  const { handleSubmit } = formMethods;
 
   const onFormSubmit = (data: TargetBasedTrigger | LegacyTrigger) => {
     const filteredData = data;
@@ -116,54 +97,9 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
     onSubmit(filteredData);
   };
 
-  const handleSegmentTrack = () => {
-    if (editedItem) {
-      trackEditTrigger(watch());
-    } else {
-      trackAddTrigger(watch());
-    }
-  };
-
   const title = editedItem
     ? `Edit ${triggerType.replace('_', ' ')} trigger`
     : `Add ${triggerType.replace('_', ' ')} trigger`;
-
-  let isSameTriggerExist = false;
-  currentTriggers.forEach((trigger) => {
-    if (
-      trigger.uniqueId !== editedItem?.uniqueId &&
-      isEqual(trigger.conditions, conditions) &&
-      isEqual(trigger.isDraftPr, isDraftPr) &&
-      isEqual(trigger.priority, priority)
-    ) {
-      isSameTriggerExist = true;
-    }
-  });
-
-  const handleCancel = () => {
-    reset();
-    onCancel();
-  };
-
-  let hasEmptyCondition = false;
-  conditions.forEach(({ type, value }) => {
-    if (
-      (!(
-        type === 'name' ||
-        type === 'tag' ||
-        type === 'target_branch' ||
-        type === 'pull_request_target_branch' ||
-        type === 'source_branch' ||
-        type === 'pull_request_source_branch' ||
-        type === 'branch' ||
-        type === 'push_branch'
-      ) &&
-        !value) ||
-      !type
-    ) {
-      hasEmptyCondition = true;
-    }
-  });
 
   return (
     <FormProvider {...formMethods}>
@@ -176,90 +112,10 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
         onSubmit={handleSubmit(onFormSubmit)}
       >
         <DialogBody>
-          {isLegacy && (
-            <Controller
-              name="source"
-              control={control}
-              render={({ field }) => (
-                <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired mb="24" {...field}>
-                  {pipelines.length && (
-                    <optgroup label="Pipelines">
-                      {pipelines.map((p) => (
-                        <option key={p} value={`pipelines#${p}`}>
-                          {p}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {workflows.length && (
-                    <optgroup label="Workflows">
-                      {workflows.map((p) => (
-                        <option key={p} value={`workflows#${p}`}>
-                          {p}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </Select>
-              )}
-            />
-          )}
-          <ConditionCard
-            triggerType={triggerType}
-            fields={fields}
-            labelsMap={labelsMap}
-            append={onAppend}
-            optionsMap={optionsMap}
-            remove={remove}
-          />
-          {triggerType === 'pull_request' && (
-            <Checkbox
-              isChecked={isDraftPr}
-              marginBlockStart="24"
-              helperText={
-                <>
-                  Supported for GitHub and GitLab.{' '}
-                  <Link
-                    colorScheme="purple"
-                    href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
-                    isExternal
-                  >
-                    Learn more
-                  </Link>
-                </>
-              }
-              onChange={(e) => setValue(`isDraftPr`, e.target.checked)}
-            >
-              Include draft pull requests
-            </Checkbox>
-          )}
-          {!isLegacy && (
-            <PriorityInput
-              onChange={(newValue) => setValue('priority', newValue)}
-              value={priority}
-              helperText={`Assign a priority to builds started by this trigger. Enter a value from -100 (lowest) to +100 (highest). This setting overrides the priority assigned to this ${entity}. Available on certain plans only.`}
-              mt="24"
-            />
-          )}
+          <TriggerFormBody source={source} triggerType={triggerType} variant={variant} />
         </DialogBody>
         <DialogFooter>
-          <ButtonGroup spacing="16">
-            <Button variant="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Tooltip
-              isDisabled={!isSameTriggerExist && !hasEmptyCondition}
-              label={
-                isSameTriggerExist
-                  ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
-                  : 'Please fill all conditions.'
-              }
-            >
-              <Button type="submit" onClick={handleSegmentTrack} isDisabled={isSameTriggerExist || hasEmptyCondition}>
-                {editedItem ? 'Apply changes' : 'Add trigger'}
-              </Button>
-            </Tooltip>
-          </ButtonGroup>
+          <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} />
         </DialogFooter>
       </Dialog>
     </FormProvider>

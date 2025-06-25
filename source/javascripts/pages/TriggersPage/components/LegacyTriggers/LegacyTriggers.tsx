@@ -12,8 +12,9 @@ import ConvertLegacyTriggers from './ConvertLegacyTriggers';
 
 const LegacyTriggers = () => {
   const triggers = useLegacyTriggers();
-  const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
+  const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<LegacyTrigger | undefined>();
+  const [tabIndex, setTabIndex] = useState(0);
 
   const onTriggerEdited = (trigger: LegacyTrigger) => {
     TriggerService.updateLegacyTrigger(trigger);
@@ -39,7 +40,6 @@ const LegacyTriggers = () => {
 
   const onCloseDialog = () => {
     onClose();
-    setTriggerType(undefined);
     setEditedItem(undefined);
   };
 
@@ -50,6 +50,12 @@ const LegacyTriggers = () => {
       TriggerService.addLegacyTrigger(trigger);
     }
     onCloseDialog();
+  };
+
+  const handleTabChange = (index: number) => {
+    setTabIndex(index);
+    const triggerTypes: TriggerType[] = ['push', 'pull_request', 'tag'];
+    setTriggerType(triggerTypes[index]);
   };
 
   if (triggers.push.length + triggers.pull_request.length + triggers.tag.length === 0) {
@@ -72,7 +78,7 @@ const LegacyTriggers = () => {
         </Link>
       </Text>
       <ConvertLegacyTriggers triggers={triggers} />
-      <Tabs marginTop="24" marginBottom="24">
+      <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
         <TabList>
           <Tab>Push</Tab>
           <Tab>Pull request</Tab>
@@ -84,7 +90,6 @@ const LegacyTriggers = () => {
               marginBottom="24"
               variant="secondary"
               onClick={() => {
-                setTriggerType('push');
                 onOpen();
               }}
               leftIconName="PlusCircle"
@@ -105,7 +110,6 @@ const LegacyTriggers = () => {
               marginBottom="24"
               variant="secondary"
               onClick={() => {
-                setTriggerType('pull_request');
                 onOpen();
               }}
               leftIconName="PlusCircle"
@@ -126,7 +130,6 @@ const LegacyTriggers = () => {
               marginBottom="24"
               variant="secondary"
               onClick={() => {
-                setTriggerType('tag');
                 onOpen();
               }}
               leftIconName="PlusCircle"
@@ -144,19 +147,17 @@ const LegacyTriggers = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-      {triggerType !== undefined && (
-        <AddOrEditTargetBasedTrigger
-          triggerType={triggerType}
-          currentTriggers={triggers[triggerType]}
-          editedItem={editedItem}
-          onSubmit={onSubmit}
-          onCancel={onCloseDialog}
-          isOpen={isOpen}
-          isLegacy
-          source=""
-          sourceId=""
-        />
-      )}
+      <AddOrEditTargetBasedTrigger
+        triggerType={triggerType}
+        currentTriggers={triggers[triggerType]}
+        editedItem={editedItem}
+        onSubmit={onSubmit}
+        onCancel={onCloseDialog}
+        isOpen={isOpen}
+        variant="legacy"
+        source=""
+        sourceId=""
+      />
     </>
   );
 };
