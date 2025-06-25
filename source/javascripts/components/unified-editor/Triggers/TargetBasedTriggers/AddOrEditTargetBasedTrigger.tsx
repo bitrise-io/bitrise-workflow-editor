@@ -148,7 +148,17 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
     if (
-      (!(type === 'name' || type === 'target_branch' || type === 'source_branch' || type === 'branch') && !value) ||
+      (!(
+        type === 'name' ||
+        type === 'tag' ||
+        type === 'target_branch' ||
+        type === 'pull_request_target_branch' ||
+        type === 'source_branch' ||
+        type === 'pull_request_source_branch' ||
+        type === 'branch' ||
+        type === 'push_branch'
+      ) &&
+        !value) ||
       !type
     ) {
       hasEmptyCondition = true;
