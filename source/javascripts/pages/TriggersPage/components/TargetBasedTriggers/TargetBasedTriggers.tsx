@@ -103,14 +103,14 @@ const TargetBasedTriggers = () => {
     setEditedItem(undefined);
   };
 
-  const [editSource, editSourceId] = useMemo(() => {
+  let [source, sourceId] = useMemo(() => {
     if (!editedItem) {
       return [undefined, undefined];
     }
     return editedItem.source.split('#') as [TriggerSource, string];
   }, [editedItem]);
 
-  if (!editedItem || !editSource || !editSourceId) {
+  if (!editedItem || !source || !sourceId) {
     return null;
   }
 
@@ -153,7 +153,7 @@ const TargetBasedTriggers = () => {
               </Thead>
               <Tbody>
                 {sortedFilteredTriggers.map((trigger) => {
-                  const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+                  [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
                   return (
                     <Tr key={JSON.stringify(trigger)}>
                       <Td>
@@ -202,8 +202,8 @@ const TargetBasedTriggers = () => {
             </Table>
           </TableContainer>
           <AddOrEditTriggerDialog
-            source={editSource}
-            sourceId={editSourceId}
+            source={source}
+            sourceId={sourceId}
             editedItem={editedItem}
             triggerType={editedItem.triggerType}
             currentTriggers={pipelineableTriggers}
