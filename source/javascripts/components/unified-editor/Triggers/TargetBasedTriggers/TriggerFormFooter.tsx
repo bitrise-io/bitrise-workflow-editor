@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Tooltip } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
+import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger } from '@/core/models/Trigger';
@@ -8,11 +9,12 @@ import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 type Props = {
   editedItem?: TargetBasedTrigger | LegacyTrigger;
   onCancel: () => void;
+  currentTriggers?: (TargetBasedTrigger | LegacyTrigger)[];
 };
 
 const TriggerFormFooter = (props: Props) => {
-  const { editedItem, onCancel } = props;
-  const { reset, watch } = formMethods;
+  const { editedItem, onCancel, currentTriggers = [] } = props;
+  const { reset, watch } = useFormContext();
   const { conditions, isDraftPr, priority } = watch();
 
   let isSameTriggerExist = false;

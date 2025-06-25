@@ -4,6 +4,7 @@ import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
 import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import {
+  Condition,
   TARGET_BASED_LABELS_MAP,
   TARGET_BASED_OPTIONS_MAP,
   TargetBasedConditionType,
@@ -43,7 +44,9 @@ const TriggerFormBody = (props: Props) => {
 
   const onAppend = () => {
     const availableTypes = Object.keys(optionsMap) as TargetBasedConditionType[] | LegacyConditionType[];
-    const usedTypes = conditions.map((condition) => condition.type);
+    const usedTypes = conditions.map(
+      (condition: Condition<LegacyConditionType> | Condition<TargetBasedConditionType>) => condition.type,
+    );
     const newType = availableTypes.find((type) => !usedTypes.includes(type));
 
     if (!newType) {

@@ -115,7 +115,7 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
           <TriggerFormBody source={source} triggerType={triggerType} variant={variant} />
         </DialogBody>
         <DialogFooter>
-          <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} />
+          <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} currentTriggers={currentTriggers} />
         </DialogFooter>
       </Dialog>
     </FormProvider>
