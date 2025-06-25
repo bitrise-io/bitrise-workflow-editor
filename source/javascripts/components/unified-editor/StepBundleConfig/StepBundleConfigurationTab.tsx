@@ -4,7 +4,7 @@ import { ChangeEventHandler } from 'react';
 import StepBundleService from '@/core/services/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
-import WhenToRunCard from '../WhenToRunCard/component';
+import WhenToRunCard from '../WhenToRunCard/WhenToRunCard';
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import StepBundleConfigInputs from './StepBundleConfigInputs';
 
