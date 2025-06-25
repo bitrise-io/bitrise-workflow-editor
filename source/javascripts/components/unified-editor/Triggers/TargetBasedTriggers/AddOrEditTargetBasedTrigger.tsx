@@ -61,7 +61,7 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
   }, [isLegacy, triggerType]);
   const entity = useMemo(() => (source === 'pipelines' ? 'Pipeline' : 'Workflow'), [source]);
 
-  const defaultValues = useMemo<TargetBasedTrigger | LegacyTrigger>(
+  const defaultValues = useMemo<any>(
     () => ({
       conditions: [
         {
@@ -69,16 +69,16 @@ const AddOrEditTargetBasedTrigger = (props: Props) => {
           value: '',
           isRegex: false,
         },
-      ] as TargetBasedTrigger['conditions'] | LegacyTrigger['conditions'],
+      ],
       uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
-      source: `${source}#${sourceId}` || '',
       index: editedItem?.index || currentTriggers.length,
+      source: isLegacy ? '' : `${source}#${sourceId}`,
       triggerType,
       isActive: true,
       isDraftPr: true,
       ...editedItem,
     }),
-    [currentTriggers.length, editedItem, optionsMap, source, sourceId, triggerType],
+    [currentTriggers.length, editedItem, isLegacy, optionsMap, source, sourceId, triggerType],
   );
 
   const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
