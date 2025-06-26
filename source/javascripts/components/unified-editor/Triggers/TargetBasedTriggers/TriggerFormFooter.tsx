@@ -10,12 +10,13 @@ type Props = {
   editedItem?: TargetBasedTrigger | LegacyTrigger;
   onCancel: () => void;
   currentTriggers?: (TargetBasedTrigger | LegacyTrigger)[];
+  variant: 'legacy' | 'target-based';
 };
 
 const TriggerFormFooter = (props: Props) => {
-  const { editedItem, onCancel, currentTriggers = [] } = props;
+  const { editedItem, onCancel, currentTriggers = [], variant } = props;
   const { reset, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
-  const { conditions, isDraftPr, priority } = watch();
+  const { conditions, isDraftPr, priority, source } = watch();
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
@@ -49,6 +50,8 @@ const TriggerFormFooter = (props: Props) => {
     }
   });
 
+  const hasNoTarget = variant === 'legacy' && !editedItem && !source;
+
   const handleCancel = () => {
     reset();
     onCancel();
@@ -75,7 +78,11 @@ const TriggerFormFooter = (props: Props) => {
             : 'Please fill all conditions.'
         }
       >
-        <Button type="submit" onClick={handleSegmentTrack} isDisabled={isSameTriggerExist || hasEmptyCondition}>
+        <Button
+          type="submit"
+          onClick={handleSegmentTrack}
+          isDisabled={isSameTriggerExist || hasEmptyCondition || hasNoTarget}
+        >
           {editedItem ? 'Apply changes' : 'Add trigger'}
         </Button>
       </Tooltip>

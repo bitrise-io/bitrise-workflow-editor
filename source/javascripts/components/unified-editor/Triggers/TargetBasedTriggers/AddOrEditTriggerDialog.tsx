@@ -119,7 +119,12 @@ const AddOrEditTriggerDialog = (props: Props) => {
           <TriggerFormBody source={source} triggerType={triggerType} variant={variant} />
         </DialogBody>
         <DialogFooter>
-          <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} currentTriggers={currentTriggers} />
+          <TriggerFormFooter
+            editedItem={editedItem}
+            onCancel={onCancel}
+            currentTriggers={currentTriggers}
+            variant={variant}
+          />
         </DialogFooter>
       </Dialog>
     </FormProvider>

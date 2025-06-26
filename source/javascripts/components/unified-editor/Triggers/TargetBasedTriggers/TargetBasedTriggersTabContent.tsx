@@ -1,4 +1,4 @@
-import { Box, Card, Toggle } from '@bitrise/bitkit';
+import { Card, Toggle, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { trackTargetBasedTriggersEnabledToggled, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
@@ -19,12 +19,20 @@ const TargetBasedTriggersTabContent = (props: Props) => {
   const { source, sourceId } = props;
 
   const triggers = useTargetBasedTriggers(source, sourceId);
-  const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
+  const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTrigger } | undefined>(undefined);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const changeToEditMode = (trigger: TargetBasedTrigger) => {
     setEditedItem({ trigger, index: trigger.index });
     setTriggerType(trigger.triggerType);
+    onOpen();
+  };
+
+  const handleAddTrigger = (type: TriggerType) => {
+    setTriggerType(type);
+    onOpen();
   };
 
   const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
@@ -42,7 +50,11 @@ const TargetBasedTriggersTabContent = (props: Props) => {
     } else {
       TriggerService.addTrigger(trigger);
     }
-    setTriggerType(undefined);
+    onClose();
+  };
+
+  const handleCloseDialog = () => {
+    onClose();
     setEditedItem(undefined);
   };
 
@@ -54,63 +66,55 @@ const TargetBasedTriggersTabContent = (props: Props) => {
 
   return (
     <>
-      {triggerType !== undefined && (
-        <AddOrEditTriggerDialog
-          source={source}
-          sourceId={sourceId}
-          triggerType={triggerType}
-          editedItem={editedItem?.trigger}
-          currentTriggers={triggers.items[triggerType] || []}
-          onSubmit={onSubmit}
-          onCancel={() => {
-            setTriggerType(undefined);
-            setEditedItem(undefined);
-          }}
-          isOpen
-          variant="target-based"
+      <TargetBasedTriggerNotification />
+      <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
+        <Toggle
+          variant="fixed"
+          label="Enable triggers"
+          helperText="When disabled and saved, none of the triggers below will execute a build."
+          isChecked={triggers.enabled !== false}
+          onChange={handleGlobalTriggerEnabledToggled}
         />
-      )}
-      <Box display={triggerType !== undefined ? 'none' : 'block'}>
-        <TargetBasedTriggerNotification />
-        <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
-          <Toggle
-            variant="fixed"
-            label="Enable triggers"
-            helperText="When disabled and saved, none of the triggers below will execute a build."
-            isChecked={triggers.enabled !== false}
-            onChange={() => {
-              handleGlobalTriggerEnabledToggled();
-            }}
-          />
-        </Card>
-        <TargetBasedTriggersCard
-          triggerType="push"
-          triggers={triggers.items.push}
-          triggersEnabled={triggers.enabled !== false}
-          onAddTrigger={setTriggerType}
-          onEditTrigger={changeToEditMode}
-          onDeleteTrigger={handleDeleteTrigger}
-          onUpdateTriggerEnabled={handleTriggerEnabledToggled}
-        />
-        <TargetBasedTriggersCard
-          triggerType="pull_request"
-          triggers={triggers.items.pull_request}
-          triggersEnabled={triggers.enabled !== false}
-          onAddTrigger={setTriggerType}
-          onEditTrigger={changeToEditMode}
-          onDeleteTrigger={handleDeleteTrigger}
-          onUpdateTriggerEnabled={handleTriggerEnabledToggled}
-        />
-        <TargetBasedTriggersCard
-          triggerType="tag"
-          triggers={triggers.items.tag}
-          triggersEnabled={triggers.enabled !== false}
-          onAddTrigger={setTriggerType}
-          onEditTrigger={changeToEditMode}
-          onDeleteTrigger={handleDeleteTrigger}
-          onUpdateTriggerEnabled={handleTriggerEnabledToggled}
-        />
-      </Box>
+      </Card>
+      <TargetBasedTriggersCard
+        triggerType="push"
+        triggers={triggers.items.push}
+        triggersEnabled={triggers.enabled !== false}
+        onAddTrigger={handleAddTrigger}
+        onEditTrigger={changeToEditMode}
+        onDeleteTrigger={handleDeleteTrigger}
+        onUpdateTriggerEnabled={handleTriggerEnabledToggled}
+      />
+      <TargetBasedTriggersCard
+        triggerType="pull_request"
+        triggers={triggers.items.pull_request}
+        triggersEnabled={triggers.enabled !== false}
+        onAddTrigger={handleAddTrigger}
+        onEditTrigger={changeToEditMode}
+        onDeleteTrigger={handleDeleteTrigger}
+        onUpdateTriggerEnabled={handleTriggerEnabledToggled}
+      />
+      <TargetBasedTriggersCard
+        triggerType="tag"
+        triggers={triggers.items.tag}
+        triggersEnabled={triggers.enabled !== false}
+        onAddTrigger={handleAddTrigger}
+        onEditTrigger={changeToEditMode}
+        onDeleteTrigger={handleDeleteTrigger}
+        onUpdateTriggerEnabled={handleTriggerEnabledToggled}
+      />
+
+      <AddOrEditTriggerDialog
+        source={source}
+        sourceId={sourceId}
+        triggerType={triggerType}
+        editedItem={editedItem?.trigger}
+        currentTriggers={triggers.items[triggerType] || []}
+        onSubmit={onSubmit}
+        onCancel={handleCloseDialog}
+        isOpen={isOpen}
+        variant="target-based"
+      />
     </>
   );
 };
