@@ -41,7 +41,7 @@ const NameInput = ({ onRename }: Pick<StepBundlePropertiesTabProps, 'onRename'>)
 
 const SummaryInput = () => {
   const id = useStepBundleConfigContext((s) => s.stepBundle?.id || '');
-  const value = useStepBundleConfigContext((s) => s.stepBundle?.userValues.summary || '');
+  const value = useStepBundleConfigContext((s) => s.stepBundle?.mergedValues.summary || '');
 
   const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     StepBundleService.updateStepBundleField(id, 'summary', e.target.value);
@@ -52,7 +52,7 @@ const SummaryInput = () => {
 
 const DescriptionInput = () => {
   const id = useStepBundleConfigContext((s) => s.stepBundle?.id || '');
-  const value = useStepBundleConfigContext((s) => s.stepBundle?.userValues.description || '');
+  const value = useStepBundleConfigContext((s) => s.stepBundle?.mergedValues.description || '');
 
   const handleDescriptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     StepBundleService.updateStepBundleField(id, 'description', e.target.value);

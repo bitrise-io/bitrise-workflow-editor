@@ -39,10 +39,12 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
     const icon = StepService.resolveIcon(cvs, defaultStepLibrary, step);
 
     if (StepService.isWithGroup(cvs, defaultStepLibrary, step)) {
-      return { data: { cvs, id, title, icon, userValues: step ?? {} } };
+      return {
+        data: { cvs, id, title, icon, defaultValues: step ?? {}, mergedValues: step ?? {}, userValues: step ?? {} },
+      };
     }
     if (StepService.isStepBundle(cvs, defaultStepLibrary, step)) {
-      return { data: { cvs, id, title, icon, userValues: step ?? {} } };
+      return { data: { cvs, id, title, icon, mergedValues: step ?? {}, userValues: step ?? {} } };
     }
 
     return {

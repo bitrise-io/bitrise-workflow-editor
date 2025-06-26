@@ -46,6 +46,8 @@ export type StepBundleModel = {
   title?: string;
   summary?: string;
   description?: string;
+  run_if?: string;
+  is_always_run?: boolean;
 };
 
 export type StepBundleOverrideModel = Omit<StepBundleModel, 'steps'>;

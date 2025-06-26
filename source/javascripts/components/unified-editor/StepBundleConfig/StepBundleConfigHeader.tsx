@@ -12,7 +12,7 @@ type HeaderProps = {
 const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const { cvs, title } = useStepBundleConfigContext((s) => ({
     cvs: s.stepBundle?.cvs || '',
-    title: s.stepBundle?.userValues?.title || s.stepBundle?.id || 'Step bundle',
+    title: s.stepBundle?.mergedValues?.title || s.stepBundle?.id || 'Step bundle',
   }));
 
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });

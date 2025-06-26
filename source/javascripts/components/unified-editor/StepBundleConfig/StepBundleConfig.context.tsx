@@ -52,8 +52,14 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
       const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow ?? {});
 
       result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
-        ? StepBundleService.ymlInstanceToStepBundle(id, stepBundle)
+        ? StepBundleService.ymlInstanceToStepBundle(
+            id,
+            stepBundle,
+            yml.step_bundles?.[id] || undefined,
+            stepBundleInWorkflow || undefined,
+          )
         : undefined;
+      result.stepBundleId = id;
     }
 
     if (!stepBundleId && !parentWorkflowId && parentStepBundleId && stepIndex >= 0) {
@@ -64,8 +70,14 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
       const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInStepBundle ?? {});
 
       result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
-        ? StepBundleService.ymlInstanceToStepBundle(id, stepBundle)
+        ? StepBundleService.ymlInstanceToStepBundle(
+            id,
+            stepBundle,
+            yml.step_bundles?.[id] || undefined,
+            stepBundleInStepBundle || undefined,
+          )
         : undefined;
+      result.stepBundleId = id;
     }
 
     return selector ? selector(result) : result;
