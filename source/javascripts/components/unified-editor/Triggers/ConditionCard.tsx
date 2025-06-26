@@ -108,7 +108,16 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                     render={({ field }) => (
                       <Input
                         {...field}
-                        isRequired={type !== 'target_branch' && type !== 'source_branch' && type !== 'name'}
+                        isRequired={
+                          type !== 'push_branch' &&
+                          type !== 'branch' &&
+                          type !== 'pull_request_target_branch' &&
+                          type !== 'pull_request_source_branch' &&
+                          type !== 'target_branch' &&
+                          type !== 'source_branch' &&
+                          type !== 'name' &&
+                          type !== 'tag'
+                        }
                         onChange={(e) => field.onChange(e.target.value.trimStart())}
                         placeholder={isRegex ? '.*' : '*'}
                         helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
