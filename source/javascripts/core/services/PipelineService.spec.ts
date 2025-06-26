@@ -232,15 +232,15 @@ describe('PipelineService', () => {
     });
 
     describe('maximum parallel copies', () => {
-      it('should return true when parallel is less than or equal to 500', () => {
-        expect(PipelineService.validateParallel(500)).toBe(true);
-        expect(PipelineService.validateParallel('500')).toBe(true);
-        expect(PipelineService.validateParallel(499)).toBe(true);
+      it('should return true when parallel is less than or equal to 200', () => {
+        expect(PipelineService.validateParallel(200)).toBe(true);
+        expect(PipelineService.validateParallel('200')).toBe(true);
+        expect(PipelineService.validateParallel(199)).toBe(true);
       });
 
-      it('should return error message when parallel is greater than 500', () => {
-        expect(PipelineService.validateParallel(501)).toBe('The maximum number of parallel copies is 500.');
-        expect(PipelineService.validateParallel('501')).toBe('The maximum number of parallel copies is 500.');
+      it('should return error message when parallel is greater than 200', () => {
+        expect(PipelineService.validateParallel(201)).toBe('The maximum number of parallel copies is 200.');
+        expect(PipelineService.validateParallel('201')).toBe('The maximum number of parallel copies is 200.');
       });
     });
   });
