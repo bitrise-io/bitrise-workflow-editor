@@ -1,5 +1,5 @@
 import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import TriggerFormBody from '@/components/unified-editor/Triggers/TargetBasedTriggers/TriggerFormBody';
@@ -81,7 +81,11 @@ const AddOrEditTriggerDialog = (props: Props) => {
   }, [currentTriggers.length, editedItem, optionsMap, source, sourceId, triggerType, variant]);
 
   const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
-  const { handleSubmit } = formMethods;
+  const { handleSubmit, reset } = formMethods;
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [reset, defaultValues, isOpen, editedItem]);
 
   const onFormSubmit = (data: TargetBasedTrigger | LegacyTrigger) => {
     const filteredData = data;

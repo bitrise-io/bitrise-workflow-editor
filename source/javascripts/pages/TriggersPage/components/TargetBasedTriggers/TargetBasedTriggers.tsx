@@ -110,10 +110,6 @@ const TargetBasedTriggers = () => {
     return editedItem.source.split('#') as [TriggerSource, string];
   }, [editedItem]);
 
-  if (!editedItem || !editSource || !editSourceId) {
-    return null;
-  }
-
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
@@ -201,17 +197,19 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          <AddOrEditTriggerDialog
-            source={editSource}
-            sourceId={editSourceId}
-            editedItem={editedItem}
-            triggerType={editedItem.triggerType}
-            currentTriggers={pipelineableTriggers}
-            onSubmit={handleEditTrigger}
-            onCancel={handleCloseEditTriggerDialog}
-            isOpen={isEditTriggerDialogOpen}
-            variant="target-based"
-          />
+          {editedItem && editSource && editSourceId && (
+            <AddOrEditTriggerDialog
+              source={editSource}
+              sourceId={editSourceId}
+              editedItem={editedItem}
+              triggerType={editedItem.triggerType}
+              currentTriggers={pipelineableTriggers}
+              onSubmit={handleEditTrigger}
+              onCancel={handleCloseEditTriggerDialog}
+              isOpen={isEditTriggerDialogOpen}
+              variant="target-based"
+            />
+          )}
         </>
       ) : (
         <EmptyState
