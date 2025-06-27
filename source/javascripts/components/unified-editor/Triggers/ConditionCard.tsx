@@ -63,6 +63,15 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
             const { isLastCommitOnly, isRegex, type } = cond;
+            const isRequired =
+              type !== 'push_branch' &&
+              type !== 'branch' &&
+              type !== 'pull_request_target_branch' &&
+              type !== 'pull_request_source_branch' &&
+              type !== 'target_branch' &&
+              type !== 'source_branch' &&
+              type !== 'name' &&
+              type !== 'tag';
 
             return (
               <Tr key={fieldItem.uniqueId}>
@@ -108,16 +117,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                     render={({ field }) => (
                       <Input
                         {...field}
-                        isRequired={
-                          type !== 'push_branch' &&
-                          type !== 'branch' &&
-                          type !== 'pull_request_target_branch' &&
-                          type !== 'pull_request_source_branch' &&
-                          type !== 'target_branch' &&
-                          type !== 'source_branch' &&
-                          type !== 'name' &&
-                          type !== 'tag'
-                        }
+                        isRequired={isRequired}
                         onChange={(e) => field.onChange(e.target.value.trimStart())}
                         placeholder={isRegex ? '.*' : '*'}
                         helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
