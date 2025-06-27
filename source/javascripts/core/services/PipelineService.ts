@@ -71,8 +71,8 @@ function validateParallel(parallel?: string | number, workflowId?: string, exist
     return 'Parallel copies should be a positive integer or a valid environment variable.';
   }
 
-  if (isPositiveInteger && Number(parallel) > 500) {
-    return 'The maximum number of parallel copies is 500.';
+  if (isPositiveInteger && Number(parallel) > 200) {
+    return 'The maximum number of parallel copies is 200.';
   }
 
   if (isPositiveInteger && workflowId && existingWorkflowIds?.length) {
