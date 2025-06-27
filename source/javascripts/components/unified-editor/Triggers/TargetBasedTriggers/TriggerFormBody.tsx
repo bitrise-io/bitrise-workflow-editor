@@ -2,7 +2,6 @@ import { Checkbox, Link, Select } from '@bitrise/bitkit';
 import { useMemo } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
-import PriorityInput from '@/components/unified-editor/PriorityInput/PriorityInput';
 import {
   TARGET_BASED_LABELS_MAP,
   TARGET_BASED_OPTIONS_MAP,
@@ -20,6 +19,7 @@ import {
 import usePipelineIds from '@/hooks/usePipelineIds';
 import useWorkflowIds from '@/hooks/useWorkflowIds';
 
+import PriorityInput from '../../PriorityInput/PriorityInput';
 import ConditionCard from '../ConditionCard';
 
 type Props = {

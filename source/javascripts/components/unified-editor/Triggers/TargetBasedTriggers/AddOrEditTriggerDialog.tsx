@@ -2,8 +2,6 @@ import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import TriggerFormBody from '@/components/unified-editor/Triggers/TargetBasedTriggers/TriggerFormBody';
-import TriggerFormFooter from '@/components/unified-editor/Triggers/TargetBasedTriggers/TriggerFormFooter';
 import {
   TARGET_BASED_OPTIONS_MAP,
   TargetBasedConditionType,
@@ -12,6 +10,9 @@ import {
   TriggerType,
 } from '@/core/models/Trigger';
 import { LEGACY_OPTIONS_MAP, LegacyConditionType, LegacyTrigger } from '@/core/models/Trigger.legacy';
+
+import TriggerFormBody from './TriggerFormBody';
+import TriggerFormFooter from './TriggerFormFooter';
 
 type Props = {
   source: TriggerSource | '';
