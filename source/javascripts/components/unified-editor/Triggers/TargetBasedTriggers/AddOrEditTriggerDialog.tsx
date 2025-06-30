@@ -79,14 +79,15 @@ const AddOrEditTriggerDialog = (props: Props) => {
     }
 
     return targetBasedDefaults;
-  }, [currentTriggers.length, editedItem, optionsMap, source, sourceId, triggerType, variant]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedItem, optionsMap, source, sourceId, triggerType, variant]);
 
   const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
   const { handleSubmit, reset } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
-  }, [reset, defaultValues, isOpen, editedItem]);
+  }, [reset, defaultValues, isOpen]);
 
   const onFormSubmit = (data: TargetBasedTrigger | LegacyTrigger) => {
     const filteredData = data;

@@ -103,13 +103,6 @@ const TargetBasedTriggers = () => {
     setEditedItem(undefined);
   };
 
-  const [editSource, editSourceId] = useMemo(() => {
-    if (!editedItem) {
-      return [undefined, undefined];
-    }
-    return editedItem.source.split('#') as [TriggerSource, string];
-  }, [editedItem]);
-
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
@@ -197,10 +190,10 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          {editedItem && editSource && editSourceId && (
+          {editedItem && (
             <AddOrEditTriggerDialog
-              source={editSource}
-              sourceId={editSourceId}
+              source={editedItem.source.split('#')[0] as TriggerSource}
+              sourceId={editedItem.source.split('#')[1]}
               editedItem={editedItem}
               triggerType={editedItem.triggerType}
               currentTriggers={pipelineableTriggers}
