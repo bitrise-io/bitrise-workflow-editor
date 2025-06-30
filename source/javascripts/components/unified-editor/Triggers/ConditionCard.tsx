@@ -20,6 +20,7 @@ import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
 import { TargetBasedTrigger, TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
+import TriggerService from '@/core/services/TriggerService';
 
 type Props = {
   triggerType?: TriggerType;
@@ -63,15 +64,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
           {fields.map((fieldItem, index) => {
             const cond = conditions[index] || {};
             const { isLastCommitOnly, isRegex, type } = cond;
-            const isRequired =
-              type !== 'push_branch' &&
-              type !== 'branch' &&
-              type !== 'pull_request_target_branch' &&
-              type !== 'pull_request_source_branch' &&
-              type !== 'target_branch' &&
-              type !== 'source_branch' &&
-              type !== 'name' &&
-              type !== 'tag';
+            const isRequired = TriggerService.requiredField(type);
 
             return (
               <Tr key={fieldItem.uniqueId}>

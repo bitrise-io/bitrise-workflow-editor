@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
+import TriggerService from '@/core/services/TriggerService';
 
 type Props = {
   editedItem?: TargetBasedTrigger | LegacyTrigger;
@@ -30,25 +31,9 @@ const TriggerFormFooter = (props: Props) => {
     }
   });
 
-  let hasEmptyCondition = false;
-  conditions.forEach(({ type, value }) => {
-    if (
-      (!(
-        type === 'name' ||
-        type === 'tag' ||
-        type === 'target_branch' ||
-        type === 'pull_request_target_branch' ||
-        type === 'source_branch' ||
-        type === 'pull_request_source_branch' ||
-        type === 'branch' ||
-        type === 'push_branch'
-      ) &&
-        !value) ||
-      !type
-    ) {
-      hasEmptyCondition = true;
-    }
-  });
+  const hasEmptyCondition = conditions.some(
+    ({ type, value }) => (TriggerService.requiredField(type) && !value) || !type,
+  );
 
   const hasNoTarget = variant === 'legacy' && !editedItem && !source;
 

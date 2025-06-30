@@ -905,6 +905,18 @@ function removeTrigger(trigger: TargetBasedTrigger) {
   });
 }
 
+function requiredField(type: TargetBasedConditionType | LegacyConditionType) {
+  const reqFields = [
+    'commit_message',
+    'changed_files',
+    'label',
+    'comment',
+    'pull_request_label',
+    'pull_request_comment',
+  ];
+  return reqFields.includes(type);
+}
+
 export default {
   // legacy trigger helpers
   toLegacyTriggers,
@@ -923,4 +935,6 @@ export default {
   updateTrigger,
   updateTriggerEnabled,
   removeTrigger,
+  // both legacy and target-based trigger helpers
+  requiredField,
 };
