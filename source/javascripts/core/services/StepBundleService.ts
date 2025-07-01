@@ -473,14 +473,19 @@ function updateStepBundleInputInstanceValue(
   const { cvs, source, sourceId, stepIndex } = at;
 
   updateBitriseYmlDocument(({ doc }) => {
-    const step = getSourceStepOrThrowError(doc, at).get(cvs) as YAMLMap | undefined;
+    const step = getSourceStepOrThrowError(doc, at);
     const stepBundle = getStepBundleOrThrowError(doc, id);
+    const stepValues = step?.toJSON()?.[cvs];
 
-    if (!step) {
+    if (stepValues === undefined) {
       throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
     }
 
-    const inputsInInstance = YmlUtils.getSeqIn(step, ['inputs']);
+    if (stepValues === null) {
+      YmlUtils.setIn(step, [cvs], {});
+    }
+
+    const inputsInInstance = YmlUtils.getSeqIn(step, [cvs, 'inputs']);
     const inputIndexInInstance = inputsInInstance?.items.findIndex((input) => isMap(input) && input.has(key)) ?? -1;
 
     const inputsInDefaults = YmlUtils.getSeqIn(stepBundle, ['inputs']);
@@ -495,15 +500,15 @@ function updateStepBundleInputInstanceValue(
     const shouldRemoveInstanceInput = !newValue && inputIndexInInstance >= 0;
 
     if (shouldCreateInstanceInput) {
-      YmlUtils.addIn(step, ['inputs'], { [key]: newValue });
+      YmlUtils.addIn(step, [cvs, 'inputs'], { [key]: newValue });
     }
 
     if (shouldUpdateInstanceInput) {
-      YmlUtils.updateValueByPath(step, ['inputs', '*', key], newValue);
+      YmlUtils.updateValueByPath(step, [cvs, 'inputs', '*', key], newValue);
     }
 
     if (shouldRemoveInstanceInput) {
-      YmlUtils.deleteByPath(step, ['inputs', inputIndexInInstance]);
+      YmlUtils.deleteByPath(step, [cvs, 'inputs', inputIndexInInstance]);
     }
 
     return doc;

@@ -1738,5 +1738,42 @@ describe('StepBundleService', () => {
         });
       }).toThrow('step_bundles.sb1 not found');
     });
+
+    it('should handle when the step bundle is null in the initial yaml', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1
+        `,
+      );
+
+      StepBundleService.updateStepBundleInputInstanceValue('input1', 'hello', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1:
+                inputs:
+                - input1: hello
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
   });
 });
