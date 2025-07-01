@@ -29,10 +29,6 @@ type Props = {
 const AddOrEditTriggerDialog = (props: Props) => {
   const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, variant } = props;
 
-  const optionsMap = useMemo(() => {
-    return variant === 'legacy' ? LEGACY_OPTIONS_MAP[triggerType] : TARGET_BASED_OPTIONS_MAP[triggerType];
-  }, [triggerType, variant]);
-
   const defaultValues = useMemo(() => {
     const commonProps = {
       uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
@@ -43,11 +39,12 @@ const AddOrEditTriggerDialog = (props: Props) => {
     };
 
     if (variant === 'legacy') {
+      const legacyOptionsMap = LEGACY_OPTIONS_MAP[triggerType];
       const legacyDefaults: LegacyTrigger = {
         ...commonProps,
         conditions: [
           {
-            type: Object.keys(optionsMap)[0] as LegacyConditionType,
+            type: Object.keys(legacyOptionsMap)[0] as LegacyConditionType,
             value: '',
             isRegex: false,
           },
@@ -62,11 +59,12 @@ const AddOrEditTriggerDialog = (props: Props) => {
       return legacyDefaults;
     }
 
+    const targetOptionsMap = TARGET_BASED_OPTIONS_MAP[triggerType];
     const targetBasedDefaults: TargetBasedTrigger = {
       ...commonProps,
       conditions: [
         {
-          type: Object.keys(optionsMap)[0] as TargetBasedConditionType,
+          type: Object.keys(targetOptionsMap)[0] as TargetBasedConditionType,
           value: '',
           isRegex: false,
         },
@@ -79,8 +77,7 @@ const AddOrEditTriggerDialog = (props: Props) => {
     }
 
     return targetBasedDefaults;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedItem, optionsMap, source, sourceId, triggerType, variant]);
+  }, [currentTriggers.length, editedItem, source, sourceId, triggerType, variant]);
 
   const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
   const { handleSubmit, reset } = formMethods;

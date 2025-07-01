@@ -906,13 +906,13 @@ function removeTrigger(trigger: TargetBasedTrigger) {
 }
 
 const REQUIRED_FIELDS = [
-'commit_message',
-    'changed_files',
-    'label',
-    'comment',
-    'pull_request_label',
-    'pull_request_comment',
-]
+  'commit_message',
+  'changed_files',
+  'label',
+  'comment',
+  'pull_request_label',
+  'pull_request_comment',
+];
 
 function requiredField(type: TargetBasedConditionType | LegacyConditionType) {
   return REQUIRED_FIELDS.includes(type);
