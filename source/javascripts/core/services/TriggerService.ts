@@ -905,16 +905,17 @@ function removeTrigger(trigger: TargetBasedTrigger) {
   });
 }
 
-function requiredField(type: TargetBasedConditionType | LegacyConditionType) {
-  const reqFields = [
-    'commit_message',
+const REQUIRED_FIELDS = [
+'commit_message',
     'changed_files',
     'label',
     'comment',
     'pull_request_label',
     'pull_request_comment',
-  ];
-  return reqFields.includes(type);
+]
+
+function requiredField(type: TargetBasedConditionType | LegacyConditionType) {
+  return REQUIRED_FIELDS.includes(type);
 }
 
 export default {
