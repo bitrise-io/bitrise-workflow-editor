@@ -17,13 +17,12 @@ import {
 } from '@bitrise/bitkit';
 import { AriaAttributes, useMemo, useState } from 'react';
 
+import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
 import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
 import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
-
-import EditTargetBasedTriggerDialog from './EditTargetBasedTriggerDialog';
 
 const TargetBasedTriggers = () => {
   const {
@@ -191,13 +190,19 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          <EditTargetBasedTriggerDialog
-            isOpen={isEditTriggerDialogOpen}
-            editedItem={editedItem}
-            currentTriggers={pipelineableTriggers}
-            onEdit={handleEditTrigger}
-            onClose={handleCloseEditTriggerDialog}
-          />
+          {editedItem && (
+            <AddOrEditTriggerDialog
+              source={editedItem.source.split('#')[0] as TriggerSource}
+              sourceId={editedItem.source.split('#')[1]}
+              editedItem={editedItem}
+              triggerType={editedItem.triggerType}
+              currentTriggers={pipelineableTriggers}
+              onSubmit={handleEditTrigger}
+              onCancel={handleCloseEditTriggerDialog}
+              isOpen={isEditTriggerDialogOpen}
+              variant="target-based"
+            />
+          )}
         </>
       ) : (
         <EmptyState

@@ -1,24 +1,20 @@
 import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
 import { TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import TriggerService from '@/core/services/TriggerService';
 import useLegacyTriggers from '@/hooks/useLegacyTriggers';
 import SortableTriggerList from '@/pages/TriggersPage/components/LegacyTriggers/SortableTriggerList';
 
-import AddPrTriggerDialog from './AddPrTriggerDialog';
-import AddPushTriggerDialog from './AddPushTriggerDialog';
-import AddTagTriggerDialog from './AddTagTriggerDialog';
 import ConvertLegacyTriggers from './ConvertLegacyTriggers';
 
 const LegacyTriggers = () => {
   const triggers = useLegacyTriggers();
+  const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<LegacyTrigger | undefined>();
-
-  const onTriggerAdded = (trigger: LegacyTrigger) => {
-    TriggerService.addLegacyTrigger(trigger);
-  };
+  const [tabIndex, setTabIndex] = useState(0);
 
   const onTriggerEdited = (trigger: LegacyTrigger) => {
     TriggerService.updateLegacyTrigger(trigger);
@@ -34,42 +30,32 @@ const LegacyTriggers = () => {
     TriggerService.updateTriggerMap(newTriggersMap);
   };
 
-  const {
-    isOpen: isPushTriggerDialogOpen,
-    onOpen: openPushTriggerDialog,
-    onClose: closePushTriggerDialog,
-  } = useDisclosure();
-
-  const { isOpen: isPrTriggerDialogOpen, onOpen: openPrTriggerDialog, onClose: closePrTriggerDialog } = useDisclosure();
-
-  const {
-    isOpen: isTagTriggerDialogOpen,
-    onOpen: openTagTriggerDialog,
-    onClose: closeTagTriggerDialog,
-  } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onOpenDialog = (trigger: LegacyTrigger) => {
     setEditedItem(trigger);
-    switch (trigger.triggerType) {
-      case 'push':
-        openPushTriggerDialog();
-        break;
-      case 'pull_request':
-        openPrTriggerDialog();
-        break;
-      case 'tag':
-        openTagTriggerDialog();
-        break;
-      default:
-        break;
-    }
+    setTriggerType(trigger.triggerType);
+    onOpen();
   };
 
   const onCloseDialog = () => {
-    closePushTriggerDialog();
-    closePrTriggerDialog();
-    closeTagTriggerDialog();
+    onClose();
     setEditedItem(undefined);
+  };
+
+  const onSubmit = (trigger: LegacyTrigger) => {
+    if (editedItem) {
+      TriggerService.updateLegacyTrigger(trigger);
+    } else {
+      TriggerService.addLegacyTrigger(trigger);
+    }
+    onCloseDialog();
+  };
+
+  const handleTabChange = (index: number) => {
+    setTabIndex(index);
+    const triggerTypes: TriggerType[] = ['push', 'pull_request', 'tag'];
+    setTriggerType(triggerTypes[index]);
   };
 
   if (triggers.push.length + triggers.pull_request.length + triggers.tag.length === 0) {
@@ -92,7 +78,7 @@ const LegacyTriggers = () => {
         </Link>
       </Text>
       <ConvertLegacyTriggers triggers={triggers} />
-      <Tabs marginTop="24" marginBottom="24">
+      <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
         <TabList>
           <Tab>Push</Tab>
           <Tab>Pull request</Tab>
@@ -100,7 +86,7 @@ const LegacyTriggers = () => {
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusCircle">
+            <Button marginBottom="24" variant="secondary" onClick={onOpen} leftIconName="PlusCircle">
               Add push trigger
             </Button>
             <SortableTriggerList
@@ -113,7 +99,7 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusCircle">
+            <Button marginBottom="24" variant="secondary" onClick={onOpen} leftIconName="PlusCircle">
               Add pull request trigger
             </Button>
             <SortableTriggerList
@@ -126,7 +112,7 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusCircle">
+            <Button marginBottom="24" variant="secondary" onClick={onOpen} leftIconName="PlusCircle">
               Add tag trigger
             </Button>
             <SortableTriggerList
@@ -140,29 +126,16 @@ const LegacyTriggers = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <AddPushTriggerDialog
-        isOpen={isPushTriggerDialogOpen}
+      <AddOrEditTriggerDialog
+        triggerType={triggerType}
+        currentTriggers={triggers[triggerType]}
         editedItem={editedItem}
-        currentTriggers={triggers.push}
-        onAdd={onTriggerAdded}
-        onEdit={onTriggerEdited}
-        onClose={onCloseDialog}
-      />
-      <AddPrTriggerDialog
-        isOpen={isPrTriggerDialogOpen}
-        editedItem={editedItem}
-        currentTriggers={triggers.pull_request}
-        onAdd={onTriggerAdded}
-        onEdit={onTriggerEdited}
-        onClose={onCloseDialog}
-      />
-      <AddTagTriggerDialog
-        isOpen={isTagTriggerDialogOpen}
-        editedItem={editedItem}
-        currentTriggers={triggers.tag}
-        onAdd={onTriggerAdded}
-        onEdit={onTriggerEdited}
-        onClose={onCloseDialog}
+        onSubmit={onSubmit}
+        onCancel={onCloseDialog}
+        isOpen={isOpen}
+        variant="legacy"
+        source=""
+        sourceId=""
       />
     </>
   );
