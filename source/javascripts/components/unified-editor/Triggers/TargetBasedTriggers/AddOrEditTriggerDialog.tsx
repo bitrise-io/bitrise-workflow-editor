@@ -86,20 +86,6 @@ const AddOrEditTriggerDialog = (props: Props) => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen]);
 
-  const onFormSubmit = (data: TargetBasedTrigger | LegacyTrigger) => {
-    const filteredData = data;
-    filteredData.conditions = data.conditions.map((condition) => {
-      const newCondition = { ...condition };
-      newCondition.value = newCondition.value.trim();
-      if (!newCondition.value) {
-        newCondition.value = newCondition.isRegex ? '.*' : '*';
-      }
-      return newCondition;
-    }) as TargetBasedTrigger['conditions'] | LegacyTrigger['conditions'];
-
-    onSubmit(filteredData);
-  };
-
   const title = editedItem
     ? `Edit ${triggerType.replace('_', ' ')} trigger`
     : `Add ${triggerType.replace('_', ' ')} trigger`;
@@ -112,7 +98,7 @@ const AddOrEditTriggerDialog = (props: Props) => {
         isOpen={isOpen}
         onClose={onCancel}
         title={title}
-        onSubmit={handleSubmit(onFormSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <DialogBody>
           <TriggerFormBody source={source} triggerType={triggerType} variant={variant} />
