@@ -443,9 +443,10 @@ function updateStepBundleInstanceField<T extends K>(
   const { cvs, source, sourceId, stepIndex } = at;
 
   updateBitriseYmlDocument(({ doc }) => {
-    const step = getSourceStepOrThrowError(doc, at).get(cvs) as YAMLMap | undefined;
+    const step = getSourceStepOrThrowError(doc, at);
+    const stepValues = step?.toJSON()?.[cvs];
 
-    if (!step) {
+    if (stepValues === undefined) {
       throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
     }
 

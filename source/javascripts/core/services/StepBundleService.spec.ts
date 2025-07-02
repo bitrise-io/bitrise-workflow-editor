@@ -1306,7 +1306,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                  is_always_run: true
+                is_always_run: true
         `,
       );
 
@@ -1322,7 +1322,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                  is_always_run: false
+                is_always_run: false
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
@@ -1334,7 +1334,7 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - bundle::sb1: {}
+              - bundle::sb1:
         `,
       );
 
@@ -1351,7 +1351,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                  is_always_run: true`,
+                is_always_run: true`,
       );
     });
 
@@ -1362,7 +1362,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                  is_always_run: true`,
+                is_always_run: true`,
       );
 
       StepBundleService.updateStepBundleInstanceField('is_always_run', undefined, {
@@ -1377,7 +1377,7 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - bundle::sb1: {}`,
+              - bundle::sb1:`,
       );
     });
 
@@ -1397,6 +1397,32 @@ describe('StepBundleService', () => {
           stepIndex: 0,
         }),
       ).toThrow(`Step bundle instance 'non-existing-bundle' is not found in 'workflows.primary' at index 0`);
+    });
+
+    it('should handle when the step bundle is null in the initial yaml', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:`,
+      );
+
+      StepBundleService.updateStepBundleInstanceField('is_always_run', true, {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1:
+              is_always_run: true`;
+
+      expect(getYmlString()).toEqual(expectedYml);
     });
   });
 
