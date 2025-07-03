@@ -1,11 +1,11 @@
-import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { Box } from '@bitrise/bitkit';
 import { ChangeEventHandler } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
 import StepVariableService from '@/core/services/StepVariableService';
 
-import StepInput from '../components/StepInput';
+import WhenToRunCard from '../../WhenToRunCard/WhenToRunCard';
 import StepInputGroup from '../components/StepInputGroup';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
@@ -51,25 +51,15 @@ const ConfigurationTab = () => {
 
   return (
     <Box display="flex" flexDir="column" gap="12">
-      <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">When to run</Text>}>
-        <Box display="flex">
-          <Text flex="1">Run even if previous Step(s) failed</Text>
-          <Toggle defaultChecked={mergedValues.is_always_run} onChange={onIsAlwaysRunChange} />
-        </Box>
-        <Divider my="24" />
-        <Box display="flex">
-          <Text flex="1">Continue build even if this Step fails</Text>
-          <Toggle defaultChecked={mergedValues.is_skippable} onChange={onIsSkippableChange} />
-        </Box>
-        <Divider my="24" />
-        <StepInput
-          label="Additional run conditions"
-          helperText="Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer to Env Vars and more, see the [docs for details](https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html)."
-          value={userValues.run_if}
-          defaultValue={defaultValues.run_if}
-          onChange={onRunIfChange}
-        />
-      </ExpandableCard>
+      <WhenToRunCard
+        defaultValuesRunIf={defaultValues.run_if}
+        isAlwaysRun={mergedValues.is_always_run}
+        isSkippable={mergedValues.is_skippable}
+        onIsAlwaysRunChange={onIsAlwaysRunChange}
+        onIsSkippableChange={onIsSkippableChange}
+        onRunIfChange={onRunIfChange}
+        userValuesRunIf={userValues.run_if}
+      />
 
       {data?.id &&
         Object.entries(StepVariableService.group(defaultValues.inputs)).map(([title, defaults]) => (

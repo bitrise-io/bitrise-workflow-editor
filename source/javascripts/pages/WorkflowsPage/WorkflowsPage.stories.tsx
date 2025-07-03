@@ -1,5 +1,6 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react';
+import { set } from 'es-toolkit/compat';
 
 import {
   getCertificates,
@@ -61,6 +62,9 @@ export const CliMode: Story = {
 };
 
 export const WebsiteMode: Story = {
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-wfe-step-bundles-when-to-run', true);
+  },
   parameters: {
     msw: {
       handlers: [

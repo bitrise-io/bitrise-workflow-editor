@@ -1,3 +1,4 @@
+import { mapValues } from 'es-toolkit';
 import { useMemo } from 'react';
 
 import StepBundleService from '@/core/services/StepBundleService';
@@ -16,7 +17,14 @@ const useDependantWorkflows = (props: Props) => {
   const workflows = useWorkflows((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, wf]) => {
-        return [id, { before_run: wf?.before_run, after_run: wf?.after_run, steps: wf?.steps }];
+        return [
+          id,
+          {
+            before_run: wf?.before_run,
+            steps: wf?.steps?.map((step) => mapValues(step, () => ({}))),
+            after_run: wf?.after_run,
+          },
+        ];
       }),
     );
   });

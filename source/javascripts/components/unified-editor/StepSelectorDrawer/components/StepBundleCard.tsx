@@ -190,4 +190,5 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     </Card>
   );
 };
+
 export default StepBundleCard;

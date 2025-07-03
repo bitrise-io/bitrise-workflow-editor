@@ -1298,6 +1298,134 @@ describe('StepBundleService', () => {
     });
   });
 
+  describe('updateStepBundleInstanceField', () => {
+    it('should update the specified field of the step_bundle instance', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  is_always_run: true
+        `,
+      );
+
+      StepBundleService.updateStepBundleInstanceField('is_always_run', false, {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      const expectedYml = yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  is_always_run: false
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should create the field if it does not exist', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+        `,
+      );
+
+      StepBundleService.updateStepBundleInstanceField('is_always_run', true, {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      expect(getYmlString()).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  is_always_run: true`,
+      );
+    });
+
+    it('should remove the specified field if the value is empty', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  is_always_run: true`,
+      );
+
+      StepBundleService.updateStepBundleInstanceField('is_always_run', undefined, {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      expect(getYmlString()).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1: {}`,
+      );
+    });
+
+    it('should throw an error if the step_bundle does not exist', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1: {}`,
+      );
+      expect(() =>
+        StepBundleService.updateStepBundleInstanceField('is_always_run', undefined, {
+          cvs: 'bundle::non-existing-bundle',
+          source: 'workflows',
+          sourceId: 'primary',
+          stepIndex: 0,
+        }),
+      ).toThrow(`Step bundle instance 'non-existing-bundle' is not found in 'workflows.primary' at index 0`);
+    });
+
+    it('should handle when the step bundle is null in the initial yaml', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:`,
+      );
+
+      StepBundleService.updateStepBundleInstanceField('is_always_run', true, {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1:
+                is_always_run: true`;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
   describe('updateStepBundleInputInstanceValue', () => {
     it('should update the value of the specified Step Bundle instance input', () => {
       updateBitriseYmlDocumentByString(
