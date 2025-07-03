@@ -55,7 +55,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
       <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
         <Thead backgroundColor="background/primary">
           <Tr>
-            <Th width="30%">Condition</Th>
+            <Th width="35%">Condition</Th>
             <Th>Value</Th>
             {!isTagCondition && <Th width="52px" />}
           </Tr>
@@ -96,10 +96,12 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                       marginBlockStart="12"
                       isChecked={isLastCommitOnly}
                       onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
+                      alignItems="center"
+                      whiteSpace="nowrap"
                     >
                       Last commit only
                       <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
-                        <Icon name="Info" size="16" marginLeft="5" />
+                        <Icon name="Info" size="16" marginLeft="4" />
                       </Toggletip>
                     </Checkbox>
                   )}
