@@ -451,9 +451,9 @@ function updateStepBundleInstanceField<T extends K>(
     }
 
     if (value !== undefined && value !== '') {
-      YmlUtils.setIn(step, [field], value);
+      YmlUtils.setIn(step, [at.cvs, field], value);
     } else {
-      YmlUtils.deleteByPath(step, [field]);
+      YmlUtils.deleteByPath(step, [at.cvs, field]);
     }
 
     return doc;
