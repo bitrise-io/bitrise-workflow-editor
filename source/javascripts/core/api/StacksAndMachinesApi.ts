@@ -1,59 +1,117 @@
-import { mapValues } from 'es-toolkit';
-
-import { MachineType, Stack, StackStatus } from '../models/StackAndMachine';
+import { MachineStatus, MachineType, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
 import Client from './client';
+
+type StackApiItem = {
+  id: string;
+  os?: string;
+  title: string;
+  status: string;
+  description?: string;
+  'description-link'?: string;
+  'description-link-gen2'?: string;
+  'description-link-gen2-applesilicon'?: string;
+  available_machines?: string[];
+  rollback_version?: {
+    [machineTypeId: string]: { free?: string; paying?: string };
+  };
+};
+
+type StackGroupApiItem = {
+  label: string;
+  status: StackStatus;
+  stacks: StackApiItem[];
+};
+
+type MachineApiItem = {
+  id: string;
+  name: string;
+  os_id?: string;
+  is_available?: boolean;
+  is_promoted?: boolean;
+  ram: string;
+  chip: string;
+  cpu_count: string;
+  cpu_description: string;
+  credit_per_min?: number;
+  available_on_stacks?: string[];
+};
+
+type MachineGroupApiItem = {
+  label: string;
+  status: MachineStatus;
+  machines: MachineApiItem[];
+};
 
 type StacksAndMachinesResponse = {
   has_self_hosted_runner: boolean;
   running_builds_on_private_cloud: boolean;
   default_stack_id: string;
   default_machine_id: string;
-  available_stacks: {
-    [stackId: string]: {
-      title: string;
-      status: string;
-      description?: string;
-      'description-link'?: string;
-      'description-link-gen2'?: string;
-      'description-link-gen2-applesilicon'?: string;
-      available_machines?: string[];
-      rollback_version?: {
-        [machineTypeId: string]: { free?: string; paying?: string };
-      };
-      os?: string;
-    };
-  };
-  available_machines: {
-    [osId: string]: {
-      default_machine_type: string;
-      machine_types: {
-        [machineTypeId: string]: {
-          available_on_stacks: string[];
-          ram: string;
-          name: string;
-          chip: string;
-          cpu_count: string;
-          cpu_description: string;
-          credit_per_min?: number;
-        };
-      };
-    };
-  };
-  machine_type_promotion?: {
-    mode: 'trial' | 'upsell';
-    promoted_machine_types: {
-      available_on_stacks: string[];
-      id: string;
-      ram: string;
-      name: string;
-      os_id: string;
-      chip: string;
-      cpu_count: string;
-      cpu_description: string;
-      credit_per_min?: number;
-    }[];
-  };
+  default_machines: MachineApiItem[];
+  grouped_stacks?: StackGroupApiItem[];
+  grouped_machines?: MachineGroupApiItem[];
 };
+
+function mapOSValues(os: string): StackOS {
+  if (['macos', 'linux'].includes(os)) {
+    return os as StackOS;
+  }
+
+  if (os === 'osx') {
+    return 'macos';
+  }
+
+  return 'unknown';
+}
+
+function mapStackStatus(status: string): StackStatus {
+  if (['edge', 'stable', 'frozen'].includes(status)) {
+    return status as StackStatus;
+  }
+
+  return 'unknown';
+}
+
+function mapMachineStatus(item: MachineApiItem): MachineStatus {
+  if (item.is_promoted) {
+    return 'promoted';
+  }
+
+  if (item.is_available) {
+    return 'available';
+  }
+
+  return 'unknown';
+}
+
+function toStack(item: StackApiItem): Stack {
+  return {
+    id: item.id,
+    name: item.title,
+    description: item.description ?? '',
+    descriptionUrl:
+      item['description-link-gen2-applesilicon'] || item['description-link-gen2'] || item['description-link'],
+    machineTypes: item.available_machines ?? [],
+    rollbackVersion: item.rollback_version,
+    os: mapOSValues(item.os ?? ''),
+    status: mapStackStatus(item.status),
+  };
+}
+
+function toMachineType(item: MachineApiItem): MachineType {
+  return {
+    id: item.id,
+    name: item.name,
+    os: mapOSValues(item.os_id ?? ''),
+    status: mapMachineStatus(item),
+    ram: item.ram,
+    chip: item.chip,
+    cpuCount: item.cpu_count,
+    cpuDescription: item.cpu_description,
+    creditPerMinute: item.credit_per_min,
+    availableOnStacks: item.available_on_stacks ?? [],
+  };
+}
 
 const GET_STACKS_AND_MACHINES_PATH = `/app/:appSlug/stacks_and_machines`;
 
@@ -66,98 +124,35 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     signal,
   });
 
-  const availableStacks: Stack[] = [];
-  const availableMachineTypes: MachineType[] = [];
-  const promotedMachineTypes: MachineType[] = [];
-  const defaultMachineTypeIdOfOSs: { [key: string]: string } = {};
+  const defaultMachines = response.default_machines.map(toMachineType);
+  const groupedStacks =
+    response.grouped_stacks?.map((group) => ({
+      label: group.label,
+      status: group.status,
+      stacks: group.stacks.map(toStack),
+    })) ?? [];
+  const availableStacks = groupedStacks.flatMap((group) => group.stacks);
 
-  const mapOSValues = (os?: string) => {
-    switch (os) {
-      case 'macos':
-        return 'macos';
-      case 'linux':
-        return 'linux';
-      default:
-        return 'unknown';
-    }
-  };
-
-  function mapStackStatus(status: string): StackStatus {
-    switch (status) {
-      case 'edge':
-        return 'edge';
-      case 'stable':
-        return 'stable';
-      case 'frozen':
-        return 'frozen';
-      default:
-        return 'unknown';
-    }
-  }
-
-  mapValues(
-    response.available_stacks,
-    ({ title, description = '', available_machines = [], rollback_version, os, status, ...rest }, id) => {
-      availableStacks.push({
-        id: String(id),
-        name: title,
-        description,
-        descriptionUrl:
-          rest['description-link-gen2-applesilicon'] || rest['description-link-gen2'] || rest['description-link'],
-        machineTypes: available_machines,
-        rollbackVersion: rollback_version,
-        os: mapOSValues(os),
-        status: mapStackStatus(status),
-      });
-    },
-  );
-
-  mapValues(response.available_machines, ({ machine_types, default_machine_type }, os: string) => {
-    defaultMachineTypeIdOfOSs[os] = default_machine_type;
-
-    mapValues(machine_types, (machine, id) => {
-      availableMachineTypes.push({
-        availableOnStacks: machine.available_on_stacks,
-        id: String(id),
-        name: machine.name,
-        ram: machine.ram,
-        chip: machine.chip,
-        cpuCount: machine.cpu_count,
-        cpuDescription: machine.cpu_description,
-        creditPerMinute: machine.credit_per_min,
-        osId: os,
-      });
-    });
-  });
-
-  response.machine_type_promotion?.promoted_machine_types.forEach((machine_type) => {
-    promotedMachineTypes.push({
-      availableOnStacks: machine_type.available_on_stacks,
-      id: machine_type.id,
-      name: machine_type.name,
-      ram: machine_type.ram,
-      chip: machine_type.chip,
-      cpuCount: machine_type.cpu_count,
-      cpuDescription: machine_type.cpu_description,
-      creditPerMinute: machine_type.credit_per_min,
-      osId: machine_type.os_id,
-    });
-  });
+  const groupedMachines =
+    response.grouped_machines?.map((group) => ({
+      label: group.label,
+      status: group.status,
+      machines: group.machines.map(toMachineType),
+    })) ?? [];
+  const availableMachines = groupedMachines.filter((g) => g.status === 'available').flatMap((group) => group.machines);
 
   return {
     availableStacks,
-    availableMachineTypes,
-    defaultMachineTypeIdOfOSs,
+    groupedStacks,
+    defaultMachines,
+    availableMachines,
+    groupedMachines,
     defaultStackId: response.default_stack_id,
     defaultMachineTypeId: response.default_machine_id,
-    machineTypePromotion: response.machine_type_promotion && {
-      mode: response.machine_type_promotion.mode,
-      promotedMachineTypes,
-    },
-    runningBuildsOnPrivateCloud: response.running_builds_on_private_cloud,
     hasSelfHostedRunner: response.has_self_hosted_runner,
+    runningBuildsOnPrivateCloud: response.running_builds_on_private_cloud,
   };
 }
 
-export { StacksAndMachinesResponse };
+export type { MachineApiItem, MachineGroupApiItem, StackApiItem, StackGroupApiItem, StacksAndMachinesResponse };
 export default { getStacksAndMachinesPath, getStacksAndMachines };

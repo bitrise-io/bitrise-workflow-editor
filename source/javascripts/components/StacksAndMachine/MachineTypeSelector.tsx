@@ -1,29 +1,15 @@
 import { Avatar, Box, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip, TypeIconName } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
-import { MachineTypeOption } from '@/core/models/StackAndMachine';
+import { MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
 import { MachineTypeWithValue } from '@/core/services/StackAndMachineService';
-
-export const PROMOTION_TEXTS = {
-  trial: {
-    availableText: 'Available during the trial',
-    promotedText: 'Available on paid plans',
-    toggleTipText:
-      'Select your machine type for builds. Options vary by plan. If you need stronger machines during your trial, contact sales.',
-  },
-  upsell: {
-    availableText: 'Available on your plan',
-    promotedText: 'Available on other plans',
-    toggleTipText:
-      'Select your machine type for builds. Options vary by plan. If you need stronger machines contact sales.',
-  },
-};
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
     case 'linux':
       return 'Linux';
     case 'osx':
+    case 'macos':
       return 'Apple';
     default:
       return undefined;
@@ -32,7 +18,7 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
 
 const renderOptions = (machines: MachineTypeOption[], isDisabled?: boolean) => {
   return machines.map((machine) => {
-    const iconName = getIconName(machine.osId);
+    const iconName = getIconName(machine.os);
     return (
       <DropdownDetailedOption
         key={machine.value}
@@ -51,30 +37,19 @@ type Props = {
   isInvalid: boolean;
   isDisabled: boolean;
   machineType: MachineTypeWithValue;
-  availableOptions: MachineTypeOption[];
-  promotionType?: 'trial' | 'upsell';
-  promotedOptions: MachineTypeOption[];
+  optionGroups: MachineTypeOptionGroup[];
   onChange: (machineId: string) => void;
 };
 
-const MachineTypeSelector = ({
-  isLoading,
-  isInvalid,
-  isDisabled,
-  machineType,
-  availableOptions,
-  promotedOptions,
-  promotionType,
-  onChange,
-}: Props) => {
+const MachineTypeSelector = ({ isLoading, isInvalid, isDisabled, machineType, optionGroups, onChange }: Props) => {
   const toggletip = (icon: ReactNode) => {
-    if (!promotionType) {
+    if (!optionGroups.find((group) => group.status === 'promoted')) {
       return null;
     }
 
     return (
       <Toggletip
-        label={PROMOTION_TEXTS[promotionType].toggleTipText}
+        label="Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales."
         button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
       >
         <Box maxH="20px" mt="-4px">
@@ -83,8 +58,6 @@ const MachineTypeSelector = ({
       </Toggletip>
     );
   };
-
-  const hasPromotion = promotionType && promotedOptions.length > 0;
 
   return (
     <Dropdown
@@ -100,16 +73,14 @@ const MachineTypeSelector = ({
       value={machineType.value}
       onChange={(e) => onChange(e.target.value ?? '')}
     >
-      {!hasPromotion ? (
-        renderOptions(availableOptions)
-      ) : (
+      {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
+      {optionGroups.length > 1 && (
         <>
-          <DropdownGroup label={PROMOTION_TEXTS[promotionType].availableText} labelProps={{ whiteSpace: 'nowrap' }}>
-            {renderOptions(availableOptions)}
-          </DropdownGroup>
-          <DropdownGroup label={PROMOTION_TEXTS[promotionType].promotedText} labelProps={{ whiteSpace: 'nowrap' }}>
-            {renderOptions(promotedOptions, true)}
-          </DropdownGroup>
+          {optionGroups.map((group) => (
+            <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
+              {renderOptions(group.options, group.status === 'promoted')}
+            </DropdownGroup>
+          ))}
         </>
       )}
     </Dropdown>
