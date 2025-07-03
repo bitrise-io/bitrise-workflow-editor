@@ -1306,7 +1306,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                is_always_run: true
+                  is_always_run: true
         `,
       );
 
@@ -1322,7 +1322,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                is_always_run: false
+                  is_always_run: false
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
@@ -1351,7 +1351,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                is_always_run: true`,
+                  is_always_run: true`,
       );
     });
 
@@ -1362,7 +1362,7 @@ describe('StepBundleService', () => {
             primary:
               steps:
               - bundle::sb1:
-                is_always_run: true`,
+                  is_always_run: true`,
       );
 
       StepBundleService.updateStepBundleInstanceField('is_always_run', undefined, {
@@ -1377,7 +1377,7 @@ describe('StepBundleService', () => {
           workflows:
             primary:
               steps:
-              - bundle::sb1:`,
+              - bundle::sb1: {}`,
       );
     });
 
@@ -1420,7 +1420,7 @@ describe('StepBundleService', () => {
           primary:
             steps:
             - bundle::sb1:
-              is_always_run: true`;
+                is_always_run: true`;
 
       expect(getYmlString()).toEqual(expectedYml);
     });
