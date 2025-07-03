@@ -444,16 +444,21 @@ function updateStepBundleInstanceField<T extends K>(
 
   updateBitriseYmlDocument(({ doc }) => {
     const step = getSourceStepOrThrowError(doc, at);
-    const stepValues = step?.toJSON()?.[cvs];
+    const stepValue = step?.toJSON()?.[cvs];
 
-    if (stepValues === undefined) {
+    if (stepValue === undefined) {
       throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
     }
 
+    if (stepValue === null) {
+      YmlUtils.setIn(step, [cvs], {});
+    }
+
+    const stepData = YmlUtils.getMapIn(step, [cvs], true);
     if (value !== undefined && value !== '') {
-      YmlUtils.setIn(step, [at.cvs, field], value);
+      YmlUtils.setIn(stepData, [field], value);
     } else {
-      YmlUtils.deleteByPath(step, [at.cvs, field]);
+      YmlUtils.deleteByPath(stepData, [field]);
     }
 
     return doc;
