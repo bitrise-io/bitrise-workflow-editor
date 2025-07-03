@@ -108,12 +108,19 @@ function idToCvs(id: string) {
   return `bundle::${id}`;
 }
 
-function ymlInstanceToStepBundle(id: string, stepBundle: StepBundleModel): StepBundleInstance {
+function ymlInstanceToStepBundle(
+  id: string,
+  stepBundle: StepBundleModel,
+  defaultValues?: StepBundleModel,
+  userValues?: StepBundleModel,
+): StepBundleInstance {
   return {
     cvs: idToCvs(id),
     id,
     title: stepBundle.title,
-    userValues: stepBundle,
+    mergedValues: stepBundle,
+    defaultValues: defaultValues || stepBundle,
+    userValues: userValues || {},
   };
 }
 
@@ -422,6 +429,42 @@ function updateStepBundleField<T extends K>(id: string, field: T, value: V<T>) {
   });
 }
 
+function updateStepBundleInstanceField<T extends K>(
+  field: T,
+  value: V<T>,
+  at: {
+    cvs: string;
+    source: StepBundleCreationSource;
+    sourceId: string;
+    stepIndex: number;
+  },
+) {
+  const id = cvsToId(at.cvs);
+  const { cvs, source, sourceId, stepIndex } = at;
+
+  updateBitriseYmlDocument(({ doc }) => {
+    const step = getSourceStepOrThrowError(doc, at);
+    const stepValue = step?.toJSON()?.[cvs];
+
+    if (stepValue === undefined) {
+      throw new Error(`Step bundle instance '${id}' is not found in '${source}.${sourceId}' at index ${stepIndex}`);
+    }
+
+    if (stepValue === null) {
+      YmlUtils.setIn(step, [cvs], {});
+    }
+
+    const stepData = YmlUtils.getMapIn(step, [cvs], true);
+    if (value !== undefined && value !== '') {
+      YmlUtils.setIn(stepData, [field], value);
+    } else {
+      YmlUtils.deleteByPath(stepData, [field]);
+    }
+
+    return doc;
+  });
+}
+
 function updateStepBundleInputInstanceValue(
   key: string,
   newValue: string,
@@ -498,5 +541,6 @@ export default {
   deleteStepBundleInput,
   updateStepBundleInput,
   updateStepBundleField,
+  updateStepBundleInstanceField,
   updateStepBundleInputInstanceValue,
 };
