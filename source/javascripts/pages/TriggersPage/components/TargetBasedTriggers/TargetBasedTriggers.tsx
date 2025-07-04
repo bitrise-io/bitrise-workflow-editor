@@ -22,7 +22,11 @@ import TriggerConditions from '@/components/unified-editor/Triggers/TriggerCondi
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
-import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
+import {
+  useAllTargetBasedTriggers,
+  usePipelineTriggersEnabled,
+  useWorkflowTriggersEnabled,
+} from '@/hooks/useTargetBasedTriggers';
 
 const TargetBasedTriggers = () => {
   const {
@@ -40,6 +44,9 @@ const TargetBasedTriggers = () => {
     direction: 'ascending',
     condition: 'sourceId',
   });
+
+  const workflowTriggersEnabled = useWorkflowTriggersEnabled();
+  const pipelineTriggersEnabled = usePipelineTriggersEnabled();
 
   const pipelineableTriggers = useAllTargetBasedTriggers();
   const filteredTriggers = useMemo(() => {
@@ -158,6 +165,11 @@ const TargetBasedTriggers = () => {
                           isDraftPr={trigger.isDraftPr}
                           priority={trigger.priority}
                           triggerType={trigger.triggerType}
+                          triggerDisabled={
+                            !trigger.isActive ||
+                            (source === 'workflows' && workflowTriggersEnabled[sourceId] === false) ||
+                            (source === 'pipelines' && pipelineTriggersEnabled[sourceId] === false)
+                          }
                         />
                       </Td>
                       <Td display="flex" justifyContent="flex-end" alignItems="center">

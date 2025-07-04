@@ -30,5 +30,27 @@ function useTargetBasedTriggers(source: TriggerSource, sourceId: string) {
   };
 }
 
-export { useAllTargetBasedTriggers };
+function useWorkflowTriggersEnabled() {
+  const yml = useBitriseYmlStore((state) => state.yml);
+  return Object.entries(yml.workflows || {}).reduce<Record<string, boolean | undefined>>(
+    (acc, [workflowId, workflow]) => {
+      acc[workflowId] = workflow?.triggers?.enabled;
+      return acc;
+    },
+    {},
+  );
+}
+
+function usePipelineTriggersEnabled() {
+  const yml = useBitriseYmlStore((state) => state.yml);
+  return Object.entries(yml.pipelines || {}).reduce<Record<string, boolean | undefined>>(
+    (acc, [pipelineId, pipeline]) => {
+      acc[pipelineId] = pipeline?.triggers?.enabled;
+      return acc;
+    },
+    {},
+  );
+}
+
+export { useAllTargetBasedTriggers, usePipelineTriggersEnabled, useWorkflowTriggersEnabled };
 export default useTargetBasedTriggers;
