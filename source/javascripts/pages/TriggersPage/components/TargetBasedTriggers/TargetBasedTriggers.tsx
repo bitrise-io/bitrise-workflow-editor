@@ -22,8 +22,11 @@ import TriggerConditions from '@/components/unified-editor/Triggers/TriggerCondi
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
+import {
+  useAllTargetBasedTriggers,
+  usePipelineTriggersEnabled,
+  useWorkflowTriggersEnabled,
+} from '@/hooks/useTargetBasedTriggers';
 
 const TargetBasedTriggers = () => {
   const {
@@ -42,27 +45,8 @@ const TargetBasedTriggers = () => {
     condition: 'sourceId',
   });
 
-  const yml = useBitriseYmlStore((state) => state.yml);
-
-  const workflowTriggersEnabled = useMemo(() => {
-    return Object.entries(yml.workflows || {}).reduce<Record<string, boolean | undefined>>(
-      (acc, [workflowId, workflow]) => {
-        acc[workflowId] = workflow?.triggers?.enabled;
-        return acc;
-      },
-      {},
-    );
-  }, [yml.workflows]);
-
-  const pipelineTriggersEnabled = useMemo(() => {
-    return Object.entries(yml.pipelines || {}).reduce<Record<string, boolean | undefined>>(
-      (acc, [pipelineId, pipeline]) => {
-        acc[pipelineId] = pipeline?.triggers?.enabled;
-        return acc;
-      },
-      {},
-    );
-  }, [yml.pipelines]);
+  const workflowTriggersEnabled = useWorkflowTriggersEnabled();
+  const pipelineTriggersEnabled = usePipelineTriggersEnabled();
 
   const pipelineableTriggers = useAllTargetBasedTriggers();
   const filteredTriggers = useMemo(() => {
