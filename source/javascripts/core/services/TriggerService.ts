@@ -480,6 +480,7 @@ function toTargetBasedTriggers(
         uniqueId: crypto.randomUUID(),
         source: `${source}#${sourceId}`,
         isActive: trigger.enabled !== false,
+        isTriggersModelActive: triggersModel?.enabled !== false,
         isDraftPr: trigger.draft_enabled,
         priority: trigger.priority,
         conditions: toConditions(trigger),
