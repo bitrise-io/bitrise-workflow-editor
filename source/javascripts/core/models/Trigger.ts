@@ -26,6 +26,7 @@ export type Trigger<TConditionType extends string> = {
   conditions: Condition<TConditionType>[];
   isDraftPr?: boolean;
   priority?: number;
+  isTriggersModelActive?: boolean;
 };
 
 export type TargetBasedPushConditionType = keyof Omit<IterableElement<TriggersModel['push']>, 'enabled' | 'priority'>;

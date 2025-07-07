@@ -95,6 +95,7 @@ workflows:
       push:
         - priority: 0
           branch: "1"
+      enabled: false
     steps:
       - https://github.com/my-bitrise-steps/custom-steplib.git::script:
           title: Custom GitHub (org) steplib
