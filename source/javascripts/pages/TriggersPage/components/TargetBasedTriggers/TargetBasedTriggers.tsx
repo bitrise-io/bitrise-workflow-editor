@@ -158,6 +158,7 @@ const TargetBasedTriggers = () => {
                           isDraftPr={trigger.isDraftPr}
                           priority={trigger.priority}
                           triggerType={trigger.triggerType}
+                          triggerDisabled={!trigger.isActive || !trigger.isTriggersModelActive}
                         />
                       </Td>
                       <Td display="flex" justifyContent="flex-end" alignItems="center">
