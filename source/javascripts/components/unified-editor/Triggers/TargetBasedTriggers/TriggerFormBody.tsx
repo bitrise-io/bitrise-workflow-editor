@@ -9,6 +9,7 @@ import {
   TargetBasedTrigger,
   TriggerSource,
   TriggerType,
+  TriggerVariant,
 } from '@/core/models/Trigger';
 import {
   LEGACY_LABELS_MAP,
@@ -25,7 +26,7 @@ import ConditionCard from '../ConditionCard';
 type Props = {
   source: TriggerSource | '';
   triggerType: TriggerType;
-  variant: 'legacy' | 'target-based';
+  variant: TriggerVariant;
 };
 
 const TriggerFormBody = (props: Props) => {
@@ -65,7 +66,7 @@ const TriggerFormBody = (props: Props) => {
 
   return (
     <>
-      {variant === 'legacy' && (
+      {(variant === 'legacy' || variant === 'triggers-target-based') && (
         <Controller
           name="source"
           control={control}

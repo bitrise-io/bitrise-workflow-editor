@@ -3,7 +3,7 @@ import { isEqual } from 'es-toolkit';
 import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
-import { TargetBasedTrigger } from '@/core/models/Trigger';
+import { TargetBasedTrigger, TriggerVariant } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import TriggerService from '@/core/services/TriggerService';
 
@@ -11,7 +11,7 @@ type Props = {
   editedItem?: TargetBasedTrigger | LegacyTrigger;
   onCancel: () => void;
   currentTriggers?: (TargetBasedTrigger | LegacyTrigger)[];
-  variant: 'legacy' | 'target-based';
+  variant: TriggerVariant;
 };
 
 const TriggerFormFooter = (props: Props) => {

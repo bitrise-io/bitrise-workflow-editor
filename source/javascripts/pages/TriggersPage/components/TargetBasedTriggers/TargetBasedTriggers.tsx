@@ -31,7 +31,7 @@ import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 
 const TargetBasedTriggers = () => {
   const { isOpen: isTriggerDialogOpen, onOpen: openTriggerDialog, onClose: closeTriggerDialog } = useDisclosure();
-  const [triggerType, setTriggerType] = useState<TriggerType>('push');
+  const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
   const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
   const [filterString, setFilterString] = useState('');
@@ -99,18 +99,16 @@ const TargetBasedTriggers = () => {
     openTriggerDialog();
   };
 
-  //   const handleSubmitNewTrigger = (trigger: TargetBasedTrigger) => {
-  //   TriggerService.addTrigger(trigger);
-  //   closeAddTriggerDialog();
-  //   setNewTriggerType(null);
-  //   // You might want to add analytics tracking here too
-  // };
-
-  const handleEditTrigger = (trigger: TargetBasedTrigger) => {
-    TriggerService.updateTrigger(trigger);
+  const onSubmit = (trigger: TargetBasedTrigger) => {
+    if (editedItem) {
+      TriggerService.updateTrigger(trigger);
+      setEditedItem(undefined);
+      trackEditTrigger(trigger);
+    } else {
+      TriggerService.addTrigger(trigger);
+    }
     closeTriggerDialog();
-    setEditedItem(undefined);
-    trackEditTrigger(trigger);
+    setTriggerType(null);
   };
 
   const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
@@ -225,17 +223,19 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          <AddOrEditTriggerDialog
-            source={editedItem ? (editedItem.source.split('#')[0] as TriggerSource) : ''}
-            sourceId={editedItem ? editedItem.source.split('#')[1] : ''}
-            editedItem={editedItem}
-            triggerType={triggerType}
-            currentTriggers={pipelineableTriggers}
-            onSubmit={handleEditTrigger}
-            onCancel={handleCloseTriggerDialog}
-            isOpen={isTriggerDialogOpen}
-            variant="target-based"
-          />
+          {triggerType && (
+            <AddOrEditTriggerDialog
+              source={editedItem ? (editedItem.source.split('#')[0] as TriggerSource) : ''}
+              sourceId={editedItem ? editedItem.source.split('#')[1] : ''}
+              editedItem={editedItem}
+              triggerType={triggerType}
+              currentTriggers={pipelineableTriggers}
+              onSubmit={onSubmit}
+              onCancel={handleCloseTriggerDialog}
+              isOpen={isTriggerDialogOpen}
+              variant="triggers-target-based"
+            />
+          )}
         </>
       ) : (
         <EmptyState

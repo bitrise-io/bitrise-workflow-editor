@@ -86,7 +86,7 @@ const LegacyTriggers = () => {
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={onOpen} leftIconName="PlusCircle">
+            <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
               Add push trigger
             </Button>
             <SortableTriggerList
@@ -99,7 +99,7 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={onOpen} leftIconName="PlusCircle">
+            <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
               Add pull request trigger
             </Button>
             <SortableTriggerList
@@ -112,7 +112,7 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" onClick={onOpen} leftIconName="PlusCircle">
+            <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
               Add tag trigger
             </Button>
             <SortableTriggerList

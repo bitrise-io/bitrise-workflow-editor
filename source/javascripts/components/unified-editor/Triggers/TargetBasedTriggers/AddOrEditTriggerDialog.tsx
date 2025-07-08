@@ -8,6 +8,7 @@ import {
   TargetBasedTrigger,
   TriggerSource,
   TriggerType,
+  TriggerVariant,
 } from '@/core/models/Trigger';
 import { LEGACY_OPTIONS_MAP, LegacyConditionType, LegacyTrigger } from '@/core/models/Trigger.legacy';
 
@@ -23,7 +24,7 @@ type Props = {
   onSubmit: (trigger: any) => void;
   onCancel: () => void;
   isOpen: boolean;
-  variant: 'legacy' | 'target-based';
+  variant: TriggerVariant;
 };
 
 const AddOrEditTriggerDialog = (props: Props) => {
