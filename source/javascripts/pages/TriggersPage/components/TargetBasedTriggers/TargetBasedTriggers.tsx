@@ -77,6 +77,7 @@ const TargetBasedTriggers = () => {
 
   const handleOpenTriggerDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);
+    setTriggerType(trigger.triggerType);
     openTriggerDialog();
   };
 
@@ -108,7 +109,6 @@ const TargetBasedTriggers = () => {
       TriggerService.addTrigger(trigger);
     }
     closeTriggerDialog();
-    setTriggerType(null);
   };
 
   const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
