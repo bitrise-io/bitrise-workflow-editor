@@ -1,16 +1,25 @@
-import { MachineType, Stack, StackOption } from '@/core/models/StackAndMachine';
+import { MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 const stacks: Stack[] = [
   {
+    id: 'osx-xcode-16.1.x',
+    name: 'Xcode 16.1.x',
+    status: 'edge',
+    description:
+      'Xcode 16.1 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
+    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
+    os: 'macos',
+  },
+  {
     id: 'osx-xcode-16.0.x',
     name: 'Xcode 16.0.x',
     status: 'stable',
     description:
       'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
+    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4'],
     os: 'macos',
   },
   {
@@ -19,15 +28,32 @@ const stacks: Stack[] = [
     status: 'stable',
     description:
       'Xcode 15.0.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['mac-m1', 'mac-m2', 'joker'],
+    machineTypes: ['mac-m1', 'mac-m2'],
+    os: 'macos',
+  },
+  {
+    id: 'osx-xcode-14.0.x',
+    name: 'Xcode 14.0.x',
+    status: 'frozen',
+    description:
+      'Xcode 14.1.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
+    machineTypes: ['mac-m1', 'mac-m2'],
     os: 'macos',
   },
   {
     id: 'ubuntu-jammy-22.04-bitrise-2024',
     name: 'Ubuntu Jammy - Bitrise 2024 Edition',
-    status: 'stable',
+    status: 'edge',
     description: 'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
     machineTypes: ['standard', 'elite', 'joker'],
+    os: 'linux',
+  },
+  {
+    id: 'ubuntu-focal-20.04-bitrise-2024',
+    name: 'Ubuntu Focal - Bitrise 2024 Edition',
+    status: 'stable',
+    description: 'Docker container environment based on Ubuntu 2-.04. Preinstalled Android SDK and other common tools.',
+    machineTypes: ['standard', 'elite'],
     os: 'linux',
   },
   {
@@ -40,85 +66,137 @@ const stacks: Stack[] = [
   },
 ];
 
+const groupedStacks: StackGroup[] = [
+  {
+    label: 'Edge Stacks',
+    status: 'edge',
+    stacks: stacks.filter((stack) => stack.status === 'edge'),
+  },
+  {
+    label: 'Stable Stacks',
+    status: 'stable',
+    stacks: stacks.filter((stack) => stack.status === 'stable'),
+  },
+  {
+    label: 'Uncategorized Stacks',
+    status: 'unknown',
+    stacks: stacks.filter((stack) => stack.status === 'unknown'),
+  },
+  {
+    label: 'Frozen Stacks',
+    status: 'frozen',
+    stacks: stacks.filter((stack) => stack.status === 'frozen'),
+  },
+];
+
 const machines: MachineType[] = [
   {
-    availableOnStacks: [],
     id: 'standard',
     name: 'Standard',
     creditPerMinute: 1,
     ram: '8GB',
     chip: 'AMD',
-    cpuCount: '4',
-    cpuDescription: '4 cores',
-    osId: 'osx',
+    cpuCount: '4 CPU',
+    cpuDescription: '3.5 GHz',
+    os: 'linux',
+    status: 'available',
+    availableOnStacks: [],
   },
   {
-    availableOnStacks: [],
     id: 'elite',
     name: 'Elite',
     creditPerMinute: 1,
     ram: '16GB',
     chip: 'AMD',
-    cpuCount: '8',
-    cpuDescription: '8 cores',
-    osId: 'osx',
+    cpuCount: '8 CPU',
+    cpuDescription: '4.0 GHz',
+    os: 'linux',
+    status: 'available',
+    availableOnStacks: [],
   },
   {
-    availableOnStacks: [],
     id: 'mac-m1',
     name: 'M1',
     creditPerMinute: 2,
     ram: '16GB',
     chip: 'M1',
-    cpuCount: '8',
-    cpuDescription: '8 cores',
-    osId: 'osx',
+    cpuCount: '8 CPU',
+    cpuDescription: '3.5 GHz',
+    os: 'macos',
+    status: 'available',
+    availableOnStacks: [],
   },
   {
-    availableOnStacks: [],
     id: 'mac-m2',
     name: 'M2',
     creditPerMinute: 3,
     ram: '24GB',
     chip: 'M2',
-    cpuCount: '12',
-    cpuDescription: '12 cores',
-    osId: 'osx',
+    cpuCount: '12 CPU',
+    cpuDescription: '4.0 GHz',
+    os: 'macos',
+    status: 'available',
+    availableOnStacks: [],
   },
   {
-    availableOnStacks: [],
     id: 'mac-m3',
     name: 'M3',
     creditPerMinute: 4,
     ram: '32GB',
     chip: 'M3',
-    cpuCount: '16',
-    cpuDescription: '16 cores',
-    osId: 'osx',
+    cpuCount: '16 CPU',
+    cpuDescription: '4.5 GHz',
+    os: 'macos',
+    status: 'available',
+    availableOnStacks: [],
   },
   {
-    availableOnStacks: [],
     id: 'mac-m4',
     name: 'M4',
     creditPerMinute: 8,
     ram: '64GB',
     chip: 'M4',
-    cpuCount: '24',
-    cpuDescription: '24 cores',
-    osId: 'osx',
+    cpuCount: '24 CPU',
+    cpuDescription: '4.5 GHz',
+    os: 'macos',
+    status: 'promoted',
+    availableOnStacks: [],
   },
   {
-    availableOnStacks: [],
     id: 'joker',
     name: 'Joker',
     creditPerMinute: 16,
     ram: '128GB',
     chip: 'Joker',
-    cpuCount: '64',
-    cpuDescription: '64 cores',
-    osId: 'osx',
+    cpuCount: '64 CPU',
+    cpuDescription: '5.0 GHz',
+    os: 'macos',
+    status: 'promoted',
+    availableOnStacks: [],
   },
 ];
+
+const groupedMachines: MachineTypeGroup[] = [
+  {
+    label: 'Available on your plan',
+    status: 'available',
+    machines: machines.filter((machine) => machine.status === 'available'),
+  },
+  {
+    label: 'Available on other plans',
+    status: 'promoted',
+    machines: machines.filter((machine) => machine.status === 'promoted'),
+  },
+  {
+    label: 'Uncategorized Machines',
+    status: 'unknown',
+    machines: machines.filter((machine) => machine.status === 'unknown'),
+  },
+];
+
+const defaultMachines: MachineType[] = machines.filter(
+  (machine) => machine.id === 'mac-m1' || machine.id === 'standard',
+);
 
 describe('StackAndMachineService', () => {
   describe('prepareStackAndMachineSelectionData', () => {
@@ -126,289 +204,698 @@ describe('StackAndMachineService', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Stack
       expect(result.isInvalidStack).toBe(false);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({
-          value: '',
-          id: 'osx-xcode-16.0.x',
-          name: 'Xcode 16.0.x',
-        }),
+        expect.objectContaining({ value: '', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
       );
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
 
       // Stack options
-      const [defaultStack, ...stackOptions] = result.availableStackOptions;
-      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' });
-      expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
+      // Machine type options
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+          ],
+        },
+      ]);
     });
 
     it('returns the selected stack when a valid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: 'osx-xcode-15.0.x',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
         projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Stack
       expect(result.isInvalidStack).toBe(false);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({
-          value: 'osx-xcode-15.0.x',
-          id: 'osx-xcode-15.0.x',
-          name: 'Xcode 15.0.x',
-        }),
+        expect.objectContaining({ value: 'osx-xcode-15.0.x', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
       );
+      expect(result.isInvalidMachineType).toBe(false);
+      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
 
       // Stack options
-      const [defaultStack, ...stackOptions] = result.availableStackOptions;
-      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' });
-      expect(stackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
+      // Machine type options
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+          ],
+        },
+      ]);
     });
 
     it('returns the invalid stack when an invalid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: 'osx-xcode-11',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Stack
       expect(result.isInvalidStack).toBe(true);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({
-          value: 'osx-xcode-11',
-          id: 'osx-xcode-11',
-          name: 'osx-xcode-11',
-        }),
+        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'osx-xcode-11' }),
+      );
+      expect(result.isInvalidMachineType).toBe(true);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Machine' }),
       );
 
       // Stack options
-      const [defaultStack, ...stackOptions] = result.availableStackOptions;
-      expect(defaultStack).toEqual({ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' });
-      expect(stackOptions.slice(0, -1)).toEqual(stacks.map(StackAndMachineService.toStackOption));
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Invalid Stack',
+          status: 'unknown',
+          options: [{ value: 'osx-xcode-11', label: 'osx-xcode-11', status: 'unknown' }],
+        },
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ label: 'Default (Xcode 15.0.x)', value: '', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
 
-      // Invalid stack option
-      expect(stackOptions.slice(-1)).toEqual([{ value: 'osx-xcode-11', label: 'osx-xcode-11', status: 'unknown' }]);
+      // Machine type options
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Invalid Machine',
+          status: 'unknown',
+          options: [{ value: '', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
+        },
+      ]);
     });
 
     it('returns the default machine type when empty machine type value is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Machine type
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({ value: '', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
+      );
+
       expect(result.isInvalidMachineType).toBe(false);
       expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
 
+      // Stack options
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
       // Machine type options
-      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
-      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-      expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+          ],
+        },
+      ]);
     });
 
     it('returns the selected machine type when a valid machine type is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: 'mac-m2',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Machine type
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({ value: '', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
+      );
+
       expect(result.isInvalidMachineType).toBe(false);
       expect(result.selectedMachineType).toEqual(
         expect.objectContaining({ value: 'mac-m2', id: 'mac-m2', name: 'M2' }),
       );
 
+      // Stack options
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
       // Machine type options
-      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
-      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-      expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
+          ],
+        },
+      ]);
     });
 
     it('returns the invalid machine type when an invalid machine type is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: 'mac-intel',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Machine type
-      expect(result.isInvalidMachineType).toBe(true);
-      expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({
-          value: 'mac-intel',
-          id: 'mac-intel',
-          name: 'mac-intel',
-        }),
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({ value: '', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
       );
 
-      // Machine type options
-      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
-      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-      expect(machineOptions.slice(0, -1)).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
+      expect(result.isInvalidMachineType).toBe(true);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'mac-intel' }),
+      );
 
-      // Invalid machine type option
-      expect(machineOptions.slice(-1)).toEqual([{ value: 'mac-intel', label: 'mac-intel' }]);
+      // Stack options
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
+      // Machine type options
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Invalid Machine',
+          status: 'unknown',
+          options: [{ value: 'mac-intel', label: 'mac-intel', os: 'macos', status: 'unknown' }],
+        },
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
+          ],
+        },
+      ]);
     });
 
     it('returns self-hosted runner when agent pool is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: 'agent-pool-stack',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
-      // Stack
       expect(result.isInvalidStack).toBe(false);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({
-          value: 'agent-pool-stack',
-          id: 'agent-pool-stack',
-          name: 'Self-hosted agent',
-        }),
+        expect.objectContaining({ value: 'agent-pool-stack', id: 'agent-pool-stack', name: 'Self-hosted agent' }),
       );
 
-      // Machine type
       expect(result.isInvalidMachineType).toBe(false);
-      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: '', id: '', name: 'Self-Hosted Runner' }),
+      );
+
+      // Stack options
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
 
       // Machine type options
       expect(result.isMachineTypeSelectionDisabled).toBe(true);
-      expect(result.availableMachineTypeOptions).toEqual([{ label: 'Self-Hosted Runner', value: '' }]);
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Self-Hosted Runner',
+          status: 'available',
+          options: [{ value: '', label: 'Self-Hosted Runner', status: 'available', os: 'unknown' }],
+        },
+      ]);
     });
 
     it('returns machines for dedicated accounts with available machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
         runningBuildsOnPrivateCloud: true,
       });
 
-      // Machine type
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({ value: '', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
+      );
+
       expect(result.isInvalidMachineType).toBe(false);
       expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: 'mac-m1', name: 'M1' }));
 
+      // Stack options
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Default Stack',
+          status: 'stable',
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
       // Machine type options
       expect(result.isMachineTypeSelectionDisabled).toBe(false);
-      const [defaultMachineType, ...machineOptions] = result.availableMachineTypeOptions;
-      expect(defaultMachineType).toEqual({ value: '', label: 'Default (M1)', osId: 'osx' });
-      const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
-      expect(machineOptions).toEqual(selectableMachines.map(StackAndMachineService.toMachineOption));
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+          ],
+        },
+      ]);
     });
 
     it('returns disabled selection for dedicated accounts with no available machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: [],
-        projectStackId: 'osx-xcode-16.0.x',
+        groupedStacks,
+        groupedMachines: [],
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
         projectMachineTypeId: 'mac-m1',
         runningBuildsOnPrivateCloud: true,
       });
 
-      // Machine type
+      expect(result.isInvalidStack).toBe(false);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({ value: '', id: 'osx-xcode-15.0.x', name: 'Xcode 15.0.x' }),
+      );
+
       expect(result.isInvalidMachineType).toBe(false);
-      expect(result.selectedMachineType).toEqual(expect.objectContaining({ value: '', id: '', name: '' }));
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({
+          value: '',
+          id: '',
+          name: 'Dedicated Machine',
+        }),
+      );
 
       // Machine type options
       expect(result.isMachineTypeSelectionDisabled).toBe(true);
-      expect(result.availableMachineTypeOptions).toEqual([{ label: 'Dedicated Machine', value: '' }]);
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Dedicated Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Dedicated Machine', status: 'available', os: 'macos' }],
+        },
+      ]);
     });
 
     it('returns promoted machine types when available', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
         projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
-        machineTypePromotion: {
-          mode: 'trial',
-          promotedMachineTypes: [
-            {
-              id: 'mac-m5',
-              name: 'M5',
-              creditPerMinute: 16,
-              ram: '128GB',
-              chip: 'M5',
-              cpuCount: '36',
-              cpuDescription: '36 cores',
-              osId: 'osx',
-              availableOnStacks: ['osx-xcode-16.0.x'],
-            },
-            {
-              id: 'mac-m6',
-              name: 'M6',
-              creditPerMinute: 32,
-              ram: '256GB',
-              chip: 'M6',
-              cpuCount: '48',
-              cpuDescription: '48 cores',
-              osId: 'osx',
-              availableOnStacks: ['osx-xcode-16.0.x'],
-            },
-          ],
-        },
       });
 
       // Machine type options
-      expect(result.machineTypePromotionMode).toBe('trial');
-      expect(result.promotedMachineTypeOptions).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ value: 'mac-m5' }),
-          expect.objectContaining({ value: 'mac-m6' }),
-        ]),
-      );
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+          ],
+        },
+        {
+          label: 'Available on other plans',
+          status: 'promoted',
+          options: [
+            { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
+          ],
+        },
+      ]);
     });
 
-    it('returns no promoted machine types when promotion type is undefined', () => {
+    it('returns no promoted machine group, when there are no promoted machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: '',
         selectedMachineTypeId: '',
-        availableStacks: stacks,
-        availableMachineTypes: machines,
-        projectStackId: 'osx-xcode-16',
+        groupedStacks,
+        groupedMachines: groupedMachines.filter((group) => group.status !== 'promoted'),
+        defaultMachines,
+        projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
       });
 
       // Machine type options
-      expect(result.machineTypePromotionMode).toBeUndefined();
-      expect(result.promotedMachineTypeOptions).toEqual([]);
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+          ],
+        },
+      ]);
     });
 
     describe('withoutDefaultOptions', () => {
@@ -416,78 +903,150 @@ describe('StackAndMachineService', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
           selectedStackId: '',
           selectedMachineTypeId: '',
-          availableStacks: stacks,
-          availableMachineTypes: machines,
+          groupedStacks,
+          groupedMachines,
+          defaultMachines,
           projectStackId: 'osx-xcode-16.0.x',
           projectMachineTypeId: 'mac-m1',
           withoutDefaultOptions: true,
         });
 
-        // Stack
         expect(result.isInvalidStack).toBe(false);
         expect(result.selectedStack).toEqual(
-          expect.objectContaining({
-            value: 'osx-xcode-16.0.x',
-            id: 'osx-xcode-16.0.x',
-            name: 'Xcode 16.0.x',
-          }),
+          expect.objectContaining({ value: 'osx-xcode-16.0.x', id: 'osx-xcode-16.0.x', name: 'Xcode 16.0.x' }),
         );
 
-        // Stack options
-        expect(result.availableStackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
-
-        // Machine type
         expect(result.isInvalidMachineType).toBe(false);
         expect(result.selectedMachineType).toEqual(
           expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
         );
 
+        // Stack options
+        expect(result.stackOptionGroups).toEqual([
+          {
+            label: 'Edge Stacks',
+            status: 'edge',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'edge')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Stable Stacks',
+            status: 'stable',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'stable')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Uncategorized Stacks',
+            status: 'unknown',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'unknown')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Frozen Stacks',
+            status: 'frozen',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'frozen')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+        ]);
+
         // Machine type options
-        const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
-        expect(result.availableMachineTypeOptions).toEqual(
-          selectableMachines.map(StackAndMachineService.toMachineOption),
-        );
+        expect(result.machineOptionGroups).toEqual([
+          {
+            label: 'Available on your plan',
+            status: 'available',
+            options: [
+              { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+              { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+              { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+            ],
+          },
+          {
+            label: 'Available on other plans',
+            status: 'promoted',
+            options: [
+              { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
+            ],
+          },
+        ]);
       });
 
       it('returns the selected stack and the default machine type of the stack', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
           selectedStackId: 'osx-xcode-16.0.x',
           selectedMachineTypeId: '',
-          availableStacks: stacks,
-          availableMachineTypes: machines,
+          groupedStacks,
+          groupedMachines,
+          defaultMachines,
           projectStackId: 'ubuntu-jammy-22.04-bitrise-2024',
           projectMachineTypeId: 'elite',
-          defaultMachineTypeIdOfOSs: {
-            linux: 'elite',
-            osx: 'mac-m1',
-          },
           withoutDefaultOptions: true,
         });
 
-        // Stack
         expect(result.isInvalidStack).toBe(false);
         expect(result.selectedStack).toEqual(
-          expect.objectContaining({
-            value: 'osx-xcode-16.0.x',
-            id: 'osx-xcode-16.0.x',
-            name: 'Xcode 16.0.x',
-          }),
+          expect.objectContaining({ value: 'osx-xcode-16.0.x', id: 'osx-xcode-16.0.x', name: 'Xcode 16.0.x' }),
         );
 
-        // Stack options
-        expect(result.availableStackOptions).toEqual(stacks.map(StackAndMachineService.toStackOption));
-
-        // Machine type
         expect(result.isInvalidMachineType).toBe(false);
         expect(result.selectedMachineType).toEqual(
           expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
         );
 
+        // Stack options
+        expect(result.stackOptionGroups).toEqual([
+          {
+            label: 'Edge Stacks',
+            status: 'edge',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'edge')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Stable Stacks',
+            status: 'stable',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'stable')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Uncategorized Stacks',
+            status: 'unknown',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'unknown')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Frozen Stacks',
+            status: 'frozen',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'frozen')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+        ]);
+
         // Machine type options
-        const selectableMachines = StackAndMachineService.getMachinesOfStack(machines, result.selectedStack);
-        expect(result.availableMachineTypeOptions).toEqual(
-          selectableMachines.map(StackAndMachineService.toMachineOption),
-        );
+        expect(result.machineOptionGroups).toEqual([
+          {
+            label: 'Available on your plan',
+            status: 'available',
+            options: [
+              { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+              { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+              { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+            ],
+          },
+          {
+            label: 'Available on other plans',
+            status: 'promoted',
+            options: [
+              { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
+            ],
+          },
+        ]);
       });
     });
   });
@@ -499,7 +1058,7 @@ describe('StackAndMachineService', () => {
           stackId: '',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -511,7 +1070,7 @@ describe('StackAndMachineService', () => {
           stackId: '',
           machineTypeId: 'mac-m1',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -523,7 +1082,7 @@ describe('StackAndMachineService', () => {
           stackId: '',
           machineTypeId: 'standard',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -535,7 +1094,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-15.0.x',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -547,7 +1106,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-15.0.x',
           machineTypeId: 'mac-m1',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -562,7 +1121,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-15.0.x',
           machineTypeId: 'mac-m4',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -574,7 +1133,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-16.0.x',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -586,7 +1145,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-16.0.x',
           machineTypeId: 'mac-m1',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -601,7 +1160,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-16.0.x',
           machineTypeId: 'standard',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -615,7 +1174,7 @@ describe('StackAndMachineService', () => {
           stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -627,7 +1186,7 @@ describe('StackAndMachineService', () => {
           stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'joker',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -642,7 +1201,7 @@ describe('StackAndMachineService', () => {
           stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'mac-m4',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
         });
 
@@ -656,7 +1215,7 @@ describe('StackAndMachineService', () => {
           stackId: 'osx-xcode-15.0.x',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
           machineFallbackOptions: {
             defaultMachineTypeIdOfOSs: {
@@ -678,7 +1237,7 @@ describe('StackAndMachineService', () => {
           stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
           machineFallbackOptions: {
             defaultMachineTypeIdOfOSs: {
@@ -700,7 +1259,7 @@ describe('StackAndMachineService', () => {
           stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: '',
           availableStacks: stacks,
-          availableMachineTypes: machines,
+          availableMachines: machines,
           projectStackId: 'osx-xcode-16.0.x',
           machineFallbackOptions: {
             defaultMachineTypeIdOfOSs: {
@@ -715,95 +1274,6 @@ describe('StackAndMachineService', () => {
           stackId: 'ubuntu-jammy-22.04-bitrise-2024',
           machineTypeId: 'standard',
         });
-      });
-    });
-
-    describe('groupStackOptionsByStatus', () => {
-      it('sorts groups according to the STACK_STATUS_ORDER', () => {
-        const stackOptions: StackOption[] = [
-          { value: 'stack1', label: 'Stack 1', status: 'frozen' },
-          { value: 'stack2', label: 'Stack 2', status: 'stable' },
-          { value: 'stack3', label: 'Stack 3', status: 'edge' },
-          { value: 'stack4', label: 'Stack 4', status: 'unknown' },
-        ];
-
-        const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
-
-        expect(result[0].status).toBe('edge');
-        expect(result[1].status).toBe('stable');
-        expect(result[2].status).toBe('unknown');
-        expect(result[3].status).toBe('frozen');
-      });
-
-      it('groups stack options by their status', () => {
-        const stackOptions: StackOption[] = [
-          { value: 'stack1', label: 'Stack 1', status: 'stable' },
-          { value: 'stack2', label: 'Stack 2', status: 'stable' },
-          { value: 'stack3', label: 'Stack 3', status: 'edge' },
-          { value: 'stack4', label: 'Stack 4', status: 'edge' },
-          { value: 'stack5', label: 'Stack 5', status: 'frozen' },
-          { value: 'stack5', label: 'Stack 5', status: 'unknown' },
-        ];
-
-        const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
-        expect(result).toEqual([
-          {
-            status: 'edge',
-            label: 'Edge Stacks',
-            options: [
-              { value: 'stack3', label: 'Stack 3', status: 'edge' },
-              { value: 'stack4', label: 'Stack 4', status: 'edge' },
-            ],
-          },
-          {
-            status: 'stable',
-            label: 'Stable Stacks',
-            options: [
-              { value: 'stack1', label: 'Stack 1', status: 'stable' },
-              { value: 'stack2', label: 'Stack 2', status: 'stable' },
-            ],
-          },
-          {
-            status: 'unknown',
-            label: 'Uncategorized',
-            options: [{ value: 'stack5', label: 'Stack 5', status: 'unknown' }],
-          },
-          {
-            status: 'frozen',
-            label: 'Frozen Stacks',
-            options: [{ value: 'stack5', label: 'Stack 5', status: 'frozen' }],
-          },
-        ]);
-      });
-
-      it('leaves out empty groups', () => {
-        const stackOptions: StackOption[] = [
-          { value: 'stack1', label: 'Stack 1', status: 'stable' },
-          { value: 'stack2', label: 'Stack 2', status: 'stable' },
-          { value: 'stack3', label: 'Stack 3', status: 'edge' },
-          { value: 'stack4', label: 'Stack 4', status: 'edge' },
-        ];
-
-        const result = StackAndMachineService.groupStackOptionsByStatus(stackOptions);
-
-        expect(result).toEqual([
-          {
-            status: 'edge',
-            label: 'Edge Stacks',
-            options: [
-              { value: 'stack3', label: 'Stack 3', status: 'edge' },
-              { value: 'stack4', label: 'Stack 4', status: 'edge' },
-            ],
-          },
-          {
-            status: 'stable',
-            label: 'Stable Stacks',
-            options: [
-              { value: 'stack1', label: 'Stack 1', status: 'stable' },
-              { value: 'stack2', label: 'Stack 2', status: 'stable' },
-            ],
-          },
-        ]);
       });
     });
   });

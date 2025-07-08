@@ -1,17 +1,10 @@
-import { groupBy, sortBy, toMerged } from 'es-toolkit';
+import { toMerged } from 'es-toolkit';
 import { PartialDeep } from 'type-fest';
 import { Document } from 'yaml';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
-import {
-  MachineType,
-  MachineTypeOption,
-  Stack,
-  STACK_STATUS_MAPPING,
-  StackGroup,
-  StackOption,
-} from '../models/StackAndMachine';
+import { MachineType, MachineTypeOptionGroup, Stack, StackOption, StackOptionGroup } from '../models/StackAndMachine';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -33,7 +26,7 @@ type MachineTypeWithValue = MachineType & {
 
 type SelectStackAndMachineProps = Omit<
   Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>>,
-  'defaultMachineTypeId' | 'defaultStackId'
+  'defaultMachineTypeId' | 'defaultStackId' | 'availableStacks' | 'availableMachines'
 > & {
   projectStackId: string;
   projectMachineTypeId: string;
@@ -45,13 +38,11 @@ type SelectStackAndMachineProps = Omit<
 type SelectStackAndMachineResult = {
   isInvalidStack: boolean;
   selectedStack: StackWithValue;
-  availableStackOptions: StackOption[];
   isInvalidMachineType: boolean;
   isMachineTypeSelectionDisabled: boolean;
   selectedMachineType: MachineTypeWithValue;
-  availableMachineTypeOptions: MachineTypeOption[];
-  promotedMachineTypeOptions: MachineTypeOption[];
-  machineTypePromotionMode?: 'trial' | 'upsell';
+  stackOptionGroups: StackOptionGroup[];
+  machineOptionGroups: MachineTypeOptionGroup[];
 };
 
 function getStackById(stacks: Stack[], id: string): Stack | undefined {
@@ -64,13 +55,13 @@ function isSelfHostedStack(stack: Stack) {
 
 function getOsOfStack(stack: Stack): string {
   switch (stack.os) {
+    case 'linux':
+      return 'linux';
     case 'macos':
       // This is a workaround to keep it compatible with other data structures returned by the API.
       // The `stacks_and_machines` endpoint returns machine types grouped by OS, but it uses `osx` as the key for macOS at the moment.
       // It should be cleaned up once the API response uses `macos` everywhere.
       return 'osx';
-    case 'linux':
-      return 'linux';
     default:
       // Fallback to the first part of the stack ID
       return stack.id.split('-')[0];
@@ -93,35 +84,34 @@ function toStackOption(stack: Stack): StackOption {
   };
 }
 
-function groupStackOptionsByStatus(options: StackOption[]): StackGroup[] {
-  const statusMap = groupBy(options, (o) => o.status);
-  const groups: StackGroup[] = Object.entries(statusMap).map(([status, values]) => {
-    return {
-      status: status as StackOption['status'],
-      label: STACK_STATUS_MAPPING[status as StackOption['status']].label,
-      options: values,
-    };
-  });
-
-  return sortBy(groups, [(group) => STACK_STATUS_MAPPING[group.status].order]);
-}
-
 function getMachineById(machines: MachineType[], id?: string): MachineType | undefined {
   return machines.find((m) => m.id === id);
 }
 
 function toMachineOption(machine: MachineType) {
-  const { name, ram, cpuCount, cpuDescription, creditPerMinute, osId } = machine;
-  let label = `${name} ${cpuCount} @${cpuDescription} ${ram}`;
+  const { name, ram, cpuCount, cpuDescription, creditPerMinute, os } = machine;
+  let label = `${name}`;
+
+  if (cpuCount) {
+    label += ` ${cpuCount}`;
+    if (cpuDescription) {
+      label += ` @${cpuDescription}`;
+    }
+  }
+
+  if (ram) {
+    label += ` ${ram}`;
+  }
 
   if (creditPerMinute) {
     label += ` (${creditPerMinute} credits/min)`;
   }
 
   return {
-    osId,
+    os,
     value: machine.id,
     label,
+    status: machine.status,
   };
 }
 
@@ -150,7 +140,8 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
     cpuCount: '',
     cpuDescription: '',
     creditPerMinute: 0,
-    osId: 'Other',
+    os: 'unknown',
+    status: 'unknown',
   };
 
   return toMerged(base, override || {}) as MachineTypeWithValue;
@@ -160,41 +151,64 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   const {
     projectStackId = '',
     selectedStackId,
-    availableStacks = [],
-    projectMachineTypeId = '',
-    defaultMachineTypeIdOfOSs = {},
     selectedMachineTypeId,
-    availableMachineTypes = [],
-    machineTypePromotion,
+    projectMachineTypeId = '',
     runningBuildsOnPrivateCloud,
     withoutDefaultOptions = false,
+    defaultMachines = [],
+    groupedStacks = [],
+    groupedMachines = [],
   } = props;
 
   const result: SelectStackAndMachineResult = {
-    selectedStack: createStack(),
-    selectedMachineType: createMachineType(),
-    availableStackOptions: availableStacks.map(toStackOption),
-    availableMachineTypeOptions: availableMachineTypes.map(toMachineOption),
-    promotedMachineTypeOptions: machineTypePromotion?.promotedMachineTypes.map(toMachineOption) ?? [],
-    machineTypePromotionMode: machineTypePromotion?.mode,
+    selectedStack: createStack({
+      id: selectedStackId,
+      name: selectedStackId,
+      value: selectedStackId,
+      status: 'unknown',
+    }),
+    selectedMachineType: createMachineType({
+      id: selectedMachineTypeId,
+      name: selectedMachineTypeId,
+      value: selectedMachineTypeId,
+      status: 'unknown',
+    }),
     isInvalidStack: false,
     isInvalidMachineType: false,
     isMachineTypeSelectionDisabled: false,
+    stackOptionGroups: groupedStacks.map((group) => ({
+      label: group.label,
+      status: group.status,
+      options: group.stacks.map(toStackOption),
+    })),
+    machineOptionGroups: groupedMachines.map((group) => ({
+      label: group.label,
+      status: group.status,
+      options: group.machines.map(toMachineOption),
+    })),
   };
 
+  const availableStacks = groupedStacks.flatMap((group) => group.stacks);
+  const availableMachineTypes = groupedMachines
+    .flatMap((group) => group.machines)
+    .filter((m) => m.status !== 'promoted');
+
+  // Stack selection logic
   const defaultStack = getStackById(availableStacks, projectStackId);
   const selectedStack = getStackById(availableStacks, selectedStackId);
 
-  // Push the default stack to the beginning of the available options
   if (defaultStack && !withoutDefaultOptions) {
-    result.availableStackOptions = [
-      {
-        value: '',
-        label: `Default (${defaultStack.name})`,
-        status: defaultStack.status,
-      },
-      ...result.availableStackOptions,
-    ];
+    result.stackOptionGroups.unshift({
+      label: 'Default Stack',
+      status: defaultStack.status,
+      options: [
+        {
+          value: '',
+          label: `Default (${defaultStack.name})`,
+          status: defaultStack.status,
+        },
+      ],
+    });
   }
 
   const isInvalidStack = !!selectedStackId && !selectedStack;
@@ -204,14 +218,15 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     // Create the invalid dummy Stack object
     result.selectedStack = createStack({
       id: selectedStackId,
-      name: selectedStackId,
       value: selectedStackId,
-    });
-    // Add the invalid stack to the available options
-    result.availableStackOptions.push({
-      value: selectedStackId,
-      label: selectedStackId,
+      name: selectedStackId || 'Invalid Stack',
       status: 'unknown',
+    });
+
+    result.stackOptionGroups.unshift({
+      label: 'Invalid Stack',
+      status: 'unknown',
+      options: [toStackOption(result.selectedStack)],
     });
   } else if (selectedStack) {
     result.selectedStack = { ...selectedStack, value: selectedStack.id };
@@ -219,78 +234,111 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.selectedStack = { ...defaultStack, value: withoutDefaultOptions ? defaultStack.id : '' };
   }
 
+  result.stackOptionGroups = result.stackOptionGroups.filter((group) => group.options.length > 0);
+  result.machineOptionGroups = result.machineOptionGroups.map((group) => ({
+    ...group,
+    options: group.options.filter((option) => result.selectedStack.machineTypes.includes(option.value)),
+  }));
+
+  // Machine selection logic
+  const selectableMachines = getMachinesOfStack(availableMachineTypes, result.selectedStack);
+  const selectableDefaultMachines = getMachinesOfStack(defaultMachines, result.selectedStack);
+
+  // Self-hosted pool
   const isSelfHostedPoolSelected = isSelfHostedStack(result.selectedStack);
   if (isSelfHostedPoolSelected) {
     result.isMachineTypeSelectionDisabled = true;
-    result.availableMachineTypeOptions = [{ label: 'Self-Hosted Runner', value: '' }];
+    result.selectedMachineType = createMachineType({
+      id: '',
+      value: '',
+      name: 'Self-Hosted Runner',
+      status: 'available',
+      os: result.selectedStack.os,
+    });
+    result.machineOptionGroups = [
+      {
+        label: 'Self-Hosted Runner',
+        status: 'available',
+        options: [toMachineOption(result.selectedMachineType)],
+      },
+    ];
     return result;
   }
 
-  const selectableMachines = getMachinesOfStack(availableMachineTypes, result.selectedStack);
-
+  // Private cloud with no machines
   if (runningBuildsOnPrivateCloud && selectableMachines.length === 0) {
     result.isMachineTypeSelectionDisabled = true;
-    result.availableMachineTypeOptions = [{ label: 'Dedicated Machine', value: '' }];
+    result.selectedMachineType = createMachineType({
+      id: '',
+      value: '',
+      name: 'Dedicated Machine',
+      status: 'available',
+      os: result.selectedStack.os,
+    });
+    result.machineOptionGroups = [
+      {
+        label: 'Dedicated Machine',
+        status: 'available',
+        options: [toMachineOption(result.selectedMachineType)],
+      },
+    ];
     return result;
   }
 
   const defaultMachineType = getMachineById(selectableMachines, projectMachineTypeId);
   const selectedMachineType = getMachineById(selectableMachines, selectedMachineTypeId);
+  const osMachineId = selectableDefaultMachines.find((m) => m.os === result.selectedStack.os)?.id;
+  const defaultMachineTypeOfOS = getMachineById(selectableDefaultMachines, osMachineId);
 
-  const selectedStackOS = getOsOfStack(result.selectedStack);
-  const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
-  const defaultMachineTypeOfOS = getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
-
-  const isInvalidMachineType = !!selectedMachineTypeId && !selectedMachineType;
+  const isInvalidMachineType = isInvalidStack || (!!selectedMachineTypeId && !selectedMachineType);
 
   // Machine type options
-  result.availableMachineTypeOptions = selectableMachines.map(toMachineOption);
   if (!withoutDefaultOptions) {
     if (defaultMachineType) {
-      result.availableMachineTypeOptions = [
-        {
-          value: '',
-          label: `Default (${defaultMachineType.name})`,
-          osId: defaultMachineType.osId,
-        },
-        ...result.availableMachineTypeOptions,
-      ];
+      result.machineOptionGroups.unshift({
+        label: 'Default Machine',
+        status: 'available',
+        options: [
+          {
+            value: '',
+            label: `Default (${defaultMachineType.name})`,
+            os: defaultMachineType.os,
+            status: defaultMachineType.status,
+          },
+        ],
+      });
     } else if (defaultMachineTypeOfOS) {
-      result.availableMachineTypeOptions = [
-        {
-          value: '',
-          label: `Default (${defaultMachineTypeOfOS.name})`,
-          osId: defaultMachineTypeOfOS.osId,
-        },
-        ...result.availableMachineTypeOptions,
-      ];
+      result.machineOptionGroups.unshift({
+        label: `Default Machine`,
+        status: 'available',
+        options: [
+          {
+            value: '',
+            label: `Default (${defaultMachineTypeOfOS.name})`,
+            os: defaultMachineTypeOfOS.os,
+            status: defaultMachineTypeOfOS.status,
+          },
+        ],
+      });
     }
   }
 
-  result.promotedMachineTypeOptions = (machineTypePromotion?.promotedMachineTypes ?? [])
-    .filter((machine) => {
-      if (machine.osId !== selectedStackOS) {
-        return false;
-      }
-
-      if (!machine.availableOnStacks) {
-        return true;
-      }
-
-      return machine.availableOnStacks.includes(result.selectedStack.id);
-    })
-    .map(toMachineOption);
-
   if (isInvalidMachineType) {
     result.isInvalidMachineType = true;
+    // Create the invalid dummy MachineType object
     result.selectedMachineType = createMachineType({
       id: selectedMachineTypeId,
-      name: selectedMachineTypeId,
       value: selectedMachineTypeId,
+      name: selectedMachineTypeId || 'Invalid Machine',
+      status: 'unknown',
+      os: result.selectedStack.os,
     });
-    result.availableMachineTypeOptions.push({
-      label: selectedMachineTypeId,
-      value: selectedMachineTypeId,
+
+    // Add the invalid machine type to the available options
+    result.machineOptionGroups.unshift({
+      label: 'Invalid Machine',
+      status: 'unknown',
+      options: [toMachineOption(result.selectedMachineType)],
     });
   } else if (selectedMachineType) {
     result.selectedMachineType = {
@@ -305,6 +353,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       value: withoutDefaultOptions ? defaultMachineTypeOfOS.id : '',
     };
   }
+  result.machineOptionGroups = result.machineOptionGroups.filter((group) => group.options.length > 0);
 
   return result;
 }
@@ -314,14 +363,14 @@ function changeStackAndMachine({
   machineTypeId,
   projectStackId,
   availableStacks,
-  availableMachineTypes,
+  availableMachines,
   machineFallbackOptions,
 }: {
   stackId: string;
   machineTypeId: string;
   projectStackId: string;
   availableStacks: Stack[];
-  availableMachineTypes: MachineType[];
+  availableMachines: MachineType[];
   machineFallbackOptions?: {
     defaultMachineTypeIdOfOSs: {
       [key: string]: string;
@@ -333,7 +382,7 @@ function changeStackAndMachine({
   const projectStack = getStackById(availableStacks, projectStackId);
   const newStackOS = getOsOfStack(newStack || projectStack || createStack());
 
-  const selectableMachines = getMachinesOfStack(availableMachineTypes, newStack ?? projectStack);
+  const selectableMachines = getMachinesOfStack(availableMachines, newStack ?? projectStack);
   const currentMachine = getMachineById(selectableMachines, machineTypeId);
 
   const projectMachineType = getMachineById(selectableMachines, machineFallbackOptions?.projectMachineTypeId);
@@ -424,5 +473,4 @@ export default {
   getMachinesOfStack,
   updateStackAndMachine,
   updateLicensePoolId,
-  groupStackOptionsByStatus,
 };

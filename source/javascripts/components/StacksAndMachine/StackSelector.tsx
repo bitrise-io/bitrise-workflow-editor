@@ -1,8 +1,7 @@
 import { Box, Checkbox, Dropdown, DropdownGroup, DropdownOption, Icon, Link, Text, Tooltip } from '@bitrise/bitkit';
-import { useMemo } from 'react';
 
-import { StackOption } from '@/core/models/StackAndMachine';
-import StackAndMachineService, { StackWithValue } from '@/core/services/StackAndMachineService';
+import { StackOptionGroup } from '@/core/models/StackAndMachine';
+import { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {
   return (
@@ -43,7 +42,7 @@ type Props = {
   isRollbackVersionAvailable: boolean;
   useRollbackVersion?: boolean;
   stack: StackWithValue;
-  options: StackOption[];
+  optionGroups: StackOptionGroup[];
   onChange: (stackId: string, useRollbackVersion?: boolean) => void;
 };
 
@@ -53,11 +52,9 @@ const StackSelector = ({
   isRollbackVersionAvailable,
   useRollbackVersion,
   stack,
-  options,
+  optionGroups,
   onChange,
 }: Props) => {
-  const groups = useMemo(() => StackAndMachineService.groupStackOptionsByStatus(options), [options]);
-
   return (
     <Box flex="1">
       <Dropdown
@@ -71,15 +68,22 @@ const StackSelector = ({
         value={stack.value}
         onChange={(e) => onChange(e.target.value ?? '')}
       >
-        {groups.map((group) => (
-          <DropdownGroup key={group.status} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-            {group.options.map(({ value, label }) => (
-              <DropdownOption key={value} value={value}>
-                {label}
-              </DropdownOption>
-            ))}
-          </DropdownGroup>
-        ))}
+        {optionGroups.length === 1 &&
+          optionGroups[0].options.map(({ value, label }) => (
+            <DropdownOption key={value} value={value}>
+              {label}
+            </DropdownOption>
+          ))}
+        {optionGroups.length > 1 &&
+          optionGroups.map((group) => (
+            <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
+              {group.options.map(({ value, label }) => (
+                <DropdownOption key={value} value={value}>
+                  {label}
+                </DropdownOption>
+              ))}
+            </DropdownGroup>
+          ))}
       </Dropdown>
       <Checkbox
         isDisabled={!isRollbackVersionAvailable}

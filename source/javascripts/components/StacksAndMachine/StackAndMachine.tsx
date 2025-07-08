@@ -46,9 +46,8 @@ const StackAndMachine = ({
   const {
     selectedStack,
     selectedMachineType,
-    availableStackOptions,
-    availableMachineTypeOptions,
-    promotedMachineTypeOptions,
+    stackOptionGroups,
+    machineOptionGroups,
     isInvalidStack,
     isInvalidMachineType,
     isMachineTypeSelectionDisabled,
@@ -74,20 +73,22 @@ const StackAndMachine = ({
         projectStackId,
         machineFallbackOptions: withMachineFallbacks
           ? {
-              defaultMachineTypeIdOfOSs: data?.defaultMachineTypeIdOfOSs || {},
+              defaultMachineTypeIdOfOSs: data?.defaultMachines
+                ? Object.fromEntries(data.defaultMachines.map((machine) => [machine.os, machine.id]))
+                : {},
               projectMachineTypeId,
             }
           : undefined,
         availableStacks: data?.availableStacks || [],
-        availableMachineTypes: data?.availableMachineTypes || [],
+        availableMachines: data?.availableMachines || [],
       });
       onChange(result.stackId, result.machineTypeId, useRollbackVersionChecked ? availableRollbackVersion : '');
     },
     [
       availableRollbackVersion,
-      data?.availableMachineTypes,
+      data?.availableMachines,
       data?.availableStacks,
-      data?.defaultMachineTypeIdOfOSs,
+      data?.defaultMachines,
       onChange,
       projectMachineTypeId,
       projectStackId,
@@ -110,7 +111,7 @@ const StackAndMachine = ({
           stack={selectedStack}
           isLoading={isLoading}
           isInvalid={isInvalidStack && !isLoading}
-          options={availableStackOptions}
+          optionGroups={stackOptionGroups}
           onChange={(selectedStackValue, useRollbackVersionChecked) =>
             handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
           }
@@ -122,10 +123,8 @@ const StackAndMachine = ({
           isLoading={isLoading}
           isInvalid={isInvalidMachineType && !isLoading}
           isDisabled={isMachineTypeSelectionDisabled}
-          availableOptions={availableMachineTypeOptions}
+          optionGroups={machineOptionGroups}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
-          promotionType={data?.machineTypePromotion?.mode}
-          promotedOptions={promotedMachineTypeOptions}
         />
       </Box>
       {useRollbackVersion && (
