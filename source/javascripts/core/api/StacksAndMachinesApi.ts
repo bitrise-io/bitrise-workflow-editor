@@ -73,12 +73,12 @@ function mapStackStatus(status: string): StackStatus {
 }
 
 function mapMachineStatus(item: MachineApiItem): MachineStatus {
-  if (item.is_promoted) {
-    return 'promoted';
-  }
-
   if (item.is_available) {
     return 'available';
+  }
+
+  if (item.is_promoted) {
+    return 'promoted';
   }
 
   return 'unknown';
