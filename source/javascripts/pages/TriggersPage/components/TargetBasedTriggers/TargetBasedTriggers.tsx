@@ -223,30 +223,17 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          {triggerType && (
-            <AddOrEditTriggerDialog
-              source={editedItem ? (editedItem.source.split('#')[0] as TriggerSource) : ''}
-              sourceId={editedItem ? editedItem.source.split('#')[1] : ''}
-              editedItem={editedItem}
-              triggerType={triggerType}
-              currentTriggers={pipelineableTriggers}
-              onSubmit={onSubmit}
-              onCancel={handleCloseTriggerDialog}
-              isOpen={isTriggerDialogOpen}
-              variant="triggers-target-based"
-            />
-          )}
         </>
       ) : (
         <EmptyState
           iconName="Trigger"
-          title="An overview of your triggers will appear here"
+          title="Target based triggers will appear here"
           maxHeight="208"
           marginBlockEnd="24"
         >
-          <Text marginBlockStart="8">
-            Start configuring triggers directly in your Workflow or Pipeline settings. With this method, a single Git
-            event can execute multiple Workflows or Pipelines.{' '}
+          <Text marginBlockStart="8" marginBlockEnd="24">
+            Target-based triggers let you run multiple Workflows or Pipelines from a single Git event. You can set them
+            up here or directly in the Workflow or Pipeline settings.{' '}
             <Link
               colorScheme="purple"
               href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -254,7 +241,36 @@ const TargetBasedTriggers = () => {
               Learn more
             </Link>
           </Text>
+          <Menu>
+            <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus">
+              Add trigger
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => handleAddTrigger('push')} leftIconName="Push">
+                Push
+              </MenuItem>
+              <MenuItem onClick={() => handleAddTrigger('pull_request')} leftIconName="Pull">
+                Pull request
+              </MenuItem>
+              <MenuItem onClick={() => handleAddTrigger('tag')} leftIconName="Tag">
+                Tag
+              </MenuItem>
+            </MenuList>
+          </Menu>
         </EmptyState>
+      )}
+      {triggerType && (
+        <AddOrEditTriggerDialog
+          source={editedItem ? (editedItem.source.split('#')[0] as TriggerSource) : ''}
+          sourceId={editedItem ? editedItem.source.split('#')[1] : ''}
+          editedItem={editedItem}
+          triggerType={triggerType}
+          currentTriggers={pipelineableTriggers}
+          onSubmit={onSubmit}
+          onCancel={handleCloseTriggerDialog}
+          isOpen={isTriggerDialogOpen}
+          variant="triggers-target-based"
+        />
       )}
     </>
   );
