@@ -10,7 +10,7 @@ type StackApiItem = {
   'description-link'?: string;
   'description-link-gen2'?: string;
   'description-link-gen2-applesilicon'?: string;
-  available_machines?: string[];
+  machines?: string[];
   rollback_version?: {
     [machineTypeId: string]: { free?: string; paying?: string };
   };
@@ -72,18 +72,6 @@ function mapStackStatus(status: string): StackStatus {
   return 'unknown';
 }
 
-function mapMachineStatus(item: MachineApiItem): MachineStatus {
-  if (item.is_available) {
-    return 'available';
-  }
-
-  if (item.is_promoted) {
-    return 'promoted';
-  }
-
-  return 'unknown';
-}
-
 function toStack(item: StackApiItem): Stack {
   return {
     id: item.id,
@@ -91,7 +79,7 @@ function toStack(item: StackApiItem): Stack {
     description: item.description ?? '',
     descriptionUrl:
       item['description-link-gen2-applesilicon'] || item['description-link-gen2'] || item['description-link'],
-    machineTypes: item.available_machines ?? [],
+    machineTypes: item.machines ?? [],
     rollbackVersion: item.rollback_version,
     os: mapOSValues(item.os ?? ''),
     status: mapStackStatus(item.status),
@@ -103,7 +91,8 @@ function toMachineType(item: MachineApiItem): MachineType {
     id: item.id,
     name: item.name,
     os: mapOSValues(item.os_id ?? ''),
-    status: mapMachineStatus(item),
+    isAvailable: item.is_available ?? false,
+    isPromoted: item.is_promoted ?? false,
     ram: item.ram,
     chip: item.chip,
     cpuCount: item.cpu_count,
