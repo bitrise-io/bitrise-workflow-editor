@@ -102,7 +102,12 @@ const TargetBasedTriggers = () => {
 
   const onSubmit = (trigger: TargetBasedTrigger) => {
     if (editedItem) {
-      TriggerService.updateTrigger(trigger);
+      if (editedItem.source !== trigger.source) {
+        TriggerService.removeTrigger(editedItem);
+        TriggerService.addTrigger(trigger);
+      } else {
+        TriggerService.updateTrigger(trigger);
+      }
       setEditedItem(undefined);
       trackEditTrigger(trigger);
     } else {

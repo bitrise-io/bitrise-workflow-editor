@@ -28,7 +28,8 @@ const TriggerFormFooter = (props: Props) => {
       trigger.uniqueId !== editedItem?.uniqueId &&
       isEqual(trigger.conditions, conditions) &&
       (!currentIsPullRequest || isEqual(currentIsDraftPr, isDraftPr)) &&
-      isEqual(trigger.priority, priority)
+      isEqual(trigger.priority, priority) &&
+      isEqual(trigger.source, source)
     ) {
       isSameTriggerExist = true;
     }
