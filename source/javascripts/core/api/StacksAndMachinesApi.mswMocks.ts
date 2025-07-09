@@ -57,7 +57,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'macos',
           description:
             'Xcode 16.1 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-          available_machines:
+          machines:
             options?.privateCloud === 'no-machines'
               ? []
               : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
@@ -69,7 +69,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'macos',
           description:
             'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-          available_machines:
+          machines:
             options?.privateCloud === 'no-machines'
               ? []
               : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
@@ -81,7 +81,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'linux',
           description:
             'Docker container environment based on Ubuntu 24.04. Preinstalled Android SDK and other common tools.',
-          available_machines:
+          machines:
             options?.privateCloud === 'no-machines'
               ? []
               : [
@@ -109,7 +109,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'macos',
           description:
             'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-          available_machines:
+          machines:
             options?.privateCloud === 'no-machines'
               ? []
               : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large'],
@@ -121,8 +121,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'macos',
           description:
             'Xcode 15.0 based on macOS 14.1 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-          available_machines:
-            options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+          machines: options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
           rollback_version: {
             'm1.medium': {
               paying: '2-82-0',
@@ -147,7 +146,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'linux',
           description:
             'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
-          available_machines:
+          machines:
             options?.privateCloud === 'no-machines'
               ? []
               : ['standard', 'intel.medium', 'intel.large', 'amd.medium', 'amd.large', 'amd.x-large'],
@@ -164,7 +163,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           status: '',
           os: 'unknown',
           description: 'This is purely fictional stack, with mixed machine types.',
-          available_machines:
+          machines:
             options?.privateCloud === 'no-machines'
               ? []
               : ['m2.medium', 'm2.large', 'm2.x-large', 'amd.medium', 'amd.large', 'amd.x-large'],
@@ -182,8 +181,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'macos',
           description:
             'Xcode 14.3 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-          available_machines:
-            options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+          machines: options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
         },
         {
           id: 'osx-xcode-14.2.x',
@@ -192,8 +190,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           os: 'macos',
           description:
             'Xcode 14.2 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-          available_machines:
-            options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+          machines: options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
         },
       ],
     },

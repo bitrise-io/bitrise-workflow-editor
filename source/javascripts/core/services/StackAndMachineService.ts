@@ -4,7 +4,14 @@ import { Document } from 'yaml';
 
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
-import { MachineType, MachineTypeOptionGroup, Stack, StackOption, StackOptionGroup } from '../models/StackAndMachine';
+import {
+  MachineStatus,
+  MachineType,
+  MachineTypeOptionGroup,
+  Stack,
+  StackOption,
+  StackOptionGroup,
+} from '../models/StackAndMachine';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -88,7 +95,7 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-function toMachineOption(machine: MachineType) {
+function toMachineOption(machine: MachineType, status: MachineStatus) {
   const { name, ram, cpuCount, cpuDescription, creditPerMinute, os } = machine;
   let label = `${name}`;
 
@@ -111,7 +118,7 @@ function toMachineOption(machine: MachineType) {
     os,
     value: machine.id,
     label,
-    status: machine.status,
+    status,
   };
 }
 
@@ -140,8 +147,9 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
     cpuCount: '',
     cpuDescription: '',
     creditPerMinute: 0,
+    isAvailable: false,
+    isPromoted: false,
     os: 'unknown',
-    status: 'unknown',
   };
 
   return toMerged(base, override || {}) as MachineTypeWithValue;
@@ -171,7 +179,6 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       id: selectedMachineTypeId,
       name: selectedMachineTypeId,
       value: selectedMachineTypeId,
-      status: 'unknown',
     }),
     isInvalidStack: false,
     isInvalidMachineType: false,
@@ -184,16 +191,12 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     machineOptionGroups: groupedMachines.map((group) => ({
       label: group.label,
       status: group.status,
-      options: group.machines.map(toMachineOption),
+      options: group.machines.map((m) => toMachineOption(m, group.status)),
     })),
   };
 
-  const availableStacks = groupedStacks.flatMap((group) => group.stacks);
-  const availableMachineTypes = groupedMachines
-    .flatMap((group) => group.machines)
-    .filter((m) => m.status !== 'promoted');
-
   // Stack selection logic
+  const availableStacks = groupedStacks.flatMap((group) => group.stacks);
   const defaultStack = getStackById(availableStacks, projectStackId);
   const selectedStack = getStackById(availableStacks, selectedStackId);
 
@@ -241,6 +244,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   }));
 
   // Machine selection logic
+  const availableMachineTypes = groupedMachines.find((group) => group.status === 'available')?.machines || [];
   const selectableMachines = getMachinesOfStack(availableMachineTypes, result.selectedStack);
   const selectableDefaultMachines = getMachinesOfStack(defaultMachines, result.selectedStack);
 
@@ -252,14 +256,13 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       id: '',
       value: '',
       name: 'Self-Hosted Runner',
-      status: 'available',
       os: result.selectedStack.os,
     });
     result.machineOptionGroups = [
       {
         label: 'Self-Hosted Runner',
         status: 'available',
-        options: [toMachineOption(result.selectedMachineType)],
+        options: [toMachineOption(result.selectedMachineType, 'available')],
       },
     ];
     return result;
@@ -272,14 +275,13 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       id: '',
       value: '',
       name: 'Dedicated Machine',
-      status: 'available',
       os: result.selectedStack.os,
     });
     result.machineOptionGroups = [
       {
         label: 'Dedicated Machine',
         status: 'available',
-        options: [toMachineOption(result.selectedMachineType)],
+        options: [toMachineOption(result.selectedMachineType, 'available')],
       },
     ];
     return result;
@@ -303,7 +305,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
             value: '',
             label: `Default (${defaultMachineType.name})`,
             os: defaultMachineType.os,
-            status: defaultMachineType.status,
+            status: 'available',
           },
         ],
       });
@@ -316,7 +318,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
             value: '',
             label: `Default (${defaultMachineTypeOfOS.name})`,
             os: defaultMachineTypeOfOS.os,
-            status: defaultMachineTypeOfOS.status,
+            status: 'available',
           },
         ],
       });
@@ -330,7 +332,6 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       id: selectedMachineTypeId,
       value: selectedMachineTypeId,
       name: selectedMachineTypeId || 'Invalid Machine',
-      status: 'unknown',
       os: result.selectedStack.os,
     });
 
@@ -338,7 +339,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.machineOptionGroups.unshift({
       label: 'Invalid Machine',
       status: 'unknown',
-      options: [toMachineOption(result.selectedMachineType)],
+      options: [toMachineOption(result.selectedMachineType, 'unknown')],
     });
   } else if (selectedMachineType) {
     result.selectedMachineType = {
