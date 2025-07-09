@@ -104,7 +104,7 @@ const TriggerFormBody = (props: Props) => {
       />
       {triggerType === 'pull_request' && (
         <Checkbox
-          isChecked={isDraftPr}
+          isChecked={isDraftPr !== false}
           marginBlockStart="24"
           helperText={
             <>
