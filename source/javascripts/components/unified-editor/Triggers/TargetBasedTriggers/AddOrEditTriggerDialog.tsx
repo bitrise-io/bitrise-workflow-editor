@@ -31,12 +31,13 @@ const AddOrEditTriggerDialog = (props: Props) => {
   const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, variant } = props;
 
   const defaultValues = useMemo(() => {
+    const newItemIsDraftPr = triggerType === 'pull_request' ? true : undefined;
     const commonProps = {
       uniqueId: editedItem?.uniqueId || crypto.randomUUID(),
-      index: editedItem?.index || currentTriggers.length,
+      index: editedItem ? editedItem.index : currentTriggers.length,
       triggerType,
-      isActive: true,
-      isDraftPr: true,
+      isActive: editedItem ? editedItem.isActive : true,
+      isDraftPr: editedItem ? editedItem.isDraftPr : newItemIsDraftPr,
     };
 
     if (variant === 'legacy') {
@@ -105,12 +106,7 @@ const AddOrEditTriggerDialog = (props: Props) => {
           <TriggerFormBody source={source} triggerType={triggerType} variant={variant} />
         </DialogBody>
         <DialogFooter>
-          <TriggerFormFooter
-            editedItem={editedItem}
-            onCancel={onCancel}
-            currentTriggers={currentTriggers}
-            variant={variant}
-          />
+          <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} currentTriggers={currentTriggers} />
         </DialogFooter>
       </Dialog>
     </FormProvider>
