@@ -24,7 +24,7 @@ import StepSelectInput from '../../StepConfigDrawer/components/StepSelectInput';
 import { FormItems, FormMode } from '../types/StepBundle.types';
 import { expandInput } from '../utils/StepBundle.utils';
 
-type StepBundleInputsFormProps = {
+type StepBundleInputsDialogProps = {
   ids: string[];
   index: number;
   input?: EnvironmentItemModel;
@@ -33,7 +33,7 @@ type StepBundleInputsFormProps = {
   onSubmit: (data: EnvironmentItemModel, index: number, mode: FormMode) => void;
 };
 
-const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
+const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
   const { ids, index, input, isOpen, onCancel, onSubmit } = props;
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
@@ -193,4 +193,4 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
   );
 };
 
-export default StepBundleInputsForm;
+export default StepBundleInputsDialog;

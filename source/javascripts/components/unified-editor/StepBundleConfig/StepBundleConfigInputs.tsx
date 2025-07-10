@@ -7,7 +7,7 @@ import StepBundleService from '@/core/services/StepBundleService';
 import useStepBundleInputs from './hooks/useStepBundleInputs';
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 import StepBundleInputsCategoryCard from './StepBundleInputs/StepBundleInputsCategoryCard';
-import StepBundleInputsForm from './StepBundleInputs/StepBundleInputsForm';
+import StepBundleInputsDialog from './StepBundleInputs/StepBundleInputsDialog';
 import { FormMode } from './types/StepBundle.types';
 
 const StepBundleConfigInputs = () => {
@@ -79,7 +79,7 @@ const StepBundleConfigInputs = () => {
 
   if (selectedInputIndex > -1) {
     return (
-      <StepBundleInputsForm
+      <StepBundleInputsDialog
         ids={Object.values(stepBundle?.mergedValues.inputs || []).map(({ opts, ...rest }) => Object.keys(rest)[0])}
         index={selectedInputIndex}
         input={stepBundle?.mergedValues.inputs?.[selectedInputIndex] || { opts: { category: preselectedCategory } }}
