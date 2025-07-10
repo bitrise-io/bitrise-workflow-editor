@@ -3,7 +3,7 @@ import { Button, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
 import { TriggerType } from '@/core/models/Trigger';
 
 type Props = {
-  onAddTrigger: (triggerType: TriggerType) => void;
+  onAddTrigger: (type: TriggerType) => void;
 };
 
 const AddTriggerButton = ({ onAddTrigger }: Props) => {

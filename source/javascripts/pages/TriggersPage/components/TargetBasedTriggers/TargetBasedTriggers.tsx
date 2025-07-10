@@ -1,14 +1,9 @@
 import {
   Box,
-  Button,
   Checkbox,
   EmptyState,
   IconButton,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   SearchInput,
   Table,
   TableContainer,
@@ -18,7 +13,6 @@ import {
   Th,
   Thead,
   Tr,
-  useDisclosure,
 } from '@bitrise/bitkit';
 import { AriaAttributes, useMemo, useState } from 'react';
 
@@ -32,7 +26,6 @@ import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 import AddTriggerButton from './AddTriggerButton';
 
 const TargetBasedTriggers = () => {
-  const { isOpen: isTriggerDialogOpen, onOpen: openTriggerDialog, onClose: closeTriggerDialog } = useDisclosure();
   const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
   const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
@@ -77,14 +70,13 @@ const TargetBasedTriggers = () => {
     });
   }, [filteredTriggers, sortProps]);
 
-  const handleOpenTriggerDialog = (trigger: TargetBasedTrigger) => {
+  const handleOpenDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);
     setTriggerType(trigger.triggerType);
-    openTriggerDialog();
   };
 
-  const handleCloseTriggerDialog = () => {
-    closeTriggerDialog();
+  const handleCancel = () => {
+    setTriggerType(null);
     setEditedItem(undefined);
   };
 
@@ -97,11 +89,6 @@ const TargetBasedTriggers = () => {
     );
   };
 
-  const handleAddTrigger = (type: TriggerType) => {
-    setTriggerType(type);
-    openTriggerDialog();
-  };
-
   const onSubmit = (trigger: TargetBasedTrigger) => {
     if (editedItem) {
       TriggerService.updateTrigger(trigger, editedItem);
@@ -110,7 +97,7 @@ const TargetBasedTriggers = () => {
     } else {
       TriggerService.addTrigger(trigger);
     }
-    closeTriggerDialog();
+    setTriggerType(null);
   };
 
   const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
@@ -131,22 +118,7 @@ const TargetBasedTriggers = () => {
               marginBlockEnd="16"
               placeholder="Filter by target, type or condition"
             />
-            <Menu>
-              <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus">
-                Add trigger
-              </MenuButton>
-              <MenuList>
-                <MenuItem onClick={() => handleAddTrigger('push')} leftIconName="Push">
-                  Push
-                </MenuItem>
-                <MenuItem onClick={() => handleAddTrigger('pull_request')} leftIconName="Pull">
-                  Pull request
-                </MenuItem>
-                <MenuItem onClick={() => handleAddTrigger('tag')} leftIconName="Tag">
-                  Tag
-                </MenuItem>
-              </MenuList>
-            </Menu>
+            <AddTriggerButton onAddTrigger={setTriggerType} />
           </Box>
           <TableContainer marginBlockEnd="32">
             <Table>
@@ -208,7 +180,7 @@ const TargetBasedTriggers = () => {
                             iconName="Pencil"
                             variant="tertiary"
                             aria-label="Edit trigger"
-                            onClick={() => handleOpenTriggerDialog(trigger)}
+                            onClick={() => handleOpenDialog(trigger)}
                           />
                           <IconButton
                             isDanger
@@ -243,7 +215,7 @@ const TargetBasedTriggers = () => {
               Learn more
             </Link>
           </Text>
-          <AddTriggerButton onAddTrigger={handleAddTrigger} />
+          <AddTriggerButton onAddTrigger={setTriggerType} />
         </EmptyState>
       )}
       {triggerType && (
@@ -254,8 +226,8 @@ const TargetBasedTriggers = () => {
           triggerType={triggerType}
           currentTriggers={pipelineableTriggers}
           onSubmit={onSubmit}
-          onCancel={handleCloseTriggerDialog}
-          isOpen={isTriggerDialogOpen}
+          onCancel={handleCancel}
+          isOpen={!!triggerType}
           variant="target-based"
           showTarget
         />
