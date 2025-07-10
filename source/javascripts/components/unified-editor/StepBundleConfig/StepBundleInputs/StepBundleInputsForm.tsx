@@ -5,6 +5,9 @@ import {
   ButtonGroup,
   Checkbox,
   Collapse,
+  Dialog,
+  DialogBody,
+  DialogFooter,
   Input,
   Link,
   Text,
@@ -25,13 +28,14 @@ type StepBundleInputsFormProps = {
   ids: string[];
   index: number;
   input?: EnvironmentItemModel;
+  isOpen: boolean;
   onCancel: VoidFunction;
   onSubmit: (data: EnvironmentItemModel, index: number, mode: FormMode) => void;
 };
 
 const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
-  const { ids, index, input, onCancel, onSubmit } = props;
-  const { isOpen, onToggle } = useDisclosure();
+  const { ids, index, input, isOpen, onCancel, onSubmit } = props;
+  const { isOpen: isShowMore, onToggle } = useDisclosure();
 
   const { opts, key, value } = expandInput(input);
 
@@ -84,18 +88,23 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
   const valueOptions = watch('opts.value_options');
 
   const isSubmitDisabled = !(!!watch('key') && formState.isDirty) || !!formState.errors.key?.message;
-
   return (
-    <Box as="form" display="flex" flexDir="column" gap="16" height="100%" onSubmit={handleSubmit(onFormSubmit)}>
-      <Box display="flex" flexDir="column" gap="16" flex="1">
-        <Text textStyle="heading/h3">{mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}</Text>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}
+      as="form"
+      onSubmit={handleSubmit(onFormSubmit)}
+    >
+      <DialogBody>
         <Input
           label="Title"
           helperText="This will be the label of the input. Keep it short and descriptive."
           size="md"
+          mb="16"
           {...register('opts.title')}
         />
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb="16">
           <Input
             errorText={formState.errors.key?.message}
             label="Key"
@@ -120,7 +129,7 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
             <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
           )}
         </Box>
-        <Collapse in={isOpen}>
+        <Collapse in={isShowMore}>
           <Box display="flex" flexDirection="column" gap="16">
             <Input label="Summary" {...register('opts.summary')} />
             <Textarea
@@ -166,18 +175,21 @@ const StepBundleInputsForm = (props: StepBundleInputsFormProps) => {
           </Box>
         </Collapse>
         <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
-          {isOpen ? 'Show less options' : 'Show more options'}
+          {isShowMore ? 'Show less options' : 'Show more options'}
         </Link>
-      </Box>
-      <ButtonGroup display="flex" gap="8" paddingBottom={isOpen ? '24' : undefined}>
-        <Button isDisabled={isSubmitDisabled} type="submit">
-          {mode === 'edit' ? 'Update' : 'Create'}
-        </Button>
-        <Button variant="secondary" onClick={onCancelClick}>
-          Cancel
-        </Button>
-      </ButtonGroup>
-    </Box>
+        {/* </Box> */}
+      </DialogBody>
+      <DialogFooter>
+        <ButtonGroup display="flex" gap="8" paddingBottom={isShowMore ? '24' : undefined}>
+          <Button isDisabled={isSubmitDisabled} type="submit">
+            {mode === 'edit' ? 'Update' : 'Create'}
+          </Button>
+          <Button variant="secondary" onClick={onCancelClick}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      </DialogFooter>
+    </Dialog>
   );
 };
 

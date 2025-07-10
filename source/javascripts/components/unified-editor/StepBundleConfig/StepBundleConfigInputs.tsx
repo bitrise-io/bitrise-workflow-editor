@@ -1,4 +1,4 @@
-import { Button, EmptyState } from '@bitrise/bitkit';
+import { Button, EmptyState, useDisclosure } from '@bitrise/bitkit';
 import { useEffect, useState } from 'react';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
@@ -13,6 +13,7 @@ import { FormMode } from './types/StepBundle.types';
 const StepBundleConfigInputs = () => {
   const [preselectedCategory, setPreselectedCategory] = useState<string>();
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
+  const { isOpen: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
   const { stepBundle, ...context } = useStepBundleConfigContext();
 
   const categories = useStepBundleInputs({
@@ -21,9 +22,11 @@ const StepBundleConfigInputs = () => {
     parentStepBundleId: context.parentStepBundleId,
     parentWorkflowId: context.parentWorkflowId,
   });
-  const handeAddInput = (category?: string) => {
+
+  const handleAddInput = (category?: string) => {
     setPreselectedCategory(category);
     setSelectedInputIndex(stepBundle?.mergedValues.inputs?.length || 0);
+    openForm();
   };
 
   const handleChange = (key: string, newValue: string, index: number) => {
@@ -49,11 +52,13 @@ const StepBundleConfigInputs = () => {
 
   const handleEdit = (index: number) => {
     setSelectedInputIndex(index);
+    openForm();
   };
 
   const handleCancel = () => {
     setPreselectedCategory(undefined);
     setSelectedInputIndex(-1);
+    closeForm();
   };
 
   const handleSubmit = (data: EnvironmentItemModel, index: number, mode: FormMode) => {
@@ -64,11 +69,13 @@ const StepBundleConfigInputs = () => {
     }
     setPreselectedCategory(undefined);
     setSelectedInputIndex(-1);
+    closeForm();
   };
 
   useEffect(() => {
     setSelectedInputIndex(-1);
-  }, [stepBundle]);
+    closeForm();
+  }, [stepBundle, closeForm]);
 
   if (selectedInputIndex > -1) {
     return (
@@ -78,6 +85,7 @@ const StepBundleConfigInputs = () => {
         input={stepBundle?.mergedValues.inputs?.[selectedInputIndex] || { opts: { category: preselectedCategory } }}
         onCancel={handleCancel}
         onSubmit={handleSubmit}
+        isOpen={isFormOpen}
       />
     );
   }
@@ -88,7 +96,7 @@ const StepBundleConfigInputs = () => {
         key={category}
         category={category !== 'uncategorized' ? category : undefined}
         items={items}
-        onAdd={handeAddInput}
+        onAdd={handleAddInput}
         onChange={handleChange}
         onDelete={handleDelete}
         onEdit={handleEdit}
@@ -100,7 +108,7 @@ const StepBundleConfigInputs = () => {
       description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
       p="48"
     >
-      <Button leftIconName="Plus" variant="secondary" size="md" onClick={() => handeAddInput()}>
+      <Button leftIconName="Plus" variant="secondary" size="md" onClick={() => handleAddInput()}>
         Add input
       </Button>
     </EmptyState>
