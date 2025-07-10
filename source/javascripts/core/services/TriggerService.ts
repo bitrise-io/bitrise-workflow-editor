@@ -843,7 +843,24 @@ function updateConditions(
   });
 }
 
-function updateTrigger(trigger: TargetBasedTrigger) {
+function removeTrigger(trigger: TargetBasedTrigger) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+    const sourceNode = getSourceOrThrowError(doc, { source, sourceId });
+    getTriggerOrThrowError(doc, { source, sourceId, triggerType: trigger.triggerType, index: trigger.index });
+
+    YmlUtils.deleteByPath(sourceNode, ['triggers', trigger.triggerType, trigger.index]);
+
+    return doc;
+  });
+}
+
+function updateTrigger(trigger: TargetBasedTrigger, editedTrigger?: TargetBasedTrigger) {
+  if (editedTrigger && editedTrigger.source !== trigger.source) {
+    removeTrigger(editedTrigger);
+    addTrigger(trigger);
+  }
+
   updateBitriseYmlDocument(({ doc }) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     const triggerItem = getTriggerOrThrowError(doc, {
@@ -894,18 +911,6 @@ function updateTrigger(trigger: TargetBasedTrigger) {
   });
 }
 
-function removeTrigger(trigger: TargetBasedTrigger) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
-    const sourceNode = getSourceOrThrowError(doc, { source, sourceId });
-    getTriggerOrThrowError(doc, { source, sourceId, triggerType: trigger.triggerType, index: trigger.index });
-
-    YmlUtils.deleteByPath(sourceNode, ['triggers', trigger.triggerType, trigger.index]);
-
-    return doc;
-  });
-}
-
 const REQUIRED_FIELDS = [
   'commit_message',
   'changed_files',
@@ -917,6 +922,31 @@ const REQUIRED_FIELDS = [
 
 function requiredField(type: TargetBasedConditionType | LegacyConditionType) {
   return REQUIRED_FIELDS.includes(type);
+}
+
+function checkExistingTrigger(
+  newTrigger: TargetBasedTrigger | LegacyTrigger,
+  currentTriggers: (TargetBasedTrigger | LegacyTrigger)[],
+  editedItem?: TargetBasedTrigger | LegacyTrigger,
+): boolean {
+  let isSameTriggerExist = false;
+  currentTriggers.forEach((trigger) => {
+    // When draft PR is included it isn't appears in the yml so it's default value is undefined.
+    // When draft PR is excluded draft_enabled field appears with false value.
+    const isPullRequest = trigger.triggerType === 'pull_request';
+    const currentIsDraftPr = trigger.isDraftPr === undefined ? true : trigger.isDraftPr;
+    if (
+      trigger.uniqueId !== editedItem?.uniqueId &&
+      isEqual(trigger.conditions, newTrigger.conditions) &&
+      isEqual(trigger.priority, newTrigger.priority) &&
+      isEqual(trigger.source, newTrigger.source) &&
+      (!isPullRequest || isEqual(currentIsDraftPr, newTrigger.isDraftPr))
+    ) {
+      isSameTriggerExist = true;
+    }
+  });
+
+  return isSameTriggerExist;
 }
 
 export default {
@@ -939,4 +969,5 @@ export default {
   removeTrigger,
   // both legacy and target-based trigger helpers
   requiredField,
+  checkExistingTrigger,
 };

@@ -1,5 +1,4 @@
 import { Button, ButtonGroup, Tooltip } from '@bitrise/bitkit';
-import { isEqual } from 'es-toolkit';
 import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
@@ -16,30 +15,13 @@ type Props = {
 const TriggerFormFooter = (props: Props) => {
   const { editedItem, onCancel, currentTriggers = [] } = props;
   const { reset, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
-  const { conditions, isDraftPr, priority, source } = watch();
+  const formValues = watch();
+  const { conditions, source } = formValues;
 
-  let isSameTriggerExist = false;
-  currentTriggers.forEach((trigger) => {
-    // When draft PR is included it isn't appears in the yml so it's default value is undefined.
-    // When draft PR is excluded draft_enabled field appears with false value.
-    const currentIsPullRequest = trigger.triggerType === 'pull_request';
-    const currentIsDraftPr = trigger.isDraftPr === undefined ? true : trigger.isDraftPr;
-    if (
-      trigger.uniqueId !== editedItem?.uniqueId &&
-      isEqual(trigger.conditions, conditions) &&
-      (!currentIsPullRequest || isEqual(currentIsDraftPr, isDraftPr)) &&
-      isEqual(trigger.priority, priority) &&
-      isEqual(trigger.source, source)
-    ) {
-      isSameTriggerExist = true;
-    }
-  });
-
+  const isSameTriggerExist = TriggerService.checkExistingTrigger(formValues, currentTriggers, editedItem);
   const hasEmptyCondition = conditions.some(
     ({ type, value }) => (TriggerService.requiredField(type) && !value) || !type,
   );
-
-  const hasNoTarget = !editedItem && !source;
 
   const handleCancel = () => {
     reset();
@@ -48,9 +30,9 @@ const TriggerFormFooter = (props: Props) => {
 
   const handleSegmentTrack = () => {
     if (editedItem) {
-      trackEditTrigger(watch());
+      trackEditTrigger(formValues);
     } else {
-      trackAddTrigger(watch());
+      trackAddTrigger(formValues);
     }
   };
 
@@ -70,7 +52,7 @@ const TriggerFormFooter = (props: Props) => {
         <Button
           type="submit"
           onClick={handleSegmentTrack}
-          isDisabled={isSameTriggerExist || hasEmptyCondition || hasNoTarget}
+          isDisabled={isSameTriggerExist || hasEmptyCondition || !source}
         >
           {editedItem ? 'Apply changes' : 'Add trigger'}
         </Button>
