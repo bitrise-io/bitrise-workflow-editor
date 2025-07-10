@@ -931,7 +931,7 @@ function checkExistingTrigger(
 ): boolean {
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    // When draft PR is included it isn't appears in the yml so it's default value is undefined.
+    // When draft PR is included it doesn't appear in the yml so it's default value is undefined.
     // When draft PR is excluded draft_enabled field appears with false value.
     const isPullRequest = trigger.triggerType === 'pull_request';
     const currentIsDraftPr = trigger.isDraftPr === undefined ? true : trigger.isDraftPr;
