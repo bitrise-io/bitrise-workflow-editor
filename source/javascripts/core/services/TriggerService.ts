@@ -935,12 +935,13 @@ function checkExistingTrigger(
     // When draft PR is excluded draft_enabled field appears with false value.
     const isPullRequest = trigger.triggerType === 'pull_request';
     const currentIsDraftPr = trigger.isDraftPr === undefined ? true : trigger.isDraftPr;
+    const newIsDraftPr = newTrigger.isDraftPr === undefined ? true : newTrigger.isDraftPr;
     if (
       trigger.uniqueId !== editedItem?.uniqueId &&
       isEqual(trigger.conditions, newTrigger.conditions) &&
       isEqual(trigger.priority, newTrigger.priority) &&
       isEqual(trigger.source, newTrigger.source) &&
-      (!isPullRequest || isEqual(currentIsDraftPr, newTrigger.isDraftPr))
+      (!isPullRequest || isEqual(currentIsDraftPr, newIsDraftPr))
     ) {
       isSameTriggerExist = true;
     }
