@@ -93,6 +93,8 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
       isOpen={isOpen}
       onClose={onCancel}
       title={mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}
+      maxHeight="640"
+      scrollBehavior="inside"
       as="form"
       onSubmit={handleSubmit(onFormSubmit)}
     >
@@ -129,7 +131,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
             <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
           )}
         </Box>
-        <Collapse in={isShowMore}>
+        <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
           <Box display="flex" flexDirection="column" gap="16">
             <Input label="Summary" {...register('opts.summary')} />
             <Textarea
@@ -168,6 +170,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
             <Checkbox
               isChecked={watch('opts.is_expand')}
               helperText="If a value is an Env Var, the CLI will pass its value to the Step. Uncheck to pass the key as a string."
+              mb="16"
               {...register('opts.is_expand')}
             >
               Expand Env Vars in inputs
@@ -177,10 +180,9 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
         <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
           {isShowMore ? 'Show less options' : 'Show more options'}
         </Link>
-        {/* </Box> */}
       </DialogBody>
       <DialogFooter>
-        <ButtonGroup display="flex" gap="8" paddingBottom={isShowMore ? '24' : undefined}>
+        <ButtonGroup display="flex" gap="8">
           <Button isDisabled={isSubmitDisabled} type="submit">
             {mode === 'edit' ? 'Update' : 'Create'}
           </Button>
