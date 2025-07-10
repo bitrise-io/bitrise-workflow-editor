@@ -27,10 +27,11 @@ type Props = {
   source: TriggerSource | '';
   triggerType: TriggerType;
   variant: TriggerVariant;
+  showTarget?: boolean;
 };
 
 const TriggerFormBody = (props: Props) => {
-  const { source, triggerType, variant } = props;
+  const { source, triggerType, variant, showTarget } = props;
   const pipelines = usePipelineIds();
   const workflows = useWorkflowIds(true);
 
@@ -66,7 +67,7 @@ const TriggerFormBody = (props: Props) => {
 
   return (
     <>
-      {(variant === 'legacy' || variant === 'triggers-target-based') && (
+      {showTarget && (
         <Controller
           name="source"
           control={control}

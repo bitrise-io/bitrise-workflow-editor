@@ -136,6 +136,7 @@ const LegacyTriggers = () => {
         variant="legacy"
         source=""
         sourceId=""
+        showTarget
       />
     </>
   );

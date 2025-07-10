@@ -29,6 +29,8 @@ import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core
 import TriggerService from '@/core/services/TriggerService';
 import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 
+import AddTriggerButton from './AddTriggerButton';
+
 const TargetBasedTriggers = () => {
   const { isOpen: isTriggerDialogOpen, onOpen: openTriggerDialog, onClose: closeTriggerDialog } = useDisclosure();
   const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
@@ -241,22 +243,7 @@ const TargetBasedTriggers = () => {
               Learn more
             </Link>
           </Text>
-          <Menu>
-            <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus">
-              Add trigger
-            </MenuButton>
-            <MenuList>
-              <MenuItem onClick={() => handleAddTrigger('push')} leftIconName="Push">
-                Push
-              </MenuItem>
-              <MenuItem onClick={() => handleAddTrigger('pull_request')} leftIconName="Pull">
-                Pull request
-              </MenuItem>
-              <MenuItem onClick={() => handleAddTrigger('tag')} leftIconName="Tag">
-                Tag
-              </MenuItem>
-            </MenuList>
-          </Menu>
+          <AddTriggerButton onAddTrigger={handleAddTrigger} />
         </EmptyState>
       )}
       {triggerType && (
@@ -269,7 +256,8 @@ const TargetBasedTriggers = () => {
           onSubmit={onSubmit}
           onCancel={handleCloseTriggerDialog}
           isOpen={isTriggerDialogOpen}
-          variant="triggers-target-based"
+          variant="target-based"
+          showTarget
         />
       )}
     </>

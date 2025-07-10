@@ -25,10 +25,22 @@ type Props = {
   onCancel: () => void;
   isOpen: boolean;
   variant: TriggerVariant;
+  showTarget?: boolean;
 };
 
 const AddOrEditTriggerDialog = (props: Props) => {
-  const { source, sourceId, editedItem, currentTriggers, triggerType, onCancel, onSubmit, isOpen, variant } = props;
+  const {
+    source,
+    sourceId,
+    editedItem,
+    currentTriggers,
+    triggerType,
+    onCancel,
+    onSubmit,
+    isOpen,
+    showTarget,
+    variant,
+  } = props;
 
   const defaultValues = useMemo(() => {
     const commonProps = {
@@ -102,7 +114,7 @@ const AddOrEditTriggerDialog = (props: Props) => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <DialogBody>
-          <TriggerFormBody source={source} triggerType={triggerType} variant={variant} />
+          <TriggerFormBody source={source} triggerType={triggerType} showTarget={showTarget} variant={variant} />
         </DialogBody>
         <DialogFooter>
           <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} currentTriggers={currentTriggers} />
