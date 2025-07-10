@@ -37,13 +37,14 @@ export type MachineType = {
   id: string;
   os: MachineOS;
   name: string;
-  status: MachineStatus;
   ram: string;
   chip: string;
   cpuCount: string;
   cpuDescription: string;
   creditPerMinute?: number;
-  availableOnStacks: string[];
+  isAvailable: boolean;
+  isPromoted: boolean;
+  availableOnStacks?: string[];
 };
 
 export type MachineTypeGroup = {
