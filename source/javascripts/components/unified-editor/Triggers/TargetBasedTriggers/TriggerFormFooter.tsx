@@ -1,5 +1,4 @@
 import { Button, ButtonGroup, Tooltip } from '@bitrise/bitkit';
-import { isEqual } from 'es-toolkit';
 import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
@@ -11,31 +10,18 @@ type Props = {
   editedItem?: TargetBasedTrigger | LegacyTrigger;
   onCancel: () => void;
   currentTriggers?: (TargetBasedTrigger | LegacyTrigger)[];
-  variant: 'legacy' | 'target-based';
 };
 
 const TriggerFormFooter = (props: Props) => {
-  const { editedItem, onCancel, currentTriggers = [], variant } = props;
+  const { editedItem, onCancel, currentTriggers = [] } = props;
   const { reset, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
-  const { conditions, isDraftPr, priority, source } = watch();
+  const formValues = watch();
+  const { conditions, source } = formValues;
 
-  let isSameTriggerExist = false;
-  currentTriggers.forEach((trigger) => {
-    if (
-      trigger.uniqueId !== editedItem?.uniqueId &&
-      isEqual(trigger.conditions, conditions) &&
-      isEqual(trigger.isDraftPr, isDraftPr) &&
-      isEqual(trigger.priority, priority)
-    ) {
-      isSameTriggerExist = true;
-    }
-  });
-
+  const isSameTriggerExist = TriggerService.checkExistingTrigger(formValues, currentTriggers, editedItem);
   const hasEmptyCondition = conditions.some(
     ({ type, value }) => (TriggerService.requiredField(type) && !value) || !type,
   );
-
-  const hasNoTarget = variant === 'legacy' && !editedItem && !source;
 
   const handleCancel = () => {
     reset();
@@ -44,9 +30,9 @@ const TriggerFormFooter = (props: Props) => {
 
   const handleSegmentTrack = () => {
     if (editedItem) {
-      trackEditTrigger(watch());
+      trackEditTrigger(formValues);
     } else {
-      trackAddTrigger(watch());
+      trackAddTrigger(formValues);
     }
   };
 
@@ -66,7 +52,7 @@ const TriggerFormFooter = (props: Props) => {
         <Button
           type="submit"
           onClick={handleSegmentTrack}
-          isDisabled={isSameTriggerExist || hasEmptyCondition || hasNoTarget}
+          isDisabled={isSameTriggerExist || hasEmptyCondition || !source}
         >
           {editedItem ? 'Apply changes' : 'Add trigger'}
         </Button>

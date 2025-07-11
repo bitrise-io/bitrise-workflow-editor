@@ -9,6 +9,7 @@ import {
   TargetBasedTrigger,
   TriggerSource,
   TriggerType,
+  TriggerVariant,
 } from '@/core/models/Trigger';
 import {
   LEGACY_LABELS_MAP,
@@ -25,11 +26,12 @@ import ConditionCard from '../ConditionCard';
 type Props = {
   source: TriggerSource | '';
   triggerType: TriggerType;
-  variant: 'legacy' | 'target-based';
+  variant: TriggerVariant;
+  showTarget?: boolean;
 };
 
 const TriggerFormBody = (props: Props) => {
-  const { source, triggerType, variant } = props;
+  const { source, triggerType, variant, showTarget } = props;
   const pipelines = usePipelineIds();
   const workflows = useWorkflowIds(true);
 
@@ -65,7 +67,7 @@ const TriggerFormBody = (props: Props) => {
 
   return (
     <>
-      {variant === 'legacy' && (
+      {showTarget && (
         <Controller
           name="source"
           control={control}
@@ -103,7 +105,7 @@ const TriggerFormBody = (props: Props) => {
       />
       {triggerType === 'pull_request' && (
         <Checkbox
-          isChecked={isDraftPr}
+          isChecked={isDraftPr !== false}
           marginBlockStart="24"
           helperText={
             <>

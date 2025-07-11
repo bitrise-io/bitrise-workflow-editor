@@ -2,8 +2,34 @@ import { Meta, StoryObj } from '@storybook/react';
 import { delay, http, HttpResponse } from 'msw';
 
 import UserApi from '@/core/api/UserApi';
+import { BitriseYml } from '@/core/models/BitriseYml';
 
 import TriggersPage from './TriggersPage';
+
+const removeTriggers = (yml: BitriseYml): BitriseYml => {
+  const copyYml = { ...yml };
+  if (yml.workflows && copyYml.workflows) {
+    Object.keys(yml.workflows).forEach((id) => {
+      copyYml.workflows![id] = {
+        ...yml.workflows![id],
+        triggers: undefined,
+      };
+    });
+  }
+  if (yml.pipelines && copyYml.pipelines) {
+    Object.keys(yml.pipelines).forEach((id) => {
+      copyYml.pipelines![id] = {
+        ...yml.pipelines![id],
+        triggers: undefined,
+      };
+    });
+  }
+
+  return {
+    ...copyYml,
+    trigger_map: undefined,
+  };
+};
 
 type Context = {
   value: boolean | null;
@@ -44,7 +70,7 @@ export default {
 
 export const TriggersPageEmptyState: StoryObj<typeof TriggersPage> = {
   parameters: {
-    bitriseYmlStore: { yml: { ...TEST_BITRISE_YML, trigger_map: undefined } },
+    bitriseYmlStore: { yml: removeTriggers(TEST_BITRISE_YML) },
   },
 };
 
