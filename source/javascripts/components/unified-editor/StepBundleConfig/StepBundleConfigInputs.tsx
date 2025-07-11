@@ -77,8 +77,31 @@ const StepBundleConfigInputs = () => {
     closeForm();
   }, [stepBundle, closeForm]);
 
-  if (selectedInputIndex > -1) {
-    return (
+  return (
+    <>
+      {stepBundle?.mergedValues.inputs?.length ? (
+        Object.entries(categories).map(([category, items]) => (
+          <StepBundleInputsCategoryCard
+            key={category}
+            category={category !== 'uncategorized' ? category : undefined}
+            items={items}
+            onAdd={handleAddInput}
+            onChange={handleChange}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+          />
+        ))
+      ) : (
+        <EmptyState
+          title="Bundle inputs"
+          description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
+          p="48"
+        >
+          <Button leftIconName="Plus" variant="secondary" size="md" onClick={() => handleAddInput()}>
+            Add input
+          </Button>
+        </EmptyState>
+      )}
       <StepBundleInputsDialog
         ids={Object.values(stepBundle?.mergedValues.inputs || []).map(({ opts, ...rest }) => Object.keys(rest)[0])}
         index={selectedInputIndex}
@@ -87,31 +110,7 @@ const StepBundleConfigInputs = () => {
         onSubmit={handleSubmit}
         isOpen={isFormOpen}
       />
-    );
-  }
-
-  return stepBundle?.mergedValues.inputs?.length ? (
-    Object.entries(categories).map(([category, items]) => (
-      <StepBundleInputsCategoryCard
-        key={category}
-        category={category !== 'uncategorized' ? category : undefined}
-        items={items}
-        onAdd={handleAddInput}
-        onChange={handleChange}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-      />
-    ))
-  ) : (
-    <EmptyState
-      title="Bundle inputs"
-      description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
-      p="48"
-    >
-      <Button leftIconName="Plus" variant="secondary" size="md" onClick={() => handleAddInput()}>
-        Add input
-      </Button>
-    </EmptyState>
+    </>
   );
 };
 
