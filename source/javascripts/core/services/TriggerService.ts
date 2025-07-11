@@ -859,6 +859,7 @@ function updateTrigger(trigger: TargetBasedTrigger, editedTrigger?: TargetBasedT
   if (editedTrigger && editedTrigger.source !== trigger.source) {
     removeTrigger(editedTrigger);
     addTrigger(trigger);
+    return;
   }
 
   updateBitriseYmlDocument(({ doc }) => {
