@@ -93,7 +93,6 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
       isOpen={isOpen}
       onClose={onCancel}
       title={mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}
-      maxHeight="640"
       scrollBehavior="inside"
       as="form"
       onSubmit={handleSubmit(onFormSubmit)}
