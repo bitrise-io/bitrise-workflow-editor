@@ -34,7 +34,11 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
         {/* This is required because for some reason the diffOverview doesn't use the theme background color and remain white otherwise */}
         {`.monaco-diff-editor .diffOverview {
           background-color: var(--vscode-editor-background);
-        }`}
+        }
+        .monaco-diff-editor .gutterItem {
+          opacity: 1 !important;
+        }
+      `}
       </style>
       <DiffEditor
         theme="vs-dark"
