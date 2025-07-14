@@ -92,8 +92,8 @@ async function raw(url: string, options?: ClientOpts) {
 
   options?.signal?.addEventListener(
     'abort',
-    () => {
-      controller.abort();
+    (e) => {
+      controller.abort(`Request aborted: ${e.type}`);
       clearTimeout(timeoutId);
     },
     { once: true },
