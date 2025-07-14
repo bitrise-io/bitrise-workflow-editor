@@ -13,23 +13,20 @@ import {
   Th,
   Thead,
   Tr,
-  useDisclosure,
 } from '@bitrise/bitkit';
 import { AriaAttributes, useMemo, useState } from 'react';
 
 import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
 import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
-import { TargetBasedTrigger, TriggerSource, TYPE_MAP } from '@/core/models/Trigger';
+import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
 import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 
+import AddTriggerButton from './AddTriggerButton';
+
 const TargetBasedTriggers = () => {
-  const {
-    isOpen: isEditTriggerDialogOpen,
-    onOpen: openEditTriggerDialog,
-    onClose: closeEditTriggerDialog,
-  } = useDisclosure();
+  const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
   const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
   const [filterString, setFilterString] = useState('');
@@ -73,9 +70,14 @@ const TargetBasedTriggers = () => {
     });
   }, [filteredTriggers, sortProps]);
 
-  const handleOpenEditTriggerDialog = (trigger: TargetBasedTrigger) => {
+  const handleOpenDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);
-    openEditTriggerDialog();
+    setTriggerType(trigger.triggerType);
+  };
+
+  const handleCancel = () => {
+    setTriggerType(null);
+    setEditedItem(undefined);
   };
 
   const handleActiveChange = (trigger: TargetBasedTrigger) => {
@@ -87,33 +89,37 @@ const TargetBasedTriggers = () => {
     );
   };
 
-  const handleEditTrigger = (trigger: TargetBasedTrigger) => {
-    TriggerService.updateTrigger(trigger);
-    closeEditTriggerDialog();
-    setEditedItem(undefined);
-    trackEditTrigger(trigger);
+  const onSubmit = (trigger: TargetBasedTrigger) => {
+    if (editedItem) {
+      TriggerService.updateTrigger(trigger, editedItem);
+      setEditedItem(undefined);
+      trackEditTrigger(trigger);
+    } else {
+      TriggerService.addTrigger(trigger);
+    }
+    setTriggerType(null);
   };
 
   const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
     TriggerService.removeTrigger(trigger);
   };
 
-  const handleCloseEditTriggerDialog = () => {
-    closeEditTriggerDialog();
-    setEditedItem(undefined);
-  };
-
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
         <>
-          <SearchInput
-            onChange={setFilterString}
-            value={filterString}
-            maxWidth="320"
-            marginBlockEnd="16"
-            placeholder="Filter by target, type or condition"
-          />
+          <Box display="flex" justifyContent="space-between">
+            <SearchInput
+              onChange={setFilterString}
+              value={filterString}
+              maxWidth="320"
+              width="100%"
+              size="md"
+              marginBlockEnd="16"
+              placeholder="Filter by target, type or condition"
+            />
+            <AddTriggerButton onAddTrigger={setTriggerType} />
+          </Box>
           <TableContainer marginBlockEnd="32">
             <Table>
               <Thead>
@@ -174,7 +180,7 @@ const TargetBasedTriggers = () => {
                             iconName="Pencil"
                             variant="tertiary"
                             aria-label="Edit trigger"
-                            onClick={() => handleOpenEditTriggerDialog(trigger)}
+                            onClick={() => handleOpenDialog(trigger)}
                           />
                           <IconButton
                             isDanger
@@ -191,30 +197,17 @@ const TargetBasedTriggers = () => {
               </Tbody>
             </Table>
           </TableContainer>
-          {editedItem && (
-            <AddOrEditTriggerDialog
-              source={editedItem.source.split('#')[0] as TriggerSource}
-              sourceId={editedItem.source.split('#')[1]}
-              editedItem={editedItem}
-              triggerType={editedItem.triggerType}
-              currentTriggers={pipelineableTriggers}
-              onSubmit={handleEditTrigger}
-              onCancel={handleCloseEditTriggerDialog}
-              isOpen={isEditTriggerDialogOpen}
-              variant="target-based"
-            />
-          )}
         </>
       ) : (
         <EmptyState
           iconName="Trigger"
-          title="An overview of your triggers will appear here"
+          title="Target based triggers will appear here"
           maxHeight="208"
           marginBlockEnd="24"
         >
-          <Text marginBlockStart="8">
-            Start configuring triggers directly in your Workflow or Pipeline settings. With this method, a single Git
-            event can execute multiple Workflows or Pipelines.{' '}
+          <Text marginBlockStart="8" marginBlockEnd="24">
+            Target-based triggers let you run multiple Workflows or Pipelines from a single Git event. You can set them
+            up here or directly in the Workflow or Pipeline settings.{' '}
             <Link
               colorScheme="purple"
               href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -222,7 +215,22 @@ const TargetBasedTriggers = () => {
               Learn more
             </Link>
           </Text>
+          <AddTriggerButton onAddTrigger={setTriggerType} />
         </EmptyState>
+      )}
+      {triggerType && (
+        <AddOrEditTriggerDialog
+          source={editedItem ? (editedItem.source.split('#')[0] as TriggerSource) : ''}
+          sourceId={editedItem ? editedItem.source.split('#')[1] : ''}
+          editedItem={editedItem}
+          triggerType={triggerType}
+          currentTriggers={pipelineableTriggers}
+          onSubmit={onSubmit}
+          onCancel={handleCancel}
+          isOpen={!!triggerType}
+          variant="target-based"
+          showTarget
+        />
       )}
     </>
   );

@@ -95,7 +95,10 @@ workflows:
       push:
         - priority: 0
           branch: "1"
-      enabled: false
+      pull_request:
+        - target_branch: draft-included
+        - target_branch: nodraft
+          draft_enabled: false
     steps:
       - https://github.com/my-bitrise-steps/custom-steplib.git::script:
           title: Custom GitHub (org) steplib
