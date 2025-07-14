@@ -18,7 +18,6 @@ function useAllTargetBasedTriggers() {
     const workflowTriggers = TriggerService.toTargetBasedTriggers('workflows', sourceId, workflowObj?.triggers || {});
     triggers.push(...workflowTriggers.push, ...workflowTriggers.pull_request, ...workflowTriggers.tag);
   });
-
   return triggers;
 }
 
