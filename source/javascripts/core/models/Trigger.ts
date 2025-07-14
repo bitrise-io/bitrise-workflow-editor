@@ -4,6 +4,7 @@ import { PullrequestTriggerModel, PushTriggerModel, TagTriggerModel, TriggersMod
 
 export type TriggerSource = 'workflows' | 'pipelines';
 export type TriggerType = keyof Omit<TriggersModel, 'enabled'>;
+export type TriggerVariant = 'legacy' | 'target-based';
 export const TYPE_MAP: Record<TriggerType, string> = {
   push: 'Push',
   pull_request: 'Pull request',
