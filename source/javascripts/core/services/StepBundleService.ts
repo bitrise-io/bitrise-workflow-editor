@@ -80,7 +80,7 @@ function getStepBundleChain(stepBundles: StepBundles, id: string) {
   let ids: string[] = [];
   stepBundles[id]?.steps?.forEach((step) => {
     const cvs = Object.keys(step)[0];
-    if (cvs.startsWith('bundle::')) {
+    if (cvs && cvs.startsWith('bundle::')) {
       ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', '')));
     }
   });
