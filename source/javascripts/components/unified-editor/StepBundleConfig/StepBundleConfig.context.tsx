@@ -46,7 +46,8 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
 
     if (!stepBundleId && parentWorkflowId && stepIndex >= 0) {
       const stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
-      const [cvs, stepBundleInWorkflow] = Object.entries(stepListItemModel || {})[0];
+      const stepListItems = Object.entries(stepListItemModel || {});
+      const [cvs, stepBundleInWorkflow] = stepListItems.length > 0 ? stepListItems[0] : ['', {}];
 
       const id = StepBundleService.cvsToId(cvs);
       const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow ?? {});
