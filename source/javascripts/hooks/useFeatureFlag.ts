@@ -2,9 +2,7 @@ import { initialize, LDClient } from 'launchdarkly-js-client-sdk';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 
-const defaultValues = {
-  'enable-wfe-step-bundles-when-to-run': false,
-};
+const defaultValues = {};
 
 type FeatureFlags = typeof defaultValues;
 
