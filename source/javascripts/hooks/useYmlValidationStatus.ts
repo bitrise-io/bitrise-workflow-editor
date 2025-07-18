@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+import { datadogRum } from '@datadog/browser-rum';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { create } from 'zustand';
@@ -14,8 +15,12 @@ const useIsAjvValidatorReady = create(() => false);
 
 (async function initializeSchemaValidator() {
   addFormats(ajv);
-  ajv.addSchema(await fetch(SCHEMA_URL).then((response) => response.json()), SCHEMA_URL);
-  useIsAjvValidatorReady.setState(true);
+  try {
+    ajv.addSchema(await fetch(SCHEMA_URL).then((response) => response.json()), SCHEMA_URL);
+    useIsAjvValidatorReady.setState(true);
+  } catch (error) {
+    datadogRum.addError(new Error('Failed to load Bitrise YML schema to AJV'), { error });
+  }
 })();
 
 function useYmlValidationStatus() {
