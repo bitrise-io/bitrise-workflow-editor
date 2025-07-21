@@ -80,11 +80,6 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
     onSubmit({ [data.key]: data.value, opts: data.opts }, index, mode);
   };
 
-  const onCancelClick = () => {
-    reset();
-    onCancel();
-  };
-
   const valueOptions = watch('opts.value_options');
 
   const isSubmitDisabled = !(!!watch('key') && formState.isDirty) || !!formState.errors.key?.message;
@@ -92,6 +87,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
     <Dialog
       isOpen={isOpen}
       onClose={onCancel}
+      onCloseComplete={reset}
       title={mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}
       scrollBehavior="inside"
       as="form"
@@ -185,7 +181,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
           <Button isDisabled={isSubmitDisabled} type="submit">
             {mode === 'edit' ? 'Update' : 'Create'}
           </Button>
-          <Button variant="secondary" onClick={onCancelClick}>
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
           </Button>
         </ButtonGroup>

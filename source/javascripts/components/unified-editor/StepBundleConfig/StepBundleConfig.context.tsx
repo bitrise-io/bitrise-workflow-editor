@@ -7,6 +7,8 @@ import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
+import StepConfigDrawerProvider from '../StepConfigDrawer/StepConfigDrawer.context';
+
 type Props = PropsWithChildren<{
   stepBundleId?: string;
   parentWorkflowId?: string;
@@ -19,7 +21,11 @@ const Context = createContext<Omit<Props, 'children'>>({
 });
 
 const StepBundleConfigProvider = ({ children, ...props }: Props) => {
-  return <Context.Provider value={props}>{children}</Context.Provider>;
+  return (
+    <StepConfigDrawerProvider stepBundleId={props.stepBundleId} workflowId="" stepIndex={props.stepIndex}>
+      <Context.Provider value={props}>{children}</Context.Provider>
+    </StepConfigDrawerProvider>
+  );
 };
 
 type UseStepBundleConfigContextResult = Omit<Props, 'children'> & {
@@ -46,8 +52,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
 
     if (!stepBundleId && parentWorkflowId && stepIndex >= 0) {
       const stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
-      const stepListItems = Object.entries(stepListItemModel || {});
-      const [cvs, stepBundleInWorkflow] = stepListItems.length > 0 ? stepListItems[0] : ['', {}];
+      const [cvs, stepBundleInWorkflow] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
 
       const id = StepBundleService.cvsToId(cvs);
       const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow ?? {});
@@ -56,8 +61,8 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
         ? StepBundleService.ymlInstanceToStepBundle(
             id,
             stepBundle,
-            yml.step_bundles?.[id] || undefined,
-            stepBundleInWorkflow || undefined,
+            yml.step_bundles?.[id] ?? undefined,
+            stepBundleInWorkflow ?? undefined,
           )
         : undefined;
       result.stepBundleId = id;
@@ -65,7 +70,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
 
     if (!stepBundleId && !parentWorkflowId && parentStepBundleId && stepIndex >= 0) {
       const stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
-      const [cvs, stepBundleInStepBundle] = Object.entries(stepListItemModel || {})[0];
+      const [cvs, stepBundleInStepBundle] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
 
       const id = StepBundleService.cvsToId(cvs);
       const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInStepBundle ?? {});

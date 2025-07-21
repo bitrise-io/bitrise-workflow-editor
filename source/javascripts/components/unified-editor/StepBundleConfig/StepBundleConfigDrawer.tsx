@@ -13,17 +13,26 @@ import StepBundleConfigHeader from './StepBundleConfigHeader';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   onRename?: (name: string) => void;
+  stepBundleId?: string;
+  parentWorkflowId?: string;
   parentStepBundleId?: string;
   stepIndex: number;
-  parentWorkflowId?: string;
 };
 
-const StepBundleConfigDrawer = ({ onRename, parentStepBundleId, stepIndex, parentWorkflowId, ...rest }: Props) => {
+const StepBundleConfigDrawer = ({
+  onRename,
+  stepBundleId,
+  stepIndex,
+  parentWorkflowId,
+  parentStepBundleId,
+  ...rest
+}: Props) => {
   return (
     <StepBundleConfigProvider
+      stepBundleId={stepBundleId}
+      parentWorkflowId={parentWorkflowId}
       parentStepBundleId={parentStepBundleId}
       stepIndex={stepIndex}
-      parentWorkflowId={parentWorkflowId}
     >
       <Tabs>
         <FloatingDrawer {...rest}>

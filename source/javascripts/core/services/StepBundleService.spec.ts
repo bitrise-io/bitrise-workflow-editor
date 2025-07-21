@@ -1673,6 +1673,41 @@ describe('StepBundleService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
 
+    it('should remove the inputs if last input is removed', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - bundle::sb1:
+                  inputs:
+                  - input1: value1
+          step_bundles:
+            sb1:
+              inputs:
+              - input1: value1`,
+      );
+
+      StepBundleService.updateStepBundleInputInstanceValue('input1', '', {
+        cvs: 'bundle::sb1',
+        source: 'workflows',
+        sourceId: 'primary',
+        stepIndex: 0,
+      });
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - bundle::sb1: {}
+        step_bundles:
+          sb1:
+            inputs:
+            - input1: value1`;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
     it('should throw an error if the step bundle does not exist', () => {
       updateBitriseYmlDocumentByString(
         yaml`
