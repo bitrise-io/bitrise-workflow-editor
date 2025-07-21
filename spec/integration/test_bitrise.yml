@@ -207,9 +207,7 @@ workflows:
             - clone_depth: 5
             - update_submodules: "no"
             - merge_pr: "no"
-      - script@1:
-          inputs:
-            - content: echo "Hello Bitrise!"
+      - bundle::sb1: {}
   wf1:
     summary: My first workflow
     description: There will be more to come
@@ -521,3 +519,19 @@ step_bundles:
     steps:
       - theappspajamas-service-account-key-installer@0.0.3: {}
       - android-manifest-info@1.0.2: {}
+  sb1:
+    steps:
+      - bundle::sb2: {}
+    inputs:
+      - input1: sb1
+        opts:
+          title: sb1_input1
+  sb2:
+    steps:
+      - script@1:
+          inputs:
+            - content: echo "Hello Bitrise!"
+    inputs:
+      - input1: sb2
+        opts:
+          title: sb2_input1

@@ -61,8 +61,15 @@ const EnvVarPopover = ({
 
   const handleOnCreate = useCallback(
     (envVar: EnvVar) => {
-      dispatchEnvVarCreated({ envVar, source: EnvVarSource.Workflows, sourceId: workflowId });
-      EnvVarService.append(envVar, { source: EnvVarSource.Workflows, sourceId: workflowId });
+      dispatchEnvVarCreated({
+        envVar,
+        source: workflowId ? EnvVarSource.Workflows : EnvVarSource.App,
+        sourceId: workflowId,
+      });
+      EnvVarService.append(envVar, {
+        source: workflowId ? EnvVarSource.Workflows : EnvVarSource.App,
+        sourceId: workflowId,
+      });
       onSelect(envVar);
     },
     [onSelect, workflowId],
@@ -111,7 +118,9 @@ const EnvVarPopover = ({
             alignItems="center"
             justifyContent="space-between"
           >
-            {isMode(Mode.CREATE) && <Text textStyle="heading/h4">Create variable</Text>}
+            {isMode(Mode.CREATE) && (
+              <Text textStyle="heading/h4">Create {workflowId ? 'workflow' : 'project'} variable</Text>
+            )}
             {isMode(Mode.SELECT) && (
               <>
                 <Text textStyle="heading/h4">Insert variable</Text>

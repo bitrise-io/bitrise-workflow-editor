@@ -3,7 +3,7 @@ import { toMerged } from 'es-toolkit';
 import { useMemo } from 'react';
 
 import StepApi, { StepApiResult } from '@/core/api/StepApi';
-import { StepBundleModel, StepModel } from '@/core/models/BitriseYml';
+import { StepBundleOverrideModel, StepModel } from '@/core/models/BitriseYml';
 import { Step, StepBundleInstance, StepLike, WithGroup } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -17,7 +17,7 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
 
   return useBitriseYmlStore(({ yml }) => {
-    let stepObjectFromYml: StepModel | WithGroup | StepBundleModel | null | undefined;
+    let stepObjectFromYml: StepModel | WithGroup | StepBundleOverrideModel | null | undefined;
 
     if (props.workflowId) {
       const { workflowId, stepIndex } = props;
@@ -31,7 +31,7 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
       return { data: undefined };
     }
 
-    const [cvs, stepObj] = Object.entries(stepObjectFromYml)[0];
+    const [cvs, stepObj] = Object.entries(stepObjectFromYml)[0] ?? ['', {}];
     const step = stepObj ?? {};
 
     const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
@@ -151,7 +151,7 @@ const useStep = (props: UseStepProps): UseStepResult => {
     }
 
     const inputs = defaultValues?.inputs?.map(({ opts, ...input }) => {
-      const [inputName, defaultValue] = Object.entries(input)[0];
+      const [inputName, defaultValue] = Object.entries(input)[0] ?? ['', ''];
       const inputFromYml = userValues?.inputs?.find(({ opts: _, ...inputObjectFromYml }) => {
         const inputNameFromYml = Object.keys(inputObjectFromYml)[0];
         return inputNameFromYml === inputName;

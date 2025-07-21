@@ -491,7 +491,8 @@ function updateStepBundleInputInstanceValue(
       YmlUtils.setIn(step, [cvs], {});
     }
 
-    const inputsInInstance = YmlUtils.getSeqIn(step, [cvs, 'inputs']);
+    const stepData = YmlUtils.getMapIn(step, [cvs], true);
+    const inputsInInstance = YmlUtils.getSeqIn(stepData, ['inputs']);
     const inputIndexInInstance = inputsInInstance?.items.findIndex((input) => isMap(input) && input.has(key)) ?? -1;
 
     const inputsInDefaults = YmlUtils.getSeqIn(stepBundle, ['inputs']);
@@ -506,15 +507,15 @@ function updateStepBundleInputInstanceValue(
     const shouldRemoveInstanceInput = !newValue && inputIndexInInstance >= 0;
 
     if (shouldCreateInstanceInput) {
-      YmlUtils.addIn(step, [cvs, 'inputs'], { [key]: newValue });
+      YmlUtils.addIn(stepData, ['inputs'], { [key]: newValue });
     }
 
     if (shouldUpdateInstanceInput) {
-      YmlUtils.updateValueByPath(step, [cvs, 'inputs', '*', key], newValue);
+      YmlUtils.updateValueByPath(stepData, ['inputs', '*', key], newValue);
     }
 
     if (shouldRemoveInstanceInput) {
-      YmlUtils.deleteByPath(step, [cvs, 'inputs', inputIndexInInstance]);
+      YmlUtils.deleteByPath(stepData, ['inputs', inputIndexInInstance]);
     }
 
     return doc;
