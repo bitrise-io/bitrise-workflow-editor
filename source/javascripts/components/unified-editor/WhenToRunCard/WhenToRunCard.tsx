@@ -26,27 +26,22 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
     userValuesRunIf,
   } = props;
 
-  const hideAlwaysRun = false;
   return (
     <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">When to run</Text>}>
-      {hideAlwaysRun && (
-        <>
-          <Box display="flex" alignItems="center" gap="4" minHeight="32">
-            <Text flex="1">Run even if previous Step(s) failed</Text>
-            {!!onIsAlwaysRunReset && (
-              <IconButton
-                iconName="Refresh"
-                aria-label="Reset to default"
-                size="sm"
-                variant="tertiary"
-                onClick={onIsAlwaysRunReset}
-              />
-            )}
-            <Toggle defaultChecked={isAlwaysRun} onChange={onIsAlwaysRunChange} />
-          </Box>
-          <Divider my="24" />
-        </>
-      )}
+      <Box display="flex" alignItems="center" gap="4" minHeight="32">
+        <Text flex="1">Run even if previous Step(s) failed</Text>
+        {!!onIsAlwaysRunReset && (
+          <IconButton
+            iconName="Refresh"
+            aria-label="Reset to default"
+            size="sm"
+            variant="tertiary"
+            onClick={onIsAlwaysRunReset}
+          />
+        )}
+        <Toggle defaultChecked={isAlwaysRun} onChange={onIsAlwaysRunChange} />
+      </Box>
+      <Divider my="24" />
       {!!onIsSkippableChange && (
         <>
           <Box display="flex">
