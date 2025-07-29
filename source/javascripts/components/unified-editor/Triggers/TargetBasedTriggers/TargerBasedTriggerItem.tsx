@@ -1,5 +1,5 @@
 import { OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
-import { Box } from '@chakra-ui/react';
+import { Box } from 'chakra-ui-2--react';
 
 import { TargetBasedTrigger } from '@/core/models/Trigger';
 

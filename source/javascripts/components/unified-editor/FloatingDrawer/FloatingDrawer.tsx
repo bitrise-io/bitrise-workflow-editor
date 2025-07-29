@@ -16,7 +16,7 @@ import {
   ModalHeaderProps,
   ModalOverlayProps,
   useBreakpointValue,
-} from '@chakra-ui/react';
+} from 'chakra-ui-2--react';
 import { createContext, useContext, useMemo } from 'react';
 
 type FloatingDrawerProps = Omit<DrawerProps, 'size'> & {

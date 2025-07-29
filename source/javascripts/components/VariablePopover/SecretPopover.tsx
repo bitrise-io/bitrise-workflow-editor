@@ -8,7 +8,7 @@ import {
   PopoverHeader,
   PopoverTrigger,
   Portal,
-} from '@chakra-ui/react';
+} from 'chakra-ui-2--react';
 import { useState } from 'react';
 
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';

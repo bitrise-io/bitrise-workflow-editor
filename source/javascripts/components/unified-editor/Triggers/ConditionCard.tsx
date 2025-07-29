@@ -14,7 +14,7 @@ import {
   Toggletip,
   Tr,
 } from '@bitrise/bitkit';
-import { Checkbox, Tfoot } from '@chakra-ui/react';
+import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 

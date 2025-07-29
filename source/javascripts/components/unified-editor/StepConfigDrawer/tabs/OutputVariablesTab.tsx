@@ -1,5 +1,5 @@
 import { Box, Divider, IconButton, Input, Text } from '@bitrise/bitkit';
-import { FormControl } from '@chakra-ui/react';
+import { FormControl } from 'chakra-ui-2--react';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 

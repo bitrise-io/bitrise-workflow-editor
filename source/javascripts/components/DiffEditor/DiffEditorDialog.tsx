@@ -11,7 +11,7 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { ModalCloseButton, ModalHeader } from '@chakra-ui/react';
+import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 

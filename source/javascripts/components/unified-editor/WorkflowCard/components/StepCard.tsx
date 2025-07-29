@@ -1,7 +1,7 @@
 import { Avatar, Box, Card, CardProps, ColorButton, Icon, Skeleton, SkeletonBox, Text, Tooltip } from '@bitrise/bitkit';
-import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
 import { memo, MouseEvent, ReactNode, useMemo } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 

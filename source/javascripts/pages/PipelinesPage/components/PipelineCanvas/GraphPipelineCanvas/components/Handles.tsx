@@ -1,6 +1,6 @@
 import { Box, BoxProps } from '@bitrise/bitkit';
-import { Icon, IconProps } from '@chakra-ui/react';
 import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
+import { Icon, IconProps } from 'chakra-ui-2--react';
 import { CSSProperties, useRef } from 'react';
 import { useHover } from 'usehooks-ts';
 
