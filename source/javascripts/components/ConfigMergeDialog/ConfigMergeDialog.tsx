@@ -11,9 +11,9 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { ModalCloseButton, ModalHeader } from '@chakra-ui/react';
 import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
+import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { toMerged } from 'es-toolkit';
 import type { editor } from 'monaco-editor';
 import { diff3Merge } from 'node-diff3';

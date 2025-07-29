@@ -8,7 +8,7 @@ import {
   PopoverHeader,
   PopoverTrigger,
   Portal,
-} from '@chakra-ui/react';
+} from 'chakra-ui-2--react';
 import { useCallback, useState } from 'react';
 
 import { dispatchEnvVarCreated } from '@/components/SortableEnvVars/SortableEnvVars.events';

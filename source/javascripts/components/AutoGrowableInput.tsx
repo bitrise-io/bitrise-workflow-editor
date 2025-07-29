@@ -12,7 +12,7 @@ import {
   StyleProps,
   Textarea,
   TextareaProps,
-} from '@chakra-ui/react';
+} from 'chakra-ui-2--react';
 import { ChangeEventHandler, LegacyRef, ReactNode, useRef } from 'react';
 
 type AutoGrowableInputProps = TextareaProps & {
