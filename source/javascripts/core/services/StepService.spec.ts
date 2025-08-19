@@ -1259,6 +1259,102 @@ describe('StepService', () => {
       );
     });
 
+    it('should move the step backwards correctly', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - git-clone@8:{}
+              - script@1: {}
+              - restore-npm-cache@2: {}
+              - npm@1:
+                  title: npm install
+              - npm@1:
+                  title: npm run theme:generate-types
+              - npm@1:
+                  title: npm run lint
+              - npm@1:
+                  title: npm run type-check
+              - npm@1:
+                  title: npm run build
+              - save-npm-cache@1: {}
+        `,
+      );
+
+      StepService.moveStep('workflows', 'primary', 6, 4);
+
+      expect(getYmlString()).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - git-clone@8:{}
+              - script@1: {}
+              - restore-npm-cache@2: {}
+              - npm@1:
+                  title: npm install
+              - npm@1:
+                  title: npm run type-check
+              - npm@1:
+                  title: npm run theme:generate-types
+              - npm@1:
+                  title: npm run lint
+              - npm@1:
+                  title: npm run build
+              - save-npm-cache@1: {}
+          `,
+      );
+    });
+
+    it('should move the step forwards correctly', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - git-clone@8:{}
+              - script@1: {}
+              - restore-npm-cache@2: {}
+              - npm@1:
+                  title: npm install
+              - npm@1:
+                  title: npm run theme:generate-types
+              - npm@1:
+                  title: npm run lint
+              - npm@1:
+                  title: npm run type-check
+              - npm@1:
+                  title: npm run build
+              - save-npm-cache@1: {}
+        `,
+      );
+
+      StepService.moveStep('workflows', 'primary', 4, 6);
+
+      expect(getYmlString()).toEqual(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - git-clone@8:{}
+              - script@1: {}
+              - restore-npm-cache@2: {}
+              - npm@1:
+                  title: npm install
+              - npm@1:
+                  title: npm run lint
+              - npm@1:
+                  title: npm run type-check
+              - npm@1:
+                  title: npm run theme:generate-types
+              - npm@1:
+                  title: npm run build
+              - save-npm-cache@1: {}
+        `,
+      );
+    });
+
     it('should throw an error if the workflow or step bundle does not exist', () => {
       expectErrors(
         [
