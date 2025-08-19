@@ -58,10 +58,14 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         const currentOverIndex = sortableItems.findIndex((i) => i.uniqueId === overId);
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
         const moveResult = arrayMove(sortableItems, currentActiveIndex, currentOverIndex);
+        // Rerenders the reordered list (without changing the YML)
         setSortableItems(moveResult);
 
         setTimeout(() => {
+          // Writes the changes to the YML
           onMove?.(id, currentActiveIndex, currentOverIndex);
+          // Updates the stepIndex in the sortable items, since they change during the YML update
+          // This is needed to keep the stepIndex in sync with the actual order of the steps in the YML for correct rendering
           setSortableItems((prevResult) => {
             const updatedResult = prevResult.map((item, idx) => ({ ...item, stepIndex: idx }));
             return updatedResult;
