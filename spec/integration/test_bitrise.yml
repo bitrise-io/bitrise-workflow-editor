@@ -199,15 +199,34 @@ workflows:
         opts:
           is_expand: false
     steps:
-      - gradle-runner@3:
-          inputs:
-            - gradle_file: ./gradle
       - git-clone@8:
           inputs:
             - clone_depth: 5
             - update_submodules: "no"
             - merge_pr: "no"
-      - bundle::sb1: {}
+      - script@1: {}
+      - restore-npm-cache@2: {}
+      - npm@1:
+          inputs:
+            - command: install
+          title: npm install
+      - npm@1:
+          title: npm run theme:generate-types
+          inputs:
+            - command: run theme:generate-types
+      - npm@1:
+          inputs:
+            - command: run lint
+          title: npm run lint
+      - npm@1:
+          inputs:
+            - command: run type-check
+          title: npm run type-check
+      - npm@1:
+          inputs:
+            - command: run build
+          title: npm run build
+      - save-npm-cache@1: {}
   wf1:
     summary: My first workflow
     description: There will be more to come

@@ -3,7 +3,7 @@ import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Fragment, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -39,7 +39,11 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
   const isSortable = Boolean(onMove);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
-  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
+  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>([]);
+
+  useEffect(() => {
+    setSortableItems(initialSortableItems);
+  }, [initialSortableItems]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveItem(event.active.data.current as SortableStepItem);
@@ -53,9 +57,19 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
       if (activeId && overId) {
         const currentOverIndex = sortableItems.findIndex((i) => i.uniqueId === overId);
         const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
-        setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
+        const moveResult = arrayMove(sortableItems, currentActiveIndex, currentOverIndex);
+        // Rerenders the reordered list (without changing the YML)
+        setSortableItems(moveResult);
+
         setTimeout(() => {
+          // Writes the changes to the YML
           onMove?.(id, currentActiveIndex, currentOverIndex);
+          // Updates the stepIndex in the sortable items, since they change during the YML update
+          // This is needed to keep the stepIndex in sync with the actual order of the steps in the YML for correct rendering
+          setSortableItems((prevResult) => {
+            const updatedResult = prevResult.map((item, idx) => ({ ...item, stepIndex: idx }));
+            return updatedResult;
+          });
         }, defaultDropAnimation.duration);
       }
 
@@ -65,13 +79,8 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
   );
 
   const handleDragCancel = useCallback(() => {
-    setSortableItems(initialSortableItems);
     setActiveItem(undefined);
-  }, [initialSortableItems]);
-
-  useLayoutEffect(() => {
-    setSortableItems(initialSortableItems);
-  }, [initialSortableItems]);
+  }, []);
 
   const content = useMemo(() => {
     return (
