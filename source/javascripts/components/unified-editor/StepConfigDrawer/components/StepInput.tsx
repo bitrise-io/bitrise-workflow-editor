@@ -70,7 +70,17 @@ const StepInput = forwardRef(
         }}
       >
         {!isDisabled && (
-          <ButtonGroup size="sm" spacing="4" top="4" right="4" position="absolute">
+          <ButtonGroup
+            size="sm"
+            spacing="4"
+            top="4"
+            right="4"
+            position="absolute"
+            marginRight="-3px"
+            backgroundColor="white"
+            borderStartRadius="4"
+            borderInline="3px solid white"
+          >
             {!!value && !isSensitive && (
               <IconButton
                 size="sm"
