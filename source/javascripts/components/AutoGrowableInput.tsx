@@ -72,28 +72,31 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
         </Box>
       )}
 
-      <Box
-        display="grid"
-        position="relative"
-        alignContent="start"
-        ref={setInitialReplicatedValue}
-        _after={{
-          ...styleProps,
-          fontFamily,
-          visibility: 'hidden',
-          content: 'attr(data-replicated-value) " "',
-        }}
-      >
-        <Textarea
-          {...rest}
-          {...styleProps}
-          rows={1}
-          ref={ref}
-          resize="none"
-          onChange={handleChange}
-          fontFamily={fontFamily}
-          data-1p-ignore
-        />
+      <Box display="flex" gap="6">
+        <Box
+          flex="1"
+          display="grid"
+          position="relative"
+          alignContent="start"
+          ref={setInitialReplicatedValue}
+          _after={{
+            ...styleProps,
+            fontFamily,
+            visibility: 'hidden',
+            content: 'attr(data-replicated-value) " "',
+          }}
+        >
+          <Textarea
+            {...rest}
+            {...styleProps}
+            rows={1}
+            ref={ref}
+            resize="none"
+            onChange={handleChange}
+            fontFamily={fontFamily}
+            data-1p-ignore
+          />
+        </Box>
         {children}
       </Box>
 

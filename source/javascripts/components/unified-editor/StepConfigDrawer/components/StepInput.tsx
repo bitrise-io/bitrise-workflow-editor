@@ -70,11 +70,11 @@ const StepInput = forwardRef(
         }}
       >
         {!isDisabled && (
-          <ButtonGroup size="sm" spacing="4" top="4" right="4" position="absolute">
+          <ButtonGroup size="md" spacing="6">
             {!!value && !isSensitive && (
               <IconButton
-                size="sm"
-                variant="tertiary"
+                size="md"
+                variant="secondary"
                 iconName={defaultValue ? 'Refresh' : 'Cross'}
                 aria-label={defaultValue ? 'Reset to default' : 'Clear'}
                 tooltipProps={{
@@ -86,10 +86,10 @@ const StepInput = forwardRef(
                 }}
               />
             )}
-            {isSensitive && <SecretPopover size="sm" onSelect={({ key }) => insertVariable(key)} />}
+            {isSensitive && <SecretPopover size="md" onSelect={({ key }) => insertVariable(key)} />}
             {!isSensitive && (
               <EnvVarPopover
-                size="sm"
+                size="md"
                 workflowId={workflowId}
                 stepBundleId={stepBundleId}
                 onSelect={({ key }) => insertVariable(key)}
