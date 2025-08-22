@@ -25,7 +25,7 @@ const StepSelectInput = forwardRef(
     };
 
     return (
-      <Box display="flex" flex={1} gap="8">
+      <Box display="flex" flex={1} gap="6">
         <Dropdown
           ref={ref}
           {...props}
