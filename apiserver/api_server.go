@@ -12,6 +12,7 @@ import (
 	"github.com/bitrise-io/bitrise-workflow-editor/version"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/log"
+  "github.com/bitrise-io/go-utils/pathutil"
 )
 
 func chooseFreePort() (string, error) {
@@ -52,6 +53,17 @@ func LaunchServer() error {
 
 	config.BitriseYMLPath = utility.EnvString("BITRISE_CONFIG", "bitrise.yml")
 	config.SecretsYMLPath = utility.EnvString("BITRISE_SECRETS", ".bitrise.secrets.yml")
+
+  // Check for the existence of the secrets file, if it doesn't exist create an empty one
+  if isExist, err := pathutil.IsPathExists(config.SecretsYMLPath); err != nil {
+    log.Errorf("Failed to check .bitrise.secrets.yml file, error: %s", err)
+  } else if !isExist {
+    if err := os.WriteFile(config.SecretsYMLPath, []byte("envs: []"), 0644); err != nil {
+      return fmt.Errorf("Failed to create empty secrets file, error: %s", err)
+    }
+    log.Printf("Created empty secrets file at %s", config.SecretsYMLPath)
+  }
+
 
 	if _, err := SetupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
 		return fmt.Errorf("Failed to setup routes, error: %s", err)
