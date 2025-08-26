@@ -293,9 +293,10 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   const defaultMachineTypeOfOS = getMachineById(selectableDefaultMachines, osMachineId);
 
   const isInvalidMachineType = isInvalidStack || (!!selectedMachineTypeId && !selectedMachineType);
+  const isInvalidDefaultMachineType = isInvalidStack || (!!projectMachineTypeId && !defaultMachineType);
 
   // Machine type options
-  if (!withoutDefaultOptions) {
+  if (!withoutDefaultOptions && !isInvalidDefaultMachineType) {
     if (defaultMachineType) {
       result.machineOptionGroups.unshift({
         label: 'Default Machine',
@@ -325,13 +326,18 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     }
   }
 
-  if (isInvalidMachineType) {
+  if (isInvalidMachineType || (!selectedMachineType && !withoutDefaultOptions && isInvalidDefaultMachineType)) {
     result.isInvalidMachineType = true;
     // Create the invalid dummy MachineType object
+    const machineTypeId = selectedMachineTypeId || (withoutDefaultOptions ? '' : projectMachineTypeId);
+    let name = machineTypeId || 'Invalid Machine';
+    if (!selectedMachineTypeId && !withoutDefaultOptions) {
+      name = `Default (${name})`;
+    }
     result.selectedMachineType = createMachineType({
-      id: selectedMachineTypeId,
-      value: selectedMachineTypeId,
-      name: selectedMachineTypeId || 'Invalid Machine',
+      id: machineTypeId,
+      value: machineTypeId,
+      name,
       os: result.selectedStack.os,
     });
 
