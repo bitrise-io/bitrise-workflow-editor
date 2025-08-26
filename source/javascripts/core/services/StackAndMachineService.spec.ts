@@ -378,7 +378,7 @@ describe('StackAndMachineService', () => {
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Invalid Machine' }),
+        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'Default (mac-m1)' }),
       );
 
       // Stack options
@@ -428,7 +428,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
+          options: [{ value: 'mac-m1', label: 'Default (mac-m1)', os: 'unknown', status: 'unknown' }],
         },
       ]);
     });
