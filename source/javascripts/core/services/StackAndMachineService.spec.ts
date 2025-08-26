@@ -378,7 +378,7 @@ describe('StackAndMachineService', () => {
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'Default (mac-m1)' }),
+        expect.objectContaining({ value: '', id: '', name: 'Default (mac-m1)' }),
       );
 
       // Stack options
@@ -428,7 +428,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: 'mac-m1', label: 'Default (mac-m1)', os: 'unknown', status: 'unknown' }],
+          options: [{ value: '', label: 'Default (mac-m1)', os: 'unknown', status: 'unknown' }],
         },
       ]);
     });
@@ -677,7 +677,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Default (mac-intel)' }),
+        expect.objectContaining({ value: '', id: '', name: 'Default (mac-intel)' }),
       );
 
       // Machine type options
@@ -685,7 +685,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: 'mac-intel', label: 'Default (mac-intel)', os: 'macos', status: 'unknown' }],
+          options: [{ value: '', label: 'Default (mac-intel)', os: 'macos', status: 'unknown' }],
         },
         {
           label: 'Available on your plan',

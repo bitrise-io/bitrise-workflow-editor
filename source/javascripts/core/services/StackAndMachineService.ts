@@ -329,14 +329,17 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   if (isInvalidMachineType || (!selectedMachineType && !withoutDefaultOptions && isInvalidDefaultMachineType)) {
     result.isInvalidMachineType = true;
     // Create the invalid dummy MachineType object
-    const machineTypeId = selectedMachineTypeId || (withoutDefaultOptions ? '' : projectMachineTypeId);
-    let name = machineTypeId || 'Invalid Machine';
-    if (!selectedMachineTypeId && !withoutDefaultOptions) {
-      name = `Default (${name})`;
+    let name: string;
+    if (selectedMachineTypeId) {
+      name = selectedMachineTypeId;
+    } else if (!withoutDefaultOptions && projectMachineTypeId) {
+      name = `Default (${projectMachineTypeId})`;
+    } else {
+      name = 'Invalid Machine';
     }
     result.selectedMachineType = createMachineType({
-      id: machineTypeId,
-      value: machineTypeId,
+      id: selectedMachineTypeId,
+      value: selectedMachineTypeId,
       name,
       os: result.selectedStack.os,
     });
