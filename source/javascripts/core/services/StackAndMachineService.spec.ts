@@ -664,6 +664,40 @@ describe('StackAndMachineService', () => {
       ]);
     });
 
+    it('returns the invalid default machine type when machine type is not selected and default machine is invalid', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: '',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-15.0.x',
+        projectMachineTypeId: 'mac-intel',
+      });
+
+      expect(result.isInvalidMachineType).toBe(true);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Default (mac-intel)' }),
+      );
+
+      // Machine type options
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Invalid Machine',
+          status: 'unknown',
+          options: [{ value: 'mac-intel', label: 'Default (mac-intel)', os: 'macos', status: 'unknown' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
+          options: [
+            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
+          ],
+        },
+      ]);
+    });
+
     it('returns self-hosted runner when agent pool is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
         selectedStackId: 'agent-pool-stack',
