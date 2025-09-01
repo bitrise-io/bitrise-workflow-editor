@@ -374,11 +374,11 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidStack).toBe(true);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'osx-xcode-11' }),
+        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'Invalid Stack (osx-xcode-11)' }),
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Default (mac-m1)' }),
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Machine' }),
       );
 
       // Stack options
@@ -386,7 +386,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: 'osx-xcode-11', label: 'osx-xcode-11', status: 'unknown' }],
+          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack (osx-xcode-11)', status: 'unknown' }],
         },
         {
           label: 'Default Stack',
@@ -428,7 +428,74 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: '', label: 'Default (mac-m1)', os: 'unknown', status: 'unknown' }],
+          options: [{ value: '', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
+        },
+      ]);
+    });
+
+    it('returns the invalid default stack when stack is not selected and default stack is invalid', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        selectedStackId: '',
+        selectedMachineTypeId: 'mac-m1',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-11',
+        projectMachineTypeId: 'mac-m1',
+      });
+
+      expect(result.isInvalidStack).toBe(true);
+      expect(result.selectedStack).toEqual(
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Stack (osx-xcode-11)' }),
+      );
+      expect(result.isInvalidMachineType).toBe(true);
+      expect(result.selectedMachineType).toEqual(
+        expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'Invalid Machine' }),
+      );
+
+      // Stack options
+      expect(result.stackOptionGroups).toEqual([
+        {
+          label: 'Invalid Stack',
+          status: 'unknown',
+          options: [{ value: '', label: 'Invalid Default Stack (osx-xcode-11)', status: 'unknown' }],
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Stable Stacks',
+          status: 'stable',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Uncategorized Stacks',
+          status: 'unknown',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'unknown')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Frozen Stacks',
+          status: 'frozen',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'frozen')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+      ]);
+
+      // Machine type options
+      expect(result.machineOptionGroups).toEqual([
+        {
+          label: 'Invalid Machine',
+          status: 'unknown',
+          options: [{ value: 'mac-m1', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
         },
       ]);
     });
@@ -601,7 +668,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'mac-intel' }),
+        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Invalid Machine (mac-intel)' }),
       );
 
       // Stack options
@@ -646,7 +713,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: 'mac-intel', label: 'mac-intel', os: 'macos', status: 'unknown' }],
+          options: [{ value: 'mac-intel', label: 'Invalid Machine (mac-intel)', os: 'macos', status: 'unknown' }],
         },
         {
           label: 'Default Machine',
@@ -677,7 +744,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Default (mac-intel)' }),
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Machine (mac-intel)' }),
       );
 
       // Machine type options
@@ -685,7 +752,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: '', label: 'Default (mac-intel)', os: 'macos', status: 'unknown' }],
+          options: [{ value: '', label: 'Invalid Default Machine (mac-intel)', os: 'macos', status: 'unknown' }],
         },
         {
           label: 'Available on your plan',
