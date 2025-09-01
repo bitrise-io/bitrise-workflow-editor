@@ -115,4 +115,40 @@ export const WithLegacyDedicated: Story = {
   },
 };
 
+export const WithInvalidDefaultMachine: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'osx-xcode-15.0.x',
+        machine_type_id: 'invalid',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const WithInvalidWorkflowMachine: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'workflows["custom-steplib-steps"]["meta"]["bitrise.io"]', {
+        stack: 'osx-xcode-15.0.x',
+        machine_type_id: 'invalid',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const WithInvalidDefaultStack: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'invalid',
+        machine_type_id: 'm2.large',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 export default meta;

@@ -215,14 +215,21 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   }
 
   const isInvalidStack = !!selectedStackId && !selectedStack;
+  const isInvalidDefaultStack = !!projectStackId && !defaultStack;
 
-  if (isInvalidStack) {
+  if (isInvalidStack || isInvalidDefaultStack) {
     result.isInvalidStack = true;
     // Create the invalid dummy Stack object
+    let name: string;
+    if (isInvalidStack) {
+      name = `Invalid Stack (${selectedStackId})`;
+    } else {
+      name = `Invalid Default Stack (${projectStackId})`;
+    }
     result.selectedStack = createStack({
       id: selectedStackId,
       value: selectedStackId,
-      name: selectedStackId || 'Invalid Stack',
+      name,
       status: 'unknown',
     });
 
@@ -292,10 +299,11 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   const osMachineId = selectableDefaultMachines.find((m) => m.os === result.selectedStack.os)?.id;
   const defaultMachineTypeOfOS = getMachineById(selectableDefaultMachines, osMachineId);
 
-  const isInvalidMachineType = isInvalidStack || (!!selectedMachineTypeId && !selectedMachineType);
+  const isInvalidMachineType = !!selectedMachineTypeId && !selectedMachineType;
+  const isInvalidDefaultMachineType = !!projectMachineTypeId && !defaultMachineType;
 
   // Machine type options
-  if (!withoutDefaultOptions) {
+  if (!withoutDefaultOptions && !isInvalidDefaultMachineType) {
     if (defaultMachineType) {
       result.machineOptionGroups.unshift({
         label: 'Default Machine',
@@ -325,13 +333,28 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     }
   }
 
-  if (isInvalidMachineType) {
+  const isDefaultMachineTypeSelected = !selectedMachineType && !withoutDefaultOptions;
+
+  if (
+    isInvalidStack ||
+    isInvalidDefaultStack ||
+    isInvalidMachineType ||
+    (isDefaultMachineTypeSelected && isInvalidDefaultMachineType)
+  ) {
     result.isInvalidMachineType = true;
     // Create the invalid dummy MachineType object
+    let name: string;
+    if (isInvalidStack || isInvalidDefaultStack) {
+      name = 'Invalid Machine';
+    } else if (isInvalidMachineType) {
+      name = `Invalid Machine (${selectedMachineTypeId})`;
+    } else {
+      name = `Invalid Default Machine (${projectMachineTypeId})`;
+    }
     result.selectedMachineType = createMachineType({
       id: selectedMachineTypeId,
       value: selectedMachineTypeId,
-      name: selectedMachineTypeId || 'Invalid Machine',
+      name,
       os: result.selectedStack.os,
     });
 
