@@ -94,6 +94,15 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   }, [data]);
 
   if (error) {
+    let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
+    if (error.status) {
+      if (error.data?.error_msg) {
+        detailedErrorMessage = `${error.status} - ${error.data.error_msg}`;
+      } else if (error.statusText) {
+        detailedErrorMessage = `${error.status} - ${error.statusText}`;
+      }
+    }
+
     return (
       <Box
         px="5%"
@@ -111,9 +120,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
           </Link>
           <Box>
             <Text size="3" fontFamily="Source Code Pro, monospace" textTransform="uppercase" mb="16">
-              {error.status && error.statusText
-                ? `${error.status} - ${error.statusText}`
-                : 'Error - Failed to load the bitrise.yml'}
+              {detailedErrorMessage}
             </Text>
             <Text textStyle="heading/h2" fontWeight="bold" fontSize="48" lineHeight="1.2">
               {error?.message}
