@@ -1,6 +1,13 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
-import { useForm } from 'react-hook-form';
-import PipelineService from '@/core/models/PipelineService';
+import { DialogProps } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+
+import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
+import { trackCreatePipelineDialogShown, trackPipelineCreated } from '@/core/analytics/PipelineAnalytics';
+import PipelineService from '@/core/services/PipelineService';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = Omit<DialogProps, 'title'> & {
@@ -8,36 +15,41 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...props }: Props) => {
+  const { displayPipelineConversionNotificationFor } = usePipelineConversionNotification();
   const { keys: pipelineIds, onSelectPipeline: setSelectedPipeline } = usePipelineSelector();
 
-  const {
-    register,
-    setValue,
-    getValues,
-    handleSubmit,
-    formState: { errors, isDirty, isValid },
-  } = useForm({
-    defaultValues: {
-      pipelineId: '',
-      basePipelineId: '',
-    },
+  const baseEntityIds = useBitriseYmlStore(({ yml }) => {
+    const pipelineEntries = Object.entries(yml.pipelines ?? {});
+    return pipelineEntries.map(([id]) => id);
   });
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue('pipelineId', PipelineService.sanitizeName(event.target.value), {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
+  useEffect(() => {
+    if (props.isOpen) {
+      trackCreatePipelineDialogShown(pipelineIds.length ? 'pipeline_selector' : 'pipeline_empty_state');
+    }
+  }, [pipelineIds.length, props.isOpen]);
+
+  const handleCreatePipeline = (pipelineId: string, basePipelineId?: string) => {
+    onCreatePipeline(pipelineId, basePipelineId);
+
+    const yml = getBitriseYml();
+    const basePipeline = PipelineService.getPipeline(basePipelineId ?? '', yml);
+    // eslint-disable-next-line no-nested-ternary
+    const basePipelineType = PipelineService.getPipelineType(basePipelineId ?? '', yml);
+    const numberOfStages = PipelineService.numberOfStages(basePipeline ?? {});
+
+    trackPipelineCreated(pipelineId, basePipelineId, basePipelineType, numberOfStages, 'create_pipeline_popup');
+
+    if (!basePipeline || PipelineService.isGraph(basePipeline)) {
+      return;
+    }
+
+    if (PipelineService.hasStepInside(pipelineId, 'pull-intermediate-files', yml)) {
+      displayPipelineConversionNotificationFor(pipelineId);
+    }
   };
 
-  const handleCreate = handleSubmit(({ pipelineId, basePipelineId }) => {
-    onCreatePipeline(pipelineId, basePipelineId);
-    onClose();
-  });
-
-  const handleCloseComplete = () => {
-    const pipelineId = getValues('pipelineId');
+  const handleCloseComplete = (pipelineId: string) => {
     if (pipelineId) {
       setSelectedPipeline(pipelineId);
     }
@@ -45,42 +57,16 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
   };
 
   return (
-    <Dialog {...props} title="Create Pipeline" onClose={onClose} onCloseComplete={handleCloseComplete}>
-      <DialogBody>
-        <Box as="form" display="flex" flexDir="column" gap="24">
-          <Input
-            autoFocus
-            isRequired
-            label="Name"
-            placeholder="Pipeline name"
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-            errorText={errors.pipelineId?.message}
-            {...register('pipelineId', {
-              onChange: handleNameChange,
-              validate: (v) => PipelineService.validateName(v, pipelineIds),
-            })}
-          />
-          <Select isRequired label="Based on" {...register('basePipelineId')}>
-            <option key="" value="">
-              An empty pipeline
-            </option>
-            {pipelineIds.map((pipelineId) => (
-              <option key={pipelineId} value={pipelineId}>
-                {pipelineId}
-              </option>
-            ))}
-          </Select>
-        </Box>
-      </DialogBody>
-      <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="submit" onClick={handleCreate} isDisabled={!(isDirty && isValid)}>
-          Create Pipeline
-        </Button>
-      </DialogFooter>
-    </Dialog>
+    <CreateEntityDialog
+      baseEntities={[{ ids: baseEntityIds }]}
+      entityName="Pipeline"
+      onClose={onClose}
+      onCloseComplete={handleCloseComplete}
+      onCreateEntity={handleCreatePipeline}
+      sanitizer={PipelineService.sanitizeName}
+      validator={(name) => PipelineService.validateName(name, '', pipelineIds)}
+      {...props}
+    />
   );
 };
 

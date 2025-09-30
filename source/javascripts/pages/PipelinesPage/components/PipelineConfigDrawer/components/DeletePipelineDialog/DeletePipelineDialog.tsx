@@ -1,11 +1,20 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { useCallback } from 'react';
+
+import PipelineService from '@/core/services/PipelineService';
 
 type Props = Omit<DialogProps, 'title'> & {
   pipelineId: string;
-  onDeletePipeline: VoidFunction;
+  onDeletePipeline?: (pipelineId: string) => void;
 };
 
 const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props }: Props) => {
+  const handleDeletePipeline = useCallback(() => {
+    PipelineService.deletePipeline(pipelineId);
+    onDeletePipeline?.(pipelineId);
+    onClose();
+  }, [pipelineId, onDeletePipeline, onClose]);
+
   return (
     <Dialog {...props} title="Delete Pipeline" onClose={onClose}>
       <DialogBody display="flex" flexDir="column" gap="24">
@@ -29,7 +38,7 @@ const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props 
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="danger-primary" onClick={onDeletePipeline}>
+        <Button variant="danger-primary" onClick={handleDeletePipeline}>
           Delete
         </Button>
       </DialogFooter>

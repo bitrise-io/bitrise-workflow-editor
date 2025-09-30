@@ -1,25 +1,27 @@
 import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from '@bitrise/bitkit';
-
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { segmentTrack } from '@/utils/segmentTracking';
-import { TriggerItem } from '../TriggersPage/TriggersPage.types';
-import TriggerConditions from '../TargetBasedTriggers/TriggerConditions';
+
+import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
+import { trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
+import { TriggerSource } from '@/core/models/Trigger';
+import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 
 interface TriggerCardProps extends CardProps {
   isOverlay?: boolean;
-  triggerItem: TriggerItem;
-  onRemove?: (triggerItem: TriggerItem) => void;
-  onEdit?: (triggerItem: TriggerItem) => void;
-  onActiveChange?: (triggerItem: TriggerItem) => void;
+  triggerItem: LegacyTrigger;
+  onRemove?: (triggerItem: LegacyTrigger) => void;
+  onEdit?: (triggerItem: LegacyTrigger) => void;
+  onActiveChange?: (triggerItem: LegacyTrigger) => void;
 }
 
 const TriggerCard = (props: TriggerCardProps) => {
   const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
-  const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
+  const { conditions, source, isDraftPr, isActive } = triggerItem;
+  const [target, targetId] = source.split('#') as [TriggerSource, string];
 
   const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
-    id: triggerItem.id as string,
+    id: triggerItem.uniqueId,
   });
 
   const style: CardProps = {
@@ -41,11 +43,9 @@ const TriggerCard = (props: TriggerCardProps) => {
 
   const handleActiveChange = () => {
     if (onActiveChange) {
-      onActiveChange({ ...triggerItem, isActive: !isActive });
-      segmentTrack('Workflow Editor Enable Trigger Toggled', {
-        is_selected_trigger_enabled: isActive === true,
-        trigger_origin: 'trigger_map',
-      });
+      const newTriggerItem = { ...triggerItem, isActive: !isActive };
+      onActiveChange(newTriggerItem);
+      trackTriggerEnabledToggled(newTriggerItem, 'trigger_map');
     }
   };
 
@@ -55,20 +55,22 @@ const TriggerCard = (props: TriggerCardProps) => {
       activatorListeners={listeners}
       ref={setNodeRef}
       marginBottom="12"
-      isDragging={active?.id === triggerItem.id}
+      isDragging={active?.id === triggerItem.uniqueId}
       isOverlay={isOverlay}
       {...style}
       {...rest}
     >
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
-        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} />
+        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} triggerType={triggerItem.triggerType} />
       </Box>
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
         <Icon name="ArrowRight" marginRight="16" />
         <Box display="flex" flexDir="column" gap="4">
-          <Text textStyle="body/md/semibold">Start build</Text>
-          <Text>{pipelineable.replace('#', ': ')}</Text>
+          <Text>{targetId}</Text>
+          <Text textStyle="body/md/regular" color="text/secondary">
+            {target === 'workflows' ? 'Workflow' : 'Pipeline'}
+          </Text>
         </Box>
       </Box>
       <Box display="flex" alignItems="center">

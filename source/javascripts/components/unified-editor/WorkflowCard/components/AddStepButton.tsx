@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
+import { memo } from 'react';
 
 type Props = BoxProps;
 
@@ -18,7 +18,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           display: 'block',
         }}
       />
-      <Tooltip label="Add Step" aria-label="Add Step">
+      <Tooltip label="Add Step or Step bundle" aria-label="Add Step or Step bundle">
         <Box
           w={20}
           h={20}
@@ -27,7 +27,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           top="calc(50% - 10px)"
           left="calc(50% - 10px)"
           onClick={onClick}
-          aria-label="Add Step"
+          aria-label="Add Step or Step bundle"
           display="none"
           alignItems="center"
           justifyContent="center"

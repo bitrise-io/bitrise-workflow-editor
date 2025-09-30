@@ -11,13 +11,13 @@
         "./source/javascripts/*"
       ]
     },
-    "target": "es5",
+    "target": "ES2022",
     "lib": [
       "dom",
       "es2015",
-      "es2019"
+      "es2019",
     ],
-    "module": "commonjs",
+    "module": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowJs": true,
@@ -38,23 +38,21 @@
     "experimentalDecorators": true
   },
   "include": [
-    "tests/**/*.ts",
+    "spec/**/*.ts",
     "playwright.config.ts",
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
-    "source/javascripts/**/*.tsx"
+    "source/javascripts/**/*.tsx",
+    "spec/__mocks__/zustand.ts"
   ],
   "exclude": [
-    ".ruby-lsp",
     ".storybook",
     "_bin",
     "_scripts",
     "apiserver",
     "build",
     "cmd",
-    "cypress",
     "node_modules",
-    "rails",
     "release",
     "version"
   ]

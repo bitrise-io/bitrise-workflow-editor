@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"gopkg.in/yaml.v2"
 
@@ -36,16 +37,34 @@ func ymlToJSONKeyTypeConversion(i interface{}) interface{} {
 	return i
 }
 
+func createEmptySecretsFileIfNotExist() error {
+	secretsYMLPth := config.SecretsYMLPath
+
+	if isExist, err := pathutil.IsPathExists(secretsYMLPth); err != nil {
+		log.Errorf("Failed to check .bitrise.secrets.yml file, error: %s", err)
+		return err
+	} else if !isExist {
+		if err := os.WriteFile(secretsYMLPth, []byte("envs: []"), 0644); err != nil {
+			log.Errorf("Failed to create .bitrise.secrets.yml file, error: %s", err)
+			return err
+		}
+		log.Printf("Created .bitrise.secrets.yml file")
+	}
+
+	return nil
+}
+
 // GetSecretsAsJSONHandler ...
 func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	secretsYMLPth := config.SecretsYMLPath
+
 	if isExist, err := pathutil.IsPathExists(secretsYMLPth); err != nil {
 		log.Errorf("Failed to check .bitrise.secrets.yml file, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to check .bitrise.secrets.yml file, error: %s", err)
 		return
 	} else if !isExist {
 		log.Errorf(".bitrise.secrets.yml does not exist")
-		RespondWithJSON(w, 200, envmanModels.EnvsSerializeModel{})
+		RespondWithJSON(w, 200, envmanModels.EnvsSerializeModel{Envs: []envmanModels.EnvironmentItemModel{}})
 		return
 	}
 
@@ -113,6 +132,13 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 			log.Errorf("Failed to close request body, error: %s", err)
 		}
 	}()
+
+	// Check if the secrets file exists, if not create an empty one
+	if err := createEmptySecretsFileIfNotExist(); err != nil {
+		log.Errorf("Failed to create empty .bitrise.secrets.yml file, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to create empty .bitrise.secrets.yml file, error: %s", err)
+		return
+	}
 
 	var reqObj envmanModels.EnvsSerializeModel
 	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {

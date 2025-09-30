@@ -1,110 +1,170 @@
 import { create } from 'zustand';
 
+import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+
+export enum WorkflowsPageDialogType {
+  NONE,
+  WITH_GROUP,
+  STEP_BUNDLE,
+  START_BUILD,
+  STEP_CONFIG,
+  STEP_SELECTOR,
+  CHAIN_WORKFLOW,
+  CREATE_WORKFLOW,
+  WORKFLOW_CONFIG,
+}
+
 type State = {
-  stepIndex: number;
+  selectedStepIndices: number[];
+  stepBundleId: string;
+  parentStepBundleId: string;
   workflowId: string;
-  isDialogOpen?:
-    | 'chain-workflow'
-    | 'run-workflow'
-    | 'create-workflow'
-    | 'delete-workflow'
-    | 'step-config-drawer'
-    | 'step-selector-drawer'
-    | 'workflow-config-drawer'
-    | 'with-group-drawer'
-    | 'step-bundle-drawer';
-  dialogMounted: {
-    'step-config-drawer'?: boolean;
-    'workflow-config-drawer'?: boolean;
-  };
+  parentWorkflowId: string;
+  openedDialogType: WorkflowsPageDialogType;
+  mountedDialogType: WorkflowsPageDialogType;
+  _nextDialog?: DialogParams;
+  selectionParent?: SelectionParent;
+};
+
+type DialogParams = {
+  type: WorkflowsPageDialogType;
+  selectedStepIndices?: number[];
+  stepBundleId?: string;
+  newStepBundleId?: string;
+  parentStepBundleId?: string;
+  workflowId?: string;
+  parentWorkflowId?: string;
+  selectionParent?: SelectionParent;
 };
 
 type Action = {
+  setWorkflowId: (workflowId?: string) => void;
+  setStepBundleId: (stepBundleId?: string) => void;
+  setSelectedStepIndices: (stepIndices?: number[]) => void;
+  setSelectionParent: (selectionParent?: SelectionParent) => void;
+  isDialogOpen: (type: WorkflowsPageDialogType) => boolean;
+  isDialogMounted: (type: WorkflowsPageDialogType) => boolean;
+  openDialog: (params: DialogParams) => () => void;
   closeDialog: () => void;
-  openCreateWorkflowDialog: () => void;
-  openDeleteWorkflowDialog: () => void;
-  openRunWorkflowDialog: (workflowId: string) => void;
-  openChainWorkflowDialog: (workflowId: string) => void;
-  openWorkflowConfigDrawer: (workflowId: string) => void;
-  unmountWorkflowConfigDrawer: () => void;
-  openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
-  unmountStepConfigDrawer: () => void;
-  openStepSelectorDrawer: (workflowId: string, stepIndex: number) => void;
-  openWithGroupConfigDrawer: (workflowId: string, stepIndex: number) => void;
-  openStepBundleDrawer: (workflowId: string, stepIndex: number) => void;
+  unmountDialog: () => void;
 };
 
-export const useWorkflowsPageStore = create<State & Action>((set) => ({
-  stepIndex: -1,
+export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
+  selectedStepIndices: [],
+  stepBundleId: '',
+  newStepBundleId: '',
+  parentStepBundleId: '',
   workflowId: '',
-  isDialogOpen: undefined,
-  dialogMounted: {
-    'step-config-drawer': false,
-    'workflow-config-drawer': false,
+  parentWorkflowId: '',
+  openedDialogType: WorkflowsPageDialogType.NONE,
+  mountedDialogType: WorkflowsPageDialogType.NONE,
+  selectionParent: undefined,
+  setWorkflowId: (workflowId = '') => {
+    return set(() => ({
+      workflowId,
+    }));
+  },
+  setStepBundleId: (stepBundleId = '') => {
+    return set(() => ({
+      stepBundleId,
+    }));
+  },
+  setSelectedStepIndices: (selectedStepIndices = []) => {
+    return set(() => ({
+      selectedStepIndices,
+    }));
+  },
+  setSelectionParent: (selectionParent?: SelectionParent) => {
+    return set(() => ({
+      selectionParent,
+    }));
+  },
+  isDialogOpen: (type) => {
+    return get().openedDialogType === type;
+  },
+  isDialogMounted: (type) => {
+    return get().mountedDialogType === type;
+  },
+  openDialog: ({
+    type,
+    stepBundleId = '',
+    newStepBundleId = '',
+    parentStepBundleId = '',
+    workflowId = '',
+    parentWorkflowId = '',
+    selectedStepIndices,
+    selectionParent,
+  }) => {
+    return () => {
+      return set((state) => {
+        const {
+          openedDialogType,
+          closeDialog,
+          selectionParent: stateSelectionParent,
+          selectedStepIndices: stateSelectedStepIndices,
+        } = state;
+        if (openedDialogType !== WorkflowsPageDialogType.NONE) {
+          closeDialog();
+
+          return {
+            _nextDialog: {
+              type,
+              selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
+              stepBundleId,
+              newStepBundleId,
+              parentStepBundleId,
+              workflowId,
+              parentWorkflowId,
+              selectionParent: selectionParent || stateSelectionParent,
+            },
+          };
+        }
+
+        return {
+          selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
+          stepBundleId,
+          newStepBundleId,
+          parentStepBundleId,
+          workflowId,
+          parentWorkflowId,
+          _nextDialog: undefined,
+          openedDialogType: type,
+          mountedDialogType: type,
+          selectionParent: selectionParent || stateSelectionParent,
+        };
+      });
+    };
   },
   closeDialog: () => {
     return set(() => ({
-      stepIndex: -1,
-      workflowId: '',
-      isDialogOpen: undefined,
+      openedDialogType: WorkflowsPageDialogType.NONE,
     }));
   },
-  openCreateWorkflowDialog: () => {
-    return set(() => ({ isDialogOpen: 'create-workflow' }));
-  },
-  openDeleteWorkflowDialog: () => {
-    return set(() => ({ isDialogOpen: 'delete-workflow' }));
-  },
-  openRunWorkflowDialog: (workflowId) => {
-    return set(() => ({ workflowId, isDialogOpen: 'run-workflow' }));
-  },
-  openChainWorkflowDialog: (workflowId) => {
-    return set(() => ({ workflowId, isDialogOpen: 'chain-workflow' }));
-  },
-  openWorkflowConfigDrawer: (workflowId) => {
-    return set(() => ({
-      workflowId,
-      isDialogOpen: 'workflow-config-drawer',
-      dialogMounted: { 'workflow-config-drawer': true },
-    }));
-  },
-  unmountWorkflowConfigDrawer: () => {
-    return set(() => ({
-      dialogMounted: { 'workflow-config-drawer': false },
-    }));
-  },
-  openStepConfigDrawer: (workflowId, stepIndex) => {
-    return set(() => ({
-      workflowId,
-      stepIndex,
-      isDialogOpen: 'step-config-drawer',
-      dialogMounted: { 'step-config-drawer': true },
-    }));
-  },
-  unmountStepConfigDrawer: () => {
-    return set(() => ({
-      dialogMounted: { 'step-config-drawer': false },
-    }));
-  },
-  openStepSelectorDrawer: (workflowId, stepIndex) => {
-    return set(() => ({
-      workflowId,
-      stepIndex,
-      isDialogOpen: 'step-selector-drawer',
-    }));
-  },
-  openWithGroupConfigDrawer: (workflowId, stepIndex) => {
-    return set(() => ({
-      workflowId,
-      stepIndex,
-      isDialogOpen: 'with-group-drawer',
-    }));
-  },
-  openStepBundleDrawer: (workflowId, stepIndex) => {
-    return set(() => ({
-      workflowId,
-      stepIndex,
-      isDialogOpen: 'step-bundle-drawer',
-    }));
+  unmountDialog: () => {
+    return set(({ _nextDialog, openDialog, selectedStepIndices }) => {
+      if (_nextDialog) {
+        requestAnimationFrame(() => openDialog(_nextDialog)());
+      }
+
+      if (selectedStepIndices.length === 1 && !_nextDialog) {
+        return {
+          selectedStepIndices: [],
+          stepBundleId: '',
+          newStepBundleId: '',
+          parentStepBundleId: '',
+          workflowId: '',
+          parentWorkflowId: '',
+          nextDialog: undefined,
+          openedDialogType: WorkflowsPageDialogType.NONE,
+          mountedDialogType: WorkflowsPageDialogType.NONE,
+        };
+      }
+
+      return {
+        nextDialog: undefined,
+        openedDialogType: WorkflowsPageDialogType.NONE,
+        mountedDialogType: WorkflowsPageDialogType.NONE,
+      };
+    });
   },
 }));

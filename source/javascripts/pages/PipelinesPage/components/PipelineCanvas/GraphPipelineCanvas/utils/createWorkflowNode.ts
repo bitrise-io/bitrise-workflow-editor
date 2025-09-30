@@ -1,4 +1,5 @@
 import { PipelineWorkflow } from '@/core/models/Workflow';
+
 import {
   DEFAULT_WORKFLOW_NODE_ZINDEX,
   WORKFLOW_NODE_HEIGHT,
@@ -7,15 +8,18 @@ import {
 } from '../GraphPipelineCanvas.const';
 import { GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 
-function createWorkflowNode(workflow: PipelineWorkflow, actionable: boolean) {
+function createWorkflowNode(workflow: PipelineWorkflow) {
   return {
     id: workflow.id,
-    data: {},
-    deletable: actionable,
+    data: {
+      uses: workflow.uses,
+      parallel: workflow.parallel,
+    },
+    deletable: true,
     draggable: false,
     focusable: false,
     selectable: true,
-    connectable: actionable,
+    connectable: true,
     type: WORKFLOW_NODE_TYPE,
     width: WORKFLOW_NODE_WIDTH,
     height: WORKFLOW_NODE_HEIGHT,

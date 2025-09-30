@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
+import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useYmlHasChanges from '@/hooks/useYmlHasChanges';
+
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
@@ -13,8 +15,9 @@ type Props = BoxProps & {
   onCreatePipelineClick?: () => void;
 };
 
-// TODO: Enable buttons when the feature is ready
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+  const hasUnsavedChanges = useYmlHasChanges();
+  const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
   const hasOptions = keys.length > 0;
@@ -33,12 +36,17 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return true;
   });
 
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+
   const onSearchChange = (value: string) => {
     setSearch(value);
     setDebouncedSearch(value);
+  };
+
+  const onCreatePipeline = () => {
+    onCreatePipelineClick?.();
+    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 
   const [pipelineIds] = useMemo(() => {
@@ -52,17 +60,6 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
     return [ids];
   }, [debouncedSearch, keys]);
-
-  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
-  useEffect(() => {
-    const listener = (event: CustomEvent<boolean>) => {
-      setHasUnsavedChanges(event.detail);
-    };
-
-    window.addEventListener('main::yml::has-unsaved-changes' as never, listener);
-
-    return () => window.removeEventListener('main::yml::has-unsaved-changes' as never, listener);
-  }, []);
 
   const runButtonAriaLabel = useMemo(() => {
     if (hasUnsavedChanges) {
@@ -85,10 +82,12 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       backgroundColor="background/primary"
     >
       <Dropdown
+        ref={dropdownRef}
         flex="1"
         size="md"
         disabled={!hasOptions}
         value={selectedPipeline}
+        formLabel={selectedPipeline ?? 'Select a Pipeline'}
         onChange={(e) => onSelectPipeline(e.target.value || '')}
         placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
         search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
@@ -98,35 +97,33 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             {options[key]}
           </DropdownOption>
         ))}
-        {isGraphPipelinesEnabled && (
-          <Box
+        <Box
+          w="100%"
+          mt="8"
+          py="12"
+          mb="-12"
+          bottom="-12"
+          position="sticky"
+          borderTop="1px solid"
+          borderColor="border/regular"
+          backgroundColor="background/primary"
+        >
+          <Button
             w="100%"
-            mt="8"
-            py="12"
-            mb="-12"
-            bottom="-12"
-            position="sticky"
-            borderTop="1px solid"
-            borderColor="border/regular"
-            backgroundColor="background/primary"
+            border="none"
+            fontWeight="400"
+            borderRadius="0"
+            variant="secondary"
+            leftIconName="PlusCircle"
+            justifyContent="flex-start"
+            onClick={onCreatePipeline}
           >
-            <Button
-              w="100%"
-              border="none"
-              fontWeight="400"
-              borderRadius="0"
-              variant="secondary"
-              leftIconName="PlusCircle"
-              justifyContent="flex-start"
-              onClick={onCreatePipelineClick}
-            >
-              Create Pipeline
-            </Button>
-          </Box>
-        )}
+            Create Pipeline
+          </Button>
+        </Box>
       </Dropdown>
 
-      {shouldShowGraphPipelineActions && isGraphPipelinesEnabled && (
+      {shouldShowGraphPipelineActions && (
         <>
           <Button size="md" variant="secondary" leftIconName="Settings" onClick={onPropertiesClick}>
             Properties

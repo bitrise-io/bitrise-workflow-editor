@@ -1,56 +1,19 @@
-import algoliasearch from 'algoliasearch';
-import { sortBy, uniqBy } from 'es-toolkit';
 import { parse } from 'yaml';
+
+import Client from '@/core/api/client';
+import { EnvironmentItemModel, EnvModel, StepModel } from '@/core/models/BitriseYml';
 import {
   BITRISE_STEP_LIBRARY_SSH_URL,
   BITRISE_STEP_LIBRARY_URL,
   LibraryType,
   Maintainer,
   Step,
-  StepInputVariable,
-  StepVariable,
-  StepYmlObject,
-  VariableOpts,
 } from '@/core/models/Step';
-import VersionUtils from '@/core/utils/VersionUtils';
-import StepService from '@/core/models/StepService';
-import Client from '@/core/api/client';
+import StepService from '@/core/services/StepService';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import VersionUtils from '@/core/utils/VersionUtils';
 
-const ALGOLIA_APP_ID = 'HI1538U2K4';
-const ALGOLIA_API_KEY = '708f890e859e7c44f309a1bbad3d2de8';
-const ALGOLIA_STEPLIB_STEPS_INDEX = 'steplib_steps';
-const ALGOLIA_STEPLIB_INPUTS_INDEX = 'steplib_inputs';
-
-// TYPES
-type AlgoliaStepResponse = {
-  readonly objectID: string;
-  id: string;
-  cvs: string;
-  version: string;
-  is_deprecated: boolean;
-  is_latest: boolean;
-  latest_version_number: string;
-  step: Partial<StepYmlObject>;
-  info?: StepInfo;
-};
-
-type StepInfo = {
-  maintainer?: Maintainer;
-  asset_urls?: StepYmlObject['asset_urls'] & {
-    'icon.svg'?: string;
-    'icon.png'?: string;
-  };
-};
-
-type AlgoliaStepInputResponse = {
-  readonly objectID: string;
-  cvs: string;
-  order: number;
-  opts: VariableOpts;
-  is_latest: boolean;
-  [key: string]: unknown;
-};
+import AlgoliaApi, { AlgoliaStepInfo, AlgoliaStepInputResponse, AlgoliaStepResponse } from './AlgoliaApi';
 
 type StepApiResult = Required<Omit<Step, 'userValues' | 'mergedValues'>> | undefined;
 
@@ -63,9 +26,9 @@ type StepLibrary = {
 };
 
 type StepVersionCollection = {
-  info?: StepInfo;
+  info?: AlgoliaStepInfo;
   latest_version_number: string;
-  versions: Record<string, StepYmlObject>;
+  versions: Record<string, StepModel>;
 };
 
 // TRANSFORMATIONS
@@ -112,7 +75,7 @@ function toStep(
   };
 }
 
-function toStepVariable(response: AlgoliaStepInputResponse): StepVariable | undefined {
+function toStepVariable(response: AlgoliaStepInputResponse): EnvironmentItemModel | undefined {
   if (!response) {
     return undefined;
   }
@@ -125,24 +88,9 @@ function toStepVariable(response: AlgoliaStepInputResponse): StepVariable | unde
 const LOCAL_STEP_API = '/api/step-info';
 const LOCAL_STEP_LIBRARY_PATH = '/api/spec';
 
-function getAlgoliaClients() {
-  const client = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_API_KEY);
-  return {
-    stepsClient: client.initIndex(ALGOLIA_STEPLIB_STEPS_INDEX),
-    inputsClient: client.initIndex(ALGOLIA_STEPLIB_INPUTS_INDEX),
-  };
-}
-
 async function getAlgoliaSteps(defaultStepLibrary: string): Promise<StepApiResult[]> {
-  const { stepsClient } = getAlgoliaClients();
-  const results: Array<AlgoliaStepResponse> = [];
-  await stepsClient.browseObjects<AlgoliaStepResponse>({
-    batch: (objects) => results.push(...objects),
-    filters: 'is_latest:true AND is_deprecated:false',
-  });
-  return uniqBy(results, (r) => r.id)
-    .map((step) => toStep(step.cvs, defaultStepLibrary, step))
-    .filter(Boolean) as StepApiResult[];
+  const steps = await AlgoliaApi.getAllSteps();
+  return steps.map((step) => toStep(step.cvs, defaultStepLibrary, step)).filter(Boolean) as StepApiResult[];
 }
 
 async function getStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
@@ -165,8 +113,6 @@ async function getStepByCvs(cvs: string, defaultStepLibrary: string): Promise<St
 
 async function getAlgoliaStepByCvs(cvs: string, defaultStepLibrary: string): Promise<StepApiResult | undefined> {
   const { library, url, id, version } = StepService.parseStepCVS(cvs, defaultStepLibrary);
-  const { stepsClient } = getAlgoliaClients();
-  const results: AlgoliaStepResponse[] = [];
 
   if (library !== LibraryType.BITRISE || ![BITRISE_STEP_LIBRARY_URL, BITRISE_STEP_LIBRARY_SSH_URL].includes(url)) {
     throw new Error('Step library is not Bitrise step library');
@@ -176,15 +122,12 @@ async function getAlgoliaStepByCvs(cvs: string, defaultStepLibrary: string): Pro
     throw new Error('Step ID not specified');
   }
 
-  await stepsClient.browseObjects<AlgoliaStepResponse>({
-    batch: (batch) => results.push(...batch),
-    filters: `id:${id}`,
-  });
-  const availableVersions = results.map((step) => step.version).filter(Boolean) as string[];
+  const stepsById = await AlgoliaApi.getAllStepsById(id);
+  const availableVersions = stepsById.map((step) => step.version).filter(Boolean) as string[];
   const resolvedVersion = VersionUtils.resolveVersion(version, availableVersions) || '';
 
   const inputs = await getAlgoliaStepInputsByCvs(StepService.updateVersion(id, defaultStepLibrary, resolvedVersion));
-  const steps = results
+  const steps = stepsById
     .map((step) => {
       const result = toStep(cvs, defaultStepLibrary, step, availableVersions);
       if (result) {
@@ -242,10 +185,10 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
     throw new Error('Git URL not specified');
   }
 
-  let stepYml: StepYmlObject;
+  let stepYml: StepModel;
 
   if (RuntimeUtils.isLocalMode()) {
-    const result = await Client.post<{ step: StepYmlObject }>(LOCAL_STEP_API, {
+    const result = await Client.post<{ step: StepModel }>(LOCAL_STEP_API, {
       body: JSON.stringify({ id, library: 'git', version }),
     });
     stepYml = result?.step ?? {};
@@ -253,7 +196,7 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
     const url = StepService.getRawGitUrl(cvs, defaultStepLibrary);
     if (url.startsWith('https://gitlab.com')) {
       const result = await Client.get<{ content: string }>(url);
-      stepYml = parse(atob(result.content)) as StepYmlObject;
+      stepYml = parse(atob(result.content)) as StepModel;
     } else {
       const result = await Client.text(url, {
         excludeCSRF: true,
@@ -262,7 +205,7 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
           'Content-Type': 'text/plain',
         },
       });
-      stepYml = parse(result) as StepYmlObject;
+      stepYml = parse(result) as StepModel;
     }
   }
 
@@ -285,8 +228,8 @@ async function getLocalStepByCvs(cvs: string, defaultStepLibrary: string): Promi
   }
 
   const result = await Client.post<{
-    step: StepYmlObject;
-    info?: StepInfo;
+    step: StepModel;
+    info?: AlgoliaStepInfo;
   }>(LOCAL_STEP_API, {
     body: JSON.stringify({ id: url, version, library: 'path' }),
   });
@@ -294,20 +237,12 @@ async function getLocalStepByCvs(cvs: string, defaultStepLibrary: string): Promi
   return toStep(cvs, defaultStepLibrary, result ?? {});
 }
 
-async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable[]> {
-  const { inputsClient } = getAlgoliaClients();
-  const results: AlgoliaStepInputResponse[] = [];
-  await inputsClient.browseObjects<AlgoliaStepInputResponse>({
-    batch: (batch) => results.push(...batch),
-    filters: `cvs:${cvs}`,
-  });
-
-  return sortBy(results, [(r) => r.order])
-    .map(toStepVariable)
-    .filter(Boolean) as StepInputVariable[];
+async function getAlgoliaStepInputsByCvs(cvs: string): Promise<EnvModel> {
+  const inputs = await AlgoliaApi.getStepInputsByCvs(cvs);
+  return inputs.map(toStepVariable).filter(Boolean) as EnvModel;
 }
 
-export { AlgoliaStepResponse, AlgoliaStepInputResponse, StepInfo, StepApiResult };
+export { StepApiResult };
 
 export default {
   getAlgoliaSteps,

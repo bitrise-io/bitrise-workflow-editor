@@ -1,15 +1,14 @@
-import { CSSProperties, useRef } from 'react';
-import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
 import { Box, BoxProps } from '@bitrise/bitkit';
+import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
+import { Icon, IconProps } from 'chakra-ui-2--react';
+import { CSSProperties, useRef } from 'react';
 import { useHover } from 'usehooks-ts';
-import { Icon, IconProps } from '@chakra-ui/react';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 
-import createPlaceholderNode from '../utils/createPlaceholderNode';
-import createPlaceholderEdge from '../utils/createPlaceholderEdge';
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanvas.const';
-import { PipelineConfigDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import createPlaceholderEdge from '../utils/createPlaceholderEdge';
+import createPlaceholderNode from '../utils/createPlaceholderNode';
 
 const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
   width: 12,
@@ -56,7 +55,7 @@ const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean 
 
 const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & { isDragging: boolean }) => {
   const id = useNodeId();
-  const { openDialog } = usePipelinesPageStore();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
   const { updateNodeData, addNodes, addEdges, deleteElements } = useReactFlow();
 
@@ -90,7 +89,11 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
       top={WORKFLOW_NODE_HEIGHT / 2}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      onClick={openDialog(PipelineConfigDialogType.WORKFLOW_SELECTOR, selectedPipeline, id ?? '')}
+      onClick={openDialog({
+        type: PipelinesPageDialogType.WORKFLOW_SELECTOR,
+        pipelineId: selectedPipeline,
+        workflowId: id ?? '',
+      })}
     >
       <HandleIcon isDragging={isDragging} />
       <Handle {...props} position={position} style={{ ...defaultHandleButtonStyle }} />
@@ -134,10 +137,9 @@ export const RightHandle = (props: BoxProps) => {
   const edges = useEdges();
   const hover = useHover(ref);
   const fromHandle = useConnection((s) => s.fromHandle);
-  const isGraphPipelinesEnabled = useFeatureFlag('enable-dag-pipelines');
 
   const isDragging = fromHandle?.position === Position.Right && fromHandle?.nodeId === id;
-  const isInButtonState = isGraphPipelinesEnabled && (isDragging || (hover && !fromHandle));
+  const isInButtonState = isDragging || (hover && !fromHandle);
   const isSelected = edges.some(({ source, selected }) => source === id && selected);
   const isHighlighted = edges.some(({ source, data }) => source === id && data?.highlighted);
 

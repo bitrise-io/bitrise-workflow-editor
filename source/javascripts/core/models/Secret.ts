@@ -1,9 +1,9 @@
-enum SecretScope {
-  WORKSPACE = 'workspace',
+export enum SecretScope {
   APP = 'app',
+  WORKSPACE = 'workspace',
 }
 
-type Secret = {
+export type Secret = {
   key: string;
   value?: string;
   scope?: string;
@@ -17,5 +17,3 @@ type Secret = {
   isEditing?: boolean;
   isSaved?: boolean;
 };
-
-export { Secret, SecretScope };

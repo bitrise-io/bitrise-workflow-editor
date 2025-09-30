@@ -6,8 +6,9 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from '@tanstack/react-query';
-import { Secret } from '@/core/models/Secret';
+
 import SecretApi from '@/core/api/SecretApi';
+import { Secret } from '@/core/models/Secret';
 
 function getSecretsQueryKey(appSlug: string) {
   return ['app', appSlug, 'secrets'];
@@ -88,4 +89,4 @@ function useUpsertSecret({
   });
 }
 
-export { useSecrets, useSecretValue, useDeleteSecret, useUpsertSecret };
+export { useDeleteSecret, useSecrets, useSecretValue, useUpsertSecret };

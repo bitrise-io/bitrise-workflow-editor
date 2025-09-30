@@ -1,84 +1,127 @@
-import { ChangeEventHandler, useEffect, useState } from 'react';
-import { Box, Textarea } from '@bitrise/bitkit';
-import { useDebounceCallback } from 'usehooks-ts';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowService from '@/core/models/WorkflowService';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { Box, Button, Divider, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { ChangeEventHandler } from 'react';
+
 import EditableInput from '@/components/EditableInput/EditableInput';
-import useRenameWorkflow from '@/components/unified-editor/WorkflowConfig/hooks/useRenameWorkflow';
-import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import WorkflowService from '@/core/services/WorkflowService';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
+
+import DeleteWorkflowDialog from '../../DeleteWorkflowDialog/DeleteWorkflowDialog';
+import PriorityInput from '../../PriorityInput/PriorityInput';
 import GitStatusNameInput from '../components/GitStatusNameInput';
+import useRenameWorkflow from '../hooks/useRenameWorkflow';
+import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
   onRename: (name: string) => void;
+  onDelete?: (id: string) => void;
 };
 
-const PropertiesTab = ({ variant, onRename }: Props) => {
-  const workflow = useWorkflowConfigContext();
+const NameInput = ({ onRename }: Pick<Props, 'onRename'>) => {
+  const rename = useRenameWorkflow(onRename);
+  const value = useWorkflowConfigContext((s) => s?.id || '');
+  const otherWorkflows = Object.keys(getBitriseYml().workflows ?? {});
 
-  const isGitStatusNameEnabled =
-    useFeatureFlag('enable-custom-commit-status-name') &&
-    !WorkflowService.isUtilityWorkflow(workflow?.id || '') &&
-    variant === 'panel';
-  const updateWorkflow = useBitriseYmlStore((s) => s.updateWorkflow);
-  const debouncedUpdateWorkflow = useDebounceCallback(updateWorkflow, 100);
-
-  const [{ summary, description, statusReportName }, setValues] = useState({
-    summary: workflow?.userValues.summary || '',
-    description: workflow?.userValues.description || '',
-    statusReportName: workflow?.userValues.status_report_name || '',
-  });
-
-  const handleNameChange = useRenameWorkflow(onRename);
-
-  const handleSummaryChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    setValues((prev) => ({ ...prev, summary: e.target.value }));
-    debouncedUpdateWorkflow(workflow?.id || '', { summary: e.target.value });
-  };
-
-  const handleDescriptionChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    setValues((prev) => ({ ...prev, description: e.target.value }));
-    debouncedUpdateWorkflow(workflow?.id || '', {
-      description: e.target.value,
-    });
-  };
-
-  const handleGitStatusNameChange = (newValue: string, isValid: boolean) => {
-    setValues((prev) => ({ ...prev, statusReportName: newValue }));
-    if (isValid) {
-      debouncedUpdateWorkflow(workflow?.id || '', {
-        status_report_name: newValue,
-      });
+  const handleCommit = (newValue: string) => {
+    if (newValue !== value) {
+      rename(newValue);
     }
   };
 
-  useEffect(() => {
-    setValues({
-      summary: workflow?.userValues.summary || '',
-      description: workflow?.userValues.description || '',
-      statusReportName: workflow?.userValues.status_report_name || '',
-    });
-  }, [workflow?.userValues.description, workflow?.userValues.status_report_name, workflow?.userValues.summary]);
+  return (
+    <EditableInput
+      isRequired
+      name="name"
+      label="Name"
+      value={value}
+      sanitize={WorkflowService.sanitizeName}
+      validate={(name) => WorkflowService.validateName(name, value, otherWorkflows)}
+      onCommit={handleCommit}
+    />
+  );
+};
+
+const SummaryInput = ({ workflowId }: { workflowId: string }) => {
+  const value = useWorkflowConfigContext((s) => s?.userValues?.summary || '');
+  const handleOnChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    WorkflowService.updateWorkflowField(workflowId, 'summary', e.target.value);
+  };
+
+  return <Textarea key={workflowId} label="Summary" value={value} onChange={handleOnChange} />;
+};
+
+const DescriptionInput = ({ workflowId }: { workflowId: string }) => {
+  const value = useWorkflowConfigContext((s) => s?.userValues?.description || '');
+  const handleOnChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    WorkflowService.updateWorkflowField(workflowId, 'description', e.target.value);
+  };
+
+  return <Textarea label="Description" value={value} onChange={handleOnChange} />;
+};
+
+const Priority = ({ workflowId }: { workflowId: string }) => {
+  const value = useWorkflowConfigContext((s) => s?.userValues?.priority);
+  const handleOnChange = (newValue?: number) => {
+    WorkflowService.updateWorkflowField(workflowId, 'priority', newValue);
+  };
 
   return (
-    <Box gap="24" display="flex" flexDir="column">
-      <EditableInput
-        isRequired
-        name="name"
-        label="Name"
-        value={workflow?.id || ''}
-        sanitize={WorkflowService.sanitizeName}
-        validate={WorkflowService.validateName}
-        onCommit={handleNameChange}
-      />
-      <Textarea label="Summary" value={summary} onChange={handleSummaryChange} />
-      <Textarea label="Description" value={description} onChange={handleDescriptionChange} />
-      {isGitStatusNameEnabled && (
-        <GitStatusNameInput
-          workflowId={workflow?.id}
-          onChange={handleGitStatusNameChange}
-          statusReportName={statusReportName}
+    <PriorityInput
+      value={value}
+      helperText="Set priority between -100 and +100. Default value is 0. Available on certain plans only."
+      onChange={handleOnChange}
+    />
+  );
+};
+
+const GitStatusName = ({ workflowId }: { workflowId: string }) => {
+  const value = useWorkflowConfigContext((s) => s?.userValues?.status_report_name || '');
+  const handleOnChange = (newValue?: string) => {
+    WorkflowService.updateWorkflowField(workflowId, 'status_report_name', newValue);
+  };
+
+  return <GitStatusNameInput targetId={workflowId} statusReportName={value} onChange={handleOnChange} />;
+};
+
+const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
+  const workflowId = useWorkflowConfigContext((s) => s?.id || '');
+  const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
+
+  const isDeleteable = variant === 'panel';
+  const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflowId);
+  const isPriorityEnabled = variant === 'panel' && !isUtilityWorkflow;
+  const isGitStatusNameEnabled = variant === 'panel' && !isUtilityWorkflow;
+  const shouldShowDivider = isPriorityEnabled || isGitStatusNameEnabled;
+
+  return (
+    <Box gap="16" display="flex" flexDir="column">
+      <NameInput onRename={onRename} />
+      <SummaryInput workflowId={workflowId} />
+      <DescriptionInput workflowId={workflowId} />
+      {shouldShowDivider && <Divider marginBlock="8" />}
+      {isPriorityEnabled && <Priority workflowId={workflowId} />}
+      {isGitStatusNameEnabled && <GitStatusName workflowId={workflowId} />}
+
+      {isDeleteable && (
+        <Button
+          isDanger
+          size="lg"
+          alignSelf="start"
+          variant="secondary"
+          leftIconName="Trash"
+          aria-label={`Delete ${workflowId ? `"${workflowId}"` : 'Workflow'}`}
+          onClick={openDeleteDialog}
+        >
+          Delete Workflow
+        </Button>
+      )}
+
+      {isDeleteable && (
+        <DeleteWorkflowDialog
+          workflowId={workflowId}
+          isOpen={isDeleteDialogOpen}
+          onClose={closeDeleteDialog}
+          onDeleteWorkflow={onDelete}
         />
       )}
     </Box>

@@ -1,6 +1,7 @@
-import { ChangeEventHandler, useState } from 'react';
 import { Box, CodeSnippet, Input, Link, Text } from '@bitrise/bitkit';
-import WindowUtils from '../../../../core/utils/WindowUtils';
+import { ChangeEventHandler, useState } from 'react';
+
+import PageProps from '@/core/utils/PageProps';
 
 const TOOLTIP_MAP: Record<string, string> = {
   '<event_type>': 'PR / Push / Tag',
@@ -20,21 +21,21 @@ const getValidationError = (value: string) => {
 };
 
 type GitStatusNameInputProps = {
-  workflowId: string | undefined;
+  targetId: string | undefined;
   onChange: (newValue: string, isValid: boolean) => void;
   statusReportName: string;
 };
 
 const GitStatusNameInput = (props: GitStatusNameInputProps) => {
-  const { workflowId, onChange, statusReportName } = props;
+  const { targetId, onChange, statusReportName } = props;
   const [error, setError] = useState<string>('');
 
-  const pageProps = WindowUtils.pageProps();
-  const projectBasedTemplate = pageProps?.settings?.statusReport?.defaultProjectBasedStatusNameTemplate;
+  const statusReport = PageProps.settings()?.statusReport;
+  const projectBasedTemplate = statusReport?.defaultProjectBasedStatusNameTemplate;
 
   const variables: Record<string, string | null> = {
-    ...pageProps?.settings?.statusReport?.variables,
-    '<target_id>': pageProps?.settings?.statusReport?.variables['<target_id>'] || workflowId || '',
+    ...statusReport?.variables,
+    '<target_id>': statusReport?.variables['<target_id>'] || targetId || '',
     '<event_type>': 'pr',
   };
 
@@ -55,11 +56,16 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
   return (
     <Box>
       <Input
+        size="md"
         label="Git status name"
         helperText={
           <>
             {'Allowed characters: A-Za-z,.():/-_0-9 []|<> '}
-            <Link isExternal href="https://devcenter.bitrise.io" colorScheme="purple">
+            <Link
+              isExternal
+              href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/reporting-the-build-status-to-your-git-hosting-provider.html#custom-status-reports"
+              colorScheme="purple"
+            >
               Learn more
             </Link>
           </>
@@ -68,10 +74,9 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         placeholder={projectBasedTemplate}
         value={statusReportName}
         onChange={onGitStatusNameChange}
-        withCounter
         maxLength={100}
       />
-      {pageProps?.settings?.statusReport && (
+      {statusReport && (
         <>
           <Text color="input/text/helper" textStyle="body/sm/regular" marginBlockStart="8">
             {preview}
@@ -80,7 +85,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
             You can use the following variables in your string:
           </Text>
           {Object.keys(variables).map((variable) => (
-            <CodeSnippet variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
+            <CodeSnippet key={variable} variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
               {variable}
             </CodeSnippet>
           ))}

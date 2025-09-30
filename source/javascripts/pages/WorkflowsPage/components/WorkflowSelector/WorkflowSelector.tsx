@@ -1,121 +1,46 @@
-import { useMemo, useState } from 'react';
-import {
-  Box,
-  BoxProps,
-  Button,
-  Dropdown,
-  DropdownGroup,
-  DropdownNoResultsFound,
-  DropdownOption,
-  DropdownSearch,
-  EmptyState,
-} from '@bitrise/bitkit';
-import { useDebounceValue } from 'usehooks-ts';
+import { useMemo } from 'react';
 
-type Props = {
-  workflowIds: string[];
-  containerProps?: BoxProps;
-  selectedWorkflowId: string;
-  onSelectWorkflowId: (workflowId?: string | null) => void;
-  onCreateWorkflow: VoidFunction;
-};
+import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
-const WorkflowSelector = ({
-  workflowIds,
-  containerProps,
-  selectedWorkflowId,
-  onSelectWorkflowId,
-  onCreateWorkflow,
-}: Props) => {
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
+const WorkflowSelector = () => {
+  const workflowIds = useWorkflows((s) => Object.keys(s));
+  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
+  const [selectedWorkflowId, setSelectedWorkflow] = useSelectedWorkflow();
+
+  const onCreateWorkflow = () => {
+    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
+  };
 
   const [utilityWorkflows, runnableWorkflows] = useMemo(() => {
     const utility: string[] = [];
     const runnable: string[] = [];
 
-    workflowIds.forEach((id) => {
-      if (id?.toLowerCase().includes(debouncedSearch?.toLowerCase())) {
-        if (id.startsWith('_')) {
-          utility.push(id);
-        } else {
-          runnable.push(id);
-        }
+    workflowIds.forEach((workflowName) => {
+      if (workflowName.startsWith('_')) {
+        utility.push(workflowName);
+      } else {
+        runnable.push(workflowName);
       }
     });
 
     return [utility, runnable];
-  }, [debouncedSearch, workflowIds]);
-
-  const hasUtilityWorkflows = utilityWorkflows.length > 0;
-  const hasNoSearchResults = debouncedSearch && utilityWorkflows.length === 0 && runnableWorkflows.length === 0;
-
-  const onSearchChange = (value: string) => {
-    setSearch(value);
-    setDebouncedSearch(value);
-  };
+  }, [workflowIds]);
 
   return (
-    <Box sx={{ '--dropdown-floating-max': '359px' }} {...containerProps}>
-      <Dropdown
-        size="md"
-        value={selectedWorkflowId}
-        onChange={({ target: { value } }) => onSelectWorkflowId(value)}
-        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
-      >
-        {runnableWorkflows.map((id) => (
-          <DropdownOption key={id} value={id}>
-            {id}
-          </DropdownOption>
-        ))}
-
-        {hasUtilityWorkflows && (
-          <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
-            {utilityWorkflows.map((id) => (
-              <DropdownOption key={id} value={id}>
-                {id}
-              </DropdownOption>
-            ))}
-          </DropdownGroup>
-        )}
-
-        {hasNoSearchResults && (
-          <DropdownNoResultsFound>
-            <EmptyState
-              iconName="Magnifier"
-              backgroundColor="background/primary"
-              title="No Workflows are matching your filter"
-              description="Modify your search to get results"
-            />
-          </DropdownNoResultsFound>
-        )}
-
-        <Box
-          w="100%"
-          mt="8"
-          py="12"
-          mb="-12"
-          bottom="-12"
-          position="sticky"
-          borderTop="1px solid"
-          borderColor="border/regular"
-          backgroundColor="background/primary"
-        >
-          <Button
-            w="100%"
-            border="none"
-            fontWeight="400"
-            borderRadius="0"
-            variant="secondary"
-            leftIconName="PlusCircle"
-            justifyContent="flex-start"
-            onClick={onCreateWorkflow}
-          >
-            Create Workflow
-          </Button>
-        </Box>
-      </Dropdown>
-    </Box>
+    <EntitySelector
+      entityIds={runnableWorkflows}
+      entityName="Workflow"
+      onChange={setSelectedWorkflow}
+      onCreate={onCreateWorkflow}
+      secondaryEntities={{
+        label: 'utility workflows',
+        ids: utilityWorkflows,
+      }}
+      value={selectedWorkflowId}
+    />
   );
 };
 

@@ -1,11 +1,11 @@
-import { memo } from 'react';
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
-import useWorkflow from '@/hooks/useWorkflow';
-import useStacksAndMachines from '@/components/unified-editor/WorkflowConfig/hooks/useStacksAndMachines';
-import StackAndMachineService from '@/core/models/StackAndMachineService';
+import { memo } from 'react';
+
+import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowService from '@/core/models/WorkflowService';
-import { WorkflowCard } from '@/components/unified-editor';
+import useWorkflow from '@/hooks/useWorkflow';
+import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
 type Props = {
   id: string;
@@ -13,8 +13,8 @@ type Props = {
 };
 
 const SelectableWorkflowCard = ({ id, onClick }: Props) => {
-  const workflow = useWorkflow(id);
-  const { data: stackAndMachines } = useStacksAndMachines();
+  const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
+  const stackName = useWorkflowStackName(id);
 
   const usedInPipelinesText = useBitriseYmlStore(({ yml: { pipelines, stages } }) => {
     const count = WorkflowService.countInPipelines(id, pipelines, stages);
@@ -30,17 +30,6 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
     return `Used in ${count} Pipelines`;
   });
 
-  const stack = workflow?.userValues.meta?.['bitrise.io']?.stack || '';
-  const machineTypeId = workflow?.userValues.meta?.['bitrise.io']?.machine_type_id || '';
-
-  const { selectedStack } = StackAndMachineService.selectStackAndMachine({
-    ...stackAndMachines,
-    initialStackId: stack,
-    selectedStackId: stack,
-    initialMachineTypeId: machineTypeId,
-    selectedMachineTypeId: machineTypeId,
-  });
-
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
@@ -52,11 +41,11 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
           onClick={onClick}
           _hover={{ boxShadow: 'small', borderColor: 'border/hover' }}
         >
-          <Text textStyle="body/lg/semibold">{workflow?.userValues.title || workflow?.id}</Text>
+          <Text textStyle="body/lg/semibold">{workflow?.title || id}</Text>
           <Text textStyle="body/sm/regular" color="text/secondary">
             {usedInPipelinesText}
             {' • '}
-            {selectedStack.name || stack || 'Unknown stack'}
+            {stackName}
           </Text>
         </Card>
       </PopoverTrigger>

@@ -1,83 +1,77 @@
-import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { Box } from '@bitrise/bitkit';
+import { ChangeEventHandler } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
-import { StepInputVariable } from '@/core/models/Step';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepInput from '../components/StepInput';
-import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import StepInputGroup from '../components/StepInputGroup';
 
-function groupStepInputs(inputs?: StepInputVariable[]) {
-  return inputs?.reduce<Record<string, StepInputVariable[]>>((groups, input) => {
-    const category = input.opts?.category ?? '';
-    return {
-      ...groups,
-      ...{ [category]: [...(groups[category] ?? []), input] },
-    };
-  }, {});
-}
+import StepService from '@/core/services/StepService';
+import StepVariableService from '@/core/services/StepVariableService';
+
+import WhenToRunCard from '../../WhenToRunCard/WhenToRunCard';
+import StepInputGroup from '../components/StepInputGroup';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 const ConfigurationTab = () => {
-  const { data, workflowId, stepIndex } = useStepDrawerContext();
+  const { data, workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
+  const updateStepInput = useDebounceCallback(StepService.updateStepInput, 250);
 
-  const updateStep = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStep),
-    250,
-  );
-
-  const updateStepInputs = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStepInputs),
-    250,
-  );
-
-  const mergedValues = data?.mergedValues ?? {};
+  const userValues = data?.userValues ?? {};
   const defaultValues = data?.defaultValues ?? {};
+  const mergedValues = data?.mergedValues ?? {};
 
   const onInputValueChange = (name: string, value?: string | null) => {
-    const clone = JSON.parse(JSON.stringify(mergedValues.inputs ?? [])) as StepInputVariable[];
+    const isNameValid = defaultValues.inputs?.some((input) => Object.keys(input).includes(name));
 
-    clone.forEach(({ opts, ...input }, index) => {
-      if (Object.keys(input).includes(name)) {
-        clone[index][name] = value;
-      }
-    });
+    // Trying to write a non-existing input
+    if (!isNameValid) {
+      return;
+    }
 
-    updateStepInputs(workflowId, stepIndex, clone, defaultValues.inputs ?? mergedValues.inputs ?? []);
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+
+    updateStepInput(source, sourceId, stepIndex, name, value);
+  };
+
+  const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    StepService.updateStepField(source, sourceId, stepIndex, 'is_always_run', e.currentTarget.checked);
+  };
+
+  const onIsSkippableChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    StepService.updateStepField(source, sourceId, stepIndex, 'is_skippable', e.currentTarget.checked);
+  };
+
+  const onRunIfChange = (runIf: string) => {
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    StepService.updateStepField(source, sourceId, stepIndex, 'run_if', runIf);
   };
 
   return (
     <Box display="flex" flexDir="column" gap="12">
-      <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">When to run</Text>}>
-        <Box display="flex">
-          <Text flex="1">Run even if previous Step(s) failed</Text>
-          <Toggle
-            defaultChecked={mergedValues.is_always_run}
-            onChange={(e) =>
-              updateStep(workflowId, stepIndex, { is_always_run: e.currentTarget.checked }, defaultValues)
-            }
-          />
-        </Box>
-        <Divider my="24" />
-        <Box display="flex">
-          <Text flex="1">Continue build even if this Step fails</Text>
-          <Toggle
-            defaultChecked={mergedValues.is_skippable}
-            onChange={(e) =>
-              updateStep(workflowId, stepIndex, { is_skippable: e.currentTarget.checked }, defaultValues)
-            }
-          />
-        </Box>
-        <Divider my="24" />
-        <StepInput
-          label="Additional run conditions"
-          helperText="Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer to Env Vars and more, see the [docs for details](https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html)."
-          defaultValue={mergedValues.run_if}
-          onChange={(changedValue) => updateStep(workflowId, stepIndex, { run_if: changedValue }, defaultValues)}
-        />
-      </ExpandableCard>
+      <WhenToRunCard
+        defaultValuesRunIf={defaultValues.run_if}
+        isAlwaysRun={mergedValues.is_always_run}
+        isSkippable={mergedValues.is_skippable}
+        onIsAlwaysRunChange={onIsAlwaysRunChange}
+        onIsSkippableChange={onIsSkippableChange}
+        onRunIfChange={onRunIfChange}
+        userValuesRunIf={userValues.run_if}
+      />
 
-      {Object.entries(groupStepInputs(mergedValues.inputs) ?? {}).map(([title, inputs]) => {
-        return <StepInputGroup key={title} title={title} inputs={inputs} onChange={onInputValueChange} />;
-      })}
+      {data?.id &&
+        Object.entries(StepVariableService.group(defaultValues.inputs)).map(([title, defaults]) => (
+          <StepInputGroup
+            key={title}
+            title={title}
+            stepId={data.id}
+            defaults={defaults}
+            inputs={userValues.inputs ?? []}
+            onChange={onInputValueChange}
+          />
+        ))}
     </Box>
   );
 };

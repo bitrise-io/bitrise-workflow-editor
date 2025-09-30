@@ -1,5 +1,7 @@
 import { Node, Position } from '@xyflow/react';
+
 import { Stage } from '@/core/models/Stage';
+
 import {
   CANVAS_PADDING,
   ICON_STAGE_WIDTH,
@@ -68,7 +70,7 @@ const usePipelineStageNodes = (): Node[] => {
       x += ICON_STAGE_WIDTH + STAGE_GAP;
     }
 
-    nodes.push(stageNode(id, x, stage));
+    nodes.push(stageNode(stage.id, x, stage));
     x += STAGE_WIDTH + STAGE_GAP;
 
     if (isLastStage) {

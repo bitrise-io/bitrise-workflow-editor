@@ -1,24 +1,23 @@
-import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
-import { MockYml } from '@/core/models/BitriseYml.mocks';
-import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
-import StepApiMocks from '@/core/api/StepApi.mswMocks';
+import { Meta, StoryObj } from '@storybook/react';
+import { set } from 'es-toolkit/compat';
+
 import {
   getCertificates,
   getDefaultOutputs,
   getFileStorageDocuments,
   getProvProfiles,
 } from '@/core/api/EnvVarsApi.mswMocks';
+import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+import StepApiMocks from '@/core/api/StepApi.mswMocks';
+
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
-  args: {
-    yml: MockYml,
-  },
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -30,11 +29,6 @@ const meta: Meta<typeof WorkflowsPage> = {
         getFileStorageDocuments(),
         getDefaultOutputs(':appSlug'),
       ],
-    },
-  },
-  argTypes: {
-    onChange: {
-      type: 'function',
     },
   },
   decorators: (Story) => (
@@ -68,6 +62,9 @@ export const CliMode: Story = {
 };
 
 export const WebsiteMode: Story = {
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-wfe-step-bundles-when-to-run', true);
+  },
   parameters: {
     msw: {
       handlers: [
@@ -89,9 +86,15 @@ export const UniqueStepLimit: Story = {
   },
 };
 
-export const DedicatedMachine: Story = {
+export const DedicatedWithMachines: Story = {
   parameters: {
-    msw: { handlers: [getStacksAndMachines({ hasDedicatedMachine: true })] },
+    msw: { handlers: [getStacksAndMachines({ privateCloud: 'machine-overrides' })] },
+  },
+};
+
+export const LegacyDedicated: Story = {
+  parameters: {
+    msw: { handlers: [getStacksAndMachines({ privateCloud: 'no-machines' })] },
   },
 };
 

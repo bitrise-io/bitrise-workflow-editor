@@ -9,260 +9,313 @@ containers:
     image: ruby:3.2
 app:
   envs:
-  - ACCESS_KEY: "120"
-  - GITHUB_TOKEN: GITHUB_TOKEN
-    opts:
-      is_expand: false
-  - SLACK_WEBHOOK: https://tempuri.org
+    - ACCESS_KEY: "120"
+    - GITHUB_TOKEN: GITHUB_TOKEN
+      opts:
+        is_expand: false
+    - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
-- type: push
-  workflow: wf1
-  push_branch: master
-- type: push
-  workflow: wf2
-  push_branch: release
-- type: pull_request
-  workflow: wf3
-  pull_request_target_branch: '*'
+  - type: push
+    workflow: wf1
+    push_branch: master
+  - type: push
+    workflow: wf2
+    push_branch: release
+  - type: pull_request
+    workflow: wf5
+    pull_request_target_branch: '*'
 pipelines:
   graph-pipeline:
+    triggers:
+      push:
+        - branch: main
     workflows:
+      tmp: { depends_on: [ wf1 ], parallel: 4 }
       wf1: {}
       wf2:
         depends_on:
-        - wf1
+          - wf1
       wf3:
         depends_on:
-        - wf1
+          - wf1
       wf4:
         depends_on:
-        - wf2
-        - wf3
+          - wf2
+          - wf3
       wf5:
         depends_on:
-        - wf4
+          - wf4
+      wf7:
+        depends_on:
+          - wf5
   pl1:
-    triggers:
-      push:
-      - branch: main
     stages:
-    - st1: {}
+      - st1: {}
   pl2:
     stages:
-    - st1: {}
-    - st2: {}
+      - st1: {}
+      - st2: {}
   pl3:
     stages:
-    - st3: {}
-    - st2: {}
-    - st1: {}
+      - st3: {}
+      - st2: {}
+      - st1: {}
+  pl4:
+    stages:
+      - st4: {}
+      - st5: {}
 stages:
   st1:
     workflows:
-    - wf1: {}
+      - wf1: {}
   st2:
     workflows:
-    - wf2: {}
-    - wf3: {}
+      - wf2: {}
+      - wf3: {}
   st3:
     workflows:
-    - wf1: {}
-    - wf2: {}
-    - wf3: {}
-    - wf4: {}
-    - wf5: {}
-    - wf6: {}
+      - wf1: {}
+      - wf2: {}
+      - wf3: {}
+      - wf4: {}
+      - wf5: {}
+      - wf6: {}
+  st4:
+    workflows:
+      - wf1: {}
+      - wf1: {}
+      - wf1: {}
+      - wf2: {}
+  st5:
+    workflows:
+      - wf3: {}
 workflows:
   custom-steplib-steps:
+    triggers:
+      push:
+        - priority: 0
+          branch: "1"
+      pull_request:
+        - target_branch: draft-included
+        - target_branch: nodraft
+          draft_enabled: false
     steps:
-    - https://github.com/my-bitrise-steps/custom-steplib.git::script:
-        title: Custom GitHub (org) steplib
-    - https://github.com/zoltanszabo-bitrise/custom-steplib.git::script:
-        title: Custom GitHub (user) steplib
-    - https://gitlab.com/steplib/custom-steplib.git::script:
-        title: Custom GitLab (group) steplib
-    - https://gitlab.com/zoltanszabo-bitrise/custom-steplib.git::script:
-        title: Custom GitLab (user) steplib
-    - https://bitbucket.org/zoltan-szabo-bitrise/custom-steplib.git::script:
-        title: Custom BitBucket steplib
+      - https://github.com/my-bitrise-steps/custom-steplib.git::script:
+          title: Custom GitHub (org) steplib
+      - https://github.com/zoltanszabo-bitrise/custom-steplib.git::script:
+          title: Custom GitHub (user) steplib
+      - https://gitlab.com/steplib/custom-steplib.git::script:
+          title: Custom GitLab (group) steplib
+      - https://gitlab.com/zoltanszabo-bitrise/custom-steplib.git::script:
+          title: Custom GitLab (user) steplib
+      - https://bitbucket.org/zoltan-szabo-bitrise/custom-steplib.git::script:
+          title: Custom BitBucket steplib
   git-steps:
     steps:
-    - git::https://github.com/my-bitrise-steps/steps-fastlane.git@master:
-        title: GitHub (org) (https) step
-        inputs:
-        - lane: github1
-    - git::git@github.com:my-bitrise-steps/steps-fastlane.git@master:
-        title: GitHub (org) (ssh) step
-        inputs:
-        - lane: github2
-    - git::https://github.com/zoltanszabo-bitrise/steps-fastlane.git@master:
-        title: GitHub (user) (https) step
-        inputs:
-        - lane: github3
-    - git::git@github.com:zoltanszabo-bitrise/steps-fastlane.git@master:
-        title: GitHub (user) (ssh) step
-        inputs:
-        - lane: github4
-    - git::https://gitlab.com/steplib/steps-fastlane.git@master:
-        title: GitLab (org) (https) step
-        inputs:
-        - lane: gitlab1
-    - git::git@gitlab.com:steplib/steps-fastlane.git@master:
-        title: GitLab (org) (ssh) step
-        inputs:
-        - lane: gitlab2
-    - git::https://gitlab.com/zoltanszabo-bitrise/steps-fastlane.git@master:
-        title: GitLab (user) (https) step
-        inputs:
-        - lane: gitlab3
-    - git::git@gitlab.com:zoltanszabo-bitrise/steps-fastlane.git@master:
-        title: GitLab (user) (ssh) step
-        inputs:
-        - lane: gitlab4
-    - git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git@master:
-        title: Bitbucket (https) step
-        inputs:
-        - lane: bitbucket1
-    - git::git@bitbucket.org:zoltan-szabo-bitrise/steps-fastlane.git@master:
-        title: Bitbucket (ssh) step
-        inputs:
-        - lane: bitbucket2
+      - git::https://github.com/my-bitrise-steps/steps-fastlane.git@master:
+          title: GitHub (org) (https) step
+          inputs:
+            - lane: github1
+      - git::git@github.com:my-bitrise-steps/steps-fastlane.git@master:
+          title: GitHub (org) (ssh) step
+          inputs:
+            - lane: github2
+      - git::https://github.com/zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitHub (user) (https) step
+          inputs:
+            - lane: github3
+      - git::git@github.com:zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitHub (user) (ssh) step
+          inputs:
+            - lane: github4
+      - git::https://gitlab.com/steplib/steps-fastlane.git@master:
+          title: GitLab (org) (https) step
+          inputs:
+            - lane: gitlab1
+      - git::git@gitlab.com:steplib/steps-fastlane.git@master:
+          title: GitLab (org) (ssh) step
+          inputs:
+            - lane: gitlab2
+      - git::https://gitlab.com/zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitLab (user) (https) step
+          inputs:
+            - lane: gitlab3
+      - git::git@gitlab.com:zoltanszabo-bitrise/steps-fastlane.git@master:
+          title: GitLab (user) (ssh) step
+          inputs:
+            - lane: gitlab4
+      - git::https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git@master:
+          title: Bitbucket (https) step
+          inputs:
+            - lane: bitbucket1
+      - git::git@bitbucket.org:zoltan-szabo-bitrise/steps-fastlane.git@master:
+          title: Bitbucket (ssh) step
+          inputs:
+            - lane: bitbucket2
   local-steps:
     steps:
-    - path::./spec/integration/fixture/test_local_step: {}
-    - path::./spec/integration/fixture/test_local_step:
-        title: A local step with overwritten title & input
-        inputs:
-        - company_name: Mando
+      - path::./spec/integration/fixture/test_local_step: {}
+      - path::./spec/integration/fixture/test_local_step:
+          title: A local step with overwritten title & input
+          inputs:
+            - company_name: Mando
   steplib-steps:
     steps:
-    - https://github.com/bitrise-io/bitrise-steplib.git::script@0.9.0:
-        title: Full explicit CVS (library::id@version)
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Hello full explicit Bitrise step!"
-    - ::script@0.9.0:
-        title: Implicit library, explicit version (::id@version)
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Hello implicit default library step (::id@version)!"
-    - script@0.9.0:
-        title: Implicit library, explicit version (id@version)
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Hello implicit default library step (id@version)!"
-    - ::script@:
-        title: Implicit library, implicit version (::id@)
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Hello implicit default library step (::id@)!"
-    - script@:
-        title: Implicit library, implicit version (id@)
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            echo "Hello implicit default library step (id@)!"
-    - script:
-        title: Full implicit CVS (id)
+      - https://github.com/bitrise-io/bitrise-steplib.git::script@0.9.0:
+          title: Full explicit CVS (library::id@version)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello full explicit Bitrise step!"
+      - ::script@0.9.0:
+          title: Implicit library, explicit version (::id@version)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (::id@version)!"
+      - script@0.9.0:
+          title: Implicit library, explicit version (id@version)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (id@version)!"
+      - ::script@:
+          title: Implicit library, implicit version (::id@)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (::id@)!"
+      - script@:
+          title: Implicit library, implicit version (id@)
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                echo "Hello implicit default library step (id@)!"
+      - script:
+          title: Full implicit CVS (id)
+  tmp:
+    envs:
+      - asd: 1234
+        opts:
+          is_expand: false
+    steps:
+      - git-clone@8:
+          inputs:
+            - clone_depth: 5
+            - update_submodules: "no"
+            - merge_pr: "no"
+      - script@1: {}
+      - restore-npm-cache@2: {}
+      - npm@1:
+          inputs:
+            - command: install
+          title: npm install
+      - npm@1:
+          title: npm run theme:generate-types
+          inputs:
+            - command: run theme:generate-types
+      - npm@1:
+          inputs:
+            - command: run lint
+          title: npm run lint
+      - npm@1:
+          inputs:
+            - command: run type-check
+          title: npm run type-check
+      - npm@1:
+          inputs:
+            - command: run build
+          title: npm run build
+      - save-npm-cache@1: {}
   wf1:
     summary: My first workflow
     description: There will be more to come
     envs:
-    - TEST: test
-      opts:
-        is_expand: false
+      - TEST: test
+        opts:
+          is_expand: false
     steps:
-    - github-status@2.4.0:
-        inputs:
-        - api_base_url: https://github.com
-        - set_specific_status: pending
-        - auth_token: $GITHUB_TOKEN
-    - script@1.1.5:
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+      - github-status@2.4.0:
+          inputs:
+            - api_base_url: https://github.com
+            - set_specific_status: pending
+            - auth_token: $GITHUB_TOKEN
+      - script@1.1.5:
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
 
-            # write your script here
-            git config --global user.name "Bitrise"
-          opts:
-            meta:
-              bitrise.io:
-                stack: osx-xcode-11.3.x
-    - activate-ssh-key: {}
-    - certificate-and-profile-installer@1.10.2: {}
-    - authenticate-host-with-netrc@0.9.4:
-        inputs:
-        - username: $username
-        - password: $PAT
-        - host: github.com
-    - script@1.1:
-        title: Install Swiftlint 0.35
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+                # write your script here
+                git config --global user.name "Bitrise"
+              opts:
+                meta:
+                  bitrise.io:
+                    stack: osx-xcode-11.3.x
+      - activate-ssh-key: {}
+      - script@1.1:
+          title: Install Swiftlint 0.35
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
 
-            # Installing Swiftlint 0.35.0
-            brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
-    - git-clone@4.0.17:
-        inputs:
-        - clone_depth: "0"
-    - cache-pull@2.1.3: {}
-    - cache-pull@2: {}
-    - authenticate-with-github-oauth@0: {}
-    - cache-pull@2.1: {}
-    - fastlane@2.6:
-        title: Carthage Bootstrap
-        asset_urls:
-          icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
-        inputs:
-        - lane: download_carthage_from_artifactory
-    - deploy-to-itunesconnect-application-loader: {}
-    - fastlane-match@0.2:
-        title: Fastlane Match Development
-        inputs:
-        - git_branch: master
-    - carthage@3.2.1:
-        inputs:
-        - carthage_options: --platform ios --cache-builds
-        - github_access_token: $GITHUB_TOKEN
-    - xcode-build-for-test:
-        inputs:
-        - scheme: $SCHEME_UI_TESTS
-        - project_path: $WORKSPACE_UI_TESTS
-    - virtual-device-testing-for-ios@0.9:
-        inputs:
-        - test_devices: iphonexsmax,12.1,en,portrait
-    - deploy-to-bitrise-io@1.7.1: {}
-    - cache-push@2:
-        inputs:
-        - ignore_check_on_paths: '!./Pods'
-        - cache_paths: ./Carthage -> ./Carthage/Cachefile
-    - slack@3:
-        inputs:
-        - channel: '#test'
-        - channel_on_error: '#test-error'
-        - text_on_error: Oh No!
-        - emoji_on_error: ':white_frowning_face:'
-        - pretext_on_error: '*Failed Bro*'
-        - emoji: ':smile:'
-        - author_name: Bitrise
-        - fields: |
-            App|${BITRISE_APP_TITLE}
-            Branch|${BITRISE_GIT_BRANCH}
-            Workflow|${BITRISE_TRIGGERED_WORKFLOW_ID}
-        - webhook_url: $SLACK_WEBHOOK
+                # Installing Swiftlint 0.35.0
+                brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
+      - git-clone@4.0.17:
+          inputs:
+            - clone_depth: "0"
+      - cache-pull@2.1.3: {}
+      - cache-pull@2: {}
+      - authenticate-with-github-oauth@0: {}
+      - cache-pull@2.1: {}
+      - fastlane@2.6:
+          title: Carthage Bootstrap
+          asset_urls:
+            icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
+          inputs:
+            - lane: download_carthage_from_artifactory
+      - deploy-to-itunesconnect-application-loader: {}
+      - fastlane-match@0.2:
+          title: Fastlane Match Development
+          inputs:
+            - git_branch: master
+      - carthage@3.2.1:
+          inputs:
+            - carthage_options: --platform ios --cache-builds
+            - github_access_token: $GITHUB_TOKEN
+      - xcode-build-for-test:
+          inputs:
+            - scheme: $SCHEME_UI_TESTS
+            - project_path: $WORKSPACE_UI_TESTS
+      - virtual-device-testing-for-ios@0.9:
+          inputs:
+            - test_devices: iphonexsmax,12.1,en,portrait
+      - deploy-to-bitrise-io@1.7.1: {}
+      - cache-push@2:
+          inputs:
+            - ignore_check_on_paths: '!./Pods'
+            - cache_paths: ./Carthage -> ./Carthage/Cachefile
+      - slack@3:
+          inputs:
+            - channel: '#test'
+            - channel_on_error: '#test-error'
+            - text_on_error: Oh No!
+            - emoji_on_error: ':white_frowning_face:'
+            - pretext_on_error: '*Failed Bro*'
+            - emoji: ':smile:'
+            - author_name: Bitrise
+            - fields: |
+                App|${BITRISE_APP_TITLE}
+                Branch|${BITRISE_GIT_BRANCH}
+                Workflow|${BITRISE_TRIGGERED_WORKFLOW_ID}
+            - webhook_url: $SLACK_WEBHOOK
     meta:
       bitrise.io:
         stack: osx-xcode-11.3.x
@@ -271,154 +324,233 @@ workflows:
     description: Second, but definitely not the last
     triggers:
       tag:
-      - name:
-          regex: '*'
+        - name:
+            regex: '*'
     before_run:
-    - wf1
+      - wf1
     after_run:
-    - wf3
-    - wf7
-    - wf7
+      - wf3
+      - wf7
+      - wf7
     envs:
-    - opts:
-        is_expand: false
-      project: test
+      - opts:
+          is_expand: false
+        project: test
     steps:
-    - git::https://github.com/bitrise-steplib/steps-script:
-        title: A script step referenced by git URL
-        summary: All non-overwritten attributes should be the step's default value
-          from step.yml in the step's repository.
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+      - git::https://github.com/bitrise-steplib/steps-script:
+          title: A script step referenced by git URL
+          summary: All non-overwritten attributes should be the step's default value from
+            step.yml in the step's repository.
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
 
-            # This step is referenced by git URL
-    - git::https://github.com/bitrise-steplib/steps-script@master: {}
-    - git::https://github.com/bitrise-steplib/steps-script@master:
-        title: ""
-    - path::./spec/integration/fixture/test_local_step: {}
-    - path::./spec/integration/fixture/test_local_step:
-        title: A local step with overwritten title & input
-        inputs:
-        - company_name: Bitrise 2
-    - path::./spec/integration/fixture/test_local_step:
-        title: ""
-    - script:
-        title: A script step with overwritten title & input opts
-        inputs:
-        - content: |
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+                # This step is referenced by git URL
+      - git::https://github.com/bitrise-steplib/steps-script@master: {}
+      - git::https://github.com/bitrise-steplib/steps-script@master:
+          title: ""
+      - path::./spec/integration/fixture/test_local_step: {}
+      - path::./spec/integration/fixture/test_local_step:
+          title: A local step with overwritten title & input
+          inputs:
+            - company_name: Bitrise 2
+      - path::./spec/integration/fixture/test_local_step:
+          title: ""
+      - script:
+          title: A script step with overwritten title & input opts
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
 
-            # The 'content' key was needed to be specified, that's how the input is identified. Even if we don't want to change its value, only the opts, like in this situation.
-          opts:
-            is_expand: true
-            title: Modified script input
-    - activate-ssh-key:
-        title: An Activate SSH key step with aliased output
-        outputs:
-        - SSH_AUTH_SOCK: ALIASED_SSH_AUTH_SOCK
-          opts:
-            title: SSH Auth Socket info - aliased to `ALIASED_SSH_AUTH_SOCK`
-    - script:
-        title: A script step with metadata in it
-        meta:
-          bitrise.io:
-            description: Step config part for the Bitrise website.
-            environment: website
-          ship.bitrise.io:
-            summary: Step config part for the Ship add-on.
+                # The 'content' key was needed to be specified, that's how the input is identified. Even if we don't want to change its value, only the opts, like in this situation.
+              opts:
+                is_expand: true
+                title: Modified script input
+      - activate-ssh-key:
+          title: An Activate SSH key step with aliased output
+          outputs:
+            - SSH_AUTH_SOCK: ALIASED_SSH_AUTH_SOCK
+              opts:
+                title: SSH Auth Socket info - aliased to `ALIASED_SSH_AUTH_SOCK`
+      - script:
+          title: A script step with metadata in it
+          meta:
+            bitrise.io:
+              description: Step config part for the Bitrise website.
+              environment: website
+            ship.bitrise.io:
+              summary: Step config part for the Ship add-on.
+    meta:
+      bitrise.io:
+        machine_type_id: invalid
   wf3:
     summary: Third workflow
     description: The wf3 test workflow
     before_run:
-    - wf4
+      - wf4
     after_run:
-    - wf5
-    - wf5
-    - wf6
+      - wf5
+      - wf5
+      - wf6
     envs:
-    - opts:
-        is_expand: false
-      project: vrbo
+      - opts:
+          is_expand: false
+        project: vrbo
     steps:
-    - activate-ssh-key: {}
-    - git-clone@4.0.17: {}
-    - script@1: {}
+      - activate-ssh-key: {}
+      - git-clone@4.0.17: {}
+      - script@1: {}
   wf4:
+    after_run:
+      - wf5
     envs:
-    - opts:
-        is_expand: false
-      project: testproject
+      - opts:
+          is_expand: false
+        project: testproject
     steps:
-    - script@1: {}
-    - path::./spec/integration/fixture/untitled_step: {}
-    - path::./spec/integration/fixture/test_local_step:
-        summary: A local step with overwritten summary
-        description: This local step has its description overwritten
-        is_always_run: true
-    - path::./spec/integration/fixture/test_local_step: {}
-    - azure-devops-status@1: {}
+      - script@1: {}
+      - path::./spec/integration/fixture/untitled_step: {}
+      - path::./spec/integration/fixture/test_local_step:
+          summary: A local step with overwritten summary
+          description: This local step has its description overwritten
+          is_always_run: true
+      - path::./spec/integration/fixture/test_local_step: {}
+      - azure-devops-status@1: {}
   wf5:
     envs:
-    - opts:
-        is_expand: false
-      project: testproject
+      - opts:
+          is_expand: false
+        project: testproject
     steps:
-    - script@1:
-        inputs:
-        - content: '#!/usr/bin/env bash'
-    - xamarin-user-management: {}
+      - script@1:
+          inputs:
+            - content: '#!/usr/bin/env bash'
+      - xamarin-user-management: {}
+      - pull-intermediate-files: {}
+    meta:
+      bitrise.io:
+        license_pool_id: pool-1
   wf6:
     summary: this is a short summary
     description: I don't know what to write here
     triggers:
       push:
-      - enabled: false
-        branch: main
+        - enabled: false
+          branch: main
     envs:
-    - WF_NAME: wf6
-      opts:
-        is_expand: false
-    - TEST: 123
-      opts:
-        is_expand: false
+      - WF_NAME: wf6
+        opts:
+          is_expand: false
+      - TEST: 123
+        opts:
+          is_expand: false
   wf7:
     summary: Seventh workflow
     description: Last, but not least important workflow
     triggers:
       push:
-      - enabled: false
-        branch: main
+        - enabled: false
+          branch: main
       pull_request:
-      - target_branch: main
-        comment: '[workflow: deploy]'
-      - commit_message:
-          regex: '.*\[workflow: deploy\].*'
+        - target_branch: main
+          comment: '[workflow: deploy]'
+        - commit_message:
+            regex: '.*\[workflow: deploy\].*'
       tag:
-      - name:
-          regex: ^\d\.\d\.\d$
+        - name:
+            regex: ^\d\.\d\.\d$
     steps:
-    - script@1:
-        inputs:
-        - content: '#!/usr/bin/env bash'
-    - xamarin-user-management: {}
-    - bundle::install_deps: {}
-    - with:
-        container: ruby
-        services:
-        - postgres
+      - script@1.1:
+          title: Install Swiftlint 0.35
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
+
+                # Installing Swiftlint 0.35.0
+                brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
+      - activate-ssh-key:
+      - certificate-and-profile-installer@1.10.2:
+      - authenticate-host-with-netrc@0.9.4:
+          inputs:
+            - username: $username
+            - password: $PAT
+            - host: github.com
+      - xamarin-user-management:
+      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
+      - bundle::install_deps:
+      - with:
+          container: ruby
+          services:
+            - postgres
 step_bundles:
   install_deps:
+    inputs:
+      - opts:
+          category: myFirstCategory
+          description: '...'
+          is_required: true
+          summary: Xcode Project (`.xcodeproj`) or Workspace (`.xcworkspace`) path.
+          title: Project path
+        project_path: null
+      - foo: bar
+        opts: {}
+      - distribution_method: development
+        opts:
+          is_required: true
+          summary: Describes how Xcode should export the archive.
+          title: Distribution method
+          value_options:
+            - development
+            - app-store
+            - ad-hoc
+            - enterprise
     envs:
-    - CACHE_KEY: npm-cache-{{ checksum }}
-      opts: {}
-    - NPM_COMMAND: install
-      opts: {}
+      - CACHE_KEY: npm-cache-{{ checksum }}
+      - NPM_COMMAND: install
+    steps:
+      - git::https://github.com/my-bitrise-steps/steps-fastlane.git@master:
+          title: GitHub (org) (https) step
+          inputs:
+            - lane: github1
+      - activate-ssh-key: {}
+      - git-clone@4.0.17:
+          inputs:
+            - clone_depth: "0"
+      - cache-pull@2.1.3: {}
+      - deploy-to-bitrise-io@1.7.1: {}
+  test:
+    steps:
+      - activate-ssh-key@4.1.1: {}
+      - open-vpn@0.1.2: {}
+  verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
+    steps:
+      - theappspajamas-service-account-key-installer@0.0.3: {}
+      - android-manifest-info@1.0.2: {}
+  sb1:
+    steps:
+      - bundle::sb2: {}
+    inputs:
+      - input1: sb1
+        opts:
+          title: sb1_input1
+  sb2:
+    steps:
+      - script@1:
+          inputs:
+            - content: echo "Hello Bitrise!"
+    inputs:
+      - input1: sb2
+        opts:
+          title: sb2_input1

@@ -1,30 +1,31 @@
-import semver from 'semver';
 import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import StepBadge from '@/components/StepBadge';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import semver from 'semver';
+
 import defaultIcon from '@/../images/step/icon-default.svg';
+import StepBadge from '@/components/StepBadge';
+import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import ConfigurationTab from './tabs/ConfigurationTab';
-import PropertiesTab from './tabs/PropertiesTab';
-import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
+import ConfigurationTab from './tabs/ConfigurationTab';
+import OutputVariablesTab from './tabs/OutputVariablesTab';
+import PropertiesTab from './tabs/PropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
+  stepBundleId?: string;
   workflowId: string;
   stepIndex: number;
 };
 
-const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>) => {
-  const { workflowId, stepIndex, data } = useStepDrawerContext();
-  const changeStepVersion = useBitriseYmlStore((s) => s.changeStepVersion);
+const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
+  const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
@@ -38,8 +39,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
   return (
     <Tabs>
       <FloatingDrawer {...props}>
-        <FloatingDrawerOverlay />
-        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">
@@ -74,7 +74,11 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
                       <Text
                         cursor="pointer"
                         textStyle="body/sm/regular"
-                        onClick={() => changeStepVersion(workflowId, stepIndex, latestMajorVersion)}
+                        onClick={() => {
+                          const source = stepBundleId ? 'step_bundles' : 'workflows';
+                          const sourceId = stepBundleId || workflowId;
+                          StepService.changeStepVersion(source, sourceId, stepIndex, latestMajorVersion);
+                        }}
                       >
                         Latest version: {latestVersion}
                       </Text>
@@ -112,9 +116,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepIndex'>)
   );
 };
 
-const StepConfigDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, ...props }: Props) => {
   return (
-    <StepConfigDrawerProvider workflowId={workflowId} stepIndex={stepIndex}>
+    <StepConfigDrawerProvider workflowId={workflowId} stepBundleId={stepBundleId} stepIndex={stepIndex}>
       <StepConfigDrawerContent {...props} />
     </StepConfigDrawerProvider>
   );

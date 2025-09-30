@@ -1,103 +1,50 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
-import { useForm } from 'react-hook-form';
-import { UseDisclosureProps } from '@chakra-ui/react';
-import WorkflowService from '@/core/models/WorkflowService';
-import { useWorkflows } from '@/hooks/useWorkflows';
+import { DialogProps } from '@bitrise/bitkit';
+import { useEffect } from 'react';
+
+import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
+import WorkflowService from '@/core/services/WorkflowService';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
-type FormValues = {
-  workflowId: string;
-  baseWorkflowId: string;
-};
+import CreateEntityDialog from '../CreateEntityDialog/CreateEntityDialog';
 
-type Props = UseDisclosureProps & {
+type Props = Omit<DialogProps, 'title'> & {
   onCreateWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
 };
 
-const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) => {
-  const workflows = useWorkflows();
-  const workflowIds = Object.keys(workflows);
+const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...props }: Props) => {
+  const workflowIds = useWorkflows((s) => Object.keys(s));
   const [, setSelectedWorkflow] = useSelectedWorkflow();
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
 
-  const {
-    reset,
-    register,
-    getValues,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<FormValues>({
-    defaultValues: {
-      workflowId: '',
-      baseWorkflowId: '',
-    },
-  });
+  useEffect(() => {
+    if (props.isOpen) {
+      trackCreateWorkflowDialogShown(workflowIds.length ? 'workflow_selector' : 'workflow_empty_state');
+    }
+  }, [props.isOpen, workflowIds.length]);
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const filteredValue = WorkflowService.sanitizeName(event.target.value);
-    setValue('workflowId', filteredValue, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  };
-
-  const handleClose = () => {
-    onClose();
-    reset();
-  };
-
-  const handleCreate = handleSubmit(({ workflowId, baseWorkflowId }) => {
+  const handleCreateWorkflow = (workflowId: string, baseWorkflowId?: string) => {
     onCreateWorkflow(workflowId, baseWorkflowId);
-    onClose();
-  });
+    trackWorkflowCreated(workflowId, baseWorkflowId);
+  };
 
-  const handleCloseComplete = () => {
-    const workflowId = getValues('workflowId');
+  const handleCloseComplete = (workflowId: string) => {
     if (workflowId) {
       setSelectedWorkflow(workflowId);
     }
-    reset();
+    onCloseComplete?.();
   };
 
   return (
-    <Dialog title="Create Workflow" isOpen={isOpen} onClose={handleClose} onCloseComplete={handleCloseComplete}>
-      <DialogBody>
-        <Box as="form" display="flex" flexDir="column" gap="24">
-          <Input
-            autoFocus
-            isRequired
-            label="Name"
-            placeholder="Workflow name"
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-            errorText={errors.workflowId?.message}
-            {...register('workflowId', {
-              onChange: handleNameChange,
-              validate: (v) => WorkflowService.validateName(v, workflowIds),
-            })}
-          />
-          <Select isRequired defaultValue="" label="Based on" {...register('baseWorkflowId')}>
-            <option key="" value="">
-              An empty workflow
-            </option>
-            {workflowIds.map((wfName) => (
-              <option key={wfName} value={wfName}>
-                {wfName}
-              </option>
-            ))}
-          </Select>
-        </Box>
-      </DialogBody>
-      <DialogFooter>
-        <Button variant="secondary" onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button type="submit" onClick={handleCreate}>
-          Create Workflow
-        </Button>
-      </DialogFooter>
-    </Dialog>
+    <CreateEntityDialog
+      baseEntities={[{ ids: workflowIds }]}
+      entityName="Workflow"
+      onClose={onClose}
+      onCloseComplete={handleCloseComplete}
+      onCreateEntity={handleCreateWorkflow}
+      sanitizer={WorkflowService.sanitizeName}
+      validator={(name) => WorkflowService.validateName(name, '', workflowIds)}
+      {...props}
+    />
   );
 };
 

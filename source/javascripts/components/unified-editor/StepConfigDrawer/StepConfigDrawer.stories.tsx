@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
-import { MockYml } from '@/core/models/BitriseYml.mocks';
+
 import StepConfigDrawer from './StepConfigDrawer';
 
 type Story = StoryObj<typeof StepConfigDrawer>;
@@ -14,25 +12,23 @@ const meta: Meta<typeof StepConfigDrawer> = {
     stepIndex: 0,
   },
   argTypes: {
-    onClose: {
-      type: 'function',
-    },
+    onClose: { type: 'function' },
     stepIndex: {
       control: 'inline-radio',
       options: ['active-ssh-key', 'git-clone'],
       mapping: { 'active-ssh-key': 0, 'git-clone': 1 },
     },
   },
-  decorators: [
-    (Story) => withBitriseYml(MockYml, Story),
-    (Story, { args }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [isOpen, setIsOpen] = useState(args.isOpen);
-      return <Story args={{ ...args, isOpen, onClose: () => setIsOpen(false) }} />;
-    },
-  ],
 };
 
 export default meta;
 
 export const Default: Story = {};
+
+export const Script: Story = {
+  args: {
+    isOpen: true,
+    workflowId: 'steplib-steps',
+    stepIndex: 5,
+  },
+};

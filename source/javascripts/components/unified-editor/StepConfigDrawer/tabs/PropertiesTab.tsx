@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   Box,
   Collapse,
@@ -11,10 +10,12 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
-import StepService from '@/core/models/StepService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 type StepVersionProps = {
@@ -23,20 +24,17 @@ type StepVersionProps = {
   selectableVersions?: ReturnType<typeof StepService.getSelectableVersions>;
 };
 const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
-  const { data, workflowId, stepIndex } = useStepDrawerContext();
+  const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
-
-  const changeStepVersionInYml = useBitriseYmlStore((s) => s.changeStepVersion);
-  const debouncedChangeStepVersionInYml = useDebounceCallback(changeStepVersionInYml, 250);
+  const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
   const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
 
-    if (variant === 'select') {
-      changeStepVersionInYml(workflowId, stepIndex, e.target.value);
-    } else {
-      debouncedChangeStepVersionInYml(workflowId, stepIndex, e.target.value);
-    }
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+
+    changeStepVersion(source, sourceId, stepIndex, e.target.value);
   };
 
   useEffect(() => {
@@ -76,13 +74,9 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
-  const { workflowId, stepIndex, data, isLoading } = useStepDrawerContext();
+  const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
+  const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
   const [name, setName] = useState(data?.mergedValues?.title);
-
-  const updateStep = useDebounceCallback(
-    useBitriseYmlStore((s) => s.updateStep),
-    250,
-  );
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;
@@ -90,8 +84,12 @@ const PropertiesTab = () => {
   const sourceUrl = data?.mergedValues?.source_code_url;
 
   const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setName(e.currentTarget.value);
-    updateStep(workflowId, stepIndex, { title: e.currentTarget.value }, data?.defaultValues ?? {});
+    const title = e.currentTarget.value;
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+
+    setName(title);
+    updateStepField(source, sourceId, stepIndex, 'title', title);
   };
 
   return (
@@ -100,12 +98,10 @@ const PropertiesTab = () => {
         <Link
           gap="4"
           display="flex"
-          target="_blank"
           alignSelf="start"
           className="source"
           alignItems="center"
           colorScheme="purple"
-          rel="noreferrer noopener"
           href={sourceUrl}
           isExternal
         >

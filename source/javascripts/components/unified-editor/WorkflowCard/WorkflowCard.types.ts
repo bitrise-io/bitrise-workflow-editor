@@ -1,25 +1,46 @@
-import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
-import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 import { LibraryType } from '@/core/models/Step';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
   onEditWorkflow?: (workflowId: string) => void;
-  onEditChainedWorkflow?: (workflowId: string) => void;
+  onEditChainedWorkflow?: (workflowId: string, parentWorkflowId: string) => void;
   onChainWorkflow?: (workflowId: string) => void;
   onChainChainedWorkflow?: (workflowId: string) => void;
+  onChainedWorkflowsUpdate?: (parentWorkflowId: string, placement: Placement, chainedWorkflows: string[]) => void;
   onRemoveWorkflow?: (workflowId: string) => void;
-  onRemoveChainedWorkflow?: BitriseYmlStoreState['removeChainedWorkflow'];
-  onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
+  onRemoveChainedWorkflow?: (
+    parentWorkflowId: string,
+    placement: Placement,
+    workflowId: string,
+    workflowIndex: number,
+  ) => void;
 };
 
 export type StepActions = {
   onAddStep?: (workflowId: string, stepIndex: number) => void;
-  onSelectStep?: (workflowId: string, stepIndex: number, libraryType: LibraryType) => void;
-  onMoveStep?: BitriseYmlStoreState['moveStep'];
-  onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
-  onCloneStep?: BitriseYmlStoreState['cloneStep'];
-  onDeleteStep?: BitriseYmlStoreState['deleteStep'];
+  onSelectStep?: (props: {
+    isMultiple?: boolean;
+    stepIndex: number;
+    type: LibraryType;
+    stepBundleId?: string;
+    wfId?: string;
+  }) => void;
+  onMoveStep?: (workflowId: string, stepIndex: number, targetIndex: number) => void;
+  onUpgradeStep?: (workflowId: string, stepIndex: number, version: string) => void;
+  onCloneStep?: (workflowId: string, stepIndex: number) => void;
+  onDeleteStep?: (workflowId: string, stepIndices: number[], cvs?: string) => void;
+  onAddStepToStepBundle?: (stepBundleId: string, stepIndex: number) => void;
+  onCloneStepInStepBundle?: (stepBundleId: string, stepIndex: number) => void;
+  onDeleteStepInStepBundle?: (stepBundleId: string, selectedStepIndices: number[], cvs?: string) => void;
+  onGroupStepsToStepBundle?: (
+    parentWorkflowId: string | undefined,
+    parentStepBundleId: string | undefined,
+    newStepBundleId: string,
+    selectedStepIndices: number[],
+  ) => void;
+  onMoveStepInStepBundle?: (stepBundleId: string, stepIndex: number, targetIndex: number) => void;
+  onUpgradeStepInStepBundle?: (stepBundleId: string, stepIndex: number, version: string) => void;
 };
 
 export type SortableWorkflowItem = {
@@ -33,5 +54,12 @@ export type SortableWorkflowItem = {
 export type SortableStepItem = {
   uniqueId: string;
   stepIndex: number;
-  workflowId: string;
+  workflowId?: string;
+  stepBundleId?: string;
+  cvs: string;
+};
+
+export type SelectionParent = {
+  id: string;
+  type: 'stepBundle' | 'workflow';
 };

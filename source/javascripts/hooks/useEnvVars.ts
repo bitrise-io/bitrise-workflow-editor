@@ -1,17 +1,19 @@
-import { useMemo } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import StepService from '@/core/models/StepService';
-import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/models/EnvVarService';
+import { useMemo } from 'react';
+
 import EnvVarsApi from '@/core/api/EnvVarsApi';
-import WindowUtils from '@/core/utils/WindowUtils';
 import StepApi from '@/core/api/StepApi';
-import WorkflowService from '@/core/models/WorkflowService';
+import { EnvVar } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/services/EnvVarService';
+import StepService from '@/core/services/StepService';
+import WorkflowService from '@/core/services/WorkflowService';
+import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
 import useDefaultStepLibrary from './useDefaultStepLibrary';
 
 const useDefaultEnvVars = (enabled: boolean) => {
-  const appSlug = WindowUtils.appSlug() ?? '';
+  const appSlug = PageProps.appSlug();
   const projectType = useBitriseYmlStore((s) => s.yml.project_type);
 
   return useQuery({
@@ -27,7 +29,7 @@ const useAppLevelEnvVars = () => {
     const envVarMap = new Map<string, EnvVar>();
 
     s.yml.app?.envs?.forEach((envVarYml) => {
-      const env = EnvVarService.parseYmlEnvVar(envVarYml, 'app');
+      const env = EnvVarService.fromYml(envVarYml, 'Project env vars');
       envVarMap.set(env.key, env);
     });
 
@@ -35,13 +37,13 @@ const useAppLevelEnvVars = () => {
   });
 };
 
-const useWorkflowLevelEnvVars = (workflowId: string) => {
+const useStepBundleLevelEnvVars = (ids: string[]) => {
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
 
-    WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
-      s.yml.workflows?.[id]?.envs?.forEach((envVarYml) => {
-        const env = EnvVarService.parseYmlEnvVar(envVarYml, id);
+    ids.forEach((stepBundleId) => {
+      s.yml.step_bundles?.[stepBundleId]?.inputs?.forEach((envVarYml) => {
+        const env = EnvVarService.fromYml(envVarYml, `Step bundle: ${stepBundleId}`);
         envVarMap.set(env.key, env);
       });
     });
@@ -50,18 +52,37 @@ const useWorkflowLevelEnvVars = (workflowId: string) => {
   });
 };
 
-const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
+const useWorkflowLevelEnvVars = (ids: string[]) => {
+  return useBitriseYmlStore((s) => {
+    const envVarMap = new Map<string, EnvVar>();
+
+    ids.forEach((workflowId) => {
+      WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
+        s.yml.workflows?.[id]?.envs?.forEach((envVarYml) => {
+          const env = EnvVarService.fromYml(envVarYml, `Workflow: ${id}`);
+          envVarMap.set(env.key, env);
+        });
+      });
+    });
+
+    return Array.from(envVarMap.values());
+  });
+};
+
+const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const cvss = useBitriseYmlStore((s) => {
     const cvsSet = new Set<string>();
 
-    WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
-      s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
-        const [cvs, step] = Object.entries(ymlStepObject)[0];
-        // TODO: Handle step bundles and with groups...
-        if (StepService.isStep(cvs, defaultStepLibrary, step)) {
-          cvsSet.add(cvs);
-        }
+    ids.forEach((workflowId) => {
+      WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
+        s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
+          const [cvs, step] = Object.entries(ymlStepObject)[0];
+          // TODO: Handle step bundles and with groups...
+          if (StepService.isStep(cvs, defaultStepLibrary, step)) {
+            cvsSet.add(cvs);
+          }
+        });
       });
     });
 
@@ -82,7 +103,7 @@ const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
         result.forEach(({ data: step }) => {
           const source = step?.title || step?.id || step?.cvs || '';
           step?.defaultValues?.outputs?.forEach((ymlEnvVar) => {
-            const env = EnvVarService.parseYmlEnvVar(ymlEnvVar, source);
+            const env = EnvVarService.fromYml(ymlEnvVar, `Step: ${source}`);
             envVarMap.set(env.key, env);
           });
         });
@@ -100,18 +121,27 @@ const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
  * TODO: Load the env vars from each previous workflows and steps only
  * TODO: Handle step bundles and with groups as well
  */
-const useEnvVars = (workflowId: string, enabled: boolean) => {
+
+type Props = {
+  enabled: boolean;
+  stepBundleIds?: string[];
+  workflowIds: string[];
+};
+
+const useEnvVars = ({ enabled, stepBundleIds, workflowIds }: Props) => {
   const envVarMap = new Map<string, EnvVar>();
   const appLevelEnvVars = useAppLevelEnvVars();
-  const workflowLevelEnvVars = useWorkflowLevelEnvVars(workflowId);
+  const stepBundleLevelEnvVars = useStepBundleLevelEnvVars(stepBundleIds || []);
+  const workflowLevelEnvVars = useWorkflowLevelEnvVars(workflowIds);
   const { data: defaultEnvVars, isLoading: isLoadingDefaultEnvVars } = useDefaultEnvVars(enabled);
-  const { data: stepLevelEnvVars, isLoading: isLoadingStepLevelEnvVars } = useStepLevelEnvVars(workflowId, enabled);
+  const { data: stepLevelEnvVars, isLoading: isLoadingStepLevelEnvVars } = useStepLevelEnvVars(workflowIds, enabled);
 
   const isLoading = isLoadingDefaultEnvVars || isLoadingStepLevelEnvVars;
 
   if (!isLoading && defaultEnvVars && stepLevelEnvVars) {
     defaultEnvVars.forEach((env) => envVarMap.set(env.key, env));
     appLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
+    stepBundleLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
     workflowLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
     stepLevelEnvVars.forEach((env) => envVarMap.set(env.key, env));
   }

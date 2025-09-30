@@ -1,7 +1,8 @@
 import path from "path";
 import YAML from "yaml";
 import { readFileSync } from "fs";
-import { DefinePlugin, webpack } from "webpack";
+import { DefinePlugin } from "webpack";
+import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const config: StorybookConfig = {
@@ -9,7 +10,6 @@ const config: StorybookConfig = {
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "@storybook/addon-onboarding",
     "@storybook/addon-interactions",
     "@storybook/addon-queryparams",
     "@storybook/addon-webpack5-compiler-swc",
@@ -43,10 +43,15 @@ const config: StorybookConfig = {
         test: /.*\/bitkit\/.*tsx?$/,
         use: [
           {
-            loader: "ts-loader",
+            loader: "swc-loader",
             options: {
-              transpileOnly: true,
-              configFile: require.resolve("@bitrise/bitkit/src/tsconfig.json"),
+              jsc: {
+                transform: {
+                  react: {
+                    runtime: 'automatic',
+                  },
+                },
+              },
             },
           },
         ],
@@ -69,7 +74,21 @@ const config: StorybookConfig = {
         TEST_BITRISE_YML: DefinePlugin.runtimeValue(() => JSON.stringify(YAML.parse(readFileSync(testBitriseYmlFile, "utf8"))), {
           fileDependencies: [testBitriseYmlFile],
         }),
-      })
+      }),
+      new MonacoWebpackPlugin({
+        languages: ['yaml'],
+        filename: 'javascripts/[name].worker.js',
+        customLanguages: [
+          {
+            label: 'yaml',
+            entry: 'monaco-yaml',
+            worker: {
+              id: 'monaco-yaml/yamlWorker',
+              entry: 'monaco-yaml/yaml.worker',
+            },
+          },
+        ]
+      }),
     )
 
     return config;

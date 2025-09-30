@@ -1,3 +1,4 @@
+import { Icon } from '@bitrise/bitkit';
 import {
   CloseButtonProps,
   Drawer,
@@ -9,23 +10,49 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerProps,
+  HTMLChakraProps,
   ModalBodyProps,
   ModalFooterProps,
   ModalHeaderProps,
   ModalOverlayProps,
-} from '@chakra-ui/react';
-import { Icon } from '@bitrise/bitkit';
+  useBreakpointValue,
+} from 'chakra-ui-2--react';
+import { createContext, useContext, useMemo } from 'react';
 
-type FloatingDrawerProps = DrawerProps;
+type FloatingDrawerProps = Omit<DrawerProps, 'size'> & {
+  size?: 'md' | 'lg';
+};
 
-const FloatingDrawer = (props: FloatingDrawerProps) => {
-  return <Drawer isFullHeight {...props} />;
+const FloatingDrawerContext = createContext<Required<Pick<FloatingDrawerProps, 'size'>>>({ size: 'md' });
+const useFloatingDrawerContext = () => useContext(FloatingDrawerContext);
+
+const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps) => {
+  const providerProps = useMemo(() => ({ size }), [size]);
+  const placement = useBreakpointValue<DrawerProps['placement']>({ base: 'bottom', tablet: 'right' }, { ssr: false });
+
+  return (
+    <FloatingDrawerContext.Provider value={providerProps}>
+      <Drawer
+        isFullHeight
+        trapFocus={false}
+        placement={placement}
+        blockScrollOnMount={false}
+        closeOnOverlayClick={false}
+        {...props}
+      >
+        {/* NOTE: Without the overlay the close animation doesn't occur */}
+        <FloatingDrawerOverlay display="none" />
+        {children}
+      </Drawer>
+    </FloatingDrawerContext.Provider>
+  );
 };
 
 const FloatingDrawerOverlay = (props: ModalOverlayProps) => {
   return (
     <DrawerOverlay
       top="0px"
+      zIndex="fullDialogOverlay"
       bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
       {...props}
     />
@@ -40,19 +67,38 @@ const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => 
   );
 };
 
+function getContentMaxWidth(size: 'md' | 'lg') {
+  switch (size) {
+    case 'lg':
+      return ['100%', 'clamp(420px, 55%, 1024px)'];
+    case 'md':
+    default:
+      return ['100%', 'clamp(420px, 40%, 700px)'];
+  }
+}
+
 const FloatingDrawerContent = (props: DrawerContentProps) => {
+  const containerProps = useMemo<HTMLChakraProps<'div'>>(() => ({ display: 'contents' }), []);
+  const { size } = useFloatingDrawerContext();
+  const maxW = getContentMaxWidth(size);
+
   return (
     <DrawerContent
+      zIndex="fullDialog"
       top={0}
       gap={0}
+      maxW={maxW}
       padding={0}
-      margin={[0, 24]}
       display="flex"
       flexDir="column"
       overflow="hidden"
       boxShadow="large"
+      border="1px solid"
+      borderColor="border/regular"
+      margin={[0, 16]}
+      marginTop={[0, 72]}
       borderRadius={[0, 12]}
-      maxWidth={['100%', 'clamp(420px, 30%, 700px)']}
+      containerProps={containerProps}
       {...props}
     />
   );
@@ -71,13 +117,13 @@ const FloatingDrawerFooter = (props: ModalFooterProps) => {
 };
 
 export {
-  FloatingDrawerProps,
-  FloatingDrawerOverlay,
+  FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
-  FloatingDrawerHeader,
-  FloatingDrawerBody,
   FloatingDrawerFooter,
+  FloatingDrawerHeader,
+  FloatingDrawerOverlay,
+  FloatingDrawerProps,
 };
 
 export default FloatingDrawer;

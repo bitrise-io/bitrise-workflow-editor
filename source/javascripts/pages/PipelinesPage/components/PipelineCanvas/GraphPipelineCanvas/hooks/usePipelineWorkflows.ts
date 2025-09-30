@@ -1,5 +1,5 @@
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PipelineWorkflow } from '@/core/models/Workflow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 
@@ -12,7 +12,9 @@ const usePipelineWorkflows = (): PipelineWorkflow[] => {
     return Object.entries(pipelineWorkflows).map(([id, pipelineWorkflow]) => {
       return {
         id,
-        dependsOn: pipelineWorkflow.depends_on ?? [],
+        uses: pipelineWorkflow?.uses,
+        parallel: pipelineWorkflow?.parallel,
+        dependsOn: pipelineWorkflow?.depends_on ?? [],
       } satisfies PipelineWorkflow;
     });
   });

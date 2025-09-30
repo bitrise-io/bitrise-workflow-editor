@@ -1,7 +1,8 @@
-import { AriaAttributes, useState } from 'react';
 import {
-  ControlButton,
+  Box,
+  Checkbox,
   EmptyState,
+  IconButton,
   Link,
   SearchInput,
   Table,
@@ -13,70 +14,112 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import useNavigation from '@/hooks/useNavigation';
-import { getConditionList, getPipelineableTriggers } from '../TriggersPage/TriggersPage.utils';
-import { TriggerType } from '../TriggersPage/TriggersPage.types';
-import TriggerConditions from './TriggerConditions';
+import { AriaAttributes, useMemo, useState } from 'react';
 
-const TYPE_MAP: Record<TriggerType, string> = {
-  push: 'Push',
-  pull_request: 'Pull request',
-  tag: 'Tag',
-};
+import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
+import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
+import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
+import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
+import TriggerService from '@/core/services/TriggerService';
+import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
 
-type TargetBasedTriggersProps = {
-  yml: BitriseYml;
-};
+import AddTriggerButton from './AddTriggerButton';
 
-const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
-  const { yml } = props;
-
-  const { replace } = useNavigation();
+const TargetBasedTriggers = () => {
+  const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
+  const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
   const [filterString, setFilterString] = useState('');
   const [sortProps, setSortProps] = useState<{
     direction: AriaAttributes['aria-sort'];
-    condition: 'pipelineableId' | 'type';
+    condition: 'sourceId' | 'triggerType';
   }>({
     direction: 'ascending',
-    condition: 'pipelineableId',
+    condition: 'sourceId',
   });
 
-  const pipelineableTriggers = getPipelineableTriggers(yml);
-
-  const filteredItems = pipelineableTriggers.filter((item) => {
+  const pipelineableTriggers = useAllTargetBasedTriggers();
+  const filteredTriggers = useMemo(() => {
     const lowerCaseFilterString = filterString.toLowerCase();
-    const matchingValues = Object.values(item).filter((value) => {
-      if (typeof value === 'string' && value.toLowerCase().includes(lowerCaseFilterString)) {
-        return true;
-      }
-      return false;
+    return pipelineableTriggers.filter((item) => {
+      const matchingValues = Object.values(item).filter(
+        (value) => typeof value === 'string' && value.toLowerCase().includes(lowerCaseFilterString),
+      );
+      return matchingValues.length > 0 || TYPE_MAP[item.triggerType].toLowerCase().includes(lowerCaseFilterString);
     });
-    return matchingValues.length > 0 || TYPE_MAP[item.type].toLowerCase().includes(lowerCaseFilterString);
-  });
+  }, [filterString, pipelineableTriggers]);
 
-  filteredItems.sort((a, b) => {
-    if (a[sortProps.condition] > b[sortProps.condition]) {
-      return sortProps.direction === 'ascending' ? 1 : -1;
+  const sortedFilteredTriggers = useMemo(() => {
+    return [...filteredTriggers].sort((a, b) => {
+      const getCompareValue = (item: TargetBasedTrigger) => {
+        const sourceId = item.source.split('#')[1];
+        return sortProps.condition === 'sourceId' ? sourceId : item.triggerType;
+      };
+
+      const aValue = getCompareValue(a);
+      const bValue = getCompareValue(b);
+
+      const modifier = sortProps.direction === 'ascending' ? 1 : -1;
+      if (aValue > bValue) {
+        return modifier;
+      }
+      if (aValue < bValue) {
+        return -modifier;
+      }
+      return 0;
+    });
+  }, [filteredTriggers, sortProps]);
+
+  const handleOpenDialog = (trigger: TargetBasedTrigger) => {
+    setEditedItem(trigger);
+    setTriggerType(trigger.triggerType);
+  };
+
+  const handleCancel = () => {
+    setTriggerType(null);
+    setEditedItem(undefined);
+  };
+
+  const handleActiveChange = (trigger: TargetBasedTrigger) => {
+    const updatedTrigger = { ...trigger, isActive: !trigger.isActive };
+    TriggerService.updateTrigger(updatedTrigger);
+    trackTriggerEnabledToggled(
+      updatedTrigger,
+      trigger.source.startsWith('workflows') ? 'workflow_triggers' : 'pipeline_triggers',
+    );
+  };
+
+  const onSubmit = (trigger: TargetBasedTrigger) => {
+    if (editedItem) {
+      TriggerService.updateTrigger(trigger, editedItem);
+      setEditedItem(undefined);
+      trackEditTrigger(trigger);
+    } else {
+      TriggerService.addTrigger(trigger);
     }
-    if (a[sortProps.condition] < b[sortProps.condition]) {
-      return sortProps.direction === 'ascending' ? -1 : 1;
-    }
-    return 0;
-  });
+    setTriggerType(null);
+  };
+
+  const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
+    TriggerService.removeTrigger(trigger);
+  };
 
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
         <>
-          <SearchInput
-            onChange={setFilterString}
-            value={filterString}
-            maxWidth="320"
-            marginBlockEnd="16"
-            placeholder="Filter by target, type or condition"
-          />
+          <Box display="flex" justifyContent="space-between">
+            <SearchInput
+              onChange={setFilterString}
+              value={filterString}
+              maxWidth="320"
+              width="100%"
+              size="md"
+              marginBlockEnd="16"
+              placeholder="Filter by target, type or condition"
+            />
+            <AddTriggerButton onAddTrigger={setTriggerType} />
+          </Box>
           <TableContainer marginBlockEnd="32">
             <Table>
               <Thead>
@@ -84,18 +127,18 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                   <Th
                     isSortable
                     onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'pipelineableId' });
+                      setSortProps({ direction: sortDirection, condition: 'sourceId' });
                     }}
-                    sortedBy={sortProps.condition === 'pipelineableId' ? sortProps.direction : undefined}
+                    sortedBy={sortProps.condition === 'sourceId' ? sortProps.direction : undefined}
                   >
                     Target
                   </Th>
                   <Th
                     isSortable
                     onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'type' });
+                      setSortProps({ direction: sortDirection, condition: 'triggerType' });
                     }}
-                    sortedBy={sortProps.condition === 'type' ? sortProps.direction : undefined}
+                    sortedBy={sortProps.condition === 'triggerType' ? sortProps.direction : undefined}
                   >
                     Type
                   </Th>
@@ -104,38 +147,53 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                 </Tr>
               </Thead>
               <Tbody>
-                {filteredItems.map((trigger) => (
-                  <Tr key={JSON.stringify(trigger)}>
-                    <Td>
-                      <Text>{trigger.pipelineableId}</Text>
-                      <Text textStyle="body/md/regular" color="text/secondary">
-                        {trigger.pipelineableType === 'workflow' ? 'Workflow' : 'Pipeline'}
-                      </Text>
-                    </Td>
-                    <Td>{TYPE_MAP[trigger.type]}</Td>
-                    <Td>
-                      <TriggerConditions
-                        conditions={getConditionList(trigger)}
-                        isDraftPr={trigger.draft_enabled}
-                        triggerType={trigger.type}
-                      />
-                    </Td>
-                    <Td display="flex" justifyContent="flex-end" alignItems="center">
-                      {trigger.pipelineableType === 'workflow' && (
-                        <ControlButton
-                          aria-label="Edit trigger"
-                          iconName="Pencil"
-                          onClick={() =>
-                            replace('/workflows', { workflow_id: trigger.pipelineableId, tab: 'triggers' })
-                          }
+                {sortedFilteredTriggers.map((trigger) => {
+                  const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+                  return (
+                    <Tr key={JSON.stringify(trigger)}>
+                      <Td>
+                        <Text>{sourceId}</Text>
+                        <Text textStyle="body/md/regular" color="text/secondary">
+                          {source === 'workflows' ? 'Workflow' : 'Pipeline'}
+                        </Text>
+                      </Td>
+                      <Td>{TYPE_MAP[trigger.triggerType]}</Td>
+                      <Td>
+                        <TriggerConditions
+                          conditions={trigger.conditions}
+                          isDraftPr={trigger.isDraftPr}
+                          priority={trigger.priority}
+                          triggerType={trigger.triggerType}
+                          triggerDisabled={!trigger.isActive || !trigger.isTriggersModelActive}
                         />
-                      )}
-                      {trigger.pipelineableType === 'pipeline' && (
-                        <ControlButton aria-label="Edit in YAML" iconName="Pencil" onClick={() => replace('/yml')} />
-                      )}
-                    </Td>
-                  </Tr>
-                ))}
+                      </Td>
+                      <Td display="flex" justifyContent="flex-end" alignItems="center">
+                        <Box display="flex" alignItems="center">
+                          <Checkbox
+                            marginRight="16"
+                            isChecked={trigger.isActive}
+                            onChange={() => handleActiveChange(trigger)}
+                          >
+                            Active
+                          </Checkbox>
+                          <IconButton
+                            iconName="Pencil"
+                            variant="tertiary"
+                            aria-label="Edit trigger"
+                            onClick={() => handleOpenDialog(trigger)}
+                          />
+                          <IconButton
+                            isDanger
+                            variant="tertiary"
+                            iconName="MinusCircle"
+                            aria-label="Delete trigger"
+                            onClick={() => handleDeleteTrigger(trigger)}
+                          />
+                        </Box>
+                      </Td>
+                    </Tr>
+                  );
+                })}
               </Tbody>
             </Table>
           </TableContainer>
@@ -143,13 +201,13 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
       ) : (
         <EmptyState
           iconName="Trigger"
-          title="An overview of your target based triggers will appear here"
+          title="Target based triggers will appear here"
           maxHeight="208"
           marginBlockEnd="24"
         >
-          <Text marginBlockStart="8">
-            Start configuring triggers directly in your Workflow or Pipeline settings. With this method, a single Git
-            event can execute multiple Workflows or Pipelines.{' '}
+          <Text marginBlockStart="8" marginBlockEnd="24">
+            Target-based triggers let you run multiple Workflows or Pipelines from a single Git event. You can set them
+            up here or directly in the Workflow or Pipeline settings.{' '}
             <Link
               colorScheme="purple"
               href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -157,7 +215,22 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
               Learn more
             </Link>
           </Text>
+          <AddTriggerButton onAddTrigger={setTriggerType} />
         </EmptyState>
+      )}
+      {triggerType && (
+        <AddOrEditTriggerDialog
+          source={editedItem ? (editedItem.source.split('#')[0] as TriggerSource) : ''}
+          sourceId={editedItem ? editedItem.source.split('#')[1] : ''}
+          editedItem={editedItem}
+          triggerType={triggerType}
+          currentTriggers={pipelineableTriggers}
+          onSubmit={onSubmit}
+          onCancel={handleCancel}
+          isOpen={!!triggerType}
+          variant="target-based"
+          showTarget
+        />
       )}
     </>
   );

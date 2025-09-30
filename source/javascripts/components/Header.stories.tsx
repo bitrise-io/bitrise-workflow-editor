@@ -4,17 +4,13 @@ export default {
   component: Header,
   args: {
     appName: 'My App',
-    appPath: '/app',
     workspacePath: '/workspace',
     isDiscardDisabled: false,
     isSaveInProgress: false,
     isSaveDisabled: false,
-    isWebsiteMode: true,
   },
   argTypes: {
-    isWebsiteMode: { control: 'boolean' },
     appName: { control: 'text' },
-    appPath: { control: 'text' },
     workspacePath: { control: 'text' },
     isDiscardDisabled: { control: 'boolean' },
     onDiscardClick: { type: 'function' },
@@ -27,7 +23,9 @@ export default {
 export const Website = {};
 
 export const CLI = {
-  args: {
-    isWebsiteMode: false,
+  beforeEach: () => {
+    process.env.MODE = 'cli';
+    window.parent.pageProps = undefined;
+    window.parent.globalProps = undefined;
   },
 };

@@ -1,7 +1,8 @@
+import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, useToast } from '@bitrise/bitkit';
 import { useCallback, useState } from 'react';
-import { Button, Dialog, DialogBody, DialogFooter, Input, useToast } from '@bitrise/bitkit';
-import { DialogProps } from '@bitrise/bitkit/src/Components/Dialog/Dialog';
-import WindowUtils from '@/core/utils/WindowUtils';
+
+import PageProps from '@/core/utils/PageProps';
+
 import useStartBuild from './useStartBuild';
 
 type RunWorkflowDialogProps = Omit<DialogProps, 'title'> & {
@@ -10,16 +11,17 @@ type RunWorkflowDialogProps = Omit<DialogProps, 'title'> & {
 };
 
 const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflowDialogProps) => {
-  const [branch, setBranch] = useState(WindowUtils.pageProps()?.project?.defaultBranch || '');
+  const initialBranch = PageProps.app()?.defaultBranch || '';
+  const [branch, setBranch] = useState(initialBranch);
   const toast = useToast();
   const { mutate: startBuild, isPending } = useStartBuild();
 
   const { onClose, onCloseComplete } = dialogProps;
 
   const handleOnCloseComplete = useCallback(() => {
-    setBranch(WindowUtils.pageProps()?.project?.defaultBranch || '');
+    setBranch(initialBranch);
     onCloseComplete?.();
-  }, [onCloseComplete]);
+  }, [initialBranch, onCloseComplete]);
 
   const handleAction = () => {
     if (!branch) {

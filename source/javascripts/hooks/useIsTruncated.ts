@@ -7,7 +7,7 @@ const useIsTruncated = (ref: RefObject<HTMLElement>) => {
     const refCurrent = ref.current;
     const checkTruncation = () => {
       if (refCurrent) {
-        setIsTruncated(refCurrent.scrollWidth > refCurrent.clientWidth);
+        requestAnimationFrame(() => setIsTruncated(refCurrent.scrollWidth > refCurrent.clientWidth));
       }
     };
 
@@ -24,8 +24,7 @@ const useIsTruncated = (ref: RefObject<HTMLElement>) => {
         observer.unobserve(refCurrent);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref.current]);
+  }, [ref]);
 
   return isTruncated;
 };

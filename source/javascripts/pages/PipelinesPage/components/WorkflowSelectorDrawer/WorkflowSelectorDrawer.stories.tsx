@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+
 import WorkflowSelectorDrawer from './WorkflowSelectorDrawer';
 
 type Story = StoryObj<typeof WorkflowSelectorDrawer>;
@@ -16,15 +17,20 @@ const meta: Meta<typeof WorkflowSelectorDrawer> = {
     onSelectWorkflow: { type: 'function' },
   },
   parameters: {
-    msw: [getStacksAndMachines()],
+    msw: {
+      handlers: [getStacksAndMachines()],
+    },
   },
-  decorators: [(Story) => withBitriseYml(TEST_BITRISE_YML, Story)],
 };
 
 export const Default: Story = {};
 
 export const WithoutWorkflows: Story = {
-  decorators: [(Story) => withBitriseYml({ format_version: '' }, Story)],
+  parameters: {
+    bitriseYmlStore: {
+      yml: { ...TEST_BITRISE_YML, workflows: {} },
+    },
+  },
 };
 
 export default meta;

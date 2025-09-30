@@ -1,22 +1,82 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { useDisclosure } from '@bitrise/bitkit';
+import { set } from 'es-toolkit/compat';
+import { useState } from 'react';
+
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+
 import StepSelectorDrawer from './StepSelectorDrawer';
+
+type Story = StoryObj<typeof StepSelectorDrawer>;
+
+const extendBeforeEach = (storyObj: Story, newBeforeEach: Story['beforeEach']) => {
+  let beforeEach: Story['beforeEach'] = [];
+  if (Array.isArray(storyObj.beforeEach)) {
+    beforeEach = [...storyObj.beforeEach];
+  } else if (storyObj.beforeEach) {
+    beforeEach = [storyObj.beforeEach];
+  }
+
+  if (newBeforeEach) {
+    beforeEach.push(...(Array.isArray(newBeforeEach) ? newBeforeEach : [newBeforeEach]));
+  }
+
+  return { ...storyObj, beforeEach };
+};
+
+const extendDecorators = (storyObj: Story, newDecorators: Story['decorators']) => {
+  let decorators: Story['decorators'] = [];
+  if (Array.isArray(storyObj.decorators)) {
+    decorators = [...storyObj.decorators];
+  } else if (storyObj.decorators) {
+    decorators = [storyObj.decorators];
+  }
+
+  if (newDecorators) {
+    decorators.push(...(Array.isArray(newDecorators) ? newDecorators : [newDecorators]));
+  }
+
+  return { ...storyObj, decorators };
+};
+
+const withStepLimit = (storyObj: Story, limit = 3) => {
+  let copy = { ...storyObj };
+
+  set(copy, 'args.enabledSteps', new Set(['activate-ssh-key', 'deploy-to-bitrise-io']));
+
+  copy = extendBeforeEach(copy, () => {
+    set(window, 'parent.pageProps.limits.uniqueStepLimit', limit);
+  });
+
+  copy = extendDecorators(copy, (Story, { args }) => {
+    const [enabledSteps, setEnabledSteps] = useState(args.enabledSteps);
+
+    return (
+      <Story
+        args={{
+          ...args,
+          enabledSteps,
+          onSelectStep: (cvs) => {
+            args.onSelectStep(cvs);
+            setEnabledSteps((prev) => new Set([...Array.from(prev?.values() ?? []), cvs.split('@')[0]]));
+          },
+        }}
+      />
+    );
+  });
+
+  return copy;
+};
 
 export default {
   component: StepSelectorDrawer,
+  args: {
+    isOpen: true,
+  },
   argTypes: {
-    defaultIsOpen: { control: 'boolean', type: 'boolean' },
-    isOpen: { control: 'boolean', type: 'boolean' },
     onOpen: { type: 'function' },
     onClose: { type: 'function' },
-    onStepSelected: { type: 'function' },
+    onSelectStep: { type: 'function' },
   },
-  args: {
-    defaultIsOpen: true,
-  },
-  decorators: [(Story) => withBitriseYml(TEST_BITRISE_YML, Story)],
   parameters: {
     msw: {
       handlers: [StepApiMocks.getAlgoliaSteps({ status: 'success' })],
@@ -24,28 +84,14 @@ export default {
   },
 } as Meta<typeof StepSelectorDrawer>;
 
-export const Uncontrolled: StoryObj = {};
+export const Default: Story = {};
 
-export const Controlled: StoryObj = {
-  args: {
-    isOpen: true,
-  },
-  decorators: [
-    (Story) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { isOpen, onOpen, onClose } = useDisclosure({
-        defaultIsOpen: true,
-      });
-
-      return <Story isOpen={isOpen} onOpen={onOpen} onClose={onClose} />;
-    },
-  ],
-};
-
-export const Error: StoryObj = {
+export const Error: Story = {
   parameters: {
     msw: {
       handlers: [StepApiMocks.getAlgoliaSteps({ status: 'error' })],
     },
   },
 };
+
+export const WithStepLimit: Story = withStepLimit(Default);

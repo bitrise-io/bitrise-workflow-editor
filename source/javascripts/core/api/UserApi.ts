@@ -9,18 +9,18 @@ type UserMetadataValueResponse = {
 // API CALLS
 const USER_METADATA_PATH = '/me/profile/metadata.json';
 
-export function getUserMetadataByKeyPath(key: string): string {
+function getUserMetadataByKeyPath(key: string): string {
   return `/me/profile/metadata.json?key=${key}`;
 }
 
-export async function getUserMetadataValue({ key, signal }: { key: string; signal?: AbortSignal }): Promise<string> {
+async function getUserMetadataValue({ key, signal }: { key: string; signal?: AbortSignal }): Promise<string> {
   const response = await Client.get<UserMetadataValueResponse>(getUserMetadataByKeyPath(key), {
     signal,
   });
   return response.value as string;
 }
 
-export function updateUserMetadata({
+function updateUserMetadata({
   metadata,
   signal,
 }: {

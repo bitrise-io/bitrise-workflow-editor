@@ -1,42 +1,45 @@
 import { TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import WorkflowConfigProvider from './WorkflowConfig.context';
+
+import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
-import WorkflowConfigHeader from './components/WorkflowConfigHeader';
+import TriggersTab from './tabs/TriggersTab';
+import WorkflowConfigProvider from './WorkflowConfig.context';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
+  parentWorkflowId?: string;
   context: 'pipeline' | 'workflow';
   onRename: (name: string) => void;
 };
 
-const WorkflowConfigDrawerContent = ({ context, onRename, ...props }: Omit<Props, 'workflowId'>) => {
-  const contentProps = context === 'workflow' ? { maxWidth: ['100%', '50%'] } : {};
-
+const WorkflowConfigDrawerContent = ({ context, parentWorkflowId, onRename, ...props }: Omit<Props, 'workflowId'>) => {
   return (
     <Tabs>
       <FloatingDrawer {...props}>
-        <FloatingDrawerOverlay />
-        <FloatingDrawerContent {...contentProps}>
+        <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
-            <WorkflowConfigHeader variant="drawer" context={context} />
+            <WorkflowConfigHeader context={context} variant="drawer" parentWorkflowId={parentWorkflowId} />
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
             <TabPanels>
               <TabPanel>
-                <ConfigurationTab context={context} />
+                <ConfigurationTab context={context} parentWorkflowId={parentWorkflowId} />
               </TabPanel>
               <TabPanel>
                 <PropertiesTab variant="drawer" onRename={onRename} />
+              </TabPanel>
+              <TabPanel>
+                <TriggersTab />
               </TabPanel>
             </TabPanels>
           </FloatingDrawerBody>

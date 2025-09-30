@@ -1,4 +1,4 @@
-import { LogsPublicApi } from '@datadog/browser-logs/cjs/boot/logsPublicApi';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BitriseYml } from '@/core/models/BitriseYml';
 
 export {};
@@ -7,25 +7,11 @@ declare global {
   const TEST_BITRISE_YML: BitriseYml;
 
   interface Window {
-    // strings.js.erb
-    strings: { [s: string]: any };
-
-    // routes.js.erb
-    routes: { [s: string]: any };
-
+    DD_RUM: typeof import('@datadog/browser-rum').datadogRum | undefined;
     // webpack.config.js
     localFeatureFlags: Partial<{
       [s: string]: string | number | boolean;
     }>;
-
-    analytics: {
-      track: (event: string, payload: Record<string, string | number | null | undefined>) => void;
-    };
-    serviceVersion: string;
-    datadogApiKey: string;
-    isAnalyticsOn: boolean;
-    datadogLogs: LogsPublicApi;
-    mode: 'website' | 'cli';
 
     dataLayer?: object[];
     globalProps?: {
@@ -36,6 +22,8 @@ declare global {
       account: {
         slug: string;
         name: string;
+        sharedResourcesAvailable?: boolean;
+        useReplacementForDeprecatedMachines?: DeprecatedMachinesReplacementConfig;
       };
       env?: {
         SEGMENT_JS_WRITE_KEY_NEW: string;
@@ -52,12 +40,15 @@ declare global {
       limits?: {
         uniqueStepLimit?: number;
         isPipelinesAvailable?: boolean;
+        isRepositoryYmlAvailable?: boolean;
       };
       project?: {
         slug: string;
         name: string;
         defaultBranch?: string;
         buildTriggerToken?: string;
+        gitRepoSlug?: string;
+        isOwnerPaying?: boolean;
       };
       settings?: {
         statusReport?: {

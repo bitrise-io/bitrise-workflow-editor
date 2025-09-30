@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
 import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
-import TriggersTabPanel from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/components/TriggersTabPanel';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { useEffect } from 'react';
+
+import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/TriggersTab';
 import useSearchParams from '@/hooks/useSearchParams';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import datadogCustomRumTiming from '@/utils/datadogCustomRumTiming';
+
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -13,14 +16,10 @@ import { WorkflowConfigTab } from './WorkflowConfig.types';
 const TAB_IDS = [WorkflowConfigTab.CONFIGURATION, WorkflowConfigTab.PROPERTIES, WorkflowConfigTab.TRIGGERS];
 
 const WorkflowConfigPanelContent = () => {
-  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
   const [, setSelectedWorkflow] = useSelectedWorkflow();
-
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({
-    tabIds: TAB_IDS,
-  });
+  const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
+  const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({ tabIds: TAB_IDS });
 
   const onTabChange = (index: number) => {
     setSearchParams({
@@ -50,13 +49,11 @@ const WorkflowConfigPanelContent = () => {
           <ConfigurationTab context="workflow" />
         </TabPanel>
         <TabPanel p="24" overflowY="auto" h="100%">
-          <PropertiesTab variant="panel" onRename={setSelectedWorkflow} />
+          <PropertiesTab variant="panel" onRename={setSelectedWorkflow} onDelete={closeDialog} />
         </TabPanel>
-        {isTargetBasedTriggersEnabled && (
-          <TabPanel overflowY="auto" h="100%">
-            <TriggersTabPanel />
-          </TabPanel>
-        )}
+        <TabPanel p="24" overflowY="auto" h="100%">
+          <TriggersTab />
+        </TabPanel>
       </TabPanels>
     </Tabs>
   );
@@ -67,6 +64,10 @@ type Props = {
 };
 
 const WorkflowConfigPanel = ({ workflowId }: Props) => {
+  useEffect(() => {
+    datadogCustomRumTiming('wfe', 'workflow_config_panel_shown', true);
+  }, []);
+
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
       <WorkflowConfigPanelContent />

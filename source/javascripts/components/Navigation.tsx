@@ -1,4 +1,3 @@
-import { ComponentPropsWithoutRef, Fragment, useEffect, useRef } from 'react';
 import {
   Sidebar,
   SidebarContainer,
@@ -7,113 +6,130 @@ import {
   SidebarItem,
   SidebarItemIcon,
   SidebarItemLabel,
+  SidebarProps,
   TypeIconName,
+  useResponsive,
+  useToast,
 } from '@bitrise/bitkit';
-import { segmentTrack } from '@/utils/segmentTracking';
+import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
-type Item = {
-  id: string;
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useCurrentPage from '@/hooks/useCurrentPage';
+import useHashLocation from '@/hooks/useHashLocation';
+import useSearchParams from '@/hooks/useSearchParams';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import { paths } from '@/routes';
+
+type Props = Omit<SidebarProps, 'children'>;
+type NavigationItemProps = PropsWithChildren<{
   path: string;
-  title: string;
-  divided?: true;
-  cssClass: string;
-};
+  icon: TypeIconName;
+}>;
 
-type Props = {
-  items: Item[];
-  activeItem?: Item;
-  onItemSelected: (item: Item) => void;
-};
+function usePathWithSearchParams() {
+  const [searchParams] = useSearchParams();
 
-const findItemIcon = (item: Item): TypeIconName | undefined => {
-  switch (item.id) {
-    case 'workflows':
-      return 'Workflow';
-    case 'pipelines':
-      return 'WorkflowFlow';
-    case 'secrets':
-      return 'Lock';
-    case 'env-vars':
-      return 'Dollars';
-    case 'triggers':
-      return 'Trigger';
-    case 'stack':
-      return 'Stack';
-    case 'licenses':
-      return 'Key';
-    case 'yml':
-      return 'Code';
-    default:
-      return undefined;
-  }
-};
+  return useCallback(
+    (path: string) => {
+      const searchParamsString = new URLSearchParams(searchParams).toString();
+      return searchParamsString ? `${path}?${searchParamsString}` : path;
+    },
+    [searchParams],
+  );
+}
 
-// NOTE: This is necessary because we can't set the data-e2e-tag prop of the SidebarItem.
-const NavigationItem = ({ e2e, ...props }: ComponentPropsWithoutRef<typeof SidebarItem> & { e2e: string }) => {
-  const ref = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
+const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
+  const toast = useToast();
+  const { isMobile } = useResponsive();
+  const [hashPath, navigate] = useHashLocation();
+  const isSelected = hashPath.startsWith(path);
+  const ymlStatus = useYmlValidationStatus();
 
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.setAttribute('data-e2e-tag', `${e2e}-tab`);
+  const handleNavigation = useCallback(() => {
+    if (ymlStatus === 'invalid' && !path.startsWith(paths.yml)) {
+      toast({
+        status: 'error',
+        title: 'Invalid YAML',
+        description: 'Please fix the errors in your YAML configuration before navigating.',
+        duration: null,
+        isClosable: true,
+      });
+      return;
     }
-  }, [e2e]);
 
-  return <SidebarItem {...props} ref={ref} />;
-};
+    navigate(path);
+  }, [ymlStatus, navigate, path, toast]);
 
-// NOTE: This is necessary because we can't set the id and target props of the SidebarItem.
-const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem>) => {
-  const ref = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.setAttribute('id', 'workflow-editor-main-toolbar-workflow-recipes-link');
-      ref.current.setAttribute('target', '_blank');
-    }
-  }, []);
-
-  return <SidebarItem {...props} ref={ref} />;
-};
-
-const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
   return (
-    <Sidebar
-      width={256}
-      height="100%"
-      borderRight="1px solid"
-      borderColor="separator.primary"
-      id="menu-nav"
-      paddingTop="24"
-    >
-      <SidebarContainer>
-        {items.map((item) => {
-          const icon = findItemIcon(item);
-          const isSelected = activeItem?.id === item.id;
+    <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation}>
+      <SidebarItemIcon name={icon} />
+      {!isMobile && <SidebarItemLabel>{children}</SidebarItemLabel>}
+    </SidebarItem>
+  );
+};
 
-          return (
-            <Fragment key={item.id}>
-              {item.divided && <SidebarDivider />}
-              <NavigationItem e2e={item.cssClass} selected={isSelected} onClick={() => onItemSelected(item)}>
-                {icon && <SidebarItemIcon name={icon} />}
-                <SidebarItemLabel>{item.title}</SidebarItemLabel>
-              </NavigationItem>
-            </Fragment>
-          );
-        })}
+const Navigation = (props: Props) => {
+  const currentPage = useCurrentPage();
+  const { isMobile } = useResponsive();
+  const isDefaultTabRef = useRef(true);
+  const { data } = useCiConfigSettings();
+  const withSearchParams = usePathWithSearchParams();
+
+  useEffect(() => {
+    if (data?.usesRepositoryYml) {
+      segmentTrack('Workflow Editor Tab Displayed', {
+        tab_name: currentPage,
+        is_default_tab: isDefaultTabRef.current,
+        yml_source: data.usesRepositoryYml ? 'git' : 'bitrise',
+      });
+      isDefaultTabRef.current = false;
+    }
+  }, [currentPage, data?.usesRepositoryYml]);
+
+  return (
+    <Sidebar minW={['88px', '256px']} {...props}>
+      <SidebarContainer>
+        <NavigationItem path={withSearchParams(paths.workflows)} icon="Workflow">
+          Workflows
+        </NavigationItem>
+        <NavigationItem path={withSearchParams(paths.pipelines)} icon="WorkflowFlow">
+          Pipelines
+        </NavigationItem>
+        <NavigationItem path={withSearchParams(paths.stepBundles)} icon="Steps">
+          Step Bundles
+        </NavigationItem>
+        <NavigationItem path={withSearchParams(paths.secrets)} icon="Lock">
+          Secrets
+        </NavigationItem>
+        <NavigationItem path={withSearchParams(paths.envVars)} icon="Dollars">
+          Env Vars
+        </NavigationItem>
+        <NavigationItem path={withSearchParams(paths.triggers)} icon="Trigger">
+          Triggers
+        </NavigationItem>
+        {RuntimeUtils.isWebsiteMode() && (
+          <NavigationItem path={withSearchParams(paths.stacksAndMachines)} icon="Stack">
+            Stacks & Machines
+          </NavigationItem>
+        )}
+        {RuntimeUtils.isWebsiteMode() && (
+          <NavigationItem path={withSearchParams(paths.licenses)} icon="Key">
+            Licenses
+          </NavigationItem>
+        )}
+        <SidebarDivider />
+        <NavigationItem path={withSearchParams(paths.yml)} icon="Code">
+          Configuration YAML
+        </NavigationItem>
       </SidebarContainer>
       <SidebarFooter>
         <SidebarDivider />
-        <WorkflowRecepiesItem
-          href="https://github.com/bitrise-io/workflow-recipes"
-          onClick={() =>
-            segmentTrack('Workflow Editor Workflow Recipes Button Clicked', {
-              source: 'menu_bar_workflow_recipes_button',
-            })
-          }
-        >
+        <SidebarItem href="https://github.com/bitrise-io/workflow-recipes">
           <SidebarItemIcon name="Doc" />
-          <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>
-        </WorkflowRecepiesItem>
+          {!isMobile && <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>}
+        </SidebarItem>
       </SidebarFooter>
     </Sidebar>
   );

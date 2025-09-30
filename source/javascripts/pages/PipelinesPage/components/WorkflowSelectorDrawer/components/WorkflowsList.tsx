@@ -1,8 +1,10 @@
-import { useState } from 'react';
 import { Input } from '@bitrise/bitkit';
-import WorkflowService from '@/core/models/WorkflowService';
-import { useWorkflows } from '@/hooks/useWorkflows';
+import { useState } from 'react';
+
+import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useWorkflows } from '@/hooks/useWorkflows';
+
 import NoWorkflowsEmptyState from './NoWorkflowsEmptyState';
 import SearchResultEmptyState from './SearchResultEmptyState';
 import SelectableWorkflowCard from './SelectableWorkflowCard';
@@ -13,11 +15,11 @@ type Props = {
 };
 
 const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
-  const workflows = useWorkflows();
   const [search, setSearch] = useState('');
+  const allWorkflowIds = useWorkflows((s) => Object.keys(s));
   const workflowIdsInPipeline = useBitriseYmlStore((s) => Object.keys(s.yml.pipelines?.[pipelineId]?.workflows || {}));
 
-  const workflowIds = Object.keys(workflows).filter((id) => {
+  const workflowIds = allWorkflowIds.filter((id) => {
     return (
       !workflowIdsInPipeline.includes(id) &&
       !WorkflowService.isUtilityWorkflow(id) &&

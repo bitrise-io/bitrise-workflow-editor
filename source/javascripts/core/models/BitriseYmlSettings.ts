@@ -1,9 +1,8 @@
-type BitriseYmlSettings = {
-  lastModified: string;
+export type BitriseYmlSettings = {
+  lastModified: string | null;
   lines: number;
   isYmlSplit: boolean;
-  isRepositoryYml: boolean;
   isModularYamlSupported: boolean;
+  usesRepositoryYml: boolean;
+  ymlRootPath: string | null;
 };
-
-export { BitriseYmlSettings };

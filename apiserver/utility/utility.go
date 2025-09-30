@@ -6,7 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bitrise-io/bitrise/cli"
+	"github.com/bitrise-io/bitrise/v2/bitrise"
+	"github.com/bitrise-io/bitrise/v2/cli"
 )
 
 // ValidationResponse ...
@@ -26,7 +27,7 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
 	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
 
-	_, bitriseWarns, bitriseErr := cli.CreateBitriseConfigFromCLIParams(bitriseConfigBase64, "")
+	_, bitriseWarns, bitriseErr := cli.CreateBitriseConfigFromCLIParams(bitriseConfigBase64, "", bitrise.ValidationTypeFull)
 	var secretsErr error
 	if secretsConfigBase64 != "" {
 		_, secretsErr = cli.CreateInventoryFromCLIParams(secretsConfigBase64, "")

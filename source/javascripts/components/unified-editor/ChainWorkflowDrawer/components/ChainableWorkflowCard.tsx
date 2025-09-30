@@ -1,6 +1,8 @@
 import { Box, Button, ButtonGroup, Card, Divider, Text } from '@bitrise/bitkit';
-import WorkflowService from '@/core/models/WorkflowService';
+
+import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+
 import type { ChainWorkflowCallback } from '../ChainWorkflowDrawer';
 
 type Props = {
@@ -10,7 +12,7 @@ type Props = {
 };
 
 const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
-  const dependants = useDependantWorkflows(chainableWorkflowId);
+  const dependants = useDependantWorkflows({ workflowId: chainableWorkflowId });
   return (
     <Card
       className="group"
@@ -39,7 +41,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           variant="tertiary"
           size="sm"
           leftIconName="ArrowQuit"
-          onClick={() => onChainWorkflow(chainableWorkflowId, parentWorkflowId, 'before_run')}
+          onClick={() => onChainWorkflow(parentWorkflowId, 'before_run', chainableWorkflowId)}
         >
           Add before
         </Button>
@@ -48,7 +50,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           variant="tertiary"
           size="sm"
           leftIconName="ArrowForwardAndDown"
-          onClick={() => onChainWorkflow(chainableWorkflowId, parentWorkflowId, 'after_run')}
+          onClick={() => onChainWorkflow(parentWorkflowId, 'after_run', chainableWorkflowId)}
         >
           Add after
         </Button>

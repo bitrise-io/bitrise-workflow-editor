@@ -1,104 +1,75 @@
-import { parse, stringify } from 'yaml';
-import { BitriseYml } from '@/core/models/BitriseYml';
-import RuntimeUtils from '@/core/utils/RuntimeUtils'; // TRANSFORMATIONS
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+
 import Client from './client';
 
-// TRANSFORMATIONS
-function toBitriseYml(data: string): BitriseYml {
-  return JSON.parse(data) as BitriseYml;
-}
+const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
 
-function toYml(model?: unknown): string {
-  if (!model) {
-    return '';
-  }
+type GetCiConfigOptions = {
+  projectSlug: string;
+  signal?: AbortSignal;
+  forceToReadFromRepo?: boolean;
+};
 
-  if (typeof model === 'string') {
-    return model;
-  }
+type GetCiConfigResult = {
+  ymlString: string;
+  version: string;
+};
 
-  return `---\n${stringify(model, { version: '1.1', aliasDuplicateObjects: false })}`;
-}
-
-function toJSON(model?: unknown): string {
-  return JSON.stringify({
-    app_config_datastore_yaml: toYml(model),
-  });
-}
-
-function fromYml(yml: string): unknown {
-  if (!yml) {
-    return {};
-  }
-
-  return parse(yml);
-}
+type SaveCiConfigOptions = {
+  data: string;
+  version?: string;
+  projectSlug: string;
+  tabOpenDuringSave?: string;
+};
 
 // API CALLS
-const BITRISE_YML_PATH = `/api/app/:appSlug/config`;
-const LOCAL_BITRISE_YAML_PATH = `/api/bitrise-yml.json`;
-const FORMAT_YML_PATH = `/api/cli/format`;
+const BITRISE_YML_PATH = `/api/app/:projectSlug/config.yml`;
+const LOCAL_BITRISE_YML_PATH = `/api/bitrise-yml`;
 
-function getBitriseYmlPath({ appSlug, readFromRepo = false }: { appSlug: string; readFromRepo?: boolean }): string {
-  return `${BITRISE_YML_PATH.replace(':appSlug', appSlug)}${readFromRepo ? '?is_force_from_repo=1' : ''}`;
+function ciConfigPath({ projectSlug, forceToReadFromRepo }: Omit<GetCiConfigOptions, 'signal'>) {
+  const basePath = RuntimeUtils.isWebsiteMode()
+    ? BITRISE_YML_PATH.replace(':projectSlug', projectSlug)
+    : LOCAL_BITRISE_YML_PATH;
+
+  return [basePath, forceToReadFromRepo ? '?is_force_from_repo=1' : ''].join('');
 }
 
-async function getBitriseYml({
-  signal,
-  ...params
-}: {
-  appSlug: string;
-  readFromRepo?: boolean;
-  signal?: AbortSignal;
-}): Promise<BitriseYml> {
+async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<GetCiConfigResult> {
+  const path = ciConfigPath(options);
+  const response = await Client.raw(path, { signal, method: 'GET' });
+
+  return {
+    ymlString: await response.text(),
+    version: response.headers.get(CI_CONFIG_VERSION_HEADER) || '',
+  };
+}
+
+async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: SaveCiConfigOptions) {
+  const path = ciConfigPath({ projectSlug });
+  const headers: HeadersInit = version ? { [CI_CONFIG_VERSION_HEADER]: version } : {};
+
   if (RuntimeUtils.isWebsiteMode()) {
-    const response = await Client.text(getBitriseYmlPath(params), {
-      signal,
+    return Client.post(path, {
+      headers,
+      body: JSON.stringify({
+        app_config_datastore_yaml: data,
+        tab_open_during_save: tabOpenDuringSave,
+      }),
     });
-    return toBitriseYml(response);
   }
 
-  return Client.text(LOCAL_BITRISE_YAML_PATH).then(toBitriseYml);
-}
-
-function updateBitriseYml({
-  appSlug,
-  model,
-  signal,
-}: {
-  appSlug: string;
-  model: BitriseYml;
-  signal?: AbortSignal;
-}): Promise<unknown> {
-  return Client.post<unknown>(getBitriseYmlPath({ appSlug }), {
-    signal,
-    body: toJSON(model),
+  return Client.post(path, {
+    headers,
+    body: JSON.stringify({
+      bitrise_yml: data,
+    }),
   });
 }
 
-async function formatYml(model: BitriseYml): Promise<string> {
-  if (RuntimeUtils.isWebsiteMode()) {
-    const response = await Client.text(FORMAT_YML_PATH, {
-      body: toJSON(model),
-      headers: {
-        Accept: 'application/x-yaml, application/json',
-      },
-      method: 'POST',
-    });
-
-    return response || '';
-  }
-
-  return toJSON(model);
-}
+export type { GetCiConfigResult };
 
 export default {
-  getBitriseYmlPath,
-  getBitriseYml,
-  getUpdateBitriseYmlPath: getBitriseYmlPath,
-  updateBitriseYml,
-  formatYml,
-  fromYml,
-  toYml,
-  toJSON,
+  getCiConfig,
+  ciConfigPath,
+  saveCiConfig,
 };

@@ -1,17 +1,12 @@
 /* eslint-disable import/no-cycle */
-import { memo, PropsWithChildren, RefObject, useCallback, useState } from 'react';
-import {
-  closestCenter,
-  CollisionDetection,
-  DataRef,
-  DndContext,
-  DragOverlay,
-  DragStartEvent,
-  Modifier,
-} from '@dnd-kit/core';
+import { closestCenter, CollisionDetection, DataRef, DndContext, DragStartEvent, Modifier } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { memo, PropsWithChildren, RefObject, useCallback, useState } from 'react';
+
+import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
+import ScaledDragOverlay from './ScaledDragOverlay';
 
 type Props = PropsWithChildren<{
   containerRef?: RefObject<HTMLElement>;
@@ -45,7 +40,7 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveItem({ ...(event.active.data.current as SortableWorkflowItem), uniqueId: event.active.id.toString() });
+    setActiveItem({ ...(event.active.data.current as SortableWorkflowItem) });
   }, []);
 
   const handleDragEndOrCancel = useCallback(() => {
@@ -54,14 +49,18 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
 
   return (
     <DndContext
+      autoScroll={false}
+      measuring={dndKitMeasuring}
+      collisionDetection={customCollisionDetection}
+      modifiers={[restrictToVerticalAxis, restrictToContainer]}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEndOrCancel}
       onDragCancel={handleDragEndOrCancel}
-      collisionDetection={customCollisionDetection}
-      modifiers={[restrictToVerticalAxis, restrictToContainer]}
     >
       {children}
-      <DragOverlay>{activeItem && <ChainedWorkflowCard {...activeItem} isDragging />}</DragOverlay>
+      <ScaledDragOverlay>
+        {activeItem && <ChainedWorkflowCard {...activeItem} isSortable isDragging />}
+      </ScaledDragOverlay>
     </DndContext>
   );
 };

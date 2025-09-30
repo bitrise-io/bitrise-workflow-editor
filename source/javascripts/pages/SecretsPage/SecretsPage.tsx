@@ -1,33 +1,30 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
+import { useCallback, useEffect, useState } from 'react';
+
 import { Secret } from '@/core/models/Secret';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
+
 import SecretCard from './SecretCard';
 
-type SecretsPageProps = {
-  appSlug: string;
-  onSecretsChange: (secrets: Secret[]) => void;
-  sharedSecretsAvailable: boolean;
-  // Cleanup
-  secretSettingsUrl: string; // TODO - move to react
-  planSelectorPageUrl: string; // TODO - move to react
-};
+const SecretsPage = () => {
+  const appSlug = PageProps.appSlug();
+  const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/secrets`;
+  const planSelectorPath = `/workspaces/${GlobalProps.workspaceSlug()}/plan_selector`;
+  const sharedSecretsAvailable = GlobalProps.workspace()?.sharedResourcesAvailable;
 
-const SecretsPage = (props: SecretsPageProps) => {
-  const { onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
   const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
-  const { data: secrets = [] } = useSecrets({ appSlug });
+  const { data: secrets } = useSecrets({ appSlug });
 
   useEffect(() => {
-    setWorkspaceSecretList(secrets.filter((secret) => secret.isShared));
-    setAppSecretList(secrets.filter((secret) => !secret.isShared));
-  }, [secrets, onSecretsChange]);
-
-  useEffect(() => {
-    onSecretsChange([...workspaceSecretList, ...appSecretList]);
-  }, [workspaceSecretList, appSecretList, onSecretsChange]);
+    if (secrets) {
+      setWorkspaceSecretList(secrets.filter((secret) => secret.isShared));
+      setAppSecretList(secrets.filter((secret) => !secret.isShared));
+    }
+  }, [secrets]);
 
   const {
     mutate: deleteSecret,
@@ -103,7 +100,7 @@ const SecretsPage = (props: SecretsPageProps) => {
     if (!sharedSecretsAvailable) {
       return (
         <Box marginBottom="24" marginTop="8">
-          <Link colorScheme="purple" textStyle="body/md/regular" href={planSelectorPageUrl}>
+          <Link colorScheme="purple" textStyle="body/md/regular" href={planSelectorPath}>
             Upgrade your plan
           </Link>
         </Box>
@@ -121,7 +118,7 @@ const SecretsPage = (props: SecretsPageProps) => {
               </Text>
             }
           >
-            <Button size="md" variant="secondary" as="a" href={secretSettingsUrl}>
+            <Button size="md" variant="secondary" as="a" href={workspaceSecretsPath}>
               Go to Settings
             </Button>
           </EmptyState>
@@ -132,7 +129,7 @@ const SecretsPage = (props: SecretsPageProps) => {
               appSlug={appSlug}
               key={secret.key}
               secret={secret}
-              secretSettingsUrl={secretSettingsUrl}
+              secretSettingsUrl={workspaceSecretsPath}
               onEdit={handleEdit(secret.key)}
               onCancel={handleCancel}
               onSave={handleSave}
@@ -145,7 +142,7 @@ const SecretsPage = (props: SecretsPageProps) => {
   };
 
   return (
-    <>
+    <Box p="32">
       <Text as="h2" textStyle="heading/h2" marginBottom="12">
         Secret Environment Variables
       </Text>
@@ -213,7 +210,7 @@ const SecretsPage = (props: SecretsPageProps) => {
           </Button>
         </DialogFooter>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

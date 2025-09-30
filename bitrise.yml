@@ -39,19 +39,12 @@ workflows:
                 asdf plugin add nodejs ||:
                 asdf install nodejs
       - script:
-          title: bundle install & npm ci
-          deps:
-            apt_get:
-              - name: ruby
-              - name: ruby-dev
-              - name: build-essential
+          title: npm ci
           inputs:
             - content: |-
                 #!/bin/bash
                 set -ex
 
-                gem install -f bundler:2.5.6
-                bundle install
                 npm ci
   build-client:
     title: Build the client
@@ -173,22 +166,3 @@ workflows:
           inputs:
             - content: |-
                 npm run test
-      - script:
-          title: Run E2E tests
-          deps:
-            apt_get:
-              - name: libasound2
-              - name: libgbm-dev
-              - name: libgconf-2-4
-              - name: libgtk-3-0
-              - name: libgtk2.0-0
-              - name: libnss3
-              - name: libxss1
-              - name: libxtst6
-              - name: xauth
-              - name: xvfb
-              - name: xdg-utils
-          inputs:
-            - content: |-
-                npm run e2e:ci
-

@@ -1,14 +1,15 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} * */
 module.exports = {
   rootDir: '.',
   roots: ['./source'],
   testEnvironment: 'node',
   transform: {
-    '^.+.tsx?$': 'ts-jest',
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   },
   moduleNameMapper: {
-    '\\.(css|less|scss|svg)$': 'identity-obj-proxy',
+    '\\.(css|less|svg)$': 'identity-obj-proxy',
     '@/(.*)': '<rootDir>/source/javascripts/$1',
   },
+  setupFilesAfterEnv: ['<rootDir>/spec/setup-jest.ts'],
+  moduleDirectories: ['node_modules', '<rootDir>/spec/__mocks__'],
   watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
 };

@@ -1,40 +1,50 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toMerged } from 'es-toolkit';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Step, StepBundle, StepLike, WithGroup } from '@/core/models/Step';
-import StepService from '@/core/models/StepService';
+import { useMemo } from 'react';
+
 import StepApi, { StepApiResult } from '@/core/api/StepApi';
+import { StepBundleOverrideModel, StepModel } from '@/core/models/BitriseYml';
+import { Step, StepBundleInstance, StepLike, WithGroup } from '@/core/models/Step';
+import StepService from '@/core/services/StepService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 
 type YmlStepResult = {
   data?: StepLike;
 };
 
-function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
+function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
+
   return useBitriseYmlStore(({ yml }) => {
-    const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+    let stepObjectFromYml: StepModel | WithGroup | StepBundleOverrideModel | null | undefined;
+
+    if (props.workflowId) {
+      const { workflowId, stepIndex } = props;
+      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+    } else if (props.stepBundleId) {
+      const { stepBundleId, stepIndex } = props;
+      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
+    }
 
     if (!stepObjectFromYml) {
       return { data: undefined };
     }
 
-    const [cvs, step] = Object.entries(stepObjectFromYml)[0];
-
-    if (!step) {
-      return { data: undefined };
-    }
+    const [cvs, stepObj] = Object.entries(stepObjectFromYml)[0] ?? ['', {}];
+    const step = stepObj ?? {};
 
     const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
     const title = StepService.resolveTitle(cvs, defaultStepLibrary, step);
     const icon = StepService.resolveIcon(cvs, defaultStepLibrary, step);
 
     if (StepService.isWithGroup(cvs, defaultStepLibrary, step)) {
-      return { data: { cvs, id, title, icon, userValues: step } };
+      return {
+        data: { cvs, id, title, icon, defaultValues: step ?? {}, mergedValues: step ?? {}, userValues: step ?? {} },
+      };
     }
     if (StepService.isStepBundle(cvs, defaultStepLibrary, step)) {
-      return { data: { cvs, id, title, icon, userValues: step } };
+      return { data: { cvs, id, title, icon, mergedValues: step ?? {}, userValues: step ?? {} } };
     }
 
     return {
@@ -103,13 +113,19 @@ function useStepFromApi(cvs = ''): ApiStepResult {
 
 type UseStepResult = {
   isLoading: boolean;
-  data?: Step | WithGroup | StepBundle;
+  data?: StepLike;
   error?: Error | null;
 };
 
-const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
+type UseStepProps = {
+  workflowId?: string;
+  stepBundleId?: string;
+  stepIndex: number;
+};
+
+const useStep = (props: UseStepProps): UseStepResult => {
+  const { data: ymlData } = useStepFromYml(props);
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { data: ymlData } = useStepFromYml(workflowId, stepIndex);
   const { data: apiData, error, isLoading } = useStepFromApi(ymlData?.cvs ?? '');
 
   return useMemo(() => {
@@ -129,13 +145,13 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
 
     if (StepService.isStepBundle(cvs, defaultStepLibrary, userValues)) {
       return {
-        data: ymlData as StepBundle,
+        data: ymlData as StepBundleInstance,
         isLoading: false,
       };
     }
 
     const inputs = defaultValues?.inputs?.map(({ opts, ...input }) => {
-      const [inputName, defaultValue] = Object.entries(input)[0];
+      const [inputName, defaultValue] = Object.entries(input)[0] ?? ['', ''];
       const inputFromYml = userValues?.inputs?.find(({ opts: _, ...inputObjectFromYml }) => {
         const inputNameFromYml = Object.keys(inputObjectFromYml)[0];
         return inputNameFromYml === inputName;

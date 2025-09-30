@@ -1,7 +1,11 @@
 import { Box } from '@bitrise/bitkit';
+import { Meta, StoryObj } from '@storybook/react';
+
 import DiffEditor from './DiffEditor';
 
-export default {
+type Story = StoryObj<typeof DiffEditor>;
+
+const meta: Meta<typeof DiffEditor> = {
   component: DiffEditor,
   args: {
     originalText:
@@ -24,11 +28,13 @@ export default {
     modifiedText: { control: 'text' },
     onChange: { action: 'onChange' },
   },
-  render: (args: any) => (
+  render: (args) => (
     <Box h="500px">
       <DiffEditor {...args} />
     </Box>
   ),
 };
 
-export const Default = {};
+export default meta;
+
+export const Default: Story = {};

@@ -1,48 +1,50 @@
-import { Box, Notification, Tag, Text } from '@bitrise/bitkit';
+import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
 
-import { FormProvider, useForm } from 'react-hook-form';
-import WindowUtils from '@/core/utils/WindowUtils';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
+
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
+import AlgoliaStepList from './components/AlgoliaStepList';
+import StepBundleFilter from './components/StepBundleFilter';
+import StepBundleList from './components/StepBundleList';
 import StepFilter from './components/StepFilter';
-import StepList from './components/StepList';
+import useSearch from './hooks/useSearch';
+import { SelectStepHandlerFn } from './StepSelectorDrawer.types';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
+  parentStepBundleId?: string;
 };
 
-const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...props }: Props) => {
-  const form = useForm<SearchFormValues>({
-    defaultValues: {
-      search: '',
-      categories: [],
-    },
+const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, parentStepBundleId, ...props }: Props) => {
+  const resetSearch = useSearch((s) => s.reset);
+
+  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
+    tabIds: ['step', 'stepBundle'],
   });
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
-  const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
+  const uniqueStepLimit = PageProps.limits()?.uniqueStepLimit;
   const showStepLimit = typeof uniqueStepLimit === 'number';
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
-  const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
+  const upgradeLink = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
-  const handleCloseCompete = () => {
-    form.reset();
+  const handleCloseComplete = () => {
+    resetSearch();
     onCloseComplete?.();
   };
 
   return (
-    <FormProvider {...form}>
-      <FloatingDrawer onCloseComplete={handleCloseCompete} {...props}>
-        <FloatingDrawerOverlay />
-        <FloatingDrawerContent maxWidth={['100%', '50%']}>
+    <Tabs variant="line" index={tabIndex} onChange={setTabIndex} isLazy>
+      <FloatingDrawer onCloseComplete={handleCloseComplete} {...props}>
+        <FloatingDrawerContent data-clarity-unmask="true">
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="12">
@@ -55,7 +57,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                 </Tag>
               )}
             </Box>
-
+            <Box position="relative" mt="8" mx="-24">
+              <TabList paddingX="8">
+                <Tab>Step</Tab>
+                <Tab>Step bundle</Tab>
+              </TabList>
+            </Box>
             {stepLimitReached && (
               <Notification
                 mt={16}
@@ -75,15 +82,25 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, ...pr
                 current plan. To add more Steps, upgrade your plan.
               </Notification>
             )}
-
-            <StepFilter mt={16} />
+            {tabId === 'step' && <StepFilter mt="24" mb="12" />}
+            {tabId === 'stepBundle' && <StepBundleFilter mt="24" mb="12" />}
           </FloatingDrawerHeader>
-          <FloatingDrawerBody>
-            <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
+          <FloatingDrawerBody pt="12">
+            <TabPanels>
+              <TabPanel>
+                <AlgoliaStepList
+                  enabledSteps={stepLimitReached ? enabledSteps : undefined}
+                  onSelectStep={onSelectStep}
+                />
+              </TabPanel>
+              <TabPanel display="flex" flexDir="column" gap="12">
+                <StepBundleList onSelectStep={onSelectStep} excludedStepBundleId={parentStepBundleId} />
+              </TabPanel>
+            </TabPanels>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
       </FloatingDrawer>
-    </FormProvider>
+    </Tabs>
   );
 };
 

@@ -1,4 +1,4 @@
-import { ChangeEventHandler, LegacyRef, ReactNode, useRef } from 'react';
+import { forwardRef } from '@bitrise/bitkit';
 import {
   Box,
   FormControl,
@@ -12,8 +12,8 @@ import {
   StyleProps,
   Textarea,
   TextareaProps,
-} from '@chakra-ui/react';
-import { forwardRef } from '@bitrise/bitkit';
+} from 'chakra-ui-2--react';
+import { ChangeEventHandler, LegacyRef, ReactNode, useRef } from 'react';
 
 type AutoGrowableInputProps = TextareaProps & {
   label?: ReactNode;
@@ -64,7 +64,7 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
   };
 
   return (
-    <FormControl {...formControlProps} textStyle="body/md/regular" isInvalid={!!errorText}>
+    <FormControl {...formControlProps} isRequired={rest.isRequired} textStyle="body/md/regular" isInvalid={!!errorText}>
       {label && (
         <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
           <FormLabel {...formLabelProps}>{label}</FormLabel>
@@ -72,28 +72,31 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
         </Box>
       )}
 
-      <Box
-        display="grid"
-        position="relative"
-        alignContent="start"
-        ref={setInitialReplicatedValue}
-        _after={{
-          ...styleProps,
-          fontFamily,
-          visibility: 'hidden',
-          content: 'attr(data-replicated-value) " "',
-        }}
-      >
-        <Textarea
-          {...rest}
-          {...styleProps}
-          rows={1}
-          ref={ref}
-          resize="none"
-          onChange={handleChange}
-          fontFamily={fontFamily}
-          data-1p-ignore
-        />
+      <Box display="flex" gap="6">
+        <Box
+          flex="1"
+          display="grid"
+          position="relative"
+          alignContent="start"
+          ref={setInitialReplicatedValue}
+          _after={{
+            ...styleProps,
+            fontFamily,
+            visibility: 'hidden',
+            content: 'attr(data-replicated-value) " "',
+          }}
+        >
+          <Textarea
+            {...rest}
+            {...styleProps}
+            rows={1}
+            ref={ref}
+            resize="none"
+            onChange={handleChange}
+            fontFamily={fontFamily}
+            data-1p-ignore
+          />
+        </Box>
         {children}
       </Box>
 

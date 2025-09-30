@@ -1,67 +1,23 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const webpack = require('webpack');
+const { DefinePlugin, EnvironmentPlugin } = require('webpack');
+
+const CopyPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const TerserPLugin = require('terser-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const { ProvidePlugin, DefinePlugin } = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
+
 const { version } = require('./package.json');
 
 const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
-const MonacoPluginOptions = {
-  languages: ['yaml'],
-  customLanguages: [
-    {
-      label: 'yaml',
-      entry: 'monaco-yaml',
-      worker: {
-        id: 'monaco-yaml/yamlWorker',
-        entry: 'monaco-yaml/yaml.worker',
-      },
-    },
-  ],
-  features: [
-    '!accessibilityHelp',
-    '!bracketMatching',
-    '!caretOperations',
-    '!clipboard',
-    '!codeAction',
-    '!codelens',
-    '!colorDetector',
-    '!contextmenu',
-    '!cursorUndo',
-    '!dnd',
-    '!fontZoom',
-    '!format',
-    '!gotoError',
-    '!gotoSymbol',
-    '!hover',
-    '!iPadShowKeyboard',
-    '!inPlaceReplace',
-    '!inspectTokens',
-    '!links',
-    '!multicursor',
-    '!parameterHints',
-    '!quickCommand',
-    '!quickOutline',
-    '!referenceSearch',
-    '!rename',
-    '!smartSelect',
-    '!snippets',
-    '!suggest',
-    '!toggleHighContrast',
-    '!toggleTabFocusMode',
-    '!transpose',
-    '!wordHighlighter',
-    '!wordOperations',
-    '!wordPartOperations',
-  ],
-};
-
 const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
@@ -70,36 +26,17 @@ const isClarityEnabled = CLARITY === 'true';
 const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
 
-const railsTransformer = (mode) => ({
-  loader: 'shell-loader',
-  options: {
-    script: `bundle exec ruby transformer.rb ${mode}`,
-    cwd: './rails',
-    maxBuffer: 1024 ** 3,
-    env: { ...process.env, wfe_version: version },
-  },
-});
-
-const htmlExporter = {
-  loader: 'file-loader',
-  options: {
-    name: '[path][name].html',
-  },
-};
-
 const entry = {
-  vendor: './javascripts/vendor.js',
-  strings: './javascripts/strings.js.erb',
-  routes: './javascripts/routes.js.erb',
-  main: './javascripts/index.js',
+  main: './javascripts/main.tsx',
 };
 if (isClarityEnabled) {
-  entry.clarity = './javascripts/clarity.js';
+  entry.clarity = './javascripts/lib/clarity.js';
 }
 if (isDataDogRumEnabled) {
-  entry.datadogrum = './javascripts/datadog-rum.js.erb';
+  entry.datadogrum = './javascripts/lib/datadog-rum.js';
 }
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
   context: CODEBASE,
   entry,
@@ -108,13 +45,15 @@ module.exports = {
     filename: 'javascripts/[name].js',
     path: OUTPUT_FOLDER,
     publicPath,
+    crossOriginLoading: 'anonymous',
   },
 
   /* --- Development --- */
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
-    compress: true,
-    watchFiles: './source/**/*',
+    hot: true,
+    liveReload: false,
+    historyApiFallback: true,
     port: DEV_SERVER_PORT || 4567,
     allowedHosts: ['host.docker.internal', 'localhost'],
     headers: {
@@ -130,21 +69,23 @@ module.exports = {
       publicPath,
     },
   },
+  watchOptions: {
+    ignored: ['node_modules', 'build', 'public'],
+  },
 
   /* --- Performance --- */
   cache: {
     type: 'filesystem',
     buildDependencies: {
-      // This makes all dependencies of this file - build dependencies
       config: [__filename],
     },
   },
   optimization: {
     minimize: isProd,
     minimizer: [
-      new TerserPLugin({
-        extractComments: true,
+      new TerserPlugin({
         parallel: true,
+        extractComments: true,
         terserOptions: {
           mangle: false,
           safari10: true,
@@ -153,7 +94,34 @@ module.exports = {
           },
         },
       }),
+      new CssMinimizerPlugin(),
     ],
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        // Create a monaco editor chunk
+        monaco: {
+          test: /[\\/]node_modules[\\/](monaco-editor|monaco-yaml)[\\/]/,
+          name: 'monaco',
+          chunks: 'all',
+          priority: 30,
+        },
+        // Create a Bitkit editor chunk
+        bitkit: {
+          test: /[\\/]node_modules[\\/]@bitrise[\\/]bitkit[\\/]/,
+          name: 'bitkit',
+          chunks: 'all',
+          priority: 20,
+        },
+        // Optional: create a chunk for vendor code
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 10,
+        },
+      },
+    },
   },
   performance: {
     hints: 'warning',
@@ -166,83 +134,69 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
+    extensions: ['.js', '.ts', '.tsx', '.css'],
   },
   module: {
     rules: [
       /* --- Javascript & TypeScript --- */
       {
-        test: /\.(stories|mswMocks?|mocks?|spec)\.tsx?$/i,
+        test: /\.(stories|mswMocks?|mocks?|specs?|tests?)\.tsx?$/i,
         use: 'ignore-loader',
       },
+
       {
-        test: /\.erb$/i,
-        use: railsTransformer('erb'),
+        test: /\.ya?ml$/,
+        type: 'asset/source',
       },
+
       {
-        test: /\.tsx?$/,
+        test: /\.tsx?$/i,
         use: {
-          loader: 'ts-loader',
+          loader: 'swc-loader',
           options: {
-            compilerOptions: {
-              sourceMap: !isProd,
+            sourceMaps: false,
+            jsc: {
+              target: 'ES2022',
+              parser: {
+                tsx: true,
+                decorators: true,
+                syntax: 'typescript',
+              },
+              transform: {
+                react: {
+                  runtime: 'automatic',
+                },
+              },
             },
           },
         },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            allowTsInNodeModules: true,
-            compilerOptions: {
-              sourceMap: !isProd,
-            },
-          },
-        },
-        include: /node_modules\/@bitrise\/bitkit/,
       },
 
       /* --- HTML & CSS --- */
       {
-        test: /\.(slim)$/,
-        use: [htmlExporter, railsTransformer('slim')],
-      },
-      {
         test: /\.css$/i,
-        include: path.join(__dirname, 'node_modules'),
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: path.resolve(__dirname, 'node_modules/normalize.css'),
-        use: 'null-loader',
-      },
-      {
-        test: /\.s[ac]ss(\.erb)?$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
 
       /* --- Images --- */
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
-        type: 'asset/resource',
+        type: 'asset',
         generator: {
-          outputPath: 'images',
           filename: '[name]-[hash][ext][query]',
+          outputPath: 'images',
           publicPath: `${publicPath}images/`,
         },
       },
 
       /* --- Fonts --- */
       {
-        test: /\.(eot|woff2?|ttf)$/i,
-        type: 'asset/resource',
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset',
         generator: {
-          outputPath: 'fonts',
           filename: '[name]-[hash][ext][query]',
-          publicPath: `${publicPath}fonts/`,
+          outputPath: 'fonts',
+          publicPath: isWebsiteMode ? `${publicPath}fonts/` : 'fonts/',
         },
       },
     ],
@@ -250,7 +204,12 @@ module.exports = {
 
   /* --- Plugins --- */
   plugins: [
-    new webpack.EnvironmentPlugin({ MODE: MODE || 'WEBSITE' }),
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        memoryLimit: 4096,
+        configFile: path.join(__dirname, 'tsconfig.json'),
+      },
+    }),
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /.js$|.css$/,
@@ -258,13 +217,16 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'stylesheets/[name].css',
     }),
-    new MonacoWebpackPlugin(MonacoPluginOptions),
-    new ProvidePlugin({
-      'window.jQuery': 'jquery',
-      'window._': 'underscore',
-    }),
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
+    }),
+    new EnvironmentPlugin({
+      ANALYTICS: 'false',
+      MODE: 'WEBSITE',
+      NODE_ENV: 'development',
+      PUBLIC_URL_ROOT: '',
+      WFE_VERSION: version,
+      DATADOG_RUM: 'false',
     }),
     new DefinePlugin({
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
@@ -286,5 +248,55 @@ module.exports = {
         },
       ),
     }),
+    new HtmlWebpackPlugin({
+      publicPath,
+      template: 'index.html',
+    }),
+    new MonacoWebpackPlugin({
+      languages: ['yaml', 'shell'],
+      filename: 'javascripts/[name].worker.js',
+      customLanguages: [
+        {
+          label: 'yaml',
+          entry: 'monaco-yaml',
+          worker: {
+            id: 'monaco-yaml/yamlWorker',
+            entry: 'monaco-yaml/yaml.worker',
+          },
+        },
+      ],
+      features: [
+        '!anchorSelect',
+        '!clipboard',
+        '!codeAction',
+        '!codelens',
+        '!colorPicker',
+        '!contextmenu',
+        '!cursorUndo',
+        '!dnd',
+        '!documentSymbols',
+        '!fontZoom',
+        '!format',
+        '!gotoSymbol',
+        '!iPadShowKeyboard',
+        '!inPlaceReplace',
+        '!inlayHints',
+        '!inlineEdit',
+        '!inlineEdits',
+        '!inspectTokens',
+        '!linkedEditing',
+        '!parameterHints',
+        '!quickCommand',
+        '!quickHelp',
+        '!quickOutline',
+        '!referenceSearch',
+        '!rename',
+        '!snippet',
+        '!toggleHighContrast',
+        '!toggleTabFocusMode',
+        '!unicodeHighlighter',
+      ],
+    }),
+    new SubresourceIntegrityPlugin(),
   ],
 };

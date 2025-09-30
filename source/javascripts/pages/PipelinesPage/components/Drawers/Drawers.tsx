@@ -1,46 +1,61 @@
-import { PropsWithChildren } from 'react';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import {
-  StartBuildDialog,
-  StepConfigDrawer,
-  StepSelectorDrawer,
-  WorkflowConfigDrawer,
-} from '@/components/unified-editor';
+import { memo, PropsWithChildren } from 'react';
+
+import ChainWorkflowDrawer from '@/components/unified-editor/ChainWorkflowDrawer/ChainWorkflowDrawer';
+import StartBuildDialog from '@/components/unified-editor/StartBuildDialog/StartBuildDialog';
+import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig/StepBundleConfigDrawer';
+import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
+import StepSelectorDrawer from '@/components/unified-editor/StepSelectorDrawer/StepSelectorDrawer';
+import WorkflowConfigDrawer from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
+import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
+import PipelineService from '@/core/services/PipelineService';
+import StepService from '@/core/services/StepService';
+import WorkflowService from '@/core/services/WorkflowService';
 import useSearchParams from '@/hooks/useSearchParams';
-import { Step } from '@/core/models/Step';
-import { PipelineConfigDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
-import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
+import useUniqueStepIds from '@/hooks/useUniqueStepIds';
+
+import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import CreatePipelineDialog from '../CreatePipelineDialog/CreatePipelineDialog';
+import PipelineConfigDrawer from '../PipelineConfigDrawer/PipelineConfigDrawer';
 import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 
 const Drawers = ({ children }: PropsWithChildren) => {
+  const enabledSteps = useUniqueStepIds('set');
   const [, setSearchParams] = useSearchParams();
 
   const {
     pipelineId,
+    stepBundleId,
     workflowId,
-    stepIndex,
-    isDialogMounted,
-    isDialogOpen,
+    selectedStepIndices,
+    parentWorkflowId,
+    openDialog,
     closeDialog,
+    isDialogOpen,
     unmountDialog,
     setWorkflowId,
+    isDialogMounted,
+    setStepBundleId,
   } = usePipelinesPageStore();
 
-  const { addStep, createPipeline, getUniqueStepIds, addWorkflowToPipeline } = useBitriseYmlStore((s) => ({
-    addStep: s.addStep,
-    createPipeline: s.createPipeline,
-    getUniqueStepIds: s.getUniqueStepIds,
-    addWorkflowToPipeline: s.addWorkflowToPipeline,
-  }));
+  const handleAddStep = (cvs: string) => {
+    const { id, library, version } = StepService.parseStepCVS(cvs, BITRISE_STEP_LIBRARY_URL);
+    const cvsWithLatestMajorVersion = `${id}@${version.split('.')[0]}`;
 
-  const handleAddStep = ({ cvs }: Step) => {
-    addStep(workflowId, cvs, stepIndex);
-    closeDialog();
+    const source = stepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = stepBundleId || workflowId;
+    const wantsToAddAStepBundle = library === LibraryType.BUNDLE;
+
+    if (wantsToAddAStepBundle) {
+      StepService.addStep(source, sourceId, cvs, selectedStepIndices[0]);
+      openDialog({ type: PipelinesPageDialogType.STEP_BUNDLE, workflowId, stepBundleId })();
+    } else {
+      StepService.addStep(source, sourceId, cvsWithLatestMajorVersion, selectedStepIndices[0]);
+      openDialog({ type: PipelinesPageDialogType.STEP_CONFIG, workflowId, stepBundleId })();
+    }
   };
 
   const handleAddWorkflowToPipeline = (selectedWorkflowId: string) => {
-    addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
+    PipelineService.addWorkflowToPipeline(pipelineId, selectedWorkflowId, workflowId);
     closeDialog();
   };
 
@@ -49,79 +64,110 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setSearchParams((p) => (p.workflow_id === workflowId ? { ...p, workflow_id: newWorkflowId } : p));
   };
 
+  const handleRenameStepBundle = (newStepBundleId: string) => {
+    setStepBundleId(newStepBundleId);
+    setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
+  };
+
   return (
     <>
       {children}
 
-      {isDialogMounted(PipelineConfigDialogType.PIPELINE_CONFIG) && (
+      {isDialogMounted(PipelinesPageDialogType.PIPELINE_CONFIG) && (
         <PipelineConfigDrawer
           pipelineId={pipelineId}
-          isOpen={isDialogOpen(PipelineConfigDialogType.PIPELINE_CONFIG)}
+          isOpen={isDialogOpen(PipelinesPageDialogType.PIPELINE_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
       )}
 
-      {isDialogMounted(PipelineConfigDialogType.CREATE_PIPELINE) && (
+      {isDialogMounted(PipelinesPageDialogType.CREATE_PIPELINE) && (
         <CreatePipelineDialog
-          isOpen={isDialogOpen(PipelineConfigDialogType.CREATE_PIPELINE)}
+          isOpen={isDialogOpen(PipelinesPageDialogType.CREATE_PIPELINE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onCreatePipeline={createPipeline}
+          onCreatePipeline={PipelineService.createPipeline}
         />
       )}
 
-      {isDialogMounted(PipelineConfigDialogType.WORKFLOW_SELECTOR) && (
+      {isDialogMounted(PipelinesPageDialogType.WORKFLOW_SELECTOR) && (
         <WorkflowSelectorDrawer
           pipelineId={pipelineId}
-          isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_SELECTOR)}
+          isOpen={isDialogOpen(PipelinesPageDialogType.WORKFLOW_SELECTOR)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onSelectWorkflow={handleAddWorkflowToPipeline}
         />
       )}
 
-      {isDialogMounted(PipelineConfigDialogType.WORKFLOW_CONFIG) && (
+      {isDialogMounted(PipelinesPageDialogType.WORKFLOW_CONFIG) && (
         <WorkflowConfigDrawer
           context="pipeline"
           workflowId={workflowId}
+          parentWorkflowId={parentWorkflowId}
           onRename={handleRenameWorkflow}
-          isOpen={isDialogOpen(PipelineConfigDialogType.WORKFLOW_CONFIG)}
+          isOpen={isDialogOpen(PipelinesPageDialogType.WORKFLOW_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
       )}
 
-      {isDialogMounted(PipelineConfigDialogType.START_BUILD) && (
+      {isDialogMounted(PipelinesPageDialogType.START_BUILD) && (
         <StartBuildDialog
           pipelineId={pipelineId}
-          isOpen={isDialogOpen(PipelineConfigDialogType.START_BUILD)}
+          isOpen={isDialogOpen(PipelinesPageDialogType.START_BUILD)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
         />
       )}
 
-      {isDialogMounted(PipelineConfigDialogType.STEP_SELECTOR) && (
+      {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
+        <StepBundleConfigDrawer
+          size="md"
+          isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onRename={handleRenameStepBundle}
+          parentWorkflowId={workflowId}
+          stepIndex={selectedStepIndices[0]}
+          parentStepBundleId={stepBundleId}
+        />
+      )}
+
+      {isDialogMounted(PipelinesPageDialogType.STEP_SELECTOR) && (
         <StepSelectorDrawer
-          enabledSteps={new Set(getUniqueStepIds())}
-          isOpen={isDialogOpen(PipelineConfigDialogType.STEP_SELECTOR)}
+          enabledSteps={enabledSteps}
+          isOpen={isDialogOpen(PipelinesPageDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
           onSelectStep={handleAddStep}
           onCloseComplete={unmountDialog}
+          parentStepBundleId={stepBundleId}
         />
       )}
 
-      {isDialogMounted(PipelineConfigDialogType.STEP_CONFIG) && (
+      {isDialogMounted(PipelinesPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           workflowId={workflowId}
-          stepIndex={stepIndex}
-          isOpen={isDialogOpen(PipelineConfigDialogType.STEP_CONFIG)}
+          stepBundleId={stepBundleId}
+          stepIndex={selectedStepIndices[0]}
+          isOpen={isDialogOpen(PipelinesPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
+        />
+      )}
+
+      {isDialogMounted(PipelinesPageDialogType.CHAIN_WORKFLOW) && (
+        <ChainWorkflowDrawer
+          workflowId={workflowId}
+          isOpen={isDialogOpen(PipelinesPageDialogType.CHAIN_WORKFLOW)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onChainWorkflow={WorkflowService.addChainedWorkflow}
         />
       )}
     </>
   );
 };
 
-export default Drawers;
+export default memo(Drawers);
