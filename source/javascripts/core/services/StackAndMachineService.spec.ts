@@ -238,7 +238,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -311,7 +311,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -386,12 +386,12 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack (osx-xcode-11)', status: 'unknown' }],
+          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack (osx-xcode-11)', status: 'unknown', os: 'unknown' }],
         },
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ label: 'Default (Xcode 15.0.x)', value: '', status: 'stable' }],
+          options: [{ label: 'Default (Xcode 15.0.x)', value: '', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -458,7 +458,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Default Stack (osx-xcode-11)', status: 'unknown' }],
+          options: [{ value: '', label: 'Invalid Default Stack (osx-xcode-11)', status: 'unknown', os: 'unknown' }],
         },
         {
           label: 'Edge Stacks',
@@ -524,7 +524,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -600,7 +600,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -676,7 +676,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -713,7 +713,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: 'mac-intel', label: 'Invalid Machine (mac-intel)', os: 'macos', status: 'unknown' }],
+          options: [{ value: 'mac-intel', label: 'Invalid Machine (mac-intel)', os: 'unknown', status: 'unknown' }],
         },
         {
           label: 'Default Machine',
@@ -752,7 +752,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Default Machine (mac-intel)', os: 'macos', status: 'unknown' }],
+          options: [{ value: '', label: 'Invalid Default Machine (mac-intel)', os: 'unknown', status: 'unknown' }],
         },
         {
           label: 'Available on your plan',
@@ -791,7 +791,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -859,7 +859,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',

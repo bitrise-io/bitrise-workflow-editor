@@ -22,6 +22,7 @@ export type StackOption = {
   value: string;
   label: string;
   status: StackStatus;
+  os?: string;
 };
 
 export type StackOptionGroup = {

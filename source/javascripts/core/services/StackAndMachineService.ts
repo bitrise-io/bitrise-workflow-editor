@@ -88,6 +88,7 @@ function toStackOption(stack: Stack): StackOption {
     value: stack.id,
     label: stack.name,
     status: stack.status,
+    os: stack.os,
   };
 }
 
@@ -209,6 +210,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           value: '',
           label: `Default (${defaultStack.name})`,
           status: defaultStack.status,
+          os: defaultStack.os,
         },
       ],
     });
@@ -231,6 +233,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       value: selectedStackId,
       name,
       status: 'unknown',
+      os: 'unknown',
     });
 
     result.stackOptionGroups.unshift({
@@ -355,7 +358,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       id: selectedMachineTypeId,
       value: selectedMachineTypeId,
       name,
-      os: result.selectedStack.os,
+      os: 'unknown',
     });
 
     // Add the invalid machine type to the available options
