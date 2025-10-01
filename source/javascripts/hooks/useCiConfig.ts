@@ -7,6 +7,7 @@ import PageProps from '@/core/utils/PageProps';
 type UseGetCiConfigProps = {
   projectSlug: string;
   forceToReadFromRepo?: boolean;
+  skipValidation?: boolean;
 };
 
 type UseSaveCiConfigProps = {

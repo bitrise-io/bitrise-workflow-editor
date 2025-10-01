@@ -68,7 +68,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const hasChanges = useYmlHasChanges();
 
   useCiConfigSettings();
-  const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug() });
+  const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
 
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog
