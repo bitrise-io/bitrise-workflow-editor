@@ -17,6 +17,7 @@ node_modules
 .docker-sync
 .env
 .vendor
+junit.xml
 
 # LD local
 ld.local.json
