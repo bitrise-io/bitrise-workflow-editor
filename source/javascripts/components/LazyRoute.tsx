@@ -7,7 +7,7 @@ import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 
 const LazyRoute = (props: RouteProps) => {
-  const { isLoading } = useGetCiConfig({ projectSlug: PageProps.appSlug() });
+  const { isLoading } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
 
   if (isLoading) {
     return <LoadingState />;

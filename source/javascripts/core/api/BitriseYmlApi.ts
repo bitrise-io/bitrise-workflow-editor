@@ -8,6 +8,7 @@ type GetCiConfigOptions = {
   projectSlug: string;
   signal?: AbortSignal;
   forceToReadFromRepo?: boolean;
+  skipValidation?: boolean;
 };
 
 type GetCiConfigResult = {
@@ -26,12 +27,20 @@ type SaveCiConfigOptions = {
 const BITRISE_YML_PATH = `/api/app/:projectSlug/config.yml`;
 const LOCAL_BITRISE_YML_PATH = `/api/bitrise-yml`;
 
-function ciConfigPath({ projectSlug, forceToReadFromRepo }: Omit<GetCiConfigOptions, 'signal'>) {
+function ciConfigPath({ projectSlug, forceToReadFromRepo, skipValidation }: Omit<GetCiConfigOptions, 'signal'>) {
   const basePath = RuntimeUtils.isWebsiteMode()
     ? BITRISE_YML_PATH.replace(':projectSlug', projectSlug)
     : LOCAL_BITRISE_YML_PATH;
 
-  return [basePath, forceToReadFromRepo ? '?is_force_from_repo=1' : ''].join('');
+  const queryParams = new URLSearchParams();
+  if (forceToReadFromRepo) {
+    queryParams.append('is_force_from_repo', '1');
+  }
+  if (skipValidation) {
+    queryParams.append('skip_validation', '1');
+  }
+
+  return [basePath, queryParams.toString()].filter(Boolean).join('?');
 }
 
 async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<GetCiConfigResult> {
