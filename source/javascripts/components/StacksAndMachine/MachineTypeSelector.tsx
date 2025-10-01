@@ -12,7 +12,7 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
     case 'macos':
       return 'Apple';
     default:
-      return undefined;
+      return 'Cpu';
   }
 };
 
@@ -68,6 +68,7 @@ const MachineTypeSelector = ({ isLoading, isInvalid, isDisabled, machineType, op
       labelHelp={toggletip}
       dropdownMaxHeight="25rem"
       disabled={isLoading || isDisabled}
+      isError={isInvalid}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
       helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
       value={machineType.value}
