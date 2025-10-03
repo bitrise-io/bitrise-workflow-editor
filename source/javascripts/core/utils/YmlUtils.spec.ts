@@ -3,6 +3,31 @@ import { isMap, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 import YmlUtils from './YmlUtils';
 
 describe('YmlUtils', () => {
+  describe('toJSON', () => {
+    it('should convert a YAML document to JSON', () => {
+      const doc = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+      `);
+      const json = YmlUtils.toJSON(doc);
+      expect(json).toEqual({
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }],
+          },
+        },
+      });
+    });
+
+    it('should handle null document gracefully', () => {
+      const doc = YmlUtils.toDoc('');
+      const json = YmlUtils.toJSON(doc);
+      expect(json).not.toBeNull();
+    });
+  });
+
   describe('toScalar', () => {
     it('should convert a string to a YAML scalar', () => {
       const result = YmlUtils.toScalar('test');
