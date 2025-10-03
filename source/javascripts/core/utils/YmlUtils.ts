@@ -100,7 +100,7 @@ function toYml(root: Root) {
 }
 
 function toJSON(root: Root) {
-  return root.toJSON() as BitriseYml;
+  return (root.toJSON() ?? {}) as BitriseYml;
 }
 
 function toTypedValue(value: unknown) {
