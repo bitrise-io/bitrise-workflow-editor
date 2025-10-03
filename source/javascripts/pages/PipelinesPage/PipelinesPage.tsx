@@ -1,7 +1,7 @@
 import '@xyflow/react/dist/style.css';
 
 import { Box } from '@bitrise/bitkit';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -17,6 +17,11 @@ import { PipelinesPageDialogType, usePipelinesPageStore } from './PipelinesPage.
 const PipelinesPage = () => {
   const { keys } = usePipelineSelector();
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
+  const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
+
+  useEffect(() => {
+    return () => closeDialog();
+  }, [closeDialog]);
 
   const hasPipelines = keys.length > 0;
   const canAccessPipelines = PageProps.limits()?.isPipelinesAvailable;
