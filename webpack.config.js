@@ -7,8 +7,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
@@ -94,7 +92,6 @@ module.exports = {
           },
         },
       }),
-      new CssMinimizerPlugin(),
     ],
     splitChunks: {
       chunks: 'all',
@@ -134,7 +131,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.ts', '.tsx', '.css'],
+    extensions: ['.js', '.ts', '.tsx'],
   },
   module: {
     rules: [
@@ -172,12 +169,6 @@ module.exports = {
         },
       },
 
-      /* --- HTML & CSS --- */
-      {
-        test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
-
       /* --- Images --- */
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
@@ -212,10 +203,7 @@ module.exports = {
     }),
     new CompressionPlugin({
       algorithm: 'gzip',
-      test: /.js$|.css$/,
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'stylesheets/[name].css',
+      test: /.js$/,
     }),
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],

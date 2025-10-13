@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-webpack5';
 import { http, HttpResponse } from 'msw';
 
 import YmlPage from './YmlPage';
@@ -48,7 +48,7 @@ export default {
 
 export const CliMode: StoryType = {
   beforeEach: () => {
-    process.env.MODE = 'cli';
+    window.MODE = 'cli';
     window.parent.pageProps = undefined;
     window.parent.globalProps = undefined;
   },

@@ -5,14 +5,15 @@ import { DefinePlugin } from "webpack";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import type { StorybookConfig } from "@storybook/react-webpack5";
 
+import packageJson from '../package.json';
+
 const config: StorybookConfig = {
   stories: ["../source/**/*.stories.tsx"],
   addons: [
     "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
     "@storybook/addon-queryparams",
     "@storybook/addon-webpack5-compiler-swc",
+    "@storybook/addon-docs"
   ],
   framework: {
     name: "@storybook/react-webpack5",
@@ -31,9 +32,6 @@ const config: StorybookConfig = {
       },
     },
   }),
-  docs: {
-    autodocs: false,
-  },
   refs: {
     "@chakra-ui/react": { disable: true },
   },
@@ -102,6 +100,15 @@ const config: StorybookConfig = {
       to: "/",
     },
   ],
+  env: (config) => ({
+    ...config,
+    ANALYTICS: 'false',
+    DATADOG_RUM: 'false',
+    MODE: 'WEBSITE',
+    NODE_ENV: 'development',
+    PUBLIC_URL_ROOT: '',
+    WFE_VERSION: packageJson.version,
+  }),
 };
 
 export default config;
