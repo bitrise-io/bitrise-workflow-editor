@@ -100,15 +100,15 @@ const config: StorybookConfig = {
       to: "/",
     },
   ],
-  env: (config) => ({
-    ...config,
-    ANALYTICS: 'false',
-    DATADOG_RUM: 'false',
-    MODE: 'website',
-    NODE_ENV: 'development',
-    PUBLIC_URL_ROOT: '',
-    WFE_VERSION: packageJson.version,
-  }),
+  previewHead: (head) => `
+    ${head}
+    <script>
+      window.env = {
+        MODE: 'website',
+        NODE_ENV: 'development',
+      };
+    </script>
+  `,
 };
 
 export default config;
