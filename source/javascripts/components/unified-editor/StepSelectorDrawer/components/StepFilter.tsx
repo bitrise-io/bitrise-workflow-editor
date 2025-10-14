@@ -42,7 +42,7 @@ const MAINTAINERS: Array<{
   },
 ];
 
-const StepFilterCategories = memo(() => {
+const StepFilterCategories = memo(function StepFilterCategories() {
   const { data: steps = [] } = useAlgoliaSteps();
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
 

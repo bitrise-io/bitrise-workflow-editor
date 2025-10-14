@@ -80,7 +80,7 @@ function toStepVariable(response: AlgoliaStepInputResponse): EnvironmentItemMode
     return undefined;
   }
 
-  const { opts, cvs, is_latest: isLatest, objectID, order, ...variable } = response;
+  const { opts, cvs: _cvs, is_latest: _isLatest, objectID: _objectID, order: _order, ...variable } = response;
   return { opts, ...variable };
 }
 

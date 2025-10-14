@@ -9,7 +9,7 @@ type StepItemBadgeProps = BoxProps & {
   isDeprecated?: boolean;
 };
 
-const StepBadge = ({ isOfficial, isVerified, isDeprecated, isCommunity, ...rest }: StepItemBadgeProps) => {
+const StepBadge = ({ isOfficial, isVerified, isDeprecated, isCommunity: _, ...rest }: StepItemBadgeProps) => {
   if (isOfficial) {
     return (
       <Box title="Bitrise step" data-e2e-tag="official-badge" {...rest}>

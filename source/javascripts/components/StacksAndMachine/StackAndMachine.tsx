@@ -66,6 +66,7 @@ const StackAndMachine = ({
     ] || '';
 
   const handleChange = useCallback(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     (selectedStackId: string, selectedMachineTypeId: string, useRollbackVersionChecked?: boolean) => {
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,

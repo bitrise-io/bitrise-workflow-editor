@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
 const { DefinePlugin } = require('webpack');
@@ -227,7 +226,7 @@ module.exports = {
             try {
               return JSON.parse(readFileSync(LD_LOCAL_FILE));
             } catch (error) {
-              // eslint-disable-next-line no-console
+               
               console.warn('Failed to parse ld.local.json:', error);
               return {};
             }

@@ -59,7 +59,13 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   );
 };
 
-const WorkflowCardContent = memo(({ id, uses, parallel, isCollapsable, containerProps }: ContentProps) => {
+const WorkflowCardContent = memo(function WorkflowCardContent({
+  id,
+  uses,
+  parallel,
+  isCollapsable,
+  containerProps,
+}: ContentProps) {
   const workflowId = uses || id;
 
   const containerRef = useRef(null);

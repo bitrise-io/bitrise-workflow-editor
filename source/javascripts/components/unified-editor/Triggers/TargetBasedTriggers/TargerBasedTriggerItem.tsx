@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 import { OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { Box } from 'chakra-ui-2--react';
 
