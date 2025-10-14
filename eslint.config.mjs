@@ -51,15 +51,26 @@ export default defineConfig([
       bitriseConfig.storybookOriginal,
       bitriseConfig.storybookOverwrites,
     ],
+    languageOptions: {
+      globals: {
+        TEST_BITRISE_YML: "readonly",
+      },
+    },
     rules: {
       "no-restricted-globals": "off",
       "import/no-extraneous-dependencies": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
     },
   },
 
   {
-    files: ["*.spec.{ts,tsx}", "*.mocks.ts", "*.mswMocks.ts"],
+    files: ["**/*.spec.{ts,tsx}", "**/*.mocks.ts", "**/*.mswMocks.ts"],
     extends: [bitriseConfig.tests],
+    languageOptions: {
+      globals: {
+        yaml: "readonly",
+      },
+    },
     rules: {
       "no-restricted-globals": "off",
       "import/no-extraneous-dependencies": "off",

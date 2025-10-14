@@ -19,12 +19,12 @@ function group(inputs?: EnvModel): Record<string, EnvModel> {
 }
 
 const getName = (input: EnvironmentItemModel) => {
-  const { opts, ...rest } = input;
+  const { opts: _, ...rest } = input;
   return Object.keys(rest)[0];
 };
 
 const getValue = (input: EnvironmentItemModel) => {
-  const { opts, ...rest } = input;
+  const { opts: _, ...rest } = input;
   return String(Object.values(rest)[0] ?? '');
 };
 

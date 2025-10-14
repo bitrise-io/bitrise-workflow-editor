@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { isEqual, isNil, isPrimitive } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
