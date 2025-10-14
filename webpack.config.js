@@ -222,7 +222,7 @@ module.exports = {
     }),
     new EnvironmentPlugin({
       ANALYTICS: 'false',
-      MODE: 'website',
+      MODE: 'WEBSITE',
       NODE_ENV: 'development',
       PUBLIC_URL_ROOT: '',
       WFE_VERSION: version,
