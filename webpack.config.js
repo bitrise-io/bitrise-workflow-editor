@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { DefinePlugin, EnvironmentPlugin } = require('webpack');
+const { DefinePlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -220,14 +220,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
-    new EnvironmentPlugin({
-      ANALYTICS: 'false',
-      MODE: 'WEBSITE',
-      NODE_ENV: 'development',
-      PUBLIC_URL_ROOT: '',
-      WFE_VERSION: version,
-      DATADOG_RUM: 'false',
-    }),
     new DefinePlugin({
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
@@ -253,7 +245,7 @@ module.exports = {
       template: 'index.html',
       ANALYTICS: ANALYTICS || 'false',
       DATADOG_RUM: DATADOG_RUM || 'false',
-      MODE: MODE || 'WEBSITE',
+      MODE: MODE === 'CLI' ? 'CLI' : 'WEBSITE',
       NODE_ENV: NODE_ENV || 'development',
       PUBLIC_URL_ROOT: PUBLIC_URL_ROOT || '',
       WFE_VERSION: version,
