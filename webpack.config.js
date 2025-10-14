@@ -7,6 +7,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
@@ -16,7 +18,7 @@ const { version } = require('./package.json');
 const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM, ANALYTICS } = process.env;
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
@@ -92,6 +94,7 @@ module.exports = {
           },
         },
       }),
+      new CssMinimizerPlugin(),
     ],
     splitChunks: {
       chunks: 'all',
@@ -131,7 +134,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, 'source/javascripts'),
     },
-    extensions: ['.js', '.ts', '.tsx'],
+    extensions: ['.js', '.ts', '.tsx', '.css'],
   },
   module: {
     rules: [
@@ -169,6 +172,12 @@ module.exports = {
         },
       },
 
+      /* --- HTML & CSS --- */
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+
       /* --- Images --- */
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
@@ -203,7 +212,10 @@ module.exports = {
     }),
     new CompressionPlugin({
       algorithm: 'gzip',
-      test: /.js$/,
+      test: /.js$|.css$/,
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'stylesheets/[name].css',
     }),
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
@@ -239,6 +251,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       publicPath,
       template: 'index.html',
+      ANALYTICS: ANALYTICS || 'false',
+      DATADOG_RUM: DATADOG_RUM || 'false',
+      MODE: MODE || 'WEBSITE',
+      NODE_ENV: NODE_ENV || 'development',
+      PUBLIC_URL_ROOT: PUBLIC_URL_ROOT || '',
+      WFE_VERSION: version,
     }),
     new MonacoWebpackPlugin({
       languages: ['yaml', 'shell'],
