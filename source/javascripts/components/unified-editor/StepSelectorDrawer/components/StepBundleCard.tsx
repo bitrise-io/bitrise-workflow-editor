@@ -9,6 +9,7 @@ import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMe
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import useStepBundleInstance from '@/hooks/useStepBundleInstance';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -129,6 +130,15 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     );
   }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
 
+  const stepBundleInstance = useStepBundleInstance({
+    stepBundleId: workflowId || stepBundleId ? undefined : StepBundleService.cvsToId(cvs),
+    parentWorkflowId: workflowId,
+    parentStepBundleId: stepBundleId,
+    stepIndex,
+  });
+
+  const title = stepBundleInstance.stepBundle?.mergedValues?.title || StepBundleService.cvsToId(cvs);
+
   return (
     <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>
       {!isPlaceholder && (
@@ -171,7 +181,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               )}
               <Box flex="1" minW={0}>
                 <Text textStyle="body/md/semibold" hasEllipsis>
-                  {StepBundleService.cvsToId(cvs)}
+                  {title}
                 </Text>
                 <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                   {usedInWorkflowsText}
