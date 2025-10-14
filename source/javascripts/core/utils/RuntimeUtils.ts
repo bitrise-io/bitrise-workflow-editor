@@ -1,9 +1,9 @@
 function isProduction() {
-  return process.env.NODE_ENV === 'prod';
+  return window.env.NODE_ENV === 'prod';
 }
 
 function isWebsiteMode() {
-  return process.env.MODE?.toLowerCase() === 'website';
+  return window.env.MODE === 'WEBSITE';
 }
 
 function isLocalMode() {

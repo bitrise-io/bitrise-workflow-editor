@@ -9,10 +9,9 @@ const config: StorybookConfig = {
   stories: ["../source/**/*.stories.tsx"],
   addons: [
     "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
     "@storybook/addon-queryparams",
     "@storybook/addon-webpack5-compiler-swc",
+    "@storybook/addon-docs"
   ],
   framework: {
     name: "@storybook/react-webpack5",
@@ -31,9 +30,6 @@ const config: StorybookConfig = {
       },
     },
   }),
-  docs: {
-    autodocs: false,
-  },
   refs: {
     "@chakra-ui/react": { disable: true },
   },
@@ -102,6 +98,19 @@ const config: StorybookConfig = {
       to: "/",
     },
   ],
+  previewHead: (head) => `
+    ${head}
+    <script>
+      window.env = {
+        ANALYTICS: 'false',
+        DATADOG_RUM: 'false',
+        MODE: 'WEBSITE',
+        NODE_ENV: 'development',
+        PUBLIC_URL_ROOT: '',
+        WFE_VERSION: 0,
+      };
+    </script>
+  `,
 };
 
 export default config;

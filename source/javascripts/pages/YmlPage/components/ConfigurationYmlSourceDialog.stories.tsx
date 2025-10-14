@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import { getCiConfig, getYmlSettings, postCiConfig, putYmlSettings } from './ConfigurationYmlSource.mswMocks';
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';

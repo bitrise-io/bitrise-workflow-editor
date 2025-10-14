@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-webpack5';
 
 import { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
 import { Secret } from '@/core/models/Secret';

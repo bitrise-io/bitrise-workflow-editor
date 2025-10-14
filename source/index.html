@@ -10,6 +10,16 @@
     crossorigin="anonymous" />
   <link href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/apple-touch-icon.png" rel="apple-touch-icon"
     crossorigin="anonymous" />
+    <script>
+      window.env = {
+        MODE: "<%= htmlWebpackPlugin.options.MODE %>",
+        ANALYTICS: "<%= htmlWebpackPlugin.options.ANALYTICS %>",
+        DATADOG_RUM: "<%= htmlWebpackPlugin.options.DATADOG_RUM %>",
+        NODE_ENV: "<%= htmlWebpackPlugin.options.NODE_ENV %>",
+        PUBLIC_URL_ROOT: "<%= htmlWebpackPlugin.options.PUBLIC_URL_ROOT %>",
+        WFE_VERSION: "<%= htmlWebpackPlugin.options.WFE_VERSION %>",
+      };
+    </script>
 </head>
 
 <body>
