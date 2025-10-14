@@ -6,7 +6,6 @@ import RuntimeUtils from './RuntimeUtils';
 
 describe('RuntimeUtils', () => {
   beforeAll(() => {
-    // Egyszerű hozzárendelés, így írható marad
     (window as any).env = { MODE: 'WEBSITE' };
   });
 
