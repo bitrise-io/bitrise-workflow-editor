@@ -48,7 +48,7 @@ export default {
 
 export const CliMode: StoryType = {
   beforeEach: () => {
-    window.MODE = 'cli';
+    window.env.MODE = 'cli';
     window.parent.pageProps = undefined;
     window.parent.globalProps = undefined;
   },

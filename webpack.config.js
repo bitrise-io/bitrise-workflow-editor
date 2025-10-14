@@ -222,7 +222,7 @@ module.exports = {
     }),
     new EnvironmentPlugin({
       ANALYTICS: 'false',
-      MODE: 'WEBSITE',
+      MODE: 'website',
       NODE_ENV: 'development',
       PUBLIC_URL_ROOT: '',
       WFE_VERSION: version,
@@ -253,7 +253,7 @@ module.exports = {
       template: 'index.html',
       ANALYTICS: ANALYTICS || 'false',
       DATADOG_RUM: DATADOG_RUM || 'false',
-      MODE: MODE || 'WEBSITE',
+      MODE: MODE.toLowerCase() || 'website',
       NODE_ENV: NODE_ENV || 'development',
       PUBLIC_URL_ROOT: PUBLIC_URL_ROOT || '',
       WFE_VERSION: version,

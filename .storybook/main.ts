@@ -104,7 +104,7 @@ const config: StorybookConfig = {
     ...config,
     ANALYTICS: 'false',
     DATADOG_RUM: 'false',
-    MODE: 'WEBSITE',
+    MODE: 'website',
     NODE_ENV: 'development',
     PUBLIC_URL_ROOT: '',
     WFE_VERSION: packageJson.version,

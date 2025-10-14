@@ -8,8 +8,6 @@ declare global {
 
   interface Window {
     DD_RUM: typeof import('@datadog/browser-rum').datadogRum | undefined;
-    MODE: 'website' | 'cli';
-    NODE_ENV: 'development' | 'prod';
     // webpack.config.js
     localFeatureFlags: Partial<{
       [s: string]: string | number | boolean;
@@ -60,6 +58,14 @@ declare global {
           variables: Record<string, string | null>;
         };
       };
+    };
+    env: {
+      ANALYTICS: 'true' | 'false';
+      DATADOG_RUM: 'true' | 'false';
+      MODE: 'website' | 'cli';
+      NODE_ENV: 'development' | 'prod';
+      PUBLIC_URL_ROOT: string;
+      WFE_VERSION: string;
     };
   }
 
