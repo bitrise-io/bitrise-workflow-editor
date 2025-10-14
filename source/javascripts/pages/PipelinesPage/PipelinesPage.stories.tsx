@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-webpack5';
 import { set } from 'es-toolkit/compat';
 
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
