@@ -24,7 +24,7 @@ export const Website = {};
 
 export const CLI = {
   beforeEach: () => {
-    window.env.MODE = 'cli';
+    window.env.MODE = 'CLI';
     window.parent.pageProps = undefined;
     window.parent.globalProps = undefined;
   },

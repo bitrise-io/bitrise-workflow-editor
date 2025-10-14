@@ -40,7 +40,7 @@ const meta: Meta<typeof WorkflowsPage> = {
 
 const cliStory: Story = {
   beforeEach: () => {
-    window.env.MODE = 'cli';
+    window.env.MODE = 'CLI';
     window.parent.pageProps = undefined;
     window.parent.globalProps = undefined;
   },

@@ -5,8 +5,6 @@ import { DefinePlugin } from "webpack";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import type { StorybookConfig } from "@storybook/react-webpack5";
 
-import packageJson from '../package.json';
-
 const config: StorybookConfig = {
   stories: ["../source/**/*.stories.tsx"],
   addons: [
@@ -104,8 +102,12 @@ const config: StorybookConfig = {
     ${head}
     <script>
       window.env = {
-        MODE: 'website',
+        ANALYTICS: 'false',
+        DATADOG_RUM: 'false',
+        MODE: 'WEBSITE',
         NODE_ENV: 'development',
+        PUBLIC_URL_ROOT: '',
+        WFE_VERSION: 0,
       };
     </script>
   `,

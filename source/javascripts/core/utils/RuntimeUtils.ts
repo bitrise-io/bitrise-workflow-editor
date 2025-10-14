@@ -3,7 +3,7 @@ function isProduction() {
 }
 
 function isWebsiteMode() {
-  return window.env.MODE === 'website';
+  return window.env.MODE === 'WEBSITE';
 }
 
 function isLocalMode() {

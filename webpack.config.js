@@ -253,7 +253,7 @@ module.exports = {
       template: 'index.html',
       ANALYTICS: ANALYTICS || 'false',
       DATADOG_RUM: DATADOG_RUM || 'false',
-      MODE: MODE.toLowerCase() || 'website',
+      MODE: MODE || 'WEBSITE',
       NODE_ENV: NODE_ENV || 'development',
       PUBLIC_URL_ROOT: PUBLIC_URL_ROOT || '',
       WFE_VERSION: version,

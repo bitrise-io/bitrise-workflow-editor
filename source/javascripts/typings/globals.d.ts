@@ -62,7 +62,7 @@ declare global {
     env: {
       ANALYTICS: 'true' | 'false';
       DATADOG_RUM: 'true' | 'false';
-      MODE: 'website' | 'cli';
+      MODE: 'WEBSITE' | 'CLI';
       NODE_ENV: 'development' | 'prod';
       PUBLIC_URL_ROOT: string;
       WFE_VERSION: string;

@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
 const preview: Preview = {
   beforeEach: () => {
     queryClient.clear();
-    window.env.MODE = "website";
+    window.env.MODE = "WEBSITE";
     window.parent.globalProps = {
       user: { slug: "user-1", username: "ninja" },
       account: { slug: "account-1", name: "Mando" },
@@ -35,7 +35,7 @@ const preview: Preview = {
     };
 
     return () => {
-      window.env.MODE = "cli";
+      window.env.MODE = "CLI";
       window.parent.globalProps = undefined;
       window.parent.pageProps = undefined;
     };
