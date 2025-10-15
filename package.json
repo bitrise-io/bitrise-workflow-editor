@@ -130,9 +130,6 @@
     "webpack-dev-server": "^5.2.2",
     "webpack-subresource-integrity": "^5.1.0"
   },
-  "optionalDependencies": {
-    "@esbuild/linux-x64": "0.25.11"
-  },
   "msw": {
     "workerDirectory": [
       ".storybook/public"
