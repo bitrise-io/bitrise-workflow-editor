@@ -18,7 +18,7 @@ const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
 const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM, ANALYTICS } = process.env;
-const isProd = NODE_ENV === 'prod';
+const isProd = NODE_ENV === "production";
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
 const isClarityEnabled = CLARITY === 'true';
@@ -226,7 +226,7 @@ module.exports = {
             try {
               return JSON.parse(readFileSync(LD_LOCAL_FILE));
             } catch (error) {
-               
+
               console.warn('Failed to parse ld.local.json:', error);
               return {};
             }
