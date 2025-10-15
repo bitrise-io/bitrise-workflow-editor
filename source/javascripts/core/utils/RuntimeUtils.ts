@@ -1,5 +1,5 @@
 function isProduction() {
-  return window.env.NODE_ENV === 'prod';
+  return window.env.NODE_ENV === 'production';
 }
 
 function isWebsiteMode() {
