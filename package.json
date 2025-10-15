@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "2.5.14353",
+  "version": "2.5.14359",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -117,7 +117,7 @@
     "knip": "^5.50.5",
     "lint-staged": "^15.4.3",
     "mini-css-extract-plugin": "^2.9.4",
-    "monaco-editor-webpack-plugin": "^7.1.1",
+    "monaco-editor-webpack-plugin": "7.1.0",
     "msw": "^2.7.3",
     "msw-storybook-addon": "^2.0.6",
     "prettier": "^3.5.2",

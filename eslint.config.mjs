@@ -58,7 +58,7 @@ export default defineConfig([
     },
     rules: {
       "no-restricted-globals": "off",
-      "import/no-extraneous-dependencies": "off",
+      // "import/no-extraneous-dependencies": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
     },
   },
