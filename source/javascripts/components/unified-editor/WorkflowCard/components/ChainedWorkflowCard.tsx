@@ -1,4 +1,4 @@
-/* eslint-disable import/no-cycle */
+/* _eslint-disable import/no-cycle */
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

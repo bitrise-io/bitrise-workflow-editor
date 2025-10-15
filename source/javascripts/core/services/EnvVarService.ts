@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Document, isMap } from 'yaml';
 
 import { bitriseYmlStore, getBitriseYml, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';

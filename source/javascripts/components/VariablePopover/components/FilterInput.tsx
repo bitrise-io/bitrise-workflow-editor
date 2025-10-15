@@ -20,8 +20,10 @@ const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
       [debounceTime, onChange],
     );
 
-    return <SearchInput inputRef={ref} autoFocus name="filter" value={state} onChange={onChangeHandler} {...rest} />;
+    return <SearchInput inputRef={ref} name="filter" value={state} onChange={onChangeHandler} {...rest} />;
   },
 );
+
+FilterInput.displayName = 'FilterInput';
 
 export default FilterInput;

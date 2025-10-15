@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 import { Skeleton, SkeletonBox } from '@bitrise/bitkit';
 
 type Props = {

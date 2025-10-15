@@ -69,7 +69,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
 
       // Load project level env vars
       const projectLevelEnvVars = yml?.app?.envs || [];
-      const suggestions: languages.CompletionItem[] = projectLevelEnvVars.map(({ opts, ...env }) => {
+      const suggestions: languages.CompletionItem[] = projectLevelEnvVars.map(({ opts: _, ...env }) => {
         const key = Object.keys(env)[0];
 
         return {
@@ -85,7 +85,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
       // Load workflow level env vars
       Object.entries(yml.workflows ?? {}).forEach(([workflowName, workflow]) => {
         const workflowEnvVars = workflow?.envs || [];
-        workflowEnvVars.forEach(({ opts, ...env }) => {
+        workflowEnvVars.forEach(({ opts: _, ...env }) => {
           const key = Object.keys(env)[0];
 
           if (suggestions.some((s) => s.label === key)) {
@@ -162,7 +162,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
         const steps = await AlgoliaApi.getStepsByMultipleCvs(resolvedCvs, ['id', 'step.outputs']);
 
         steps.forEach(({ id, step }) => {
-          (step?.outputs ?? []).forEach(({ opts, ...env }) => {
+          (step?.outputs ?? []).forEach(({ opts: _, ...env }) => {
             const key = Object.keys(env)[0];
 
             if (suggestions.some((s) => s.label === key)) {

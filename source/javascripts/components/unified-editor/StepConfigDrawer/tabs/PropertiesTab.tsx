@@ -10,7 +10,7 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useEffect, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
@@ -28,7 +28,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
   const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
-  const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
+  const onStepVersionChange: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
 
     const source = stepBundleId ? 'step_bundles' : 'workflows';
@@ -83,7 +83,7 @@ const PropertiesTab = () => {
   const description = data?.mergedValues?.description;
   const sourceUrl = data?.mergedValues?.source_code_url;
 
-  const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const title = e.currentTarget.value;
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
@@ -134,7 +134,7 @@ const PropertiesTab = () => {
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+            {}
             <Link
               as="button"
               colorScheme="purple"

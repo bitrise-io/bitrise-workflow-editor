@@ -18,7 +18,7 @@ import {
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-import { useMemo, useState } from 'react';
+import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Secret } from '@/core/models/Secret';
