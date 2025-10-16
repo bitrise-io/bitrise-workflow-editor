@@ -7,6 +7,7 @@ import PageProps from '@/core/utils/PageProps';
 import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
+import useFeatureFlag from '../../hooks/useFeatureFlag';
 import DeprecatedMachineNotification from './DeprecatedMachineNotification';
 import MachineTypeSelector from './MachineTypeSelector';
 import StackAndMachineWrapper from './StackAndMachineWrapper';
@@ -60,10 +61,12 @@ const StackAndMachine = ({
     withoutDefaultOptions,
   });
 
-  const availableRollbackVersion =
-    selectedStack.rollbackVersion?.[selectedMachineType.id as keyof typeof selectedStack.rollbackVersion]?.[
-      rollbackType
-    ] || '';
+  const isNewStackMachineAvailabilityEnabled = useFeatureFlag('new-stack-machine-availability');
+  const availableRollbackVersion = isNewStackMachineAvailabilityEnabled
+    ? selectedStack.availableOnMachines?.[rollbackType][selectedMachineType.id]?.rollbackVersion || ''
+    : selectedStack.rollbackVersion?.[selectedMachineType.id as keyof typeof selectedStack.rollbackVersion]?.[
+        rollbackType
+      ] || '';
 
   const handleChange = useCallback(
     // eslint-disable-next-line react-hooks/preserve-manual-memoization

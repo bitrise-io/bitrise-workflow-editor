@@ -4,6 +4,7 @@ import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
   'enable-wfe-step-bundles-when-to-run': false,
+  'new-stack-machine-availability': false,
 };
 
 type FeatureFlags = typeof defaultValues;
