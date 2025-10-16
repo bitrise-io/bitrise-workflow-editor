@@ -235,6 +235,8 @@ workflows:
         opts:
           is_expand: false
     steps:
+      - bundle::install_deps:
+          title: Instance title
       - github-status@2.4.0:
           inputs:
             - api_base_url: https://github.com
@@ -496,6 +498,7 @@ workflows:
             - postgres
 step_bundles:
   install_deps:
+    title: Title of step bundle
     inputs:
       - opts:
           category: myFirstCategory
