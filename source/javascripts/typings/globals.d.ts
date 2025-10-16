@@ -59,6 +59,14 @@ declare global {
         };
       };
     };
+    env: {
+      ANALYTICS: 'true' | 'false';
+      DATADOG_RUM: 'true' | 'false';
+      MODE: 'WEBSITE' | 'CLI';
+      NODE_ENV: 'development' | 'production';
+      PUBLIC_URL_ROOT: string;
+      WFE_VERSION: string;
+    };
   }
 
   const process: {

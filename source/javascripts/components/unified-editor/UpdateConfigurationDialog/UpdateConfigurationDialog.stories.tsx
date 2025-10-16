@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-webpack5';
 import { delay, http, HttpResponse } from 'msw';
 
 import { getCiConfig } from '@/pages/YmlPage/components/ConfigurationYmlSource.mswMocks';

@@ -178,11 +178,11 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
       </DialogBody>
       <DialogFooter>
         <ButtonGroup display="flex" gap="8">
-          <Button isDisabled={isSubmitDisabled} type="submit">
-            {mode === 'edit' ? 'Update' : 'Create'}
-          </Button>
           <Button variant="secondary" onClick={onCancel}>
             Cancel
+          </Button>
+          <Button isDisabled={isSubmitDisabled} type="submit">
+            {mode === 'edit' ? 'Update' : 'Create'}
           </Button>
         </ButtonGroup>
       </DialogFooter>

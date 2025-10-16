@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const { existsSync, readFileSync } = require('fs');
-const { DefinePlugin, EnvironmentPlugin } = require('webpack');
+const { DefinePlugin } = require('webpack');
 
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -18,8 +18,8 @@ const { version } = require('./package.json');
 const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
-const isProd = NODE_ENV === 'prod';
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, CLARITY, DEV_SERVER_PORT, DATADOG_RUM, ANALYTICS } = process.env;
+const isProd = NODE_ENV === 'production';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
 const isClarityEnabled = CLARITY === 'true';
@@ -220,14 +220,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
     }),
-    new EnvironmentPlugin({
-      ANALYTICS: 'false',
-      MODE: 'WEBSITE',
-      NODE_ENV: 'development',
-      PUBLIC_URL_ROOT: '',
-      WFE_VERSION: version,
-      DATADOG_RUM: 'false',
-    }),
     new DefinePlugin({
       'window.localFeatureFlags': DefinePlugin.runtimeValue(
         () => {
@@ -251,6 +243,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       publicPath,
       template: 'index.html',
+      ANALYTICS: ANALYTICS || 'false',
+      DATADOG_RUM: DATADOG_RUM || 'false',
+      MODE: MODE === 'CLI' ? 'CLI' : 'WEBSITE',
+      NODE_ENV: NODE_ENV || 'development',
+      PUBLIC_URL_ROOT: PUBLIC_URL_ROOT || '',
+      WFE_VERSION: version,
     }),
     new MonacoWebpackPlugin({
       languages: ['yaml', 'shell'],

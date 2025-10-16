@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-webpack5';
 import { set } from 'es-toolkit/compat';
 
 import {
@@ -40,7 +40,7 @@ const meta: Meta<typeof WorkflowsPage> = {
 
 const cliStory: Story = {
   beforeEach: () => {
-    process.env.MODE = 'cli';
+    window.env.MODE = 'CLI';
     window.parent.pageProps = undefined;
     window.parent.globalProps = undefined;
   },
