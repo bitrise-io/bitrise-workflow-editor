@@ -122,6 +122,30 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           description:
             'Xcode 15.0 based on macOS 14.1 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
           machines: options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+          available_on_machines: {
+            free: {
+              'm2.medium': {
+                rollback_version: '2-82-0',
+              },
+              'm2.large': {
+                rollback_version: '2-82-0',
+              },
+            },
+            paying: {
+              'm1.medium': {
+                rollback_version: '2-82-0',
+              },
+              'm1.large': {
+                rollback_version: '2-82-0',
+              },
+              'm2.medium': {
+                rollback_version: '2-82-0',
+              },
+              'm2.large': {
+                rollback_version: '2-82-0',
+              },
+            },
+          },
           rollback_version: {
             'm1.medium': {
               paying: '2-82-0',

@@ -2,6 +2,13 @@ export type StackStatus = 'edge' | 'stable' | 'frozen' | 'unknown';
 export type StackOS = 'macos' | 'linux' | 'unknown';
 
 export type Stack = {
+  availableOnMachines?: {
+    [groupKey: 'free' | 'paying' | string]: {
+      [machineTypeId: string]: {
+        rollbackVersion?: string;
+      };
+    };
+  };
   id: string;
   os: StackOS;
   name: string;

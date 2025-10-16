@@ -2,6 +2,13 @@ import { MachineStatus, MachineType, Stack, StackOS, StackStatus } from '../mode
 import Client from './client';
 
 type StackApiItem = {
+  available_on_machines?: {
+    [groupKey: 'free' | 'paying' | string]: {
+      [machineTypeId: string]: {
+        rollback_version?: string;
+      };
+    };
+  };
   id: string;
   os?: string;
   title: string;
@@ -74,6 +81,19 @@ function mapStackStatus(status: string): StackStatus {
 
 function toStack(item: StackApiItem): Stack {
   return {
+    availableOnMachines:
+      item.available_on_machines &&
+      Object.fromEntries(
+        Object.entries(item.available_on_machines).map(([groupKey, machineTypes]) => [
+          groupKey,
+          Object.fromEntries(
+            Object.entries(machineTypes).map(([machineTypeId, { rollback_version }]) => [
+              machineTypeId,
+              rollback_version ? { rollbackVersion: rollback_version } : {},
+            ]),
+          ),
+        ]),
+      ),
     id: item.id,
     name: item.title,
     description: item.description ?? '',
