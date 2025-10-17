@@ -69,7 +69,7 @@ in the [bitrise CLI repository](https://github.com/bitrise-io/bitrise/blob/maste
 4. To use/test the step just follow the **How to use this Step** section
 5. Do the changes you want to
 6. Run/test the step before sending your contribution
-  * You can also test the step in your `bitrise` project, either on your Mac or on [bitrise.io](https://www.bitrise.io)
+  * You can also test the step in your `bitrise` project, either on your Mac or on [bitrise.io](https://bitrise.io)
   * You just have to replace the step ID in your project's `bitrise.yml` with either a relative path, or with a git URL format
   * (relative) path format: instead of `- original-step-id:` use `- path::./relative/path/of/script/on/your/Mac:`
   * direct git URL format: instead of `- original-step-id:` use `- git::https://github.com/user/step.git@branch:`

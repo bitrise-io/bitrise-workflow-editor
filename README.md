@@ -11,7 +11,7 @@ the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/An
 ## How to install & use the Workflow Editor on your Mac/Linux
 
 1. Install [Go](https://golang.org) `brew install go` (on macOS)
-1. Install the latest [Bitrise CLI](https://www.bitrise.io/cli) - it's a single binary command line tool
+1. Install the latest [Bitrise CLI](https://bitrise.io/cli) - it's a single binary command line tool
 1. Run `bitrise setup` just to be sure everything's prepared
 1. `cd` into a directory where you have your `bitrise.yml`, and run: `bitrise :workflow-editor`
 
@@ -24,7 +24,7 @@ bitrise plugin update workflow-editor
 ```
 
 _Join the Workflow Editor's discussion
-at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39)_
+at: [https://discuss.bitrise.io/t/workflow-editor-v2-open-source-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-open-source-offline-workflow-editor/39)_
 
 ## Install requirements
 

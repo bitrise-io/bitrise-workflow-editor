@@ -16,7 +16,7 @@ const PriorityInput = (props: PriorityInputProps) => {
           {helperText}{' '}
           <Link
             colorScheme="purple"
-            href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/build-priority.html"
+            href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/build-priority.html"
             isExternal
           >
             Learn more

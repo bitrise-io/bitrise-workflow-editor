@@ -198,7 +198,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             <Link
               isExternal
               colorScheme="purple"
-              href="https://devcenter.bitrise.io/en/connectivity/connecting-to-services/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html#github-app-integration"
+              href="https://docs.bitrise.io/en/bitrise-platform/integrations/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html"
             >
               Learn more
             </Link>
@@ -213,7 +213,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             <Link
               isExternal
               colorScheme="purple"
-              href="https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html"
+              href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
             >
               Follow this guide
             </Link>{' '}
@@ -249,7 +249,11 @@ const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitT
           helperText={
             <>
               Multiple configuration files will be merged into a single file.{' '}
-              <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
+              <Link
+                href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/managing-a-project-s-configuration-yaml-file.html"
+                colorScheme="purple"
+                isExternal
+              >
                 Learn more
               </Link>
             </>

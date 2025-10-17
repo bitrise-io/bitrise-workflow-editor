@@ -34,7 +34,7 @@ const OptimizeYouCiConfigBySplittingNotification = () => {
       </Text>{' '}
       YAML file into smaller chunks.{' '}
       <Link
-        href="https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html"
+        href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
         isExternal
         isUnderlined
       >

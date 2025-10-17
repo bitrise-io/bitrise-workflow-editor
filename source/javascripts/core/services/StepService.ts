@@ -14,7 +14,7 @@ import YmlUtils from '../utils/YmlUtils';
 
 type Source = 'workflows' | 'step_bundles';
 
-// https://devcenter.bitrise.io/en/references/steps-reference/step-reference-id-format.html
+// https://docs.bitrise.io/en/bitrise-ci/references/steps-reference/step-reference-id-format.html
 // <step_lib_source>::<step-id>@<version>:
 function parseStepCVS(
   cvs: string,

@@ -14,7 +14,7 @@ const TriggersPage = () => {
         Triggers help you start builds automatically.{' '}
         <Link
           colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+          href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
           Learn more

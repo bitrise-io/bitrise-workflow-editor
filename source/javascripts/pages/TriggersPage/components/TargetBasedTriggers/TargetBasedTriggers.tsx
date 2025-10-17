@@ -210,7 +210,7 @@ const TargetBasedTriggers = () => {
             up here or directly in the Workflow or Pipeline settings.{' '}
             <Link
               colorScheme="purple"
-              href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+              href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
             >
               Learn more
             </Link>

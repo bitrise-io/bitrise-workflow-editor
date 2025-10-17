@@ -24,7 +24,7 @@ const OrderOfTriggersNotification = () => {
         The first matching trigger is executed by the system, so make sure that the order of triggers is configured
         correctly.{' '}
         <Link
-          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+          href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           isUnderlined
         >
           Learn more

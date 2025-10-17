@@ -16,7 +16,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
         isExternal
         colorScheme="purple"
         textStyle="body/md/regular"
-        href="https://devcenter.bitrise.io/en/steps-and-workflows/build-pipelines.html"
+        href="https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/build-pipelines/about-pipelines.html"
       >
         Read the docs
         <Icon size="16" name="ArrowNorthEast" ml="4" />
