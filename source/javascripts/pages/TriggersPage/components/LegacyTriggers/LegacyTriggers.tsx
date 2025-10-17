@@ -71,7 +71,7 @@ const LegacyTriggers = () => {
         A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
         <Link
           colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+          href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
           Learn more
