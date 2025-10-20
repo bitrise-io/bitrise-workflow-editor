@@ -1,4 +1,4 @@
-/* _eslint-disable import/no-cycle */
+/* eslint-disable import/no-cycle */
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';

@@ -1,4 +1,4 @@
-/* _eslint-disable import/no-cycle */
+/* eslint-disable import/no-cycle */
 import { memo } from 'react';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
