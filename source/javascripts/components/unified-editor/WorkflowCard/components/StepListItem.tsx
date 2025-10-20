@@ -1,4 +1,4 @@
-/* eslint-disable import/no-cycle */
+/* _eslint-disable import/no-cycle */
 import { memo } from 'react';
 
 import StepService from '@/core/services/StepService';

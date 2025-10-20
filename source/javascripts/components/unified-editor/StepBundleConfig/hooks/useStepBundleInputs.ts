@@ -26,7 +26,9 @@ const useStepBundleInputs = (props: Props) => {
 
   inputs.forEach((input, index) => {
     const { key } = expandInput(input);
-    const instanceValueObject = stepLike.data?.mergedValues.inputs?.find(({ opts, ...i }) => Object.keys(i)[0] === key);
+    const instanceValueObject = stepLike.data?.mergedValues.inputs?.find(
+      ({ opts: _, ...i }) => Object.keys(i)[0] === key,
+    );
     const instanceValue = Object.values(instanceValueObject || {})[0] as string;
     if (input?.opts?.category) {
       categories[input.opts.category] = categories[input.opts.category] || [];

@@ -1,4 +1,5 @@
 import { Badge, Box, Card, ExpandableCard, Text } from '@bitrise/bitkit';
+import { ReactNode } from 'react';
 
 type ButtonContentProps = {
   stackName?: string;
@@ -25,7 +26,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
 };
 
 type StackAndMachineWrapperProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   isDefault?: boolean;
   isExpandable?: boolean;
   machineTypeName?: string;
