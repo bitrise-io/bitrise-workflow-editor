@@ -53,7 +53,7 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
       )}
       <StepInput
         label="Additional run conditions"
-        helperText="Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer to Env Vars and more, see the [docs for details](https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html)."
+        helperText="Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer to Env Vars and more, see the [docs for details](https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/steps/enabling-or-disabling-a-step-conditionally.html)."
         value={userValuesRunIf}
         defaultValue={defaultValuesRunIf}
         onChange={onRunIfChange}
