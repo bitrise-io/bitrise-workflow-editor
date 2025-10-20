@@ -1,7 +1,10 @@
 import { defineConfig, globalIgnores } from "eslint/config";
+import importPlugin from 'eslint-plugin-import';
 import bitriseConfig from "@bitrise/eslint-plugin";
 
 export default defineConfig([
+  
+
   globalIgnores([
     ".ruby-lsp",
     "_bin",
@@ -18,8 +21,19 @@ export default defineConfig([
 
   {
     files: ["**/*.{ts,tsx}"],
-    extends: [bitriseConfig.react],
+    settings: {
+      "import/resolver": {
+        typescript: true,
+      },
+    },
+    extends: [
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.react,
+      importPlugin.flatConfigs.typescript,
+      bitriseConfig.react,
+    ],
     rules: {
+      "import/no-cycle": "error",
       "@typescript-eslint/no-use-before-define": "warn",
       "no-restricted-globals": [
         "error",

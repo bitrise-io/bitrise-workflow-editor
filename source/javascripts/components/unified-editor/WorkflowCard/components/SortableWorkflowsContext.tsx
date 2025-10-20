@@ -1,4 +1,4 @@
-/* _eslint-disable import/no-cycle */
+/* eslint-disable import/no-cycle */
 import { closestCenter, CollisionDetection, DataRef, DndContext, DragStartEvent, Modifier } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { memo, PropsWithChildren, RefObject, useCallback, useState } from 'react';
