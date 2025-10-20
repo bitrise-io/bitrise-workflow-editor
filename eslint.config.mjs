@@ -3,8 +3,6 @@ import importPlugin from 'eslint-plugin-import';
 import bitriseConfig from "@bitrise/eslint-plugin";
 
 export default defineConfig([
-  
-
   globalIgnores([
     ".ruby-lsp",
     "_bin",
