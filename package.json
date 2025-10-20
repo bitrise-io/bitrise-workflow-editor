@@ -100,7 +100,7 @@
     "@types/react-dom": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "chakra-ui-2--cli": "npm:@chakra-ui/cli@2.5.8",
+    "chakra-ui-2--cli": "npm:@chakra-ui/cli@3.27.1",
     "compression-webpack-plugin": "^11.1.0",
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^13.0.1",
