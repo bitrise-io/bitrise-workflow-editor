@@ -31,7 +31,7 @@ const LegacyEmptyState = ({ type }: Props) => {
         {description}{' '}
         <Link
           colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+          href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
         >
           Learn more
         </Link>

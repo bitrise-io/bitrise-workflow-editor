@@ -20,7 +20,7 @@ const LicensesPage = () => {
         utilizing the selected pool.{' '}
         <Link
           colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/getting-started/unity-on-bitrise.html"
+          href="https://docs.bitrise.io/en/bitrise-ci/getting-started/unity-on-bitrise.html"
           isExternal
         >
           Learn more

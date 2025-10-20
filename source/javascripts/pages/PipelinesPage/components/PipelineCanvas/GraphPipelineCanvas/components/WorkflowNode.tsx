@@ -38,7 +38,7 @@ const selectedStyle = {
   outlineOffset: '-2px',
 } satisfies CardProps;
 
-const ParallelWorkflowIndicator = memo(() => {
+const ParallelWorkflowIndicator = memo(function ParallelWorkflowIndicator() {
   return (
     <>
       <Box

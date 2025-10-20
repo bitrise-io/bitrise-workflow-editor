@@ -1,4 +1,5 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
+import { ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 
 type BaseEntityType<T> = { ids: string[]; groupLabel?: string; type?: T };
@@ -66,7 +67,7 @@ const CreateEntityDialog = <T,>({
     },
   });
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue('entityId', sanitizer(event.target.value), {
       shouldValidate: true,
       shouldDirty: true,

@@ -66,6 +66,7 @@ const StackAndMachine = ({
     ] || '';
 
   const handleChange = useCallback(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     (selectedStackId: string, selectedMachineTypeId: string, useRollbackVersionChecked?: boolean) => {
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,
@@ -133,7 +134,7 @@ const StackAndMachine = ({
           mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once
           removed, your build will run on the latest Stable Stack.{' '}
           <Link
-            href="https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack"
+            href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack"
             isExternal
             isUnderlined
           >

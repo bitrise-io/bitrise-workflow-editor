@@ -32,7 +32,7 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
         {descriptionUrl && ' • '}
         <Link
           colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html"
+          href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/stack-update-policy.html"
           isExternal
         >
           Stack Update Policy
