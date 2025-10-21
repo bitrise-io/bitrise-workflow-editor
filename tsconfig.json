@@ -43,7 +43,9 @@
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
     "source/javascripts/**/*.tsx",
-    "spec/__mocks__/zustand.ts"
+    "spec/__mocks__/zustand.ts",
+    "vite-env.d.ts",
+    "vite.config.ts"
   ],
   "exclude": [
     ".storybook",
