@@ -19,12 +19,12 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
   return useBitriseYmlStore(({ yml }) => {
     let stepObjectFromYml: StepModel | WithGroup | StepBundleOverrideModel | null | undefined;
 
-    if (props.workflowId) {
-      const { workflowId, stepIndex } = props;
-      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
-    } else if (props.stepBundleId) {
-      const { stepBundleId, stepIndex } = props;
-      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
+    if (props.parentWorkflowId) {
+      const { parentWorkflowId, stepIndex } = props;
+      stepObjectFromYml = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
+    } else if (props.parentStepBundleId) {
+      const { parentStepBundleId, stepIndex } = props;
+      stepObjectFromYml = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
     }
 
     if (!stepObjectFromYml) {
@@ -118,8 +118,8 @@ type UseStepResult = {
 };
 
 type UseStepProps = {
-  workflowId?: string;
-  stepBundleId?: string;
+  parentWorkflowId?: string;
+  parentStepBundleId?: string;
   stepIndex: number;
 };
 

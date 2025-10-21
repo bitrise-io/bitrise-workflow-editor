@@ -7,18 +7,18 @@ import { useStepActions } from '../contexts/WorkflowCardContext';
 import StepList from './StepList';
 
 type Props = {
-  stepBundleId: string;
+  id: string;
 };
 
-const StepBundleStepList = ({ stepBundleId }: Props) => {
+const StepBundleStepList = ({ id }: Props) => {
   const steps = useBitriseYmlStore(({ yml }) => {
-    return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => Object.keys(s)[0]);
+    return (yml.step_bundles?.[id]?.steps ?? []).map((s) => Object.keys(s)[0]);
   });
 
   const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();
 
   return (
-    <StepList stepBundleId={stepBundleId} steps={steps} onAdd={onAddStepToStepBundle} onMove={onMoveStepInStepBundle} />
+    <StepList parentStepBundleId={id} steps={steps} onAdd={onAddStepToStepBundle} onMove={onMoveStepInStepBundle} />
   );
 };
 

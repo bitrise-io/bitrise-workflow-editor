@@ -8,7 +8,7 @@ const meta: Meta<typeof StepConfigDrawer> = {
   component: StepConfigDrawer,
   args: {
     isOpen: true,
-    workflowId: 'wf1',
+    parentWorkflowId: 'wf1',
     stepIndex: 0,
   },
   argTypes: {
@@ -28,7 +28,7 @@ export const Default: Story = {};
 export const Script: Story = {
   args: {
     isOpen: true,
-    workflowId: 'steplib-steps',
+    parentWorkflowId: 'steplib-steps',
     stepIndex: 5,
   },
 };

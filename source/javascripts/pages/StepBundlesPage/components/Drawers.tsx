@@ -50,8 +50,8 @@ const Drawers = () => {
       {isDialogMounted(StepBundlesPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           size="lg"
-          stepBundleId={stepBundleId}
-          workflowId=""
+          parentStepBundleId={stepBundleId}
+          parentWorkflowId=""
           stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}

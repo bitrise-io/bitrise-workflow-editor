@@ -16,7 +16,7 @@ type Props = Omit<DropdownProps<string | null>, 'onChange'> & {
 
 const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
-    const { stepBundleId, workflowId } = useStepDrawerContext();
+    const { parentStepBundleId, parentWorkflowId } = useStepDrawerContext();
     const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
 
     const insertVariable = (key: string) => {
@@ -56,8 +56,8 @@ const StepSelectInput = forwardRef(
         <Box pt="24">
           <EnvVarPopover
             size="md"
-            workflowId={workflowId}
-            stepBundleId={stepBundleId}
+            workflowId={parentWorkflowId}
+            stepBundleId={parentStepBundleId}
             onSelect={({ key }) => insertVariable(key)}
           />
         </Box>

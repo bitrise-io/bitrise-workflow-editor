@@ -19,13 +19,14 @@ import OutputVariablesTab from './tabs/OutputVariablesTab';
 import PropertiesTab from './tabs/PropertiesTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  stepBundleId?: string;
-  workflowId: string;
+  parentStepBundleId?: string;
+  parentWorkflowId: string;
   stepIndex: number;
 };
 
 const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
-  const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
+  const { parentWorkflowId, parentStepBundleId, stepIndex, data } = useStepDrawerContext();
+  console.log({ parentStepBundleId });
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
@@ -75,8 +76,8 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                         cursor="pointer"
                         textStyle="body/sm/regular"
                         onClick={() => {
-                          const source = stepBundleId ? 'step_bundles' : 'workflows';
-                          const sourceId = stepBundleId || workflowId;
+                          const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+                          const sourceId = parentStepBundleId || parentWorkflowId;
                           StepService.changeStepVersion(source, sourceId, stepIndex, latestMajorVersion);
                         }}
                       >
@@ -116,9 +117,13 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
   );
 };
 
-const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, ...props }: Props) => {
+const StepConfigDrawer = (props: Props) => {
   return (
-    <StepConfigDrawerProvider workflowId={workflowId} stepBundleId={stepBundleId} stepIndex={stepIndex}>
+    <StepConfigDrawerProvider
+      parentWorkflowId={props.parentWorkflowId}
+      parentStepBundleId={props.parentStepBundleId}
+      stepIndex={props.stepIndex}
+    >
       <StepConfigDrawerContent {...props} />
     </StepConfigDrawerProvider>
   );

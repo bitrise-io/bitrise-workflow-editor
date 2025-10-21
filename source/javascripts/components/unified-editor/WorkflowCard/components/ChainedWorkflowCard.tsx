@@ -58,7 +58,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     ),
   };
 
-  const isHighlighted = isSelected({ workflowId: id });
+  const isHighlighted = isSelected({ parentWorkflowId: id });
   const isPlaceholder = sortable.isDragging;
   const title = workflow?.title || id;
 
@@ -194,7 +194,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
                 <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-                <WorkflowStepList workflowId={id} />
+                <WorkflowStepList id={id} />
 
                 <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
               </Box>

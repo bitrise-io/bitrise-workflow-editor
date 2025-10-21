@@ -26,7 +26,7 @@ function validationErrorIfRequired(value: string, isRequired?: boolean) {
 
 const StepInput = forwardRef(
   ({ isSensitive, isDisabled, helperText, helper, defaultValue: propDefaultValue, onChange, ...props }: Props, ref) => {
-    const { stepBundleId, workflowId } = useStepDrawerContext();
+    const { parentStepBundleId, parentWorkflowId } = useStepDrawerContext();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
     const [value, setValue] = useState(String(props.value ?? ''));
@@ -90,8 +90,8 @@ const StepInput = forwardRef(
             {!isSensitive && (
               <EnvVarPopover
                 size="md"
-                workflowId={workflowId}
-                stepBundleId={stepBundleId}
+                workflowId={parentWorkflowId}
+                stepBundleId={parentStepBundleId}
                 onSelect={({ key }) => insertVariable(key)}
               />
             )}

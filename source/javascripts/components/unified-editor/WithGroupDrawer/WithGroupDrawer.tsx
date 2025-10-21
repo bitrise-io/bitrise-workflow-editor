@@ -14,13 +14,13 @@ import useNavigation from '@/hooks/useNavigation';
 import useStep from '@/hooks/useStep';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  workflowId: string;
+  parentWorkflowId: string;
   stepIndex: number;
 };
 
-const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
+const WithGroupDrawer = ({ parentWorkflowId, stepIndex, ...props }: Props) => {
   const { replace } = useNavigation();
-  const { data } = useStep({ workflowId, stepIndex });
+  const { data } = useStep({ parentWorkflowId, stepIndex });
   const defaultStepLibrary = useDefaultStepLibrary();
   const isWithGroup = StepService.isWithGroup(data?.cvs || '', defaultStepLibrary, data?.userValues);
 

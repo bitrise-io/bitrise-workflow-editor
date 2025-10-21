@@ -18,7 +18,7 @@ import { SortableStepItem } from '../../WorkflowCard/WorkflowCard.types';
 
 type StepBundleCardProps = StepCardProps & {
   cvs: string;
-  stepBundleId?: string;
+  parentStepBundleId?: string;
   isCollapsable?: boolean;
   isPreviewMode?: boolean;
 };
@@ -30,10 +30,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     isDragging,
     isPreviewMode = false,
     isSortable,
-    stepBundleId,
+    parentStepBundleId,
     stepIndex,
     uniqueId,
-    workflowId,
+    parentWorkflowId,
   } = props;
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
@@ -51,7 +51,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       cvs,
       uniqueId,
       stepIndex,
-      workflowId,
+      parentWorkflowId,
     } satisfies SortableStepItem,
   });
 
@@ -74,9 +74,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     cardPadding = '4px 8px';
   }
 
-  const isHighlighted = isSelected({ workflowId, stepBundleId, stepIndex });
+  const isHighlighted = isSelected({ parentWorkflowId, parentStepBundleId, stepIndex });
   const isPlaceholder = sortable.isDragging;
-  const isButton = onSelectStep && (workflowId || stepBundleId);
+  const isButton = onSelectStep && (parentWorkflowId || parentStepBundleId);
 
   const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
@@ -84,8 +84,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
           type: LibraryType.BUNDLE,
-          stepBundleId,
-          wfId: workflowId,
+          parentStepBundleId,
+          parentWorkflowId,
         });
       }
     : undefined;
@@ -115,19 +115,19 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
-    if ((!workflowId && !stepBundleId) || isDragging || (!onDeleteStep && !onSelectStep)) {
+    if ((!parentWorkflowId && !parentStepBundleId) || isDragging || (!onDeleteStep && !onSelectStep)) {
       return null;
     }
 
     return (
       <StepMenu
         isHighlighted={isHighlighted}
-        stepBundleId={stepBundleId}
+        stepBundleId={parentStepBundleId}
         stepIndex={stepIndex}
-        workflowId={workflowId}
+        workflowId={parentWorkflowId}
       />
     );
-  }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
+  }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, parentStepBundleId, stepIndex, parentWorkflowId]);
 
   return (
     <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>
@@ -182,7 +182,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
             <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+              <StepBundleStepList id={StepBundleService.cvsToId(cvs)} />
             </Box>
           </Collapse>
         </>

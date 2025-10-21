@@ -68,14 +68,14 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       isMultiple?: boolean;
       stepIndex: number;
       type: LibraryType;
-      stepBundleId?: string;
-      wfId?: string;
+      parentStepBundleId?: string;
+      parentWorkflowId?: string;
     }) => void
   >(
-    ({ isMultiple, stepIndex, type, wfId, stepBundleId }) => {
+    ({ isMultiple, stepIndex, type, parentWorkflowId, parentStepBundleId }) => {
       const newSelectionParent: SelectionParent = {
-        id: stepBundleId || wfId || '',
-        type: stepBundleId ? 'stepBundle' : 'workflow',
+        id: parentStepBundleId || parentWorkflowId || '',
+        type: parentStepBundleId ? 'stepBundle' : 'workflow',
       };
       if (isMultiple) {
         let newIndices = [...selectedStepIndices, stepIndex];
@@ -89,8 +89,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           newIndices = [stepIndex];
         }
         useWorkflowsPageStore.setState({
-          workflowId: wfId || '',
-          stepBundleId: stepBundleId || '',
+          workflowId: parentWorkflowId || '',
+          stepBundleId: parentStepBundleId || '',
           selectedStepIndices: newIndices,
           selectionParent: newSelectionParent,
         });
@@ -99,7 +99,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           case LibraryType.WITH:
             openDialog({
               type: WorkflowsPageDialogType.WITH_GROUP,
-              workflowId: wfId,
+              workflowId: parentWorkflowId,
               selectedStepIndices: [stepIndex],
               selectionParent: newSelectionParent,
             })();
@@ -107,8 +107,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           case LibraryType.BUNDLE:
             openDialog({
               type: WorkflowsPageDialogType.STEP_BUNDLE,
-              workflowId: wfId,
-              stepBundleId,
+              workflowId: parentWorkflowId,
+              parentStepBundleId,
               selectedStepIndices: [stepIndex],
               selectionParent: newSelectionParent,
             })();
@@ -116,8 +116,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           default:
             openDialog({
               type: WorkflowsPageDialogType.STEP_CONFIG,
-              workflowId: wfId,
-              stepBundleId,
+              workflowId: parentWorkflowId,
+              stepBundleId: parentStepBundleId,
               selectedStepIndices: [stepIndex],
               selectionParent: newSelectionParent,
             })();

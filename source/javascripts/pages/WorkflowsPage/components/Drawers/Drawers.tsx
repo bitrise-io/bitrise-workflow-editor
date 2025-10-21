@@ -95,8 +95,8 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(WorkflowsPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
           size="lg"
-          stepBundleId={stepBundleId}
-          workflowId={workflowId}
+          parentStepBundleId={stepBundleId}
+          parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_CONFIG)}
           onClose={closeDialog}
@@ -107,7 +107,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(WorkflowsPageDialogType.WITH_GROUP) && (
         <WithGroupDrawer
           size="lg"
-          workflowId={workflowId}
+          parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
           isOpen={isDialogOpen(WorkflowsPageDialogType.WITH_GROUP)}
           onClose={closeDialog}
