@@ -107,6 +107,8 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': resolve(rootDir, 'source/javascripts'),
       },
+      // Deduplicate zustand to prevent multiple instances in iframes
+      dedupe: ['zustand'],
     },
 
     define: {
@@ -120,6 +122,7 @@ export default defineConfig(({ mode }) => {
         'monaco-editor/esm/vs/editor/editor.worker',
         'monaco-editor/esm/vs/language/json/json.worker',
         'monaco-yaml',
+        '@monaco-editor/react',
       ],
     },
 
@@ -134,11 +137,6 @@ export default defineConfig(({ mode }) => {
       target: 'ES2022',
       rollupOptions: {
         output: {
-          manualChunks(id) {
-            if (id.includes('monaco-editor') || id.includes('monaco-yaml')) return 'monaco';
-            if (id.includes('@bitrise/bitkit')) return 'bitkit';
-            if (id.includes('node_modules')) return 'vendors';
-          },
           entryFileNames: 'javascripts/[name].js',
           chunkFileNames: 'javascripts/[name].js',
           assetFileNames(assetInfo) {
