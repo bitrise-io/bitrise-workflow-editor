@@ -26,7 +26,6 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 
 const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
   const { parentWorkflowId, parentStepBundleId, stepIndex, data } = useStepDrawerContext();
-  console.log({ parentStepBundleId });
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
