@@ -24,15 +24,15 @@ type StepVersionProps = {
   selectableVersions?: ReturnType<typeof StepService.getSelectableVersions>;
 };
 const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
-  const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
+  const { data, parentStepBundleId, parentWorkflowId, stepIndex } = useStepDrawerContext();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
   const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
   const onStepVersionChange: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
 
-    const source = stepBundleId ? 'step_bundles' : 'workflows';
-    const sourceId = stepBundleId || workflowId;
+    const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = parentStepBundleId || parentWorkflowId;
 
     changeStepVersion(source, sourceId, stepIndex, e.target.value);
   };
@@ -75,7 +75,7 @@ const PropertiesTab = () => {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
-  const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
+  const { parentWorkflowId, parentStepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
   const [name, setName] = useState(data?.mergedValues?.title);
 
   const cvs = data?.cvs || '';
@@ -85,8 +85,8 @@ const PropertiesTab = () => {
 
   const handleNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const title = e.currentTarget.value;
-    const source = stepBundleId ? 'step_bundles' : 'workflows';
-    const sourceId = stepBundleId || workflowId;
+    const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = parentStepBundleId || parentWorkflowId;
 
     setName(title);
     updateStepField(source, sourceId, stepIndex, 'title', title);

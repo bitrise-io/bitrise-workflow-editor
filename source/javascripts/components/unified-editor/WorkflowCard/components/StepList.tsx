@@ -12,28 +12,28 @@ import ScaledDragOverlay from './ScaledDragOverlay';
 import StepListItem from './StepListItem';
 
 type Props = {
-  stepBundleId?: string;
+  parentStepBundleId?: string;
   steps: string[];
   onAdd?: (id: string, stepIndex: number) => void;
   onMove?: (id: string, stepIndex: number, targetIndex: number) => void;
-  workflowId?: string;
+  parentWorkflowId?: string;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => {
-  const id = stepBundleId || workflowId || '';
+const StepList = ({ parentStepBundleId, steps, onAdd, onMove, parentWorkflowId }: Props) => {
+  const id = parentStepBundleId || parentWorkflowId || '';
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((cvs, stepIndex) => ({
       uniqueId: crypto.randomUUID(),
       stepIndex,
-      stepBundleId,
-      workflowId,
+      parentStepBundleId,
+      parentWorkflowId,
       cvs,
     }));
-  }, [stepBundleId, steps, workflowId]);
+  }, [parentStepBundleId, steps, parentWorkflowId]);
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMove);
@@ -120,7 +120,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         paddingY="16"
         paddingX="16"
         iconName="Steps"
-        title={onAdd && workflowId ? 'Empty Workflow' : 'Empty Step bundle'}
+        title={onAdd && parentWorkflowId ? 'Empty Workflow' : 'Empty Step bundle'}
         description={onAdd ? 'Add Steps from the library.' : undefined}
       >
         {onAdd && (

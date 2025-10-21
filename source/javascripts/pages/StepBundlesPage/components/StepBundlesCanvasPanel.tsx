@@ -38,9 +38,9 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     );
 
   const handleSelectStep = useCallback<
-    (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
+    (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; parentStepBundleId?: string }) => void
   >(
-    ({ isMultiple, stepIndex, stepBundleId: parentStepBundleId = '', type }) => {
+    ({ isMultiple, stepIndex, parentStepBundleId = '', type }) => {
       const newSelectionParent: SelectionParent = {
         id: parentStepBundleId,
         type: 'stepBundle',

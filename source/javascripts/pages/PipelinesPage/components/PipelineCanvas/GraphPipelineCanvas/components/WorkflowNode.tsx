@@ -231,19 +231,19 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       handleSelectStep: ({
         stepIndex,
         type,
-        stepBundleId,
-        wfId,
+        parentStepBundleId,
+        parentWorkflowId,
         isMultiple,
       }: {
         stepIndex: number;
         type: LibraryType;
-        stepBundleId?: string;
-        wfId?: string;
+        parentStepBundleId?: string;
+        parentWorkflowId?: string;
         isMultiple?: boolean;
       }) => {
         const newSelectionParent: SelectionParent = {
-          id: stepBundleId || wfId || '',
-          type: stepBundleId ? 'stepBundle' : 'workflow',
+          id: parentStepBundleId || parentWorkflowId || '',
+          type: parentStepBundleId ? 'stepBundle' : 'workflow',
         };
         if (isMultiple) {
           let newIndices = [...selectedStepIndices, stepIndex];
@@ -257,8 +257,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             newIndices = [stepIndex];
           }
           usePipelinesPageStore.setState({
-            workflowId: wfId || '',
-            stepBundleId: stepBundleId || '',
+            workflowId: parentWorkflowId || '',
+            stepBundleId: parentStepBundleId || '',
             selectedStepIndices: newIndices,
             selectionParent: newSelectionParent,
           });
@@ -268,8 +268,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               openDialog({
                 type: PipelinesPageDialogType.STEP_BUNDLE,
                 pipelineId: selectedPipeline,
-                workflowId: wfId,
-                stepBundleId,
+                workflowId: parentWorkflowId,
+                stepBundleId: parentStepBundleId,
                 selectedStepIndices: [stepIndex],
                 selectionParent: newSelectionParent,
               })();
@@ -278,9 +278,9 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               openDialog({
                 type: PipelinesPageDialogType.STEP_CONFIG,
                 pipelineId: selectedPipeline,
-                workflowId: wfId,
+                workflowId: parentWorkflowId,
                 selectedStepIndices: [stepIndex],
-                stepBundleId,
+                stepBundleId: parentStepBundleId,
                 selectionParent: newSelectionParent,
               })();
               break;

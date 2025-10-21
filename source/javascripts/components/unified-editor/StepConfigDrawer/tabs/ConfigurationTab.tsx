@@ -10,7 +10,7 @@ import StepInputGroup from '../components/StepInputGroup';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 const ConfigurationTab = () => {
-  const { data, workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
+  const { data, parentWorkflowId, parentStepBundleId, stepIndex } = useStepDrawerContext();
   const updateStepInput = useDebounceCallback(StepService.updateStepInput, 250);
 
   const userValues = data?.userValues ?? {};
@@ -25,27 +25,27 @@ const ConfigurationTab = () => {
       return;
     }
 
-    const source = stepBundleId ? 'step_bundles' : 'workflows';
-    const sourceId = stepBundleId || workflowId;
+    const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = parentStepBundleId || parentWorkflowId;
 
     updateStepInput(source, sourceId, stepIndex, name, value);
   };
 
   const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const source = stepBundleId ? 'step_bundles' : 'workflows';
-    const sourceId = stepBundleId || workflowId;
+    const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = parentStepBundleId || parentWorkflowId;
     StepService.updateStepField(source, sourceId, stepIndex, 'is_always_run', e.currentTarget.checked);
   };
 
   const onIsSkippableChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const source = stepBundleId ? 'step_bundles' : 'workflows';
-    const sourceId = stepBundleId || workflowId;
+    const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = parentStepBundleId || parentWorkflowId;
     StepService.updateStepField(source, sourceId, stepIndex, 'is_skippable', e.currentTarget.checked);
   };
 
   const onRunIfChange = (runIf: string) => {
-    const source = stepBundleId ? 'step_bundles' : 'workflows';
-    const sourceId = stepBundleId || workflowId;
+    const source = parentStepBundleId ? 'step_bundles' : 'workflows';
+    const sourceId = parentStepBundleId || parentWorkflowId;
     StepService.updateStepField(source, sourceId, stepIndex, 'run_if', runIf);
   };
 

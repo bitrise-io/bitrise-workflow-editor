@@ -14,7 +14,7 @@ type Props = {
 const useStepBundleInputs = (props: Props) => {
   const { inputs, parentStepBundleId, parentWorkflowId, stepIndex } = props;
 
-  const stepLike = useStep({ stepBundleId: parentStepBundleId, stepIndex, workflowId: parentWorkflowId });
+  const stepLike = useStep({ parentStepBundleId, stepIndex, parentWorkflowId });
 
   const categories: Record<string, InputListItem[]> = {
     uncategorized: [],

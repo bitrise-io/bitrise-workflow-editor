@@ -58,8 +58,8 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
 
 export type StepCardProps = {
   uniqueId: string;
-  workflowId?: string;
-  stepBundleId?: string;
+  parentWorkflowId?: string;
+  parentStepBundleId?: string;
   stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
@@ -69,12 +69,12 @@ export type StepCardProps = {
 
 const StepCard = ({
   uniqueId,
-  workflowId,
+  parentWorkflowId,
   stepIndex,
   isSortable,
   isDragging,
   showSecondary = true,
-  stepBundleId,
+  parentStepBundleId,
   cvs,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
@@ -95,7 +95,7 @@ const StepCard = ({
     error,
     isLoading,
     data: step,
-  } = useStep({ workflowId, stepBundleId, stepIndex }) as {
+  } = useStep({ parentWorkflowId, parentStepBundleId, stepIndex }) as {
     data?: Step;
     error?: Error;
     isLoading: boolean;
@@ -108,8 +108,8 @@ const StepCard = ({
       cvs,
       uniqueId,
       stepIndex,
-      workflowId,
-      stepBundleId,
+      parentWorkflowId,
+      parentStepBundleId,
     } satisfies SortableStepItem,
   });
 
@@ -125,7 +125,7 @@ const StepCard = ({
 
   const icon = step?.icon || defaultIcon;
   const title = step?.title || step?.cvs || '';
-  const isHighlighted = isSelected({ stepBundleId, stepIndex, workflowId });
+  const isHighlighted = isSelected({ parentStepBundleId, stepIndex, parentWorkflowId });
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
 
   const isButton = !!onSelectStep;
@@ -142,8 +142,8 @@ const StepCard = ({
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
           type: library,
-          stepBundleId,
-          wfId: workflowId,
+          parentStepBundleId,
+          parentWorkflowId,
         });
       }
     : undefined;
@@ -184,7 +184,7 @@ const StepCard = ({
   }, [isDragging, isPlaceholder, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
-    if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
+    if (!(parentWorkflowId || parentStepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
       return null;
     }
 
@@ -193,12 +193,22 @@ const StepCard = ({
         isHighlighted={isHighlighted}
         isUpgradable={isUpgradable}
         step={step}
-        stepBundleId={stepBundleId}
+        stepBundleId={parentStepBundleId}
         stepIndex={stepIndex}
-        workflowId={workflowId}
+        workflowId={parentWorkflowId}
       />
     );
-  }, [workflowId, stepBundleId, isDragging, isUpgradable, isClonable, isRemovable, isHighlighted, step, stepIndex]);
+  }, [
+    parentWorkflowId,
+    parentStepBundleId,
+    isDragging,
+    isUpgradable,
+    isClonable,
+    isRemovable,
+    isHighlighted,
+    step,
+    stepIndex,
+  ]);
 
   return (
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>

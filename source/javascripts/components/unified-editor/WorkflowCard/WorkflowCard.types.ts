@@ -23,8 +23,8 @@ export type StepActions = {
     isMultiple?: boolean;
     stepIndex: number;
     type: LibraryType;
-    stepBundleId?: string;
-    wfId?: string;
+    parentStepBundleId?: string;
+    parentWorkflowId?: string;
   }) => void;
   onMoveStep?: (workflowId: string, stepIndex: number, targetIndex: number) => void;
   onUpgradeStep?: (workflowId: string, stepIndex: number, version: string) => void;
@@ -54,8 +54,8 @@ export type SortableWorkflowItem = {
 export type SortableStepItem = {
   uniqueId: string;
   stepIndex: number;
-  workflowId?: string;
-  stepBundleId?: string;
+  parentWorkflowId?: string;
+  parentStepBundleId?: string;
   cvs: string;
 };
 

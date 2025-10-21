@@ -78,7 +78,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const { isSelected } = useSelection();
-  const isHighlighted = isSelected({ workflowId: id });
+  const isHighlighted = isSelected({ parentWorkflowId: id });
   const cardProps = useMemo(
     () => ({
       ...containerProps,
@@ -165,7 +165,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
               placement="before_run"
               parentWorkflowId={workflowId}
             />
-            <WorkflowStepList workflowId={workflowId} />
+            <WorkflowStepList id={workflowId} />
             <ChainedWorkflowList key={`${workflowId}->after_run`} placement="after_run" parentWorkflowId={workflowId} />
           </Box>
         </SortableWorkflowsContext>
