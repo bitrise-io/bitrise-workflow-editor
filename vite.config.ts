@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react-swc';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import viteCompression from 'vite-plugin-compression';
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 import packageJson from './package.json';
 
@@ -30,7 +29,6 @@ function localFeatureFlagsPlugin(): Plugin {
           },
         ];
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.warn('Failed to parse ld.local.json:', error);
         return [];
       }
@@ -54,15 +52,6 @@ export default defineConfig(({ mode }) => {
         tsDecorators: true,
       }),
       localFeatureFlagsPlugin(),
-      monacoEditorPlugin({
-        languageWorkers: ['editorWorkerService', 'json'],
-        customWorkers: [
-          {
-            label: 'yaml',
-            entry: 'monaco-yaml/yaml.worker',
-          },
-        ],
-      }),
       ...(isProd
         ? [
             viteCompression({

@@ -1,3 +1,5 @@
+import '@/monaco-workers';
+
 import { type EditorProps, loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';

@@ -18,7 +18,7 @@
       "es2019",
     ],
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "sourceMap": true,
     "allowJs": true,
     "jsx": "react-jsx",
