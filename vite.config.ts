@@ -1,16 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import react from '@vitejs/plugin-react-swc';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import viteCompression from 'vite-plugin-compression';
+import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 import packageJson from './package.json';
-
-const require = createRequire(import.meta.url);
-const monacoEditorPlugin = require('vite-plugin-monaco-editor').default;
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
 const version = packageJson.version;
@@ -33,6 +30,7 @@ function localFeatureFlagsPlugin(): Plugin {
           },
         ];
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.warn('Failed to parse ld.local.json:', error);
         return [];
       }
@@ -40,36 +38,11 @@ function localFeatureFlagsPlugin(): Plugin {
   };
 }
 
-// Plugin to replace environment variables in HTML
-function htmlEnvPlugin(env: Record<string, string>): Plugin {
-  const urlPrefix = env.MODE === 'WEBSITE' ? env.PUBLIC_URL_ROOT || '' : '';
-  const publicPath = `${urlPrefix}/${version}/`;
-
-  const replacements: Record<string, string> = {
-    '%BASE_URL%': publicPath,
-    '%MODE%': env.MODE === 'CLI' ? 'CLI' : 'WEBSITE',
-    '%ANALYTICS%': env.ANALYTICS || 'false',
-    '%DATADOG_RUM%': env.DATADOG_RUM || 'false',
-    '%NODE_ENV%': env.NODE_ENV || 'development',
-    '%PUBLIC_URL_ROOT%': env.PUBLIC_URL_ROOT || '',
-    '%WFE_VERSION%': version,
-  };
-
-  return {
-    name: 'html-env',
-    transformIndexHtml(html: string) {
-      return Object.entries(replacements).reduce(
-        (result, [key, value]) => result.replace(new RegExp(key, 'g'), value),
-        html,
-      );
-    },
-  };
-}
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, '');
   const isProd = env.NODE_ENV === 'production';
-  const urlPrefix = env.MODE === 'WEBSITE' ? env.PUBLIC_URL_ROOT || '' : '';
+  const appMode = env.MODE || 'CLI'; // Default to CLI if not set
+  const urlPrefix = appMode === 'WEBSITE' ? env.PUBLIC_URL_ROOT || '' : '';
   const publicPath = `${urlPrefix}/${version}/`;
 
   return {
@@ -80,7 +53,6 @@ export default defineConfig(({ mode }) => {
       react({
         tsDecorators: true,
       }),
-      htmlEnvPlugin(env),
       localFeatureFlagsPlugin(),
       monacoEditorPlugin({
         languageWorkers: ['editorWorkerService', 'json'],
@@ -114,6 +86,13 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
       'process.env': {},
+      // Define custom env variables for HTML replacement
+      'import.meta.env.MODE': JSON.stringify(appMode),
+      'import.meta.env.ANALYTICS': JSON.stringify(env.ANALYTICS || 'false'),
+      'import.meta.env.DATADOG_RUM': JSON.stringify(env.DATADOG_RUM || 'false'),
+      'import.meta.env.PUBLIC_URL_ROOT': JSON.stringify(env.PUBLIC_URL_ROOT || ''),
+      'import.meta.env.WFE_VERSION': JSON.stringify(version),
+      'import.meta.env.BASE_URL': JSON.stringify(publicPath),
     },
 
     optimizeDeps: {
