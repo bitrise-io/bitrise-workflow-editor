@@ -8,7 +8,8 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import YamlWorker from './yaml.worker?worker';
 
 // Configure Monaco Environment to use Vite's worker imports
-self.MonacoEnvironment = {
+// Workers are instantiated as Blob URLs, making them same-origin regardless of where assets are hosted
+window.MonacoEnvironment = {
   getWorker(_, label) {
     if (label === 'yaml') {
       return new YamlWorker();
