@@ -60,7 +60,7 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "algoliasearch": "^5.25.0",
-    "chakra-ui-2--react": "npm:@chakra-ui/react@2.10.9",
+    "chakra-ui-2--react": "npm:@chakra-ui/react@3.28.0",
     "dequal": "^2.0.3",
     "es-toolkit": "^1.38.0",
     "launchdarkly-js-client-sdk": "^3.8.0",
