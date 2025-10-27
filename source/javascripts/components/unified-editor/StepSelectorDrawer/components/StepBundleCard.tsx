@@ -9,7 +9,7 @@ import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMe
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import useStepBundleInstance from '@/hooks/useStepBundleInstance';
+import useStepBundle from '@/hooks/useStepBundle';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -130,7 +130,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     );
   }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
 
-  const stepBundleInstance = useStepBundleInstance({
+  const stepBundleInstance = useStepBundle({
     stepBundleId: workflowId || stepBundleId ? undefined : StepBundleService.cvsToId(cvs),
     parentWorkflowId: workflowId,
     parentStepBundleId: stepBundleId,

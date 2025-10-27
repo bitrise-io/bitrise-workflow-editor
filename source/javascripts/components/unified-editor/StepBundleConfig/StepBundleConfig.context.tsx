@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useContext } from 'react';
 
 import { StepBundleInstance } from '@/core/models/Step';
-import useStepBundleInstance from '@/hooks/useStepBundleInstance';
+import useStepBundle from '@/hooks/useStepBundle';
 
 import StepConfigDrawerProvider from '../StepConfigDrawer/StepConfigDrawer.context';
 
@@ -36,7 +36,7 @@ export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>
   selector?: (state: UseStepBundleConfigContextResult) => U,
 ): U {
   const context = useContext(Context);
-  const result = useStepBundleInstance(context);
+  const result = useStepBundle(context);
   return selector ? selector(result as UseStepBundleConfigContextResult) : (result as U);
 }
 
