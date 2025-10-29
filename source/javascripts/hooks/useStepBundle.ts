@@ -29,43 +29,35 @@ const useStepBundle = (props: Props) => {
     if (stepBundleId) {
       const stepBundle = yml.step_bundles?.[stepBundleId];
       result.stepBundle = stepBundle ? StepBundleService.ymlInstanceToStepBundle(stepBundleId, stepBundle) : undefined;
+      return result;
     }
 
-    if (!stepBundleId && parentWorkflowId && stepIndex >= 0) {
-      const stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
-      const [cvs, stepBundleInWorkflow] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
+    let stepListItemModel = undefined;
 
-      const id = StepBundleService.cvsToId(cvs);
-      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInWorkflow ?? {});
-
-      result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
-        ? StepBundleService.ymlInstanceToStepBundle(
-            id,
-            stepBundle,
-            yml.step_bundles?.[id] ?? undefined,
-            stepBundleInWorkflow ?? undefined,
-          )
-        : undefined;
-      result.stepBundleId = id;
+    if (parentWorkflowId) {
+      stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
+    } else if (parentStepBundleId) {
+      stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
     }
 
-    if (!stepBundleId && !parentWorkflowId && parentStepBundleId && stepIndex >= 0) {
-      const stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
-      const [cvs, stepBundleInStepBundle] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
-
-      const id = StepBundleService.cvsToId(cvs);
-      const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, stepBundleInStepBundle ?? {});
-
-      result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
-        ? StepBundleService.ymlInstanceToStepBundle(
-            id,
-            stepBundle,
-            yml.step_bundles?.[id] || undefined,
-            stepBundleInStepBundle || undefined,
-          )
-        : undefined;
-      result.stepBundleId = id;
+    if (!stepListItemModel) {
+      throw new Error(`StepBundle instance not found in the parent: ${parentWorkflowId || parentStepBundleId}`);
     }
+
+    const [cvs, instance] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
+
+    const id = StepBundleService.cvsToId(cvs);
+    const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, instance ?? {});
+
+    result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
+      ? StepBundleService.ymlInstanceToStepBundle(
+          id,
+          stepBundle,
+          yml.step_bundles?.[id] || undefined,
+          instance || undefined,
+        )
+      : undefined;
+    result.stepBundleId = id;
 
     return result;
   });
