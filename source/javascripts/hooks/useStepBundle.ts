@@ -40,10 +40,6 @@ const useStepBundle = (props: Props) => {
       stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
     }
 
-    if (!stepListItemModel) {
-      throw new Error(`StepBundle instance not found in the parent: ${parentWorkflowId || parentStepBundleId}`);
-    }
-
     const [cvs, instance] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
 
     const id = StepBundleService.cvsToId(cvs);
