@@ -61,12 +61,6 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.WFE_VERSION': JSON.stringify(version),
     },
 
-    worker: {
-      rollupOptions: {
-        output: { entryFileNames: 'javascripts/[name].worker.js' },
-      },
-    },
-
     build: {
       outDir: resolve(rootDir, 'build'),
       sourcemap: isProd ? 'hidden' : true,
