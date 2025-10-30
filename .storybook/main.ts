@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 
 const config: StorybookConfig = {
   stories: ['../source/**/*.stories.tsx'],
-  addons: ['@storybook/addon-links', '@storybook/addon-queryparams', '@storybook/addon-docs'],
+  addons: ['@storybook/addon-links', '@storybook/addon-docs'],
   framework: '@storybook/react-vite',
   refs: {
     '@chakra-ui/react': { disable: true },
