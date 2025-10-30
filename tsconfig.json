@@ -45,10 +45,11 @@
     "source/javascripts/**/*.tsx",
     "spec/__mocks__/zustand.ts",
     "vite-env.d.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx"
   ],
   "exclude": [
-    ".storybook",
     "_bin",
     "_scripts",
     "apiserver",

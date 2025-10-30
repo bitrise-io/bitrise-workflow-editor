@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react-webpack5';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
@@ -33,7 +33,6 @@ const meta: Meta<EntitySelectorProps> = {
 export default meta;
 
 const StoryCompoent = (props: EntitySelectorProps) => {
-  // eslint-disable-next-line react/destructuring-assignment
   const [value, setValue] = useState<string | undefined>(props.entityIds[0]);
   return <EntitySelector {...props} onChange={setValue} value={value || undefined} />;
 };
