@@ -38,6 +38,7 @@ type FormValues = {
 export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
   baseEntities: BaseEntityType<T>[];
   entityName: string;
+  extraInputs?: 'title'[];
   onCloseComplete: (entityId: string) => void;
   onCreateEntity: (entityId: string, baseEntityId?: string, title?: string) => void;
   sanitizer: (value: string) => string;
@@ -48,12 +49,12 @@ export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
 const CreateEntityDialog = <T,>({
   baseEntities,
   entityName,
+  extraInputs,
   onClose,
   onCloseComplete,
   onCreateEntity,
   sanitizer,
   validator,
-  withTitle,
   ...props
 }: Props<T>) => {
   const {
@@ -107,7 +108,7 @@ const CreateEntityDialog = <T,>({
             validate: validator,
           })}
         />
-        {withTitle && (
+        {extraInputs?.includes('title') && (
           <Input
             label="Title"
             placeholder={`${entityName} Title`}

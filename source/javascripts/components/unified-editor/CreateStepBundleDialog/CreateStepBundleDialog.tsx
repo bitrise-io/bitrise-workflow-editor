@@ -52,13 +52,13 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
   return (
     <CreateEntityDialog<StepBundleCreationSource>
       baseEntities={baseEntities}
+      extraInputs={['title']}
       entityName="Step bundle"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}
       onCreateEntity={onCreateStepBundle}
       sanitizer={StepBundleService.sanitizeName}
       validator={(v: string) => StepBundleService.validateName(v, '', stepBundleIds)}
-      withTitle
       {...props}
     />
   );
