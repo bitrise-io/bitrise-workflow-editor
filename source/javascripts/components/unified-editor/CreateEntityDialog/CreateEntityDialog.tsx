@@ -43,7 +43,6 @@ export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
   onCreateEntity: (entityId: string, baseEntityId?: string, title?: string) => void;
   sanitizer: (value: string) => string;
   validator: (value: string) => string | boolean;
-  withTitle?: boolean;
 };
 
 const CreateEntityDialog = <T,>({
@@ -99,7 +98,7 @@ const CreateEntityDialog = <T,>({
         <Input
           autoFocus
           isRequired
-          label="Name"
+          label="ID"
           placeholder={`${entityName} ID`}
           inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           errorText={errors.entityId?.message}
