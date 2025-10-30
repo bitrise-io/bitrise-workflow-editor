@@ -20,7 +20,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId }: StepBundlePropertiesT
   const id = contextData.stepBundle?.id || contextData.stepBundleId || '';
 
   const at = {
-    cvs: contextData.stepBundle?.cvs || `bundle::${contextData.stepBundle?.id}`,
+    cvs: contextData.stepBundle?.cvs || `bundle::${contextData.stepBundle?.id || contextData.stepBundleId}`,
     source: contextData.parentStepBundleId ? 'step_bundles' : ('workflows' as 'step_bundles' | 'workflows'),
     sourceId: contextData.parentStepBundleId || contextData.parentWorkflowId || '',
     stepIndex: contextData.stepIndex,

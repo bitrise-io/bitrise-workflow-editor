@@ -34,6 +34,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     unmountDialog,
     setWorkflowId,
     isDialogMounted,
+    setStepBundleId,
   } = usePipelinesPageStore();
 
   const handleAddStep = (cvs: string) => {
@@ -64,6 +65,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
   };
 
   const handleChangeStepBundleId = (newStepBundleId: string) => {
+    setStepBundleId(newStepBundleId);
     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
