@@ -37,7 +37,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId }: StepBundlePropertiesT
   };
 
   const handleFieldChange = (field: 'description' | 'summary' | 'title', value: string) => {
-    if (contextData.parentStepBundleId || contextData.parentStepBundleId) {
+    if (contextData.parentStepBundleId || contextData.parentWorkflowId) {
       StepBundleService.updateStepBundleInstanceField(field, value, at);
     } else {
       StepBundleService.updateStepBundleField(id, field, value);
