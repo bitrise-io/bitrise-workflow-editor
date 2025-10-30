@@ -2,8 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "2.5.14419",
-  "type": "module",
+  "version": "2.5.14451",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -89,7 +88,6 @@
     "@playwright/test": "^1.56.1",
     "@storybook/addon-docs": "^10.0.1",
     "@storybook/addon-links": "^10.0.1",
-    "@storybook/addon-queryparams": "^9.0.1",
     "@storybook/react-vite": "^10.0.1",
     "@swc/core": "^1.14.0",
     "@swc/jest": "^0.2.39",

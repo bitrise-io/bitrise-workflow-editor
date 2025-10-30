@@ -89,7 +89,7 @@ const PropertiesTab = () => {
     const sourceId = stepBundleId || workflowId;
 
     setName(title);
-    updateStepField(source, sourceId, stepIndex, 'title', title);
+    updateStepField(source, sourceId, stepIndex, 'title', title, data?.defaultValues?.title);
   };
 
   return (

@@ -473,7 +473,14 @@ function deleteStep(source: Source, sourceId: string, indices: number | number[]
 type Key = keyof StepModel;
 type Value<T extends Key> = StepModel[T];
 
-function updateStepField<T extends Key>(source: Source, sourceId: string, index: number, field: T, value: Value<T>) {
+function updateStepField<T extends Key>(
+  source: Source,
+  sourceId: string,
+  index: number,
+  field: T,
+  value: Value<T>,
+  defaultValue: Value<T>,
+) {
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, index, doc);
     const stepData = step.items[0].value;
@@ -482,7 +489,7 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
       return doc;
     }
 
-    if (value) {
+    if (value !== defaultValue) {
       YmlUtils.setIn(stepData, [field], value);
     } else {
       YmlUtils.deleteByPath(stepData, [field]);
