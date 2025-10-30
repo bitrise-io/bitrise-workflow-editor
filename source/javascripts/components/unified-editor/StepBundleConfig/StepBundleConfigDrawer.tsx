@@ -12,7 +12,7 @@ import StepBundleConfigContent from './StepBundleConfigContent';
 import StepBundleConfigHeader from './StepBundleConfigHeader';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
-  onChangeID?: (name: string) => void;
+  onChangeId?: (name: string) => void;
   stepBundleId?: string;
   parentWorkflowId?: string;
   parentStepBundleId?: string;
@@ -20,7 +20,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 };
 
 const StepBundleConfigDrawer = ({
-  onChangeID,
+  onChangeId,
   stepBundleId,
   stepIndex,
   parentWorkflowId,
@@ -42,7 +42,7 @@ const StepBundleConfigDrawer = ({
               <StepBundleConfigHeader variant="drawer" />
             </FloatingDrawerHeader>
             <FloatingDrawerBody>
-              <StepBundleConfigContent onChangeID={onChangeID} />
+              <StepBundleConfigContent onChangeId={onChangeId} />
             </FloatingDrawerBody>
           </FloatingDrawerContent>
         </FloatingDrawer>

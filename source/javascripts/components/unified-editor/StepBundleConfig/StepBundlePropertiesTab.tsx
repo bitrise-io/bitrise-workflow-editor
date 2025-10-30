@@ -11,10 +11,10 @@ import { useStepBundleConfigContext } from './StepBundleConfig.context';
 type StepBundlePropertiesTabProps = {
   nameLabel?: string;
   onDelete?: () => void;
-  onChangeID?: (newStepBundleId: string) => void;
+  onChangeId?: (newStepBundleId: string) => void;
 };
 
-const StepBundlePropertiesTab = ({ onDelete, onChangeID }: StepBundlePropertiesTabProps) => {
+const StepBundlePropertiesTab = ({ onDelete, onChangeId }: StepBundlePropertiesTabProps) => {
   const stepBundleIds = useStepBundles((s) => Object.keys(s));
   const contextData = useStepBundleConfigContext((s) => s);
   const id = contextData.stepBundle?.id || contextData.stepBundleId || '';
@@ -28,7 +28,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeID }: StepBundlePropertiesT
 
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
-  const rename = useChangeStepBundleId(id, onChangeID);
+  const rename = useChangeStepBundleId(id, onChangeId);
 
   const handleIdChange = (newStepBundleId: string) => {
     if (newStepBundleId !== id) {

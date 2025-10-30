@@ -24,7 +24,7 @@ const StepBundleConfigPanel = ({ stepBundleId }: Props) => {
           overflow="auto"
           padding="24"
           onDelete={closeDialog}
-          onChangeID={setSelectedStepBundle}
+          onChangeId={setSelectedStepBundle}
         />
       </Tabs>
     </StepBundleConfigProvider>
