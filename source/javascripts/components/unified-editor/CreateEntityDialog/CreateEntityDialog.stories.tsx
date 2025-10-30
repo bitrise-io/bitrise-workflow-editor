@@ -9,6 +9,7 @@ export default {
     isOpen: true,
     sanitizer: (value) => value,
     validator: (value) => (value ? true : 'This is required'),
+    withTitle: false,
   },
   argTypes: {
     onClose: { type: 'function' },

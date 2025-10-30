@@ -15,7 +15,7 @@ type BaseEntityGroup = {
 };
 
 type Props = Omit<DialogProps, 'title'> & {
-  onCreateStepBundle: (stepBundleId: string, baseEntityId?: string) => void;
+  onCreateStepBundle: (stepBundleId: string, baseEntityId?: string, title?: string) => void;
 };
 
 const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, ...props }: Props) => {
@@ -58,6 +58,7 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
       onCreateEntity={onCreateStepBundle}
       sanitizer={StepBundleService.sanitizeName}
       validator={(v: string) => StepBundleService.validateName(v, '', stepBundleIds)}
+      withTitle
       {...props}
     />
   );

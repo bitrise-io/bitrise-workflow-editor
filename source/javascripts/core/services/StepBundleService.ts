@@ -206,16 +206,25 @@ function getStepBundleInputKeyOrThrowError(input: YAMLMap | EnvironmentItemModel
   return key;
 }
 
-function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSource; sourceId: string }) {
+function createStepBundle(
+  id: string,
+  basedOn?: { source: StepBundleCreationSource; sourceId: string },
+  title?: string,
+) {
   updateBitriseYmlDocument(({ doc }) => {
     throwIfStepBundleAlreadyExists(doc, id);
 
     if (!basedOn) {
-      YmlUtils.setIn(doc, ['step_bundles', id], {});
+      YmlUtils.setIn(doc, ['step_bundles', id], { title });
       return doc;
     }
 
     const baseEntity = getCreationSourceOrThrowError(doc, basedOn).clone() as YAMLMap;
+
+    if (title) {
+      YmlUtils.setIn(baseEntity, ['title'], title);
+    }
+
     const keysToDelete = new Set();
     baseEntity.items.forEach((item) => {
       const key = isScalar(item.key) ? item.key.value : item.key;
@@ -231,7 +240,7 @@ function createStepBundle(id: string, basedOn?: { source: StepBundleCreationSour
   });
 }
 
-function renameStepBundle(id: string, newId: string) {
+function changeStepBundleId(id: string, newId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     getStepBundleOrThrowError(doc, id);
     throwIfStepBundleAlreadyExists(doc, newId);
@@ -535,7 +544,7 @@ export default {
   sanitizeInputOpts,
   sanitizeInputKey,
   createStepBundle,
-  renameStepBundle,
+  changeStepBundleId,
   deleteStepBundle,
   groupStepsToStepBundle,
   addStepBundleInput,

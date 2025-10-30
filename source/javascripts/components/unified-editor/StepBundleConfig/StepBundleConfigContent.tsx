@@ -5,17 +5,17 @@ import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
 type ConfigContentProps = {
   onDelete?: () => void;
-  onRename?: (name: string) => void;
+  onChangeID?: (name: string) => void;
 } & TabPanelProps;
 
-const StepBundleConfigContent = ({ onDelete, onRename, ...rest }: ConfigContentProps) => {
+const StepBundleConfigContent = ({ onDelete, onChangeID, ...rest }: ConfigContentProps) => {
   return (
     <TabPanels {...rest}>
       <TabPanel height="100%">
         <StepBundleConfigurationTab />
       </TabPanel>
-      <TabPanel>
-        <StepBundlePropertiesTab onDelete={onDelete} onRename={onRename} />
+      <TabPanel display="flex" flexDirection="column" gap="24">
+        <StepBundlePropertiesTab onDelete={onDelete} onChangeID={onChangeID} />
       </TabPanel>
     </TabPanels>
   );

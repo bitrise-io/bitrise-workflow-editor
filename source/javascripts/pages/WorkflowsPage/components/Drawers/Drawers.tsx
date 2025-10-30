@@ -55,7 +55,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setSearchParams((p) => (p.workflow_id === workflowId ? { ...p, workflow_id: newWorkflowId } : p));
   };
 
-  const handleRenameStepBundle = (newStepBundleId: string) => {
+  const handleChangeStepBundleID = (newStepBundleId: string) => {
     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
@@ -121,7 +121,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onRename={handleRenameStepBundle}
+          onChangeID={handleChangeStepBundleID}
           parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
           parentStepBundleId={stepBundleId}
