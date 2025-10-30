@@ -9,7 +9,6 @@ import useChangeStepBundleId from './hooks/useChangeStepBundleId';
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type StepBundlePropertiesTabProps = {
-  nameLabel?: string;
   onDelete?: () => void;
   onChangeId?: (newStepBundleId: string) => void;
 };
