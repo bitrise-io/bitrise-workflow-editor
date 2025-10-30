@@ -215,7 +215,7 @@ function createStepBundle(
     throwIfStepBundleAlreadyExists(doc, id);
 
     if (!basedOn) {
-      YmlUtils.setIn(doc, ['step_bundles', id], { title });
+      YmlUtils.setIn(doc, ['step_bundles', id], title ? { title } : {});
       return doc;
     }
 
