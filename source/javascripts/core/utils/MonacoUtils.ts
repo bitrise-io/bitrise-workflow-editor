@@ -1,6 +1,6 @@
 import { type EditorProps, loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
-import monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { configureMonacoYaml } from 'monaco-yaml';
 
 import AlgoliaApi from '../api/AlgoliaApi';

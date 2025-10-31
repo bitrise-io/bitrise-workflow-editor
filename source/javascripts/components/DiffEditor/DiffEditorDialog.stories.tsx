@@ -1,5 +1,5 @@
 import { Box, Button, useDisclosure } from '@bitrise/bitkit';
-import { Meta, StoryObj } from '@storybook/react-webpack5';
+import { Meta, StoryObj } from '@storybook/react-vite';
 
 import DiffEditorDialog from '@/components/DiffEditor/DiffEditorDialog';
 

@@ -76,6 +76,18 @@ export default defineConfig([
   },
 
   {
+    files: [".storybook/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        TEST_BITRISE_YML: "readonly",
+      },
+    },
+    rules: {
+      "no-restricted-globals": "off",
+    },
+  },
+
+  {
     files: ["**/*.spec.{ts,tsx}", "**/*.mocks.ts", "**/*.mswMocks.ts"],
     extends: [bitriseConfig.tests],
     languageOptions: {

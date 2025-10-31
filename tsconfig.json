@@ -18,7 +18,7 @@
       "es2019",
     ],
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "sourceMap": true,
     "allowJs": true,
     "jsx": "react-jsx",
@@ -43,10 +43,13 @@
     "source/javascripts/**/*.js",
     "source/javascripts/**/*.ts",
     "source/javascripts/**/*.tsx",
-    "spec/__mocks__/zustand.ts"
+    "spec/__mocks__/zustand.ts",
+    "vite-env.d.ts",
+    "vite.config.ts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx"
   ],
   "exclude": [
-    ".storybook",
     "_bin",
     "_scripts",
     "apiserver",

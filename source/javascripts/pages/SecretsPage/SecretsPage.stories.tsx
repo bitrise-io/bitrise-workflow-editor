@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react-webpack5';
+import { Meta } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
 import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
