@@ -37,10 +37,7 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   const filteredItems = bundleIds.filter((id) => {
     const lowerCaseFilterString = filterStepBundles.toLowerCase();
     const title = stepBundles[id]?.title?.toLowerCase();
-    if (
-      (typeof id === 'string' && id.toLowerCase().includes(lowerCaseFilterString || '')) ||
-      title?.includes(lowerCaseFilterString || '')
-    ) {
+    if (id?.toLowerCase().includes(lowerCaseFilterString || '') || title?.includes(lowerCaseFilterString || '')) {
       return true;
     }
     return false;
