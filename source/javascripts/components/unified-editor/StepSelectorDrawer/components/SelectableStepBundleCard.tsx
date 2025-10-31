@@ -10,10 +10,11 @@ import StepBundleCard from './StepBundleCard';
 type SelectableStepBundleCardProps = {
   id: string;
   onClick: (id: string) => void;
+  title?: string;
 };
 
 const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
-  const { id, onClick } = props;
+  const { id, onClick, title } = props;
   const [isPreviewMode, setIsPreviewMode] = useState(true);
   const dependants = useDependantWorkflows({ stepBundleCvs: StepBundleService.idToCvs(id) });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
@@ -35,7 +36,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           onClick={handleClick}
         >
           <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-            {id}
+            {title || id}
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary">
             {usedInWorkflowsText}
