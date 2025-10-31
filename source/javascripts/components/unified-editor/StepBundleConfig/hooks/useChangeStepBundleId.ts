@@ -3,18 +3,18 @@ import { useCallback, useEffect, useState } from 'react';
 import StepBundleService from '@/core/services/StepBundleService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundleId: string) => void) => {
+const useChangeStepBundleId = (stepBundleId: string = '', onChange?: (newStepBundleId: string) => void) => {
   const stepBundleIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.step_bundles ?? {}));
 
-  const [isRenaming, setIsRenaming] = useState(false);
+  const [isChanging, setIsChanging] = useState(false);
   const [nextStepBundleId, setNextStepBundleId] = useState(stepBundleId);
   const [prevStepBundleId, setPrevStepBundleId] = useState(stepBundleId);
 
   const isNewStepBundlePersisted = stepBundleIdsInTheStore.includes(nextStepBundleId);
   const isNewStepBundleSelected = nextStepBundleId === stepBundleId;
 
-  const shouldRunOnChange = isRenaming && isNewStepBundlePersisted && !isNewStepBundleSelected;
-  const shouldFinishRenaming = isRenaming && isNewStepBundlePersisted && isNewStepBundleSelected;
+  const shouldRunOnChange = isChanging && isNewStepBundlePersisted && !isNewStepBundleSelected;
+  const shouldFinishChanging = isChanging && isNewStepBundlePersisted && isNewStepBundleSelected;
 
   useEffect(() => {
     if (shouldRunOnChange) {
@@ -23,18 +23,18 @@ const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundl
   }, [onChange, shouldRunOnChange, nextStepBundleId]);
 
   useEffect(() => {
-    if (shouldFinishRenaming) {
-      setIsRenaming(false);
+    if (shouldFinishChanging) {
+      setIsChanging(false);
       StepBundleService.deleteStepBundle(prevStepBundleId);
     }
-  }, [shouldFinishRenaming, prevStepBundleId]);
+  }, [shouldFinishChanging, prevStepBundleId]);
 
   return useCallback(
     (newStepBundleId: string) => {
       if (stepBundleId) {
-        setIsRenaming(true);
+        setIsChanging(true);
 
-        StepBundleService.renameStepBundle(stepBundleId, newStepBundleId);
+        StepBundleService.changeStepBundleId(stepBundleId, newStepBundleId);
         StepBundleService.createStepBundle(stepBundleId, { source: 'step_bundles', sourceId: newStepBundleId });
 
         setNextStepBundleId(newStepBundleId);
@@ -45,4 +45,4 @@ const useRenameStepBundle = (stepBundleId: string = '', onChange?: (newStepBundl
   );
 };
 
-export default useRenameStepBundle;
+export default useChangeStepBundleId;

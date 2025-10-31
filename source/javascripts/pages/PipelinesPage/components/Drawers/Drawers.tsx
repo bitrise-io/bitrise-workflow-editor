@@ -64,7 +64,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setSearchParams((p) => (p.workflow_id === workflowId ? { ...p, workflow_id: newWorkflowId } : p));
   };
 
-  const handleRenameStepBundle = (newStepBundleId: string) => {
+  const handleChangeStepBundleId = (newStepBundleId: string) => {
     setStepBundleId(newStepBundleId);
     setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
@@ -128,7 +128,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onRename={handleRenameStepBundle}
+          onChangeId={handleChangeStepBundleId}
           parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
           parentStepBundleId={stepBundleId}

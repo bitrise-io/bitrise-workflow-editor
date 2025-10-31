@@ -31,14 +31,16 @@ const Options = <T,>({ baseEntities }: { baseEntities: BaseEntityType<T>[] }) =>
 
 type FormValues = {
   entityId: string;
+  title?: string;
   baseEntityId: string;
 };
 
 export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
   baseEntities: BaseEntityType<T>[];
   entityName: string;
+  extraInputs?: 'title'[];
   onCloseComplete: (entityId: string) => void;
-  onCreateEntity: (entityId: string, baseEntityId?: string) => void;
+  onCreateEntity: (entityId: string, baseEntityId?: string, title?: string) => void;
   sanitizer: (value: string) => string;
   validator: (value: string) => string | boolean;
 };
@@ -46,6 +48,7 @@ export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
 const CreateEntityDialog = <T,>({
   baseEntities,
   entityName,
+  extraInputs,
   onClose,
   onCloseComplete,
   onCreateEntity,
@@ -63,6 +66,7 @@ const CreateEntityDialog = <T,>({
   } = useForm<FormValues>({
     defaultValues: {
       entityId: '',
+      title: '',
       baseEntityId: '',
     },
   });
@@ -75,8 +79,8 @@ const CreateEntityDialog = <T,>({
     });
   };
 
-  const handleCreate = handleSubmit(({ entityId, baseEntityId }) => {
-    onCreateEntity(entityId, baseEntityId);
+  const handleCreate = handleSubmit(({ entityId, baseEntityId, title }) => {
+    onCreateEntity(entityId, baseEntityId, title || undefined);
     onClose();
   });
 
@@ -94,8 +98,8 @@ const CreateEntityDialog = <T,>({
         <Input
           autoFocus
           isRequired
-          label="Name"
-          placeholder={`${entityName} name`}
+          label="ID"
+          placeholder={`${entityName} ID`}
           inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           errorText={errors.entityId?.message}
           {...register('entityId', {
@@ -103,6 +107,15 @@ const CreateEntityDialog = <T,>({
             validate: validator,
           })}
         />
+        {extraInputs?.includes('title') && (
+          <Input
+            label="Title"
+            placeholder={`${entityName} Title`}
+            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            helperText="Human-readable name, overridable per instance."
+            {...register('title')}
+          />
+        )}
         <Select label="Based on" {...register('baseEntityId')}>
           <option key="" value="">
             An empty {entityName}

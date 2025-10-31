@@ -237,6 +237,8 @@ workflows:
     steps:
       - bundle::install_deps:
           title: Instance title
+          summary: Instance summary
+          description: Instance description
       - github-status@2.4.0:
           inputs:
             - api_base_url: https://github.com
@@ -533,6 +535,8 @@ step_bundles:
             - clone_depth: "0"
       - cache-pull@2.1.3: {}
       - deploy-to-bitrise-io@1.7.1: {}
+    summary: default summary
+    description: default description
   test:
     steps:
       - activate-ssh-key@4.1.1: {}
