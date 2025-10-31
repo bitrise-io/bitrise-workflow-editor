@@ -17,7 +17,7 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
-        return [id, { title: stepBundle?.title }];
+        return [id, { steps: stepBundle?.steps, title: stepBundle?.title }];
       }),
     );
   });
