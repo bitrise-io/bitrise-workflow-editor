@@ -17,7 +17,7 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
-        return [id, { steps: stepBundle?.steps }];
+        return [id, { title: stepBundle?.title }];
       }),
     );
   });
@@ -65,7 +65,9 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((id) => <SelectableStepBundleCard key={id} id={id} onClick={() => handleClick(id)} />)
+    filteredItems.map((id) => (
+      <SelectableStepBundleCard key={id} id={id} onClick={() => handleClick(id)} title={stepBundles[id]?.title} />
+    ))
   ) : (
     <EmptyState
       iconName="Magnifier"
