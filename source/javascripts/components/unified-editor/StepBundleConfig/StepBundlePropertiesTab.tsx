@@ -59,30 +59,60 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
       )}
       <Box display="flex" gap="8" width="100%">
         <Input
+          flex="1"
           helperText="Human-readable name, overridable per instance."
           label="Title"
           size="md"
           onChange={(e) => handleFieldChange('title', e.target.value)}
           value={contextData.stepBundle?.mergedValues.title || ''}
         />
-        <IconButton
-          aria-label="Reset to default"
-          iconName="Refresh"
-          marginBlockStart="24"
-          size="md"
-          variant="secondary"
-        />
+        {variant === 'drawer' && contextData.stepBundle?.defaultValues.title && (
+          <IconButton
+            aria-label="Reset to default"
+            iconName="Refresh"
+            marginBlockStart="24"
+            onClick={() => handleFieldChange('title', '')}
+            size="md"
+            variant="secondary"
+          />
+        )}
       </Box>
-      <Input
-        label="Summary"
-        value={contextData.stepBundle?.mergedValues.summary || ''}
-        onChange={(e) => handleFieldChange('summary', e.target.value)}
-      />
-      <Textarea
-        label="Description"
-        value={contextData.stepBundle?.mergedValues.description || ''}
-        onChange={(e) => handleFieldChange('description', e.target.value)}
-      />
+      <Box display="flex" gap="8" width="100%">
+        <Input
+          flex="1"
+          label="Summary"
+          value={contextData.stepBundle?.mergedValues.summary || ''}
+          onChange={(e) => handleFieldChange('summary', e.target.value)}
+        />
+        {variant === 'drawer' && contextData.stepBundle?.defaultValues.summary && (
+          <IconButton
+            aria-label="Reset to default"
+            iconName="Refresh"
+            marginBlockStart="24"
+            onClick={() => handleFieldChange('summary', '')}
+            size="md"
+            variant="secondary"
+          />
+        )}
+      </Box>
+      <Box display="flex" gap="8" width="100%">
+        <Textarea
+          flex="1"
+          label="Description"
+          value={contextData.stepBundle?.mergedValues.description || ''}
+          onChange={(e) => handleFieldChange('description', e.target.value)}
+        />
+        {variant === 'drawer' && contextData.stepBundle?.defaultValues.description && (
+          <IconButton
+            aria-label="Reset to default"
+            iconName="Refresh"
+            marginBlockStart="24"
+            onClick={() => handleFieldChange('description', '')}
+            size="md"
+            variant="secondary"
+          />
+        )}
+      </Box>
       {!!onDelete && (
         <>
           <Button
