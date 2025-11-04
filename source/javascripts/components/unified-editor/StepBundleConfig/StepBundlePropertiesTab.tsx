@@ -49,6 +49,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
       {variant === 'panel' && (
         <EditableInput
           isRequired
+          helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
           name="id"
           label="ID"
           value={contextData.stepBundle?.id}
