@@ -58,6 +58,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.MODE': JSON.stringify(env.MODE || 'CLI'),
       'import.meta.env.ANALYTICS': JSON.stringify(env.ANALYTICS || 'false'),
       'import.meta.env.DATADOG_RUM': JSON.stringify(env.DATADOG_RUM || 'false'),
+      'import.meta.env.PUBLIC_URL_ROOT': JSON.stringify(env.PUBLIC_URL_ROOT || ''),
       'import.meta.env.WFE_VERSION': JSON.stringify(version),
     },
 
