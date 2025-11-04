@@ -3,7 +3,6 @@ import {
   Breadcrumb,
   BreadcrumbLink,
   Button,
-  Text,
   Tooltip,
   useDisclosure,
   useResponsive,
@@ -171,13 +170,7 @@ const Header = () => {
       <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
         {isWebsiteMode && !isMobile && <BreadcrumbLink href="/dashboard">Bitrise CI</BreadcrumbLink>}
         {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
-        {(!isWebsiteMode || !isMobile) && (
-          <BreadcrumbLink isCurrentPage>
-            <Text id="away" textStyle="body/lg/semibold">
-              Workflow Editor
-            </Text>
-          </BreadcrumbLink>
-        )}
+        {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>Workflow Editor</BreadcrumbLink>}
       </Breadcrumb>
 
       <Box

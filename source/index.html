@@ -6,24 +6,23 @@
   <title>Bitrise Workflow Editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <base href="/" target="_parent" />
-  <link href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/favicon.ico" rel="icon" sizes="32x32"
-    crossorigin="anonymous" />
-  <link href="<%= htmlWebpackPlugin.options.publicPath %>images/favicons/apple-touch-icon.png" rel="apple-touch-icon"
-    crossorigin="anonymous" />
-    <script>
-      window.env = {
-        MODE: "<%= htmlWebpackPlugin.options.MODE %>",
-        ANALYTICS: "<%= htmlWebpackPlugin.options.ANALYTICS %>",
-        DATADOG_RUM: "<%= htmlWebpackPlugin.options.DATADOG_RUM %>",
-        NODE_ENV: "<%= htmlWebpackPlugin.options.NODE_ENV %>",
-        PUBLIC_URL_ROOT: "<%= htmlWebpackPlugin.options.PUBLIC_URL_ROOT %>",
-        WFE_VERSION: "<%= htmlWebpackPlugin.options.WFE_VERSION %>",
-      };
-    </script>
+  <link href="%BASE_URL%images/favicons/favicon.ico" rel="icon" sizes="32x32" crossorigin="anonymous" />
+  <link href="%BASE_URL%images/favicons/apple-touch-icon.png" rel="apple-touch-icon" crossorigin="anonymous" />
+  <script>
+    window.env = {
+      MODE: "%MODE%",
+      ANALYTICS: "%ANALYTICS%",
+      DATADOG_RUM: "%DATADOG_RUM%",
+      NODE_ENV: "%NODE_ENV%",
+      PUBLIC_URL_ROOT: "%PUBLIC_URL_ROOT%",
+      WFE_VERSION: "%WFE_VERSION%",
+    };
+  </script>
 </head>
 
 <body>
   <div id="root"></div>
+  <script type="module" src="/javascripts/main.tsx"></script>
 </body>
 
 </html>
