@@ -1,4 +1,4 @@
-import { Button, Input, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, IconButton, Input, Textarea, useDisclosure } from '@bitrise/bitkit';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -11,9 +11,10 @@ import { useStepBundleConfigContext } from './StepBundleConfig.context';
 type StepBundlePropertiesTabProps = {
   onDelete?: () => void;
   onChangeId?: (newStepBundleId: string) => void;
+  variant: 'panel' | 'drawer';
 };
 
-const StepBundlePropertiesTab = ({ onDelete, onChangeId }: StepBundlePropertiesTabProps) => {
+const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePropertiesTabProps) => {
   const stepBundleIds = useStepBundles((s) => Object.keys(s));
   const contextData = useStepBundleConfigContext((s) => s);
   const id = contextData.stepBundle?.id || contextData.stepBundleId || '';
@@ -45,22 +46,34 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId }: StepBundlePropertiesT
 
   return (
     <>
-      <EditableInput
-        isRequired
-        name="id"
-        label="ID"
-        value={contextData.stepBundle?.id}
-        sanitize={StepBundleService.sanitizeName}
-        validate={(v) => StepBundleService.validateName(v, contextData.stepBundle?.id || '', stepBundleIds)}
-        onCommit={handleIdChange}
-      />
+      {variant === 'panel' && (
+        <EditableInput
+          isRequired
+          name="id"
+          label="ID"
+          value={contextData.stepBundle?.id}
+          sanitize={StepBundleService.sanitizeName}
+          validate={(v) => StepBundleService.validateName(v, contextData.stepBundle?.id || '', stepBundleIds)}
+          onCommit={handleIdChange}
+        />
+      )}
+      <Box display="flex" gap="8" width="100%">
+        <Input
+          helperText="Human-readable name, overridable per instance."
+          label="Title"
+          size="md"
+          onChange={(e) => handleFieldChange('title', e.target.value)}
+          value={contextData.stepBundle?.mergedValues.title || ''}
+        />
+        <IconButton
+          aria-label="Reset to default"
+          iconName="Refresh"
+          marginBlockStart="24"
+          size="md"
+          variant="secondary"
+        />
+      </Box>
       <Input
-        label="Title"
-        size="md"
-        onChange={(e) => handleFieldChange('title', e.target.value)}
-        value={contextData.stepBundle?.mergedValues.title || ''}
-      />
-      <Textarea
         label="Summary"
         value={contextData.stepBundle?.mergedValues.summary || ''}
         onChange={(e) => handleFieldChange('summary', e.target.value)}
