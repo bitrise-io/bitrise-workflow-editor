@@ -6,6 +6,14 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 
 import YamlWorker from './yaml.worker?worker';
 
+declare global {
+  interface Window {
+    MonacoEnvironment: {
+      getWorker: (_moduleId: string, label: string) => Worker;
+    };
+  }
+}
+
 window.MonacoEnvironment = {
   getWorker(_, label) {
     if (label === 'yaml') {
