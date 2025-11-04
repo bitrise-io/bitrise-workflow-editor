@@ -67,7 +67,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           onChange={(e) => handleFieldChange('title', e.target.value)}
           value={contextData.stepBundle?.mergedValues.title || ''}
         />
-        {variant === 'drawer' && contextData.stepBundle?.defaultValues.title && (
+        {variant === 'drawer' && contextData.stepBundle?.userValues.title && (
           <IconButton
             aria-label="Reset to default"
             iconName="Refresh"
@@ -85,7 +85,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           value={contextData.stepBundle?.mergedValues.summary || ''}
           onChange={(e) => handleFieldChange('summary', e.target.value)}
         />
-        {variant === 'drawer' && contextData.stepBundle?.defaultValues.summary && (
+        {variant === 'drawer' && contextData.stepBundle?.userValues.summary && (
           <IconButton
             aria-label="Reset to default"
             iconName="Refresh"
@@ -103,7 +103,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           value={contextData.stepBundle?.mergedValues.description || ''}
           onChange={(e) => handleFieldChange('description', e.target.value)}
         />
-        {variant === 'drawer' && contextData.stepBundle?.defaultValues.description && (
+        {variant === 'drawer' && contextData.stepBundle?.userValues.description && (
           <IconButton
             aria-label="Reset to default"
             iconName="Refresh"
