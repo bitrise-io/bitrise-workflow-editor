@@ -64,9 +64,9 @@ function useDeleteSecret({
   return useMutation<unknown, DefaultError, string>({
     mutationFn: (secretKey) => SecretApi.deleteSecret({ appSlug, secretKey }),
     ...options,
-    onSuccess: (data, variable, context) => {
+    onSuccess: (data, variable, onMutateResult, context) => {
       queryClient.refetchQueries({ queryKey: [getSecretsQueryKey(appSlug)] });
-      options?.onSuccess?.(data, variable, context);
+      options?.onSuccess?.(data, variable, onMutateResult, context);
     },
   });
 }
@@ -82,9 +82,9 @@ function useUpsertSecret({
   return useMutation<Secret | undefined, DefaultError, Secret>({
     mutationFn: (secret) => SecretApi.upsertSecret({ appSlug, secret }),
     ...options,
-    onSuccess: (data, variable, context) => {
+    onSuccess: (data, variable, onMutateResult, context) => {
       queryClient.refetchQueries({ queryKey: [getSecretsQueryKey(appSlug)] });
-      options?.onSuccess?.(data, variable, context);
+      options?.onSuccess?.(data, variable, onMutateResult, context);
     },
   });
 }

@@ -1,4 +1,6 @@
 /* _eslint-disable import/no-import-module-exports */
+import '@/monaco-workers';
+
 import { Box, Button, Image, Link, Provider as BitkitProvider, Text, useToast } from '@bitrise/bitkit';
 import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
