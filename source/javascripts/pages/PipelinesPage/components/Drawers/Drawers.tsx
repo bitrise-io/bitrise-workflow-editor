@@ -34,7 +34,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     unmountDialog,
     setWorkflowId,
     isDialogMounted,
-    setStepBundleId,
   } = usePipelinesPageStore();
 
   const handleAddStep = (cvs: string) => {
@@ -62,11 +61,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
   const handleRenameWorkflow = (newWorkflowId: string) => {
     setWorkflowId(newWorkflowId);
     setSearchParams((p) => (p.workflow_id === workflowId ? { ...p, workflow_id: newWorkflowId } : p));
-  };
-
-  const handleChangeStepBundleId = (newStepBundleId: string) => {
-    setStepBundleId(newStepBundleId);
-    setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
   };
 
   return (
@@ -128,7 +122,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onChangeId={handleChangeStepBundleId}
           parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
           parentStepBundleId={stepBundleId}

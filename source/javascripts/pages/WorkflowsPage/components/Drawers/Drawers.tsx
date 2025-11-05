@@ -55,10 +55,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
     setSearchParams((p) => (p.workflow_id === workflowId ? { ...p, workflow_id: newWorkflowId } : p));
   };
 
-  const handleChangeStepBundleId = (newStepBundleId: string) => {
-    setSearchParams((p) => (p.step_bundle_id === stepBundleId ? { ...p, step_bundle_id: newStepBundleId } : p));
-  };
-
   return (
     <>
       {children}
@@ -121,7 +117,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          onChangeId={handleChangeStepBundleId}
           parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
           parentStepBundleId={stepBundleId}

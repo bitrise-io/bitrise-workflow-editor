@@ -101,6 +101,7 @@ const CreateEntityDialog = <T,>({
           label="ID"
           placeholder={`${entityName} ID`}
           inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+          helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
           errorText={errors.entityId?.message}
           {...register('entityId', {
             onChange: handleNameChange,
