@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "wfe-proxy",
+  "main": "proxy-worker.js",
+  "compatibility_date": "2025-11-05",
+  "workers_dev": true,
+  "no_bundle": true,
+  "routes": [
+    {
+      "pattern": "*.services.bitrise.dev/workflow_editor/*",
+      "zone_name": "bitrise.dev"
+    },
+    {
+      "pattern": "app-staging.bitrise.io/workflow_editor/*",
+      "zone_name": "bitrise.io"
+    },
+    {
+      "pattern": "app.bitrise.io/workflow_editor/*",
+      "zone_name": "bitrise.io"
+    }
+  ]
+}

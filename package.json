@@ -120,7 +120,8 @@
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-monaco-editor": "^1.1.0"
+    "vite-plugin-monaco-editor": "^1.1.0",
+    "wrangler": "^4.45.4"
   },
   "msw": {
     "workerDirectory": [
