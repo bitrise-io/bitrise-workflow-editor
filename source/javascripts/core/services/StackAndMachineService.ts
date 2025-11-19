@@ -144,11 +144,9 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
     value: '',
     name: '',
     ram: '',
-    chip: '',
     cpuCount: '',
     cpuDescription: '',
     creditPerMinute: 0,
-    isAvailable: false,
     isPromoted: false,
     os: 'unknown',
   };

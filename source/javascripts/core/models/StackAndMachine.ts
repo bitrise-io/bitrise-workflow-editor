@@ -39,11 +39,9 @@ export type MachineType = {
   os: MachineOS;
   name: string;
   ram: string;
-  chip: string;
   cpuCount: string;
   cpuDescription: string;
   creditPerMinute?: number;
-  isAvailable: boolean;
   isPromoted: boolean;
   availableOnStacks?: string[];
 };
