@@ -26,10 +26,8 @@ type MachineApiItem = {
   id: string;
   name: string;
   os_id?: string;
-  is_available?: boolean;
   is_promoted?: boolean;
   ram: string;
-  chip: string;
   cpu_count: string;
   cpu_description: string;
   credit_per_min?: number;
@@ -91,10 +89,8 @@ function toMachineType(item: MachineApiItem): MachineType {
     id: item.id,
     name: item.name,
     os: mapOSValues(item.os_id ?? ''),
-    isAvailable: item.is_available ?? false,
     isPromoted: item.is_promoted ?? false,
     ram: item.ram,
-    chip: item.chip,
     cpuCount: item.cpu_count,
     cpuDescription: item.cpu_description,
     creditPerMinute: item.credit_per_min,
