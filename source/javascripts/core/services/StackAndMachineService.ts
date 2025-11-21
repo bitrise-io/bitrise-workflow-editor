@@ -7,6 +7,8 @@ import { Meta } from '../models/BitriseYml';
 import {
   MachineStatus,
   MachineType,
+  MachineTypeInfo,
+  MachineTypeOption,
   MachineTypeOptionGroup,
   Stack,
   StackOption,
@@ -15,6 +17,11 @@ import {
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
+
+export const regionNames: Record<string, string> = {
+  'region-us': 'US',
+  'region-eu': 'EU',
+};
 
 type FieldKeys = keyof Required<Meta>['bitrise.io'];
 
@@ -96,23 +103,52 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-function toMachineOption(machine: MachineType, status: MachineStatus) {
-  const { name, ram, cpuCount, cpuDescription, creditPerMinute, os } = machine;
+export const hardwareVariesByRegion = ({ availableInRegions }: MachineType) => {
+  return Object.values(availableInRegions).some((machineTypeInfo) => {
+    return Object.entries(machineTypeInfo).some(([key, value]) => {
+      if (key === 'name') {
+        return false;
+      }
+      return value !== availableInRegions[Object.keys(availableInRegions)[0]][key as keyof MachineTypeInfo];
+    });
+  });
+};
+
+function toMachineOption(machine: MachineType, status: MachineStatus): MachineTypeOption {
+  const { availableInRegions, name, os } = machine;
   let label = `${name}`;
 
-  if (cpuCount) {
-    label += ` ${cpuCount}`;
-    if (cpuDescription) {
-      label += ` @${cpuDescription}`;
+  if (Object.keys(availableInRegions).length > 0) {
+    const hardwareDescription = ({ cpuCount, cpuDescription, creditPerMinute, ram }: MachineTypeInfo) => {
+      let hardware = '';
+      if (cpuCount) {
+        hardware += `${cpuCount}`;
+        if (cpuDescription) {
+          hardware += ` @${cpuDescription}`;
+        }
+      }
+
+      if (ram) {
+        hardware += ` ${ram}`;
+      }
+
+      if (creditPerMinute) {
+        hardware += ` (${creditPerMinute} credits/min)`;
+      }
+
+      return hardware;
+    };
+
+    if (hardwareVariesByRegion(machine)) {
+      const hardwareDescriptions: string[] = [];
+      Object.entries(availableInRegions).forEach(([regionId, machineTypeInfo]) => {
+        hardwareDescriptions.push(`${hardwareDescription(machineTypeInfo)} (${regionNames[regionId]})`);
+      });
+
+      label += ` ${hardwareDescriptions.join(', ')}`;
+    } else {
+      label += ` ${hardwareDescription(Object.values(availableInRegions)[0])}`;
     }
-  }
-
-  if (ram) {
-    label += ` ${ram}`;
-  }
-
-  if (creditPerMinute) {
-    label += ` (${creditPerMinute} credits/min)`;
   }
 
   return {
@@ -139,14 +175,11 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
 
 function createMachineType(override?: PartialDeep<MachineTypeWithValue>): MachineTypeWithValue {
   const base: MachineTypeWithValue = {
+    availableInRegions: {},
     availableOnStacks: [],
     id: '',
     value: '',
     name: '',
-    ram: '',
-    cpuCount: '',
-    cpuDescription: '',
-    creditPerMinute: 0,
     isPromoted: false,
     os: 'unknown',
   };

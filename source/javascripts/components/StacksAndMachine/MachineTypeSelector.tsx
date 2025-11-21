@@ -2,7 +2,7 @@ import { Avatar, Box, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip
 import { ReactNode } from 'react';
 
 import { MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
-import { MachineTypeWithValue } from '@/core/services/StackAndMachineService';
+import { hardwareVariesByRegion, MachineTypeWithValue, regionNames } from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
@@ -59,6 +59,22 @@ const MachineTypeSelector = ({ isLoading, isInvalid, isDisabled, machineType, op
     );
   };
 
+  const helperText = () => {
+    if (!Object.values(machineType.availableInRegions)[0]) {
+      return '';
+    }
+
+    if (hardwareVariesByRegion(machineType)) {
+      return Object.entries(machineType.availableInRegions)
+        .map(([regionId, machineTypeInfo]) => {
+          return `${machineTypeInfo.creditPerMinute} credits/min (${regionNames[regionId]})`;
+        })
+        .join(', ');
+    }
+
+    return `${Object.values(machineType.availableInRegions)[0].creditPerMinute} credits/min`;
+  };
+
   return (
     <Dropdown
       flex="1"
@@ -70,7 +86,7 @@ const MachineTypeSelector = ({ isLoading, isInvalid, isDisabled, machineType, op
       disabled={isLoading || isDisabled}
       isError={isInvalid}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
-      helperText={machineType.creditPerMinute ? `${machineType.creditPerMinute} credits/min` : undefined}
+      helperText={helperText()}
       value={machineType.value}
       onChange={(e) => onChange(e.target.value ?? '')}
     >
