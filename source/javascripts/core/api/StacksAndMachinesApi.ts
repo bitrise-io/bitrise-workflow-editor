@@ -1,4 +1,4 @@
-import { MachineStatus, MachineType, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
+import { MachineStatus, MachineType, MachineTypeInfo, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
 import Client from './client';
 
 type StackApiItem = {
@@ -22,16 +22,30 @@ type StackGroupApiItem = {
   stacks: StackApiItem[];
 };
 
-type MachineApiItem = {
+type MachineApiItemCommon = {
+  available_on_stacks?: string[];
+  credit_per_min?: number;
   id: string;
+  is_promoted?: boolean;
   name: string;
   os_id?: string;
-  is_promoted?: boolean;
-  ram: string;
+};
+
+type MachineApiItemWithRegionArray = MachineApiItemCommon & {
+  available_in_regions: string[];
+} & MachineTypeInfoApi;
+
+type MachineApiItemWithRegionMap = MachineApiItemCommon & {
+  available_in_regions: Record<string, MachineTypeInfoApi>;
+};
+
+type MachineApiItem = MachineApiItemWithRegionArray | MachineApiItemWithRegionMap;
+
+type MachineTypeInfoApi = {
   cpu_count: string;
   cpu_description: string;
-  credit_per_min?: number;
-  available_on_stacks?: string[];
+  name: string;
+  ram: string;
 };
 
 type MachineGroupApiItem = {
@@ -85,15 +99,38 @@ function toStack(item: StackApiItem): Stack {
 }
 
 function toMachineType(item: MachineApiItem): MachineType {
+  let availableInRegions: Record<string, MachineTypeInfo> = {};
+
+  const isItemWithRegionArray = (anItem: MachineApiItem): anItem is MachineApiItemWithRegionArray =>
+    Array.isArray(anItem.available_in_regions);
+
+  if (isItemWithRegionArray(item)) {
+    item.available_in_regions.forEach((regionId) => {
+      availableInRegions[regionId] = {
+        cpuCount: item.cpu_count,
+        cpuDescription: item.cpu_description,
+        name: item.name,
+        ram: item.ram,
+      };
+    });
+  } else {
+    Object.entries(item.available_in_regions).forEach(([regionId, regionInfo]) => {
+      availableInRegions[regionId] = {
+        cpuCount: regionInfo.cpu_count,
+        cpuDescription: regionInfo.cpu_description,
+        name: item.name,
+        ram: regionInfo.ram,
+      };
+    });
+  }
+
   return {
+    creditPerMinute: item.credit_per_min,
     id: item.id,
     name: item.name,
     os: mapOSValues(item.os_id ?? ''),
     isPromoted: item.is_promoted ?? false,
-    ram: item.ram,
-    cpuCount: item.cpu_count,
-    cpuDescription: item.cpu_description,
-    creditPerMinute: item.credit_per_min,
+    availableInRegions,
     availableOnStacks: item.available_on_stacks ?? [],
   };
 }

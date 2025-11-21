@@ -18,6 +18,7 @@ const DEFAULT_MACHINES: MachineApiItem[] = [
     credit_per_min: 2,
     os_id: 'macos',
     is_promoted: false,
+    available_in_regions: ['region-us'],
     available_on_stacks: [
       'osx-xcode-16.1.x-edge',
       'osx-xcode-16.0.x-edge',
@@ -36,6 +37,7 @@ const DEFAULT_MACHINES: MachineApiItem[] = [
     credit_per_min: 1,
     os_id: 'linux',
     is_promoted: false,
+    available_in_regions: ['region-us'],
     available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024'],
   },
 ];
@@ -213,6 +215,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 4,
           os_id: 'macos',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: [
             'osx-xcode-16.1.x-edge',
             'osx-xcode-16.0.x-edge',
@@ -231,6 +234,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 3,
           os_id: 'macos',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: [
             'osx-xcode-16.1.x-edge',
             'osx-xcode-16.0.x-edge',
@@ -243,13 +247,24 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
         },
         {
           id: 'm2.large',
-          name: 'M2 Pro Large',
-          cpu_count: '6 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '14 GB RAM',
           credit_per_min: 5,
+          name: 'M2 Pro Large',
           os_id: 'macos',
           is_promoted: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'M2 Pro Large in US',
+              cpu_count: '6 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '14 GB RAM',
+            },
+            'region-eu': {
+              name: 'M2 Pro Large in EU',
+              cpu_count: '6 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '16 GB RAM',
+            },
+          },
           available_on_stacks: [
             'osx-xcode-16.1.x-edge',
             'osx-xcode-16.0.x-edge',
@@ -269,6 +284,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 9,
           os_id: 'macos',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['osx-xcode-16.1.x-edge', 'osx-xcode-16.0.x-edge', 'osx-xcode-16.0.x', 'mixed-stack'],
         },
         {
@@ -280,6 +296,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 1,
           os_id: 'linux',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024'],
         },
         {
@@ -291,6 +308,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 2,
           os_id: 'linux',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024'],
         },
         {
@@ -302,6 +320,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 1,
           os_id: 'linux',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024', 'mixed-stack'],
         },
         {
@@ -313,6 +332,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 3,
           os_id: 'linux',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024', 'mixed-stack'],
         },
         {
@@ -324,6 +344,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           credit_per_min: 5,
           os_id: 'linux',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024', 'mixed-stack'],
         },
         {
@@ -334,6 +355,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           ram: '32 GB RAM',
           os_id: 'linux',
           is_promoted: false,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
       ],
@@ -350,6 +372,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           ram: '32 GB RAM',
           os_id: 'macos',
           is_promoted: true,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['osx-xcode-16.1.x-edge', 'osx-xcode-16.0.x-edge'],
         },
         {
@@ -360,6 +383,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           ram: '32 GB RAM',
           os_id: 'macos',
           is_promoted: true,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['osx-xcode-16.1.x-edge', 'osx-xcode-16.0.x-edge'],
         },
         {
@@ -370,6 +394,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           ram: '32 GB RAM',
           os_id: 'linux',
           is_promoted: true,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
         {
@@ -380,6 +405,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           ram: '32 GB RAM',
           os_id: 'linux',
           is_promoted: true,
+          available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
       ],

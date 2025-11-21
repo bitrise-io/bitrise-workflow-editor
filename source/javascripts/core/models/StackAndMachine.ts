@@ -34,15 +34,20 @@ export type StackOptionGroup = {
 export type MachineStatus = 'available' | 'promoted' | 'unknown';
 export type MachineOS = StackOS;
 
-export type MachineType = {
-  id: string;
-  os: MachineOS;
-  name: string;
-  ram: string;
+export type MachineTypeInfo = {
   cpuCount: string;
   cpuDescription: string;
+  name: string;
+  ram: string;
+};
+
+export type MachineType = {
+  id: string;
   creditPerMinute?: number;
+  os: MachineOS;
+  name: string;
   isPromoted: boolean;
+  availableInRegions: Record<string, MachineTypeInfo>;
   availableOnStacks?: string[];
 };
 

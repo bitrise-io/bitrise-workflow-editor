@@ -7,6 +7,7 @@ import { Meta } from '../models/BitriseYml';
 import {
   MachineStatus,
   MachineType,
+  MachineTypeOption,
   MachineTypeOptionGroup,
   Stack,
   StackOption,
@@ -15,6 +16,11 @@ import {
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
+
+export const regionNames: Record<string, string> = {
+  'region-us': 'US',
+  'region-eu': 'EU',
+};
 
 type FieldKeys = keyof Required<Meta>['bitrise.io'];
 
@@ -96,22 +102,11 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-function toMachineOption(machine: MachineType, status: MachineStatus) {
-  const { name, ram, cpuCount, cpuDescription, creditPerMinute, os } = machine;
+function toMachineOption(machine: MachineType, status: MachineStatus): MachineTypeOption {
+  const { creditPerMinute, name, os } = machine;
   let label = `${name}`;
 
-  if (cpuCount) {
-    label += ` ${cpuCount}`;
-    if (cpuDescription) {
-      label += ` @${cpuDescription}`;
-    }
-  }
-
-  if (ram) {
-    label += ` ${ram}`;
-  }
-
-  if (creditPerMinute) {
+  if (creditPerMinute !== undefined) {
     label += ` (${creditPerMinute} credits/min)`;
   }
 
@@ -139,14 +134,12 @@ function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
 
 function createMachineType(override?: PartialDeep<MachineTypeWithValue>): MachineTypeWithValue {
   const base: MachineTypeWithValue = {
+    availableInRegions: {},
     availableOnStacks: [],
+    creditPerMinute: 0,
     id: '',
     value: '',
     name: '',
-    ram: '',
-    cpuCount: '',
-    cpuDescription: '',
-    creditPerMinute: 0,
     isPromoted: false,
     os: 'unknown',
   };

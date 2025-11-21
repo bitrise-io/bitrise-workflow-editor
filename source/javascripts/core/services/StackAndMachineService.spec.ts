@@ -94,9 +94,14 @@ const machines: MachineType[] = [
     id: 'standard',
     name: 'Standard',
     creditPerMinute: 1,
-    ram: '8GB',
-    cpuCount: '4 CPU',
-    cpuDescription: '3.5 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'Standard',
+        ram: '8GB',
+        cpuCount: '4 CPU',
+        cpuDescription: '3.5 GHz',
+      },
+    },
     os: 'linux',
     isPromoted: false,
     availableOnStacks: ['ubuntu-jammy-22.04-bitrise-2024', 'ubuntu-focal-20.04-bitrise-2024'],
@@ -105,9 +110,14 @@ const machines: MachineType[] = [
     id: 'elite',
     name: 'Elite',
     creditPerMinute: 1,
-    ram: '16GB',
-    cpuCount: '8 CPU',
-    cpuDescription: '4.0 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'Elite',
+        ram: '16GB',
+        cpuCount: '8 CPU',
+        cpuDescription: '4.0 GHz',
+      },
+    },
     os: 'linux',
     isPromoted: false,
     availableOnStacks: ['ubuntu-jammy-22.04-bitrise-2024', 'ubuntu-focal-20.04-bitrise-2024'],
@@ -116,9 +126,14 @@ const machines: MachineType[] = [
     id: 'mac-m1',
     name: 'M1',
     creditPerMinute: 2,
-    ram: '16GB',
-    cpuCount: '8 CPU',
-    cpuDescription: '3.5 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'M1',
+        ram: '16GB',
+        cpuCount: '8 CPU',
+        cpuDescription: '3.5 GHz',
+      },
+    },
     os: 'macos',
     isPromoted: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
@@ -127,9 +142,14 @@ const machines: MachineType[] = [
     id: 'mac-m2',
     name: 'M2',
     creditPerMinute: 3,
-    ram: '24GB',
-    cpuCount: '12 CPU',
-    cpuDescription: '4.0 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'M2',
+        ram: '24GB',
+        cpuCount: '12 CPU',
+        cpuDescription: '4.0 GHz',
+      },
+    },
     os: 'macos',
     isPromoted: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
@@ -138,9 +158,14 @@ const machines: MachineType[] = [
     id: 'mac-m3',
     name: 'M3',
     creditPerMinute: 4,
-    ram: '32GB',
-    cpuCount: '16 CPU',
-    cpuDescription: '4.5 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'M3',
+        ram: '32GB',
+        cpuCount: '16 CPU',
+        cpuDescription: '4.5 GHz',
+      },
+    },
     os: 'macos',
     isPromoted: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x'],
@@ -149,9 +174,14 @@ const machines: MachineType[] = [
     id: 'mac-m4',
     name: 'M4',
     creditPerMinute: 8,
-    ram: '64GB',
-    cpuCount: '24 CPU',
-    cpuDescription: '4.5 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'M4',
+        ram: '64GB',
+        cpuCount: '24 CPU',
+        cpuDescription: '4.5 GHz',
+      },
+    },
     os: 'macos',
     isPromoted: true,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x'],
@@ -160,9 +190,14 @@ const machines: MachineType[] = [
     id: 'linux-xl',
     name: 'XL',
     creditPerMinute: 8,
-    ram: '64GB',
-    cpuCount: '32 CPU',
-    cpuDescription: '4.5 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'XL',
+        ram: '64GB',
+        cpuCount: '32 CPU',
+        cpuDescription: '4.5 GHz',
+      },
+    },
     os: 'linux',
     isPromoted: true,
     availableOnStacks: undefined,
@@ -171,9 +206,14 @@ const machines: MachineType[] = [
     id: 'joker',
     name: 'Joker',
     creditPerMinute: 16,
-    ram: '128GB',
-    cpuCount: '64 CPU',
-    cpuDescription: '5.0 GHz',
+    availableInRegions: {
+      'region-us': {
+        name: 'Joker',
+        ram: '128GB',
+        cpuCount: '64 CPU',
+        cpuDescription: '5.0 GHz',
+      },
+    },
     os: 'unknown',
     isPromoted: true,
     availableOnStacks: undefined,
@@ -265,8 +305,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -338,8 +378,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -551,8 +591,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -627,8 +667,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
-            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m1', label: 'M1 (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 (3 credits/min)', os: 'macos', status: 'available' },
           ],
         },
       ]);
@@ -708,8 +748,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
-            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m1', label: 'M1 (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 (3 credits/min)', os: 'macos', status: 'available' },
           ],
         },
       ]);
@@ -742,8 +782,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
-            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m1', label: 'M1 (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 (3 credits/min)', os: 'macos', status: 'available' },
           ],
         },
       ]);
@@ -887,8 +927,8 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -953,17 +993,15 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-            { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
           ],
         },
         {
           label: 'Available on other plans',
           status: 'promoted',
-          options: [
-            { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
-          ],
+          options: [{ label: 'M4 (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' }],
         },
       ]);
     });
@@ -990,9 +1028,9 @@ describe('StackAndMachineService', () => {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-            { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
           ],
         },
       ]);
@@ -1059,17 +1097,15 @@ describe('StackAndMachineService', () => {
             label: 'Available on your plan',
             status: 'available',
             options: [
-              { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-              { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-              { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+              { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+              { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+              { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
             ],
           },
           {
             label: 'Available on other plans',
             status: 'promoted',
-            options: [
-              { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
-            ],
+            options: [{ label: 'M4 (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' }],
           },
         ]);
       });
@@ -1134,17 +1170,15 @@ describe('StackAndMachineService', () => {
             label: 'Available on your plan',
             status: 'available',
             options: [
-              { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-              { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-              { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+              { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+              { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+              { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
             ],
           },
           {
             label: 'Available on other plans',
             status: 'promoted',
-            options: [
-              { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
-            ],
+            options: [{ label: 'M4 (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' }],
           },
         ]);
       });
