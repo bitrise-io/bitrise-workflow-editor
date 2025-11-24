@@ -1,8 +1,18 @@
-import { Avatar, Box, Dropdown, DropdownDetailedOption, DropdownGroup, Toggletip, TypeIconName } from '@bitrise/bitkit';
-import { ReactNode } from 'react';
+import {
+  Avatar,
+  Box,
+  BoxProps,
+  Dropdown,
+  DropdownDetailedOption,
+  DropdownGroup,
+  Text,
+  Toggletip,
+  TypeIconName,
+} from '@bitrise/bitkit';
+import { ReactNode, useMemo } from 'react';
 
-import { MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
-import { hardwareVariesByRegion, MachineTypeWithValue, regionNames } from '@/core/services/StackAndMachineService';
+import { MachineType, MachineTypeInfo, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
+import { MachineTypeWithValue, regionNames } from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
@@ -16,23 +26,60 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
   }
 };
 
-const renderOptions = (machines: MachineTypeOption[], isDisabled?: boolean) => {
-  return machines.map((machine) => {
-    const iconName = getIconName(machine.os);
+const machineTypeInfoText = ({ name, cpuCount, cpuDescription, ram }: MachineTypeInfo) => {
+  return `${name} ${cpuCount}@${cpuDescription} ${ram}`;
+};
+
+const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
+  const { availableInRegions } = machineType;
+
+  return Object.values(availableInRegions).some((machineTypeInfo) => {
+    return Object.entries(machineTypeInfo).some(([key, value]) => {
+      return value !== availableInRegions[Object.keys(availableInRegions)[0]][key as keyof MachineTypeInfo];
+    });
+  });
+};
+
+const renderOptions = (machineTypeOptions: MachineTypeOption[], isDisabled?: boolean) => {
+  return machineTypeOptions.map(({ machineType, value, label, os }) => {
+    const iconName = getIconName(os);
+
+    let subtitle = '';
+    if (machineTypeHardwareVariesByRegion(machineType)) {
+      subtitle = Object.entries(machineType.availableInRegions)
+        .map(([regionId, machineTypeInfo]) => {
+          return `${regionNames[regionId]}: ${machineTypeInfoText(machineTypeInfo)}`;
+        })
+        .join(`\n`);
+    } else if (Object.values(machineType.availableInRegions).length > 0) {
+      subtitle = machineTypeInfoText(Object.values(machineType.availableInRegions)[0]);
+    }
+
     return (
       <DropdownDetailedOption
-        key={machine.value}
-        value={machine.value}
-        title={machine.label}
-        subtitle=""
+        key={value}
+        value={value}
+        title={label}
+        subtitle={subtitle}
         isDisabled={isDisabled}
-        icon={iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
+        icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
       />
     );
   });
 };
 
-type Props = {
+const renderFormLabel = (machineType: MachineTypeWithValue) => {
+  const iconName = getIconName(machineType.os);
+
+  return (
+    <Box display="flex" gap={12} alignItems="center">
+      {iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
+      {`${machineType.name} (${machineType.creditPerMinute} credits/min)`}
+    </Box>
+  );
+};
+
+type Props = Pick<BoxProps, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled: boolean;
@@ -41,7 +88,17 @@ type Props = {
   onChange: (machineId: string) => void;
 };
 
-const MachineTypeSelector = ({ isLoading, isInvalid, isDisabled, machineType, optionGroups, onChange }: Props) => {
+const MachineTypeSelector = ({
+  isLoading,
+  isInvalid,
+  isDisabled,
+  machineType,
+  optionGroups,
+  onChange,
+  ...boxProps
+}: Props) => {
+  const hardwareVariesByRegion = useMemo(() => machineTypeHardwareVariesByRegion(machineType), [machineType]);
+
   const toggletip = (icon: ReactNode) => {
     if (!optionGroups.find((group) => group.status === 'promoted')) {
       return null;
@@ -64,20 +121,36 @@ const MachineTypeSelector = ({ isLoading, isInvalid, isDisabled, machineType, op
       return '';
     }
 
-    if (hardwareVariesByRegion(machineType)) {
-      return Object.entries(machineType.availableInRegions)
-        .map(([regionId, machineTypeInfo]) => {
-          return `${machineTypeInfo.creditPerMinute} credits/min (${regionNames[regionId]})`;
-        })
-        .join(', ');
+    if (hardwareVariesByRegion) {
+      return (
+        <Box as="span" display="flex" flexDir="column" gap={8}>
+          <Text as="span">Machine types may vary depending on high demand.</Text>
+          {Object.entries(machineType.availableInRegions).map(([regionId, machineTypeInfo]) => {
+            return (
+              <Text as="span" color="input/text/helper" key={regionId} textStyle="body/sm/regular">
+                <Text as="span" fontWeight="bold">
+                  {regionNames[regionId]}:
+                </Text>{' '}
+                {machineTypeInfoText(machineTypeInfo)}
+              </Text>
+            );
+          })}
+        </Box>
+      );
     }
 
-    return `${Object.values(machineType.availableInRegions)[0].creditPerMinute} credits/min`;
+    return (
+      <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
+        {machineTypeInfoText(Object.values(machineType.availableInRegions)[0])}
+      </Text>
+    );
   };
 
   return (
     <Dropdown
+      {...boxProps}
       flex="1"
+      formLabel={renderFormLabel(machineType)}
       required
       search={false}
       label="Machine type"

@@ -299,14 +299,34 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            {
+              machineType: expect.any(Object),
+              label: 'M1 (2 credits/min)',
+              status: 'available',
+              value: 'mac-m1',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M2 (3 credits/min)',
+              status: 'available',
+              value: 'mac-m2',
+              os: 'macos',
+            },
           ],
         },
       ]);
@@ -372,14 +392,34 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            {
+              machineType: expect.any(Object),
+              label: 'M1 (2 credits/min)',
+              status: 'available',
+              value: 'mac-m1',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M2 (3 credits/min)',
+              status: 'available',
+              value: 'mac-m2',
+              os: 'macos',
+            },
           ],
         },
       ]);
@@ -452,7 +492,15 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Invalid Machine',
+              os: 'unknown',
+              status: 'unknown',
+            },
+          ],
         },
       ]);
     });
@@ -519,7 +567,15 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: 'mac-m1', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m1',
+              label: 'Invalid Machine',
+              os: 'unknown',
+              status: 'unknown',
+            },
+          ],
         },
       ]);
     });
@@ -585,14 +641,34 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            {
+              machineType: expect.any(Object),
+              label: 'M1 (2 credits/min)',
+              status: 'available',
+              value: 'mac-m1',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M2 (3 credits/min)',
+              status: 'available',
+              value: 'mac-m2',
+              os: 'macos',
+            },
           ],
         },
       ]);
@@ -661,14 +737,34 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { value: 'mac-m1', label: 'M1 (2 credits/min)', os: 'macos', status: 'available' },
-            { value: 'mac-m2', label: 'M2 (3 credits/min)', os: 'macos', status: 'available' },
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m1',
+              label: 'M1 (2 credits/min)',
+              os: 'macos',
+              status: 'available',
+            },
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m2',
+              label: 'M2 (3 credits/min)',
+              os: 'macos',
+              status: 'available',
+            },
           ],
         },
       ]);
@@ -700,7 +796,14 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
+          options: [
+            {
+              value: '',
+              label: 'Default (Xcode 15.0.x)',
+              status: 'stable',
+              os: 'macos',
+            },
+          ],
         },
         {
           label: 'Edge Stacks',
@@ -737,19 +840,47 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: 'mac-intel', label: 'Invalid Machine (mac-intel)', os: 'unknown', status: 'unknown' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: 'mac-intel',
+              label: 'Invalid Machine (mac-intel)',
+              os: 'unknown',
+              status: 'unknown',
+            },
+          ],
         },
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { value: 'mac-m1', label: 'M1 (2 credits/min)', os: 'macos', status: 'available' },
-            { value: 'mac-m2', label: 'M2 (3 credits/min)', os: 'macos', status: 'available' },
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m1',
+              label: 'M1 (2 credits/min)',
+              os: 'macos',
+              status: 'available',
+            },
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m2',
+              label: 'M2 (3 credits/min)',
+              os: 'macos',
+              status: 'available',
+            },
           ],
         },
       ]);
@@ -776,14 +907,34 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Machine',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Default Machine (mac-intel)', os: 'unknown', status: 'unknown' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Invalid Default Machine (mac-intel)',
+              os: 'unknown',
+              status: 'unknown',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { value: 'mac-m1', label: 'M1 (2 credits/min)', os: 'macos', status: 'available' },
-            { value: 'mac-m2', label: 'M2 (3 credits/min)', os: 'macos', status: 'available' },
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m1',
+              label: 'M1 (2 credits/min)',
+              os: 'macos',
+              status: 'available',
+            },
+            {
+              machineType: expect.any(Object),
+              value: 'mac-m2',
+              label: 'M2 (3 credits/min)',
+              os: 'macos',
+              status: 'available',
+            },
           ],
         },
       ]);
@@ -853,7 +1004,15 @@ describe('StackAndMachineService', () => {
         {
           label: 'Self-Hosted Runner',
           status: 'available',
-          options: [{ value: '', label: 'Self-Hosted Runner', status: 'available', os: 'unknown' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Self-Hosted Runner',
+              status: 'available',
+              os: 'unknown',
+            },
+          ],
         },
       ]);
     });
@@ -921,14 +1080,34 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            {
+              machineType: expect.any(Object),
+              label: 'M1 (2 credits/min)',
+              status: 'available',
+              value: 'mac-m1',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M2 (3 credits/min)',
+              status: 'available',
+              value: 'mac-m2',
+              os: 'macos',
+            },
           ],
         },
       ]);
@@ -966,7 +1145,15 @@ describe('StackAndMachineService', () => {
         {
           label: 'Dedicated Machine',
           status: 'available',
-          options: [{ value: '', label: 'Dedicated Machine', status: 'available', os: 'macos' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Dedicated Machine',
+              status: 'available',
+              os: 'macos',
+            },
+          ],
         },
       ]);
     });
@@ -987,21 +1174,55 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-            { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+            {
+              machineType: expect.any(Object),
+              label: 'M1 (2 credits/min)',
+              status: 'available',
+              value: 'mac-m1',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M2 (3 credits/min)',
+              status: 'available',
+              value: 'mac-m2',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M3 (4 credits/min)',
+              status: 'available',
+              value: 'mac-m3',
+              os: 'macos',
+            },
           ],
         },
         {
           label: 'Available on other plans',
           status: 'promoted',
-          options: [{ label: 'M4 (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'M4 (8 credits/min)',
+              status: 'promoted',
+              value: 'mac-m4',
+              os: 'macos',
+            },
+          ],
         },
       ]);
     });
@@ -1022,15 +1243,41 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Machine',
           status: 'available',
-          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+          options: [
+            {
+              machineType: expect.any(Object),
+              value: '',
+              label: 'Default (M1)',
+              os: 'macos',
+              status: 'available',
+            },
+          ],
         },
         {
           label: 'Available on your plan',
           status: 'available',
           options: [
-            { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-            { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-            { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+            {
+              machineType: expect.any(Object),
+              label: 'M1 (2 credits/min)',
+              status: 'available',
+              value: 'mac-m1',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M2 (3 credits/min)',
+              status: 'available',
+              value: 'mac-m2',
+              os: 'macos',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'M3 (4 credits/min)',
+              status: 'available',
+              value: 'mac-m3',
+              os: 'macos',
+            },
           ],
         },
       ]);
@@ -1056,7 +1303,11 @@ describe('StackAndMachineService', () => {
 
         expect(result.isInvalidMachineType).toBe(false);
         expect(result.selectedMachineType).toEqual(
-          expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
+          expect.objectContaining({
+            value: 'mac-m1',
+            id: 'mac-m1',
+            name: 'M1',
+          }),
         );
 
         // Stack options
@@ -1097,15 +1348,41 @@ describe('StackAndMachineService', () => {
             label: 'Available on your plan',
             status: 'available',
             options: [
-              { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-              { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-              { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+              {
+                machineType: expect.any(Object),
+                label: 'M1 (2 credits/min)',
+                status: 'available',
+                value: 'mac-m1',
+                os: 'macos',
+              },
+              {
+                machineType: expect.any(Object),
+                label: 'M2 (3 credits/min)',
+                status: 'available',
+                value: 'mac-m2',
+                os: 'macos',
+              },
+              {
+                machineType: expect.any(Object),
+                label: 'M3 (4 credits/min)',
+                status: 'available',
+                value: 'mac-m3',
+                os: 'macos',
+              },
             ],
           },
           {
             label: 'Available on other plans',
             status: 'promoted',
-            options: [{ label: 'M4 (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' }],
+            options: [
+              {
+                machineType: expect.any(Object),
+                label: 'M4 (8 credits/min)',
+                status: 'promoted',
+                value: 'mac-m4',
+                os: 'macos',
+              },
+            ],
           },
         ]);
       });
@@ -1170,15 +1447,41 @@ describe('StackAndMachineService', () => {
             label: 'Available on your plan',
             status: 'available',
             options: [
-              { label: 'M1 (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
-              { label: 'M2 (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
-              { label: 'M3 (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
+              {
+                machineType: expect.any(Object),
+                label: 'M1 (2 credits/min)',
+                status: 'available',
+                value: 'mac-m1',
+                os: 'macos',
+              },
+              {
+                machineType: expect.any(Object),
+                label: 'M2 (3 credits/min)',
+                status: 'available',
+                value: 'mac-m2',
+                os: 'macos',
+              },
+              {
+                machineType: expect.any(Object),
+                label: 'M3 (4 credits/min)',
+                status: 'available',
+                value: 'mac-m3',
+                os: 'macos',
+              },
             ],
           },
           {
             label: 'Available on other plans',
             status: 'promoted',
-            options: [{ label: 'M4 (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' }],
+            options: [
+              {
+                machineType: expect.any(Object),
+                label: 'M4 (8 credits/min)',
+                status: 'promoted',
+                value: 'mac-m4',
+                os: 'macos',
+              },
+            ],
           },
         ]);
       });
