@@ -41,8 +41,8 @@ const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
 };
 
 const renderOptions = (machineTypeOptions: MachineTypeOption[], isDisabled?: boolean) => {
-  return machineTypeOptions.map(({ machineType, value, label, os }) => {
-    const iconName = getIconName(os);
+  return machineTypeOptions.map(({ machineType, value, label }) => {
+    const iconName = getIconName(machineType.os);
 
     let subtitle = '';
     if (machineTypeHardwareVariesByRegion(machineType)) {

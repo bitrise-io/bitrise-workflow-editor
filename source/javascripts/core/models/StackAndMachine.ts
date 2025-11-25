@@ -58,7 +58,6 @@ export type MachineTypeGroup = {
 };
 
 export type MachineTypeOption = {
-  os?: string;
   value: string;
   label: string;
   machineType: MachineType;

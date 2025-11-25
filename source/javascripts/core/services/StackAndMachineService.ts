@@ -103,7 +103,7 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
 }
 
 function toMachineOption(machine: MachineType, status: MachineStatus): MachineTypeOption {
-  const { creditPerMinute, name, os } = machine;
+  const { creditPerMinute, name } = machine;
   let label = `${name}`;
 
   if (creditPerMinute !== undefined) {
@@ -112,7 +112,6 @@ function toMachineOption(machine: MachineType, status: MachineStatus): MachineTy
 
   return {
     machineType: machine,
-    os,
     value: machine.id,
     label,
     status,
@@ -308,7 +307,6 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
             value: '',
             label: `Default (${defaultMachineType.name})`,
             machineType: defaultMachineType,
-            os: defaultMachineType.os,
             status: 'available',
           },
         ],
@@ -322,7 +320,6 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
             value: '',
             label: `Default (${defaultMachineTypeOfOS.name})`,
             machineType: defaultMachineTypeOfOS,
-            os: defaultMachineTypeOfOS.os,
             status: 'available',
           },
         ],
