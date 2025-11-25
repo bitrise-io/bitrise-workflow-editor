@@ -6,6 +6,7 @@ import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
 import {
   MachineType,
+  MachineTypeInfo,
   MachineTypeOption,
   MachineTypeOptionGroup,
   Stack,
@@ -116,6 +117,16 @@ function toMachineOption(machine: MachineType): MachineTypeOption {
     label,
   };
 }
+
+export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
+  const { availableInRegions } = machineType;
+
+  return Object.values(availableInRegions).some((machineTypeInfo) => {
+    return Object.entries(machineTypeInfo).some(([key, value]) => {
+      return value !== availableInRegions[Object.keys(availableInRegions)[0]][key as keyof MachineTypeInfo];
+    });
+  });
+};
 
 function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
   const base: StackWithValue = {

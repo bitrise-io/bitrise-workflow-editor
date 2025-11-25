@@ -58,7 +58,17 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           machines:
             options?.privateCloud === 'no-machines'
               ? []
-              : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
+              : [
+                  'g2.mac.medium',
+                  'g2.mac.large',
+                  'm1.medium',
+                  'm1.large',
+                  'm2.medium',
+                  'm2.large',
+                  'm2.x-large',
+                  'machine-y1',
+                  'machine-y2',
+                ],
         },
         {
           id: 'osx-xcode-16.0.x-edge',
@@ -70,7 +80,17 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           machines:
             options?.privateCloud === 'no-machines'
               ? []
-              : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
+              : [
+                  'g2.mac.medium',
+                  'g2.mac.large',
+                  'm1.medium',
+                  'm1.large',
+                  'm2.medium',
+                  'm2.large',
+                  'm2.x-large',
+                  'machine-y1',
+                  'machine-y2',
+                ],
         },
         {
           id: 'ubuntu-noble-24.04-bitrise-2025',
@@ -202,7 +222,72 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
 
   return [
     {
-      label: 'Available Machines',
+      label: 'Machine classes',
+      machines: [
+        {
+          id: 'g2.mac.medium',
+          credit_per_min: 5,
+          name: 'Mac Medium',
+          os_id: 'macos',
+          is_promoted: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Machine in US',
+              cpu_count: '6 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '14 GB RAM',
+            },
+            'region-eu': {
+              name: 'Machine in EU',
+              cpu_count: '6 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '16 GB RAM',
+            },
+          },
+          available_on_stacks: [
+            'osx-xcode-16.1.x-edge',
+            'osx-xcode-16.0.x-edge',
+            'osx-xcode-16.0.x',
+            'osx-xcode-15.0.x',
+            'osx-xcode-14.3.x',
+            'osx-xcode-14.2.x',
+            'mixed-stack',
+          ],
+        },
+        {
+          id: 'g2.mac.large',
+          credit_per_min: 10,
+          name: 'Mac Large',
+          os_id: 'macos',
+          is_promoted: true,
+          available_in_regions: {
+            'region-us': {
+              name: 'Machine in US',
+              cpu_count: '12 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '20 GB RAM',
+            },
+            'region-eu': {
+              name: 'Machine in EU',
+              cpu_count: '16 vCPU',
+              cpu_description: '3.7GHz',
+              ram: '24 GB RAM',
+            },
+          },
+          available_on_stacks: [
+            'osx-xcode-16.1.x-edge',
+            'osx-xcode-16.0.x-edge',
+            'osx-xcode-16.0.x',
+            'osx-xcode-15.0.x',
+            'osx-xcode-14.3.x',
+            'osx-xcode-14.2.x',
+            'mixed-stack',
+          ],
+        },
+      ],
+    },
+    {
+      label: 'Machine types',
       machines: [
         ...DEFAULT_MACHINES,
         {
@@ -256,12 +341,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
               cpu_count: '6 vCPU',
               cpu_description: '3.7GHz',
               ram: '14 GB RAM',
-            },
-            'region-eu': {
-              name: 'M2 Pro Large in EU',
-              cpu_count: '6 vCPU',
-              cpu_description: '3.7GHz',
-              ram: '16 GB RAM',
             },
           },
           available_on_stacks: [
@@ -357,11 +436,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           available_in_regions: ['region-us'],
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
-      ],
-    },
-    {
-      label: 'Promoted Machines',
-      machines: [
         {
           id: 'machine-y1',
           name: 'Machine Y1 (Mac OS)',

@@ -11,8 +11,12 @@ import {
 } from '@bitrise/bitkit';
 import { ReactNode, useMemo } from 'react';
 
-import { MachineType, MachineTypeInfo, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
-import { MachineTypeWithValue, regionNames } from '@/core/services/StackAndMachineService';
+import { MachineTypeInfo, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
+import {
+  machineTypeHardwareVariesByRegion,
+  MachineTypeWithValue,
+  regionNames,
+} from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
@@ -28,16 +32,6 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
 
 const machineTypeInfoText = ({ name, cpuCount, cpuDescription, ram }: MachineTypeInfo) => {
   return `${name} ${cpuCount}@${cpuDescription} ${ram}`;
-};
-
-const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
-  const { availableInRegions } = machineType;
-
-  return Object.values(availableInRegions).some((machineTypeInfo) => {
-    return Object.entries(machineTypeInfo).some(([key, value]) => {
-      return value !== availableInRegions[Object.keys(availableInRegions)[0]][key as keyof MachineTypeInfo];
-    });
-  });
 };
 
 const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {

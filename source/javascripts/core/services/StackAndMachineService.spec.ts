@@ -1,5 +1,8 @@
 import { MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
-import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
+import StackAndMachineService, {
+  machineTypeHardwareVariesByRegion,
+  StackAndMachineSource,
+} from '@/core/services/StackAndMachineService';
 
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
@@ -10,7 +13,7 @@ const stacks: Stack[] = [
     status: 'edge',
     description:
       'Xcode 16.1 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
+    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
     os: 'macos',
   },
   {
@@ -19,7 +22,7 @@ const stacks: Stack[] = [
     status: 'stable',
     description:
       'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4'],
+    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2', 'mac-m3', 'mac-m4'],
     os: 'macos',
   },
   {
@@ -28,7 +31,7 @@ const stacks: Stack[] = [
     status: 'stable',
     description:
       'Xcode 15.0.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['mac-m1', 'mac-m2'],
+    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2'],
     os: 'macos',
   },
   {
@@ -37,7 +40,7 @@ const stacks: Stack[] = [
     status: 'frozen',
     description:
       'Xcode 14.1.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['mac-m1', 'mac-m2'],
+    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2'],
     os: 'macos',
   },
   {
@@ -90,6 +93,50 @@ const groupedStacks: StackGroup[] = [
 ];
 
 const machines: MachineType[] = [
+  {
+    id: 'g2.mac.medium',
+    name: 'Mac Medium',
+    creditPerMinute: 2,
+    availableInRegions: {
+      'region-us': {
+        name: 'Mac Medium US',
+        ram: '8GB',
+        cpuCount: '4 CPU',
+        cpuDescription: '3.5 GHz',
+      },
+      'region-eu': {
+        name: 'Mac Medium EU',
+        ram: '12GB',
+        cpuCount: '6 CPU',
+        cpuDescription: '4.5 GHz',
+      },
+    },
+    os: 'macos',
+    isPromoted: false,
+    availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
+  },
+  {
+    id: 'g2.mac.large',
+    name: 'Mac Large',
+    creditPerMinute: 4,
+    availableInRegions: {
+      'region-us': {
+        name: 'Mac Large US',
+        ram: '16GB',
+        cpuCount: '8 CPU',
+        cpuDescription: '3.5 GHz',
+      },
+      'region-eu': {
+        name: 'Mac Large EU',
+        ram: '20GB',
+        cpuCount: '12 CPU',
+        cpuDescription: '4.5 GHz',
+      },
+    },
+    os: 'macos',
+    isPromoted: true,
+    availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
+  },
   {
     id: 'standard',
     name: 'Standard',
@@ -222,12 +269,12 @@ const machines: MachineType[] = [
 
 const groupedMachines: MachineTypeGroup[] = [
   {
-    label: 'Available on your plan',
-    machines: machines.filter((machine) => !machine.isPromoted),
+    label: 'Machine classes',
+    machines: machines.filter((machine) => machineTypeHardwareVariesByRegion(machine)),
   },
   {
-    label: 'Available on other plans',
-    machines: machines.filter((machine) => machine.isPromoted),
+    label: 'Machine types',
+    machines: machines.filter((machine) => !machineTypeHardwareVariesByRegion(machine)),
   },
 ];
 
@@ -306,7 +353,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -394,7 +458,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -634,7 +715,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -725,7 +823,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -834,7 +949,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -883,7 +1015,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -1049,7 +1198,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -1136,7 +1302,24 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Large (4 credits/min)',
+              isDisabled: true,
+              value: 'g2.mac.large',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -1156,11 +1339,6 @@ describe('StackAndMachineService', () => {
               isDisabled: false,
               value: 'mac-m3',
             },
-          ],
-        },
-        {
-          label: 'Available on other plans',
-          options: [
             {
               machineType: expect.any(Object),
               label: 'M4 (8 credits/min)',
@@ -1177,7 +1355,10 @@ describe('StackAndMachineService', () => {
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
-        groupedMachines: groupedMachines.filter((group) => group.machines.every((machine) => !machine.isPromoted)),
+        groupedMachines: groupedMachines.map((group) => ({
+          ...group,
+          machines: group.machines.filter((machine) => !machine.isPromoted),
+        })),
         defaultMachines,
         projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
@@ -1197,7 +1378,18 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Available on your plan',
+          label: 'Machine classes',
+          options: [
+            {
+              machineType: expect.any(Object),
+              label: 'Mac Medium (2 credits/min)',
+              isDisabled: false,
+              value: 'g2.mac.medium',
+            },
+          ],
+        },
+        {
+          label: 'Machine types',
           options: [
             {
               machineType: expect.any(Object),
@@ -1284,7 +1476,24 @@ describe('StackAndMachineService', () => {
         // Machine type options
         expect(result.machineOptionGroups).toEqual([
           {
-            label: 'Available on your plan',
+            label: 'Machine classes',
+            options: [
+              {
+                machineType: expect.any(Object),
+                label: 'Mac Medium (2 credits/min)',
+                isDisabled: false,
+                value: 'g2.mac.medium',
+              },
+              {
+                machineType: expect.any(Object),
+                label: 'Mac Large (4 credits/min)',
+                isDisabled: true,
+                value: 'g2.mac.large',
+              },
+            ],
+          },
+          {
+            label: 'Machine types',
             options: [
               {
                 machineType: expect.any(Object),
@@ -1304,11 +1513,6 @@ describe('StackAndMachineService', () => {
                 isDisabled: false,
                 value: 'mac-m3',
               },
-            ],
-          },
-          {
-            label: 'Available on other plans',
-            options: [
               {
                 machineType: expect.any(Object),
                 label: 'M4 (8 credits/min)',
@@ -1377,7 +1581,24 @@ describe('StackAndMachineService', () => {
         // Machine type options
         expect(result.machineOptionGroups).toEqual([
           {
-            label: 'Available on your plan',
+            label: 'Machine classes',
+            options: [
+              {
+                machineType: expect.any(Object),
+                label: 'Mac Medium (2 credits/min)',
+                isDisabled: false,
+                value: 'g2.mac.medium',
+              },
+              {
+                machineType: expect.any(Object),
+                label: 'Mac Large (4 credits/min)',
+                isDisabled: true,
+                value: 'g2.mac.large',
+              },
+            ],
+          },
+          {
+            label: 'Machine types',
             options: [
               {
                 machineType: expect.any(Object),
@@ -1397,11 +1618,6 @@ describe('StackAndMachineService', () => {
                 isDisabled: false,
                 value: 'mac-m3',
               },
-            ],
-          },
-          {
-            label: 'Available on other plans',
-            options: [
               {
                 machineType: expect.any(Object),
                 label: 'M4 (8 credits/min)',
