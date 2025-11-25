@@ -31,7 +31,6 @@ export type StackOptionGroup = {
   options: StackOption[];
 };
 
-export type MachineStatus = 'available' | 'promoted' | 'unknown';
 export type MachineOS = StackOS;
 
 export type MachineTypeInfo = {
@@ -53,19 +52,17 @@ export type MachineType = {
 
 export type MachineTypeGroup = {
   label: string;
-  status: MachineStatus;
   machines: MachineType[];
 };
 
 export type MachineTypeOption = {
   value: string;
+  isDisabled?: boolean;
   label: string;
   machineType: MachineType;
-  status: MachineStatus;
 };
 
 export type MachineTypeOptionGroup = {
   label: string;
-  status: MachineStatus;
   options: MachineTypeOption[];
 };

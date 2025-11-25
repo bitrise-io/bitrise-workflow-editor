@@ -40,7 +40,7 @@ const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
   });
 };
 
-const renderOptions = (machineTypeOptions: MachineTypeOption[], isDisabled?: boolean) => {
+const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
   return machineTypeOptions.map(({ machineType, value, label }) => {
     const iconName = getIconName(machineType.os);
 
@@ -61,7 +61,7 @@ const renderOptions = (machineTypeOptions: MachineTypeOption[], isDisabled?: boo
         value={value}
         title={label}
         subtitle={subtitle}
-        isDisabled={isDisabled}
+        isDisabled={machineType.isPromoted}
         icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
       />
     );
@@ -100,7 +100,7 @@ const MachineTypeSelector = ({
   const hardwareVariesByRegion = useMemo(() => machineTypeHardwareVariesByRegion(machineType), [machineType]);
 
   const toggletip = (icon: ReactNode) => {
-    if (!optionGroups.find((group) => group.status === 'promoted')) {
+    if (!optionGroups.find((group) => group.options.find((option) => option.isDisabled))) {
       return null;
     }
 
@@ -168,7 +168,7 @@ const MachineTypeSelector = ({
         <>
           {optionGroups.map((group) => (
             <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-              {renderOptions(group.options, group.status === 'promoted')}
+              {renderOptions(group.options)}
             </DropdownGroup>
           ))}
         </>

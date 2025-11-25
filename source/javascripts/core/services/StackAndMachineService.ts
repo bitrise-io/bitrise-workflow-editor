@@ -5,7 +5,6 @@ import { Document } from 'yaml';
 import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
 import {
-  MachineStatus,
   MachineType,
   MachineTypeOption,
   MachineTypeOptionGroup,
@@ -102,7 +101,7 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-function toMachineOption(machine: MachineType, status: MachineStatus): MachineTypeOption {
+function toMachineOption(machine: MachineType): MachineTypeOption {
   const { creditPerMinute, name } = machine;
   let label = `${name}`;
 
@@ -112,9 +111,9 @@ function toMachineOption(machine: MachineType, status: MachineStatus): MachineTy
 
   return {
     machineType: machine,
+    isDisabled: machine.isPromoted,
     value: machine.id,
     label,
-    status,
   };
 }
 
@@ -182,8 +181,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     })),
     machineOptionGroups: groupedMachines.map((group) => ({
       label: group.label,
-      status: group.status,
-      options: group.machines.map((m) => toMachineOption(m, group.status)),
+      options: group.machines.map((m) => toMachineOption(m)),
     })),
   };
 
@@ -245,7 +243,10 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   }));
 
   // Machine selection logic
-  const availableMachineTypes = groupedMachines.find((group) => group.status === 'available')?.machines || [];
+  const availableMachineTypes = groupedMachines.reduce<MachineType[]>((acc, group) => {
+    acc.push(...group.machines.filter(({ isPromoted }) => !isPromoted));
+    return acc;
+  }, []);
   const selectableMachines = getMachinesOfStack(availableMachineTypes, result.selectedStack);
   const selectableDefaultMachines = getMachinesOfStack(defaultMachines, result.selectedStack);
 
@@ -262,8 +263,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.machineOptionGroups = [
       {
         label: 'Self-Hosted Runner',
-        status: 'available',
-        options: [toMachineOption(result.selectedMachineType, 'available')],
+        options: [toMachineOption(result.selectedMachineType)],
       },
     ];
     return result;
@@ -281,8 +281,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.machineOptionGroups = [
       {
         label: 'Dedicated Machine',
-        status: 'available',
-        options: [toMachineOption(result.selectedMachineType, 'available')],
+        options: [toMachineOption(result.selectedMachineType)],
       },
     ];
     return result;
@@ -301,26 +300,24 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     if (defaultMachineType) {
       result.machineOptionGroups.unshift({
         label: 'Default Machine',
-        status: 'available',
         options: [
           {
             value: '',
+            isDisabled: false,
             label: `Default (${defaultMachineType.name})`,
             machineType: defaultMachineType,
-            status: 'available',
           },
         ],
       });
     } else if (defaultMachineTypeOfOS) {
       result.machineOptionGroups.unshift({
         label: `Default Machine`,
-        status: 'available',
         options: [
           {
             value: '',
+            isDisabled: false,
             label: `Default (${defaultMachineTypeOfOS.name})`,
             machineType: defaultMachineTypeOfOS,
-            status: 'available',
           },
         ],
       });
@@ -355,8 +352,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     // Add the invalid machine type to the available options
     result.machineOptionGroups.unshift({
       label: 'Invalid Machine',
-      status: 'unknown',
-      options: [toMachineOption(result.selectedMachineType, 'unknown')],
+      options: [toMachineOption(result.selectedMachineType)],
     });
   } else if (selectedMachineType) {
     result.selectedMachineType = {

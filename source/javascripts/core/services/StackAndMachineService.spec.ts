@@ -223,12 +223,10 @@ const machines: MachineType[] = [
 const groupedMachines: MachineTypeGroup[] = [
   {
     label: 'Available on your plan',
-    status: 'available',
     machines: machines.filter((machine) => !machine.isPromoted),
   },
   {
     label: 'Available on other plans',
-    status: 'promoted',
     machines: machines.filter((machine) => machine.isPromoted),
   },
 ];
@@ -298,30 +296,28 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m1',
             },
             {
               machineType: expect.any(Object),
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m2',
             },
           ],
@@ -388,30 +384,28 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m1',
             },
             {
               machineType: expect.any(Object),
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m2',
             },
           ],
@@ -485,13 +479,12 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          status: 'unknown',
           options: [
             {
+              isDisabled: false,
               machineType: expect.any(Object),
               value: '',
               label: 'Invalid Machine',
-              status: 'unknown',
             },
           ],
         },
@@ -559,13 +552,12 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          status: 'unknown',
           options: [
             {
+              isDisabled: false,
               machineType: expect.any(Object),
               value: 'mac-m1',
               label: 'Invalid Machine',
-              status: 'unknown',
             },
           ],
         },
@@ -632,30 +624,28 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m1',
             },
             {
               machineType: expect.any(Object),
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m2',
             },
           ],
@@ -725,31 +715,29 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: 'mac-m1',
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
             },
             {
               machineType: expect.any(Object),
               value: 'mac-m2',
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
@@ -825,43 +813,40 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          status: 'unknown',
           options: [
             {
               machineType: expect.any(Object),
               value: 'mac-intel',
               label: 'Invalid Machine (mac-intel)',
-              status: 'unknown',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: 'mac-m1',
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
             },
             {
               machineType: expect.any(Object),
               value: 'mac-m2',
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
@@ -888,31 +873,29 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          status: 'unknown',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Invalid Default Machine (mac-intel)',
-              status: 'unknown',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: 'mac-m1',
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
             },
             {
               machineType: expect.any(Object),
               value: 'mac-m2',
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
@@ -982,13 +965,12 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Self-Hosted Runner',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Self-Hosted Runner',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
@@ -1057,30 +1039,28 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m1',
             },
             {
               machineType: expect.any(Object),
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m2',
             },
           ],
@@ -1119,13 +1099,12 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Dedicated Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Dedicated Machine',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
@@ -1147,48 +1126,45 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m1',
             },
             {
               machineType: expect.any(Object),
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m2',
             },
             {
               machineType: expect.any(Object),
               label: 'M3 (4 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m3',
             },
           ],
         },
         {
           label: 'Available on other plans',
-          status: 'promoted',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M4 (8 credits/min)',
-              status: 'promoted',
+              isDisabled: true,
               value: 'mac-m4',
             },
           ],
@@ -1201,7 +1177,7 @@ describe('StackAndMachineService', () => {
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
-        groupedMachines: groupedMachines.filter((group) => group.status !== 'promoted'),
+        groupedMachines: groupedMachines.filter((group) => group.machines.every((machine) => !machine.isPromoted)),
         defaultMachines,
         projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
@@ -1211,36 +1187,34 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               value: '',
               label: 'Default (M1)',
-              status: 'available',
+              isDisabled: false,
             },
           ],
         },
         {
           label: 'Available on your plan',
-          status: 'available',
           options: [
             {
               machineType: expect.any(Object),
               label: 'M1 (2 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m1',
             },
             {
               machineType: expect.any(Object),
               label: 'M2 (3 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m2',
             },
             {
               machineType: expect.any(Object),
               label: 'M3 (4 credits/min)',
-              status: 'available',
+              isDisabled: false,
               value: 'mac-m3',
             },
           ],
@@ -1311,36 +1285,34 @@ describe('StackAndMachineService', () => {
         expect(result.machineOptionGroups).toEqual([
           {
             label: 'Available on your plan',
-            status: 'available',
             options: [
               {
                 machineType: expect.any(Object),
                 label: 'M1 (2 credits/min)',
-                status: 'available',
+                isDisabled: false,
                 value: 'mac-m1',
               },
               {
                 machineType: expect.any(Object),
                 label: 'M2 (3 credits/min)',
-                status: 'available',
+                isDisabled: false,
                 value: 'mac-m2',
               },
               {
                 machineType: expect.any(Object),
                 label: 'M3 (4 credits/min)',
-                status: 'available',
+                isDisabled: false,
                 value: 'mac-m3',
               },
             ],
           },
           {
             label: 'Available on other plans',
-            status: 'promoted',
             options: [
               {
                 machineType: expect.any(Object),
                 label: 'M4 (8 credits/min)',
-                status: 'promoted',
+                isDisabled: true,
                 value: 'mac-m4',
               },
             ],
@@ -1406,36 +1378,34 @@ describe('StackAndMachineService', () => {
         expect(result.machineOptionGroups).toEqual([
           {
             label: 'Available on your plan',
-            status: 'available',
             options: [
               {
                 machineType: expect.any(Object),
                 label: 'M1 (2 credits/min)',
-                status: 'available',
+                isDisabled: false,
                 value: 'mac-m1',
               },
               {
                 machineType: expect.any(Object),
                 label: 'M2 (3 credits/min)',
-                status: 'available',
+                isDisabled: false,
                 value: 'mac-m2',
               },
               {
                 machineType: expect.any(Object),
                 label: 'M3 (4 credits/min)',
-                status: 'available',
+                isDisabled: false,
                 value: 'mac-m3',
               },
             ],
           },
           {
             label: 'Available on other plans',
-            status: 'promoted',
             options: [
               {
                 machineType: expect.any(Object),
                 label: 'M4 (8 credits/min)',
-                status: 'promoted',
+                isDisabled: true,
                 value: 'mac-m4',
               },
             ],

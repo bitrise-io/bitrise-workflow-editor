@@ -1,4 +1,4 @@
-import { MachineStatus, MachineType, MachineTypeInfo, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
+import { MachineType, MachineTypeInfo, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
 import Client from './client';
 
 type StackApiItem = {
@@ -50,7 +50,6 @@ type MachineTypeInfoApi = {
 
 type MachineGroupApiItem = {
   label: string;
-  status: MachineStatus;
   machines: MachineApiItem[];
 };
 
@@ -158,10 +157,13 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const groupedMachines =
     response.grouped_machines?.map((group) => ({
       label: group.label,
-      status: group.status,
       machines: group.machines.map(toMachineType),
     })) ?? [];
-  const availableMachines = groupedMachines.filter((g) => g.status === 'available').flatMap((group) => group.machines);
+  const availableMachines =
+    groupedMachines.reduce<MachineType[]>((acc, group) => {
+      acc.push(...group.machines.filter(({ isPromoted }) => !isPromoted));
+      return acc;
+    }, []) || [];
 
   return {
     availableStacks,

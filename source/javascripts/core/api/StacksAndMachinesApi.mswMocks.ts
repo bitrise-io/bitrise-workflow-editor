@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
 
-import { MachineStatus, StackStatus } from '../models/StackAndMachine';
+import { StackStatus } from '../models/StackAndMachine';
 import StacksAndMachinesApi, { MachineApiItem, MachineGroupApiItem, StackGroupApiItem } from './StacksAndMachinesApi';
 
 type Options = {
@@ -203,7 +203,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
   return [
     {
       label: 'Available Machines',
-      status: 'available' as MachineStatus,
       machines: [
         ...DEFAULT_MACHINES,
         {
@@ -362,7 +361,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
     },
     {
       label: 'Promoted Machines',
-      status: 'promoted' as MachineStatus,
       machines: [
         {
           id: 'machine-y1',
