@@ -62,14 +62,14 @@ const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
   });
 };
 
-const renderFormLabel = (machineType: MachineTypeWithValue) => {
+const renderFormLabel = (machineTypeOption: MachineTypeOption) => {
+  const { label, machineType } = machineTypeOption;
   const iconName = getIconName(machineType.os);
 
   return (
     <Box display="flex" gap={12} alignItems="center">
       {iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
-      {machineType.name}
-      {machineType.creditPerMinute ? ` (${machineType.creditPerMinute} credits/min)` : undefined}
+      {label}
     </Box>
   );
 };
@@ -141,11 +141,23 @@ const MachineTypeSelector = ({
     );
   };
 
+  let selectedOption: MachineTypeOption | null = null;
+  optionGroups.forEach((group) => {
+    group.options.forEach((option) => {
+      if (option.value !== machineType.value) {
+        return;
+      }
+
+      selectedOption = option;
+      return;
+    });
+  });
+
   return (
     <Dropdown
       {...boxProps}
       flex="1"
-      formLabel={renderFormLabel(machineType)}
+      formLabel={selectedOption && renderFormLabel(selectedOption)}
       required
       search={false}
       label="Machine type"

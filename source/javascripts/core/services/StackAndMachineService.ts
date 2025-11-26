@@ -102,19 +102,22 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-function toMachineOption(machine: MachineType): MachineTypeOption {
-  const { creditPerMinute, name } = machine;
-  let label = `${name}`;
+export const machineTypeLabel = (machineType: MachineType) => {
+  let label = `${machineType.name}`;
 
-  if (creditPerMinute) {
-    label += ` (${creditPerMinute} credits/min)`;
+  if (machineType.creditPerMinute) {
+    label += ` (${machineType.creditPerMinute} credits/min)`;
   }
 
+  return label;
+};
+
+function toMachineOption(machine: MachineType): MachineTypeOption {
   return {
     machineType: machine,
     isDisabled: machine.isPromoted,
     value: machine.id,
-    label,
+    label: machineTypeLabel(machine),
   };
 }
 
@@ -208,7 +211,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
       options: [
         {
           value: '',
-          label: `Default (${defaultStack.name})`,
+          label: `Default - ${defaultStack.name}`,
           status: defaultStack.status,
           os: defaultStack.os,
         },
@@ -224,9 +227,9 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     // Create the invalid dummy Stack object
     let name: string;
     if (isInvalidStack) {
-      name = `Invalid Stack (${selectedStackId})`;
+      name = `Invalid Stack - ${selectedStackId}`;
     } else {
-      name = `Invalid Default Stack (${projectStackId})`;
+      name = `Invalid Default Stack - ${projectStackId}`;
     }
     result.selectedStack = createStack({
       id: selectedStackId,
@@ -315,7 +318,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           {
             value: '',
             isDisabled: false,
-            label: `Default (${defaultMachineType.name})`,
+            label: `Default - ${machineTypeLabel(defaultMachineType)}`,
             machineType: defaultMachineType,
           },
         ],
@@ -327,7 +330,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           {
             value: '',
             isDisabled: false,
-            label: `Default (${defaultMachineTypeOfOS.name})`,
+            label: `Default - ${machineTypeLabel(defaultMachineTypeOfOS)}`,
             machineType: defaultMachineTypeOfOS,
           },
         ],
@@ -349,9 +352,9 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     if (isInvalidStack || isInvalidDefaultStack) {
       name = 'Invalid Machine';
     } else if (isInvalidMachineType) {
-      name = `Invalid Machine (${selectedMachineTypeId})`;
+      name = `Invalid Machine - ${selectedMachineTypeId}`;
     } else {
-      name = `Invalid Default Machine (${projectMachineTypeId})`;
+      name = `Invalid Default Machine - ${projectMachineTypeId}`;
     }
     result.selectedMachineType = createMachineType({
       id: selectedMachineTypeId,

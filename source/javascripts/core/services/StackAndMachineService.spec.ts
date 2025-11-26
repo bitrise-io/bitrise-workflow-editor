@@ -307,7 +307,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -347,7 +347,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -412,7 +412,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default - Xcode 16.0.x', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -452,7 +452,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -507,7 +507,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidStack).toBe(true);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'Invalid Stack (osx-xcode-11)' }),
+        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'Invalid Stack - osx-xcode-11' }),
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
@@ -519,12 +519,12 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack (osx-xcode-11)', status: 'unknown', os: 'unknown' }],
+          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack - osx-xcode-11', status: 'unknown', os: 'unknown' }],
         },
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ label: 'Default (Xcode 15.0.x)', value: '', status: 'stable', os: 'macos' }],
+          options: [{ label: 'Default - Xcode 15.0.x', value: '', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -585,7 +585,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidStack).toBe(true);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Stack (osx-xcode-11)' }),
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Stack - osx-xcode-11' }),
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
@@ -597,7 +597,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Default Stack (osx-xcode-11)', status: 'unknown', os: 'unknown' }],
+          options: [{ value: '', label: 'Invalid Default Stack - osx-xcode-11', status: 'unknown', os: 'unknown' }],
         },
         {
           label: 'Edge Stacks',
@@ -669,7 +669,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -709,7 +709,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -777,7 +777,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -817,7 +817,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -877,7 +877,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Invalid Machine (mac-intel)' }),
+        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Invalid Machine - mac-intel' }),
       );
 
       // Stack options
@@ -888,7 +888,7 @@ describe('StackAndMachineService', () => {
           options: [
             {
               value: '',
-              label: 'Default (Xcode 15.0.x)',
+              label: 'Default - Xcode 15.0.x',
               status: 'stable',
               os: 'macos',
             },
@@ -932,7 +932,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: 'mac-intel',
-              label: 'Invalid Machine (mac-intel)',
+              label: 'Invalid Machine - mac-intel',
               isDisabled: false,
             },
           ],
@@ -943,7 +943,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -998,7 +998,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Machine (mac-intel)' }),
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Machine - mac-intel' }),
       );
 
       // Machine type options
@@ -1009,7 +1009,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Invalid Default Machine (mac-intel)',
+              label: 'Invalid Default Machine - mac-intel',
               isDisabled: false,
             },
           ],
@@ -1077,7 +1077,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -1151,7 +1151,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -1192,7 +1192,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -1296,7 +1296,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
@@ -1372,7 +1372,7 @@ describe('StackAndMachineService', () => {
             {
               machineType: expect.any(Object),
               value: '',
-              label: 'Default (M1)',
+              label: 'Default - M1 (2 credits/min)',
               isDisabled: false,
             },
           ],
