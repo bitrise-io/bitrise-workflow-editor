@@ -68,7 +68,8 @@ const renderFormLabel = (machineType: MachineTypeWithValue) => {
   return (
     <Box display="flex" gap={12} alignItems="center">
       {iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
-      {`${machineType.name} (${machineType.creditPerMinute} credits/min)`}
+      {machineType.name}
+      {machineType.creditPerMinute ? ` (${machineType.creditPerMinute} credits/min)` : undefined}
     </Box>
   );
 };

@@ -106,7 +106,7 @@ function toMachineOption(machine: MachineType): MachineTypeOption {
   const { creditPerMinute, name } = machine;
   let label = `${name}`;
 
-  if (creditPerMinute !== undefined) {
+  if (creditPerMinute) {
     label += ` (${creditPerMinute} credits/min)`;
   }
 
