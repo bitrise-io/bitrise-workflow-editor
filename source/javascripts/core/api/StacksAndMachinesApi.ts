@@ -117,7 +117,7 @@ function toMachineType(item: MachineApiItem): MachineType {
       availableInRegions[regionId] = {
         cpuCount: regionInfo.cpu_count,
         cpuDescription: regionInfo.cpu_description,
-        name: item.name,
+        name: regionInfo.name,
         ram: regionInfo.ram,
       };
     });
