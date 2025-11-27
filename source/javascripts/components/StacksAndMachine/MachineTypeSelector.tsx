@@ -11,12 +11,8 @@ import {
 } from '@bitrise/bitkit';
 import { ReactNode, useMemo } from 'react';
 
-import { MachineTypeInfo, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
-import {
-  machineTypeHardwareVariesByRegion,
-  MachineTypeWithValue,
-  regionNames,
-} from '@/core/services/StackAndMachineService';
+import { MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
+import { machineTypeHardwareVariesByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
@@ -30,10 +26,6 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
   }
 };
 
-const machineTypeInfoText = ({ name, cpuCount, cpuDescription, ram }: MachineTypeInfo) => {
-  return `${name} ${cpuCount}@${cpuDescription} ${ram}`;
-};
-
 const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
   return machineTypeOptions.map(({ machineType, value, label }) => {
     const iconName = getIconName(machineType.os);
@@ -41,12 +33,12 @@ const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
     let subtitle = '';
     if (machineTypeHardwareVariesByRegion(machineType)) {
       subtitle = Object.entries(machineType.availableInRegions)
-        .map(([regionId, machineTypeInfo]) => {
-          return `${regionNames[regionId]}: ${machineTypeInfoText(machineTypeInfo)}`;
+        .map(([regionName, machineTypeInfoText]) => {
+          return `${regionName}: ${machineTypeInfoText}`;
         })
         .join(`\n`);
     } else if (Object.values(machineType.availableInRegions).length > 0) {
-      subtitle = machineTypeInfoText(Object.values(machineType.availableInRegions)[0]);
+      subtitle = Object.values(machineType.availableInRegions)[0];
     }
 
     return (
@@ -120,13 +112,13 @@ const MachineTypeSelector = ({
       return (
         <Box as="span" display="flex" flexDir="column" gap={8}>
           <Text as="span">Machine types may vary depending on high demand.</Text>
-          {Object.entries(machineType.availableInRegions).map(([regionId, machineTypeInfo]) => {
+          {Object.entries(machineType.availableInRegions).map(([regionName, machineTypeInfoText]) => {
             return (
-              <Text as="span" color="input/text/helper" key={regionId} textStyle="body/sm/regular">
+              <Text as="span" color="input/text/helper" key={regionName} textStyle="body/sm/regular">
                 <Text as="span" fontWeight="bold">
-                  {regionNames[regionId]}:
+                  {regionName}:
                 </Text>{' '}
-                {machineTypeInfoText(machineTypeInfo)}
+                {machineTypeInfoText}
               </Text>
             );
           })}
@@ -136,7 +128,7 @@ const MachineTypeSelector = ({
 
     return (
       <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
-        {machineTypeInfoText(Object.values(machineType.availableInRegions)[0])}
+        {Object.values(machineType.availableInRegions)[0]}
       </Text>
     );
   };

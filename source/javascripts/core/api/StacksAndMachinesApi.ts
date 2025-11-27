@@ -1,5 +1,15 @@
-import { MachineType, MachineTypeInfo, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
+import { MachineRegionName, MachineType, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
 import Client from './client';
+
+enum RegionID {
+  US = 'region-us',
+  EU = 'region-eu',
+}
+
+const regionNames: Record<string, MachineRegionName> = {
+  [RegionID.US]: MachineRegionName.US,
+  [RegionID.EU]: MachineRegionName.EU,
+};
 
 type StackApiItem = {
   id: string;
@@ -36,7 +46,7 @@ type MachineApiItemWithRegionArray = MachineApiItemCommon & {
 } & MachineTypeInfoApi;
 
 type MachineApiItemWithRegionMap = MachineApiItemCommon & {
-  available_in_regions: Record<string, MachineTypeInfoApi>;
+  available_in_regions: Partial<Record<string, MachineTypeInfoApi>>;
 };
 
 type MachineApiItem = MachineApiItemWithRegionArray | MachineApiItemWithRegionMap;
@@ -97,30 +107,36 @@ function toStack(item: StackApiItem): Stack {
   };
 }
 
+const toMachineTypeInfoText = (name: string, cpuCount: string, cpuDescription: string, ram: string) => {
+  return `${name} ${cpuCount}@${cpuDescription} ${ram}`;
+};
+
 function toMachineType(item: MachineApiItem): MachineType {
-  let availableInRegions: Record<string, MachineTypeInfo> = {};
+  let availableInRegions: Partial<Record<MachineRegionName, string>> = {};
 
   const isItemWithRegionArray = (anItem: MachineApiItem): anItem is MachineApiItemWithRegionArray =>
     Array.isArray(anItem.available_in_regions);
 
   if (isItemWithRegionArray(item)) {
     item.available_in_regions.forEach((regionId) => {
-      availableInRegions[regionId] = {
-        cpuCount: item.cpu_count,
-        cpuDescription: item.cpu_description,
-        name: item.name,
-        ram: item.ram,
-      };
+      availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
+        item.name,
+        item.cpu_count,
+        item.cpu_description,
+        item.ram,
+      );
     });
   } else {
-    Object.entries(item.available_in_regions).forEach(([regionId, regionInfo]) => {
-      availableInRegions[regionId] = {
-        cpuCount: regionInfo.cpu_count,
-        cpuDescription: regionInfo.cpu_description,
-        name: regionInfo.name,
-        ram: regionInfo.ram,
-      };
-    });
+    (Object.entries(item.available_in_regions) as [RegionID, MachineTypeInfoApi][]).forEach(
+      ([regionId, regionInfo]) => {
+        availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
+          regionInfo.name,
+          regionInfo.cpu_count,
+          regionInfo.cpu_description,
+          regionInfo.ram,
+        );
+      },
+    );
   }
 
   return {

@@ -33,6 +33,11 @@ export type StackOptionGroup = {
 
 export type MachineOS = StackOS;
 
+export enum MachineRegionName {
+  US = 'US',
+  EU = 'EU',
+}
+
 export type MachineTypeInfo = {
   cpuCount: string;
   cpuDescription: string;
@@ -46,7 +51,7 @@ export type MachineType = {
   os: MachineOS;
   name: string;
   isPromoted: boolean;
-  availableInRegions: Record<string, MachineTypeInfo>;
+  availableInRegions: Partial<Record<MachineRegionName, string>>;
   availableOnStacks?: string[];
 };
 

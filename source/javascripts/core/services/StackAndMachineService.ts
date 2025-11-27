@@ -6,7 +6,6 @@ import StacksAndMachinesApi from '../api/StacksAndMachinesApi';
 import { Meta } from '../models/BitriseYml';
 import {
   MachineType,
-  MachineTypeInfo,
   MachineTypeOption,
   MachineTypeOptionGroup,
   Stack,
@@ -16,11 +15,6 @@ import {
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
-
-export const regionNames: Record<string, string> = {
-  'region-us': 'US',
-  'region-eu': 'EU',
-};
 
 type FieldKeys = keyof Required<Meta>['bitrise.io'];
 
@@ -124,10 +118,8 @@ function toMachineOption(machine: MachineType): MachineTypeOption {
 export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
   const { availableInRegions } = machineType;
 
-  return Object.values(availableInRegions).some((machineTypeInfo) => {
-    return Object.entries(machineTypeInfo).some(([key, value]) => {
-      return value !== availableInRegions[Object.keys(availableInRegions)[0]][key as keyof MachineTypeInfo];
-    });
+  return Object.values(availableInRegions).some((machineTypeInfoText) => {
+    return machineTypeInfoText !== Object.values(availableInRegions)[0];
   });
 };
 

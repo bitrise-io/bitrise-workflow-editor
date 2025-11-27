@@ -98,18 +98,8 @@ const machines: MachineType[] = [
     name: 'Mac Medium',
     creditPerMinute: 2,
     availableInRegions: {
-      'region-us': {
-        name: 'Mac Medium US',
-        ram: '8GB',
-        cpuCount: '4 CPU',
-        cpuDescription: '3.5 GHz',
-      },
-      'region-eu': {
-        name: 'Mac Medium EU',
-        ram: '12GB',
-        cpuCount: '6 CPU',
-        cpuDescription: '4.5 GHz',
-      },
+      US: 'Mac Medium US 4 CPU@3.5 GHz 8GB',
+      EU: 'Mac Medium EU 6 CPU@4.5 GHz 12GB',
     },
     os: 'macos',
     isPromoted: false,
@@ -120,18 +110,8 @@ const machines: MachineType[] = [
     name: 'Mac Large',
     creditPerMinute: 4,
     availableInRegions: {
-      'region-us': {
-        name: 'Mac Large US',
-        ram: '16GB',
-        cpuCount: '8 CPU',
-        cpuDescription: '3.5 GHz',
-      },
-      'region-eu': {
-        name: 'Mac Large EU',
-        ram: '20GB',
-        cpuCount: '12 CPU',
-        cpuDescription: '4.5 GHz',
-      },
+      US: 'Mac Large US 8 CPU@3.5 GHz 16GB',
+      EU: 'Mac Large EU 12 CPU@4.5 GHz 20GB',
     },
     os: 'macos',
     isPromoted: true,
@@ -142,12 +122,7 @@ const machines: MachineType[] = [
     name: 'Standard',
     creditPerMinute: 1,
     availableInRegions: {
-      'region-us': {
-        name: 'Standard',
-        ram: '8GB',
-        cpuCount: '4 CPU',
-        cpuDescription: '3.5 GHz',
-      },
+      US: 'Standard 4 CPU@3.5 GHz 8GB',
     },
     os: 'linux',
     isPromoted: false,
@@ -158,12 +133,7 @@ const machines: MachineType[] = [
     name: 'Elite',
     creditPerMinute: 1,
     availableInRegions: {
-      'region-us': {
-        name: 'Elite',
-        ram: '16GB',
-        cpuCount: '8 CPU',
-        cpuDescription: '4.0 GHz',
-      },
+      US: 'Elite 8 CPU@4.0 GHz 16GB',
     },
     os: 'linux',
     isPromoted: false,
@@ -174,12 +144,7 @@ const machines: MachineType[] = [
     name: 'M1',
     creditPerMinute: 2,
     availableInRegions: {
-      'region-us': {
-        name: 'M1',
-        ram: '16GB',
-        cpuCount: '8 CPU',
-        cpuDescription: '3.5 GHz',
-      },
+      US: 'M1 8 CPU@3.5 GHz 16GB',
     },
     os: 'macos',
     isPromoted: false,
@@ -190,12 +155,7 @@ const machines: MachineType[] = [
     name: 'M2',
     creditPerMinute: 3,
     availableInRegions: {
-      'region-us': {
-        name: 'M2',
-        ram: '24GB',
-        cpuCount: '12 CPU',
-        cpuDescription: '4.0 GHz',
-      },
+      US: 'M2 12 CPU@4.0 GHz 24GB',
     },
     os: 'macos',
     isPromoted: false,
@@ -206,12 +166,7 @@ const machines: MachineType[] = [
     name: 'M3',
     creditPerMinute: 4,
     availableInRegions: {
-      'region-us': {
-        name: 'M3',
-        ram: '32GB',
-        cpuCount: '16 CPU',
-        cpuDescription: '4.5 GHz',
-      },
+      US: 'M3 16 CPU@4.5 GHz 32GB',
     },
     os: 'macos',
     isPromoted: false,
@@ -222,12 +177,7 @@ const machines: MachineType[] = [
     name: 'M4',
     creditPerMinute: 8,
     availableInRegions: {
-      'region-us': {
-        name: 'M4',
-        ram: '64GB',
-        cpuCount: '24 CPU',
-        cpuDescription: '4.5 GHz',
-      },
+      US: 'M4 24 CPU@4.5 GHz 64GB',
     },
     os: 'macos',
     isPromoted: true,
@@ -238,12 +188,7 @@ const machines: MachineType[] = [
     name: 'XL',
     creditPerMinute: 8,
     availableInRegions: {
-      'region-us': {
-        name: 'XL',
-        ram: '64GB',
-        cpuCount: '32 CPU',
-        cpuDescription: '4.5 GHz',
-      },
+      US: 'XL 32 CPU@4.5 GHz 64GB',
     },
     os: 'linux',
     isPromoted: true,
@@ -254,12 +199,7 @@ const machines: MachineType[] = [
     name: 'Joker',
     creditPerMinute: 16,
     availableInRegions: {
-      'region-us': {
-        name: 'Joker',
-        ram: '128GB',
-        cpuCount: '64 CPU',
-        cpuDescription: '5.0 GHz',
-      },
+      US: 'Joker 64 CPU@5.0 GHz 128GB',
     },
     os: 'unknown',
     isPromoted: true,
