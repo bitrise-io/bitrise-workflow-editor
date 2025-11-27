@@ -285,9 +285,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -296,14 +297,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -313,14 +316,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
@@ -390,9 +395,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -401,14 +407,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -418,14 +426,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
@@ -502,10 +512,11 @@ describe('StackAndMachineService', () => {
           label: 'Invalid Machine',
           options: [
             {
+              os: 'unknown',
               isDisabled: false,
-              machineType: expect.any(Object),
               value: '',
               label: 'Invalid Machine',
+              subtitle: '',
             },
           ],
         },
@@ -575,10 +586,11 @@ describe('StackAndMachineService', () => {
           label: 'Invalid Machine',
           options: [
             {
+              os: 'unknown',
               isDisabled: false,
-              machineType: expect.any(Object),
               value: 'mac-m1',
               label: 'Invalid Machine',
+              subtitle: '',
             },
           ],
         },
@@ -647,9 +659,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -658,14 +671,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -675,14 +690,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
@@ -755,9 +772,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -766,14 +784,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -783,15 +803,17 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: 'mac-m1',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: 'mac-m2',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
             },
           ],
@@ -870,9 +892,10 @@ describe('StackAndMachineService', () => {
           label: 'Invalid Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'unknown',
               value: 'mac-intel',
               label: 'Invalid Machine - mac-intel',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -881,9 +904,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -892,14 +916,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -909,15 +935,17 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: 'mac-m1',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: 'mac-m2',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
             },
           ],
@@ -947,9 +975,10 @@ describe('StackAndMachineService', () => {
           label: 'Invalid Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'unknown',
               value: '',
               label: 'Invalid Default Machine - mac-intel',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -958,14 +987,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -975,15 +1006,17 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: 'mac-m1',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: 'mac-m2',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
             },
           ],
@@ -1056,9 +1089,10 @@ describe('StackAndMachineService', () => {
           label: 'Self-Hosted Runner',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'unknown',
               value: '',
               label: 'Self-Hosted Runner',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -1130,9 +1164,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -1141,14 +1176,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -1158,14 +1195,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
@@ -1207,9 +1246,10 @@ describe('StackAndMachineService', () => {
           label: 'Dedicated Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Dedicated Machine',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -1234,9 +1274,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -1245,14 +1286,16 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Large (4 credits/min)',
+              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
             },
@@ -1262,26 +1305,30 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M3 (4 credits/min)',
+              subtitle: 'M3 16 CPU@4.5 GHz 32GB',
               isDisabled: false,
               value: 'mac-m3',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M4 (8 credits/min)',
+              subtitle: 'M4 24 CPU@4.5 GHz 64GB',
               isDisabled: true,
               value: 'mac-m4',
             },
@@ -1310,9 +1357,10 @@ describe('StackAndMachineService', () => {
           label: 'Default Machine',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               value: '',
               label: 'Default - M1 (2 credits/min)',
+              subtitle: '',
               isDisabled: false,
             },
           ],
@@ -1321,8 +1369,9 @@ describe('StackAndMachineService', () => {
           label: 'Machine classes',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'Mac Medium (2 credits/min)',
+              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
@@ -1332,20 +1381,23 @@ describe('StackAndMachineService', () => {
           label: 'Machine types',
           options: [
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M1 (2 credits/min)',
+              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M2 (3 credits/min)',
+              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
             {
-              machineType: expect.any(Object),
+              os: 'macos',
               label: 'M3 (4 credits/min)',
+              subtitle: 'M3 16 CPU@4.5 GHz 32GB',
               isDisabled: false,
               value: 'mac-m3',
             },
@@ -1419,14 +1471,16 @@ describe('StackAndMachineService', () => {
             label: 'Machine classes',
             options: [
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'Mac Medium (2 credits/min)',
+                subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
                 isDisabled: false,
                 value: 'g2.mac.medium',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'Mac Large (4 credits/min)',
+                subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
                 isDisabled: true,
                 value: 'g2.mac.large',
               },
@@ -1436,26 +1490,30 @@ describe('StackAndMachineService', () => {
             label: 'Machine types',
             options: [
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M1 (2 credits/min)',
+                subtitle: 'M1 8 CPU@3.5 GHz 16GB',
                 isDisabled: false,
                 value: 'mac-m1',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M2 (3 credits/min)',
+                subtitle: 'M2 12 CPU@4.0 GHz 24GB',
                 isDisabled: false,
                 value: 'mac-m2',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M3 (4 credits/min)',
+                subtitle: 'M3 16 CPU@4.5 GHz 32GB',
                 isDisabled: false,
                 value: 'mac-m3',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M4 (8 credits/min)',
+                subtitle: 'M4 24 CPU@4.5 GHz 64GB',
                 isDisabled: true,
                 value: 'mac-m4',
               },
@@ -1524,14 +1582,16 @@ describe('StackAndMachineService', () => {
             label: 'Machine classes',
             options: [
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'Mac Medium (2 credits/min)',
+                subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
                 isDisabled: false,
                 value: 'g2.mac.medium',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'Mac Large (4 credits/min)',
+                subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
                 isDisabled: true,
                 value: 'g2.mac.large',
               },
@@ -1541,26 +1601,30 @@ describe('StackAndMachineService', () => {
             label: 'Machine types',
             options: [
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M1 (2 credits/min)',
+                subtitle: 'M1 8 CPU@3.5 GHz 16GB',
                 isDisabled: false,
                 value: 'mac-m1',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M2 (3 credits/min)',
+                subtitle: 'M2 12 CPU@4.0 GHz 24GB',
                 isDisabled: false,
                 value: 'mac-m2',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M3 (4 credits/min)',
+                subtitle: 'M3 16 CPU@4.5 GHz 32GB',
                 isDisabled: false,
                 value: 'mac-m3',
               },
               {
-                machineType: expect.any(Object),
+                os: 'macos',
                 label: 'M4 (8 credits/min)',
+                subtitle: 'M4 24 CPU@4.5 GHz 64GB',
                 isDisabled: true,
                 value: 'mac-m4',
               },

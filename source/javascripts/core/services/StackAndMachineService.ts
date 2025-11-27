@@ -106,15 +106,6 @@ export const machineTypeLabel = (machineType: MachineType) => {
   return label;
 };
 
-function toMachineOption(machine: MachineType): MachineTypeOption {
-  return {
-    machineType: machine,
-    isDisabled: machine.isPromoted,
-    value: machine.id,
-    label: machineTypeLabel(machine),
-  };
-}
-
 export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
   const { availableInRegions } = machineType;
 
@@ -122,6 +113,27 @@ export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
     return machineTypeInfoText !== Object.values(availableInRegions)[0];
   });
 };
+
+function toMachineOption(machine: MachineType): MachineTypeOption {
+  let subtitle = '';
+  if (machineTypeHardwareVariesByRegion(machine)) {
+    subtitle = Object.entries(machine.availableInRegions)
+      .map(([regionName, machineTypeInfoText]) => {
+        return `${regionName}: ${machineTypeInfoText}`;
+      })
+      .join(`\n`);
+  } else if (Object.values(machine.availableInRegions).length > 0) {
+    subtitle = Object.values(machine.availableInRegions)[0];
+  }
+
+  return {
+    isDisabled: machine.isPromoted,
+    label: machineTypeLabel(machine),
+    os: machine.os,
+    subtitle,
+    value: machine.id,
+  };
+}
 
 function createStack(override?: PartialDeep<StackWithValue>): StackWithValue {
   const base: StackWithValue = {
@@ -311,7 +323,8 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
             value: '',
             isDisabled: false,
             label: `Default - ${machineTypeLabel(defaultMachineType)}`,
-            machineType: defaultMachineType,
+            os: defaultMachineType.os,
+            subtitle: '',
           },
         ],
       });
@@ -323,7 +336,8 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
             value: '',
             isDisabled: false,
             label: `Default - ${machineTypeLabel(defaultMachineTypeOfOS)}`,
-            machineType: defaultMachineTypeOfOS,
+            os: defaultMachineTypeOfOS.os,
+            subtitle: '',
           },
         ],
       });

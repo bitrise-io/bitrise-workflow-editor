@@ -27,19 +27,8 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
 };
 
 const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
-  return machineTypeOptions.map(({ machineType, value, label }) => {
-    const iconName = getIconName(machineType.os);
-
-    let subtitle = '';
-    if (machineTypeHardwareVariesByRegion(machineType)) {
-      subtitle = Object.entries(machineType.availableInRegions)
-        .map(([regionName, machineTypeInfoText]) => {
-          return `${regionName}: ${machineTypeInfoText}`;
-        })
-        .join(`\n`);
-    } else if (Object.values(machineType.availableInRegions).length > 0) {
-      subtitle = Object.values(machineType.availableInRegions)[0];
-    }
+  return machineTypeOptions.map(({ isDisabled, label, os, subtitle, value }) => {
+    const iconName = getIconName(os);
 
     return (
       <DropdownDetailedOption
@@ -47,7 +36,7 @@ const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
         value={value}
         title={label}
         subtitle={subtitle}
-        isDisabled={machineType.isPromoted}
+        isDisabled={isDisabled}
         icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
       />
     );
@@ -55,8 +44,8 @@ const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
 };
 
 const renderFormLabel = (machineTypeOption: MachineTypeOption) => {
-  const { label, machineType } = machineTypeOption;
-  const iconName = getIconName(machineType.os);
+  const { label, os } = machineTypeOption;
+  const iconName = getIconName(os);
 
   return (
     <Box display="flex" gap={12} alignItems="center">
