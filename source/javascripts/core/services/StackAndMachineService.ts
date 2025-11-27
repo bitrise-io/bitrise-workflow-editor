@@ -96,7 +96,7 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-export const machineTypeLabel = (machineType: MachineType) => {
+export const toMachineTypeLabel = (machineType: MachineType) => {
   let label = `${machineType.name}`;
 
   if (machineType.creditPerMinute) {
@@ -128,7 +128,7 @@ function toMachineOption(machine: MachineType): MachineTypeOption {
 
   return {
     isDisabled: machine.isPromoted,
-    label: machineTypeLabel(machine),
+    label: toMachineTypeLabel(machine),
     os: machine.os,
     subtitle,
     value: machine.id,
@@ -319,7 +319,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           {
             value: '',
             isDisabled: false,
-            label: `Default - ${machineTypeLabel(defaultMachineType)}`,
+            label: `Default - ${toMachineTypeLabel(defaultMachineType)}`,
             os: defaultMachineType.os,
             subtitle: '',
           },
@@ -332,7 +332,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           {
             value: '',
             isDisabled: false,
-            label: `Default - ${machineTypeLabel(defaultMachineTypeOfOS)}`,
+            label: `Default - ${toMachineTypeLabel(defaultMachineTypeOfOS)}`,
             os: defaultMachineTypeOfOS.os,
             subtitle: '',
           },
