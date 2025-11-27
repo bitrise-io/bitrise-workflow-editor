@@ -91,6 +91,7 @@ const groupedStacks: StackGroup[] = [
     stacks: stacks.filter((stack) => stack.status === 'frozen'),
   },
 ];
+const availableStacks = groupedStacks.flatMap((group) => group.stacks);
 
 const machines: MachineType[] = [
   {
@@ -217,6 +218,7 @@ const groupedMachines: MachineTypeGroup[] = [
     machines: machines.filter((machine) => !machineTypeHardwareVariesByRegion(machine)),
   },
 ];
+const availableMachines = groupedMachines.flatMap((group) => group.machines.filter((machine) => !machine.isPromoted));
 
 const defaultMachines: MachineType[] = machines.filter(
   (machine) => machine.id === 'mac-m1' || machine.id === 'standard',
@@ -226,6 +228,8 @@ describe('StackAndMachineService', () => {
   describe('prepareStackAndMachineSelectionData', () => {
     it('returns the default stack when empty stack value is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -336,6 +340,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the selected stack when a valid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: 'osx-xcode-15.0.x',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -446,6 +452,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid stack when an invalid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: 'osx-xcode-11',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -525,6 +533,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid default stack when stack is not selected and default stack is invalid', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: 'mac-m1',
         groupedStacks,
@@ -599,6 +609,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the default machine type when empty machine type value is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -710,6 +722,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the selected machine type when a valid machine type is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: 'mac-m2',
         groupedStacks,
@@ -823,6 +837,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid machine type when an invalid machine type is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: 'mac-intel',
         groupedStacks,
@@ -955,6 +971,8 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid default machine type when machine type is not selected and default machine is invalid', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1026,6 +1044,8 @@ describe('StackAndMachineService', () => {
 
     it('returns self-hosted runner when agent pool is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: 'agent-pool-stack',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1102,6 +1122,8 @@ describe('StackAndMachineService', () => {
 
     it('returns machines for dedicated accounts with available machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1215,6 +1237,8 @@ describe('StackAndMachineService', () => {
 
     it('returns disabled selection for dedicated accounts with no available machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines: [],
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1259,6 +1283,8 @@ describe('StackAndMachineService', () => {
 
     it('returns promoted machine types when available', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1339,6 +1365,8 @@ describe('StackAndMachineService', () => {
 
     it('returns no promoted machine group, when there are no promoted machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1409,6 +1437,8 @@ describe('StackAndMachineService', () => {
     describe('withoutDefaultOptions', () => {
       it('returns the project stack and machine type when empty stack and machine type values are selected', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+          availableMachines,
+          availableStacks,
           selectedStackId: '',
           selectedMachineTypeId: '',
           groupedStacks,
@@ -1524,6 +1554,8 @@ describe('StackAndMachineService', () => {
 
       it('returns the selected stack and the default machine type of the stack', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+          availableMachines,
+          availableStacks,
           selectedStackId: 'osx-xcode-16.0.x',
           selectedMachineTypeId: '',
           groupedStacks,

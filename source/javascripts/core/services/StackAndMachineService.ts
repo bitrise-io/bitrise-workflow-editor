@@ -33,7 +33,7 @@ type MachineTypeWithValue = MachineType & {
 
 type SelectStackAndMachineProps = Omit<
   Partial<Awaited<ReturnType<typeof StacksAndMachinesApi.getStacksAndMachines>>>,
-  'defaultMachineTypeId' | 'defaultStackId' | 'availableStacks' | 'availableMachines'
+  'defaultMachineTypeId' | 'defaultStackId'
 > & {
   projectStackId: string;
   projectMachineTypeId: string;
@@ -166,6 +166,8 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
 
 function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps): SelectStackAndMachineResult {
   const {
+    availableMachines = [],
+    availableStacks = [],
     projectStackId = '',
     selectedStackId,
     selectedMachineTypeId,
@@ -204,7 +206,6 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   };
 
   // Stack selection logic
-  const availableStacks = groupedStacks.flatMap((group) => group.stacks);
   const defaultStack = getStackById(availableStacks, projectStackId);
   const selectedStack = getStackById(availableStacks, selectedStackId);
 
@@ -261,11 +262,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
   }));
 
   // Machine selection logic
-  const availableMachineTypes = groupedMachines.reduce<MachineType[]>((acc, group) => {
-    acc.push(...group.machines.filter(({ isPromoted }) => !isPromoted));
-    return acc;
-  }, []);
-  const selectableMachines = getMachinesOfStack(availableMachineTypes, result.selectedStack);
+  const selectableMachines = getMachinesOfStack(availableMachines, result.selectedStack);
   const selectableDefaultMachines = getMachinesOfStack(defaultMachines, result.selectedStack);
 
   // Self-hosted pool

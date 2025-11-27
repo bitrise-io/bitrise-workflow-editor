@@ -175,11 +175,15 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
       label: group.label,
       machines: group.machines.map(toMachineType),
     })) ?? [];
-  const availableMachines =
-    groupedMachines.reduce<MachineType[]>((acc, group) => {
-      acc.push(...group.machines.filter(({ isPromoted }) => !isPromoted));
-      return acc;
-    }, []) || [];
+  const availableMachines: MachineType[] = [];
+  groupedMachines.forEach((group) => {
+    group.machines.forEach((machine) => {
+      if (machine.isPromoted) {
+        return;
+      }
+      availableMachines.push(machine);
+    });
+  });
 
   return {
     availableStacks,
