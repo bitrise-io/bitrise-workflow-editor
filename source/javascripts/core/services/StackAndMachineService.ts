@@ -110,8 +110,9 @@ export const toMachineTypeLabel = (machineType: MachineType) => {
 export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
   const { availableInRegions } = machineType;
 
-  return Object.values(availableInRegions).some((machineTypeInfoText) => {
-    return machineTypeInfoText !== Object.values(availableInRegions)[0];
+  const machineTypeInfoTexts = Object.values(availableInRegions);
+  return machineTypeInfoTexts.some((machineTypeInfoText) => {
+    return machineTypeInfoText !== machineTypeInfoTexts[0];
   });
 };
 

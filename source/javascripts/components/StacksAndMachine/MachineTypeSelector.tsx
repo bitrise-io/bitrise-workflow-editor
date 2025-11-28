@@ -126,15 +126,12 @@ const MachineTypeSelector = ({
   };
 
   let selectedOption: MachineTypeOption | null = null;
-  optionGroups.forEach((group) => {
-    group.options.forEach((option) => {
-      if (option.value !== machineType.value) {
-        return;
-      }
-
+  optionGroups.find((group) => {
+    const option = group.options.find(({ value }) => value === machineType.value);
+    if (option) {
       selectedOption = option;
-      return;
-    });
+      return true;
+    }
   });
 
   return (
