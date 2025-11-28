@@ -1,4 +1,4 @@
-import { MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
+import { MachineRegionName, MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
 import StackAndMachineService, {
   machineTypeHardwareVariesByRegion,
   StackAndMachineSource,
@@ -1432,6 +1432,26 @@ describe('StackAndMachineService', () => {
           ],
         },
       ]);
+    });
+
+    it('returns region-specific subtitles for machine resource classes when region is specified', () => {
+      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
+        availableMachines,
+        availableStacks,
+        selectedStackId: '',
+        selectedMachineTypeId: 'g2.mac.medium',
+        groupedStacks,
+        groupedMachines,
+        defaultMachines,
+        projectStackId: 'osx-xcode-16.0.x',
+        projectMachineTypeId: 'mac-m1',
+        region: MachineRegionName.EU,
+      });
+
+      const machineTypeOption = result.machineOptionGroups
+        .find((group) => group.label === 'Machine classes')
+        ?.options.find((option) => option.value === 'g2.mac.medium');
+      expect(machineTypeOption?.subtitle).toBe('Mac Medium EU 6 CPU@4.5 GHz 12GB');
     });
 
     describe('withoutDefaultOptions', () => {

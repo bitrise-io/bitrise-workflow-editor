@@ -11,7 +11,7 @@ import {
 } from '@bitrise/bitkit';
 import { ReactNode, useMemo } from 'react';
 
-import { MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
+import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
 import { machineTypeHardwareVariesByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
@@ -62,6 +62,7 @@ type Props = Pick<BoxProps, 'width'> & {
   machineType: MachineTypeWithValue;
   optionGroups: MachineTypeOptionGroup[];
   onChange: (machineId: string) => void;
+  region?: MachineRegionName;
 };
 
 const MachineTypeSelector = ({
@@ -71,6 +72,7 @@ const MachineTypeSelector = ({
   machineType,
   optionGroups,
   onChange,
+  region,
   ...boxProps
 }: Props) => {
   const hardwareVariesByRegion = useMemo(() => machineTypeHardwareVariesByRegion(machineType), [machineType]);
@@ -93,11 +95,12 @@ const MachineTypeSelector = ({
   };
 
   const helperText = () => {
-    if (!Object.values(machineType.availableInRegions)[0]) {
+    const normalizedRegion = region || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
+    if (!normalizedRegion) {
       return '';
     }
 
-    if (hardwareVariesByRegion) {
+    if (!region && hardwareVariesByRegion) {
       return (
         <Box as="span" display="flex" flexDir="column" gap={8}>
           <Text as="span">Machine types may vary depending on high demand.</Text>
@@ -117,7 +120,7 @@ const MachineTypeSelector = ({
 
     return (
       <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
-        {Object.values(machineType.availableInRegions)[0]}
+        {machineType.availableInRegions[normalizedRegion]}
       </Text>
     );
   };

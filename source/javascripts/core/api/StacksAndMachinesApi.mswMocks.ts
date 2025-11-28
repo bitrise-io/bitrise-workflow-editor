@@ -6,6 +6,7 @@ import StacksAndMachinesApi, { MachineApiItem, MachineGroupApiItem, StackGroupAp
 type Options = {
   privateCloud?: 'no-machines' | 'machine-overrides';
   hasSelfHostedRunner?: boolean;
+  regionLocked?: boolean;
 };
 
 const DEFAULT_MACHINES: MachineApiItem[] = [
@@ -497,6 +498,7 @@ export const getStacksAndMachines = (options?: Options) => {
       default_machines: DEFAULT_MACHINES,
       grouped_stacks: groupedStacks(options),
       grouped_machines: groupedMachines(options),
+      region_id: options?.regionLocked ? 'region-us' : undefined,
     });
   });
 };
