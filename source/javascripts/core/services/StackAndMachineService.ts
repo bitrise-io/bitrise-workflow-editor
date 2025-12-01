@@ -101,7 +101,7 @@ export const toMachineTypeLabel = (machineType: MachineType) => {
   let label = `${machineType.name}`;
 
   if (machineType.creditPerMinute) {
-    label += ` (${machineType.creditPerMinute} credits/min)`;
+    label += ` (${machineType.creditPerMinute} ${machineType.creditPerMinute > 0 ? 'credits' : 'credit'}/min)`;
   }
 
   return label;
