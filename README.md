@@ -1,6 +1,6 @@
 ![Build status](https://app.bitrise.io/app/1686da85b5935fd6.svg?token=7HlnSBadcyLcUnzq0ws4Nw)
 
-# Bitrise Workflow Editor
+# Bitrise Workflow Editor YAY
 
 > **Note: project is going through AngularJS -> React transition.
 > Please read more about this in
