@@ -107,7 +107,7 @@ export const toMachineTypeLabel = (machineType: MachineType) => {
   return label;
 };
 
-export const doesMachineTypeHardwareVaryByRegion = (machineType: MachineType) => {
+export const doesHardwareVaryByRegion = (machineType: MachineType) => {
   const { availableInRegions } = machineType;
 
   const machineTypeInfoTexts = Object.values(availableInRegions);
@@ -118,7 +118,7 @@ export const doesMachineTypeHardwareVaryByRegion = (machineType: MachineType) =>
 
 function toMachineOption(machine: MachineType, region?: MachineRegionName): MachineTypeOption {
   let subtitle = '';
-  if (!region && doesMachineTypeHardwareVaryByRegion(machine)) {
+  if (!region && doesHardwareVaryByRegion(machine)) {
     subtitle = Object.entries(machine.availableInRegions)
       .map(([regionName, machineTypeInfoText]) => {
         return `${regionName}: ${machineTypeInfoText}`;

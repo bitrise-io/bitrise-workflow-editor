@@ -12,7 +12,7 @@ import {
 import { ReactNode, useMemo } from 'react';
 
 import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
-import { doesMachineTypeHardwareVaryByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
+import { doesHardwareVaryByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
@@ -75,7 +75,10 @@ const MachineTypeSelector = ({
   selectedRegion,
   ...boxProps
 }: Props) => {
-  const doesHardwareVaryByRegion = useMemo(() => doesMachineTypeHardwareVaryByRegion(machineType), [machineType]);
+  const doesHardwareVaryByRegionForSelectedMachineType = useMemo(
+    () => doesHardwareVaryByRegion(machineType),
+    [machineType],
+  );
 
   const toggletip = (icon: ReactNode) => {
     if (!optionGroups.find((group) => group.options.find((option) => option.isDisabled))) {
@@ -95,7 +98,7 @@ const MachineTypeSelector = ({
   };
 
   const helperText = () => {
-    if (doesHardwareVaryByRegion && !selectedRegion) {
+    if (doesHardwareVaryByRegionForSelectedMachineType && !selectedRegion) {
       return (
         <Box as="span" display="flex" flexDir="column" gap={8}>
           <Text as="span">Machine types may vary depending on high demand.</Text>

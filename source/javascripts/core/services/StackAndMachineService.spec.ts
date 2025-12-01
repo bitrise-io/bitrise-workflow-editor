@@ -1,6 +1,6 @@
 import { MachineRegionName, MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
 import StackAndMachineService, {
-  doesMachineTypeHardwareVaryByRegion,
+  doesHardwareVaryByRegion,
   StackAndMachineSource,
 } from '@/core/services/StackAndMachineService';
 
@@ -211,11 +211,11 @@ const machines: MachineType[] = [
 const groupedMachines: MachineTypeGroup[] = [
   {
     label: 'Machine classes',
-    machines: machines.filter((machine) => doesMachineTypeHardwareVaryByRegion(machine)),
+    machines: machines.filter((machine) => doesHardwareVaryByRegion(machine)),
   },
   {
     label: 'Machine types',
-    machines: machines.filter((machine) => !doesMachineTypeHardwareVaryByRegion(machine)),
+    machines: machines.filter((machine) => !doesHardwareVaryByRegion(machine)),
   },
 ];
 const availableMachines = groupedMachines.flatMap((group) => group.machines.filter((machine) => !machine.isPromoted));
