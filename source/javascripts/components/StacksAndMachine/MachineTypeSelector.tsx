@@ -12,7 +12,7 @@ import {
 import { ReactNode, useMemo } from 'react';
 
 import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
-import { machineTypeHardwareVariesByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
+import { doesMachineTypeHardwareVaryByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
 const getIconName = (osId?: string): TypeIconName | undefined => {
   switch (osId) {
@@ -75,7 +75,7 @@ const MachineTypeSelector = ({
   selectedRegion,
   ...boxProps
 }: Props) => {
-  const hardwareVariesByRegion = useMemo(() => machineTypeHardwareVariesByRegion(machineType), [machineType]);
+  const doesHardwareVaryByRegion = useMemo(() => doesMachineTypeHardwareVaryByRegion(machineType), [machineType]);
 
   const toggletip = (icon: ReactNode) => {
     if (!optionGroups.find((group) => group.options.find((option) => option.isDisabled))) {
@@ -95,12 +95,7 @@ const MachineTypeSelector = ({
   };
 
   const helperText = () => {
-    const normalizedRegion = selectedRegion || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
-    if (!normalizedRegion) {
-      return '';
-    }
-
-    if (!selectedRegion && hardwareVariesByRegion) {
+    if (doesHardwareVaryByRegion && !selectedRegion) {
       return (
         <Box as="span" display="flex" flexDir="column" gap={8}>
           <Text as="span">Machine types may vary depending on high demand.</Text>
@@ -118,9 +113,11 @@ const MachineTypeSelector = ({
       );
     }
 
+    const region = selectedRegion || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
+
     return (
       <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
-        {machineType.availableInRegions[normalizedRegion]}
+        {machineType.availableInRegions[region]}
       </Text>
     );
   };

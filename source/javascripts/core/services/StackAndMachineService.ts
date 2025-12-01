@@ -101,13 +101,13 @@ export const toMachineTypeLabel = (machineType: MachineType) => {
   let label = `${machineType.name}`;
 
   if (machineType.creditPerMinute) {
-    label += ` (${machineType.creditPerMinute} ${machineType.creditPerMinute > 0 ? 'credits' : 'credit'}/min)`;
+    label += ` (${machineType.creditPerMinute} ${machineType.creditPerMinute === 1 ? 'credit' : 'credits'}/min)`;
   }
 
   return label;
 };
 
-export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
+export const doesMachineTypeHardwareVaryByRegion = (machineType: MachineType) => {
   const { availableInRegions } = machineType;
 
   const machineTypeInfoTexts = Object.values(availableInRegions);
@@ -118,7 +118,7 @@ export const machineTypeHardwareVariesByRegion = (machineType: MachineType) => {
 
 function toMachineOption(machine: MachineType, region?: MachineRegionName): MachineTypeOption {
   let subtitle = '';
-  if (!region && machineTypeHardwareVariesByRegion(machine)) {
+  if (!region && doesMachineTypeHardwareVaryByRegion(machine)) {
     subtitle = Object.entries(machine.availableInRegions)
       .map(([regionName, machineTypeInfoText]) => {
         return `${regionName}: ${machineTypeInfoText}`;
