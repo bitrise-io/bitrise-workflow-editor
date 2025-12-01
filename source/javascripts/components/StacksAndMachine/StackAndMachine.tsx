@@ -127,7 +127,7 @@ const StackAndMachine = ({
           isDisabled={isMachineTypeSelectionDisabled}
           optionGroups={machineOptionGroups}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
-          region={data?.region}
+          selectedRegion={data?.region}
           width={orientation === 'horizontal' ? '50%' : undefined}
         />
       </Box>

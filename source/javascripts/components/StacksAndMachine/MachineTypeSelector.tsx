@@ -62,7 +62,7 @@ type Props = Pick<BoxProps, 'width'> & {
   machineType: MachineTypeWithValue;
   optionGroups: MachineTypeOptionGroup[];
   onChange: (machineId: string) => void;
-  region?: MachineRegionName;
+  selectedRegion?: MachineRegionName;
 };
 
 const MachineTypeSelector = ({
@@ -72,7 +72,7 @@ const MachineTypeSelector = ({
   machineType,
   optionGroups,
   onChange,
-  region,
+  selectedRegion,
   ...boxProps
 }: Props) => {
   const hardwareVariesByRegion = useMemo(() => machineTypeHardwareVariesByRegion(machineType), [machineType]);
@@ -95,12 +95,12 @@ const MachineTypeSelector = ({
   };
 
   const helperText = () => {
-    const normalizedRegion = region || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
+    const normalizedRegion = selectedRegion || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
     if (!normalizedRegion) {
       return '';
     }
 
-    if (!region && hardwareVariesByRegion) {
+    if (!selectedRegion && hardwareVariesByRegion) {
       return (
         <Box as="span" display="flex" flexDir="column" gap={8}>
           <Text as="span">Machine types may vary depending on high demand.</Text>
