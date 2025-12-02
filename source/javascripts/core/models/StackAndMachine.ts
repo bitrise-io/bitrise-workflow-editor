@@ -50,7 +50,7 @@ export type MachineType = {
   creditPerMinute?: number;
   os: MachineOS;
   name: string;
-  isPromoted: boolean;
+  isDisabled: boolean;
   availableInRegions: Partial<Record<MachineRegionName, string>>;
   availableOnStacks?: string[];
 };

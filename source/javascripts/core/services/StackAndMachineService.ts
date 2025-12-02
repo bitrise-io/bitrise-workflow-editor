@@ -130,7 +130,7 @@ function toMachineOption(machine: MachineType, region?: MachineRegionName): Mach
   }
 
   return {
-    isDisabled: machine.isPromoted,
+    isDisabled: machine.isDisabled,
     label: toMachineTypeLabel(machine),
     os: machine.os,
     subtitle,
@@ -160,7 +160,7 @@ function createMachineType(override?: PartialDeep<MachineTypeWithValue>): Machin
     id: '',
     value: '',
     name: '',
-    isPromoted: false,
+    isDisabled: false,
     os: 'unknown',
   };
 

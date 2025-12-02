@@ -36,7 +36,7 @@ type MachineApiItemCommon = {
   available_on_stacks?: string[];
   credit_per_min?: number;
   id: string;
-  is_promoted?: boolean;
+  is_disabled: boolean;
   name: string;
   os_id?: string;
 };
@@ -145,7 +145,7 @@ function toMachineType(item: MachineApiItem): MachineType {
     id: item.id,
     name: item.name,
     os: mapOSValues(item.os_id ?? ''),
-    isPromoted: item.is_promoted ?? false,
+    isDisabled: item.is_disabled,
     availableInRegions,
     availableOnStacks: item.available_on_stacks ?? [],
   };
@@ -179,7 +179,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const availableMachines: MachineType[] = [];
   groupedMachines.forEach((group) => {
     group.machines.forEach((machine) => {
-      if (machine.isPromoted) {
+      if (machine.isDisabled) {
         return;
       }
       availableMachines.push(machine);

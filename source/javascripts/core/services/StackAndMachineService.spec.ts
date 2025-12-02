@@ -103,7 +103,7 @@ const machines: MachineType[] = [
       EU: 'Mac Medium EU 6 CPU@4.5 GHz 12GB',
     },
     os: 'macos',
-    isPromoted: false,
+    isDisabled: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
   },
   {
@@ -115,7 +115,7 @@ const machines: MachineType[] = [
       EU: 'Mac Large EU 12 CPU@4.5 GHz 20GB',
     },
     os: 'macos',
-    isPromoted: true,
+    isDisabled: true,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
   },
   {
@@ -126,7 +126,7 @@ const machines: MachineType[] = [
       US: 'Standard 4 CPU@3.5 GHz 8GB',
     },
     os: 'linux',
-    isPromoted: false,
+    isDisabled: false,
     availableOnStacks: ['ubuntu-jammy-22.04-bitrise-2024', 'ubuntu-focal-20.04-bitrise-2024'],
   },
   {
@@ -137,7 +137,7 @@ const machines: MachineType[] = [
       US: 'Elite 8 CPU@4.0 GHz 16GB',
     },
     os: 'linux',
-    isPromoted: false,
+    isDisabled: false,
     availableOnStacks: ['ubuntu-jammy-22.04-bitrise-2024', 'ubuntu-focal-20.04-bitrise-2024'],
   },
   {
@@ -148,7 +148,7 @@ const machines: MachineType[] = [
       US: 'M1 8 CPU@3.5 GHz 16GB',
     },
     os: 'macos',
-    isPromoted: false,
+    isDisabled: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
   },
   {
@@ -159,7 +159,7 @@ const machines: MachineType[] = [
       US: 'M2 12 CPU@4.0 GHz 24GB',
     },
     os: 'macos',
-    isPromoted: false,
+    isDisabled: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
   },
   {
@@ -170,7 +170,7 @@ const machines: MachineType[] = [
       US: 'M3 16 CPU@4.5 GHz 32GB',
     },
     os: 'macos',
-    isPromoted: false,
+    isDisabled: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x'],
   },
   {
@@ -181,7 +181,7 @@ const machines: MachineType[] = [
       US: 'M4 24 CPU@4.5 GHz 64GB',
     },
     os: 'macos',
-    isPromoted: true,
+    isDisabled: true,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x'],
   },
   {
@@ -192,7 +192,7 @@ const machines: MachineType[] = [
       US: 'XL 32 CPU@4.5 GHz 64GB',
     },
     os: 'linux',
-    isPromoted: true,
+    isDisabled: true,
     availableOnStacks: undefined,
   },
   {
@@ -203,7 +203,7 @@ const machines: MachineType[] = [
       US: 'Joker 64 CPU@5.0 GHz 128GB',
     },
     os: 'unknown',
-    isPromoted: true,
+    isDisabled: true,
     availableOnStacks: undefined,
   },
 ];
@@ -218,7 +218,7 @@ const groupedMachines: MachineTypeGroup[] = [
     machines: machines.filter((machine) => !doesHardwareVaryByRegion(machine)),
   },
 ];
-const availableMachines = groupedMachines.flatMap((group) => group.machines.filter((machine) => !machine.isPromoted));
+const availableMachines = groupedMachines.flatMap((group) => group.machines.filter((machine) => !machine.isDisabled));
 
 const defaultMachines: MachineType[] = machines.filter(
   (machine) => machine.id === 'mac-m1' || machine.id === 'standard',
@@ -1372,7 +1372,7 @@ describe('StackAndMachineService', () => {
         groupedStacks,
         groupedMachines: groupedMachines.map((group) => ({
           ...group,
-          machines: group.machines.filter((machine) => !machine.isPromoted),
+          machines: group.machines.filter((machine) => !machine.isDisabled),
         })),
         defaultMachines,
         projectStackId: 'osx-xcode-16.0.x',
