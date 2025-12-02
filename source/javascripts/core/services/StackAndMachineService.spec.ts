@@ -1,8 +1,5 @@
-import { MachineRegionName, MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
-import StackAndMachineService, {
-  doesHardwareVaryByRegion,
-  StackAndMachineSource,
-} from '@/core/services/StackAndMachineService';
+import { MachineType, MachineTypeGroup, Stack, StackGroup } from '@/core/models/StackAndMachine';
+import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
@@ -13,7 +10,7 @@ const stacks: Stack[] = [
     status: 'edge',
     description:
       'Xcode 16.1 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
+    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4', 'joker'],
     os: 'macos',
   },
   {
@@ -22,7 +19,7 @@ const stacks: Stack[] = [
     status: 'stable',
     description:
       'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2', 'mac-m3', 'mac-m4'],
+    machineTypes: ['mac-m1', 'mac-m2', 'mac-m3', 'mac-m4'],
     os: 'macos',
   },
   {
@@ -31,7 +28,7 @@ const stacks: Stack[] = [
     status: 'stable',
     description:
       'Xcode 15.0.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2'],
+    machineTypes: ['mac-m1', 'mac-m2'],
     os: 'macos',
   },
   {
@@ -40,7 +37,7 @@ const stacks: Stack[] = [
     status: 'frozen',
     description:
       'Xcode 14.1.1 based on macOS 13.5 Ventura.\n\nThe Android SDK and other common mobile tools are also installed.',
-    machineTypes: ['g2.mac.medium', 'g2.mac.large', 'mac-m1', 'mac-m2'],
+    machineTypes: ['mac-m1', 'mac-m2'],
     os: 'macos',
   },
   {
@@ -91,40 +88,15 @@ const groupedStacks: StackGroup[] = [
     stacks: stacks.filter((stack) => stack.status === 'frozen'),
   },
 ];
-const availableStacks = groupedStacks.flatMap((group) => group.stacks);
 
 const machines: MachineType[] = [
-  {
-    id: 'g2.mac.medium',
-    name: 'Mac Medium',
-    creditPerMinute: 2,
-    availableInRegions: {
-      US: 'Mac Medium US 4 CPU@3.5 GHz 8GB',
-      EU: 'Mac Medium EU 6 CPU@4.5 GHz 12GB',
-    },
-    os: 'macos',
-    isPromoted: false,
-    availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
-  },
-  {
-    id: 'g2.mac.large',
-    name: 'Mac Large',
-    creditPerMinute: 4,
-    availableInRegions: {
-      US: 'Mac Large US 8 CPU@3.5 GHz 16GB',
-      EU: 'Mac Large EU 12 CPU@4.5 GHz 20GB',
-    },
-    os: 'macos',
-    isPromoted: true,
-    availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
-  },
   {
     id: 'standard',
     name: 'Standard',
     creditPerMinute: 1,
-    availableInRegions: {
-      US: 'Standard 4 CPU@3.5 GHz 8GB',
-    },
+    ram: '8GB',
+    cpuCount: '4 CPU',
+    cpuDescription: '3.5 GHz',
     os: 'linux',
     isPromoted: false,
     availableOnStacks: ['ubuntu-jammy-22.04-bitrise-2024', 'ubuntu-focal-20.04-bitrise-2024'],
@@ -133,9 +105,9 @@ const machines: MachineType[] = [
     id: 'elite',
     name: 'Elite',
     creditPerMinute: 1,
-    availableInRegions: {
-      US: 'Elite 8 CPU@4.0 GHz 16GB',
-    },
+    ram: '16GB',
+    cpuCount: '8 CPU',
+    cpuDescription: '4.0 GHz',
     os: 'linux',
     isPromoted: false,
     availableOnStacks: ['ubuntu-jammy-22.04-bitrise-2024', 'ubuntu-focal-20.04-bitrise-2024'],
@@ -144,9 +116,9 @@ const machines: MachineType[] = [
     id: 'mac-m1',
     name: 'M1',
     creditPerMinute: 2,
-    availableInRegions: {
-      US: 'M1 8 CPU@3.5 GHz 16GB',
-    },
+    ram: '16GB',
+    cpuCount: '8 CPU',
+    cpuDescription: '3.5 GHz',
     os: 'macos',
     isPromoted: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
@@ -155,9 +127,9 @@ const machines: MachineType[] = [
     id: 'mac-m2',
     name: 'M2',
     creditPerMinute: 3,
-    availableInRegions: {
-      US: 'M2 12 CPU@4.0 GHz 24GB',
-    },
+    ram: '24GB',
+    cpuCount: '12 CPU',
+    cpuDescription: '4.0 GHz',
     os: 'macos',
     isPromoted: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x', 'osx-xcode-15.0.x', 'osx-xcode-14.0.x'],
@@ -166,9 +138,9 @@ const machines: MachineType[] = [
     id: 'mac-m3',
     name: 'M3',
     creditPerMinute: 4,
-    availableInRegions: {
-      US: 'M3 16 CPU@4.5 GHz 32GB',
-    },
+    ram: '32GB',
+    cpuCount: '16 CPU',
+    cpuDescription: '4.5 GHz',
     os: 'macos',
     isPromoted: false,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x'],
@@ -177,9 +149,9 @@ const machines: MachineType[] = [
     id: 'mac-m4',
     name: 'M4',
     creditPerMinute: 8,
-    availableInRegions: {
-      US: 'M4 24 CPU@4.5 GHz 64GB',
-    },
+    ram: '64GB',
+    cpuCount: '24 CPU',
+    cpuDescription: '4.5 GHz',
     os: 'macos',
     isPromoted: true,
     availableOnStacks: ['osx-xcode-16.1.x', 'osx-xcode-16.0.x'],
@@ -188,9 +160,9 @@ const machines: MachineType[] = [
     id: 'linux-xl',
     name: 'XL',
     creditPerMinute: 8,
-    availableInRegions: {
-      US: 'XL 32 CPU@4.5 GHz 64GB',
-    },
+    ram: '64GB',
+    cpuCount: '32 CPU',
+    cpuDescription: '4.5 GHz',
     os: 'linux',
     isPromoted: true,
     availableOnStacks: undefined,
@@ -199,9 +171,9 @@ const machines: MachineType[] = [
     id: 'joker',
     name: 'Joker',
     creditPerMinute: 16,
-    availableInRegions: {
-      US: 'Joker 64 CPU@5.0 GHz 128GB',
-    },
+    ram: '128GB',
+    cpuCount: '64 CPU',
+    cpuDescription: '5.0 GHz',
     os: 'unknown',
     isPromoted: true,
     availableOnStacks: undefined,
@@ -210,15 +182,16 @@ const machines: MachineType[] = [
 
 const groupedMachines: MachineTypeGroup[] = [
   {
-    label: 'Machine classes',
-    machines: machines.filter((machine) => doesHardwareVaryByRegion(machine)),
+    label: 'Available on your plan',
+    status: 'available',
+    machines: machines.filter((machine) => !machine.isPromoted),
   },
   {
-    label: 'Machine types',
-    machines: machines.filter((machine) => !doesHardwareVaryByRegion(machine)),
+    label: 'Available on other plans',
+    status: 'promoted',
+    machines: machines.filter((machine) => machine.isPromoted),
   },
 ];
-const availableMachines = groupedMachines.flatMap((group) => group.machines.filter((machine) => !machine.isPromoted));
 
 const defaultMachines: MachineType[] = machines.filter(
   (machine) => machine.id === 'mac-m1' || machine.id === 'standard',
@@ -228,8 +201,6 @@ describe('StackAndMachineService', () => {
   describe('prepareStackAndMachineSelectionData', () => {
     it('returns the default stack when empty stack value is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -251,7 +222,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -287,52 +258,15 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-              value: 'mac-m1',
-            },
-            {
-              os: 'macos',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-              value: 'mac-m2',
-            },
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -340,8 +274,6 @@ describe('StackAndMachineService', () => {
 
     it('returns the selected stack when a valid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: 'osx-xcode-15.0.x',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -363,7 +295,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default - Xcode 16.0.x', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default (Xcode 16.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -399,52 +331,15 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-              value: 'mac-m1',
-            },
-            {
-              os: 'macos',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-              value: 'mac-m2',
-            },
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -452,8 +347,6 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid stack when an invalid stack is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: 'osx-xcode-11',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -465,7 +358,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidStack).toBe(true);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'Invalid Stack - osx-xcode-11' }),
+        expect.objectContaining({ value: 'osx-xcode-11', id: 'osx-xcode-11', name: 'Invalid Stack (osx-xcode-11)' }),
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
@@ -477,12 +370,12 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack - osx-xcode-11', status: 'unknown', os: 'unknown' }],
+          options: [{ value: 'osx-xcode-11', label: 'Invalid Stack (osx-xcode-11)', status: 'unknown', os: 'unknown' }],
         },
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ label: 'Default - Xcode 15.0.x', value: '', status: 'stable', os: 'macos' }],
+          options: [{ label: 'Default (Xcode 15.0.x)', value: '', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -518,23 +411,14 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          options: [
-            {
-              os: 'unknown',
-              isDisabled: false,
-              value: '',
-              label: 'Invalid Machine',
-              subtitle: '',
-            },
-          ],
+          status: 'unknown',
+          options: [{ value: '', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
         },
       ]);
     });
 
     it('returns the invalid default stack when stack is not selected and default stack is invalid', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: 'mac-m1',
         groupedStacks,
@@ -546,7 +430,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidStack).toBe(true);
       expect(result.selectedStack).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Stack - osx-xcode-11' }),
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Stack (osx-xcode-11)' }),
       );
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
@@ -558,7 +442,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Invalid Stack',
           status: 'unknown',
-          options: [{ value: '', label: 'Invalid Default Stack - osx-xcode-11', status: 'unknown', os: 'unknown' }],
+          options: [{ value: '', label: 'Invalid Default Stack (osx-xcode-11)', status: 'unknown', os: 'unknown' }],
         },
         {
           label: 'Edge Stacks',
@@ -594,23 +478,14 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          options: [
-            {
-              os: 'unknown',
-              isDisabled: false,
-              value: 'mac-m1',
-              label: 'Invalid Machine',
-              subtitle: '',
-            },
-          ],
+          status: 'unknown',
+          options: [{ value: 'mac-m1', label: 'Invalid Machine', os: 'unknown', status: 'unknown' }],
         },
       ]);
     });
 
     it('returns the default machine type when empty machine type value is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -633,7 +508,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -669,52 +544,15 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-              value: 'mac-m1',
-            },
-            {
-              os: 'macos',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-              value: 'mac-m2',
-            },
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -722,8 +560,6 @@ describe('StackAndMachineService', () => {
 
     it('returns the selected machine type when a valid machine type is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: 'mac-m2',
         groupedStacks,
@@ -748,7 +584,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -784,52 +620,15 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              value: 'mac-m1',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-            },
-            {
-              os: 'macos',
-              value: 'mac-m2',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-            },
+            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
           ],
         },
       ]);
@@ -837,8 +636,6 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid machine type when an invalid machine type is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: 'mac-intel',
         groupedStacks,
@@ -855,7 +652,7 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Invalid Machine - mac-intel' }),
+        expect.objectContaining({ value: 'mac-intel', id: 'mac-intel', name: 'Invalid Machine (mac-intel)' }),
       );
 
       // Stack options
@@ -863,14 +660,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [
-            {
-              value: '',
-              label: 'Default - Xcode 15.0.x',
-              status: 'stable',
-              os: 'macos',
-            },
-          ],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -906,64 +696,20 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          options: [
-            {
-              os: 'unknown',
-              value: 'mac-intel',
-              label: 'Invalid Machine - mac-intel',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'unknown',
+          options: [{ value: 'mac-intel', label: 'Invalid Machine (mac-intel)', os: 'unknown', status: 'unknown' }],
         },
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              value: 'mac-m1',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-            },
-            {
-              os: 'macos',
-              value: 'mac-m2',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-            },
+            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
           ],
         },
       ]);
@@ -971,8 +717,6 @@ describe('StackAndMachineService', () => {
 
     it('returns the invalid default machine type when machine type is not selected and default machine is invalid', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -984,59 +728,22 @@ describe('StackAndMachineService', () => {
 
       expect(result.isInvalidMachineType).toBe(true);
       expect(result.selectedMachineType).toEqual(
-        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Machine - mac-intel' }),
+        expect.objectContaining({ value: '', id: '', name: 'Invalid Default Machine (mac-intel)' }),
       );
 
       // Machine type options
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Invalid Machine',
-          options: [
-            {
-              os: 'unknown',
-              value: '',
-              label: 'Invalid Default Machine - mac-intel',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'unknown',
+          options: [{ value: '', label: 'Invalid Default Machine (mac-intel)', os: 'unknown', status: 'unknown' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              value: 'mac-m1',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-            },
-            {
-              os: 'macos',
-              value: 'mac-m2',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-            },
+            { value: 'mac-m1', label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', os: 'macos', status: 'available' },
+            { value: 'mac-m2', label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', os: 'macos', status: 'available' },
           ],
         },
       ]);
@@ -1044,8 +751,6 @@ describe('StackAndMachineService', () => {
 
     it('returns self-hosted runner when agent pool is selected', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: 'agent-pool-stack',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1070,7 +775,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -1107,23 +812,14 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Self-Hosted Runner',
-          options: [
-            {
-              os: 'unknown',
-              value: '',
-              label: 'Self-Hosted Runner',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Self-Hosted Runner', status: 'available', os: 'unknown' }],
         },
       ]);
     });
 
     it('returns machines for dedicated accounts with available machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1147,7 +843,7 @@ describe('StackAndMachineService', () => {
         {
           label: 'Default Stack',
           status: 'stable',
-          options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
+          options: [{ value: '', label: 'Default (Xcode 15.0.x)', status: 'stable', os: 'macos' }],
         },
         {
           label: 'Edge Stacks',
@@ -1184,52 +880,15 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-              value: 'mac-m1',
-            },
-            {
-              os: 'macos',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-              value: 'mac-m2',
-            },
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
           ],
         },
       ]);
@@ -1237,8 +896,6 @@ describe('StackAndMachineService', () => {
 
     it('returns disabled selection for dedicated accounts with no available machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines: [],
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1268,23 +925,14 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Dedicated Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Dedicated Machine',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Dedicated Machine', status: 'available', os: 'macos' }],
         },
       ]);
     });
 
     it('returns promoted machine types when available', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
@@ -1298,66 +946,23 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
+        },
+        {
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
           ],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on other plans',
+          status: 'promoted',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-            {
-              os: 'macos',
-              label: 'Mac Large (4 credits/min)',
-              subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-              isDisabled: true,
-              value: 'g2.mac.large',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-              value: 'mac-m1',
-            },
-            {
-              os: 'macos',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-              value: 'mac-m2',
-            },
-            {
-              os: 'macos',
-              label: 'M3 (4 credits/min)',
-              subtitle: 'M3 16 CPU@4.5 GHz 32GB',
-              isDisabled: false,
-              value: 'mac-m3',
-            },
-            {
-              os: 'macos',
-              label: 'M4 (8 credits/min)',
-              subtitle: 'M4 24 CPU@4.5 GHz 64GB',
-              isDisabled: true,
-              value: 'mac-m4',
-            },
+            { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
           ],
         },
       ]);
@@ -1365,15 +970,10 @@ describe('StackAndMachineService', () => {
 
     it('returns no promoted machine group, when there are no promoted machines', () => {
       const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
         selectedStackId: '',
         selectedMachineTypeId: '',
         groupedStacks,
-        groupedMachines: groupedMachines.map((group) => ({
-          ...group,
-          machines: group.machines.filter((machine) => !machine.isPromoted),
-        })),
+        groupedMachines: groupedMachines.filter((group) => group.status !== 'promoted'),
         defaultMachines,
         projectStackId: 'osx-xcode-16.0.x',
         projectMachineTypeId: 'mac-m1',
@@ -1383,82 +983,24 @@ describe('StackAndMachineService', () => {
       expect(result.machineOptionGroups).toEqual([
         {
           label: 'Default Machine',
-          options: [
-            {
-              os: 'macos',
-              value: '',
-              label: 'Default - M1 (2 credits/min)',
-              subtitle: '',
-              isDisabled: false,
-            },
-          ],
+          status: 'available',
+          options: [{ value: '', label: 'Default (M1)', os: 'macos', status: 'available' }],
         },
         {
-          label: 'Machine classes',
+          label: 'Available on your plan',
+          status: 'available',
           options: [
-            {
-              os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
-              subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-              isDisabled: false,
-              value: 'g2.mac.medium',
-            },
-          ],
-        },
-        {
-          label: 'Machine types',
-          options: [
-            {
-              os: 'macos',
-              label: 'M1 (2 credits/min)',
-              subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-              isDisabled: false,
-              value: 'mac-m1',
-            },
-            {
-              os: 'macos',
-              label: 'M2 (3 credits/min)',
-              subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-              isDisabled: false,
-              value: 'mac-m2',
-            },
-            {
-              os: 'macos',
-              label: 'M3 (4 credits/min)',
-              subtitle: 'M3 16 CPU@4.5 GHz 32GB',
-              isDisabled: false,
-              value: 'mac-m3',
-            },
+            { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+            { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+            { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
           ],
         },
       ]);
     });
 
-    it('returns region-specific subtitles for machine resource classes when region is specified', () => {
-      const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-        availableMachines,
-        availableStacks,
-        selectedStackId: '',
-        selectedMachineTypeId: 'g2.mac.medium',
-        groupedStacks,
-        groupedMachines,
-        defaultMachines,
-        projectStackId: 'osx-xcode-16.0.x',
-        projectMachineTypeId: 'mac-m1',
-        region: MachineRegionName.EU,
-      });
-
-      const machineTypeOption = result.machineOptionGroups
-        .find((group) => group.label === 'Machine classes')
-        ?.options.find((option) => option.value === 'g2.mac.medium');
-      expect(machineTypeOption?.subtitle).toBe('Mac Medium EU 6 CPU@4.5 GHz 12GB');
-    });
-
     describe('withoutDefaultOptions', () => {
       it('returns the project stack and machine type when empty stack and machine type values are selected', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-          availableMachines,
-          availableStacks,
           selectedStackId: '',
           selectedMachineTypeId: '',
           groupedStacks,
@@ -1476,11 +1018,7 @@ describe('StackAndMachineService', () => {
 
         expect(result.isInvalidMachineType).toBe(false);
         expect(result.selectedMachineType).toEqual(
-          expect.objectContaining({
-            value: 'mac-m1',
-            id: 'mac-m1',
-            name: 'M1',
-          }),
+          expect.objectContaining({ value: 'mac-m1', id: 'mac-m1', name: 'M1' }),
         );
 
         // Stack options
@@ -1518,55 +1056,19 @@ describe('StackAndMachineService', () => {
         // Machine type options
         expect(result.machineOptionGroups).toEqual([
           {
-            label: 'Machine classes',
+            label: 'Available on your plan',
+            status: 'available',
             options: [
-              {
-                os: 'macos',
-                label: 'Mac Medium (2 credits/min)',
-                subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-                isDisabled: false,
-                value: 'g2.mac.medium',
-              },
-              {
-                os: 'macos',
-                label: 'Mac Large (4 credits/min)',
-                subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-                isDisabled: true,
-                value: 'g2.mac.large',
-              },
+              { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+              { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+              { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
             ],
           },
           {
-            label: 'Machine types',
+            label: 'Available on other plans',
+            status: 'promoted',
             options: [
-              {
-                os: 'macos',
-                label: 'M1 (2 credits/min)',
-                subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-                isDisabled: false,
-                value: 'mac-m1',
-              },
-              {
-                os: 'macos',
-                label: 'M2 (3 credits/min)',
-                subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-                isDisabled: false,
-                value: 'mac-m2',
-              },
-              {
-                os: 'macos',
-                label: 'M3 (4 credits/min)',
-                subtitle: 'M3 16 CPU@4.5 GHz 32GB',
-                isDisabled: false,
-                value: 'mac-m3',
-              },
-              {
-                os: 'macos',
-                label: 'M4 (8 credits/min)',
-                subtitle: 'M4 24 CPU@4.5 GHz 64GB',
-                isDisabled: true,
-                value: 'mac-m4',
-              },
+              { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
             ],
           },
         ]);
@@ -1574,8 +1076,6 @@ describe('StackAndMachineService', () => {
 
       it('returns the selected stack and the default machine type of the stack', () => {
         const result = StackAndMachineService.prepareStackAndMachineSelectionData({
-          availableMachines,
-          availableStacks,
           selectedStackId: 'osx-xcode-16.0.x',
           selectedMachineTypeId: '',
           groupedStacks,
@@ -1631,55 +1131,19 @@ describe('StackAndMachineService', () => {
         // Machine type options
         expect(result.machineOptionGroups).toEqual([
           {
-            label: 'Machine classes',
+            label: 'Available on your plan',
+            status: 'available',
             options: [
-              {
-                os: 'macos',
-                label: 'Mac Medium (2 credits/min)',
-                subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
-                isDisabled: false,
-                value: 'g2.mac.medium',
-              },
-              {
-                os: 'macos',
-                label: 'Mac Large (4 credits/min)',
-                subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
-                isDisabled: true,
-                value: 'g2.mac.large',
-              },
+              { label: 'M1 8 CPU @3.5 GHz 16GB (2 credits/min)', status: 'available', value: 'mac-m1', os: 'macos' },
+              { label: 'M2 12 CPU @4.0 GHz 24GB (3 credits/min)', status: 'available', value: 'mac-m2', os: 'macos' },
+              { label: 'M3 16 CPU @4.5 GHz 32GB (4 credits/min)', status: 'available', value: 'mac-m3', os: 'macos' },
             ],
           },
           {
-            label: 'Machine types',
+            label: 'Available on other plans',
+            status: 'promoted',
             options: [
-              {
-                os: 'macos',
-                label: 'M1 (2 credits/min)',
-                subtitle: 'M1 8 CPU@3.5 GHz 16GB',
-                isDisabled: false,
-                value: 'mac-m1',
-              },
-              {
-                os: 'macos',
-                label: 'M2 (3 credits/min)',
-                subtitle: 'M2 12 CPU@4.0 GHz 24GB',
-                isDisabled: false,
-                value: 'mac-m2',
-              },
-              {
-                os: 'macos',
-                label: 'M3 (4 credits/min)',
-                subtitle: 'M3 16 CPU@4.5 GHz 32GB',
-                isDisabled: false,
-                value: 'mac-m3',
-              },
-              {
-                os: 'macos',
-                label: 'M4 (8 credits/min)',
-                subtitle: 'M4 24 CPU@4.5 GHz 64GB',
-                isDisabled: true,
-                value: 'mac-m4',
-              },
+              { label: 'M4 24 CPU @4.5 GHz 64GB (8 credits/min)', status: 'promoted', value: 'mac-m4', os: 'macos' },
             ],
           },
         ]);
