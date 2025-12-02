@@ -57,16 +57,6 @@ export const FreeUser: Story = {
   },
 };
 
-export const RegionLockedUser: Story = {
-  parameters: {
-    msw: {
-      handlers: {
-        story: [getStacksAndMachines({ regionLocked: true })],
-      },
-    },
-  },
-};
-
 export const WithInvalidStackRollbackVersion: Story = {
   parameters: {
     bitriseYmlStore: (() => {

@@ -1,15 +1,5 @@
-import { MachineRegionName, MachineType, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
+import { MachineStatus, MachineType, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
 import Client from './client';
-
-enum RegionID {
-  US = 'region-us',
-  EU = 'region-eu',
-}
-
-const regionNames: Record<string, MachineRegionName> = {
-  [RegionID.US]: MachineRegionName.US,
-  [RegionID.EU]: MachineRegionName.EU,
-};
 
 type StackApiItem = {
   id: string;
@@ -32,34 +22,21 @@ type StackGroupApiItem = {
   stacks: StackApiItem[];
 };
 
-type MachineApiItemCommon = {
-  available_on_stacks?: string[];
-  credit_per_min?: number;
+type MachineApiItem = {
   id: string;
-  is_promoted?: boolean;
   name: string;
   os_id?: string;
-};
-
-type MachineApiItemWithRegionArray = MachineApiItemCommon & {
-  available_in_regions: string[];
-} & MachineTypeInfoApi;
-
-type MachineApiItemWithRegionMap = MachineApiItemCommon & {
-  available_in_regions: Partial<Record<string, MachineTypeInfoApi>>;
-};
-
-type MachineApiItem = MachineApiItemWithRegionArray | MachineApiItemWithRegionMap;
-
-type MachineTypeInfoApi = {
+  is_promoted?: boolean;
+  ram: string;
   cpu_count: string;
   cpu_description: string;
-  name: string;
-  ram: string;
+  credit_per_min?: number;
+  available_on_stacks?: string[];
 };
 
 type MachineGroupApiItem = {
   label: string;
+  status: MachineStatus;
   machines: MachineApiItem[];
 };
 
@@ -71,7 +48,6 @@ type StacksAndMachinesResponse = {
   default_machines: MachineApiItem[];
   grouped_stacks?: StackGroupApiItem[];
   grouped_machines?: MachineGroupApiItem[];
-  region_id?: RegionID;
 };
 
 function mapOSValues(os: string): StackOS {
@@ -108,45 +84,16 @@ function toStack(item: StackApiItem): Stack {
   };
 }
 
-const toMachineTypeInfoText = (name: string, cpuCount: string, cpuDescription: string, ram: string) => {
-  return `${name} ${cpuCount}@${cpuDescription} ${ram}`;
-};
-
 function toMachineType(item: MachineApiItem): MachineType {
-  let availableInRegions: Partial<Record<MachineRegionName, string>> = {};
-
-  const isItemWithRegionArray = (anItem: MachineApiItem): anItem is MachineApiItemWithRegionArray =>
-    Array.isArray(anItem.available_in_regions);
-
-  if (isItemWithRegionArray(item)) {
-    item.available_in_regions.forEach((regionId) => {
-      availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
-        item.name,
-        item.cpu_count,
-        item.cpu_description,
-        item.ram,
-      );
-    });
-  } else {
-    (Object.entries(item.available_in_regions) as [RegionID, MachineTypeInfoApi][]).forEach(
-      ([regionId, regionInfo]) => {
-        availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
-          regionInfo.name,
-          regionInfo.cpu_count,
-          regionInfo.cpu_description,
-          regionInfo.ram,
-        );
-      },
-    );
-  }
-
   return {
-    creditPerMinute: item.credit_per_min,
     id: item.id,
     name: item.name,
     os: mapOSValues(item.os_id ?? ''),
     isPromoted: item.is_promoted ?? false,
-    availableInRegions,
+    ram: item.ram,
+    cpuCount: item.cpu_count,
+    cpuDescription: item.cpu_description,
+    creditPerMinute: item.credit_per_min,
     availableOnStacks: item.available_on_stacks ?? [],
   };
 }
@@ -174,17 +121,10 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   const groupedMachines =
     response.grouped_machines?.map((group) => ({
       label: group.label,
+      status: group.status,
       machines: group.machines.map(toMachineType),
     })) ?? [];
-  const availableMachines: MachineType[] = [];
-  groupedMachines.forEach((group) => {
-    group.machines.forEach((machine) => {
-      if (machine.isPromoted) {
-        return;
-      }
-      availableMachines.push(machine);
-    });
-  });
+  const availableMachines = groupedMachines.filter((g) => g.status === 'available').flatMap((group) => group.machines);
 
   return {
     availableStacks,
@@ -195,7 +135,6 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     defaultStackId: response.default_stack_id,
     defaultMachineTypeId: response.default_machine_id,
     hasSelfHostedRunner: response.has_self_hosted_runner,
-    region: response.region_id ? regionNames[response.region_id] : undefined,
     runningBuildsOnPrivateCloud: response.running_builds_on_private_cloud,
   };
 }

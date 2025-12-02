@@ -45,7 +45,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.318.0",
+    "@bitrise/bitkit": "^13.314.0",
     "@dagrejs/dagre": "^1.1.5",
     "@datadog/browser-rum": "^6.23.0",
     "@datadog/browser-rum-react": "^6.23.0",
