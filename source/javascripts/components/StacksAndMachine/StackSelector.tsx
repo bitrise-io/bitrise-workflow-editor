@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  BoxProps,
   Checkbox,
   Dropdown,
   DropdownDetailedOption,
@@ -69,13 +70,13 @@ const renderOptions = (stacks: StackOption[]) => {
         value={stack.value}
         title={stack.label}
         subtitle=""
-        icon={iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
+        icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
       />
     );
   });
 };
 
-type Props = {
+type Props = Pick<BoxProps, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isRollbackVersionAvailable: boolean;
@@ -93,9 +94,10 @@ const StackSelector = ({
   stack,
   optionGroups,
   onChange,
+  ...boxProps
 }: Props) => {
   return (
-    <Box flex="1">
+    <Box {...boxProps} flex="1">
       <Dropdown
         required
         search={false}

@@ -118,6 +118,7 @@ const StackAndMachine = ({
           }
           isRollbackVersionAvailable={!!availableRollbackVersion}
           useRollbackVersion={useRollbackVersion}
+          width={orientation === 'horizontal' ? '50%' : undefined}
         />
         <MachineTypeSelector
           machineType={selectedMachineType}
@@ -126,6 +127,8 @@ const StackAndMachine = ({
           isDisabled={isMachineTypeSelectionDisabled}
           optionGroups={machineOptionGroups}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
+          selectedRegion={data?.region}
+          width={orientation === 'horizontal' ? '50%' : undefined}
         />
       </Box>
       {useRollbackVersion && (
