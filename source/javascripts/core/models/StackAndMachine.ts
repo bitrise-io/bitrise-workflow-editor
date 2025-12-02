@@ -63,7 +63,7 @@ export type MachineTypeGroup = {
 export type MachineTypeOption = {
   value: string;
   isDisabled: boolean;
-  label: string;
+  title: string;
   subtitle: string;
   os: MachineOS;
 };

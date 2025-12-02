@@ -291,7 +291,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -302,14 +302,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -321,14 +321,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
               os: 'macos',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
@@ -403,7 +403,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -414,14 +414,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -433,14 +433,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
               os: 'macos',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
@@ -523,7 +523,7 @@ describe('StackAndMachineService', () => {
               os: 'unknown',
               isDisabled: false,
               value: '',
-              label: 'Invalid Machine',
+              title: 'Invalid Machine',
               subtitle: '',
             },
           ],
@@ -599,7 +599,7 @@ describe('StackAndMachineService', () => {
               os: 'unknown',
               isDisabled: false,
               value: 'mac-m1',
-              label: 'Invalid Machine',
+              title: 'Invalid Machine',
               subtitle: '',
             },
           ],
@@ -673,7 +673,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -684,14 +684,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -703,14 +703,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
               os: 'macos',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
@@ -788,7 +788,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -799,14 +799,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -819,14 +819,14 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: 'mac-m1',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
             },
             {
               os: 'macos',
               value: 'mac-m2',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
             },
@@ -910,7 +910,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'unknown',
               value: 'mac-intel',
-              label: 'Invalid Machine - mac-intel',
+              title: 'Invalid Machine - mac-intel',
               subtitle: '',
               isDisabled: false,
             },
@@ -922,7 +922,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -933,14 +933,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -953,14 +953,14 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: 'mac-m1',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
             },
             {
               os: 'macos',
               value: 'mac-m2',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
             },
@@ -995,7 +995,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'unknown',
               value: '',
-              label: 'Invalid Default Machine - mac-intel',
+              title: 'Invalid Default Machine - mac-intel',
               subtitle: '',
               isDisabled: false,
             },
@@ -1006,14 +1006,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -1026,14 +1026,14 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: 'mac-m1',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
             },
             {
               os: 'macos',
               value: 'mac-m2',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
             },
@@ -1111,7 +1111,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'unknown',
               value: '',
-              label: 'Self-Hosted Runner',
+              title: 'Self-Hosted Runner',
               subtitle: '',
               isDisabled: false,
             },
@@ -1188,7 +1188,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -1199,14 +1199,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -1218,14 +1218,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
               os: 'macos',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
@@ -1272,7 +1272,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Dedicated Machine',
+              title: 'Dedicated Machine',
               subtitle: '',
               isDisabled: false,
             },
@@ -1302,7 +1302,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -1313,14 +1313,14 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
             },
             {
               os: 'macos',
-              label: 'Mac Large (4 credits/min)',
+              title: 'Mac Large (4 credits/min)',
               subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
               isDisabled: true,
               value: 'g2.mac.large',
@@ -1332,28 +1332,28 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
               os: 'macos',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
             {
               os: 'macos',
-              label: 'M3 (4 credits/min)',
+              title: 'M3 (4 credits/min)',
               subtitle: 'M3 16 CPU@4.5 GHz 32GB',
               isDisabled: false,
               value: 'mac-m3',
             },
             {
               os: 'macos',
-              label: 'M4 (8 credits/min)',
+              title: 'M4 (8 credits/min)',
               subtitle: 'M4 24 CPU@4.5 GHz 64GB',
               isDisabled: true,
               value: 'mac-m4',
@@ -1387,7 +1387,7 @@ describe('StackAndMachineService', () => {
             {
               os: 'macos',
               value: '',
-              label: 'Default - M1 (2 credits/min)',
+              title: 'Default - M1 (2 credits/min)',
               subtitle: '',
               isDisabled: false,
             },
@@ -1398,7 +1398,7 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'Mac Medium (2 credits/min)',
+              title: 'Mac Medium (2 credits/min)',
               subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
               isDisabled: false,
               value: 'g2.mac.medium',
@@ -1410,21 +1410,21 @@ describe('StackAndMachineService', () => {
           options: [
             {
               os: 'macos',
-              label: 'M1 (2 credits/min)',
+              title: 'M1 (2 credits/min)',
               subtitle: 'M1 8 CPU@3.5 GHz 16GB',
               isDisabled: false,
               value: 'mac-m1',
             },
             {
               os: 'macos',
-              label: 'M2 (3 credits/min)',
+              title: 'M2 (3 credits/min)',
               subtitle: 'M2 12 CPU@4.0 GHz 24GB',
               isDisabled: false,
               value: 'mac-m2',
             },
             {
               os: 'macos',
-              label: 'M3 (4 credits/min)',
+              title: 'M3 (4 credits/min)',
               subtitle: 'M3 16 CPU@4.5 GHz 32GB',
               isDisabled: false,
               value: 'mac-m3',
@@ -1522,14 +1522,14 @@ describe('StackAndMachineService', () => {
             options: [
               {
                 os: 'macos',
-                label: 'Mac Medium (2 credits/min)',
+                title: 'Mac Medium (2 credits/min)',
                 subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
                 isDisabled: false,
                 value: 'g2.mac.medium',
               },
               {
                 os: 'macos',
-                label: 'Mac Large (4 credits/min)',
+                title: 'Mac Large (4 credits/min)',
                 subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
                 isDisabled: true,
                 value: 'g2.mac.large',
@@ -1541,28 +1541,28 @@ describe('StackAndMachineService', () => {
             options: [
               {
                 os: 'macos',
-                label: 'M1 (2 credits/min)',
+                title: 'M1 (2 credits/min)',
                 subtitle: 'M1 8 CPU@3.5 GHz 16GB',
                 isDisabled: false,
                 value: 'mac-m1',
               },
               {
                 os: 'macos',
-                label: 'M2 (3 credits/min)',
+                title: 'M2 (3 credits/min)',
                 subtitle: 'M2 12 CPU@4.0 GHz 24GB',
                 isDisabled: false,
                 value: 'mac-m2',
               },
               {
                 os: 'macos',
-                label: 'M3 (4 credits/min)',
+                title: 'M3 (4 credits/min)',
                 subtitle: 'M3 16 CPU@4.5 GHz 32GB',
                 isDisabled: false,
                 value: 'mac-m3',
               },
               {
                 os: 'macos',
-                label: 'M4 (8 credits/min)',
+                title: 'M4 (8 credits/min)',
                 subtitle: 'M4 24 CPU@4.5 GHz 64GB',
                 isDisabled: true,
                 value: 'mac-m4',
@@ -1635,14 +1635,14 @@ describe('StackAndMachineService', () => {
             options: [
               {
                 os: 'macos',
-                label: 'Mac Medium (2 credits/min)',
+                title: 'Mac Medium (2 credits/min)',
                 subtitle: 'US: Mac Medium US 4 CPU@3.5 GHz 8GB\nEU: Mac Medium EU 6 CPU@4.5 GHz 12GB',
                 isDisabled: false,
                 value: 'g2.mac.medium',
               },
               {
                 os: 'macos',
-                label: 'Mac Large (4 credits/min)',
+                title: 'Mac Large (4 credits/min)',
                 subtitle: 'US: Mac Large US 8 CPU@3.5 GHz 16GB\nEU: Mac Large EU 12 CPU@4.5 GHz 20GB',
                 isDisabled: true,
                 value: 'g2.mac.large',
@@ -1654,28 +1654,28 @@ describe('StackAndMachineService', () => {
             options: [
               {
                 os: 'macos',
-                label: 'M1 (2 credits/min)',
+                title: 'M1 (2 credits/min)',
                 subtitle: 'M1 8 CPU@3.5 GHz 16GB',
                 isDisabled: false,
                 value: 'mac-m1',
               },
               {
                 os: 'macos',
-                label: 'M2 (3 credits/min)',
+                title: 'M2 (3 credits/min)',
                 subtitle: 'M2 12 CPU@4.0 GHz 24GB',
                 isDisabled: false,
                 value: 'mac-m2',
               },
               {
                 os: 'macos',
-                label: 'M3 (4 credits/min)',
+                title: 'M3 (4 credits/min)',
                 subtitle: 'M3 16 CPU@4.5 GHz 32GB',
                 isDisabled: false,
                 value: 'mac-m3',
               },
               {
                 os: 'macos',
-                label: 'M4 (8 credits/min)',
+                title: 'M4 (8 credits/min)',
                 subtitle: 'M4 24 CPU@4.5 GHz 64GB',
                 isDisabled: true,
                 value: 'mac-m4',

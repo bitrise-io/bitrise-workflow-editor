@@ -27,16 +27,13 @@ const getIconName = (osId?: string): TypeIconName | undefined => {
 };
 
 const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
-  return machineTypeOptions.map(({ isDisabled, label, os, subtitle, value }) => {
-    const iconName = getIconName(os);
+  return machineTypeOptions.map((props) => {
+    const iconName = getIconName(props.os);
 
     return (
       <DropdownDetailedOption
-        key={value}
-        value={value}
-        title={label}
-        subtitle={subtitle}
-        isDisabled={isDisabled}
+        {...props}
+        key={props.value}
         icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
       />
     );
@@ -44,13 +41,13 @@ const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
 };
 
 const renderFormLabel = (machineTypeOption: MachineTypeOption) => {
-  const { label, os } = machineTypeOption;
+  const { title, os } = machineTypeOption;
   const iconName = getIconName(os);
 
   return (
     <Box display="flex" gap={12} alignItems="center">
       {iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
-      {label}
+      {title}
     </Box>
   );
 };

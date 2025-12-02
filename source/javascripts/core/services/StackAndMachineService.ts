@@ -108,21 +108,16 @@ export const toMachineTypeLabel = (machineType: MachineType) => {
 };
 
 export const doesHardwareVaryByRegion = (machineType: MachineType) => {
-  const { availableInRegions } = machineType;
+  const machineTypeInfoTexts = Object.values(machineType.availableInRegions);
 
-  const machineTypeInfoTexts = Object.values(availableInRegions);
-  return machineTypeInfoTexts.some((machineTypeInfoText) => {
-    return machineTypeInfoText !== machineTypeInfoTexts[0];
-  });
+  return machineTypeInfoTexts.some((text) => text !== machineTypeInfoTexts[0]);
 };
 
-function toMachineOption(machine: MachineType, region?: MachineRegionName): MachineTypeOption {
+function toMachineTypeDetailedOption(machine: MachineType, region?: MachineRegionName): MachineTypeOption {
   let subtitle = '';
   if (!region && doesHardwareVaryByRegion(machine)) {
     subtitle = Object.entries(machine.availableInRegions)
-      .map(([regionName, machineTypeInfoText]) => {
-        return `${regionName}: ${machineTypeInfoText}`;
-      })
+      .map(([regionName, machineTypeInfoText]) => `${regionName}: ${machineTypeInfoText}`)
       .join(`\n`);
   } else {
     subtitle =
@@ -131,7 +126,7 @@ function toMachineOption(machine: MachineType, region?: MachineRegionName): Mach
 
   return {
     isDisabled: machine.isDisabled,
-    label: toMachineTypeLabel(machine),
+    title: toMachineTypeLabel(machine),
     os: machine.os,
     subtitle,
     value: machine.id,
@@ -205,7 +200,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     })),
     machineOptionGroups: groupedMachines.map((group) => ({
       label: group.label,
-      options: group.machines.map((m) => toMachineOption(m, region)),
+      options: group.machines.map((m) => toMachineTypeDetailedOption(m, region)),
     })),
   };
 
@@ -282,7 +277,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.machineOptionGroups = [
       {
         label: 'Self-Hosted Runner',
-        options: [toMachineOption(result.selectedMachineType, region)],
+        options: [toMachineTypeDetailedOption(result.selectedMachineType, region)],
       },
     ];
     return result;
@@ -300,7 +295,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     result.machineOptionGroups = [
       {
         label: 'Dedicated Machine',
-        options: [toMachineOption(result.selectedMachineType, region)],
+        options: [toMachineTypeDetailedOption(result.selectedMachineType, region)],
       },
     ];
     return result;
@@ -323,7 +318,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           {
             value: '',
             isDisabled: false,
-            label: `Default - ${toMachineTypeLabel(defaultMachineType)}`,
+            title: `Default - ${toMachineTypeLabel(defaultMachineType)}`,
             os: defaultMachineType.os,
             subtitle: '',
           },
@@ -336,7 +331,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
           {
             value: '',
             isDisabled: false,
-            label: `Default - ${toMachineTypeLabel(defaultMachineTypeOfOS)}`,
+            title: `Default - ${toMachineTypeLabel(defaultMachineTypeOfOS)}`,
             os: defaultMachineTypeOfOS.os,
             subtitle: '',
           },
@@ -373,7 +368,7 @@ function prepareStackAndMachineSelectionData(props: SelectStackAndMachineProps):
     // Add the invalid machine type to the available options
     result.machineOptionGroups.unshift({
       label: 'Invalid Machine',
-      options: [toMachineOption(result.selectedMachineType, region)],
+      options: [toMachineTypeDetailedOption(result.selectedMachineType, region)],
     });
   } else if (selectedMachineType) {
     result.selectedMachineType = {
@@ -503,7 +498,7 @@ export default {
   changeStackAndMachine,
   prepareStackAndMachineSelectionData,
   toStackOption,
-  toMachineOption,
+  toMachineTypeDetailedOption,
   getStackById,
   getMachinesOfStack,
   updateStackAndMachine,
