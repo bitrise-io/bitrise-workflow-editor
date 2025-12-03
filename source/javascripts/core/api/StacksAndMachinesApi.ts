@@ -32,7 +32,8 @@ type StackGroupApiItem = {
   stacks: StackApiItem[];
 };
 
-type MachineApiItemCommon = {
+type MachineApiItem = {
+  available_in_regions: Partial<Record<string, MachineTypeInfoApi>>;
   available_on_stacks?: string[];
   credit_per_min?: number;
   id: string;
@@ -40,16 +41,6 @@ type MachineApiItemCommon = {
   name: string;
   os_id?: string;
 };
-
-type MachineApiItemWithRegionArray = MachineApiItemCommon & {
-  available_in_regions: string[];
-} & MachineTypeInfoApi;
-
-type MachineApiItemWithRegionMap = MachineApiItemCommon & {
-  available_in_regions: Partial<Record<string, MachineTypeInfoApi>>;
-};
-
-type MachineApiItem = MachineApiItemWithRegionArray | MachineApiItemWithRegionMap;
 
 type MachineTypeInfoApi = {
   cpu_count: string;
@@ -115,30 +106,14 @@ const toMachineTypeInfoText = (name: string, cpuCount: string, cpuDescription: s
 function toMachineType(item: MachineApiItem): MachineType {
   let availableInRegions: Partial<Record<MachineRegionName, string>> = {};
 
-  const isItemWithRegionArray = (anItem: MachineApiItem): anItem is MachineApiItemWithRegionArray =>
-    Array.isArray(anItem.available_in_regions);
-
-  if (isItemWithRegionArray(item)) {
-    item.available_in_regions.forEach((regionId) => {
-      availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
-        item.name,
-        item.cpu_count,
-        item.cpu_description,
-        item.ram,
-      );
-    });
-  } else {
-    (Object.entries(item.available_in_regions) as [RegionID, MachineTypeInfoApi][]).forEach(
-      ([regionId, regionInfo]) => {
-        availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
-          regionInfo.name,
-          regionInfo.cpu_count,
-          regionInfo.cpu_description,
-          regionInfo.ram,
-        );
-      },
+  (Object.entries(item.available_in_regions) as [RegionID, MachineTypeInfoApi][]).forEach(([regionId, regionInfo]) => {
+    availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
+      regionInfo.name,
+      regionInfo.cpu_count,
+      regionInfo.cpu_description,
+      regionInfo.ram,
     );
-  }
+  });
 
   return {
     creditPerMinute: item.credit_per_min,
