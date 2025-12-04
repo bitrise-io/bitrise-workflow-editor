@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       localFeatureFlagsPlugin(),
-      ...(isWebsiteMode && !isProd && urlPrefix ? [absoluteUrlsPlugin(urlPrefix)] : []),
+      ...(!isProd && urlPrefix ? [absoluteUrlsPlugin(urlPrefix)] : []),
       ...(isProd ? [viteCompression({ algorithm: 'gzip', ext: '.gz', threshold: 1024 })] : []),
     ],
 
