@@ -558,7 +558,7 @@ export const getStacksAndMachines = (options?: Options) => {
       default_machines: DEFAULT_MACHINES,
       grouped_stacks: groupedStacks(options),
       grouped_machines: groupedMachines(options),
-      region_id: options?.regionLocked ? 'region-us' : undefined,
+      region: options?.regionLocked ? 'region-us' : undefined,
     });
   });
 };
