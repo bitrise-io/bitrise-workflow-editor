@@ -62,7 +62,7 @@ type StacksAndMachinesResponse = {
   default_machines: MachineApiItem[];
   grouped_stacks?: StackGroupApiItem[];
   grouped_machines?: MachineGroupApiItem[];
-  region_id?: RegionID;
+  region?: RegionID;
 };
 
 function mapOSValues(os: string): StackOS {
@@ -170,7 +170,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     defaultStackId: response.default_stack_id,
     defaultMachineTypeId: response.default_machine_id,
     hasSelfHostedRunner: response.has_self_hosted_runner,
-    region: response.region_id ? regionNames[response.region_id] : undefined,
+    region: response.region ? regionNames[response.region] : undefined,
     runningBuildsOnPrivateCloud: response.running_builds_on_private_cloud,
   };
 }
