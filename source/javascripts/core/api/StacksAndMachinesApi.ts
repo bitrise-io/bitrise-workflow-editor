@@ -100,7 +100,7 @@ function toStack(item: StackApiItem): Stack {
 }
 
 const toMachineTypeInfoText = (name: string, cpuCount: string, cpuDescription: string, ram: string) => {
-  return `${name} ${cpuCount}@${cpuDescription} ${ram}`;
+  return `${name} ${cpuCount} @${cpuDescription} ${ram}`;
 };
 
 function toMachineType(item: MachineApiItem): MachineType {
