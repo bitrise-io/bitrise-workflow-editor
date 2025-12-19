@@ -2,12 +2,6 @@
 
 # Bitrise Workflow Editor
 
-> **Note: project is going through AngularJS -> React transition.
-> Please read more about this in
->
-the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).
-**
-
 ## How to install & use the Workflow Editor on your Mac/Linux
 
 1. Install [Go](https://golang.org) `brew install go` (on macOS)
