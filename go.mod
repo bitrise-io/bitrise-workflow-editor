@@ -4,15 +4,15 @@ go 1.23.7
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise/v2 v2.31.0
+	github.com/bitrise-io/bitrise/v2 v2.34.2
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
-	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
-	github.com/bitrise-io/envman/v2 v2.5.3
-	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.17.3
+	github.com/bitrise-io/envman v0.0.0
+	github.com/bitrise-io/envman/v2 v2.5.4
+	github.com/bitrise-io/go-utils v1.0.15
+	github.com/bitrise-io/stepman v0.18.2
 	github.com/gorilla/mux v1.8.1
-	github.com/spf13/cobra v1.8.1
-	github.com/stretchr/testify v1.10.0
+	github.com/spf13/cobra v1.10.1
+	github.com/stretchr/testify v1.11.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -35,7 +35,7 @@ require (
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 // indirect
 	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 // indirect
-	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.23
+	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.27
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
