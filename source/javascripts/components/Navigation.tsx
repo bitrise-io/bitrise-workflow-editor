@@ -125,7 +125,6 @@ const Navigation = (props: Props) => {
         </NavigationItem>
       </SidebarContainer>
       <SidebarFooter>
-        <SidebarDivider />
         <SidebarItem href="https://github.com/bitrise-io/workflow-recipes">
           <SidebarItemIcon name="Doc" />
           {!isMobile && <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>}
