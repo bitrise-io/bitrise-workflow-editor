@@ -1,10 +1,12 @@
-import { Avatar, Box, Card, CardProps, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { Avatar, Box, Card, CardProps, Icon, LinkButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
 
 import StepBadge from '@/components/StepBadge';
 import { Maintainer } from '@/core/models/Step';
 import useIsTruncated from '@/hooks/useIsTruncated';
+
+import { STEP_HEIGHT } from './AlgoliaStepList.const';
 
 type Props = CardProps & {
   logo?: string;
@@ -27,6 +29,7 @@ const AlgoliaStepListItem = ({
 }: Props) => {
   const titleRef = useRef<HTMLParagraphElement>(null);
   const isTitleTruncated = useIsTruncated(titleRef);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const opacity = isDisabled ? 0.3 : 1;
   const isOfficial = maintainer === Maintainer.Bitrise;
@@ -51,6 +54,16 @@ const AlgoliaStepListItem = ({
     onClick?.(e);
   };
 
+  const handleReadMoreClick: MouseEventHandler<HTMLDivElement> = (e) => {
+    e.stopPropagation();
+
+    if (isDisabled) {
+      return;
+    }
+
+    onOpen();
+  };
+
   return (
     <Card
       p="8"
@@ -59,12 +72,17 @@ const AlgoliaStepListItem = ({
       role="button"
       display="flex"
       variant="outline"
+      position="relative"
       flexDirection="column"
       {...props}
       {...hoverProps}
       opacity={opacity}
       onClick={handleClick}
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
+      zIndex={isOpen ? 100 : 0}
+      height={isOpen ? 320 : STEP_HEIGHT}
+      transition="all 0.3s ease"
+      onMouseLeave={() => onClose()}
     >
       <Box display="flex" gap="8">
         <Box position="relative">
@@ -89,13 +107,25 @@ const AlgoliaStepListItem = ({
             {version}
           </Text>
         </Box>
-        {!isDisabled && (
-          <Icon display="none" name="PlusCircle" color="icon/interactive" _groupHover={{ display: 'block' }} />
-        )}
+        {!isDisabled && <Icon display="none" name="Plus" color="icon/interactive" _groupHover={{ display: 'block' }} />}
       </Box>
-      <Text noOfLines={2} color="text/secondary" textStyle="body/sm/regular">
+      <Text noOfLines={3} color="text/secondary" textStyle="body/sm/regular">
         {removeMd(description || '')}
       </Text>
+      <Box
+        inset="0"
+        bg="white"
+        top="auto"
+        height="26"
+        display="none"
+        position="absolute"
+        borderBottomRadius="8"
+        _groupHover={{ display: 'block' }}
+      >
+        <LinkButton size="sm" px="8" pb="8" top="-2px" position="relative" onClick={handleReadMoreClick}>
+          Read more
+        </LinkButton>
+      </Box>
     </Card>
   );
 };
