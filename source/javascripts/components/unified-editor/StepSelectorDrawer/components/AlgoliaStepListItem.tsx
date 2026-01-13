@@ -31,6 +31,7 @@ type Props = Omit<CardProps, 'onClick'> & {
 };
 
 const TRANSITION = 'all 0.3s ease';
+const EXPANDED_HEIGHT = 320;
 
 const AlgoliaStepListItem = ({
   logo,
@@ -84,16 +85,16 @@ const AlgoliaStepListItem = ({
       transition={TRANSITION}
       zIndex={isOpen ? 100 : 0}
       opacity={isDisabled ? 0.3 : 1}
-      height={isOpen ? 320 : STEP_HEIGHT}
+      height={isOpen ? EXPANDED_HEIGHT : STEP_HEIGHT}
       onClick={!isDisabled && !isOpen ? onClick : undefined}
       onMouseLeave={onClose}
     >
       <Box
-        display="flex"
-        gap="8"
         px="12"
-        py={isOpen ? '8' : '12'}
+        gap="8"
+        display="flex"
         transition={TRANSITION}
+        py={isOpen ? '8' : '12'}
         transitionProperty="padding"
         borderBottom={isOpen ? '1px solid var(--colors-border-regular)' : 'none'}
       >
@@ -139,14 +140,21 @@ const AlgoliaStepListItem = ({
         </Box>
 
         {!isDisabled && !isOpen && (
-          <Icon display="none" name="Plus" color="icon/interactive" _groupHover={{ display: 'block' }} />
+          <Icon
+            p="4"
+            size="32"
+            name="Plus"
+            display="none"
+            color="icon/interactive"
+            _groupHover={{ display: 'block' }}
+          />
         )}
 
         {!isDisabled && isOpen && <ControlButton aria-label="Add to Workflow" iconName="Plus" onClick={onClick} />}
       </Box>
 
       {!isOpen && (
-        <Text noOfLines={isOpen ? undefined : 3} color="text/secondary" textStyle="body/sm/regular" px="12">
+        <Text noOfLines={3} color="text/secondary" textStyle="body/sm/regular" px="12">
           {removeMd(description || '')}
         </Text>
       )}
