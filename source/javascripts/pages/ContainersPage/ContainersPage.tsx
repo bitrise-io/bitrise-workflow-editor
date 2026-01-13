@@ -26,7 +26,9 @@ const ContainersPage = () => {
   return (
     <>
       <Box p="32px 32px 24px">
-        <Text textStyle="heading/h2">Containers</Text>
+        <Text textStyle="heading/h2" mb="4">
+          Containers
+        </Text>
         <Text textStyle="body/md/regular" color="text/secondary">
           Create custom environments and services for your Workflows.{' '}
           <Link colorScheme="purple" isExternal href="#">
