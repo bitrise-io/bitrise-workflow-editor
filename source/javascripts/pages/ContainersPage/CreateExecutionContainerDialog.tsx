@@ -1,16 +1,23 @@
 import {
+  Box,
   Button,
+  Collapse,
   Dialog,
   DialogBody,
   DialogFooter,
   DialogProps,
+  Divider,
   Input,
+  Link,
   SegmentedControl,
   SegmentedControlItem,
+  Text,
+  useDisclosure,
 } from '@bitrise/bitkit';
 
 const CreateExecutionContainerDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
+  const { isOpen: isShowMore, onToggle } = useDisclosure();
 
   return (
     <Dialog title="Create execution container" isOpen={isOpen} onClose={onClose}>
@@ -31,6 +38,32 @@ const CreateExecutionContainerDialog = (props: Omit<DialogProps, 'title'>) => {
           placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
           isRequired
         />
+        <Collapse in={isShowMore}>
+          <Box display="flex" flexDir="column" gap="16">
+            <Text textStyle="heading/h3" mt="8">
+              Authentication credentials
+            </Text>
+            <Text textStyle="body/md/regular" color="text/secondary">
+              Set to access your private images with the docker login command.
+            </Text>
+            <Input
+              label="Registry server"
+              helperText="Fully qualified registry server url to used by docker login command."
+              placeholder="e.g. ghcr.io"
+            />
+            <Input label="Username" />
+            <Input label="Password" type="password" />
+            <Divider />
+            <Input label="Environment Variables" placeholder="Key" />
+            <Input placeholder="Value" />
+            <Button variant="tertiary" leftIconName="Plus" size="md">
+              Add Env Var
+            </Button>
+          </Box>
+        </Collapse>
+        <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
+          {isShowMore ? 'Show less options' : 'Show more options'}
+        </Link>
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>
