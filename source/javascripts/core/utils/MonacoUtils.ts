@@ -23,15 +23,18 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
     return;
   }
 
-  configureMonacoYaml(monacoInstance, {
-    hover: true,
-    format: true,
-    validate: true,
-    completion: true,
-    yamlVersion: '1.1',
-    enableSchemaRequest: true,
-    schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
-  });
+  // TODO: Skip YAML worker configuration in dev WEBSITE mode due to cross-origin restrictions
+  if (!(window.env?.MODE === 'WEBSITE' && window.env?.NODE_ENV !== 'production')) {
+    configureMonacoYaml(monacoInstance, {
+      hover: true,
+      format: true,
+      validate: true,
+      completion: true,
+      yamlVersion: '1.1',
+      enableSchemaRequest: true,
+      schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
+    });
+  }
 
   isConfiguredForYaml = true;
 };

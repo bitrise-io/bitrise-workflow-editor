@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "2.5.14513",
+  "version": "2.5.14622",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -45,7 +45,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.314.0",
+    "@bitrise/bitkit": "^13.318.0",
     "@dagrejs/dagre": "^1.1.5",
     "@datadog/browser-rum": "^6.23.0",
     "@datadog/browser-rum-react": "^6.23.0",

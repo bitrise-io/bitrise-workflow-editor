@@ -3,18 +3,26 @@ import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
 import deprecatedIcon from '@/../images/step/badge-deprecated.svg';
 
 type StepItemBadgeProps = BoxProps & {
+  size?: '16' | '24';
   isOfficial?: boolean;
   isVerified?: boolean;
   isCommunity?: boolean;
   isDeprecated?: boolean;
 };
 
-const StepBadge = ({ isOfficial, isVerified, isDeprecated, isCommunity: _, ...rest }: StepItemBadgeProps) => {
+const StepBadge = ({
+  size = '24',
+  isOfficial,
+  isVerified,
+  isDeprecated,
+  isCommunity: _,
+  ...rest
+}: StepItemBadgeProps) => {
   if (isOfficial) {
     return (
       <Box title="Bitrise step" data-e2e-tag="official-badge" {...rest}>
         <Tooltip label="Maintained by Bitrise">
-          <Icon name="BadgeBitrise" />
+          <Icon name="BadgeBitrise" size={size} />
         </Tooltip>
       </Box>
     );
@@ -24,7 +32,7 @@ const StepBadge = ({ isOfficial, isVerified, isDeprecated, isCommunity: _, ...re
     return (
       <Box title="Verified step" data-e2e-tag="verified-badge" {...rest}>
         <Tooltip label="Verified by Bitrise">
-          <Icon name="Badge3rdParty" />
+          <Icon name="Badge3rdParty" size={size} />
         </Tooltip>
       </Box>
     );
