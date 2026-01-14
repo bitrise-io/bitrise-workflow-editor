@@ -4,26 +4,6 @@ import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-function getExecutionContainerOrThrowError(id: string, doc: Document) {
-  const container = YmlUtils.getMapIn(doc, ['containers', id]);
-
-  if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
-  }
-
-  return container;
-}
-
-function getServiceContainerOrThrowError(id: string, doc: Document) {
-  const service = YmlUtils.getMapIn(doc, ['services', id]);
-
-  if (!service) {
-    throw new Error(`Service ${id} not found. Ensure that the service exists in the 'services' section.`);
-  }
-
-  return service;
-}
-
 function addExecutionContainerToStep(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     getExecutionContainerOrThrowError(containerId, doc);
@@ -78,72 +58,6 @@ function addServiceContainerToStep(workflowId: string, stepIndex: number, contai
     }
 
     YmlUtils.setIn(stepData, ['services'], [...currentServices, containerId]);
-
-    return doc;
-  });
-}
-
-function deleteExecutionContainerFromStep(workflowId: string, stepIndex: number) {
-  updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    YmlUtils.deleteByPath(stepData, ['container']);
-
-    return doc;
-  });
-}
-
-function deleteServiceContainerFromStep(workflowId: string, stepIndex: number, containerId: string) {
-  updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
-    if (!existingServices) {
-      throw new Error(`No services found on step at index ${stepIndex}`);
-    }
-
-    const currentServices = existingServices.items.map((item) => String(item));
-    const updatedServices = currentServices.filter((service) => service !== containerId);
-
-    if (updatedServices.length === currentServices.length) {
-      throw new Error(`Service '${containerId}' not found on step at index ${stepIndex}`);
-    }
-
-    if (updatedServices.length === 0) {
-      YmlUtils.deleteByPath(stepData, ['services']);
-    } else {
-      YmlUtils.setIn(stepData, ['services'], updatedServices);
-    }
 
     return doc;
   });
@@ -229,6 +143,72 @@ function createServiceContainer(
   });
 }
 
+function deleteExecutionContainerFromStep(workflowId: string, stepIndex: number) {
+  updateBitriseYmlDocument(({ doc }) => {
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
+    if (!steps || stepIndex >= steps.items.length) {
+      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
+    }
+
+    const step = steps.items[stepIndex];
+    if (!step || !isMap(step)) {
+      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const stepData = step.items[0]?.value;
+    if (!isMap(stepData)) {
+      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    YmlUtils.deleteByPath(stepData, ['container']);
+
+    return doc;
+  });
+}
+
+function deleteServiceContainerFromStep(workflowId: string, stepIndex: number, containerId: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
+    if (!steps || stepIndex >= steps.items.length) {
+      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
+    }
+
+    const step = steps.items[stepIndex];
+    if (!step || !isMap(step)) {
+      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const stepData = step.items[0]?.value;
+    if (!isMap(stepData)) {
+      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
+    if (!existingServices) {
+      throw new Error(`No services found on step at index ${stepIndex}`);
+    }
+
+    const currentServices = existingServices.items.map((item) => String(item));
+    const updatedServices = currentServices.filter((service) => service !== containerId);
+
+    if (updatedServices.length === currentServices.length) {
+      throw new Error(`Service '${containerId}' not found on step at index ${stepIndex}`);
+    }
+
+    if (updatedServices.length === 0) {
+      YmlUtils.deleteByPath(stepData, ['services']);
+    } else {
+      YmlUtils.setIn(stepData, ['services'], updatedServices);
+    }
+
+    return doc;
+  });
+}
+
 function deleteExecutionContainer(id: string) {
   updateBitriseYmlDocument(({ doc }) => {
     getExecutionContainerOrThrowError(id, doc);
@@ -246,6 +226,27 @@ function deleteServiceContainer(id: string) {
     return doc;
   });
 }
+
+function getExecutionContainerOrThrowError(id: string, doc: Document) {
+  const container = YmlUtils.getMapIn(doc, ['containers', id]);
+
+  if (!container) {
+    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
+  }
+
+  return container;
+}
+
+function getServiceContainerOrThrowError(id: string, doc: Document) {
+  const service = YmlUtils.getMapIn(doc, ['services', id]);
+
+  if (!service) {
+    throw new Error(`Service ${id} not found. Ensure that the service exists in the 'services' section.`);
+  }
+
+  return service;
+}
+
 export default {
   addExecutionContainerToStep,
   addServiceContainerToStep,
