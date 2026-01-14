@@ -29,7 +29,13 @@ func chooseFreePort() (string, error) {
 			log.Errorf("Failed to close port, error: %s", err)
 		}
 	}()
-	port := listener.Addr().(*net.TCPAddr).Port
+
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		return "", fmt.Errorf("listener did not return *net.TCPAddr")
+	}
+
+	port := addr.Port
 	return fmt.Sprintf("%d", port), nil
 }
 
