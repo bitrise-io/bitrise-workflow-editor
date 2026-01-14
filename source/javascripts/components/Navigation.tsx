@@ -109,6 +109,9 @@ const Navigation = (props: Props) => {
         <NavigationItem path={withSearchParams(paths.triggers)} icon="Trigger">
           Triggers
         </NavigationItem>
+        <NavigationItem path={withSearchParams(paths.containers)} icon="Trigger">
+          Containers
+        </NavigationItem>
         {RuntimeUtils.isWebsiteMode() && (
           <NavigationItem path={withSearchParams(paths.stacksAndMachines)} icon="Stack">
             Stacks & Machines
