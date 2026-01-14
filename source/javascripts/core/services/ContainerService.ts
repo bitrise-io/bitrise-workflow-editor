@@ -278,6 +278,53 @@ function editExecutionContainer(
   });
 }
 
+function editServiceContainer(
+  id: string,
+  newId: string,
+  image: string,
+  ports: string[],
+  credentials?: { username?: string; password?: string; server?: string },
+  envs?: Record<string, string>[],
+  options?: string,
+) {
+  updateBitriseYmlDocument(({ doc }) => {
+    getServiceContainerOrThrowError(id, doc);
+
+    if (id !== newId && doc.hasIn(['services', newId])) {
+      throw new Error(`Service '${newId}' already exists`);
+    }
+
+    const service: Record<string, unknown> = { image, ports };
+
+    if (credentials) {
+      const filteredCredentials = Object.entries(credentials)
+        .filter(([_, value]) => value !== undefined && value !== '')
+        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+      if (Object.keys(filteredCredentials).length > 0) {
+        service.credentials = filteredCredentials;
+      }
+    }
+
+    if (envs && envs.length > 0) {
+      service.envs = envs;
+    }
+
+    if (options) {
+      service.options = options;
+    }
+
+    if (id !== newId) {
+      YmlUtils.deleteByPath(doc, ['services', id]);
+      YmlUtils.setIn(doc, ['services', newId], service);
+    } else {
+      YmlUtils.setIn(doc, ['services', id], service);
+    }
+
+    return doc;
+  });
+}
+
 function getExecutionContainerOrThrowError(id: string, doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
 
@@ -308,6 +355,7 @@ export default {
   deleteServiceContainer,
   deleteServiceContainerFromStep,
   editExecutionContainer,
+  editServiceContainer,
   getExecutionContainerOrThrowError,
   getServiceContainerOrThrowError,
 };
