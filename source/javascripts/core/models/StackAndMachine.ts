@@ -31,36 +31,44 @@ export type StackOptionGroup = {
   options: StackOption[];
 };
 
-export type MachineStatus = 'available' | 'promoted' | 'unknown';
 export type MachineOS = StackOS;
+
+export enum MachineRegionName {
+  US = 'US',
+  EU = 'EU',
+}
+
+export type MachineTypeInfo = {
+  cpuCount: string;
+  cpuDescription: string;
+  name: string;
+  ram: string;
+};
 
 export type MachineType = {
   id: string;
+  creditPerMinute?: number;
   os: MachineOS;
   name: string;
-  ram: string;
-  cpuCount: string;
-  cpuDescription: string;
-  creditPerMinute?: number;
-  isPromoted: boolean;
+  isDisabled: boolean;
+  availableInRegions: Partial<Record<MachineRegionName, string>>;
   availableOnStacks?: string[];
 };
 
 export type MachineTypeGroup = {
   label: string;
-  status: MachineStatus;
   machines: MachineType[];
 };
 
 export type MachineTypeOption = {
-  os?: string;
   value: string;
-  label: string;
-  status: MachineStatus;
+  isDisabled: boolean;
+  title: string;
+  subtitle: string;
+  os: MachineOS;
 };
 
 export type MachineTypeOptionGroup = {
   label: string;
-  status: MachineStatus;
   options: MachineTypeOption[];
 };

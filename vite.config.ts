@@ -32,10 +32,25 @@ function localFeatureFlagsPlugin(): Plugin {
   };
 }
 
+function absoluteUrlsPlugin(urlPrefix: string): Plugin {
+  return {
+    name: 'absolute-urls',
+    transformIndexHtml: {
+      order: 'post',
+      handler: (html) => {
+        return html
+          .replace(/(src|href)="\/([^"/][^"]*)"/g, `$1="${urlPrefix}/$2"`)
+          .replace(/from "\/([^"]+)"/g, `from "${urlPrefix}/$1"`);
+      },
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, '');
   const isProd = env.NODE_ENV === 'production';
-  const urlPrefix = (env.MODE || 'CLI') === 'WEBSITE' ? env.PUBLIC_URL_ROOT || '' : '';
+  const isWebsiteMode = (env.MODE || 'CLI') === 'WEBSITE';
+  const urlPrefix = isWebsiteMode ? env.PUBLIC_URL_ROOT || '' : '';
 
   return {
     root: resolve(rootDir, 'source'),
@@ -44,6 +59,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       localFeatureFlagsPlugin(),
+      ...(!isProd && urlPrefix ? [absoluteUrlsPlugin(urlPrefix)] : []),
       ...(isProd ? [viteCompression({ algorithm: 'gzip', ext: '.gz', threshold: 1024 })] : []),
     ],
 
@@ -71,6 +87,8 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.DEV_SERVER_PORT || '4567', 10),
       proxy: { '/api': 'http://localhost:4000' },
+      origin: urlPrefix || undefined,
+      allowedHosts: true,
     },
 
     envPrefix: ['VITE_', 'MODE', 'ANALYTICS', 'DATADOG_RUM', 'NODE_ENV', 'PUBLIC_URL_ROOT'],
