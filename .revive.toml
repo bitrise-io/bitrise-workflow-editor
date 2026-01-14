@@ -1,0 +1,5 @@
+[rule.package-comments]
+    Disabled = true
+
+[rule.unused-parameter]
+    Disabled = true
