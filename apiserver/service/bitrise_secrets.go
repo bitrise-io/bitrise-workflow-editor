@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -26,7 +27,12 @@ func ymlToJSONKeyTypeConversion(i interface{}) interface{} {
 	case map[interface{}]interface{}:
 		m2 := map[string]interface{}{}
 		for k, v := range x {
-			m2[k.(string)] = ymlToJSONKeyTypeConversion(v)
+			ks, ok := k.(string)
+			if !ok {
+				panic(fmt.Sprintf("found non-string key of type %T: %v", k, k))
+			}
+
+			m2[ks] = ymlToJSONKeyTypeConversion(v)
 		}
 		return m2
 	case []interface{}:
