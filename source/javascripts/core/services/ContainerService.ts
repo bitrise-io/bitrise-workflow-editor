@@ -1,5 +1,6 @@
 import { Document, isMap } from 'yaml';
 
+import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
@@ -68,7 +69,7 @@ function createExecutionContainer(
   image: string,
   credentials?: { username?: string; password?: string; server?: string },
   ports?: string[],
-  envs?: Record<string, string>[],
+  envs?: EnvironmentItemModel[],
   options?: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -80,7 +81,7 @@ function createExecutionContainer(
 
     if (credentials) {
       const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => value !== undefined && value !== '')
+        .filter(([_, value]) => !!value)
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
       if (Object.keys(filteredCredentials).length > 0) {
@@ -110,7 +111,7 @@ function createServiceContainer(
   image: string,
   ports: string[],
   credentials?: { username?: string; password?: string; server?: string },
-  envs?: Record<string, string>[],
+  envs?: EnvironmentItemModel[],
   options?: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -122,7 +123,7 @@ function createServiceContainer(
 
     if (credentials) {
       const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => value !== undefined && value !== '')
+        .filter(([_, value]) => !!value)
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
       if (Object.keys(filteredCredentials).length > 0) {
@@ -214,6 +215,10 @@ function deleteExecutionContainer(id: string) {
     getExecutionContainerOrThrowError(id, doc);
     YmlUtils.deleteByPath(doc, ['containers', id]);
 
+    if (doc.hasIn(['containers']) && Object.keys(YmlUtils.getMapIn(doc, ['containers']) || {}).length === 0) {
+      YmlUtils.deleteByPath(doc, ['containers']);
+    }
+
     return doc;
   });
 }
@@ -223,17 +228,61 @@ function deleteServiceContainer(id: string) {
     getServiceContainerOrThrowError(id, doc);
     YmlUtils.deleteByPath(doc, ['services', id]);
 
+    if (doc.hasIn(['services']) && Object.keys(YmlUtils.getMapIn(doc, ['services']) || {}).length === 0) {
+      YmlUtils.deleteByPath(doc, ['services']);
+    }
+
     return doc;
   });
 }
 
-function editExecutionContainer(
+function getAllExecutionContainers(doc: Document) {
+  const containers = YmlUtils.getMapIn(doc, ['containers']);
+
+  if (!containers) {
+    return {};
+  }
+
+  return containers;
+}
+
+function getAllServiceContainers(doc: Document) {
+  const services = YmlUtils.getMapIn(doc, ['services']);
+
+  if (!services) {
+    return {};
+  }
+
+  return services;
+}
+
+function getExecutionContainerOrThrowError(id: string, doc: Document) {
+  const container = YmlUtils.getMapIn(doc, ['containers', id]);
+
+  if (!container) {
+    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
+  }
+
+  return container;
+}
+
+function getServiceContainerOrThrowError(id: string, doc: Document) {
+  const service = YmlUtils.getMapIn(doc, ['services', id]);
+
+  if (!service) {
+    throw new Error(`Service ${id} not found. Ensure that the service exists in the 'services' section.`);
+  }
+
+  return service;
+}
+
+function updateExecutionContainer(
   id: string,
   newId: string,
   image: string,
   credentials?: { username?: string; password?: string; server?: string },
   ports?: string[],
-  envs?: Record<string, string>[],
+  envs?: EnvironmentItemModel[],
   options?: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -247,7 +296,7 @@ function editExecutionContainer(
 
     if (credentials) {
       const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => value !== undefined && value !== '')
+        .filter(([_, value]) => !!value)
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
       if (Object.keys(filteredCredentials).length > 0) {
@@ -278,13 +327,13 @@ function editExecutionContainer(
   });
 }
 
-function editServiceContainer(
+function updateServiceContainer(
   id: string,
   newId: string,
   image: string,
   ports: string[],
   credentials?: { username?: string; password?: string; server?: string },
-  envs?: Record<string, string>[],
+  envs?: EnvironmentItemModel[],
   options?: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -298,7 +347,7 @@ function editServiceContainer(
 
     if (credentials) {
       const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => value !== undefined && value !== '')
+        .filter(([_, value]) => !!value)
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
       if (Object.keys(filteredCredentials).length > 0) {
@@ -325,26 +374,6 @@ function editServiceContainer(
   });
 }
 
-function getExecutionContainerOrThrowError(id: string, doc: Document) {
-  const container = YmlUtils.getMapIn(doc, ['containers', id]);
-
-  if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
-  }
-
-  return container;
-}
-
-function getServiceContainerOrThrowError(id: string, doc: Document) {
-  const service = YmlUtils.getMapIn(doc, ['services', id]);
-
-  if (!service) {
-    throw new Error(`Service ${id} not found. Ensure that the service exists in the 'services' section.`);
-  }
-
-  return service;
-}
-
 export default {
   addExecutionContainerToStep,
   addServiceContainerToStep,
@@ -354,8 +383,10 @@ export default {
   deleteExecutionContainerFromStep,
   deleteServiceContainer,
   deleteServiceContainerFromStep,
-  editExecutionContainer,
-  editServiceContainer,
+  getAllExecutionContainers,
+  getAllServiceContainers,
   getExecutionContainerOrThrowError,
   getServiceContainerOrThrowError,
+  updateExecutionContainer,
+  updateServiceContainer,
 };
