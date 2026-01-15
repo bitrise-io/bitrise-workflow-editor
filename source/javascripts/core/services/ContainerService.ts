@@ -184,7 +184,11 @@ function getAllExecutionContainers(doc: Document) {
     return {};
   }
 
-  return containers;
+  return containers.items.reduce<Record<string, YAMLMap>>((acc, pair) => {
+    const key = String(pair.key);
+    acc[key] = pair.value as YAMLMap;
+    return acc;
+  }, {});
 }
 
 function getAllServiceContainers(doc: Document) {
@@ -194,7 +198,11 @@ function getAllServiceContainers(doc: Document) {
     return {};
   }
 
-  return services;
+  return services.items.reduce<Record<string, YAMLMap>>((acc, pair) => {
+    const key = String(pair.key);
+    acc[key] = pair.value as YAMLMap;
+    return acc;
+  }, {});
 }
 
 function getExecutionContainerOrThrowError(id: ContainerModel['id'], doc: Document) {
