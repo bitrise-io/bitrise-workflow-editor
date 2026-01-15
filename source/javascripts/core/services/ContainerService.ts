@@ -351,6 +351,82 @@ function updateServiceContainer(container: ContainerModel, newId: string) {
   });
 }
 
+function recreateExecutionContainer(workflowId: string, stepIndex: number, recreate: boolean) {
+  updateBitriseYmlDocument(({ doc }) => {
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
+    if (!steps || stepIndex >= steps.items.length) {
+      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
+    }
+
+    const step = steps.items[stepIndex];
+    if (!step || !isMap(step)) {
+      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const stepData = step.items[0]?.value;
+    if (!isMap(stepData)) {
+      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const container = stepData.get('container');
+    if (!container) {
+      throw new Error(`No container found on step at index ${stepIndex}`);
+    }
+
+    const containerId = isMap(container) ? String(container.items[0]?.key) : String(container);
+
+    if (recreate) {
+      YmlUtils.setIn(stepData, ['container'], { [containerId]: { recreate: true } });
+    } else {
+      YmlUtils.setIn(stepData, ['container'], containerId);
+    }
+
+    return doc;
+  });
+}
+
+function recreateServiceContainer(workflowId: string, stepIndex: number, serviceId: string, recreate: boolean) {
+  updateBitriseYmlDocument(({ doc }) => {
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
+    if (!steps || stepIndex >= steps.items.length) {
+      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
+    }
+
+    const step = steps.items[stepIndex];
+    if (!step || !isMap(step)) {
+      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const stepData = step.items[0]?.value;
+    if (!isMap(stepData)) {
+      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+    }
+
+    const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
+    if (!existingServices) {
+      throw new Error(`No services found on step at index ${stepIndex}`);
+    }
+
+    const updatedServices = existingServices.items.map((item) => {
+      const currentServiceId = isMap(item) ? String(item.items[0]?.key) : String(item);
+
+      if (currentServiceId === serviceId) {
+        return recreate ? { [serviceId]: { recreate: true } } : serviceId;
+      }
+
+      return item;
+    });
+
+    YmlUtils.setIn(stepData, ['services'], updatedServices);
+
+    return doc;
+  });
+}
+
 export default {
   addExecutionContainerToUsage,
   addServiceContainerToUsage,
@@ -364,6 +440,8 @@ export default {
   getAllServiceContainers,
   getExecutionContainerOrThrowError,
   getServiceContainerOrThrowError,
+  recreateExecutionContainer,
+  recreateServiceContainer,
   updateExecutionContainer,
   updateServiceContainer,
 };
