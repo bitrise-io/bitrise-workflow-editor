@@ -1,4 +1,4 @@
-import { Document, isMap } from 'yaml';
+import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel } from '@/core/models/BitriseYml';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -9,21 +9,7 @@ function addExecutionContainerToUsage(workflowId: string, stepIndex: number, con
   updateBitriseYmlDocument(({ doc }) => {
     getExecutionContainerOrThrowError(containerId, doc);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     YmlUtils.setIn(stepData, ['container'], containerId);
 
@@ -35,21 +21,7 @@ function addServiceContainerToUsage(workflowId: string, stepIndex: number, conta
   updateBitriseYmlDocument(({ doc }) => {
     getServiceContainerOrThrowError(containerId, doc);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
     const currentServices = existingServices ? existingServices.items.map((item) => String(item)) : [];
@@ -64,37 +36,44 @@ function addServiceContainerToUsage(workflowId: string, stepIndex: number, conta
   });
 }
 
+function buildContainerData(container: ContainerModel, includePortsByDefault = false) {
+  const { image, credentials, ports, envs, options } = container;
+
+  const containerData: Record<string, unknown> = { image };
+
+  if (includePortsByDefault && ports) {
+    containerData.ports = ports;
+  }
+
+  const filteredCredentials = filterCredentials(credentials);
+  if (filteredCredentials) {
+    containerData.credentials = filteredCredentials;
+  }
+
+  if (ports && ports.length > 0 && !includePortsByDefault) {
+    containerData.ports = ports;
+  }
+
+  if (envs && envs.length > 0) {
+    containerData.envs = envs;
+  }
+
+  if (options) {
+    containerData.options = options;
+  }
+
+  return containerData;
+}
+
 function createExecutionContainer(container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { id, image, credentials, ports, envs, options } = container;
+    const { id } = container;
 
     if (doc.hasIn(['containers', id])) {
       throw new Error(`Container '${id}' already exists`);
     }
 
-    const containerData: Record<string, unknown> = { image };
-
-    if (credentials) {
-      const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => !!value)
-        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-      if (Object.keys(filteredCredentials).length > 0) {
-        containerData.credentials = filteredCredentials;
-      }
-    }
-
-    if (ports && ports.length > 0) {
-      containerData.ports = ports;
-    }
-
-    if (envs && envs.length > 0) {
-      containerData.envs = envs;
-    }
-
-    if (options) {
-      containerData.options = options;
-    }
+    const containerData = buildContainerData(container);
 
     YmlUtils.setIn(doc, ['containers', id], containerData);
     return doc;
@@ -103,31 +82,13 @@ function createExecutionContainer(container: ContainerModel) {
 
 function createServiceContainer(container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { id, image, credentials, ports, envs, options } = container;
+    const { id } = container;
 
     if (doc.hasIn(['services', id])) {
       throw new Error(`Service '${id}' already exists`);
     }
 
-    const service: Record<string, unknown> = { image, ports };
-
-    if (credentials) {
-      const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => !!value)
-        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-      if (Object.keys(filteredCredentials).length > 0) {
-        service.credentials = filteredCredentials;
-      }
-    }
-
-    if (envs && envs.length > 0) {
-      service.envs = envs;
-    }
-
-    if (options) {
-      service.options = options;
-    }
+    const service = buildContainerData(container, true);
 
     YmlUtils.setIn(doc, ['services', id], service);
     return doc;
@@ -137,21 +98,7 @@ function createServiceContainer(container: ContainerModel) {
 function deleteExecutionContainerFromUsage(workflowId: string, stepIndex: number) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     YmlUtils.deleteByPath(stepData, ['container']);
 
@@ -162,21 +109,7 @@ function deleteExecutionContainerFromUsage(workflowId: string, stepIndex: number
 function deleteServiceContainerFromUsage(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
     if (!existingServices) {
@@ -226,6 +159,18 @@ function deleteServiceContainer(id: ContainerModel['id']) {
   });
 }
 
+function filterCredentials(credentials: ContainerModel['credentials']) {
+  if (!credentials) {
+    return undefined;
+  }
+
+  const filteredCredentials = Object.entries(credentials)
+    .filter(([_, value]) => !!value)
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+  return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
+}
+
 function getAllExecutionContainers(doc: Document) {
   const containers = YmlUtils.getMapIn(doc, ['containers']);
 
@@ -266,38 +211,35 @@ function getServiceContainerOrThrowError(id: ContainerModel['id'], doc: Document
   return service;
 }
 
+function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
+  const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
+  if (!steps || stepIndex >= steps.items.length) {
+    throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
+  }
+
+  const step = steps.items[stepIndex];
+  if (!step || !isMap(step)) {
+    throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
+  }
+
+  const stepData = step.items[0]?.value;
+  if (!isMap(stepData)) {
+    throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+  }
+
+  return stepData;
+}
+
 function updateExecutionContainer(container: ContainerModel, newId: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { id, image, credentials, ports, envs, options } = container;
+    const { id } = container;
     getExecutionContainerOrThrowError(id, doc);
 
     if (id !== newId && doc.hasIn(['containers', newId])) {
       throw new Error(`Container '${newId}' already exists`);
     }
 
-    const containerData: Record<string, unknown> = { image };
-
-    if (credentials) {
-      const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => !!value)
-        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-      if (Object.keys(filteredCredentials).length > 0) {
-        containerData.credentials = filteredCredentials;
-      }
-    }
-
-    if (ports && ports.length > 0) {
-      containerData.ports = ports;
-    }
-
-    if (envs && envs.length > 0) {
-      containerData.envs = envs;
-    }
-
-    if (options) {
-      containerData.options = options;
-    }
+    const containerData = buildContainerData(container);
 
     if (id !== newId) {
       YmlUtils.deleteByPath(doc, ['containers', id]);
@@ -312,7 +254,7 @@ function updateExecutionContainer(container: ContainerModel, newId: string) {
 
 function updateServiceContainer(container: ContainerModel, newId: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { id, image, credentials, ports, envs, options } = container;
+    const { id } = container;
 
     getServiceContainerOrThrowError(id, doc);
 
@@ -320,25 +262,7 @@ function updateServiceContainer(container: ContainerModel, newId: string) {
       throw new Error(`Service '${newId}' already exists`);
     }
 
-    const service: Record<string, unknown> = { image, ports };
-
-    if (credentials) {
-      const filteredCredentials = Object.entries(credentials)
-        .filter(([_, value]) => !!value)
-        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-      if (Object.keys(filteredCredentials).length > 0) {
-        service.credentials = filteredCredentials;
-      }
-    }
-
-    if (envs && envs.length > 0) {
-      service.envs = envs;
-    }
-
-    if (options) {
-      service.options = options;
-    }
+    const service = buildContainerData(container, true);
 
     if (id !== newId) {
       YmlUtils.deleteByPath(doc, ['services', id]);
@@ -355,20 +279,7 @@ function recreateExecutionContainer(workflowId: string, stepIndex: number, recre
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     const container = stepData.get('container');
     if (!container) {
@@ -391,20 +302,7 @@ function recreateServiceContainer(workflowId: string, stepIndex: number, service
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
-    const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-    if (!steps || stepIndex >= steps.items.length) {
-      throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-    }
-
-    const step = steps.items[stepIndex];
-    if (!step || !isMap(step)) {
-      throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-    }
-
-    const stepData = step.items[0]?.value;
-    if (!isMap(stepData)) {
-      throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-    }
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
     if (!existingServices) {
