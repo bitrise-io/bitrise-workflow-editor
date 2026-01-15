@@ -1,11 +1,11 @@
 import { Document, isMap } from 'yaml';
 
-import { EnvironmentItemModel } from '@/core/models/BitriseYml';
+import { ContainerModel } from '@/core/models/BitriseYml';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-function addExecutionContainerToStep(workflowId: string, stepIndex: number, containerId: string) {
+function addExecutionContainerToUsage(workflowId: string, stepIndex: number, containerId: ContainerModel['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getExecutionContainerOrThrowError(containerId, doc);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
@@ -31,7 +31,7 @@ function addExecutionContainerToStep(workflowId: string, stepIndex: number, cont
   });
 }
 
-function addServiceContainerToStep(workflowId: string, stepIndex: number, containerId: string) {
+function addServiceContainerToUsage(workflowId: string, stepIndex: number, containerId: ContainerModel['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getServiceContainerOrThrowError(containerId, doc);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
@@ -64,20 +64,15 @@ function addServiceContainerToStep(workflowId: string, stepIndex: number, contai
   });
 }
 
-function createExecutionContainer(
-  id: string,
-  image: string,
-  credentials?: { username?: string; password?: string; server?: string },
-  ports?: string[],
-  envs?: EnvironmentItemModel[],
-  options?: string,
-) {
+function createExecutionContainer(container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
+    const { id, image, credentials, ports, envs, options } = container;
+
     if (doc.hasIn(['containers', id])) {
       throw new Error(`Container '${id}' already exists`);
     }
 
-    const container: Record<string, unknown> = { image };
+    const containerData: Record<string, unknown> = { image };
 
     if (credentials) {
       const filteredCredentials = Object.entries(credentials)
@@ -85,36 +80,31 @@ function createExecutionContainer(
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
       if (Object.keys(filteredCredentials).length > 0) {
-        container.credentials = filteredCredentials;
+        containerData.credentials = filteredCredentials;
       }
     }
 
     if (ports && ports.length > 0) {
-      container.ports = ports;
+      containerData.ports = ports;
     }
 
     if (envs && envs.length > 0) {
-      container.envs = envs;
+      containerData.envs = envs;
     }
 
     if (options) {
-      container.options = options;
+      containerData.options = options;
     }
 
-    YmlUtils.setIn(doc, ['containers', id], container);
+    YmlUtils.setIn(doc, ['containers', id], containerData);
     return doc;
   });
 }
 
-function createServiceContainer(
-  id: string,
-  image: string,
-  ports: string[],
-  credentials?: { username?: string; password?: string; server?: string },
-  envs?: EnvironmentItemModel[],
-  options?: string,
-) {
+function createServiceContainer(container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
+    const { id, image, credentials, ports, envs, options } = container;
+
     if (doc.hasIn(['services', id])) {
       throw new Error(`Service '${id}' already exists`);
     }
@@ -144,7 +134,7 @@ function createServiceContainer(
   });
 }
 
-function deleteExecutionContainerFromStep(workflowId: string, stepIndex: number) {
+function deleteExecutionContainerFromUsage(workflowId: string, stepIndex: number) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
@@ -169,7 +159,7 @@ function deleteExecutionContainerFromStep(workflowId: string, stepIndex: number)
   });
 }
 
-function deleteServiceContainerFromStep(workflowId: string, stepIndex: number, containerId: string) {
+function deleteServiceContainerFromUsage(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
@@ -210,7 +200,7 @@ function deleteServiceContainerFromStep(workflowId: string, stepIndex: number, c
   });
 }
 
-function deleteExecutionContainer(id: string) {
+function deleteExecutionContainer(id: ContainerModel['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getExecutionContainerOrThrowError(id, doc);
     YmlUtils.deleteByPath(doc, ['containers', id]);
@@ -223,7 +213,7 @@ function deleteExecutionContainer(id: string) {
   });
 }
 
-function deleteServiceContainer(id: string) {
+function deleteServiceContainer(id: ContainerModel['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getServiceContainerOrThrowError(id, doc);
     YmlUtils.deleteByPath(doc, ['services', id]);
@@ -256,7 +246,7 @@ function getAllServiceContainers(doc: Document) {
   return services;
 }
 
-function getExecutionContainerOrThrowError(id: string, doc: Document) {
+function getExecutionContainerOrThrowError(id: ContainerModel['id'], doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
 
   if (!container) {
@@ -266,7 +256,7 @@ function getExecutionContainerOrThrowError(id: string, doc: Document) {
   return container;
 }
 
-function getServiceContainerOrThrowError(id: string, doc: Document) {
+function getServiceContainerOrThrowError(id: ContainerModel['id'], doc: Document) {
   const service = YmlUtils.getMapIn(doc, ['services', id]);
 
   if (!service) {
@@ -276,23 +266,16 @@ function getServiceContainerOrThrowError(id: string, doc: Document) {
   return service;
 }
 
-function updateExecutionContainer(
-  id: string,
-  newId: string,
-  image: string,
-  credentials?: { username?: string; password?: string; server?: string },
-  ports?: string[],
-  envs?: EnvironmentItemModel[],
-  options?: string,
-) {
+function updateExecutionContainer(container: ContainerModel, newId: string) {
   updateBitriseYmlDocument(({ doc }) => {
+    const { id, image, credentials, ports, envs, options } = container;
     getExecutionContainerOrThrowError(id, doc);
 
     if (id !== newId && doc.hasIn(['containers', newId])) {
       throw new Error(`Container '${newId}' already exists`);
     }
 
-    const container: Record<string, unknown> = { image };
+    const containerData: Record<string, unknown> = { image };
 
     if (credentials) {
       const filteredCredentials = Object.entries(credentials)
@@ -300,43 +283,37 @@ function updateExecutionContainer(
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
       if (Object.keys(filteredCredentials).length > 0) {
-        container.credentials = filteredCredentials;
+        containerData.credentials = filteredCredentials;
       }
     }
 
     if (ports && ports.length > 0) {
-      container.ports = ports;
+      containerData.ports = ports;
     }
 
     if (envs && envs.length > 0) {
-      container.envs = envs;
+      containerData.envs = envs;
     }
 
     if (options) {
-      container.options = options;
+      containerData.options = options;
     }
 
     if (id !== newId) {
       YmlUtils.deleteByPath(doc, ['containers', id]);
-      YmlUtils.setIn(doc, ['containers', newId], container);
+      YmlUtils.setIn(doc, ['containers', newId], containerData);
     } else {
-      YmlUtils.setIn(doc, ['containers', id], container);
+      YmlUtils.setIn(doc, ['containers', id], containerData);
     }
 
     return doc;
   });
 }
 
-function updateServiceContainer(
-  id: string,
-  newId: string,
-  image: string,
-  ports: string[],
-  credentials?: { username?: string; password?: string; server?: string },
-  envs?: EnvironmentItemModel[],
-  options?: string,
-) {
+function updateServiceContainer(container: ContainerModel, newId: string) {
   updateBitriseYmlDocument(({ doc }) => {
+    const { id, image, credentials, ports, envs, options } = container;
+
     getServiceContainerOrThrowError(id, doc);
 
     if (id !== newId && doc.hasIn(['services', newId])) {
@@ -375,14 +352,14 @@ function updateServiceContainer(
 }
 
 export default {
-  addExecutionContainerToStep,
-  addServiceContainerToStep,
+  addExecutionContainerToUsage,
+  addServiceContainerToUsage,
   createExecutionContainer,
   createServiceContainer,
   deleteExecutionContainer,
-  deleteExecutionContainerFromStep,
+  deleteExecutionContainerFromUsage,
   deleteServiceContainer,
-  deleteServiceContainerFromStep,
+  deleteServiceContainerFromUsage,
   getAllExecutionContainers,
   getAllServiceContainers,
   getExecutionContainerOrThrowError,
