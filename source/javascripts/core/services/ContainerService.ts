@@ -11,7 +11,7 @@ function addExecutionContainerToUsage(workflowId: string, stepIndex: number, con
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    YmlUtils.setIn(stepData, ['container'], containerId);
+    YmlUtils.setIn(stepData, ['execution_container'], containerId);
 
     return doc;
   });
@@ -23,14 +23,14 @@ function addServiceContainerToUsage(workflowId: string, stepIndex: number, conta
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
+    const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
     const currentServices = existingServices ? existingServices.items.map((item) => String(item)) : [];
 
     if (currentServices.includes(containerId)) {
-      throw new Error(`Service '${containerId}' is already added to the step`);
+      throw new Error(`Service container '${containerId}' is already added to the step`);
     }
 
-    YmlUtils.setIn(stepData, ['services'], [...currentServices, containerId]);
+    YmlUtils.setIn(stepData, ['service_containers'], [...currentServices, containerId]);
 
     return doc;
   });
@@ -69,13 +69,13 @@ function createExecutionContainer(container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
     const { id } = container;
 
-    if (doc.hasIn(['containers', id])) {
-      throw new Error(`Container '${id}' already exists`);
+    if (doc.hasIn(['execution_containers', id])) {
+      throw new Error(`Execution container '${id}' already exists`);
     }
 
     const containerData = buildContainerData(container);
 
-    YmlUtils.setIn(doc, ['containers', id], containerData);
+    YmlUtils.setIn(doc, ['execution_containers', id], containerData);
     return doc;
   });
 }
@@ -84,13 +84,13 @@ function createServiceContainer(container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
     const { id } = container;
 
-    if (doc.hasIn(['services', id])) {
-      throw new Error(`Service '${id}' already exists`);
+    if (doc.hasIn(['service_containers', id])) {
+      throw new Error(`Service container '${id}' already exists`);
     }
 
     const service = buildContainerData(container, true);
 
-    YmlUtils.setIn(doc, ['services', id], service);
+    YmlUtils.setIn(doc, ['service_containers', id], service);
     return doc;
   });
 }
@@ -100,7 +100,7 @@ function deleteExecutionContainerFromUsage(workflowId: string, stepIndex: number
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    YmlUtils.deleteByPath(stepData, ['container']);
+    YmlUtils.deleteByPath(stepData, ['execution_container']);
 
     return doc;
   });
@@ -111,22 +111,22 @@ function deleteServiceContainerFromUsage(workflowId: string, stepIndex: number, 
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
+    const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
     if (!existingServices) {
-      throw new Error(`No services found on step at index ${stepIndex}`);
+      throw new Error(`No service containers found on step at index ${stepIndex}`);
     }
 
     const currentServices = existingServices.items.map((item) => String(item));
     const updatedServices = currentServices.filter((service) => service !== containerId);
 
     if (updatedServices.length === currentServices.length) {
-      throw new Error(`Service '${containerId}' not found on step at index ${stepIndex}`);
+      throw new Error(`Service container '${containerId}' not found on step at index ${stepIndex}`);
     }
 
     if (updatedServices.length === 0) {
-      YmlUtils.deleteByPath(stepData, ['services']);
+      YmlUtils.deleteByPath(stepData, ['service_containers']);
     } else {
-      YmlUtils.setIn(stepData, ['services'], updatedServices);
+      YmlUtils.setIn(stepData, ['service_containers'], updatedServices);
     }
 
     return doc;
@@ -136,10 +136,13 @@ function deleteServiceContainerFromUsage(workflowId: string, stepIndex: number, 
 function deleteExecutionContainer(id: ContainerModel['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getExecutionContainerOrThrowError(id, doc);
-    YmlUtils.deleteByPath(doc, ['containers', id]);
+    YmlUtils.deleteByPath(doc, ['execution_containers', id]);
 
-    if (doc.hasIn(['containers']) && Object.keys(YmlUtils.getMapIn(doc, ['containers']) || {}).length === 0) {
-      YmlUtils.deleteByPath(doc, ['containers']);
+    if (
+      doc.hasIn(['execution_containers']) &&
+      Object.keys(YmlUtils.getMapIn(doc, ['execution_containers']) || {}).length === 0
+    ) {
+      YmlUtils.deleteByPath(doc, ['execution_containers']);
     }
 
     return doc;
@@ -149,10 +152,13 @@ function deleteExecutionContainer(id: ContainerModel['id']) {
 function deleteServiceContainer(id: ContainerModel['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getServiceContainerOrThrowError(id, doc);
-    YmlUtils.deleteByPath(doc, ['services', id]);
+    YmlUtils.deleteByPath(doc, ['service_containers', id]);
 
-    if (doc.hasIn(['services']) && Object.keys(YmlUtils.getMapIn(doc, ['services']) || {}).length === 0) {
-      YmlUtils.deleteByPath(doc, ['services']);
+    if (
+      doc.hasIn(['service_containers']) &&
+      Object.keys(YmlUtils.getMapIn(doc, ['service_containers']) || {}).length === 0
+    ) {
+      YmlUtils.deleteByPath(doc, ['service_containers']);
     }
 
     return doc;
@@ -172,7 +178,7 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
 }
 
 function getAllExecutionContainers(doc: Document) {
-  const containers = YmlUtils.getMapIn(doc, ['containers']);
+  const containers = YmlUtils.getMapIn(doc, ['execution_containers']);
 
   if (!containers) {
     return {};
@@ -182,7 +188,7 @@ function getAllExecutionContainers(doc: Document) {
 }
 
 function getAllServiceContainers(doc: Document) {
-  const services = YmlUtils.getMapIn(doc, ['services']);
+  const services = YmlUtils.getMapIn(doc, ['service_containers']);
 
   if (!services) {
     return {};
@@ -192,20 +198,22 @@ function getAllServiceContainers(doc: Document) {
 }
 
 function getExecutionContainerOrThrowError(id: ContainerModel['id'], doc: Document) {
-  const container = YmlUtils.getMapIn(doc, ['containers', id]);
+  const container = YmlUtils.getMapIn(doc, ['execution_containers', id]);
 
   if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
+    throw new Error(
+      `Container ${id} not found. Ensure that the container exists in the 'execution_containers' section.`,
+    );
   }
 
   return container;
 }
 
 function getServiceContainerOrThrowError(id: ContainerModel['id'], doc: Document) {
-  const service = YmlUtils.getMapIn(doc, ['services', id]);
+  const service = YmlUtils.getMapIn(doc, ['service_containers', id]);
 
   if (!service) {
-    throw new Error(`Service ${id} not found. Ensure that the service exists in the 'services' section.`);
+    throw new Error(`Service ${id} not found. Ensure that the service exists in the 'service_containers' section.`);
   }
 
   return service;
@@ -235,17 +243,40 @@ function updateExecutionContainer(container: ContainerModel, newId: string) {
     const { id } = container;
     getExecutionContainerOrThrowError(id, doc);
 
-    if (id !== newId && doc.hasIn(['containers', newId])) {
-      throw new Error(`Container '${newId}' already exists`);
+    if (id !== newId && doc.hasIn(['execution_containers', newId])) {
+      throw new Error(`Execution container '${newId}' already exists`);
     }
 
     const containerData = buildContainerData(container);
 
     if (id !== newId) {
-      YmlUtils.deleteByPath(doc, ['containers', id]);
-      YmlUtils.setIn(doc, ['containers', newId], containerData);
+      YmlUtils.deleteByPath(doc, ['execution_containers', id]);
+      YmlUtils.setIn(doc, ['execution_containers', newId], containerData);
     } else {
-      YmlUtils.setIn(doc, ['containers', id], containerData);
+      YmlUtils.setIn(doc, ['execution_containers', id], containerData);
+    }
+
+    return doc;
+  });
+}
+
+function updateExecutionContainerUsage(workflowId: string, stepIndex: number, recreate: boolean) {
+  updateBitriseYmlDocument(({ doc }) => {
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+
+    const container = stepData.get('execution_container');
+    if (!container) {
+      throw new Error(`No execution container found on step at index ${stepIndex}`);
+    }
+
+    const containerId = isMap(container) ? String(container.items[0]?.key) : String(container);
+
+    if (recreate) {
+      YmlUtils.setIn(stepData, ['execution_container'], { [containerId]: { recreate: true } });
+    } else {
+      YmlUtils.setIn(stepData, ['execution_container'], containerId);
     }
 
     return doc;
@@ -258,55 +289,32 @@ function updateServiceContainer(container: ContainerModel, newId: string) {
 
     getServiceContainerOrThrowError(id, doc);
 
-    if (id !== newId && doc.hasIn(['services', newId])) {
-      throw new Error(`Service '${newId}' already exists`);
+    if (id !== newId && doc.hasIn(['service_containers', newId])) {
+      throw new Error(`Service container '${newId}' already exists`);
     }
 
     const service = buildContainerData(container, true);
 
     if (id !== newId) {
-      YmlUtils.deleteByPath(doc, ['services', id]);
-      YmlUtils.setIn(doc, ['services', newId], service);
+      YmlUtils.deleteByPath(doc, ['service_containers', id]);
+      YmlUtils.setIn(doc, ['service_containers', newId], service);
     } else {
-      YmlUtils.setIn(doc, ['services', id], service);
+      YmlUtils.setIn(doc, ['service_containers', id], service);
     }
 
     return doc;
   });
 }
 
-function recreateExecutionContainer(workflowId: string, stepIndex: number, recreate: boolean) {
+function updateServiceContainerUsage(workflowId: string, stepIndex: number, serviceId: string, recreate: boolean) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    const container = stepData.get('container');
-    if (!container) {
-      throw new Error(`No container found on step at index ${stepIndex}`);
-    }
-
-    const containerId = isMap(container) ? String(container.items[0]?.key) : String(container);
-
-    if (recreate) {
-      YmlUtils.setIn(stepData, ['container'], { [containerId]: { recreate: true } });
-    } else {
-      YmlUtils.setIn(stepData, ['container'], containerId);
-    }
-
-    return doc;
-  });
-}
-
-function recreateServiceContainer(workflowId: string, stepIndex: number, serviceId: string, recreate: boolean) {
-  updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
-
-    const existingServices = YmlUtils.getSeqIn(stepData, ['services']);
+    const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
     if (!existingServices) {
-      throw new Error(`No services found on step at index ${stepIndex}`);
+      throw new Error(`No service containers found on step at index ${stepIndex}`);
     }
 
     const updatedServices = existingServices.items.map((item) => {
@@ -319,7 +327,7 @@ function recreateServiceContainer(workflowId: string, stepIndex: number, service
       return item;
     });
 
-    YmlUtils.setIn(stepData, ['services'], updatedServices);
+    YmlUtils.setIn(stepData, ['service_containers'], updatedServices);
 
     return doc;
   });
@@ -338,8 +346,8 @@ export default {
   getAllServiceContainers,
   getExecutionContainerOrThrowError,
   getServiceContainerOrThrowError,
-  recreateExecutionContainer,
-  recreateServiceContainer,
   updateExecutionContainer,
+  updateExecutionContainerUsage,
   updateServiceContainer,
+  updateServiceContainerUsage,
 };
