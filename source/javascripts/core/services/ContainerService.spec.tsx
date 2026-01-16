@@ -983,4 +983,246 @@ workflows:
       expect(services).toEqual({});
     });
   });
+
+  describe('getWorkflowsUsingExecutionContainer', () => {
+    it('should return workflows using a specific execution container', () => {
+      updateBitriseYmlDocumentByString(yaml`execution_containers:
+  golang_1:
+    image: golang:1.22
+  golang_2:
+    image: golang:1.22
+workflows:
+  test:
+    steps:
+    - script@1:
+        title: Run Unit tests
+        execution_container: golang_1
+        inputs:
+        - content: go test ./unittests/...
+    - script@1:
+        title: Run Integration tests
+        execution_container: golang_2
+        inputs:
+        - content: go test ./integrationtests/...
+  build:
+    steps:
+    - script@1:
+        title: Build
+        execution_container: golang_1
+        inputs:
+        - content: go build
+  deploy:
+    steps:
+    - script@1:
+        title: Deploy
+        inputs:
+        - content: echo "deploying"
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result1 = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'golang_1');
+      const result2 = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'golang_2');
+
+      expect(result1).toEqual(['test', 'build']);
+      expect(result2).toEqual(['test']);
+    });
+
+    it('should handle execution containers with recreate flag', () => {
+      updateBitriseYmlDocumentByString(yaml`execution_containers:
+  my-container:
+    image: ubuntu:20.04
+workflows:
+  wf1:
+    steps:
+    - script:
+        title: Test
+        execution_container:
+          my-container:
+            recreate: true
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'my-container');
+
+      expect(result).toEqual(['wf1']);
+    });
+
+    it('should return empty array if no workflows use the container', () => {
+      updateBitriseYmlDocumentByString(yaml`execution_containers:
+  golang:
+    image: golang:1.22
+workflows:
+  wf1:
+    steps:
+    - script:
+        title: Test
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'golang');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array if no workflows exist', () => {
+      updateBitriseYmlDocumentByString(yaml`execution_containers:
+  my-container:
+    image: ubuntu:20.04
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'my-container');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array if container does not exist', () => {
+      updateBitriseYmlDocumentByString(yaml`execution_containers:
+  golang:
+    image: golang:1.22
+workflows:
+  test:
+    steps:
+    - script@1:
+        execution_container: golang
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'non-existent');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getWorkflowsUsingServiceContainer', () => {
+    it('should return workflows using a specific service container', () => {
+      updateBitriseYmlDocumentByString(yaml`service_containers:
+  postgres:
+    image: postgres:13
+  redis:
+    image: redis:6
+workflows:
+  test:
+    steps:
+    - script@1:
+        title: Run tests
+        service_containers:
+        - postgres
+        - redis
+        inputs:
+        - content: npm test
+  integration:
+    steps:
+    - script@1:
+        title: Run integration tests
+        service_containers:
+        - postgres
+        inputs:
+        - content: npm run test:integration
+  build:
+    steps:
+    - script@1:
+        title: Build
+        inputs:
+        - content: npm run build
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result1 = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+      const result2 = ContainerService.getWorkflowsUsingServiceContainer(doc, 'redis');
+
+      expect(result1).toEqual(['test', 'integration']);
+      expect(result2).toEqual(['test']);
+    });
+
+    it('should handle service containers with recreate flag', () => {
+      updateBitriseYmlDocumentByString(yaml`service_containers:
+  postgres:
+    image: postgres:13
+workflows:
+  test:
+    steps:
+    - script:
+        title: Test
+        service_containers:
+        - postgres:
+            recreate: true
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+
+      expect(result).toEqual(['test']);
+    });
+
+    it('should return empty array if no workflows use the service container', () => {
+      updateBitriseYmlDocumentByString(yaml`service_containers:
+  postgres:
+    image: postgres:13
+workflows:
+  wf1:
+    steps:
+    - script:
+        title: Test
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array if no workflows exist', () => {
+      updateBitriseYmlDocumentByString(yaml`service_containers:
+  postgres:
+    image: postgres:13
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array if service container does not exist', () => {
+      updateBitriseYmlDocumentByString(yaml`service_containers:
+  postgres:
+    image: postgres:13
+workflows:
+  test:
+    steps:
+    - script@1:
+        service_containers:
+        - postgres
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'redis');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should handle workflows with multiple steps using service containers', () => {
+      updateBitriseYmlDocumentByString(yaml`service_containers:
+  postgres:
+    image: postgres:13
+workflows:
+  test:
+    steps:
+    - script@1:
+        title: Setup
+    - script@1:
+        title: Run tests
+        service_containers:
+        - postgres
+    - script@1:
+        title: Cleanup
+`);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+
+      expect(result).toEqual(['test']);
+    });
+  });
 });
