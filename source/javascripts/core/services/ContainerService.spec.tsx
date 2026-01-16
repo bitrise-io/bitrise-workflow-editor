@@ -192,7 +192,7 @@ service_containers:
 `);
 
       const updatedContainer: ContainerModel = {
-        id: 'my-container',
+        id: 'new-container-id',
         image: 'ubuntu:22.04',
         envs: [{ ENV: 'updated' }],
       };
@@ -200,31 +200,10 @@ service_containers:
       ContainerService.updateExecutionContainer(updatedContainer, 'my-container');
 
       const expectedYml = yaml`execution_containers:
-  my-container:
+  new-container-id:
     image: ubuntu:22.04
     envs:
     - ENV: updated
-`;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should rename a container', () => {
-      updateBitriseYmlDocumentByString(yaml`execution_containers:
-  old-name:
-    image: ubuntu:20.04
-`);
-
-      const container: ContainerModel = {
-        id: 'old-name',
-        image: 'ubuntu:20.04',
-      };
-
-      ContainerService.updateExecutionContainer(container, 'new-name');
-
-      const expectedYml = yaml`execution_containers:
-  new-name:
-    image: ubuntu:20.04
 `;
 
       expect(getYmlString()).toEqual(expectedYml);
@@ -252,11 +231,11 @@ service_containers:
 `);
 
       const container: ContainerModel = {
-        id: 'container-1',
+        id: 'container-2',
         image: 'ubuntu:20.04',
       };
 
-      expect(() => ContainerService.updateExecutionContainer(container, 'container-2')).toThrow(
+      expect(() => ContainerService.updateExecutionContainer(container, 'container-1')).toThrow(
         "Execution container 'container-2' already exists",
       );
     });
@@ -270,7 +249,7 @@ service_containers:
 `);
 
       const updatedService: ContainerModel = {
-        id: 'postgres',
+        id: 'new-postgres-id',
         image: 'postgres:14',
         ports: ['5432:5432'],
       };
@@ -278,31 +257,10 @@ service_containers:
       ContainerService.updateServiceContainer(updatedService, 'postgres');
 
       const expectedYml = yaml`service_containers:
-  postgres:
+  new-postgres-id:
     image: postgres:14
     ports:
     - 5432:5432
-`;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should rename a service', () => {
-      updateBitriseYmlDocumentByString(yaml`service_containers:
-  old-service:
-    image: redis:6
-`);
-
-      const service: ContainerModel = {
-        id: 'old-service',
-        image: 'redis:6',
-      };
-
-      ContainerService.updateServiceContainer(service, 'new-service');
-
-      const expectedYml = yaml`service_containers:
-  new-service:
-    image: redis:6
 `;
 
       expect(getYmlString()).toEqual(expectedYml);
@@ -330,11 +288,11 @@ service_containers:
 `);
 
       const service: ContainerModel = {
-        id: 'service-1',
+        id: 'service-2',
         image: 'redis:6',
       };
 
-      expect(() => ContainerService.updateServiceContainer(service, 'service-2')).toThrow(
+      expect(() => ContainerService.updateServiceContainer(service, 'service-1')).toThrow(
         "Service container 'service-2' already exists",
       );
     });
@@ -452,6 +410,31 @@ workflows:
     steps:
     - script:
         title: Test
+        execution_container: my-container
+`;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should add container reference to a step bundle', () => {
+      updateBitriseYmlDocumentByString(yaml`execution_containers:
+  my-container:
+    image: ubuntu:20.04
+workflows:
+  wf1:
+    steps:
+    - bundle::setup_repo: {}
+`);
+
+      ContainerService.addExecutionContainerToUsage('wf1', 0, 'my-container');
+
+      const expectedYml = yaml`execution_containers:
+  my-container:
+    image: ubuntu:20.04
+workflows:
+  wf1:
+    steps:
+    - bundle::setup_repo:
         execution_container: my-container
 `;
 
@@ -942,10 +925,13 @@ workflows:
       const doc = bitriseYmlStore.getState().ymlDocument;
       const containers = ContainerService.getAllExecutionContainers(doc);
 
-      expect(Object.keys(containers)).toEqual(['container-1', 'container-2']);
+      expect(containers).toEqual([
+        { id: 'container-1', image: 'ubuntu:20.04' },
+        { id: 'container-2', image: 'ubuntu:22.04' },
+      ]);
     });
 
-    it('should return empty object if no containers exist', () => {
+    it('should return empty array if no containers exist', () => {
       updateBitriseYmlDocumentByString(yaml`workflows:
   wf1: {}
 `);
@@ -953,7 +939,7 @@ workflows:
       const doc = bitriseYmlStore.getState().ymlDocument;
       const containers = ContainerService.getAllExecutionContainers(doc);
 
-      expect(containers).toEqual({});
+      expect(containers).toEqual([]);
     });
   });
 
@@ -969,10 +955,13 @@ workflows:
       const doc = bitriseYmlStore.getState().ymlDocument;
       const services = ContainerService.getAllServiceContainers(doc);
 
-      expect(Object.keys(services)).toEqual(['postgres', 'redis']);
+      expect(services).toEqual([
+        { id: 'postgres', image: 'postgres:13' },
+        { id: 'redis', image: 'redis:6' },
+      ]);
     });
 
-    it('should return empty object if no services exist', () => {
+    it('should return empty array if no services exist', () => {
       updateBitriseYmlDocumentByString(yaml`workflows:
   wf1: {}
 `);
@@ -980,7 +969,7 @@ workflows:
       const doc = bitriseYmlStore.getState().ymlDocument;
       const services = ContainerService.getAllServiceContainers(doc);
 
-      expect(services).toEqual({});
+      expect(services).toEqual([]);
     });
   });
 

@@ -181,28 +181,30 @@ function getAllExecutionContainers(doc: Document) {
   const containers = YmlUtils.getMapIn(doc, ['execution_containers']);
 
   if (!containers) {
-    return {};
+    return [];
   }
 
-  return containers.items.reduce<Record<string, YAMLMap>>((acc, pair) => {
-    const key = String(pair.key);
-    acc[key] = pair.value as YAMLMap;
-    return acc;
-  }, {});
+  return containers.items.map((pair) => {
+    const id = String(pair.key);
+    const containerMap = pair.value as YAMLMap;
+    const image = String(containerMap.get('image'));
+    return { id, image };
+  });
 }
 
 function getAllServiceContainers(doc: Document) {
   const services = YmlUtils.getMapIn(doc, ['service_containers']);
 
   if (!services) {
-    return {};
+    return [];
   }
 
-  return services.items.reduce<Record<string, YAMLMap>>((acc, pair) => {
-    const key = String(pair.key);
-    acc[key] = pair.value as YAMLMap;
-    return acc;
-  }, {});
+  return services.items.map((pair) => {
+    const id = String(pair.key);
+    const serviceMap = pair.value as YAMLMap;
+    const image = String(serviceMap.get('image'));
+    return { id, image };
+  });
 }
 
 function getExecutionContainerOrThrowError(id: ContainerModel['id'], doc: Document) {
@@ -308,16 +310,16 @@ function getWorkflowsUsingServiceContainer(doc: Document, containerId: string): 
   });
 }
 
-function updateExecutionContainer(container: ContainerModel, newId: string) {
+function updateExecutionContainer(updatedContainer: ContainerModel, id: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { id } = container;
+    const { id: newId } = updatedContainer;
     getExecutionContainerOrThrowError(id, doc);
 
     if (id !== newId && doc.hasIn(['execution_containers', newId])) {
       throw new Error(`Execution container '${newId}' already exists`);
     }
 
-    const containerData = buildContainerData(container);
+    const containerData = buildContainerData(updatedContainer);
 
     if (id !== newId) {
       YmlUtils.deleteByPath(doc, ['execution_containers', id]);
@@ -353,9 +355,9 @@ function updateExecutionContainerUsage(workflowId: string, stepIndex: number, re
   });
 }
 
-function updateServiceContainer(container: ContainerModel, newId: string) {
+function updateServiceContainer(updatedContainer: ContainerModel, id: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    const { id } = container;
+    const { id: newId } = updatedContainer;
 
     getServiceContainerOrThrowError(id, doc);
 
@@ -363,7 +365,7 @@ function updateServiceContainer(container: ContainerModel, newId: string) {
       throw new Error(`Service container '${newId}' already exists`);
     }
 
-    const service = buildContainerData(container, true);
+    const service = buildContainerData(updatedContainer, true);
 
     if (id !== newId) {
       YmlUtils.deleteByPath(doc, ['service_containers', id]);
