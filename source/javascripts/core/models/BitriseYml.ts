@@ -265,7 +265,6 @@ export type StepListItemModel = {
 };
 
 export type ContainerModel = {
-  id: string;
   image: string;
   credentials?: DockerCredentialModel;
   ports?: string[];

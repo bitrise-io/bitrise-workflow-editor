@@ -13,11 +13,10 @@ describe('ContainerService', () => {
 `);
 
       const container: ContainerModel = {
-        id: 'my-container',
         image: 'ubuntu:20.04',
       };
 
-      ContainerService.createExecutionContainer(container);
+      ContainerService.createExecutionContainer('my-container', container);
 
       const expectedYml = yaml`workflows:
   wf1: {}
@@ -33,7 +32,6 @@ execution_containers:
       updateBitriseYmlDocumentByString(yaml``);
 
       const container: ContainerModel = {
-        id: 'private-container',
         image: 'registry.example.com/private:latest',
         credentials: {
           username: '$DOCKER_USERNAME',
@@ -41,7 +39,7 @@ execution_containers:
         },
       };
 
-      ContainerService.createExecutionContainer(container);
+      ContainerService.createExecutionContainer('private-container', container);
 
       const expectedYml = yaml`execution_containers:
   private-container:
@@ -58,14 +56,13 @@ execution_containers:
       updateBitriseYmlDocumentByString(yaml``);
 
       const container: ContainerModel = {
-        id: 'web-container',
         image: 'nginx:latest',
         ports: ['8080:80', '8443:443'],
         envs: [{ ENV: 'production' }, { DEBUG: 'false' }],
         options: '--memory=2g --cpus=2',
       };
 
-      ContainerService.createExecutionContainer(container);
+      ContainerService.createExecutionContainer('web-container', container);
 
       const expectedYml = yaml`execution_containers:
   web-container:
@@ -86,7 +83,6 @@ execution_containers:
       updateBitriseYmlDocumentByString(yaml``);
 
       const container: ContainerModel = {
-        id: 'test-container',
         image: 'test:latest',
         credentials: {
           username: '$USERNAME',
@@ -94,7 +90,7 @@ execution_containers:
         },
       };
 
-      ContainerService.createExecutionContainer(container);
+      ContainerService.createExecutionContainer('test-container', container);
 
       const expectedYml = yaml`execution_containers:
   test-container:
@@ -113,11 +109,10 @@ execution_containers:
 `);
 
       const container: ContainerModel = {
-        id: 'existing-container',
         image: 'ubuntu:22.04',
       };
 
-      expect(() => ContainerService.createExecutionContainer(container)).toThrow(
+      expect(() => ContainerService.createExecutionContainer('existing-container', container)).toThrow(
         "Execution container 'existing-container' already exists",
       );
     });
@@ -130,11 +125,10 @@ execution_containers:
 `);
 
       const service: ContainerModel = {
-        id: 'postgres',
         image: 'postgres:13',
       };
 
-      ContainerService.createServiceContainer(service);
+      ContainerService.createServiceContainer('postgres', service);
 
       const expectedYml = yaml`workflows:
   wf1: {}
@@ -150,12 +144,11 @@ service_containers:
       updateBitriseYmlDocumentByString(yaml``);
 
       const service: ContainerModel = {
-        id: 'redis',
         image: 'redis:6',
         ports: ['6379:6379'],
       };
 
-      ContainerService.createServiceContainer(service);
+      ContainerService.createServiceContainer('redis', service);
 
       const expectedYml = yaml`service_containers:
   redis:
@@ -174,11 +167,10 @@ service_containers:
 `);
 
       const service: ContainerModel = {
-        id: 'existing-service',
         image: 'mysql:5',
       };
 
-      expect(() => ContainerService.createServiceContainer(service)).toThrow(
+      expect(() => ContainerService.createServiceContainer('existing-service', service)).toThrow(
         "Service container 'existing-service' already exists",
       );
     });
@@ -192,12 +184,11 @@ service_containers:
 `);
 
       const updatedContainer: ContainerModel = {
-        id: 'new-container-id',
         image: 'ubuntu:22.04',
         envs: [{ ENV: 'updated' }],
       };
 
-      ContainerService.updateExecutionContainer(updatedContainer, 'my-container');
+      ContainerService.updateExecutionContainer(updatedContainer, 'my-container', 'new-container-id');
 
       const expectedYml = yaml`execution_containers:
   new-container-id:
@@ -213,11 +204,10 @@ service_containers:
       updateBitriseYmlDocumentByString(yaml``);
 
       const container: ContainerModel = {
-        id: 'non-existent',
         image: 'ubuntu:20.04',
       };
 
-      expect(() => ContainerService.updateExecutionContainer(container, 'non-existent')).toThrow(
+      expect(() => ContainerService.updateExecutionContainer(container, 'non-existent', 'non-existent')).toThrow(
         "Container non-existent not found. Ensure that the container exists in the 'execution_containers' section.",
       );
     });
@@ -231,11 +221,10 @@ service_containers:
 `);
 
       const container: ContainerModel = {
-        id: 'container-2',
         image: 'ubuntu:20.04',
       };
 
-      expect(() => ContainerService.updateExecutionContainer(container, 'container-1')).toThrow(
+      expect(() => ContainerService.updateExecutionContainer(container, 'container-1', 'container-2')).toThrow(
         "Execution container 'container-2' already exists",
       );
     });
@@ -249,12 +238,11 @@ service_containers:
 `);
 
       const updatedService: ContainerModel = {
-        id: 'new-postgres-id',
         image: 'postgres:14',
         ports: ['5432:5432'],
       };
 
-      ContainerService.updateServiceContainer(updatedService, 'postgres');
+      ContainerService.updateServiceContainer(updatedService, 'postgres', 'new-postgres-id');
 
       const expectedYml = yaml`service_containers:
   new-postgres-id:
@@ -270,11 +258,10 @@ service_containers:
       updateBitriseYmlDocumentByString(yaml``);
 
       const service: ContainerModel = {
-        id: 'non-existent',
         image: 'redis:6',
       };
 
-      expect(() => ContainerService.updateServiceContainer(service, 'non-existent')).toThrow(
+      expect(() => ContainerService.updateServiceContainer(service, 'non-existent', 'non-existent')).toThrow(
         "Service non-existent not found. Ensure that the service exists in the 'service_containers' section.",
       );
     });
@@ -288,11 +275,10 @@ service_containers:
 `);
 
       const service: ContainerModel = {
-        id: 'service-2',
         image: 'redis:6',
       };
 
-      expect(() => ContainerService.updateServiceContainer(service, 'service-1')).toThrow(
+      expect(() => ContainerService.updateServiceContainer(service, 'service-1', 'service-2')).toThrow(
         "Service container 'service-2' already exists",
       );
     });
