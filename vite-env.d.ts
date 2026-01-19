@@ -8,7 +8,6 @@ interface ImportMetaEnv {
   readonly NODE_ENV: string;
   readonly PUBLIC_URL_ROOT: string;
   readonly DEV_SERVER_PORT: string;
-  readonly CLARITY: string;
 }
 
 interface ImportMeta {
