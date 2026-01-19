@@ -11,3 +11,4 @@
   y.parentNode.insertBefore(t, y);
 })(window, document, 'clarity', 'script', 'mxdzahxph2');
 
+export {};
