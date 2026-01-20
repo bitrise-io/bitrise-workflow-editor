@@ -1,23 +1,22 @@
 import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel } from '@/core/models/BitriseYml';
+import { ContainerSource } from '@/core/models/Container';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-type ContainerTarget = 'execution' | 'service';
-
-function addContainerToUsage(workflowId: string, stepIndex: number, containerId: string, target: ContainerTarget) {
+function addContainer(workflowId: string, stepIndex: number, containerId: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(containerId, doc, target);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    if (target === 'execution') {
+    if (target === ContainerSource.Execution) {
       YmlUtils.setIn(stepData, ['execution_container'], containerId);
     }
 
-    if (target === 'service') {
+    if (target === ContainerSource.Service) {
       const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
       const currentServices = existingServices ? existingServices.items.map((item) => String(item)) : [];
 
@@ -31,22 +30,18 @@ function addContainerToUsage(workflowId: string, stepIndex: number, containerId:
   });
 }
 
-function buildContainerData(container: ContainerModel, includePortsByDefault = false) {
+function buildContainerData(container: ContainerModel) {
   const { image, credentials, ports, envs, options } = container;
 
   const containerData: Record<string, unknown> = { image };
 
-  if (includePortsByDefault && ports) {
+  if (ports && ports.length > 0) {
     containerData.ports = ports;
   }
 
   const filteredCredentials = filterCredentials(credentials);
   if (filteredCredentials) {
     containerData.credentials = filteredCredentials;
-  }
-
-  if (ports && ports.length > 0 && !includePortsByDefault) {
-    containerData.ports = ports;
   }
 
   if (envs && envs.length > 0) {
@@ -60,36 +55,35 @@ function buildContainerData(container: ContainerModel, includePortsByDefault = f
   return containerData;
 }
 
-function createContainer(id: string, container: ContainerModel, target: ContainerTarget) {
+function createContainer(id: string, container: ContainerModel, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
-    if (doc.hasIn([`${target}_containers`, id])) {
-      const containerType = target === 'execution' ? 'Execution container' : 'Service container';
+    if (doc.hasIn([target, id])) {
+      const containerType = target === ContainerSource.Execution ? 'Execution container' : 'Service container';
       throw new Error(`${containerType} '${id}' already exists`);
     }
 
-    const includePortsByDefault = target === 'service';
-    const containerData = buildContainerData(container, includePortsByDefault);
+    const containerData = buildContainerData(container);
 
-    YmlUtils.setIn(doc, [`${target}_containers`, id], containerData);
+    YmlUtils.setIn(doc, [target, id], containerData);
     return doc;
   });
 }
 
-function deleteContainerFromUsage(
+function deleteContainerReference(
   workflowId: string,
   stepIndex: number,
-  target: ContainerTarget,
+  target: ContainerSource,
   containerId?: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    if (target === 'execution') {
+    if (target === ContainerSource.Execution) {
       YmlUtils.deleteByPath(stepData, ['execution_container']);
     }
 
-    if (target === 'service') {
+    if (target === ContainerSource.Service) {
       if (!containerId) {
         throw new Error('Container ID is required when deleting service container from usage');
       }
@@ -117,16 +111,13 @@ function deleteContainerFromUsage(
   });
 }
 
-function deleteContainer(id: string, target: ContainerTarget) {
+function deleteContainer(id: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
-    YmlUtils.deleteByPath(doc, [`${target}_containers`, id]);
+    YmlUtils.deleteByPath(doc, [target, id]);
 
-    if (
-      doc.hasIn([`${target}_containers`]) &&
-      Object.keys(YmlUtils.getMapIn(doc, [`${target}_containers`]) || {}).length === 0
-    ) {
-      YmlUtils.deleteByPath(doc, [`${target}_containers`]);
+    if (doc.hasIn([target]) && Object.keys(YmlUtils.getMapIn(doc, [target]) || {}).length === 0) {
+      YmlUtils.deleteByPath(doc, [target]);
     }
 
     return doc;
@@ -145,9 +136,8 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
   return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
-function getAllContainers(doc: Document, target: ContainerTarget) {
-  const containerPath = target === 'execution' ? 'execution_containers' : 'service_containers';
-  const containers = YmlUtils.getMapIn(doc, [containerPath]);
+function getAllContainers(doc: Document, target: ContainerSource) {
+  const containers = YmlUtils.getMapIn(doc, [target]);
 
   if (!containers) {
     return [];
@@ -161,11 +151,11 @@ function getAllContainers(doc: Document, target: ContainerTarget) {
   });
 }
 
-function getContainerOrThrowError(id: string, doc: Document, target: ContainerTarget) {
-  const container = YmlUtils.getMapIn(doc, [`${target}_containers`, id]);
+function getContainerOrThrowError(id: string, doc: Document, target: ContainerSource) {
+  const container = YmlUtils.getMapIn(doc, [target, id]);
 
   if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that it exists in the '${target}_containers' section.`);
+    throw new Error(`Container ${id} not found. Ensure that it exists in the '${target}' section.`);
   }
 
   return container;
@@ -222,9 +212,9 @@ function getWorkflowsUsingContainer(doc: Document, predicate: (stepData: YAMLMap
   return result;
 }
 
-function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, target: ContainerTarget): string[] {
+function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, target: ContainerSource): string[] {
   return getWorkflowsUsingContainer(doc, (stepData) => {
-    if (target === 'execution') {
+    if (target === ContainerSource.Execution) {
       const executionContainer = stepData.get('execution_container');
       if (executionContainer) {
         if (isMap(executionContainer)) {
@@ -236,7 +226,7 @@ function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, 
       return false;
     }
 
-    if (target === 'service') {
+    if (target === ContainerSource.Service) {
       const serviceContainers = YmlUtils.getSeqIn(stepData, ['service_containers']);
       if (serviceContainers) {
         return serviceContainers.items.some((service) => {
@@ -254,22 +244,21 @@ function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, 
   });
 }
 
-function updateContainer(updatedContainer: ContainerModel, id: string, newId: string, target: ContainerTarget) {
+function updateContainer(updatedContainer: ContainerModel, id: string, newId: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
 
-    if (id !== newId && doc.hasIn([`${target}_containers`, newId])) {
+    if (id !== newId && doc.hasIn([target, newId])) {
       throw new Error(`Container '${newId}' already exists`);
     }
 
-    const includePortsByDefault = target === 'service';
-    const containerData = buildContainerData(updatedContainer, includePortsByDefault);
+    const containerData = buildContainerData(updatedContainer);
 
     if (id !== newId) {
-      YmlUtils.deleteByPath(doc, [`${target}_containers`, id]);
-      YmlUtils.setIn(doc, [`${target}_containers`, newId], containerData);
+      YmlUtils.deleteByPath(doc, [target, id]);
+      YmlUtils.setIn(doc, [target, newId], containerData);
     } else {
-      YmlUtils.setIn(doc, [`${target}_containers`, id], containerData);
+      YmlUtils.setIn(doc, [target, id], containerData);
     }
 
     return doc;
@@ -280,7 +269,7 @@ function updateContainerUsage(
   workflowId: string,
   stepIndex: number,
   recreate: boolean,
-  target: ContainerTarget,
+  target: ContainerSource,
   serviceId?: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -288,7 +277,7 @@ function updateContainerUsage(
 
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    if (target === 'execution') {
+    if (target === ContainerSource.Execution) {
       const container = stepData.get('execution_container');
       if (!container) {
         throw new Error(`No execution container found on step at index ${stepIndex}`);
@@ -303,7 +292,7 @@ function updateContainerUsage(
       }
     }
 
-    if (target === 'service') {
+    if (target === ContainerSource.Service) {
       if (!serviceId) {
         throw new Error('Service ID is required when updating service container usage');
       }
@@ -331,10 +320,10 @@ function updateContainerUsage(
 }
 
 export default {
-  addContainerToUsage,
+  addContainer,
   createContainer,
   deleteContainer,
-  deleteContainerFromUsage,
+  deleteContainerReference,
   getAllContainers,
   getContainerOrThrowError,
   getWorkflowsUsingContainer: getWorkflowsUsingContainerByTarget,
