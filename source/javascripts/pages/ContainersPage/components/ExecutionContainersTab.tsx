@@ -1,7 +1,6 @@
-import { Button, EmptyState, Text } from '@bitrise/bitkit';
-import { Box, useDisclosure } from 'chakra-ui-2--react';
+import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
 
-import CreateExecutionContainerDialog from '@/pages/ContainersPage/components/CreateContainerDialog';
+import CreateContainerDialog from '@/pages/ContainersPage/components/CreateContainerDialog';
 
 const ExecutionContainersTab = () => {
   const { isOpen: isCreateDialogOpen, onOpen: onCreateDialogOpen, onClose: onCreateDialogClose } = useDisclosure();
@@ -19,8 +18,9 @@ const ExecutionContainersTab = () => {
       <EmptyState
         title="Your execution containers will appear here"
         description="Add your first execution container to specify the tools, languages, and OS your Steps and Step bundles need to run."
+        iconName="Container"
       />
-      <CreateExecutionContainerDialog isOpen={isCreateDialogOpen} onClose={onCreateDialogClose} />
+      <CreateContainerDialog isOpen={isCreateDialogOpen} onClose={onCreateDialogClose} />
     </Box>
   );
 };

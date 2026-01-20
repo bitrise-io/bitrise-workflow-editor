@@ -18,6 +18,7 @@ const ServiceContainersTab = () => {
       <EmptyState
         title="Your service containers will appear here"
         description="Add your first service container to provide database or message queue support to your Steps and Step bundles."
+        iconName="Container"
       />
       <CreateContainerDialog isOpen={isCreateDialogOpen} onClose={onCreateDialogClose} />
     </Box>

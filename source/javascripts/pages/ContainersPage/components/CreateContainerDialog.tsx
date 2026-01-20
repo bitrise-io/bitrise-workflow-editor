@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   Collapse,
   ControlButton,
@@ -18,7 +19,6 @@ import {
   Textarea,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { ButtonGroup } from 'chakra-ui-2--react';
 import { useState } from 'react';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
