@@ -2,6 +2,7 @@ import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel } from '@/core/models/BitriseYml';
 import { ContainerSource } from '@/core/models/Container';
+import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
@@ -33,7 +34,7 @@ function addContainer(workflowId: string, stepIndex: number, containerId: string
 function buildContainerData(container: ContainerModel) {
   const { image, credentials, ports, envs, options } = container;
 
-  const containerData: Record<string, unknown> = { image };
+  const containerData: ContainerModel = { image };
 
   if (ports && ports.length > 0) {
     containerData.ports = ports;
@@ -41,7 +42,7 @@ function buildContainerData(container: ContainerModel) {
 
   const filteredCredentials = filterCredentials(credentials);
   if (filteredCredentials) {
-    containerData.credentials = filteredCredentials;
+    containerData.credentials = filteredCredentials as ContainerModel['credentials'];
   }
 
   if (envs && envs.length > 0) {
@@ -162,16 +163,7 @@ function getContainerOrThrowError(id: string, doc: Document, target: ContainerSo
 }
 
 function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
-  const steps = YmlUtils.getSeqIn(doc, ['workflows', workflowId, 'steps']);
-  if (!steps || stepIndex >= steps.items.length) {
-    throw new Error(`Step at index ${stepIndex} not found in workflow '${workflowId}'`);
-  }
-
-  const step = steps.items[stepIndex];
-  if (!step || !isMap(step)) {
-    throw new Error(`Invalid step at index ${stepIndex} in workflow '${workflowId}'`);
-  }
-
+  const step = StepService.getStepOrThrowError('workflows', workflowId, stepIndex, doc);
   const stepData = step.items[0]?.value;
   if (!isMap(stepData)) {
     throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
@@ -194,14 +186,14 @@ function getWorkflowsUsingContainer(doc: Document, predicate: (stepData: YAMLMap
 
     const steps = YmlUtils.getSeqIn(workflow, ['steps']);
 
-    const usesContainer = steps?.items.some((step) => {
+    const usesContainer = steps?.items.some((step, stepIndex) => {
       const stepMap = step as YAMLMap;
       const stepData = stepMap.items[0]?.value as YAMLMap;
-
-      if (stepData) {
-        return predicate(stepData);
+      if (!isMap(stepData)) {
+        throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
       }
-      return false;
+
+      return predicate(stepData);
     });
 
     if (usesContainer) {
