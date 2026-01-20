@@ -1,8 +1,9 @@
-import { Box, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
+import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
 import useSearchParams from '@/hooks/useSearchParams';
-import ExecutionContainersTab from '@/pages/ContainersPage/ExecutionContainersTab';
+import ExecutionContainersTab from '@/pages/ContainersPage/components/ExecutionContainersTab';
+import ServiceContainersTab from '@/pages/ContainersPage/components/ServiceContainersTab';
 
 const TAB_IDS = ['execution_containers', 'service_containers'];
 
@@ -25,17 +26,15 @@ const ContainersPage = () => {
 
   return (
     <>
-      <Box p="32px 32px 24px">
-        <Text textStyle="heading/h2" mb="4">
-          Containers
-        </Text>
-        <Text textStyle="body/md/regular" color="text/secondary">
-          Create custom environments and services for your Workflows.{' '}
-          <Link colorScheme="purple" isExternal href="#">
-            Learn more about containers
-          </Link>
-        </Text>
-      </Box>
+      <Text as="h2" textStyle="heading/h2" pt="32" px="32" mb="4">
+        Containers
+      </Text>
+      <Text textStyle="body/md/regular" color="text/secondary" pb="24" px="32">
+        Create custom environments and services for your Workflows.{' '}
+        <Link colorScheme="purple" isExternal href="#">
+          Learn more about containers
+        </Link>
+      </Text>
       <Tabs index={tabIndex} onChange={onTabChange}>
         <TabList px="16">
           <Tab>Execution containers</Tab>
@@ -45,7 +44,9 @@ const ContainersPage = () => {
           <TabPanel>
             <ExecutionContainersTab />
           </TabPanel>
-          <TabPanel>{/* TODO: Service containers tab */}</TabPanel>
+          <TabPanel>
+            <ServiceContainersTab />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </>

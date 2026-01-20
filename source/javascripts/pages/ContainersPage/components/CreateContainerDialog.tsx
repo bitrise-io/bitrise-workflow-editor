@@ -23,7 +23,7 @@ import { useState } from 'react';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
 
-const CreateExecutionContainerDialog = (props: Omit<DialogProps, 'title'>) => {
+const CreateContainerDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
 
   const [image, setImage] = useState<'public' | 'private'>('public');
@@ -36,20 +36,20 @@ const CreateExecutionContainerDialog = (props: Omit<DialogProps, 'title'>) => {
           <SegmentedControlItem value="public">Public image</SegmentedControlItem>
           <SegmentedControlItem value="private">Private image</SegmentedControlItem>
         </SegmentedControl>
+        <Input
+          label="Unique ID"
+          helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
+          placeholder="e.g. node, postgres, redis"
+          isRequired
+        />
+        <Input
+          label="Image"
+          helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
+          placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
+          isRequired
+        />
         {image === 'public' && (
           <>
-            <Input
-              label="Unique ID"
-              helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
-              placeholder="e.g. node, postgres, redis"
-              isRequired
-            />
-            <Input
-              label="Image"
-              helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
-              placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
-              isRequired
-            />
             <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
               <Box display="flex" flexDir="column" gap="16">
                 <Text textStyle="heading/h3" mt="8">
@@ -111,4 +111,4 @@ const CreateExecutionContainerDialog = (props: Omit<DialogProps, 'title'>) => {
   );
 };
 
-export default CreateExecutionContainerDialog;
+export default CreateContainerDialog;
