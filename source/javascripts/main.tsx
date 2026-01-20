@@ -23,6 +23,15 @@ import errorImg from '../images/error-hairball.svg';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
 import { preloadRoutes } from './routes';
 
+const loaders = [];
+if (import.meta.env.CLARITY === 'true') {
+  loaders.push(import('./lib/clarity'));
+}
+if (import.meta.env.DATADOG_RUM === 'true') {
+  loaders.push(import('./lib/datadog-rum'));
+}
+await Promise.all(loaders);
+
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   // NOTE: The API server running in local mode, has a built-in termination timer
   // This will stop the termination timer when the window is loaded

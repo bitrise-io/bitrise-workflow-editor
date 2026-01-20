@@ -20,7 +20,6 @@ const DEFAULT_MACHINES: MachineApiItem[] = [
       'region-us': {
         name: 'Some name',
         cpu_count: '4 vCPU',
-        cpu_description: '3.2GHz',
         ram: '6 GB RAM',
       },
     },
@@ -43,7 +42,6 @@ const DEFAULT_MACHINES: MachineApiItem[] = [
       'region-us': {
         name: 'Some name',
         cpu_count: '4 vCPU',
-        cpu_description: '3.1GHz',
         ram: '16 GB RAM',
       },
     },
@@ -243,13 +241,11 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Machine in US',
               cpu_count: '6 vCPU',
-              cpu_description: '3.7GHz',
               ram: '14 GB RAM',
             },
             'region-eu': {
               name: 'Machine in EU',
               cpu_count: '6 vCPU',
-              cpu_description: '3.7GHz',
               ram: '16 GB RAM',
             },
           },
@@ -273,13 +269,11 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Machine in US',
               cpu_count: '12 vCPU',
-              cpu_description: '3.7GHz',
               ram: '20 GB RAM',
             },
             'region-eu': {
               name: 'Machine in EU',
               cpu_count: '16 vCPU',
-              cpu_description: '3.7GHz',
               ram: '24 GB RAM',
             },
           },
@@ -309,7 +303,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.2GHz',
               ram: '12 GB RAM',
             },
           },
@@ -332,7 +325,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '4 vCPU',
-              cpu_description: '3.7GHz',
               ram: '6 GB RAM',
             },
           },
@@ -356,7 +348,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'M2 Pro Large in US',
               cpu_count: '6 vCPU',
-              cpu_description: '3.7GHz',
               ram: '14 GB RAM',
             },
           },
@@ -380,7 +371,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '12 vCPU',
-              cpu_description: '3.7GHz',
               ram: '28 GB RAM',
             },
           },
@@ -396,7 +386,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '4 vCPU',
-              cpu_description: '3.1GHz',
               ram: '16 GB RAM',
             },
           },
@@ -412,7 +401,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.1GHz',
               ram: '32 GB RAM',
             },
           },
@@ -428,7 +416,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '4 vCPU',
-              cpu_description: '3.7GHz',
               ram: '16 GB RAM',
             },
           },
@@ -444,7 +431,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.7GHz',
               ram: '32 GB RAM',
             },
           },
@@ -460,7 +446,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '16 vCPU',
-              cpu_description: '3.7GHz',
               ram: '64 GB RAM',
             },
           },
@@ -475,7 +460,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.7GHz',
               ram: '32 GB RAM',
             },
           },
@@ -490,7 +474,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.7GHz',
               ram: '32 GB RAM',
             },
           },
@@ -505,7 +488,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.7GHz',
               ram: '32 GB RAM',
             },
           },
@@ -520,7 +502,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.7GHz',
               ram: '32 GB RAM',
             },
           },
@@ -535,7 +516,6 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
             'region-us': {
               name: 'Some name',
               cpu_count: '8 vCPU',
-              cpu_description: '3.7GHz',
               ram: '32 GB RAM',
             },
           },

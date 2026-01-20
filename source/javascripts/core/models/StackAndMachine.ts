@@ -40,7 +40,6 @@ export enum MachineRegionName {
 
 export type MachineTypeInfo = {
   cpuCount: string;
-  cpuDescription: string;
   name: string;
   ram: string;
 };

@@ -44,7 +44,6 @@ type MachineApiItem = {
 
 type MachineTypeInfoApi = {
   cpu_count: string;
-  cpu_description: string;
   name: string;
   ram: string;
 };
@@ -99,8 +98,8 @@ function toStack(item: StackApiItem): Stack {
   };
 }
 
-const toMachineTypeInfoText = (name: string, cpuCount: string, cpuDescription: string, ram: string) => {
-  return `${name} ${cpuCount} @${cpuDescription} ${ram}`;
+const toMachineTypeInfoText = (name: string, cpuCount: string, ram: string) => {
+  return `${name} ${cpuCount} ${ram}`;
 };
 
 function toMachineType(item: MachineApiItem): MachineType {
@@ -110,7 +109,6 @@ function toMachineType(item: MachineApiItem): MachineType {
     availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
       regionInfo.name,
       regionInfo.cpu_count,
-      regionInfo.cpu_description,
       regionInfo.ram,
     );
   });
