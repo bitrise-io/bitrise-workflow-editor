@@ -60,6 +60,7 @@ declare global {
       };
     };
     env: {
+      CLARITY: 'true' | 'false';
       ANALYTICS: 'true' | 'false';
       DATADOG_RUM: 'true' | 'false';
       MODE: 'WEBSITE' | 'CLI';
