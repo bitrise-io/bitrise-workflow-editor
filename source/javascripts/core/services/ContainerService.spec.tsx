@@ -6,7 +6,7 @@ import ContainerService from './ContainerService';
 const yaml = String.raw;
 
 describe('ContainerService', () => {
-  describe('createExecutionContainer', () => {
+  describe('createContainer', () => {
     it('should create a new execution container', () => {
       updateBitriseYmlDocumentByString(yaml`workflows:
   wf1: {}
@@ -16,7 +16,7 @@ describe('ContainerService', () => {
         image: 'ubuntu:20.04',
       };
 
-      ContainerService.createExecutionContainer('my-container', container);
+      ContainerService.createContainer('my-container', container, 'execution');
 
       const expectedYml = yaml`workflows:
   wf1: {}
@@ -39,7 +39,7 @@ execution_containers:
         },
       };
 
-      ContainerService.createExecutionContainer('private-container', container);
+      ContainerService.createContainer('private-container', container, 'execution');
 
       const expectedYml = yaml`execution_containers:
   private-container:
@@ -62,7 +62,7 @@ execution_containers:
         options: '--memory=2g --cpus=2',
       };
 
-      ContainerService.createExecutionContainer('web-container', container);
+      ContainerService.createContainer('web-container', container, 'execution');
 
       const expectedYml = yaml`execution_containers:
   web-container:
@@ -90,7 +90,7 @@ execution_containers:
         },
       };
 
-      ContainerService.createExecutionContainer('test-container', container);
+      ContainerService.createContainer('test-container', container, 'execution');
 
       const expectedYml = yaml`execution_containers:
   test-container:
@@ -112,13 +112,13 @@ execution_containers:
         image: 'ubuntu:22.04',
       };
 
-      expect(() => ContainerService.createExecutionContainer('existing-container', container)).toThrow(
+      expect(() => ContainerService.createContainer('existing-container', container, 'execution')).toThrow(
         "Execution container 'existing-container' already exists",
       );
     });
   });
 
-  describe('createServiceContainer', () => {
+  describe('createContainer with service target', () => {
     it('should create a new service container', () => {
       updateBitriseYmlDocumentByString(yaml`workflows:
   wf1: {}
@@ -128,7 +128,7 @@ execution_containers:
         image: 'postgres:13',
       };
 
-      ContainerService.createServiceContainer('postgres', service);
+      ContainerService.createContainer('postgres', service, 'service');
 
       const expectedYml = yaml`workflows:
   wf1: {}
@@ -148,7 +148,7 @@ service_containers:
         ports: ['6379:6379'],
       };
 
-      ContainerService.createServiceContainer('redis', service);
+      ContainerService.createContainer('redis', service, 'service');
 
       const expectedYml = yaml`service_containers:
   redis:
@@ -170,13 +170,13 @@ service_containers:
         image: 'mysql:5',
       };
 
-      expect(() => ContainerService.createServiceContainer('existing-service', service)).toThrow(
+      expect(() => ContainerService.createContainer('existing-service', service, 'service')).toThrow(
         "Service container 'existing-service' already exists",
       );
     });
   });
 
-  describe('updateExecutionContainer', () => {
+  describe('updateContainer', () => {
     it('should update an existing container', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   my-container:
@@ -188,7 +188,7 @@ service_containers:
         envs: [{ ENV: 'updated' }],
       };
 
-      ContainerService.updateExecutionContainer(updatedContainer, 'my-container', 'new-container-id');
+      ContainerService.updateContainer(updatedContainer, 'my-container', 'new-container-id', 'execution');
 
       const expectedYml = yaml`execution_containers:
   new-container-id:
@@ -207,8 +207,8 @@ service_containers:
         image: 'ubuntu:20.04',
       };
 
-      expect(() => ContainerService.updateExecutionContainer(container, 'non-existent', 'non-existent')).toThrow(
-        "Container non-existent not found. Ensure that the container exists in the 'execution_containers' section.",
+      expect(() => ContainerService.updateContainer(container, 'non-existent', 'non-existent', 'execution')).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'execution_containers' section.",
       );
     });
 
@@ -224,13 +224,13 @@ service_containers:
         image: 'ubuntu:20.04',
       };
 
-      expect(() => ContainerService.updateExecutionContainer(container, 'container-1', 'container-2')).toThrow(
-        "Execution container 'container-2' already exists",
+      expect(() => ContainerService.updateContainer(container, 'container-1', 'container-2', 'execution')).toThrow(
+        "Container 'container-2' already exists",
       );
     });
   });
 
-  describe('updateServiceContainer', () => {
+  describe('updateContainer with service target', () => {
     it('should update an existing service', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -242,7 +242,7 @@ service_containers:
         ports: ['5432:5432'],
       };
 
-      ContainerService.updateServiceContainer(updatedService, 'postgres', 'new-postgres-id');
+      ContainerService.updateContainer(updatedService, 'postgres', 'new-postgres-id', 'service');
 
       const expectedYml = yaml`service_containers:
   new-postgres-id:
@@ -261,8 +261,8 @@ service_containers:
         image: 'redis:6',
       };
 
-      expect(() => ContainerService.updateServiceContainer(service, 'non-existent', 'non-existent')).toThrow(
-        "Service non-existent not found. Ensure that the service exists in the 'service_containers' section.",
+      expect(() => ContainerService.updateContainer(service, 'non-existent', 'non-existent', 'service')).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'service_containers' section.",
       );
     });
 
@@ -278,13 +278,13 @@ service_containers:
         image: 'redis:6',
       };
 
-      expect(() => ContainerService.updateServiceContainer(service, 'service-1', 'service-2')).toThrow(
-        "Service container 'service-2' already exists",
+      expect(() => ContainerService.updateContainer(service, 'service-1', 'service-2', 'service')).toThrow(
+        "Container 'service-2' already exists",
       );
     });
   });
 
-  describe('deleteExecutionContainer', () => {
+  describe('deleteContainer', () => {
     it('should delete an existing container', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   my-container:
@@ -293,7 +293,7 @@ service_containers:
     image: ubuntu:22.04
 `);
 
-      ContainerService.deleteExecutionContainer('my-container');
+      ContainerService.deleteContainer('my-container', 'execution');
 
       const expectedYml = yaml`execution_containers:
   other-container:
@@ -311,7 +311,7 @@ workflows:
   wf1: {}
 `);
 
-      ContainerService.deleteExecutionContainer('my-container');
+      ContainerService.deleteContainer('my-container', 'execution');
 
       const expectedYml = yaml`workflows:
   wf1: {}
@@ -323,13 +323,13 @@ workflows:
     it('should throw an error if container does not exist', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
-      expect(() => ContainerService.deleteExecutionContainer('non-existent')).toThrow(
-        "Container non-existent not found. Ensure that the container exists in the 'execution_containers' section.",
+      expect(() => ContainerService.deleteContainer('non-existent', 'execution')).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'execution_containers' section.",
       );
     });
   });
 
-  describe('deleteServiceContainer', () => {
+  describe('deleteContainer with service target', () => {
     it('should delete an existing service', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -338,7 +338,7 @@ workflows:
     image: redis:6
 `);
 
-      ContainerService.deleteServiceContainer('postgres');
+      ContainerService.deleteContainer('postgres', 'service');
 
       const expectedYml = yaml`service_containers:
   redis:
@@ -356,7 +356,7 @@ workflows:
   wf1: {}
 `);
 
-      ContainerService.deleteServiceContainer('postgres');
+      ContainerService.deleteContainer('postgres', 'service');
 
       const expectedYml = yaml`workflows:
   wf1: {}
@@ -368,13 +368,13 @@ workflows:
     it('should throw an error if service does not exist', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
-      expect(() => ContainerService.deleteServiceContainer('non-existent')).toThrow(
-        "Service non-existent not found. Ensure that the service exists in the 'service_containers' section.",
+      expect(() => ContainerService.deleteContainer('non-existent', 'service')).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'service_containers' section.",
       );
     });
   });
 
-  describe('addExecutionContainerToUsage', () => {
+  describe('addContainerToUsage', () => {
     it('should add container reference to a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   my-container:
@@ -386,7 +386,7 @@ workflows:
         title: Test
 `);
 
-      ContainerService.addExecutionContainerToUsage('wf1', 0, 'my-container');
+      ContainerService.addContainerToUsage('wf1', 0, 'my-container', 'execution');
 
       const expectedYml = yaml`execution_containers:
   my-container:
@@ -412,7 +412,7 @@ workflows:
     - bundle::setup_repo: {}
 `);
 
-      ContainerService.addExecutionContainerToUsage('wf1', 0, 'my-container');
+      ContainerService.addContainerToUsage('wf1', 0, 'my-container', 'execution');
 
       const expectedYml = yaml`execution_containers:
   my-container:
@@ -435,8 +435,8 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.addExecutionContainerToUsage('wf1', 0, 'non-existent')).toThrow(
-        "Container non-existent not found. Ensure that the container exists in the 'execution_containers' section.",
+      expect(() => ContainerService.addContainerToUsage('wf1', 0, 'non-existent', 'execution')).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'execution_containers' section.",
       );
     });
 
@@ -446,7 +446,7 @@ workflows:
     image: ubuntu:20.04
 `);
 
-      expect(() => ContainerService.addExecutionContainerToUsage('non-existent', 0, 'my-container')).toThrow(
+      expect(() => ContainerService.addContainerToUsage('non-existent', 0, 'my-container', 'execution')).toThrow(
         "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
       );
     });
@@ -462,13 +462,13 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.addExecutionContainerToUsage('wf1', 5, 'my-container')).toThrow(
+      expect(() => ContainerService.addContainerToUsage('wf1', 5, 'my-container', 'execution')).toThrow(
         "Step at index 5 not found in workflow 'wf1'",
       );
     });
   });
 
-  describe('addServiceContainerToUsage', () => {
+  describe('addContainerToUsage with service target', () => {
     it('should add service reference to a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -480,7 +480,7 @@ workflows:
         title: Test
 `);
 
-      ContainerService.addServiceContainerToUsage('wf1', 0, 'postgres');
+      ContainerService.addContainerToUsage('wf1', 0, 'postgres', 'service');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -512,7 +512,7 @@ workflows:
         - postgres
 `);
 
-      ContainerService.addServiceContainerToUsage('wf1', 0, 'redis');
+      ContainerService.addContainerToUsage('wf1', 0, 'redis', 'service');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -545,7 +545,7 @@ workflows:
         - postgres
 `);
 
-      expect(() => ContainerService.addServiceContainerToUsage('wf1', 0, 'postgres')).toThrow(
+      expect(() => ContainerService.addContainerToUsage('wf1', 0, 'postgres', 'service')).toThrow(
         "Service container 'postgres' is already added to the step",
       );
     });
@@ -558,13 +558,13 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.addServiceContainerToUsage('wf1', 0, 'non-existent')).toThrow(
-        "Service non-existent not found. Ensure that the service exists in the 'service_containers' section.",
+      expect(() => ContainerService.addContainerToUsage('wf1', 0, 'non-existent', 'service')).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'service_containers' section.",
       );
     });
   });
 
-  describe('deleteExecutionContainerFromUsage', () => {
+  describe('deleteContainerFromUsage', () => {
     it('should remove container reference from a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   my-container:
@@ -577,7 +577,7 @@ workflows:
         execution_container: my-container
 `);
 
-      ContainerService.deleteExecutionContainerFromUsage('wf1', 0);
+      ContainerService.deleteContainerFromUsage('wf1', 0, 'execution');
 
       const expectedYml = yaml`execution_containers:
   my-container:
@@ -595,7 +595,7 @@ workflows:
     it('should throw an error if workflow does not exist', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
-      expect(() => ContainerService.deleteExecutionContainerFromUsage('non-existent', 0)).toThrow(
+      expect(() => ContainerService.deleteContainerFromUsage('non-existent', 0, 'execution')).toThrow(
         "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
       );
     });
@@ -608,13 +608,13 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.deleteExecutionContainerFromUsage('wf1', 5)).toThrow(
+      expect(() => ContainerService.deleteContainerFromUsage('wf1', 5, 'execution')).toThrow(
         "Step at index 5 not found in workflow 'wf1'",
       );
     });
   });
 
-  describe('deleteServiceContainerFromUsage', () => {
+  describe('deleteContainerFromUsage with service target', () => {
     it('should remove service reference from a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -631,7 +631,7 @@ workflows:
         - redis
 `);
 
-      ContainerService.deleteServiceContainerFromUsage('wf1', 0, 'postgres');
+      ContainerService.deleteContainerFromUsage('wf1', 0, 'service', 'postgres');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -663,7 +663,7 @@ workflows:
         - postgres
 `);
 
-      ContainerService.deleteServiceContainerFromUsage('wf1', 0, 'postgres');
+      ContainerService.deleteContainerFromUsage('wf1', 0, 'service', 'postgres');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -686,7 +686,7 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.deleteServiceContainerFromUsage('wf1', 0, 'postgres')).toThrow(
+      expect(() => ContainerService.deleteContainerFromUsage('wf1', 0, 'service', 'postgres')).toThrow(
         'No service containers found on step at index 0',
       );
     });
@@ -704,13 +704,13 @@ workflows:
         - redis
 `);
 
-      expect(() => ContainerService.deleteServiceContainerFromUsage('wf1', 0, 'postgres')).toThrow(
+      expect(() => ContainerService.deleteContainerFromUsage('wf1', 0, 'service', 'postgres')).toThrow(
         "Service container 'postgres' not found on step at index 0",
       );
     });
   });
 
-  describe('updateExecutionContainerUsage', () => {
+  describe('updateContainerUsage', () => {
     it('should enable recreate flag for a container', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   my-container:
@@ -723,7 +723,7 @@ workflows:
         execution_container: my-container
 `);
 
-      ContainerService.updateExecutionContainerUsage('wf1', 0, true);
+      ContainerService.updateContainerUsage('wf1', 0, true, 'execution');
 
       const expectedYml = yaml`execution_containers:
   my-container:
@@ -755,7 +755,7 @@ workflows:
             recreate: true
 `);
 
-      ContainerService.updateExecutionContainerUsage('wf1', 0, false);
+      ContainerService.updateContainerUsage('wf1', 0, false, 'execution');
 
       const expectedYml = yaml`execution_containers:
   my-container:
@@ -779,13 +779,13 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.updateExecutionContainerUsage('wf1', 0, true)).toThrow(
+      expect(() => ContainerService.updateContainerUsage('wf1', 0, true, 'execution')).toThrow(
         'No execution container found on step at index 0',
       );
     });
   });
 
-  describe('updateServiceContainerUsage', () => {
+  describe('updateContainerUsage with service target', () => {
     it('should enable recreate flag for a service', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -799,7 +799,7 @@ workflows:
         - postgres
 `);
 
-      ContainerService.updateServiceContainerUsage('wf1', 0, 'postgres', true);
+      ContainerService.updateContainerUsage('wf1', 0, true, 'service', 'postgres');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -831,7 +831,7 @@ workflows:
             recreate: true
 `);
 
-      ContainerService.updateServiceContainerUsage('wf1', 0, 'postgres', false);
+      ContainerService.updateContainerUsage('wf1', 0, false, 'service', 'postgres');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -864,7 +864,7 @@ workflows:
         - redis
 `);
 
-      ContainerService.updateServiceContainerUsage('wf1', 0, 'redis', true);
+      ContainerService.updateContainerUsage('wf1', 0, true, 'service', 'redis');
 
       const expectedYml = yaml`service_containers:
   postgres:
@@ -893,13 +893,13 @@ workflows:
         title: Test
 `);
 
-      expect(() => ContainerService.updateServiceContainerUsage('wf1', 0, 'postgres', true)).toThrow(
+      expect(() => ContainerService.updateContainerUsage('wf1', 0, true, 'service', 'postgres')).toThrow(
         'No service containers found on step at index 0',
       );
     });
   });
 
-  describe('getAllExecutionContainers', () => {
+  describe('getAllContainers', () => {
     it('should return all execution containers', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   container-1:
@@ -909,7 +909,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const containers = ContainerService.getAllExecutionContainers(doc);
+      const containers = ContainerService.getAllContainers(doc, 'execution');
 
       expect(containers).toEqual([
         { id: 'container-1', image: 'ubuntu:20.04' },
@@ -923,13 +923,13 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const containers = ContainerService.getAllExecutionContainers(doc);
+      const containers = ContainerService.getAllContainers(doc, 'execution');
 
       expect(containers).toEqual([]);
     });
   });
 
-  describe('getAllServiceContainers', () => {
+  describe('getAllContainers with service target', () => {
     it('should return all service containers', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -939,7 +939,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const services = ContainerService.getAllServiceContainers(doc);
+      const services = ContainerService.getAllContainers(doc, 'service');
 
       expect(services).toEqual([
         { id: 'postgres', image: 'postgres:13' },
@@ -953,13 +953,13 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const services = ContainerService.getAllServiceContainers(doc);
+      const services = ContainerService.getAllContainers(doc, 'service');
 
       expect(services).toEqual([]);
     });
   });
 
-  describe('getWorkflowsUsingExecutionContainer', () => {
+  describe('getWorkflowsUsingContainer', () => {
     it('should return workflows using a specific execution container', () => {
       updateBitriseYmlDocumentByString(yaml`execution_containers:
   golang_1:
@@ -995,8 +995,8 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result1 = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'golang_1');
-      const result2 = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'golang_2');
+      const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_1', 'execution');
+      const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_2', 'execution');
 
       expect(result1).toEqual(['test', 'build']);
       expect(result2).toEqual(['test']);
@@ -1017,7 +1017,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'my-container');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', 'execution');
 
       expect(result).toEqual(['wf1']);
     });
@@ -1034,7 +1034,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'golang');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'golang', 'execution');
 
       expect(result).toEqual([]);
     });
@@ -1046,7 +1046,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'my-container');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', 'execution');
 
       expect(result).toEqual([]);
     });
@@ -1063,13 +1063,13 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingExecutionContainer(doc, 'non-existent');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'non-existent', 'execution');
 
       expect(result).toEqual([]);
     });
   });
 
-  describe('getWorkflowsUsingServiceContainer', () => {
+  describe('getWorkflowsUsingContainer with service target', () => {
     it('should return workflows using a specific service container', () => {
       updateBitriseYmlDocumentByString(yaml`service_containers:
   postgres:
@@ -1103,8 +1103,8 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result1 = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
-      const result2 = ContainerService.getWorkflowsUsingServiceContainer(doc, 'redis');
+      const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', 'service');
+      const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'redis', 'service');
 
       expect(result1).toEqual(['test', 'integration']);
       expect(result2).toEqual(['test']);
@@ -1125,7 +1125,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', 'service');
 
       expect(result).toEqual(['test']);
     });
@@ -1142,7 +1142,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', 'service');
 
       expect(result).toEqual([]);
     });
@@ -1154,7 +1154,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', 'service');
 
       expect(result).toEqual([]);
     });
@@ -1172,7 +1172,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'redis');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'redis', 'service');
 
       expect(result).toEqual([]);
     });
@@ -1195,7 +1195,7 @@ workflows:
 `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result = ContainerService.getWorkflowsUsingServiceContainer(doc, 'postgres');
+      const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', 'service');
 
       expect(result).toEqual(['test']);
     });
