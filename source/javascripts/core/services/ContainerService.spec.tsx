@@ -1,6 +1,11 @@
 import { ContainerModel } from '@/core/models/BitriseYml';
 import { ContainerSource } from '@/core/models/Container';
-import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import {
+  bitriseYmlStore,
+  getYmlString,
+  updateBitriseYmlDocument,
+  updateBitriseYmlDocumentByString,
+} from '@/core/stores/BitriseYmlStore';
 
 import ContainerService from './ContainerService';
 
@@ -818,207 +823,6 @@ describe('ContainerService', () => {
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
-    });
-  });
-
-  describe('updateContainerUsage', () => {
-    it('should enable recreate flag for a container', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        execution_containers:
-          my-container:
-            image: ubuntu:20.04
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  execution_container: my-container
-      `);
-
-      ContainerService.updateContainerUsage('wf1', 0, true, ContainerSource.Execution);
-
-      const expectedYml = yaml`
-        execution_containers:
-          my-container:
-            image: ubuntu:20.04
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  execution_container:
-                    my-container:
-                      recreate: true
-      `;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should disable recreate flag for a container', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        execution_containers:
-          my-container:
-            image: ubuntu:20.04
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  execution_container:
-                    my-container:
-                      recreate: true
-      `);
-
-      ContainerService.updateContainerUsage('wf1', 0, false, ContainerSource.Execution);
-
-      const expectedYml = yaml`
-        execution_containers:
-          my-container:
-            image: ubuntu:20.04
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  execution_container: my-container
-      `;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should throw an error if container field does not exist', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-      `);
-
-      expect(() => ContainerService.updateContainerUsage('wf1', 0, true, ContainerSource.Execution)).toThrow(
-        'No execution container found on step at index 0',
-      );
-    });
-  });
-
-  describe('updateContainerUsage with service target', () => {
-    it('should enable recreate flag for a service', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        service_containers:
-          postgres:
-            image: postgres:13
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - postgres
-      `);
-
-      ContainerService.updateContainerUsage('wf1', 0, true, ContainerSource.Service, 'postgres');
-
-      const expectedYml = yaml`
-        service_containers:
-          postgres:
-            image: postgres:13
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - postgres:
-                        recreate: true
-      `;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should disable recreate flag for a service', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        service_containers:
-          postgres:
-            image: postgres:13
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - postgres:
-                        recreate: true
-      `);
-
-      ContainerService.updateContainerUsage('wf1', 0, false, ContainerSource.Service, 'postgres');
-
-      const expectedYml = yaml`
-        service_containers:
-          postgres:
-            image: postgres:13
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - postgres
-      `;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should update only the specified service', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        service_containers:
-          postgres:
-            image: postgres:13
-          redis:
-            image: redis:6
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - postgres
-                    - redis
-      `);
-
-      ContainerService.updateContainerUsage('wf1', 0, true, ContainerSource.Service, 'redis');
-
-      const expectedYml = yaml`
-        service_containers:
-          postgres:
-            image: postgres:13
-          redis:
-            image: redis:6
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - postgres
-                    - redis:
-                        recreate: true
-      `;
-
-      expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should throw an error if services field does not exist', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-      `);
-
-      expect(() => ContainerService.updateContainerUsage('wf1', 0, true, ContainerSource.Service, 'postgres')).toThrow(
-        'No service containers found on step at index 0',
-      );
     });
   });
 
@@ -2030,6 +1834,90 @@ describe('ContainerService', () => {
   });
 
   describe('updateContainerId', () => {
+    it('should update container ID and all references in workflows', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          ubuntu:
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+            - script:
+                execution_container: ubuntu
+          wf2:
+            steps:
+            - deploy: {}
+      `);
+
+      updateBitriseYmlDocument(({ doc }) => {
+        ContainerService.updateContainerId(doc, 'ubuntu', 'ubuntu20', ContainerSource.Execution);
+        return doc;
+      });
+
+      const expectedYml = yaml`
+        execution_containers:
+          ubuntu20:
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+            - script:
+                execution_container: ubuntu20
+          wf2:
+            steps:
+            - deploy: {}
+      `;
+
+      expect(getYmlString()).toBe(expectedYml);
+    });
+
+    it('should update service container ID and all references in workflows', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        service_containers:
+          ubuntu:
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+            - script:
+                service_containers:
+                - ubuntu
+          wf2:
+            steps:
+            - deploy:
+                service_containers:
+                - mysql
+                - ubuntu
+                - redis
+      `);
+
+      updateBitriseYmlDocument(({ doc }) => {
+        ContainerService.updateContainerId(doc, 'ubuntu', 'ubuntu20', ContainerSource.Service);
+        return doc;
+      });
+
+      const expectedYml = yaml`
+        service_containers:
+          ubuntu20:
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+            - script:
+                service_containers:
+                - ubuntu20
+          wf2:
+            steps:
+            - deploy:
+                service_containers:
+                - mysql
+                - ubuntu20
+                - redis
+      `;
+
+      expect(getYmlString()).toBe(expectedYml);
+    });
+
     it('should rename an execution container', () => {
       updateBitriseYmlDocumentByString(yaml`
         execution_containers:

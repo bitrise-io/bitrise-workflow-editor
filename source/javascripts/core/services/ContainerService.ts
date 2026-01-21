@@ -67,29 +67,6 @@ function createContainer(id: string, container: ContainerModel, target: Containe
   });
 }
 
-function deleteContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
-  updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    if (target === ContainerSource.Execution) {
-      YmlUtils.deleteByPath(
-        doc,
-        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Execution],
-        ['workflows', workflowId, 'steps', stepIndex, '*'],
-      );
-    } else if (target === ContainerSource.Service) {
-      YmlUtils.deleteByValue(
-        doc,
-        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Service, '*'],
-        containerId,
-        ['workflows', workflowId, 'steps', stepIndex, '*'],
-      );
-    }
-
-    return doc;
-  });
-}
-
 function deleteContainer(id: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
@@ -111,6 +88,29 @@ function deleteContainer(id: string, target: ContainerSource) {
         '*',
         '*',
       ]);
+    }
+
+    return doc;
+  });
+}
+
+function deleteContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
+  updateBitriseYmlDocument(({ doc }) => {
+    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+
+    if (target === ContainerSource.Execution) {
+      YmlUtils.deleteByPath(
+        doc,
+        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Execution],
+        ['workflows', workflowId, 'steps', stepIndex, '*'],
+      );
+    } else if (target === ContainerSource.Service) {
+      YmlUtils.deleteByValue(
+        doc,
+        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Service, '*'],
+        containerId,
+        ['workflows', workflowId, 'steps', stepIndex, '*'],
+      );
     }
 
     return doc;
@@ -283,20 +283,24 @@ function updateContainer(
   });
 }
 
-function updateContainerId(doc: Document, oldId: Container['id'], newId: Container['id'], target: ContainerSource) {
-  if (oldId === newId) {
+function updateContainerId(doc: Document, id: Container['id'], newId: Container['id'], target: ContainerSource) {
+  if (id === newId) {
     return;
   }
 
-  getContainerOrThrowError(oldId, doc, target);
+  getContainerOrThrowError(id, doc, target);
 
   if (doc.hasIn([target, newId])) {
     throw new Error(`Container '${newId}' already exists`);
   }
 
-  const containerData = YmlUtils.getMapIn(doc, [target, oldId]);
-  YmlUtils.deleteByPath(doc, [target, oldId]);
-  YmlUtils.setIn(doc, [target, newId], containerData);
+  if (target === ContainerSource.Execution) {
+    YmlUtils.updateKeyByPath(doc, ['execution_containers', id], newId);
+    YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', 'execution_container'], id, newId);
+  } else if (target === ContainerSource.Service) {
+    YmlUtils.updateKeyByPath(doc, ['service_containers', id], newId);
+    YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', 'service_containers', '*'], id, newId);
+  }
 }
 
 function updateImage(doc: Document, id: Container['id'], image: ContainerModel['image'], target: ContainerSource) {
@@ -386,60 +390,6 @@ function updateOptions(
   }
 }
 
-function updateContainerUsage(
-  workflowId: string,
-  stepIndex: number,
-  recreate: boolean,
-  target: ContainerSource,
-  serviceId?: string,
-) {
-  updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-
-    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
-
-    if (target === ContainerSource.Execution) {
-      const container = stepData.get('execution_container');
-      if (!container) {
-        throw new Error(`No execution container found on step at index ${stepIndex}`);
-      }
-
-      const containerId = isMap(container) ? String(container.items[0]?.key) : String(container);
-
-      if (recreate) {
-        YmlUtils.setIn(stepData, ['execution_container'], { [containerId]: { recreate: true } });
-      } else {
-        YmlUtils.setIn(stepData, ['execution_container'], containerId);
-      }
-    }
-
-    if (target === ContainerSource.Service) {
-      if (!serviceId) {
-        throw new Error('Service ID is required when updating service container usage');
-      }
-
-      const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
-      if (!existingServices) {
-        throw new Error(`No service containers found on step at index ${stepIndex}`);
-      }
-
-      const updatedServices = existingServices.items.map((item) => {
-        const currentServiceId = isMap(item) ? String(item.items[0]?.key) : String(item);
-
-        if (currentServiceId === serviceId) {
-          return recreate ? { [serviceId]: { recreate: true } } : serviceId;
-        }
-
-        return item;
-      });
-
-      YmlUtils.setIn(stepData, ['service_containers'], updatedServices);
-    }
-
-    return doc;
-  });
-}
-
 export default {
   addContainer,
   createContainer,
@@ -449,5 +399,5 @@ export default {
   getContainerOrThrowError,
   getWorkflowsUsingContainer: getWorkflowsUsingContainerByTarget,
   updateContainer,
-  updateContainerUsage,
+  updateContainerId,
 };
