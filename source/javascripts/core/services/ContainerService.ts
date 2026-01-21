@@ -239,51 +239,52 @@ function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, 
 function updateContainer(
   updatedContainer: ContainerModel,
   id: Container['id'],
-  newId: Container['id'],
   target: ContainerSource,
+  newId?: Container['id'],
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     const container = getContainerOrThrowError(id, doc, target);
+    const effectiveNewId = newId ?? id;
 
-    if (id !== newId && doc.hasIn([target, newId])) {
-      throw new Error(`Container '${newId}' already exists`);
+    if (id !== effectiveNewId && doc.hasIn([target, effectiveNewId])) {
+      throw new Error(`Container '${effectiveNewId}' already exists`);
     }
 
-    if (id !== newId) {
+    if (newId && id !== newId) {
       updateContainerId(doc, id, newId, target);
     }
 
     if (updatedContainer.image !== container.get('image')) {
-      updateImage(doc, newId, updatedContainer.image, target);
+      updateImage(doc, effectiveNewId, updatedContainer.image, target);
     }
 
     const portsChanged = JSON.stringify(updatedContainer.ports) !== JSON.stringify(container.get('ports'));
     if (portsChanged) {
-      updatePorts(doc, newId, updatedContainer.ports, target);
+      updatePorts(doc, effectiveNewId, updatedContainer.ports, target);
     }
 
     const newServer = updatedContainer.credentials?.server;
     if (newServer !== container.getIn(['credentials', 'server'])) {
-      updateRegistryServer(doc, newId, newServer, target);
+      updateRegistryServer(doc, effectiveNewId, newServer, target);
     }
 
     const newUsername = updatedContainer.credentials?.username;
     if (newUsername !== container.getIn(['credentials', 'username'])) {
-      updateUsername(doc, newId, newUsername, target);
+      updateUsername(doc, effectiveNewId, newUsername, target);
     }
 
     const newPassword = updatedContainer.credentials?.password;
     if (newPassword !== container.getIn(['credentials', 'password'])) {
-      updatePassword(doc, newId, newPassword, target);
+      updatePassword(doc, effectiveNewId, newPassword, target);
     }
 
     const envsChanged = JSON.stringify(updatedContainer.envs) !== JSON.stringify(container.get('envs'));
     if (envsChanged) {
-      updateEnvVars(doc, newId, updatedContainer.envs, target);
+      updateEnvVars(doc, effectiveNewId, updatedContainer.envs, target);
     }
 
     if (updatedContainer.options !== container.get('options')) {
-      updateOptions(doc, newId, updatedContainer.options, target);
+      updateOptions(doc, effectiveNewId, updatedContainer.options, target);
     }
 
     return doc;

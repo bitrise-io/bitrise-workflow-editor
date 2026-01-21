@@ -198,7 +198,7 @@ describe('ContainerService', () => {
         envs: [{ ENV: 'updated' }],
       };
 
-      ContainerService.updateContainer(updatedContainer, 'my-container', 'new-container-id', ContainerSource.Execution);
+      ContainerService.updateContainer(updatedContainer, 'my-container', ContainerSource.Execution, 'new-container-id');
 
       const expectedYml = yaml`
         execution_containers:
@@ -218,9 +218,9 @@ describe('ContainerService', () => {
         image: 'ubuntu:20.04',
       };
 
-      expect(() =>
-        ContainerService.updateContainer(container, 'non-existent', 'non-existent', ContainerSource.Execution),
-      ).toThrow("Container non-existent not found. Ensure that it exists in the 'execution_containers' section.");
+      expect(() => ContainerService.updateContainer(container, 'non-existent', ContainerSource.Execution)).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'execution_containers' section.",
+      );
     });
 
     it('should throw an error if new name already exists', () => {
@@ -237,7 +237,7 @@ describe('ContainerService', () => {
       };
 
       expect(() =>
-        ContainerService.updateContainer(container, 'container-1', 'container-2', ContainerSource.Execution),
+        ContainerService.updateContainer(container, 'container-1', ContainerSource.Execution, 'container-2'),
       ).toThrow("Container 'container-2' already exists");
     });
   });
@@ -255,7 +255,7 @@ describe('ContainerService', () => {
         ports: ['5432:5432'],
       };
 
-      ContainerService.updateContainer(updatedService, 'postgres', 'new-postgres-id', ContainerSource.Service);
+      ContainerService.updateContainer(updatedService, 'postgres', ContainerSource.Service, 'new-postgres-id');
 
       const expectedYml = yaml`
         service_containers:
@@ -275,9 +275,9 @@ describe('ContainerService', () => {
         image: 'redis:6',
       };
 
-      expect(() =>
-        ContainerService.updateContainer(service, 'non-existent', 'non-existent', ContainerSource.Service),
-      ).toThrow("Container non-existent not found. Ensure that it exists in the 'service_containers' section.");
+      expect(() => ContainerService.updateContainer(service, 'non-existent', ContainerSource.Service)).toThrow(
+        "Container non-existent not found. Ensure that it exists in the 'service_containers' section.",
+      );
     });
 
     it('should throw an error if new name already exists', () => {
@@ -294,7 +294,7 @@ describe('ContainerService', () => {
       };
 
       expect(() =>
-        ContainerService.updateContainer(service, 'service-1', 'service-2', ContainerSource.Service),
+        ContainerService.updateContainer(service, 'service-1', ContainerSource.Service, 'service-2'),
       ).toThrow("Container 'service-2' already exists");
     });
   });
@@ -331,9 +331,10 @@ describe('ContainerService', () => {
 
       ContainerService.deleteContainer('my-container', ContainerSource.Execution);
 
-      const expectedYml = yaml`workflows:
-  wf1: {}
-`;
+      const expectedYml = yaml`
+        workflows:
+          wf1: {}
+      `;
 
       expect(getYmlString()).toEqual(expectedYml);
     });
@@ -379,9 +380,10 @@ describe('ContainerService', () => {
 
       ContainerService.deleteContainer('postgres', ContainerSource.Service);
 
-      const expectedYml = yaml`workflows:
-  wf1: {}
-`;
+      const expectedYml = yaml` 
+        workflows:
+          wf1: {}
+      `;
 
       expect(getYmlString()).toEqual(expectedYml);
     });
@@ -1279,12 +1281,7 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-      ContainerService.updateContainer(
-        { image: 'ubuntu:22.04' },
-        'my-container',
-        'my-container',
-        ContainerSource.Execution,
-      );
+      ContainerService.updateContainer({ image: 'ubuntu:22.04' }, 'my-container', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -1302,7 +1299,7 @@ describe('ContainerService', () => {
             image: postgres:13
       `);
 
-      ContainerService.updateContainer({ image: 'postgres:14' }, 'postgres', 'postgres', ContainerSource.Service);
+      ContainerService.updateContainer({ image: 'postgres:14' }, 'postgres', ContainerSource.Service);
 
       const expectedYml = yaml`
         service_containers:
@@ -1324,7 +1321,6 @@ describe('ContainerService', () => {
 
       ContainerService.updateContainer(
         { image: 'nginx:latest', ports: ['8080:80', '8443:443'] },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1353,7 +1349,6 @@ describe('ContainerService', () => {
       ContainerService.updateContainer(
         { image: 'nginx:latest', ports: ['9090:80', '9443:443'] },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1378,12 +1373,7 @@ describe('ContainerService', () => {
             - 8080:80
       `);
 
-      ContainerService.updateContainer(
-        { image: 'nginx:latest', ports: [] },
-        'my-container',
-        'my-container',
-        ContainerSource.Execution,
-      );
+      ContainerService.updateContainer({ image: 'nginx:latest', ports: [] }, 'my-container', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -1405,7 +1395,6 @@ describe('ContainerService', () => {
 
       ContainerService.updateContainer(
         { image: 'nginx:latest', ports: undefined },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1433,7 +1422,6 @@ describe('ContainerService', () => {
           image: 'private.registry.com/image:latest',
           credentials: { username: 'user', password: 'pass', server: 'private.registry.com' },
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1468,7 +1456,6 @@ describe('ContainerService', () => {
           credentials: { username: 'user', password: 'pass', server: 'new.registry.com' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1502,7 +1489,6 @@ describe('ContainerService', () => {
           credentials: { username: 'user', password: 'pass' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1533,7 +1519,6 @@ describe('ContainerService', () => {
           credentials: { username: '', password: '' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1560,7 +1545,6 @@ describe('ContainerService', () => {
           image: 'private.registry.com/image:latest',
           credentials: { username: '$DOCKER_USER', password: '$DOCKER_PASS' },
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1593,7 +1577,6 @@ describe('ContainerService', () => {
           credentials: { username: 'new-user', password: 'pass' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1625,7 +1608,6 @@ describe('ContainerService', () => {
           credentials: { username: '', password: 'pass' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1655,7 +1637,6 @@ describe('ContainerService', () => {
           credentials: { username: '', password: '' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1682,7 +1663,6 @@ describe('ContainerService', () => {
           image: 'private.registry.com/image:latest',
           credentials: { username: 'user', password: '$DOCKER_PASS' },
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1715,7 +1695,6 @@ describe('ContainerService', () => {
           credentials: { username: 'user', password: 'new-pass' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1747,7 +1726,6 @@ describe('ContainerService', () => {
           credentials: { username: 'user', password: '' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1777,7 +1755,6 @@ describe('ContainerService', () => {
           credentials: { username: '', password: '' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1804,7 +1781,6 @@ describe('ContainerService', () => {
           image: 'ubuntu:20.04',
           envs: [{ ENV: 'production' }, { DEBUG: 'true' }],
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1836,7 +1812,6 @@ describe('ContainerService', () => {
           envs: [{ ENV: 'production' }, { DEBUG: 'false' }],
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1867,7 +1842,6 @@ describe('ContainerService', () => {
           envs: [],
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1894,7 +1868,6 @@ describe('ContainerService', () => {
           image: 'ubuntu:20.04',
           envs: undefined,
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -1923,7 +1896,6 @@ describe('ContainerService', () => {
           options: '--memory=2g --cpus=2',
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1951,7 +1923,6 @@ describe('ContainerService', () => {
           options: '--memory=4g --cpus=4',
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -1978,7 +1949,6 @@ describe('ContainerService', () => {
           image: 'ubuntu:20.04',
           options: undefined,
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -2009,8 +1979,8 @@ describe('ContainerService', () => {
           ports: ['8080:80'],
         },
         'old-name',
-        'new-name',
         ContainerSource.Execution,
+        'new-name',
       );
 
       const expectedYml = yaml`
@@ -2036,8 +2006,8 @@ describe('ContainerService', () => {
           image: 'postgres:13',
         },
         'old-postgres',
-        'new-postgres',
         ContainerSource.Service,
+        'new-postgres',
       );
 
       const expectedYml = yaml`
@@ -2062,8 +2032,8 @@ describe('ContainerService', () => {
         ContainerService.updateContainer(
           { image: 'ubuntu:20.04' },
           'container-1',
-          'container-2',
           ContainerSource.Execution,
+          'container-2',
         ),
       ).toThrow("Container 'container-2' already exists");
     });
@@ -2079,7 +2049,6 @@ describe('ContainerService', () => {
         {
           image: 'ubuntu:22.04',
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
@@ -2113,8 +2082,8 @@ describe('ContainerService', () => {
           credentials: { username: 'user', password: 'pass' },
         },
         'my-container',
-        'renamed-container',
         ContainerSource.Execution,
+        'renamed-container',
       );
 
       const expectedYml = yaml`
@@ -2159,7 +2128,6 @@ describe('ContainerService', () => {
           credentials: { username: 'user', password: 'pass' },
         },
         'my-container',
-        'my-container',
         ContainerSource.Execution,
       );
 
@@ -2200,7 +2168,6 @@ describe('ContainerService', () => {
         {
           image: 'alpine:latest',
         },
-        'my-container',
         'my-container',
         ContainerSource.Execution,
       );
