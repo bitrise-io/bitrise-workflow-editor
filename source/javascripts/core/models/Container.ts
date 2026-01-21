@@ -1,4 +1,4 @@
-import { ContainerModel } from '@/core/models/BitriseYml';
+import { ContainerModel, DockerCredentialModel } from '@/core/models/BitriseYml';
 
 export enum ContainerSource {
   Execution = 'execution_containers',
@@ -11,3 +11,8 @@ export enum ContainerReferenceField {
 }
 
 export type Container = { id: string; userValues: ContainerModel };
+
+export type ContainerField = keyof ContainerModel;
+export type CredentialField = keyof DockerCredentialModel;
+export type ContainerFieldValue<T extends ContainerField> = ContainerModel[T];
+export type CredentialFieldValue<T extends CredentialField> = DockerCredentialModel[T];

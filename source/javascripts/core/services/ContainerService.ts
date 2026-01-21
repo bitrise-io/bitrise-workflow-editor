@@ -1,7 +1,15 @@
 import { Document, isMap, YAMLMap } from 'yaml';
 
-import { ContainerModel, DockerCredentialModel } from '@/core/models/BitriseYml';
-import { Container, ContainerReferenceField, ContainerSource } from '@/core/models/Container';
+import { ContainerModel } from '@/core/models/BitriseYml';
+import {
+  Container,
+  ContainerField,
+  ContainerFieldValue,
+  ContainerReferenceField,
+  ContainerSource,
+  CredentialField,
+  CredentialFieldValue,
+} from '@/core/models/Container';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -228,61 +236,6 @@ function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, 
   });
 }
 
-function updateContainer(
-  updatedContainer: ContainerModel,
-  id: Container['id'],
-  target: ContainerSource,
-  newId?: Container['id'],
-) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc, target);
-    const targetId = newId ?? id;
-
-    if (newId && id !== newId && doc.hasIn([target, newId])) {
-      throw new Error(`Container '${newId}' already exists`);
-    }
-
-    if (newId && id !== newId) {
-      updateContainerId(doc, id, newId, target);
-    }
-
-    if (updatedContainer.image !== container.get('image')) {
-      updateImage(doc, targetId, updatedContainer.image, target);
-    }
-
-    const portsChanged = JSON.stringify(updatedContainer.ports) !== JSON.stringify(container.get('ports'));
-    if (portsChanged) {
-      updatePorts(doc, targetId, updatedContainer.ports, target);
-    }
-
-    const newServer = updatedContainer.credentials?.server;
-    if (newServer !== container.getIn(['credentials', 'server'])) {
-      updateRegistryServer(doc, targetId, newServer, target);
-    }
-
-    const newUsername = updatedContainer.credentials?.username;
-    if (newUsername !== container.getIn(['credentials', 'username'])) {
-      updateUsername(doc, targetId, newUsername, target);
-    }
-
-    const newPassword = updatedContainer.credentials?.password;
-    if (newPassword !== container.getIn(['credentials', 'password'])) {
-      updatePassword(doc, targetId, newPassword, target);
-    }
-
-    const envsChanged = JSON.stringify(updatedContainer.envs) !== JSON.stringify(container.get('envs'));
-    if (envsChanged) {
-      updateEnvVars(doc, targetId, updatedContainer.envs, target);
-    }
-
-    if (updatedContainer.options !== container.get('options')) {
-      updateOptions(doc, targetId, updatedContainer.options, target);
-    }
-
-    return doc;
-  });
-}
-
 function updateContainerId(doc: Document, id: Container['id'], newId: Container['id'], target: ContainerSource) {
   if (id === newId) {
     return;
@@ -303,90 +256,40 @@ function updateContainerId(doc: Document, id: Container['id'], newId: Container[
   }
 }
 
-function updateImage(doc: Document, id: Container['id'], image: ContainerModel['image'], target: ContainerSource) {
-  YmlUtils.setIn(doc, [target, id, 'image'], image);
-}
+function updateContainerField<T extends ContainerField>(
+  doc: Document,
+  id: Container['id'],
+  field: T,
+  value: ContainerFieldValue<T>,
+  target: ContainerSource,
+) {
+  getContainerOrThrowError(id, doc, target);
 
-function updatePorts(doc: Document, id: Container['id'], ports: ContainerModel['ports'], target: ContainerSource) {
-  if (!ports || ports.length === 0) {
-    YmlUtils.deleteByPath(doc, [target, id, 'ports']);
+  if (value) {
+    YmlUtils.setIn(doc, [target, id, field], value);
   } else {
-    YmlUtils.setIn(doc, [target, id, 'ports'], ports);
+    YmlUtils.deleteByPath(doc, [target, id, field]);
   }
 }
 
-function updateRegistryServer(
+function updateCredentialField<T extends CredentialField>(
   doc: Document,
   id: Container['id'],
-  server: DockerCredentialModel['server'],
+  field: T,
+  value: CredentialFieldValue<T>,
   target: ContainerSource,
 ) {
-  if (!server) {
-    YmlUtils.deleteByPath(doc, [target, id, 'credentials', 'server']);
+  getContainerOrThrowError(id, doc, target);
+
+  if (value) {
+    YmlUtils.setIn(doc, [target, id, 'credentials', field], value);
+  } else {
+    YmlUtils.deleteByPath(doc, [target, id, 'credentials', field]);
 
     const credentials = YmlUtils.getMapIn(doc, [target, id, 'credentials']);
     if (credentials && credentials.items.length === 0) {
       YmlUtils.deleteByPath(doc, [target, id, 'credentials']);
     }
-  } else {
-    YmlUtils.setIn(doc, [target, id, 'credentials', 'server'], server);
-  }
-}
-
-function updateUsername(
-  doc: Document,
-  id: Container['id'],
-  username: DockerCredentialModel['username'] | undefined,
-  target: ContainerSource,
-) {
-  if (!username) {
-    YmlUtils.deleteByPath(doc, [target, id, 'credentials', 'username']);
-
-    const credentials = YmlUtils.getMapIn(doc, [target, id, 'credentials']);
-    if (credentials && credentials.items.length === 0) {
-      YmlUtils.deleteByPath(doc, [target, id, 'credentials']);
-    }
-  } else {
-    YmlUtils.setIn(doc, [target, id, 'credentials', 'username'], username);
-  }
-}
-
-function updatePassword(
-  doc: Document,
-  id: Container['id'],
-  password: DockerCredentialModel['password'] | undefined,
-  target: ContainerSource,
-) {
-  if (!password) {
-    YmlUtils.deleteByPath(doc, [target, id, 'credentials', 'password']);
-
-    const credentials = YmlUtils.getMapIn(doc, [target, id, 'credentials']);
-    if (credentials && credentials.items.length === 0) {
-      YmlUtils.deleteByPath(doc, [target, id, 'credentials']);
-    }
-  } else {
-    YmlUtils.setIn(doc, [target, id, 'credentials', 'password'], password);
-  }
-}
-
-function updateEnvVars(doc: Document, id: Container['id'], envs: ContainerModel['envs'], target: ContainerSource) {
-  if (!envs || envs.length === 0) {
-    YmlUtils.deleteByPath(doc, [target, id, 'envs']);
-  } else {
-    YmlUtils.setIn(doc, [target, id, 'envs'], envs);
-  }
-}
-
-function updateOptions(
-  doc: Document,
-  id: Container['id'],
-  options: ContainerModel['options'],
-  target: ContainerSource,
-) {
-  if (!options) {
-    YmlUtils.deleteByPath(doc, [target, id, 'options']);
-  } else {
-    YmlUtils.setIn(doc, [target, id, 'options'], options);
   }
 }
 
@@ -398,6 +301,7 @@ export default {
   getAllContainers,
   getContainerOrThrowError,
   getWorkflowsUsingContainer: getWorkflowsUsingContainerByTarget,
-  updateContainer,
   updateContainerId,
+  updateContainerField,
+  updateCredentialField,
 };
