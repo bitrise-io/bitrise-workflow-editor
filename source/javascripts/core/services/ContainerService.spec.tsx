@@ -725,11 +725,10 @@ describe('ContainerService', () => {
           wf1:
             steps:
               - script:
-                  title: Test
                   execution_container: my-container
       `);
 
-      ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Execution);
+      ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Execution, 'my-container');
 
       const expectedYml = yaml`
         execution_containers:
@@ -738,8 +737,7 @@ describe('ContainerService', () => {
         workflows:
           wf1:
             steps:
-              - script:
-                  title: Test
+              - script: {}
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
@@ -748,9 +746,9 @@ describe('ContainerService', () => {
     it('should throw an error if workflow does not exist', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
-      expect(() => ContainerService.deleteContainerReference('non-existent', 0, ContainerSource.Execution)).toThrow(
-        "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
-      );
+      expect(() =>
+        ContainerService.deleteContainerReference('non-existent', 0, ContainerSource.Execution, 'my-container'),
+      ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
     });
 
     it('should throw an error if step does not exist', () => {
@@ -758,13 +756,12 @@ describe('ContainerService', () => {
         workflows:
           wf1:
             steps:
-              - script:
-                  title: Test
+              - script: {}
       `);
 
-      expect(() => ContainerService.deleteContainerReference('wf1', 5, ContainerSource.Execution)).toThrow(
-        'Step at index 5 not found in workflows.wf1',
-      );
+      expect(() =>
+        ContainerService.deleteContainerReference('wf1', 5, ContainerSource.Execution, 'my-container'),
+      ).toThrow('Step at index 5 not found in workflows.wf1');
     });
   });
 
@@ -780,7 +777,6 @@ describe('ContainerService', () => {
           wf1:
             steps:
               - script:
-                  title: Test
                   service_containers:
                     - postgres
                     - redis
@@ -798,7 +794,6 @@ describe('ContainerService', () => {
           wf1:
             steps:
               - script:
-                  title: Test
                   service_containers:
                     - redis
       `;
@@ -815,7 +810,6 @@ describe('ContainerService', () => {
           wf1:
             steps:
               - script:
-                  title: Test
                   service_containers:
                     - postgres
       `);
@@ -829,8 +823,7 @@ describe('ContainerService', () => {
         workflows:
           wf1:
             steps:
-              - script:
-                  title: Test
+              - script: {}
       `;
 
       expect(getYmlString()).toEqual(expectedYml);

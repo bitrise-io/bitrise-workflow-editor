@@ -67,12 +67,7 @@ function createContainer(id: string, container: ContainerModel, target: Containe
   });
 }
 
-function deleteContainerReference(
-  workflowId: string,
-  stepIndex: number,
-  target: ContainerSource,
-  containerId?: string,
-) {
+function deleteContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
