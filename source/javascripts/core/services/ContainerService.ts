@@ -244,10 +244,10 @@ function updateContainer(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     const container = getContainerOrThrowError(id, doc, target);
-    const effectiveNewId = newId ?? id;
+    const targetId = newId ?? id;
 
-    if (id !== effectiveNewId && doc.hasIn([target, effectiveNewId])) {
-      throw new Error(`Container '${effectiveNewId}' already exists`);
+    if (newId && id !== newId && doc.hasIn([target, newId])) {
+      throw new Error(`Container '${newId}' already exists`);
     }
 
     if (newId && id !== newId) {
@@ -255,36 +255,36 @@ function updateContainer(
     }
 
     if (updatedContainer.image !== container.get('image')) {
-      updateImage(doc, effectiveNewId, updatedContainer.image, target);
+      updateImage(doc, targetId, updatedContainer.image, target);
     }
 
     const portsChanged = JSON.stringify(updatedContainer.ports) !== JSON.stringify(container.get('ports'));
     if (portsChanged) {
-      updatePorts(doc, effectiveNewId, updatedContainer.ports, target);
+      updatePorts(doc, targetId, updatedContainer.ports, target);
     }
 
     const newServer = updatedContainer.credentials?.server;
     if (newServer !== container.getIn(['credentials', 'server'])) {
-      updateRegistryServer(doc, effectiveNewId, newServer, target);
+      updateRegistryServer(doc, targetId, newServer, target);
     }
 
     const newUsername = updatedContainer.credentials?.username;
     if (newUsername !== container.getIn(['credentials', 'username'])) {
-      updateUsername(doc, effectiveNewId, newUsername, target);
+      updateUsername(doc, targetId, newUsername, target);
     }
 
     const newPassword = updatedContainer.credentials?.password;
     if (newPassword !== container.getIn(['credentials', 'password'])) {
-      updatePassword(doc, effectiveNewId, newPassword, target);
+      updatePassword(doc, targetId, newPassword, target);
     }
 
     const envsChanged = JSON.stringify(updatedContainer.envs) !== JSON.stringify(container.get('envs'));
     if (envsChanged) {
-      updateEnvVars(doc, effectiveNewId, updatedContainer.envs, target);
+      updateEnvVars(doc, targetId, updatedContainer.envs, target);
     }
 
     if (updatedContainer.options !== container.get('options')) {
-      updateOptions(doc, effectiveNewId, updatedContainer.options, target);
+      updateOptions(doc, targetId, updatedContainer.options, target);
     }
 
     return doc;
