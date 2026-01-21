@@ -716,7 +716,7 @@ describe('ContainerService', () => {
   });
 
   describe('deleteContainerReference', () => {
-    it('should remove container reference from a workflow step', () => {
+    it('should remove execution container reference from a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`
         execution_containers:
           my-container:
@@ -725,6 +725,8 @@ describe('ContainerService', () => {
           wf1:
             steps:
               - script:
+                  execution_container: my-container
+              - second-step:
                   execution_container: my-container
       `);
 
@@ -738,6 +740,8 @@ describe('ContainerService', () => {
           wf1:
             steps:
               - script: {}
+              - second-step:
+                  execution_container: my-container
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
@@ -749,19 +753,6 @@ describe('ContainerService', () => {
       expect(() =>
         ContainerService.deleteContainerReference('non-existent', 0, ContainerSource.Execution, 'my-container'),
       ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
-    });
-
-    it('should throw an error if step does not exist', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script: {}
-      `);
-
-      expect(() =>
-        ContainerService.deleteContainerReference('wf1', 5, ContainerSource.Execution, 'my-container'),
-      ).toThrow('Step at index 5 not found in workflows.wf1');
     });
   });
 
@@ -827,39 +818,6 @@ describe('ContainerService', () => {
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
-    });
-
-    it('should throw an error if services field does not exist', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-      `);
-
-      expect(() => ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Service, 'postgres')).toThrow(
-        'No service containers found on step at index 0',
-      );
-    });
-
-    it('should throw an error if service is not in the list', () => {
-      updateBitriseYmlDocumentByString(yaml`
-        service_containers:
-          redis:
-            image: redis:6
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-                  service_containers:
-                    - redis
-      `);
-
-      expect(() => ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Service, 'postgres')).toThrow(
-        "Service container 'postgres' not found on step at index 0",
-      );
     });
   });
 

@@ -70,27 +70,20 @@ function createContainer(id: string, container: ContainerModel, target: Containe
 function deleteContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     if (target === ContainerSource.Execution) {
-      YmlUtils.deleteByPath(stepData, ['execution_container']);
-    }
-
-    if (target === ContainerSource.Service) {
-      if (!containerId) {
-        throw new Error('Container ID is required when deleting service container from usage');
-      }
-
-      const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
-      if (!existingServices) {
-        throw new Error(`No service containers found on step at index ${stepIndex}`);
-      }
-
-      if (!YmlUtils.isInSeq(stepData, ['service_containers'], containerId)) {
-        throw new Error(`Service container '${containerId}' not found on step at index ${stepIndex}`);
-      }
-
-      YmlUtils.deleteByValue(stepData, ['service_containers', '*'], containerId);
+      YmlUtils.deleteByPath(
+        doc,
+        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Execution],
+        ['workflows', workflowId, 'steps', stepIndex, '*'],
+      );
+    } else if (target === ContainerSource.Service) {
+      YmlUtils.deleteByValue(
+        doc,
+        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Service, '*'],
+        containerId,
+        ['workflows', workflowId, 'steps', stepIndex, '*'],
+      );
     }
 
     return doc;
