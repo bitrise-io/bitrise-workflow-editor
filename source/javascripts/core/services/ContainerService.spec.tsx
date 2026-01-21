@@ -1270,4 +1270,948 @@ describe('ContainerService', () => {
       expect(result).toEqual(['test']);
     });
   });
+
+  describe('updateImage', () => {
+    it('should update the image of an execution container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `);
+
+      ContainerService.updateContainer(
+        { image: 'ubuntu:22.04' },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:22.04
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update the image of a service container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        service_containers:
+          postgres:
+            image: postgres:13
+      `);
+
+      ContainerService.updateContainer({ image: 'postgres:14' }, 'postgres', 'postgres', ContainerSource.Service);
+
+      const expectedYml = yaml`
+        service_containers:
+          postgres:
+            image: postgres:14
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updatePorts', () => {
+    it('should add ports to a container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+      `);
+
+      ContainerService.updateContainer(
+        { image: 'nginx:latest', ports: ['8080:80', '8443:443'] },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+            ports:
+            - 8080:80
+            - 8443:443
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update existing ports', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+            ports:
+            - 8080:80
+      `);
+
+      ContainerService.updateContainer(
+        { image: 'nginx:latest', ports: ['9090:80', '9443:443'] },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+            ports:
+            - 9090:80
+            - 9443:443
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove ports when empty array is provided', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+            ports:
+            - 8080:80
+      `);
+
+      ContainerService.updateContainer(
+        { image: 'nginx:latest', ports: [] },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove ports when undefined is provided', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+            ports:
+            - 8080:80
+      `);
+
+      ContainerService.updateContainer(
+        { image: 'nginx:latest', ports: undefined },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: nginx:latest
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updateRegistryServer', () => {
+    it('should add registry server to container credentials', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: private.registry.com/image:latest
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'private.registry.com/image:latest',
+          credentials: { username: 'user', password: 'pass', server: 'private.registry.com' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: private.registry.com/image:latest
+            credentials:
+              server: private.registry.com
+              username: user
+              password: pass
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update existing registry server', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: pass
+              server: old.registry.com
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: 'user', password: 'pass', server: 'new.registry.com' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: pass
+              server: new.registry.com
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove registry server when undefined', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: pass
+              server: registry.com
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: 'user', password: 'pass' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: pass
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove credentials section when server is the last credential', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              server: registry.com
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: '', password: '' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updateUsername', () => {
+    it('should add username to container credentials', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: private.registry.com/image:latest
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'private.registry.com/image:latest',
+          credentials: { username: '$DOCKER_USER', password: '$DOCKER_PASS' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: private.registry.com/image:latest
+            credentials:
+              username: $DOCKER_USER
+              password: $DOCKER_PASS
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update existing username', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: old-user
+              password: pass
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: 'new-user', password: 'pass' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: new-user
+              password: pass
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove username when undefined', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: pass
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: '', password: 'pass' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              password: pass
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove credentials section when username is the last credential', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: '', password: '' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('should add password to container credentials', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: private.registry.com/image:latest
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'private.registry.com/image:latest',
+          credentials: { username: 'user', password: '$DOCKER_PASS' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: private.registry.com/image:latest
+            credentials:
+              username: user
+              password: $DOCKER_PASS
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update existing password', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: old-pass
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: 'user', password: 'new-pass' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: new-pass
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove password when undefined', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+              password: pass
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: 'user', password: '' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              username: user
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove credentials section when password is the last credential', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+            credentials:
+              password: pass
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'image:latest',
+          credentials: { username: '', password: '' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: image:latest
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updateEnvVars', () => {
+    it('should add environment variables to a container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          envs: [{ ENV: 'production' }, { DEBUG: 'true' }],
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            envs:
+            - ENV: production
+            - DEBUG: "true"
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update existing environment variables', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            envs:
+            - ENV: development
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          envs: [{ ENV: 'production' }, { DEBUG: 'false' }],
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            envs:
+            - ENV: production
+            - DEBUG: "false"
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove environment variables when empty array is provided', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            envs:
+            - ENV: production
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          envs: [],
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove environment variables when undefined is provided', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            envs:
+            - ENV: production
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          envs: undefined,
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updateOptions', () => {
+    it('should add options to a container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          options: '--memory=2g --cpus=2',
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            options: "--memory=2g --cpus=2"
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should update existing options', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            options: --memory=1g
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          options: '--memory=4g --cpus=4',
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            options: "--memory=4g --cpus=4"
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove options when undefined is provided', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            options: --memory=2g
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          options: undefined,
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updateContainerId', () => {
+    it('should rename an execution container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          old-name:
+            image: ubuntu:20.04
+            ports:
+            - 8080:80
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:20.04',
+          ports: ['8080:80'],
+        },
+        'old-name',
+        'new-name',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          new-name:
+            image: ubuntu:20.04
+            ports:
+            - 8080:80
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should rename a service container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        service_containers:
+          old-postgres:
+            image: postgres:13
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'postgres:13',
+        },
+        'old-postgres',
+        'new-postgres',
+        ContainerSource.Service,
+      );
+
+      const expectedYml = yaml`
+        service_containers:
+          new-postgres:
+            image: postgres:13
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should throw an error if new name already exists', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          container-1:
+            image: ubuntu:20.04
+          container-2:
+            image: ubuntu:22.04
+      `);
+
+      expect(() =>
+        ContainerService.updateContainer(
+          { image: 'ubuntu:20.04' },
+          'container-1',
+          'container-2',
+          ContainerSource.Execution,
+        ),
+      ).toThrow("Container 'container-2' already exists");
+    });
+
+    it('should allow keeping the same name', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:22.04',
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:22.04
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+
+  describe('updateContainer - combined updates', () => {
+    it('should update multiple fields at once', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            ports:
+            - 8080:80
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:22.04',
+          ports: ['9090:80', '9443:443'],
+          envs: [{ ENV: 'production' }],
+          options: '--memory=2g',
+          credentials: { username: 'user', password: 'pass' },
+        },
+        'my-container',
+        'renamed-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          renamed-container:
+            image: ubuntu:22.04
+            ports:
+            - 9090:80
+            - 9443:443
+            credentials:
+              username: user
+              password: pass
+            envs:
+            - ENV: production
+            options: "--memory=2g"
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should handle partial updates correctly', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            ports:
+            - 8080:80
+            envs:
+            - ENV: development
+            options: --memory=1g
+            credentials:
+              username: user
+              password: pass
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'ubuntu:22.04',
+          ports: ['8080:80'],
+          envs: [{ ENV: 'production' }],
+          options: '--memory=1g',
+          credentials: { username: 'user', password: 'pass' },
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:22.04
+            ports:
+            - 8080:80
+            envs:
+            - ENV: production
+            options: --memory=1g
+            credentials:
+              username: user
+              password: pass
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove all optional fields when updating to minimal container', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+            ports:
+            - 8080:80
+            envs:
+            - ENV: development
+            options: --memory=1g
+            credentials:
+              username: user
+              password: pass
+              server: registry.com
+      `);
+
+      ContainerService.updateContainer(
+        {
+          image: 'alpine:latest',
+        },
+        'my-container',
+        'my-container',
+        ContainerSource.Execution,
+      );
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: alpine:latest
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
 });
