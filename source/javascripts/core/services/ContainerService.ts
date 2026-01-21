@@ -18,20 +18,17 @@ function addContainer(workflowId: string, stepIndex: number, containerId: string
     }
 
     if (target === ContainerSource.Service) {
-      const existingServices = YmlUtils.getSeqIn(stepData, ['service_containers']);
-      const currentServices = existingServices ? existingServices.items.map((item) => String(item)) : [];
-
-      if (currentServices.includes(containerId)) {
+      if (YmlUtils.isInSeq(stepData, ['service_containers'], containerId)) {
         throw new Error(`Service container '${containerId}' is already added to the step`);
       }
-      YmlUtils.setIn(stepData, ['service_containers'], [...currentServices, containerId]);
+      YmlUtils.addIn(stepData, ['service_containers'], containerId);
     }
 
     return doc;
   });
 }
 
-function buildContainerData(container: ContainerModel) {
+function cleanContainerData(container: ContainerModel) {
   const { image, credentials, ports, envs, options } = container;
 
   const containerData: ContainerModel = { image };
@@ -63,7 +60,7 @@ function createContainer(id: string, container: ContainerModel, target: Containe
       throw new Error(`${containerType} '${id}' already exists`);
     }
 
-    const containerData = buildContainerData(container);
+    const containerData = cleanContainerData(container);
 
     YmlUtils.setIn(doc, [target, id], containerData);
     return doc;
@@ -94,18 +91,11 @@ function deleteContainerReference(
         throw new Error(`No service containers found on step at index ${stepIndex}`);
       }
 
-      const currentServices = existingServices.items.map((item) => String(item));
-      const updatedServices = currentServices.filter((service) => service !== containerId);
-
-      if (updatedServices.length === currentServices.length) {
+      if (!YmlUtils.isInSeq(stepData, ['service_containers'], containerId)) {
         throw new Error(`Service container '${containerId}' not found on step at index ${stepIndex}`);
       }
 
-      if (updatedServices.length === 0) {
-        YmlUtils.deleteByPath(stepData, ['service_containers']);
-      } else {
-        YmlUtils.setIn(stepData, ['service_containers'], updatedServices);
-      }
+      YmlUtils.deleteByValue(stepData, ['service_containers', '*'], containerId);
     }
 
     return doc;
@@ -116,10 +106,6 @@ function deleteContainer(id: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
     YmlUtils.deleteByPath(doc, [target, id]);
-
-    if (doc.hasIn([target]) && Object.keys(YmlUtils.getMapIn(doc, [target]) || {}).length === 0) {
-      YmlUtils.deleteByPath(doc, [target]);
-    }
 
     return doc;
   });
