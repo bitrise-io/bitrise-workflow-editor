@@ -1,7 +1,7 @@
 import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, DockerCredentialModel } from '@/core/models/BitriseYml';
-import { Container, ContainerSource } from '@/core/models/Container';
+import { Container, ContainerReferenceField, ContainerSource } from '@/core/models/Container';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -105,7 +105,25 @@ function deleteContainerReference(
 function deleteContainer(id: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
+
     YmlUtils.deleteByPath(doc, [target, id]);
+    if (target === ContainerSource.Execution) {
+      YmlUtils.deleteByValue(doc, ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution], id, [
+        'workflows',
+        '*',
+        'steps',
+        '*',
+        '*',
+      ]);
+    } else if (target === ContainerSource.Service) {
+      YmlUtils.deleteByValue(doc, ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'], id, [
+        'workflows',
+        '*',
+        'steps',
+        '*',
+        '*',
+      ]);
+    }
 
     return doc;
   });

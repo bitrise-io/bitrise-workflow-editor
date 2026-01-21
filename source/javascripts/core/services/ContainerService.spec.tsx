@@ -339,8 +339,57 @@ describe('ContainerService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
 
+    it('should remove the container references from all workflow steps', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+          other-container:
+            image: ubuntu:22.04
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  execution_container: my-container
+              - script:
+                  execution_container: my-container
+          wf2:
+            steps:
+              - script:
+                  execution_container: my-container
+              - script:
+                  execution_container: other-container
+      `);
+
+      ContainerService.deleteContainer('my-container', ContainerSource.Execution);
+
+      const expectedYml = yaml`
+        execution_containers:
+          other-container:
+            image: ubuntu:22.04
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+              - script: {}
+          wf2:
+            steps:
+              - script: {}
+              - script:
+                  execution_container: other-container
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
     it('should throw an error if container does not exist', () => {
-      updateBitriseYmlDocumentByString(yaml``);
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+        workflows:
+          wf1: {}
+      `);
 
       expect(() => ContainerService.deleteContainer('non-existent', ContainerSource.Execution)).toThrow(
         "Container non-existent not found. Ensure that it exists in the 'execution_containers' section.",
@@ -380,9 +429,75 @@ describe('ContainerService', () => {
 
       ContainerService.deleteContainer('postgres', ContainerSource.Service);
 
-      const expectedYml = yaml` 
+      const expectedYml = yaml`
         workflows:
           wf1: {}
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
+    it('should remove the container references from all workflow steps', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          ubuntu:
+            image: ubuntu:20.04
+        service_containers:
+          mysql:
+            ports:
+            - "3306:3306"
+          redis:
+            ports:
+            - "6379:6379"
+        workflows:
+          wf1:
+            steps:
+            - script:
+                execution_container: ubuntu
+            - script:
+                execution_container: ubuntu
+                service_containers:
+                - mysql
+          wf2:
+            steps:
+            - script:
+                execution_container: ubuntu
+                service_containers:
+                - mysql
+                - redis
+            - script:
+                execution_container: ubuntu
+                service_containers:
+                - redis
+      `);
+
+      ContainerService.deleteContainer('mysql', ContainerSource.Service);
+
+      const expectedYml = yaml`
+        execution_containers:
+          ubuntu:
+            image: ubuntu:20.04
+        service_containers:
+          redis:
+            ports:
+            - "6379:6379"
+        workflows:
+          wf1:
+            steps:
+            - script:
+                execution_container: ubuntu
+            - script:
+                execution_container: ubuntu
+          wf2:
+            steps:
+            - script:
+                execution_container: ubuntu
+                service_containers:
+                - redis
+            - script:
+                execution_container: ubuntu
+                service_containers:
+                - redis
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
