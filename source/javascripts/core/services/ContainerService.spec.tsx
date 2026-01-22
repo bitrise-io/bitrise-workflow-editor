@@ -843,7 +843,7 @@ describe('ContainerService', () => {
     });
   });
 
-  describe('addContainer', () => {
+  describe('addContainerReference', () => {
     it('should add container reference to a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`
         execution_containers:
@@ -856,7 +856,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-      ContainerService.addContainer('wf1', 0, 'my-container', ContainerSource.Execution);
+      ContainerService.addContainerReference('wf1', 0, 'my-container', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -884,7 +884,7 @@ describe('ContainerService', () => {
               - bundle::setup_repo: {}
       `);
 
-      ContainerService.addContainer('wf1', 0, 'my-container', ContainerSource.Execution);
+      ContainerService.addContainerReference('wf1', 0, 'my-container', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -909,7 +909,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-      expect(() => ContainerService.addContainer('wf1', 0, 'non-existent', ContainerSource.Execution)).toThrow(
+      expect(() => ContainerService.addContainerReference('wf1', 0, 'non-existent', ContainerSource.Execution)).toThrow(
         "Container non-existent not found. Ensure that it exists in the 'execution_containers' section.",
       );
     });
@@ -921,9 +921,9 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-      expect(() => ContainerService.addContainer('non-existent', 0, 'my-container', ContainerSource.Execution)).toThrow(
-        "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
-      );
+      expect(() =>
+        ContainerService.addContainerReference('non-existent', 0, 'my-container', ContainerSource.Execution),
+      ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
     });
 
     it('should throw an error if step does not exist', () => {
@@ -938,13 +938,13 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-      expect(() => ContainerService.addContainer('wf1', 5, 'my-container', ContainerSource.Execution)).toThrow(
+      expect(() => ContainerService.addContainerReference('wf1', 5, 'my-container', ContainerSource.Execution)).toThrow(
         'Step at index 5 not found in workflows.wf1',
       );
     });
   });
 
-  describe('addContainer with service target', () => {
+  describe('addContainerReference with service target', () => {
     it('should add service reference to a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`
         service_containers:
@@ -957,7 +957,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-      ContainerService.addContainer('wf1', 0, 'postgres', ContainerSource.Service);
+      ContainerService.addContainerReference('wf1', 0, 'postgres', ContainerSource.Service);
 
       const expectedYml = yaml`
         service_containers:
@@ -991,7 +991,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-      ContainerService.addContainer('wf1', 0, 'redis', ContainerSource.Service);
+      ContainerService.addContainerReference('wf1', 0, 'redis', ContainerSource.Service);
 
       const expectedYml = yaml`
         service_containers:
@@ -1026,7 +1026,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-      expect(() => ContainerService.addContainer('wf1', 0, 'postgres', ContainerSource.Service)).toThrow(
+      expect(() => ContainerService.addContainerReference('wf1', 0, 'postgres', ContainerSource.Service)).toThrow(
         "Service container 'postgres' is already added to the step",
       );
     });
@@ -1040,13 +1040,13 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-      expect(() => ContainerService.addContainer('wf1', 0, 'non-existent', ContainerSource.Service)).toThrow(
+      expect(() => ContainerService.addContainerReference('wf1', 0, 'non-existent', ContainerSource.Service)).toThrow(
         "Container non-existent not found. Ensure that it exists in the 'service_containers' section.",
       );
     });
   });
 
-  describe('deleteContainerReference', () => {
+  describe('removeContainerReference', () => {
     it('should remove execution container reference from a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`
         execution_containers:
@@ -1061,7 +1061,7 @@ describe('ContainerService', () => {
                   execution_container: my-container
       `);
 
-      ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Execution, 'my-container');
+      ContainerService.removeContainerReference('wf1', 0, ContainerSource.Execution, 'my-container');
 
       const expectedYml = yaml`
         execution_containers:
@@ -1082,12 +1082,12 @@ describe('ContainerService', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
       expect(() =>
-        ContainerService.deleteContainerReference('non-existent', 0, ContainerSource.Execution, 'my-container'),
+        ContainerService.removeContainerReference('non-existent', 0, ContainerSource.Execution, 'my-container'),
       ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
     });
   });
 
-  describe('deleteContainerReference with service target', () => {
+  describe('removeContainerReference with service target', () => {
     it('should remove service reference from a workflow step', () => {
       updateBitriseYmlDocumentByString(yaml`
         service_containers:
@@ -1104,7 +1104,7 @@ describe('ContainerService', () => {
                     - redis
       `);
 
-      ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Service, 'postgres');
+      ContainerService.removeContainerReference('wf1', 0, ContainerSource.Service, 'postgres');
 
       const expectedYml = yaml`
         service_containers:
@@ -1136,7 +1136,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-      ContainerService.deleteContainerReference('wf1', 0, ContainerSource.Service, 'postgres');
+      ContainerService.removeContainerReference('wf1', 0, ContainerSource.Service, 'postgres');
 
       const expectedYml = yaml`
         service_containers:

@@ -15,7 +15,7 @@ import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-function addContainer(workflowId: string, stepIndex: number, containerId: string, target: ContainerSource) {
+function addContainerReference(workflowId: string, stepIndex: number, containerId: string, target: ContainerSource) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(containerId, doc, target);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
@@ -102,7 +102,7 @@ function deleteContainer(id: string, target: ContainerSource) {
   });
 }
 
-function deleteContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
+function removeContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
 
@@ -343,13 +343,13 @@ function updateContainerReference(
 }
 
 export default {
-  addContainer,
+  addContainerReference,
   createContainer,
   deleteContainer,
-  deleteContainerReference,
   getAllContainers,
   getContainerOrThrowError,
   getWorkflowsUsingContainer: getWorkflowsUsingContainerByTarget,
+  removeContainerReference,
   updateContainerId,
   updateContainerField,
   updateContainerReference,
