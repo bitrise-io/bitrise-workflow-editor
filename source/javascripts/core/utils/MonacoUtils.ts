@@ -210,7 +210,7 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
   const ls = new LanguageService();
 
   monacoInstance.languages.registerDefinitionProvider('yaml', {
-    provideDefinition: async (model, position, __) => {
+    provideDefinition: async (model, position) => {
       ls.updateFile(model.uri.toString(), model.getValue());
 
       const result = ls.provideDefinition(model.uri.toString(), {
