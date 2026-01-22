@@ -233,6 +233,8 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
       };
     },
   });
+
+  isConfiguredForBitriseLanguageServer = true;
 };
 
 export default {
