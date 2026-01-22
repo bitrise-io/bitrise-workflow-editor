@@ -105,11 +105,14 @@ function deleteContainer(id: string, target: ContainerSource) {
 function removeContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+    getStepDataOrThrowError(doc, workflowId, stepIndex);
+    getContainerOrThrowError(containerId, doc, target);
 
     if (target === ContainerSource.Execution) {
-      YmlUtils.deleteByPath(
+      YmlUtils.deleteByValue(
         doc,
         ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Execution],
+        containerId,
         ['workflows', workflowId, 'steps', stepIndex, '*'],
       );
     } else if (target === ContainerSource.Service) {
@@ -269,10 +272,12 @@ function updateContainerField<T extends ContainerField>(
   updateBitriseYmlDocument(({ doc }) => {
     const container = getContainerOrThrowError(id, doc, target);
 
-    if (value) {
-      YmlUtils.setIn(container, [field], value);
-    } else {
+    const shouldDelete = Array.isArray(value) && value.length === 0;
+
+    if (!value || shouldDelete) {
       YmlUtils.deleteByPath(container, [field]);
+    } else {
+      YmlUtils.setIn(container, [field], value);
     }
 
     return doc;
