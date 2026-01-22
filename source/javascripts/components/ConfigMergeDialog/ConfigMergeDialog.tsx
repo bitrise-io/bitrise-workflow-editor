@@ -310,6 +310,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 onMount={onFinalYmlEditorMount}
                 beforeMount={(monaco) => {
                   MonacoUtils.configureForYaml(monaco);
+                  MonacoUtils.configureBitriseLanguageServer(monaco);
                   MonacoUtils.configureEnvVarsCompletionProvider(monaco);
                 }}
               />

@@ -1,4 +1,5 @@
 import { type EditorProps, loader } from '@monaco-editor/react';
+import { LanguageService } from 'bitrise-yml-lsp-server';
 import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
@@ -200,7 +201,42 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
   isConfiguredForEnvVarsCompletionProvider = true;
 };
 
+let isConfiguredForBitriseLanguageServer = false;
+const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
+  if (isConfiguredForBitriseLanguageServer) {
+    return;
+  }
+
+  const ls = new LanguageService();
+
+  monacoInstance.languages.registerDefinitionProvider('yaml', {
+    provideDefinition: async (model, position, __) => {
+      ls.updateFile(model.uri.toString(), model.getValue());
+
+      const result = ls.provideDefinition(model.uri.toString(), {
+        line: position.lineNumber - 1,
+        character: position.column - 1,
+      });
+
+      if (!result) {
+        return null;
+      }
+
+      return {
+        uri: model.uri,
+        range: new monaco.Range(
+          result.range.start.line + 1,
+          result.range.start.character + 1,
+          result.range.end.line + 1,
+          result.range.end.character + 1,
+        ),
+      };
+    },
+  });
+};
+
 export default {
   configureForYaml,
+  configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
 };

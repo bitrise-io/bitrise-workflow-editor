@@ -53,6 +53,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
         wrapperProps={{ style: { flex: 1, display: 'flex' } }}
         beforeMount={(monaco) => {
           MonacoUtils.configureForYaml(monaco);
+          MonacoUtils.configureBitriseLanguageServer(monaco);
           MonacoUtils.configureEnvVarsCompletionProvider(monaco);
         }}
       />

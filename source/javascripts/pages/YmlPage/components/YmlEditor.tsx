@@ -44,6 +44,7 @@ const YmlEditor = () => {
       onMount={handleEditorDidMount}
       beforeMount={(monaco) => {
         MonacoUtils.configureForYaml(monaco);
+        MonacoUtils.configureBitriseLanguageServer(monaco);
         MonacoUtils.configureEnvVarsCompletionProvider(monaco);
       }}
       options={{
