@@ -236,61 +236,71 @@ function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, 
   });
 }
 
-function updateContainerId(doc: Document, id: Container['id'], newId: Container['id'], target: ContainerSource) {
-  if (id === newId) {
-    return;
-  }
+function updateContainerId(id: Container['id'], newId: Container['id'], target: ContainerSource) {
+  updateBitriseYmlDocument(({ doc }) => {
+    getContainerOrThrowError(id, doc, target);
 
-  getContainerOrThrowError(id, doc, target);
+    if (id === newId) {
+      return doc;
+    }
 
-  if (doc.hasIn([target, newId])) {
-    throw new Error(`Container '${newId}' already exists`);
-  }
+    if (doc.hasIn([target, newId])) {
+      throw new Error(`Container '${newId}' already exists`);
+    }
 
-  if (target === ContainerSource.Execution) {
-    YmlUtils.updateKeyByPath(doc, ['execution_containers', id], newId);
-    YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', 'execution_container'], id, newId);
-  } else if (target === ContainerSource.Service) {
-    YmlUtils.updateKeyByPath(doc, ['service_containers', id], newId);
-    YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', 'service_containers', '*'], id, newId);
-  }
+    if (target === ContainerSource.Execution) {
+      YmlUtils.updateKeyByPath(doc, [target, id], newId);
+      YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', 'execution_container'], id, newId);
+    } else if (target === ContainerSource.Service) {
+      YmlUtils.updateKeyByPath(doc, [target, id], newId);
+      YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', target, '*'], id, newId);
+    }
+
+    return doc;
+  });
 }
 
 function updateContainerField<T extends ContainerField>(
-  doc: Document,
   id: Container['id'],
   field: T,
   value: ContainerFieldValue<T>,
   target: ContainerSource,
 ) {
-  getContainerOrThrowError(id, doc, target);
+  updateBitriseYmlDocument(({ doc }) => {
+    const container = getContainerOrThrowError(id, doc, target);
 
-  if (value) {
-    YmlUtils.setIn(doc, [target, id, field], value);
-  } else {
-    YmlUtils.deleteByPath(doc, [target, id, field]);
-  }
+    if (value) {
+      YmlUtils.setIn(container, [field], value);
+    } else {
+      YmlUtils.deleteByPath(container, [field]);
+    }
+
+    return doc;
+  });
 }
 
 function updateCredentialField<T extends CredentialField>(
-  doc: Document,
   id: Container['id'],
   field: T,
   value: CredentialFieldValue<T>,
   target: ContainerSource,
 ) {
-  getContainerOrThrowError(id, doc, target);
+  updateBitriseYmlDocument(({ doc }) => {
+    getContainerOrThrowError(id, doc, target);
 
-  if (value) {
-    YmlUtils.setIn(doc, [target, id, 'credentials', field], value);
-  } else {
-    YmlUtils.deleteByPath(doc, [target, id, 'credentials', field]);
+    if (value) {
+      YmlUtils.setIn(doc, [target, id, 'credentials', field], value);
+    } else {
+      YmlUtils.deleteByPath(doc, [target, id, 'credentials', field]);
 
-    const credentials = YmlUtils.getMapIn(doc, [target, id, 'credentials']);
-    if (credentials && credentials.items.length === 0) {
-      YmlUtils.deleteByPath(doc, [target, id, 'credentials']);
+      const credentials = YmlUtils.getMapIn(doc, [target, id, 'credentials']);
+      if (credentials && credentials.items.length === 0) {
+        YmlUtils.deleteByPath(doc, [target, id, 'credentials']);
+      }
     }
-  }
+
+    return doc;
+  });
 }
 
 function updateContainerReference(

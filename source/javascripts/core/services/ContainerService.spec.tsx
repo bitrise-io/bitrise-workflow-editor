@@ -1,11 +1,6 @@
 import { ContainerModel } from '@/core/models/BitriseYml';
 import { ContainerSource } from '@/core/models/Container';
-import {
-  bitriseYmlStore,
-  getYmlString,
-  updateBitriseYmlDocument,
-  updateBitriseYmlDocumentByString,
-} from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
 import ContainerService from './ContainerService';
 
@@ -202,10 +197,7 @@ describe('ContainerService', () => {
             image: ubuntu:23.00
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(doc, 'my-container', 'image', 'ubuntu:22.04', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateContainerField('my-container', 'image', 'ubuntu:22.04', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -231,10 +223,7 @@ describe('ContainerService', () => {
             image: golang:1.16
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(doc, 'postgres', 'image', 'postgres:14', ContainerSource.Service);
-        return doc;
-      });
+      ContainerService.updateContainerField('postgres', 'image', 'postgres:14', ContainerSource.Service);
 
       const expectedYml = yaml`
         service_containers:
@@ -256,10 +245,7 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(doc, 'my-container', 'options', '--memory=2g', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateContainerField('my-container', 'options', '--memory=2g', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -279,10 +265,7 @@ describe('ContainerService', () => {
             options: --memory=2g
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(doc, 'my-container', 'options', '', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateContainerField('my-container', 'options', '', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -301,10 +284,7 @@ describe('ContainerService', () => {
             options: --memory=2g
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(doc, 'my-container', 'options', undefined, ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateContainerField('my-container', 'options', undefined, ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -324,16 +304,12 @@ describe('ContainerService', () => {
             - 8080:80
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(
-          doc,
-          'my-container',
-          'ports',
-          ['9090:80', '9443:443'],
-          ContainerSource.Execution,
-        );
-        return doc;
-      });
+      ContainerService.updateContainerField(
+        'my-container',
+        'ports',
+        ['9090:80', '9443:443'],
+        ContainerSource.Execution,
+      );
 
       const expectedYml = yaml`
         execution_containers:
@@ -354,16 +330,12 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerField(
-          doc,
-          'my-container',
-          'envs',
-          [{ ENV: 'production' }, { DEBUG: 'true' }],
-          ContainerSource.Execution,
-        );
-        return doc;
-      });
+      ContainerService.updateContainerField(
+        'my-container',
+        'envs',
+        [{ ENV: 'production' }, { DEBUG: 'true' }],
+        ContainerSource.Execution,
+      );
 
       const expectedYml = yaml`
         execution_containers:
@@ -380,18 +352,9 @@ describe('ContainerService', () => {
     it('should throw an error if container does not exist', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        expect(() =>
-          ContainerService.updateContainerField(
-            doc,
-            'non-existent',
-            'image',
-            'ubuntu:20.04',
-            ContainerSource.Execution,
-          ),
-        ).toThrow("Container non-existent not found. Ensure that it exists in the 'execution_containers' section.");
-        return doc;
-      });
+      expect(() =>
+        ContainerService.updateContainerField('non-existent', 'image', 'ubuntu:20.04', ContainerSource.Execution),
+      ).toThrow("Container non-existent not found. Ensure that it exists in the 'execution_containers' section.");
     });
   });
 
@@ -403,16 +366,7 @@ describe('ContainerService', () => {
             image: private.registry.com/image:latest
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(
-          doc,
-          'my-container',
-          'username',
-          '$DOCKER_USER',
-          ContainerSource.Execution,
-        );
-        return doc;
-      });
+      ContainerService.updateCredentialField('my-container', 'username', '$DOCKER_USER', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -435,10 +389,7 @@ describe('ContainerService', () => {
               password: pass
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(doc, 'my-container', 'username', 'new-user', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateCredentialField('my-container', 'username', 'new-user', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -461,16 +412,7 @@ describe('ContainerService', () => {
               username: user
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(
-          doc,
-          'my-container',
-          'password',
-          '$DOCKER_PASS',
-          ContainerSource.Execution,
-        );
-        return doc;
-      });
+      ContainerService.updateCredentialField('my-container', 'password', '$DOCKER_PASS', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -494,16 +436,12 @@ describe('ContainerService', () => {
               password: pass
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(
-          doc,
-          'my-container',
-          'server',
-          'private.registry.com',
-          ContainerSource.Execution,
-        );
-        return doc;
-      });
+      ContainerService.updateCredentialField(
+        'my-container',
+        'server',
+        'private.registry.com',
+        ContainerSource.Execution,
+      );
 
       const expectedYml = yaml`
         execution_containers:
@@ -528,10 +466,7 @@ describe('ContainerService', () => {
               password: pass
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(doc, 'my-container', 'username', '', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateCredentialField('my-container', 'username', '', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -554,10 +489,7 @@ describe('ContainerService', () => {
               password: pass
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(doc, 'my-container', 'password', '', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateCredentialField('my-container', 'password', '', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -579,10 +511,7 @@ describe('ContainerService', () => {
               username: user
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(doc, 'my-container', 'username', '', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateCredentialField('my-container', 'username', '', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -600,11 +529,8 @@ describe('ContainerService', () => {
             image: postgres:13
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateCredentialField(doc, 'postgres', 'username', '$DB_USER', ContainerSource.Service);
-        ContainerService.updateCredentialField(doc, 'postgres', 'password', '$DB_PASS', ContainerSource.Service);
-        return doc;
-      });
+      ContainerService.updateCredentialField('postgres', 'username', '$DB_USER', ContainerSource.Service);
+      ContainerService.updateCredentialField('postgres', 'password', '$DB_PASS', ContainerSource.Service);
 
       const expectedYml = yaml`
         service_containers:
@@ -621,12 +547,9 @@ describe('ContainerService', () => {
     it('should throw an error if container does not exist', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        expect(() =>
-          ContainerService.updateCredentialField(doc, 'non-existent', 'username', 'user', ContainerSource.Execution),
-        ).toThrow("Container non-existent not found. Ensure that it exists in the 'execution_containers' section.");
-        return doc;
-      });
+      expect(() =>
+        ContainerService.updateCredentialField('non-existent', 'username', 'user', ContainerSource.Execution),
+      ).toThrow("Container non-existent not found. Ensure that it exists in the 'execution_containers' section.");
     });
   });
 
@@ -941,6 +864,40 @@ describe('ContainerService', () => {
       expect(() => ContainerService.addContainerReference('wf1', 5, 'my-container', ContainerSource.Execution)).toThrow(
         'Step at index 5 not found in workflows.wf1',
       );
+    });
+
+    it('should set the container reference even if one already exists', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+          other-container:
+            image: ubuntu:22.04
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  title: Test
+                  execution_container: other-container
+      `);
+
+      ContainerService.addContainerReference('wf1', 0, 'my-container', ContainerSource.Execution);
+
+      const expectedYml = yaml`
+        execution_containers:
+          my-container:
+            image: ubuntu:20.04
+          other-container:
+            image: ubuntu:22.04
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  title: Test
+                  execution_container: my-container
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
     });
   });
 
@@ -1485,10 +1442,7 @@ describe('ContainerService', () => {
             - deploy: {}
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerId(doc, 'ubuntu', 'ubuntu20', ContainerSource.Execution);
-        return doc;
-      });
+      ContainerService.updateContainerId('ubuntu', 'ubuntu20', ContainerSource.Execution);
 
       const expectedYml = yaml`
         execution_containers:
@@ -1527,10 +1481,7 @@ describe('ContainerService', () => {
                 - redis
       `);
 
-      updateBitriseYmlDocument(({ doc }) => {
-        ContainerService.updateContainerId(doc, 'ubuntu', 'ubuntu20', ContainerSource.Service);
-        return doc;
-      });
+      ContainerService.updateContainerId('ubuntu', 'ubuntu20', ContainerSource.Service);
 
       const expectedYml = yaml`
         service_containers:
