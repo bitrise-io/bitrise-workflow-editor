@@ -140,7 +140,7 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
   return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
-function getAllContainers(doc: Document, target: ContainerSource) {
+function getAllContainers(doc: Document, target: ContainerSource): Container[] {
   const containers = YmlUtils.getMapIn(doc, [target]);
 
   if (!containers) {
@@ -150,8 +150,8 @@ function getAllContainers(doc: Document, target: ContainerSource) {
   return containers.items.map((pair) => {
     const id = String(pair.key);
     const containerMap = pair.value as YAMLMap;
-    const image = String(containerMap.get('image'));
-    return { id, image };
+    const userValues: ContainerModel = containerMap.toJSON();
+    return { id, userValues };
   });
 }
 
@@ -248,7 +248,7 @@ function updateContainerId(id: Container['id'], newId: Container['id'], target: 
     }
 
     if (doc.hasIn([target, newId])) {
-      throw new Error(`Container '${newId}' already exists`);
+      throw new Error(`Container '${newId}' already exists.`);
     }
 
     if (target === ContainerSource.Execution) {
