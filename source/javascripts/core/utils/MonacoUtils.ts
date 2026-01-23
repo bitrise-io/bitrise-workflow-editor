@@ -216,24 +216,23 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
 
   monacoInstance.languages.registerDefinitionProvider('yaml', {
     provideDefinition: async (model, position) => {
-      ls.updateFile(model.uri.toString(), model.getValue());
+      const uri = model.uri.toString();
+      const pos = { line: position.lineNumber - 1, character: position.column - 1 };
 
-      const result = ls.provideDefinition(model.uri.toString(), {
-        line: position.lineNumber - 1,
-        character: position.column - 1,
-      });
+      ls.updateFile(uri, model.getValue());
 
-      if (!result) {
+      const definition = ls.provideDefinition(uri, pos);
+      if (!definition) {
         return null;
       }
 
       return {
         uri: model.uri,
         range: new monaco.Range(
-          result.range.start.line + 1,
-          result.range.start.character + 1,
-          result.range.end.line + 1,
-          result.range.end.character + 1,
+          definition.range.start.line + 1,
+          definition.range.start.character + 1,
+          definition.range.end.line + 1,
+          definition.range.end.character + 1,
         ),
       };
     },
@@ -241,13 +240,12 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
 
   monacoInstance.languages.registerHoverProvider('yaml', {
     provideHover: async (model, position) => {
-      ls.updateFile(model.uri.toString(), model.getValue());
+      const uri = model.uri.toString();
+      const pos = { line: position.lineNumber - 1, character: position.column - 1 };
 
-      const hoverText = ls.provideHover(model.uri.toString(), {
-        line: position.lineNumber - 1,
-        character: position.column - 1,
-      });
+      ls.updateFile(uri, model.getValue());
 
+      const hoverText = ls.provideHover(uri, pos);
       if (!hoverText) {
         return null;
       }
