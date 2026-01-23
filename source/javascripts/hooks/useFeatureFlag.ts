@@ -3,6 +3,7 @@ import { initialize, LDClient } from 'launchdarkly-js-client-sdk';
 import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
+  'enable-wfe-bitrise-language-server': false,
   'enable-wfe-step-bundles-when-to-run': false,
 };
 

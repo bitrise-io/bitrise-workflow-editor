@@ -29,6 +29,7 @@ import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { getYmlValidationStatus } from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
@@ -140,6 +141,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
   const finalYmlEditor = useRef<ReturnType<MonacoDiffEditor['getModifiedEditor']>>();
   const [ymlStatus, setYmlStatus] = useState<'invalid' | 'valid' | 'warnings'>('valid');
+  const enableWfeBitriseLanguageServer = useFeatureFlag('enable-wfe-bitrise-language-server');
   const [nextData, setNextData] = useState<Partial<ReturnType<typeof useInitialCiConfigs>['data']>>();
 
   const {
@@ -310,8 +312,8 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 onMount={onFinalYmlEditorMount}
                 beforeMount={(monaco) => {
                   MonacoUtils.configureForYaml(monaco);
-                  MonacoUtils.configureBitriseLanguageServer(monaco);
                   MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+                  if (enableWfeBitriseLanguageServer) MonacoUtils.configureBitriseLanguageServer(monaco);
                 }}
               />
             </Box>
