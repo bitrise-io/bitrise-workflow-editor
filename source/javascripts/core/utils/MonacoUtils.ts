@@ -239,6 +239,25 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
     },
   });
 
+  monacoInstance.languages.registerHoverProvider('yaml', {
+    provideHover: async (model, position) => {
+      ls.updateFile(model.uri.toString(), model.getValue());
+
+      const hoverText = ls.provideHover(model.uri.toString(), {
+        line: position.lineNumber - 1,
+        character: position.column - 1,
+      });
+
+      if (!hoverText) {
+        return null;
+      }
+
+      return {
+        contents: [{ value: hoverText }],
+      };
+    },
+  });
+
   isConfiguredForBitriseLanguageServer = true;
 };
 
