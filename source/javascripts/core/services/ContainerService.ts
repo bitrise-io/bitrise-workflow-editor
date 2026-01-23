@@ -308,50 +308,41 @@ function updateCredentialField<T extends CredentialField>(
   });
 }
 
-function updateContainerReference(
+function updateContainerReferenceRecreate(
   workflowId: string,
   stepIndex: number,
   target: ContainerSource,
-  recreate: boolean,
   containerId: string,
+  recreate: boolean,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    if (target === ContainerSource.Execution) {
-      if (!stepData.has(ContainerReferenceField.Execution)) {
-        throw new Error(`No execution container found on step at index ${stepIndex}`);
-      }
-
-      const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
-
-      YmlUtils.setIn(stepData, [ContainerReferenceField.Execution], newValue);
+    const field =
+      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+    if (!stepData.has(field)) {
+      throw new Error(`No '${field}' found on step at index ${stepIndex}`);
     }
 
-    if (target === ContainerSource.Service) {
-      if (!stepData.has(ContainerReferenceField.Service)) {
-        throw new Error(`No service containers found on step at index ${stepIndex}`);
-      }
+    const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
+    const path = field === ContainerReferenceField.Execution ? [field] : [field, '*'];
 
-      const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
-
-      YmlUtils.updateValueByPredicate(
-        doc,
-        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Service, '*'],
-        (node) => {
-          if (YmlUtils.isEqualValues(node, containerId)) {
-            return true;
-          }
-          if (isMap(node) && node.items.length > 0) {
-            const key = String(node.items[0]?.key);
-            return key === containerId;
-          }
-          return false;
-        },
-        newValue,
-      );
-    }
+    YmlUtils.updateValueByPredicate(
+      stepData,
+      path,
+      (node) => {
+        if (YmlUtils.isEqualValues(node, containerId)) {
+          return true;
+        }
+        if (isMap(node) && node.items.length > 0) {
+          const key = String(node.items[0]?.key);
+          return key === containerId;
+        }
+        return false;
+      },
+      newValue,
+    );
 
     return doc;
   });
@@ -367,6 +358,6 @@ export default {
   removeContainerReference,
   updateContainerId,
   updateContainerField,
-  updateContainerReference,
+  updateContainerReferenceRecreate,
   updateCredentialField,
 };
