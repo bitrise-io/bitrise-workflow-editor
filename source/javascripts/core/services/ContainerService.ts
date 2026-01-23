@@ -175,7 +175,7 @@ function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: n
   return stepData;
 }
 
-function getWorkflowsUsingContainer(doc: Document, predicate: (stepData: YAMLMap) => boolean): string[] {
+function getWorkflowsUsingContainer(doc: Document, containerId: string, target: ContainerSource): string[] {
   const workflows = YmlUtils.getMapIn(doc, ['workflows']);
   const result: string[] = [];
 
@@ -189,14 +189,36 @@ function getWorkflowsUsingContainer(doc: Document, predicate: (stepData: YAMLMap
 
     const steps = YmlUtils.getSeqIn(workflow, ['steps']);
 
-    const usesContainer = steps?.items.some((step, stepIndex) => {
-      const stepMap = step as YAMLMap;
-      const stepData = stepMap.items[0]?.value as YAMLMap;
-      if (!isMap(stepData)) {
-        throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+    const usesContainer = steps?.items.some((_, stepIndex) => {
+      const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+
+      if (target === ContainerSource.Execution) {
+        const executionContainer = stepData.get('execution_container');
+        if (executionContainer) {
+          if (isMap(executionContainer)) {
+            const id = String(executionContainer.items[0]?.key);
+            return id === containerId;
+          }
+          return String(executionContainer) === containerId;
+        }
+        return false;
       }
 
-      return predicate(stepData);
+      if (target === ContainerSource.Service) {
+        const serviceContainers = YmlUtils.getSeqIn(stepData, ['service_containers']);
+        if (serviceContainers) {
+          return serviceContainers.items.some((service) => {
+            if (isMap(service)) {
+              const id = String(service.items[0]?.key);
+              return id === containerId;
+            }
+            return String(service) === containerId;
+          });
+        }
+        return false;
+      }
+
+      return false;
     });
 
     if (usesContainer) {
@@ -205,38 +227,6 @@ function getWorkflowsUsingContainer(doc: Document, predicate: (stepData: YAMLMap
   });
 
   return result;
-}
-
-function getWorkflowsUsingContainerByTarget(doc: Document, containerId: string, target: ContainerSource): string[] {
-  return getWorkflowsUsingContainer(doc, (stepData) => {
-    if (target === ContainerSource.Execution) {
-      const executionContainer = stepData.get('execution_container');
-      if (executionContainer) {
-        if (isMap(executionContainer)) {
-          const id = String(executionContainer.items[0]?.key);
-          return id === containerId;
-        }
-        return String(executionContainer) === containerId;
-      }
-      return false;
-    }
-
-    if (target === ContainerSource.Service) {
-      const serviceContainers = YmlUtils.getSeqIn(stepData, ['service_containers']);
-      if (serviceContainers) {
-        return serviceContainers.items.some((service) => {
-          if (isMap(service)) {
-            const id = String(service.items[0]?.key);
-            return id === containerId;
-          }
-          return String(service) === containerId;
-        });
-      }
-      return false;
-    }
-
-    return false;
-  });
 }
 
 function updateContainerId(id: Container['id'], newId: Container['id'], target: ContainerSource) {
@@ -354,7 +344,7 @@ export default {
   deleteContainer,
   getAllContainers,
   getContainerOrThrowError,
-  getWorkflowsUsingContainer: getWorkflowsUsingContainerByTarget,
+  getWorkflowsUsingContainer,
   removeContainerReference,
   updateContainerId,
   updateContainerField,
