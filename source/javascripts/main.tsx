@@ -25,12 +25,18 @@ import { preloadRoutes } from './routes';
 
 const loaders = [];
 if (import.meta.env.CLARITY === 'true') {
-  loaders.push(import('./lib/clarity'));
+  loaders.push(import('./lib/clrty'));
 }
 if (import.meta.env.DATADOG_RUM === 'true') {
-  loaders.push(import('./lib/datadog-rum'));
+  loaders.push(import('./lib/ddrum'));
 }
-await Promise.all(loaders);
+
+try {
+  await Promise.all(loaders);
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.error('Error loading optional libraries:', e);
+}
 
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   // NOTE: The API server running in local mode, has a built-in termination timer
