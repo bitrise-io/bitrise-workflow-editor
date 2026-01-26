@@ -168,48 +168,31 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string, target: 
     return result;
   }
 
-  workflows.items.forEach((pair) => {
-    const workflowId = String(pair.key);
-    const workflow = pair.value as YAMLMap;
+  const field =
+    target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+  const searchPath = ['workflows', '*', 'steps', '*', '*', field];
+  if (target === ContainerSource.Service) {
+    searchPath.push('*');
+  }
 
-    const steps = YmlUtils.getSeqIn(workflow, ['steps']);
-
-    const usesContainer = steps?.items.some((_, stepIndex) => {
-      const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
-
-      if (target === ContainerSource.Execution) {
-        const executionContainer = stepData.get('execution_container');
-        if (executionContainer) {
-          if (isMap(executionContainer)) {
-            const id = String(executionContainer.items[0]?.key);
-            return id === containerId;
-          }
-          return String(executionContainer) === containerId;
-        }
+  YmlUtils.collectPaths(doc)
+    .filter((path) => {
+      if (path.length !== searchPath.length) {
         return false;
       }
+      return path.every((segment, index) => searchPath[index] === '*' || searchPath[index] === segment);
+    })
+    .forEach((path) => {
+      const node = doc.getIn(path, true);
+      const matches = isMap(node) ? String(node.items[0]?.key) === containerId : String(node) === containerId;
 
-      if (target === ContainerSource.Service) {
-        const serviceContainers = YmlUtils.getSeqIn(stepData, ['service_containers']);
-        if (serviceContainers) {
-          return serviceContainers.items.some((service) => {
-            if (isMap(service)) {
-              const id = String(service.items[0]?.key);
-              return id === containerId;
-            }
-            return String(service) === containerId;
-          });
+      if (matches) {
+        const workflowId = String(path[1]);
+        if (!result.includes(workflowId)) {
+          result.push(workflowId);
         }
-        return false;
       }
-
-      return false;
     });
-
-    if (usesContainer) {
-      result.push(workflowId);
-    }
-  });
 
   return result;
 }
