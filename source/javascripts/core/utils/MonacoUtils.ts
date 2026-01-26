@@ -18,6 +18,21 @@ type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
 loader.config({ monaco });
 
+type LSRange = {
+  start: { line: number; character: number };
+  end: { line: number; character: number };
+};
+
+function lsRangeToMonacoRange(range: LSRange): monaco.Range;
+function lsRangeToMonacoRange(range?: LSRange): monaco.Range | undefined;
+function lsRangeToMonacoRange(range?: LSRange): monaco.Range | undefined {
+  if (!range) {
+    return;
+  }
+
+  return new monaco.Range(range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1);
+}
+
 let isConfiguredForYaml = false;
 const configureForYaml: BeforeMountHandler = (monacoInstance) => {
   if (isConfiguredForYaml) {
@@ -221,20 +236,19 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
 
       ls.updateFile(uri, model.getValue());
 
-      const definition = ls.provideDefinition(uri, pos);
+      const definition = ls.provideDefinitionLink(uri, pos);
       if (!definition) {
         return null;
       }
 
-      return {
-        uri: model.uri,
-        range: new monaco.Range(
-          definition.range.start.line + 1,
-          definition.range.start.character + 1,
-          definition.range.end.line + 1,
-          definition.range.end.character + 1,
-        ),
-      };
+      return [
+        {
+          uri: model.uri,
+          range: lsRangeToMonacoRange(definition.range),
+          originSelectionRange: lsRangeToMonacoRange(definition.originSelectionRange),
+          targetSelectionRange: lsRangeToMonacoRange(definition.targetSelectionRange),
+        },
+      ];
     },
   });
 
