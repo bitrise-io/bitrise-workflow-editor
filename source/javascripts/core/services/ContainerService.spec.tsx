@@ -1116,19 +1116,6 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
-      it('should throw an error if container does not exist', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script: {}
-      `);
-
-        expect(() =>
-          ContainerService.removeContainerReference('wf1', 0, ContainerSource.Execution, 'other-container'),
-        ).toThrow(`Container other-container not found. Ensure that it exists in the 'execution_containers' section.`);
-      });
-
       it('should throw an error if step does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         execution_containers:
@@ -1277,19 +1264,6 @@ describe('ContainerService', () => {
       `;
 
         expect(getYmlString()).toEqual(expectedYml);
-      });
-
-      it('should throw an error if container does not exist', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script: {}
-      `);
-
-        expect(() =>
-          ContainerService.removeContainerReference('wf1', 0, ContainerSource.Service, 'other-container'),
-        ).toThrow(`Container other-container not found. Ensure that it exists in the 'service_containers' section.`);
       });
 
       it('should throw an error if step does not exist', () => {

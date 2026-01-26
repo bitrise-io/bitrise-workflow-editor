@@ -80,23 +80,16 @@ function deleteContainer(id: string, target: ContainerSource) {
     getContainerOrThrowError(id, doc, target);
 
     YmlUtils.deleteByPath(doc, [target, id]);
-    if (target === ContainerSource.Execution) {
-      YmlUtils.deleteByValue(doc, ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution], id, [
-        'workflows',
-        '*',
-        'steps',
-        '*',
-        '*',
-      ]);
-    } else if (target === ContainerSource.Service) {
-      YmlUtils.deleteByValue(doc, ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'], id, [
-        'workflows',
-        '*',
-        'steps',
-        '*',
-        '*',
-      ]);
+
+    const field =
+      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+    const keep = ['workflows', '*', 'steps', '*', '*'];
+    const path = ['workflows', '*', 'steps', '*', '*', field];
+
+    if (target === ContainerSource.Service) {
+      path.push('*');
     }
+    YmlUtils.deleteByValue(doc, path, id, keep);
 
     return doc;
   });
@@ -105,24 +98,16 @@ function deleteContainer(id: string, target: ContainerSource) {
 function removeContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    getStepDataOrThrowError(doc, workflowId, stepIndex);
-    getContainerOrThrowError(containerId, doc, target);
+    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    if (target === ContainerSource.Execution) {
-      YmlUtils.deleteByValue(
-        doc,
-        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Execution],
-        containerId,
-        ['workflows', workflowId, 'steps', stepIndex, '*'],
-      );
-    } else if (target === ContainerSource.Service) {
-      YmlUtils.deleteByValue(
-        doc,
-        ['workflows', workflowId, 'steps', stepIndex, '*', ContainerReferenceField.Service, '*'],
-        containerId,
-        ['workflows', workflowId, 'steps', stepIndex, '*'],
-      );
+    const field =
+      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+    const path: string[] = [field];
+
+    if (target === ContainerSource.Service) {
+      path.push('*');
     }
+    YmlUtils.deleteByValue(stepData, path, containerId);
 
     return doc;
   });
@@ -241,13 +226,14 @@ function updateContainerId(id: Container['id'], newId: Container['id'], target: 
       throw new Error(`Container '${newId}' already exists.`);
     }
 
-    if (target === ContainerSource.Execution) {
-      YmlUtils.updateKeyByPath(doc, [target, id], newId);
-      YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', 'execution_container'], id, newId);
-    } else if (target === ContainerSource.Service) {
-      YmlUtils.updateKeyByPath(doc, [target, id], newId);
-      YmlUtils.updateValueByValue(doc, ['workflows', '*', 'steps', '*', '*', target, '*'], id, newId);
+    const field =
+      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+    const path = ['workflows', '*', 'steps', '*', '*', field];
+    if (target === ContainerSource.Service) {
+      path.push('*');
     }
+    YmlUtils.updateKeyByPath(doc, [target, id], newId);
+    YmlUtils.updateValueByValue(doc, path, id, newId);
 
     return doc;
   });
