@@ -555,6 +555,7 @@ export default {
   getInputNames,
   calculateChange,
   moveStepIndices,
+  getStepOrThrowError,
   addStep,
   moveStep,
   cloneStep,
