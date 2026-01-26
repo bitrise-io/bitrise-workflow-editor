@@ -39,11 +39,6 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
     return;
   }
 
-  // Configure YAML language to treat hyphens as part of words (for workflow names like workflow-name-with-hyphens)
-  monacoInstance.languages.setLanguageConfiguration('yaml', {
-    wordPattern: /(-?\d*\.\d\w*)|([^\s`~!@#%^&*()=+[\]{}\\|;:'",.<>/?]+)/g,
-  });
-
   // TODO: Skip YAML worker configuration in dev WEBSITE mode due to cross-origin restrictions
   if (!(window.env?.MODE === 'WEBSITE' && window.env?.NODE_ENV !== 'production')) {
     configureMonacoYaml(monacoInstance, {
