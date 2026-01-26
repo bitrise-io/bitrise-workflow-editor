@@ -281,17 +281,12 @@ function updateCredentialField<T extends CredentialField>(
   target: ContainerSource,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    getContainerOrThrowError(id, doc, target);
+    const container = getContainerOrThrowError(id, doc, target);
 
     if (value) {
-      YmlUtils.setIn(doc, [target, id, 'credentials', field], value);
+      YmlUtils.setIn(container, ['credentials', field], value);
     } else {
-      YmlUtils.deleteByPath(doc, [target, id, 'credentials', field]);
-
-      const credentials = YmlUtils.getMapIn(doc, [target, id, 'credentials']);
-      if (credentials && credentials.items.length === 0) {
-        YmlUtils.deleteByPath(doc, [target, id, 'credentials']);
-      }
+      YmlUtils.deleteByPath(container, ['credentials', field]);
     }
 
     return doc;
