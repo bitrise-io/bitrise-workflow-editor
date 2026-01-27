@@ -4,6 +4,7 @@ import {
   DialogBody,
   DialogFooter,
   DialogProps,
+  Divider,
   Table,
   Tbody,
   Td,
@@ -12,11 +13,11 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import { Divider } from 'chakra-ui-2--react';
 
 import { Container, ContainerSource } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useNavigation from '@/hooks/useNavigation';
 
 type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
   selectedContainerId: Container['id'];
@@ -28,6 +29,7 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
 
   const yml = useBitriseYmlStore((s) => s.ymlDocument);
   const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(yml, selectedContainerId, target);
+  const { replace } = useNavigation();
 
   return (
     <Dialog title="Container usage" isOpen={isOpen} onClose={onClose}>
@@ -44,24 +46,23 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            {workflowsUsedByContainer.map((workflow) => (
-              <Tr key={workflow}>
+            {workflowsUsedByContainer.map((workflowId) => (
+              <Tr key={workflowId}>
                 <Td>
-                  <Text textStyle="body /md/regular">{workflow}</Text>
+                  <Text textStyle="body/md/regular">{workflowId}</Text>
                 </Td>
                 <Td width="60px" textAlign="right">
                   <ControlButton
-                    as="a"
                     aria-label="Go to Workflow"
                     iconName="ArrowNorthEast"
-                    href={`/workflows?workflow_id=${encodeURIComponent(workflow)}`}
+                    onClick={() => replace('/workflows', { workflow_id: workflowId })}
                   />
                 </Td>
               </Tr>
             ))}
-            <Divider color="border/minimal" />
           </Tbody>
         </Table>
+        <Divider color="border/regular" />
       </DialogBody>
       <DialogFooter />
     </Dialog>
