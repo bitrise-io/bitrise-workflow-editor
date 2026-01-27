@@ -6,10 +6,12 @@ import LoadingState from '@/components/LoadingState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 const YmlEditor = () => {
   const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
+  const enableWfeBitriseLanguageServer = useFeatureFlag('enable-wfe-bitrise-language-server');
 
   useUnmount(() => {
     if (monacoEditorRef.current) {
@@ -45,6 +47,7 @@ const YmlEditor = () => {
       beforeMount={(monaco) => {
         MonacoUtils.configureForYaml(monaco);
         MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+        if (enableWfeBitriseLanguageServer) MonacoUtils.configureBitriseLanguageServer(monaco);
       }}
       options={{
         readOnly: isLoadingSetting || ymlSettings?.usesRepositoryYml,

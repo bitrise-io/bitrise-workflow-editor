@@ -1,4 +1,5 @@
 import { type EditorProps, loader } from '@monaco-editor/react';
+import { LanguageService } from 'bitrise-yml-lsp-server';
 import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
@@ -16,6 +17,21 @@ import VersionUtils from './VersionUtils';
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
 loader.config({ monaco });
+
+type LSRange = {
+  start: { line: number; character: number };
+  end: { line: number; character: number };
+};
+
+function lsRangeToMonacoRange(range: LSRange): monaco.Range;
+function lsRangeToMonacoRange(range?: LSRange): monaco.Range | undefined;
+function lsRangeToMonacoRange(range?: LSRange): monaco.Range | undefined {
+  if (!range) {
+    return;
+  }
+
+  return new monaco.Range(range.start.line + 1, range.start.character + 1, range.end.line + 1, range.end.character + 1);
+}
 
 let isConfiguredForYaml = false;
 const configureForYaml: BeforeMountHandler = (monacoInstance) => {
@@ -200,7 +216,60 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
   isConfiguredForEnvVarsCompletionProvider = true;
 };
 
+let isConfiguredForBitriseLanguageServer = false;
+const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
+  if (isConfiguredForBitriseLanguageServer) {
+    return;
+  }
+
+  const ls = new LanguageService();
+
+  monacoInstance.languages.registerDefinitionProvider('yaml', {
+    provideDefinition: async (model, position) => {
+      const uri = model.uri.toString();
+      const pos = { line: position.lineNumber - 1, character: position.column - 1 };
+
+      ls.updateFile(uri, model.getValue());
+
+      const definition = ls.provideDefinitionLink(uri, pos);
+      if (!definition) {
+        return null;
+      }
+
+      return [
+        {
+          uri: model.uri,
+          range: lsRangeToMonacoRange(definition.range),
+          originSelectionRange: lsRangeToMonacoRange(definition.originSelectionRange),
+          targetSelectionRange: lsRangeToMonacoRange(definition.targetSelectionRange),
+        },
+      ];
+    },
+  });
+
+  monacoInstance.languages.registerHoverProvider('yaml', {
+    provideHover: async (model, position) => {
+      const uri = model.uri.toString();
+      const pos = { line: position.lineNumber - 1, character: position.column - 1 };
+
+      ls.updateFile(uri, model.getValue());
+
+      const hoverText = ls.provideHover(uri, pos);
+      if (!hoverText) {
+        return null;
+      }
+
+      return {
+        contents: [{ value: hoverText }],
+      };
+    },
+  });
+
+  isConfiguredForBitriseLanguageServer = true;
+};
+
 export default {
   configureForYaml,
+  configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
 };

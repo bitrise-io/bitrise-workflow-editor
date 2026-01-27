@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "2.5.14658",
+  "version": "2.5.14763",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -61,6 +61,7 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "algoliasearch": "^5.42.0",
+    "bitrise-yml-lsp-server": "git+https://github.com/bitrise-io/bitrise-yml-language-server.git#c434d16c3a630a51f2d588dc50a4e38d69786241",
     "chakra-ui-2--react": "npm:@chakra-ui/react@2.10.9",
     "dequal": "^2.0.3",
     "es-toolkit": "^1.41.0",
