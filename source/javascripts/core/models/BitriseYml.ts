@@ -270,6 +270,7 @@ export type ContainerModel = {
   ports?: string[];
   envs?: EnvModel;
   options?: string;
+  type?: 'execution' | 'service';
 };
 
 export type DockerCredentialModel = {

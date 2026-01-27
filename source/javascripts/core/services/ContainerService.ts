@@ -126,18 +126,22 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
 }
 
 function getAllContainers(doc: Document, target: ContainerSource): Container[] {
-  const containers = YmlUtils.getMapIn(doc, [target]);
+  const containers = YmlUtils.getMapIn(doc, ['containers']);
 
   if (!containers) {
     return [];
   }
 
-  return containers.items.map((pair) => {
-    const id = String(pair.key);
-    const containerMap = pair.value as YAMLMap;
-    const userValues: ContainerModel = containerMap.toJSON();
-    return { id, userValues };
-  });
+  const targetType = target === ContainerSource.Execution ? 'execution' : 'service';
+
+  return containers.items
+    .map((pair) => {
+      const id = String(pair.key);
+      const containerMap = pair.value as YAMLMap;
+      const userValues: ContainerModel = containerMap.toJSON();
+      return { id, userValues };
+    })
+    .filter((container) => container.userValues.type === targetType);
 }
 
 function getContainerOrThrowError(id: string, doc: Document, target: ContainerSource) {

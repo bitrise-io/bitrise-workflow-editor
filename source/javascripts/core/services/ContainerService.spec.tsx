@@ -688,10 +688,12 @@ describe('ContainerService', () => {
     describe('execution container target', () => {
       it('should return all execution containers', () => {
         updateBitriseYmlDocumentByString(yaml`
-        execution_containers:
+        containers:
           container-1:
+            type: execution
             image: ubuntu:20.04
           container-2:
+            type: execution
             image: ubuntu:22.04
       `);
 
@@ -699,8 +701,8 @@ describe('ContainerService', () => {
         const containers = ContainerService.getAllContainers(doc, ContainerSource.Execution);
 
         expect(containers).toEqual([
-          { id: 'container-1', userValues: { image: 'ubuntu:20.04' } },
-          { id: 'container-2', userValues: { image: 'ubuntu:22.04' } },
+          { id: 'container-1', userValues: { type: 'execution', image: 'ubuntu:20.04' } },
+          { id: 'container-2', userValues: { type: 'execution', image: 'ubuntu:22.04' } },
         ]);
       });
 
@@ -718,8 +720,9 @@ describe('ContainerService', () => {
 
       it('should return all container fields including credentials, ports, envs, and options', () => {
         updateBitriseYmlDocumentByString(yaml`
-        execution_containers:
+        containers:
           full-container:
+            type: execution
             image: nginx:latest
             credentials:
               username: $DOCKER_USER
@@ -733,6 +736,7 @@ describe('ContainerService', () => {
             - DEBUG: "false"
             options: --memory=2g --cpus=2
           minimal-container:
+            type: execution
             image: ubuntu:20.04
       `);
 
@@ -743,6 +747,7 @@ describe('ContainerService', () => {
           {
             id: 'full-container',
             userValues: {
+              type: 'execution',
               image: 'nginx:latest',
               credentials: {
                 username: '$DOCKER_USER',
@@ -757,9 +762,33 @@ describe('ContainerService', () => {
           {
             id: 'minimal-container',
             userValues: {
+              type: 'execution',
               image: 'ubuntu:20.04',
             },
           },
+        ]);
+      });
+
+      it('should filter out service containers', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          golang:
+            type: execution
+            image: golang:1.22
+          redis:
+            type: service
+            image: redis:latest
+          ubuntu:
+            type: execution
+            image: ubuntu:20.04
+      `);
+
+        const doc = bitriseYmlStore.getState().ymlDocument;
+        const containers = ContainerService.getAllContainers(doc, ContainerSource.Execution);
+
+        expect(containers).toEqual([
+          { id: 'golang', userValues: { type: 'execution', image: 'golang:1.22' } },
+          { id: 'ubuntu', userValues: { type: 'execution', image: 'ubuntu:20.04' } },
         ]);
       });
     });
@@ -767,10 +796,12 @@ describe('ContainerService', () => {
     describe('service container target', () => {
       it('should return all service containers', () => {
         updateBitriseYmlDocumentByString(yaml`
-        service_containers:
+        containers:
           postgres:
+            type: service
             image: postgres:13
           redis:
+            type: service
             image: redis:6
       `);
 
@@ -778,8 +809,8 @@ describe('ContainerService', () => {
         const services = ContainerService.getAllContainers(doc, ContainerSource.Service);
 
         expect(services).toEqual([
-          { id: 'postgres', userValues: { image: 'postgres:13' } },
-          { id: 'redis', userValues: { image: 'redis:6' } },
+          { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },
+          { id: 'redis', userValues: { type: 'service', image: 'redis:6' } },
         ]);
       });
 
@@ -793,6 +824,29 @@ describe('ContainerService', () => {
         const services = ContainerService.getAllContainers(doc, ContainerSource.Service);
 
         expect(services).toEqual([]);
+      });
+
+      it('should filter out execution containers', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+          golang:
+            type: execution
+            image: golang:1.22
+          redis:
+            type: service
+            image: redis:6
+      `);
+
+        const doc = bitriseYmlStore.getState().ymlDocument;
+        const services = ContainerService.getAllContainers(doc, ContainerSource.Service);
+
+        expect(services).toEqual([
+          { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },
+          { id: 'redis', userValues: { type: 'service', image: 'redis:6' } },
+        ]);
       });
     });
   });
