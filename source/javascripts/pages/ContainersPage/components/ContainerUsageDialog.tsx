@@ -38,11 +38,11 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
         <Text as="span" textStyle="body/lg/semibold">
           {selectedContainerId}
         </Text>{' '}
-        is used in {workflowsUsedByContainer.length} Workflows.
+        is used in {workflowsUsedByContainer.length} Workflow{workflowsUsedByContainer.length !== 1 ? 's' : ''}.
         <Table isFixed variant="borderless" mt="24">
           <Thead>
             <Tr>
-              <Th textStyle="heading/h5">Workflows</Th>
+              <Th textStyle="heading/h5">Workflow name</Th>
             </Tr>
           </Thead>
           <Tbody>
