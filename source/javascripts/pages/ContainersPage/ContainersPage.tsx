@@ -1,13 +1,21 @@
 import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
+import { ContainerSource } from '@/core/models/Container';
+import ContainerService from '@/core/services/ContainerService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 import ExecutionContainersTab from '@/pages/ContainersPage/components/ExecutionContainersTab';
 import ServiceContainersTab from '@/pages/ContainersPage/components/ServiceContainersTab';
+import { getContainersBadge } from '@/pages/ContainersPage/utils/ContainersPage.utils';
 
-const TAB_IDS = ['execution_containers', 'service_containers'];
+const TAB_IDS = [ContainerSource.Execution, ContainerSource.Service];
 
 const ContainersPage = () => {
+  const yml = useBitriseYmlStore((s) => s.ymlDocument);
+  const executionContainers = ContainerService.getAllContainers(yml, ContainerSource.Execution);
+  const serviceContainers = ContainerService.getAllContainers(yml, ContainerSource.Service);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
 
@@ -20,7 +28,7 @@ const ContainersPage = () => {
 
   useEffect(() => {
     if (searchParams.tab) {
-      setTabIndex(TAB_IDS.indexOf(searchParams.tab));
+      setTabIndex(TAB_IDS.indexOf(searchParams.tab as ContainerSource));
     }
   }, [searchParams, setTabIndex]);
 
@@ -37,8 +45,8 @@ const ContainersPage = () => {
       </Text>
       <Tabs index={tabIndex} onChange={onTabChange}>
         <TabList px="16">
-          <Tab>Execution containers</Tab>
-          <Tab>Service containers</Tab>
+          <Tab badge={getContainersBadge(executionContainers.length)}>Execution containers</Tab>
+          <Tab badge={getContainersBadge(serviceContainers.length)}>Service containers</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
