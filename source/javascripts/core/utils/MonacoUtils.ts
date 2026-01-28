@@ -239,7 +239,7 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
       return [
         {
           uri: model.uri,
-          range: lsRangeToMonacoRange(definition.range),
+          range: lsRangeToMonacoRange(definition.targetRange),
           originSelectionRange: lsRangeToMonacoRange(definition.originSelectionRange),
           targetSelectionRange: lsRangeToMonacoRange(definition.targetSelectionRange),
         },
