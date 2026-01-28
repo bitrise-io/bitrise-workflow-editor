@@ -7,6 +7,7 @@ import {
   ContainerFieldValue,
   ContainerReferenceField,
   ContainerSource,
+  ContainerType,
   CredentialField,
   CredentialFieldValue,
 } from '@/core/models/Container';
@@ -36,10 +37,10 @@ function addContainerReference(workflowId: string, stepIndex: number, containerI
   });
 }
 
-function cleanContainerData(container: ContainerModel) {
+function cleanContainerData(container: ContainerModel, type: ContainerType) {
   const { image, credentials, ports, envs, options } = container;
 
-  const containerData: ContainerModel = { image };
+  const containerData: ContainerModel & { type: ContainerType } = { image, type };
 
   if (ports && ports.length > 0) {
     containerData.ports = ports;
@@ -61,16 +62,16 @@ function cleanContainerData(container: ContainerModel) {
   return containerData;
 }
 
-function createContainer(id: string, container: ContainerModel, target: ContainerSource) {
+function createContainer(id: string, container: ContainerModel, type: ContainerType) {
   updateBitriseYmlDocument(({ doc }) => {
-    if (doc.hasIn([target, id])) {
-      const containerType = target === ContainerSource.Execution ? 'Execution container' : 'Service container';
+    if (doc.hasIn(['containers', id])) {
+      const containerType = type === ContainerType.Execution ? 'Execution container' : 'Service container';
       throw new Error(`${containerType} '${id}' already exists`);
     }
 
-    const containerData = cleanContainerData(container);
+    const containerData = cleanContainerData(container, type);
 
-    YmlUtils.setIn(doc, [target, id], containerData);
+    YmlUtils.setIn(doc, ['containers', id], containerData);
     return doc;
   });
 }
