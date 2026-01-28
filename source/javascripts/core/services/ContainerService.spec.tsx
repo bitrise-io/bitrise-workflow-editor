@@ -228,13 +228,14 @@ describe('ContainerService', () => {
           image: 'ubuntu:20.04',
         };
 
-        ContainerService.createContainer('my-container', container, ContainerSource.Execution);
+        ContainerService.createContainer('my-container', container, ContainerType.Execution);
 
         const expectedYml = yaml`
         workflows:
           wf1: {}
-        execution_containers:
+        containers:
           my-container:
+            type: execution
             image: ubuntu:20.04
       `;
 
@@ -252,11 +253,12 @@ describe('ContainerService', () => {
           },
         };
 
-        ContainerService.createContainer('private-container', container, ContainerSource.Execution);
+        ContainerService.createContainer('private-container', container, ContainerType.Execution);
 
         const expectedYml = yaml`
-        execution_containers:
+        containers:
           private-container:
+            type: execution
             image: registry.example.com/private:latest
             credentials:
               username: $DOCKER_USERNAME
@@ -276,11 +278,12 @@ describe('ContainerService', () => {
           options: '--memory=2g --cpus=2',
         };
 
-        ContainerService.createContainer('web-container', container, ContainerSource.Execution);
+        ContainerService.createContainer('web-container', container, ContainerType.Execution);
 
         const expectedYml = yaml`
-        execution_containers:
+        containers:
           web-container:
+            type: execution
             image: nginx:latest
             ports:
             - 8080:80
@@ -294,10 +297,11 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
-      it('should create an execution container, if execution containers section exist', () => {
+      it('should create an execution container, if containers section exist', () => {
         updateBitriseYmlDocumentByString(yaml`
-        execution_containers:
+        containers:
           existing-container:
+            type: execution
             image: existing:v1
       `);
 
@@ -311,13 +315,15 @@ describe('ContainerService', () => {
           options: '',
         };
 
-        ContainerService.createContainer('test-container', container, ContainerSource.Execution);
+        ContainerService.createContainer('test-container', container, ContainerType.Execution);
 
         const expectedYml = yaml`
-        execution_containers:
+        containers:
           existing-container:
+            type: execution
             image: existing:v1
           test-container:
+            type: execution
             image: test:latest
       `;
 
@@ -335,11 +341,12 @@ describe('ContainerService', () => {
           },
         };
 
-        ContainerService.createContainer('test-container', container, ContainerSource.Execution);
+        ContainerService.createContainer('test-container', container, ContainerType.Execution);
 
         const expectedYml = yaml`
-        execution_containers:
+        containers:
           test-container:
+            type: execution
             image: test:latest
             credentials:
               username: $USERNAME
@@ -361,11 +368,12 @@ describe('ContainerService', () => {
           options: '',
         };
 
-        ContainerService.createContainer('test-container', container, ContainerSource.Execution);
+        ContainerService.createContainer('test-container', container, ContainerType.Execution);
 
         const expectedYml = yaml`
-        execution_containers:
+        containers:
           test-container:
+            type: execution
             image: test:latest
       `;
 
@@ -374,8 +382,9 @@ describe('ContainerService', () => {
 
       it('should throw an error if container already exists', () => {
         updateBitriseYmlDocumentByString(yaml`
-        execution_containers:
+        containers:
           existing-container:
+            type: execution
             image: ubuntu:20.04
       `);
 
@@ -384,7 +393,7 @@ describe('ContainerService', () => {
         };
 
         expect(() =>
-          ContainerService.createContainer('existing-container', container, ContainerSource.Execution),
+          ContainerService.createContainer('existing-container', container, ContainerType.Execution),
         ).toThrow("Execution container 'existing-container' already exists");
       });
     });
@@ -399,13 +408,14 @@ describe('ContainerService', () => {
           image: 'postgres:13',
         };
 
-        ContainerService.createContainer('postgres', service, ContainerSource.Service);
+        ContainerService.createContainer('postgres', service, ContainerType.Service);
 
         const expectedYml = yaml`
         workflows:
           wf1: {}
-        service_containers:
+        containers:
           postgres:
+            type: service
             image: postgres:13
       `;
 
@@ -420,11 +430,12 @@ describe('ContainerService', () => {
           ports: ['6379:6379'],
         };
 
-        ContainerService.createContainer('redis', service, ContainerSource.Service);
+        ContainerService.createContainer('redis', service, ContainerType.Service);
 
         const expectedYml = yaml`
-        service_containers:
+        containers:
           redis:
+            type: service
             image: redis:6
             ports:
             - 6379:6379
@@ -435,8 +446,9 @@ describe('ContainerService', () => {
 
       it('should throw an error if service already exists', () => {
         updateBitriseYmlDocumentByString(yaml`
-        service_containers:
+        containers:
           existing-service:
+            type: service
             image: mysql:8
       `);
 
@@ -444,7 +456,7 @@ describe('ContainerService', () => {
           image: 'mysql:5',
         };
 
-        expect(() => ContainerService.createContainer('existing-service', service, ContainerSource.Service)).toThrow(
+        expect(() => ContainerService.createContainer('existing-service', service, ContainerType.Service)).toThrow(
           "Service container 'existing-service' already exists",
         );
       });
