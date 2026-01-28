@@ -14,19 +14,18 @@ import {
   Tr,
 } from '@bitrise/bitkit';
 
-import { Container, ContainerType } from '@/core/models/Container';
+import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useNavigation from '@/hooks/useNavigation';
 
 type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
   selectedContainerId: Container['id'];
-  target: ContainerType;
 };
 
 const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
-  const { isOpen, onClose, selectedContainerId, target } = props;
+  const { isOpen, onClose, selectedContainerId } = props;
 
-  const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(selectedContainerId, target);
+  const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(selectedContainerId);
   const { replace } = useNavigation();
 
   return (

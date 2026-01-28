@@ -19,7 +19,7 @@ const ServiceContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable target={ContainerType.Service} />
+        <ContainersTable type={ContainerType.Service} />
       ) : (
         <EmptyState
           title="Your service containers will appear here"

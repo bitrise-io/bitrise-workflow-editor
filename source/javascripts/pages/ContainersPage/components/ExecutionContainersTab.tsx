@@ -19,7 +19,7 @@ const ExecutionContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable target={ContainerType.Execution} />
+        <ContainersTable type={ContainerType.Execution} />
       ) : (
         <EmptyState
           title="Your execution containers will appear here"

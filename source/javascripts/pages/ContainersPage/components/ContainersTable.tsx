@@ -6,8 +6,8 @@ import ContainerService from '@/core/services/ContainerService';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 
-const ContainersTable = ({ target }: { target: ContainerType }) => {
-  const containers = ContainerService.getAllContainers(target);
+const ContainersTable = ({ type }: { type: ContainerType }) => {
+  const containers = ContainerService.getAllContainers(type);
 
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
   const {
@@ -31,7 +31,7 @@ const ContainersTable = ({ target }: { target: ContainerType }) => {
         </Thead>
         <Tbody>
           {containers.map((container) => {
-            const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(container.id, target);
+            const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(container.id);
 
             const workflowCount = workflowsUsedByContainer.length;
             const usageLabel =
@@ -85,7 +85,6 @@ const ContainersTable = ({ target }: { target: ContainerType }) => {
         isOpen={isContainerUsageDialogOpen}
         onClose={onContainerUsageDialogClose}
         selectedContainerId={selectedContainerId}
-        target={target}
       />
     </>
   );

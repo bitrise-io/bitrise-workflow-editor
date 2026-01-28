@@ -1,7 +1,7 @@
 import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
-import { ContainerSource, ContainerType } from '@/core/models/Container';
+import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -9,7 +9,7 @@ import ExecutionContainersTab from './components/ExecutionContainersTab';
 import ServiceContainersTab from './components/ServiceContainersTab';
 import { getContainersBadge } from './utils/ContainersPage.utils';
 
-const TAB_IDS = [ContainerSource.Execution, ContainerSource.Service];
+const TAB_IDS = [ContainerType.Execution, ContainerType.Service];
 
 const ContainersPage = () => {
   const executionContainers = ContainerService.getAllContainers(ContainerType.Execution);
@@ -27,7 +27,7 @@ const ContainersPage = () => {
 
   useEffect(() => {
     if (searchParams.tab) {
-      setTabIndex(TAB_IDS.indexOf(searchParams.tab as ContainerSource));
+      setTabIndex(TAB_IDS.indexOf(searchParams.tab as ContainerType));
     }
   }, [searchParams, setTabIndex]);
 
