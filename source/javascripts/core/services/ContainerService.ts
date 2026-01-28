@@ -16,17 +16,17 @@ import WorkflowService from '@/core/services/WorkflowService';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-function addContainerReference(workflowId: string, stepIndex: number, containerId: string, target: ContainerSource) {
+function addContainerReference(workflowId: string, stepIndex: number, containerId: string, target: ContainerType) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(containerId, doc, target);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    if (target === ContainerSource.Execution) {
+    if (target === ContainerType.Execution) {
       YmlUtils.setIn(stepData, ['execution_container'], containerId);
     }
 
-    if (target === ContainerSource.Service) {
+    if (target === ContainerType.Service) {
       if (YmlUtils.isInSeq(stepData, ['service_containers'], containerId)) {
         throw new Error(`Service container '${containerId}' is already added to the step`);
       }
@@ -76,18 +76,18 @@ function createContainer(id: string, container: ContainerModel, type: ContainerT
   });
 }
 
-function deleteContainer(id: string, target: ContainerSource) {
+function deleteContainer(id: string, target: ContainerType) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
 
-    YmlUtils.deleteByPath(doc, [target, id]);
+    YmlUtils.deleteByPath(doc, ['containers', id]);
 
     const field =
-      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+      target === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
     const keep = ['workflows', '*', 'steps', '*', '*'];
     const path = ['workflows', '*', 'steps', '*', '*', field];
 
-    if (target === ContainerSource.Service) {
+    if (target === ContainerType.Service) {
       path.push('*');
     }
     YmlUtils.deleteByValue(doc, path, id, keep);
@@ -144,8 +144,8 @@ function getAllContainers(target: ContainerType): Container[] {
     .filter((container) => container.userValues.type === target);
 }
 
-function getContainerOrThrowError(id: string, doc: Document, target: ContainerSource) {
-  const container = YmlUtils.getMapIn(doc, [target, id]);
+function getContainerOrThrowError(id: string, doc: Document, target: ContainerType) {
+  const container = YmlUtils.getMapIn(doc, ['containers', id]);
 
   if (!container) {
     throw new Error(`Container ${id} not found. Ensure that it exists in the '${target}' section.`);
@@ -202,7 +202,7 @@ function getWorkflowsUsingContainer(containerId: string, target: ContainerType):
   return result;
 }
 
-function updateContainerId(id: Container['id'], newId: Container['id'], target: ContainerSource) {
+function updateContainerId(id: Container['id'], newId: Container['id'], target: ContainerType) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc, target);
 
@@ -210,17 +210,17 @@ function updateContainerId(id: Container['id'], newId: Container['id'], target: 
       return doc;
     }
 
-    if (doc.hasIn([target, newId])) {
+    if (doc.hasIn(['containers', newId])) {
       throw new Error(`Container '${newId}' already exists.`);
     }
 
     const field =
-      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+      target === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
     const path = ['workflows', '*', 'steps', '*', '*', field];
-    if (target === ContainerSource.Service) {
+    if (target === ContainerType.Service) {
       path.push('*');
     }
-    YmlUtils.updateKeyByPath(doc, [target, id], newId);
+    YmlUtils.updateKeyByPath(doc, ['containers', id], newId);
     YmlUtils.updateValueByValue(doc, path, id, newId);
 
     return doc;
@@ -231,7 +231,7 @@ function updateContainerField<T extends ContainerField>(
   id: Container['id'],
   field: T,
   value: ContainerFieldValue<T>,
-  target: ContainerSource,
+  target: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     const container = getContainerOrThrowError(id, doc, target);
@@ -252,7 +252,7 @@ function updateCredentialField<T extends CredentialField>(
   id: Container['id'],
   field: T,
   value: CredentialFieldValue<T>,
-  target: ContainerSource,
+  target: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     const container = getContainerOrThrowError(id, doc, target);
