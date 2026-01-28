@@ -164,7 +164,8 @@ function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: n
   return stepData;
 }
 
-function getWorkflowsUsingContainer(doc: Document, containerId: string, target: ContainerType): string[] {
+function getWorkflowsUsingContainer(containerId: string, target: ContainerType): string[] {
+  const doc = bitriseYmlStore.getState().ymlDocument;
   const workflows = YmlUtils.getMapIn(doc, ['workflows']);
   const result: string[] = [];
 

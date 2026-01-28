@@ -16,7 +16,6 @@ import {
 
 import { Container, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useNavigation from '@/hooks/useNavigation';
 
 type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
@@ -27,8 +26,7 @@ type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
 const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
   const { isOpen, onClose, selectedContainerId, target } = props;
 
-  const yml = useBitriseYmlStore((s) => s.ymlDocument);
-  const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(yml, selectedContainerId, target);
+  const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(selectedContainerId, target);
   const { replace } = useNavigation();
 
   return (

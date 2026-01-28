@@ -3,12 +3,10 @@ import { useState } from 'react';
 
 import { Container, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 
 const ContainersTable = ({ target }: { target: ContainerType }) => {
-  const yml = useBitriseYmlStore((s) => s.ymlDocument);
   const containers = ContainerService.getAllContainers(target);
 
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
@@ -33,7 +31,7 @@ const ContainersTable = ({ target }: { target: ContainerType }) => {
         </Thead>
         <Tbody>
           {containers.map((container) => {
-            const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(yml, container.id, target);
+            const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(container.id, target);
 
             const workflowCount = workflowsUsedByContainer.length;
             const usageLabel =

@@ -1,6 +1,6 @@
 import { ContainerModel } from '@/core/models/BitriseYml';
 import { ContainerSource, ContainerType } from '@/core/models/Container';
-import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
 import ContainerService from './ContainerService';
 
@@ -881,9 +881,8 @@ describe('ContainerService', () => {
                     - content: echo "deploying"
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_1', ContainerType.Execution);
-        const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_2', ContainerType.Execution);
+        const result1 = ContainerService.getWorkflowsUsingContainer('golang_1', ContainerType.Execution);
+        const result2 = ContainerService.getWorkflowsUsingContainer('golang_2', ContainerType.Execution);
 
         expect(result1).toEqual(['test', 'build']);
         expect(result2).toEqual(['test']);
@@ -901,8 +900,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'golang', ContainerType.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer('golang', ContainerType.Execution);
 
         expect(result).toEqual([]);
       });
@@ -914,8 +912,7 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', ContainerType.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer('my-container', ContainerType.Execution);
 
         expect(result).toEqual([]);
       });
@@ -932,8 +929,7 @@ describe('ContainerService', () => {
                   execution_container: golang
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'non-existent', ContainerType.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer('non-existent', ContainerType.Execution);
 
         expect(result).toEqual([]);
       });
@@ -953,8 +949,7 @@ describe('ContainerService', () => {
                       recreate: true
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', ContainerType.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer('my-container', ContainerType.Execution);
 
         expect(result).toEqual(['wf1']);
       });
@@ -993,9 +988,8 @@ describe('ContainerService', () => {
                     - content: npm run build
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
-        const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'redis', ContainerType.Service);
+        const result1 = ContainerService.getWorkflowsUsingContainer('postgres', ContainerType.Service);
+        const result2 = ContainerService.getWorkflowsUsingContainer('redis', ContainerType.Service);
 
         expect(result1).toEqual(['test', 'integration']);
         expect(result2).toEqual(['test']);
@@ -1013,8 +1007,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
+        const result = ContainerService.getWorkflowsUsingContainer('postgres', ContainerType.Service);
 
         expect(result).toEqual([]);
       });
@@ -1026,8 +1019,7 @@ describe('ContainerService', () => {
             image: postgres:13
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
+        const result = ContainerService.getWorkflowsUsingContainer('postgres', ContainerType.Service);
 
         expect(result).toEqual([]);
       });
@@ -1045,8 +1037,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'redis', ContainerType.Service);
+        const result = ContainerService.getWorkflowsUsingContainer('redis', ContainerType.Service);
 
         expect(result).toEqual([]);
       });
@@ -1069,8 +1060,7 @@ describe('ContainerService', () => {
                   title: Cleanup
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
+        const result = ContainerService.getWorkflowsUsingContainer('postgres', ContainerType.Service);
 
         expect(result).toEqual(['test']);
       });
@@ -1090,8 +1080,7 @@ describe('ContainerService', () => {
                         recreate: true
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
+        const result = ContainerService.getWorkflowsUsingContainer('postgres', ContainerType.Service);
 
         expect(result).toEqual(['test']);
       });
