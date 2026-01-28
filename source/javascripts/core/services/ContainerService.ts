@@ -13,7 +13,7 @@ import {
 } from '@/core/models/Container';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 function addContainerReference(workflowId: string, stepIndex: number, containerId: string, target: ContainerSource) {
@@ -126,7 +126,8 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
   return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
-function getAllContainers(doc: Document, target: ContainerType): Container[] {
+function getAllContainers(target: ContainerType): Container[] {
+  const doc = bitriseYmlStore.getState().ymlDocument;
   const containers = YmlUtils.getMapIn(doc, ['containers']);
 
   if (!containers) {

@@ -2,13 +2,11 @@ import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
 
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import ContainersTable from './ContainersTable';
 
 const ExecutionContainersTab = () => {
-  const yml = useBitriseYmlStore((s) => s.ymlDocument);
-  const containers = ContainerService.getAllContainers(yml, ContainerType.Execution);
+  const containers = ContainerService.getAllContainers(ContainerType.Execution);
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">

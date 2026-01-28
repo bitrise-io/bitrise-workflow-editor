@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 
 import { ContainerSource, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 
 import ExecutionContainersTab from './components/ExecutionContainersTab';
@@ -13,9 +12,8 @@ import { getContainersBadge } from './utils/ContainersPage.utils';
 const TAB_IDS = [ContainerSource.Execution, ContainerSource.Service];
 
 const ContainersPage = () => {
-  const yml = useBitriseYmlStore((s) => s.ymlDocument);
-  const executionContainers = ContainerService.getAllContainers(yml, ContainerType.Execution);
-  const serviceContainers = ContainerService.getAllContainers(yml, ContainerType.Service);
+  const executionContainers = ContainerService.getAllContainers(ContainerType.Execution);
+  const serviceContainers = ContainerService.getAllContainers(ContainerType.Service);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });

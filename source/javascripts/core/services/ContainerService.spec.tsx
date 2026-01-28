@@ -697,8 +697,7 @@ describe('ContainerService', () => {
             image: ubuntu:22.04
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
+        const containers = ContainerService.getAllContainers(ContainerType.Execution);
 
         expect(containers).toEqual([
           { id: 'container-1', userValues: { type: 'execution', image: 'ubuntu:20.04' } },
@@ -712,8 +711,7 @@ describe('ContainerService', () => {
           wf1: {}
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
+        const containers = ContainerService.getAllContainers(ContainerType.Execution);
 
         expect(containers).toEqual([]);
       });
@@ -740,8 +738,7 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
+        const containers = ContainerService.getAllContainers(ContainerType.Execution);
 
         expect(containers).toEqual([
           {
@@ -783,8 +780,7 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
+        const containers = ContainerService.getAllContainers(ContainerType.Execution);
 
         expect(containers).toEqual([
           { id: 'golang', userValues: { type: 'execution', image: 'golang:1.22' } },
@@ -805,8 +801,7 @@ describe('ContainerService', () => {
             image: redis:6
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const services = ContainerService.getAllContainers(doc, ContainerType.Service);
+        const services = ContainerService.getAllContainers(ContainerType.Service);
 
         expect(services).toEqual([
           { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },
@@ -820,8 +815,7 @@ describe('ContainerService', () => {
           wf1: {}
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const services = ContainerService.getAllContainers(doc, ContainerType.Service);
+        const services = ContainerService.getAllContainers(ContainerType.Service);
 
         expect(services).toEqual([]);
       });
@@ -840,8 +834,7 @@ describe('ContainerService', () => {
             image: redis:6
       `);
 
-        const doc = bitriseYmlStore.getState().ymlDocument;
-        const services = ContainerService.getAllContainers(doc, ContainerType.Service);
+        const services = ContainerService.getAllContainers(ContainerType.Service);
 
         expect(services).toEqual([
           { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },

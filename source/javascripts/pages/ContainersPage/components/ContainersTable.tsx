@@ -9,7 +9,7 @@ import ContainerUsageDialog from './ContainerUsageDialog';
 
 const ContainersTable = ({ target }: { target: ContainerType }) => {
   const yml = useBitriseYmlStore((s) => s.ymlDocument);
-  const containers = ContainerService.getAllContainers(yml, target);
+  const containers = ContainerService.getAllContainers(target);
 
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
   const {
