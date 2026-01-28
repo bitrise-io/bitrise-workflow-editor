@@ -6,7 +6,6 @@ import {
   ContainerField,
   ContainerFieldValue,
   ContainerReferenceField,
-  ContainerSource,
   ContainerType,
   CredentialField,
   CredentialFieldValue,
@@ -16,31 +15,33 @@ import WorkflowService from '@/core/services/WorkflowService';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-function addContainerReference(workflowId: string, stepIndex: number, containerId: string, target: ContainerType) {
+function addContainerReference(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    getContainerOrThrowError(containerId, doc, target);
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+    const container = getContainerOrThrowError(containerId, doc);
 
-    if (target === ContainerType.Execution) {
-      YmlUtils.setIn(stepData, ['execution_container'], containerId);
+    const type = container.getIn(['type']) as string;
+
+    if (type === ContainerType.Execution) {
+      YmlUtils.setIn(stepData, [ContainerReferenceField.Execution], containerId);
     }
 
-    if (target === ContainerType.Service) {
-      if (YmlUtils.isInSeq(stepData, ['service_containers'], containerId)) {
+    if (type === ContainerType.Service) {
+      if (YmlUtils.isInSeq(stepData, [ContainerReferenceField.Service], containerId)) {
         throw new Error(`Service container '${containerId}' is already added to the step`);
       }
-      YmlUtils.addIn(stepData, ['service_containers'], containerId);
+      YmlUtils.addIn(stepData, [ContainerReferenceField.Service], containerId);
     }
 
     return doc;
   });
 }
 
-function cleanContainerData(container: ContainerModel, type: ContainerType) {
-  const { image, credentials, ports, envs, options } = container;
+function cleanContainerData(container: ContainerModel) {
+  const { type, image, credentials, ports, envs, options } = container;
 
-  const containerData: ContainerModel & { type: ContainerType } = { type, image };
+  const containerData: ContainerModel = { type, image };
 
   if (ports && ports.length > 0) {
     containerData.ports = ports;
@@ -62,53 +63,41 @@ function cleanContainerData(container: ContainerModel, type: ContainerType) {
   return containerData;
 }
 
-function createContainer(id: string, container: ContainerModel, type: ContainerType) {
+function createContainer(id: string, container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
     if (doc.hasIn(['containers', id])) {
-      const containerType = type === ContainerType.Execution ? 'Execution container' : 'Service container';
+      const containerType = container.type === 'execution' ? 'Execution container' : 'Service container';
       throw new Error(`${containerType} '${id}' already exists`);
     }
 
-    const containerData = cleanContainerData(container, type);
+    const containerData = cleanContainerData(container);
 
     YmlUtils.setIn(doc, ['containers', id], containerData);
     return doc;
   });
 }
 
-function deleteContainer(id: string, target: ContainerType) {
+function deleteContainer(id: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    getContainerOrThrowError(id, doc, target);
+    getContainerOrThrowError(id, doc);
 
     YmlUtils.deleteByPath(doc, ['containers', id]);
 
-    const field =
-      target === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
     const keep = ['workflows', '*', 'steps', '*', '*'];
-    const path = ['workflows', '*', 'steps', '*', '*', field];
-
-    if (target === ContainerType.Service) {
-      path.push('*');
-    }
-    YmlUtils.deleteByValue(doc, path, id, keep);
+    YmlUtils.deleteByValue(doc, [...keep, ContainerReferenceField.Execution], id, keep);
+    YmlUtils.deleteByValue(doc, [...keep, ContainerReferenceField.Service, '*'], id, keep);
 
     return doc;
   });
 }
 
-function removeContainerReference(workflowId: string, stepIndex: number, target: ContainerSource, containerId: string) {
+function removeContainerReference(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-    const field =
-      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
-    const path: string[] = [field];
-
-    if (target === ContainerSource.Service) {
-      path.push('*');
-    }
-    YmlUtils.deleteByValue(stepData, path, containerId);
+    YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Execution], containerId);
+    YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Service, '*'], containerId);
 
     return doc;
   });
@@ -126,7 +115,7 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
   return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
-function getAllContainers(target: ContainerType): Container[] {
+function getAllContainers(type: ContainerType): Container[] {
   const doc = bitriseYmlStore.getState().ymlDocument;
   const containers = YmlUtils.getMapIn(doc, ['containers']);
 
@@ -138,17 +127,17 @@ function getAllContainers(target: ContainerType): Container[] {
     .map((pair) => {
       const id = String(pair.key);
       const containerMap = pair.value as YAMLMap;
-      const userValues = containerMap.toJSON() as ContainerModel & { type: ContainerType };
+      const userValues = containerMap.toJSON() as ContainerModel;
       return { id, userValues };
     })
-    .filter((container) => container.userValues.type === target);
+    .filter((container) => container.userValues.type === type);
 }
 
-function getContainerOrThrowError(id: string, doc: Document, target: ContainerType) {
+function getContainerOrThrowError(id: string, doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
 
   if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that it exists in the '${target}' section.`);
+    throw new Error(`Container ${id} not found.`);
   }
 
   return container;
@@ -164,7 +153,7 @@ function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: n
   return stepData;
 }
 
-function getWorkflowsUsingContainer(containerId: string, target: ContainerType): string[] {
+function getWorkflowsUsingContainer(containerId: string): string[] {
   const doc = bitriseYmlStore.getState().ymlDocument;
   const workflows = YmlUtils.getMapIn(doc, ['workflows']);
   const result: string[] = [];
@@ -173,38 +162,38 @@ function getWorkflowsUsingContainer(containerId: string, target: ContainerType):
     return result;
   }
 
-  const field =
-    target === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
-  const searchPath = ['workflows', '*', 'steps', '*', '*', field];
-  if (target === ContainerType.Service) {
-    searchPath.push('*');
-  }
+  const executionContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
+  const serviceContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
 
-  YmlUtils.collectPaths(doc)
-    .filter((path) => {
-      if (path.length !== searchPath.length) {
-        return false;
-      }
-      return path.every((segment, index) => searchPath[index] === '*' || searchPath[index] === segment);
-    })
-    .forEach((path) => {
-      const node = doc.getIn(path, true);
-      const matches = isMap(node) ? String(node.items[0]?.key) === containerId : String(node) === containerId;
+  const checkPath = (path: (string | number)[], searchPath: (string | number)[]) => {
+    if (path.length !== searchPath.length) {
+      return false;
+    }
+    return path.every((segment, index) => searchPath[index] === '*' || searchPath[index] === segment);
+  };
 
-      if (matches) {
-        const workflowId = String(path[1]);
-        if (!result.includes(workflowId)) {
-          result.push(workflowId);
-        }
+  YmlUtils.collectPaths(doc).forEach((path) => {
+    if (!checkPath(path, executionContainerPath) && !checkPath(path, serviceContainerPath)) {
+      return;
+    }
+
+    const node = doc.getIn(path, true);
+    const matches = isMap(node) ? String(node.items[0]?.key) === containerId : String(node) === containerId;
+
+    if (matches) {
+      const workflowId = String(path[1]);
+      if (!result.includes(workflowId)) {
+        result.push(workflowId);
       }
-    });
+    }
+  });
 
   return result;
 }
 
-function updateContainerId(id: Container['id'], newId: Container['id'], target: ContainerType) {
+function updateContainerId(id: Container['id'], newId: Container['id']) {
   updateBitriseYmlDocument(({ doc }) => {
-    getContainerOrThrowError(id, doc, target);
+    getContainerOrThrowError(id, doc);
 
     if (id === newId) {
       return doc;
@@ -214,27 +203,20 @@ function updateContainerId(id: Container['id'], newId: Container['id'], target: 
       throw new Error(`Container '${newId}' already exists.`);
     }
 
-    const field =
-      target === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
-    const path = ['workflows', '*', 'steps', '*', '*', field];
-    if (target === ContainerType.Service) {
-      path.push('*');
-    }
+    const executionContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
+    const serviceContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
+
     YmlUtils.updateKeyByPath(doc, ['containers', id], newId);
-    YmlUtils.updateValueByValue(doc, path, id, newId);
+    YmlUtils.updateValueByValue(doc, executionContainerPath, id, newId);
+    YmlUtils.updateValueByValue(doc, serviceContainerPath, id, newId);
 
     return doc;
   });
 }
 
-function updateContainerField<T extends ContainerField>(
-  id: Container['id'],
-  field: T,
-  value: ContainerFieldValue<T>,
-  target: ContainerType,
-) {
+function updateContainerField<T extends ContainerField>(id: Container['id'], field: T, value: ContainerFieldValue<T>) {
   updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc, target);
+    const container = getContainerOrThrowError(id, doc);
 
     const shouldDelete = Array.isArray(value) && value.length === 0;
 
@@ -252,10 +234,9 @@ function updateCredentialField<T extends CredentialField>(
   id: Container['id'],
   field: T,
   value: CredentialFieldValue<T>,
-  target: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc, target);
+    const container = getContainerOrThrowError(id, doc);
 
     if (value) {
       YmlUtils.setIn(container, ['credentials', field], value);
@@ -270,7 +251,7 @@ function updateCredentialField<T extends CredentialField>(
 function updateContainerReferenceRecreate(
   workflowId: string,
   stepIndex: number,
-  target: ContainerSource,
+  type: ContainerType,
   containerId: string,
   recreate: boolean,
 ) {
@@ -279,7 +260,7 @@ function updateContainerReferenceRecreate(
     const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
     const field =
-      target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+      type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
     if (!stepData.has(field)) {
       throw new Error(`No '${field}' found on step at index ${stepIndex}`);
     }
