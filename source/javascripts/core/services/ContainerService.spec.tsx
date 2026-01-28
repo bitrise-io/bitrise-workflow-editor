@@ -1,5 +1,5 @@
 import { ContainerModel } from '@/core/models/BitriseYml';
-import { ContainerSource } from '@/core/models/Container';
+import { ContainerSource, ContainerType } from '@/core/models/Container';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
 import ContainerService from './ContainerService';
@@ -698,7 +698,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerSource.Execution);
+        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
 
         expect(containers).toEqual([
           { id: 'container-1', userValues: { type: 'execution', image: 'ubuntu:20.04' } },
@@ -713,7 +713,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerSource.Execution);
+        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
 
         expect(containers).toEqual([]);
       });
@@ -741,7 +741,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerSource.Execution);
+        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
 
         expect(containers).toEqual([
           {
@@ -784,7 +784,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const containers = ContainerService.getAllContainers(doc, ContainerSource.Execution);
+        const containers = ContainerService.getAllContainers(doc, ContainerType.Execution);
 
         expect(containers).toEqual([
           { id: 'golang', userValues: { type: 'execution', image: 'golang:1.22' } },
@@ -806,7 +806,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const services = ContainerService.getAllContainers(doc, ContainerSource.Service);
+        const services = ContainerService.getAllContainers(doc, ContainerType.Service);
 
         expect(services).toEqual([
           { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },
@@ -821,7 +821,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const services = ContainerService.getAllContainers(doc, ContainerSource.Service);
+        const services = ContainerService.getAllContainers(doc, ContainerType.Service);
 
         expect(services).toEqual([]);
       });
@@ -841,7 +841,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const services = ContainerService.getAllContainers(doc, ContainerSource.Service);
+        const services = ContainerService.getAllContainers(doc, ContainerType.Service);
 
         expect(services).toEqual([
           { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },
@@ -889,8 +889,8 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_1', ContainerSource.Execution);
-        const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_2', ContainerSource.Execution);
+        const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_1', ContainerType.Execution);
+        const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'golang_2', ContainerType.Execution);
 
         expect(result1).toEqual(['test', 'build']);
         expect(result2).toEqual(['test']);
@@ -909,7 +909,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'golang', ContainerSource.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'golang', ContainerType.Execution);
 
         expect(result).toEqual([]);
       });
@@ -922,7 +922,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', ContainerSource.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', ContainerType.Execution);
 
         expect(result).toEqual([]);
       });
@@ -940,7 +940,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'non-existent', ContainerSource.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'non-existent', ContainerType.Execution);
 
         expect(result).toEqual([]);
       });
@@ -961,7 +961,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', ContainerSource.Execution);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'my-container', ContainerType.Execution);
 
         expect(result).toEqual(['wf1']);
       });
@@ -1001,8 +1001,8 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerSource.Service);
-        const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'redis', ContainerSource.Service);
+        const result1 = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
+        const result2 = ContainerService.getWorkflowsUsingContainer(doc, 'redis', ContainerType.Service);
 
         expect(result1).toEqual(['test', 'integration']);
         expect(result2).toEqual(['test']);
@@ -1021,7 +1021,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerSource.Service);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
 
         expect(result).toEqual([]);
       });
@@ -1034,7 +1034,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerSource.Service);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
 
         expect(result).toEqual([]);
       });
@@ -1053,7 +1053,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'redis', ContainerSource.Service);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'redis', ContainerType.Service);
 
         expect(result).toEqual([]);
       });
@@ -1077,7 +1077,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerSource.Service);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
 
         expect(result).toEqual(['test']);
       });
@@ -1098,7 +1098,7 @@ describe('ContainerService', () => {
       `);
 
         const doc = bitriseYmlStore.getState().ymlDocument;
-        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerSource.Service);
+        const result = ContainerService.getWorkflowsUsingContainer(doc, 'postgres', ContainerType.Service);
 
         expect(result).toEqual(['test']);
       });

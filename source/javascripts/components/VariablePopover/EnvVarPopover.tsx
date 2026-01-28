@@ -24,7 +24,7 @@ import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
 
 type Props = {
-  size: 'sm' | 'md' | 'lg';
+  size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
   onSelect: (item: EnvVar) => void;

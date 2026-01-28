@@ -1,13 +1,14 @@
 import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
 
-import { ContainerSource } from '@/core/models/Container';
+import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import ContainersTable from '@/pages/ContainersPage/components/ContainersTable';
+
+import ContainersTable from './ContainersTable';
 
 const ExecutionContainersTab = () => {
   const yml = useBitriseYmlStore((s) => s.ymlDocument);
-  const containers = ContainerService.getAllContainers(yml, ContainerSource.Execution);
+  const containers = ContainerService.getAllContainers(yml, ContainerType.Execution);
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
@@ -20,7 +21,7 @@ const ExecutionContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable target={ContainerSource.Execution} />
+        <ContainersTable target={ContainerType.Execution} />
       ) : (
         <EmptyState
           title="Your execution containers will appear here"

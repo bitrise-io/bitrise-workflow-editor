@@ -7,6 +7,7 @@ import {
   ContainerFieldValue,
   ContainerReferenceField,
   ContainerSource,
+  ContainerType,
   CredentialField,
   CredentialFieldValue,
 } from '@/core/models/Container';
@@ -125,23 +126,21 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
   return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
-function getAllContainers(doc: Document, target: ContainerSource): Container[] {
+function getAllContainers(doc: Document, target: ContainerType): Container[] {
   const containers = YmlUtils.getMapIn(doc, ['containers']);
 
   if (!containers) {
     return [];
   }
 
-  const targetType = target === ContainerSource.Execution ? 'execution' : 'service';
-
   return containers.items
     .map((pair) => {
       const id = String(pair.key);
       const containerMap = pair.value as YAMLMap;
-      const userValues: ContainerModel = containerMap.toJSON();
+      const userValues = containerMap.toJSON() as ContainerModel & { type: ContainerType };
       return { id, userValues };
     })
-    .filter((container) => container.userValues.type === targetType);
+    .filter((container) => container.userValues.type === target);
 }
 
 function getContainerOrThrowError(id: string, doc: Document, target: ContainerSource) {
@@ -164,7 +163,7 @@ function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: n
   return stepData;
 }
 
-function getWorkflowsUsingContainer(doc: Document, containerId: string, target: ContainerSource): string[] {
+function getWorkflowsUsingContainer(doc: Document, containerId: string, target: ContainerType): string[] {
   const workflows = YmlUtils.getMapIn(doc, ['workflows']);
   const result: string[] = [];
 
@@ -173,9 +172,9 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string, target: 
   }
 
   const field =
-    target === ContainerSource.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+    target === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
   const searchPath = ['workflows', '*', 'steps', '*', '*', field];
-  if (target === ContainerSource.Service) {
+  if (target === ContainerType.Service) {
     searchPath.push('*');
   }
 

@@ -14,14 +14,14 @@ import {
   Tr,
 } from '@bitrise/bitkit';
 
-import { Container, ContainerSource } from '@/core/models/Container';
+import { Container, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useNavigation from '@/hooks/useNavigation';
 
 type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
   selectedContainerId: Container['id'];
-  target: ContainerSource;
+  target: ContainerType;
 };
 
 const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {

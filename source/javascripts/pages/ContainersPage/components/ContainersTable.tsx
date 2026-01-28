@@ -1,12 +1,13 @@
 import { ControlButton, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
-import { Container, ContainerSource } from '@/core/models/Container';
+import { Container, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import ContainerUsageDialog from '@/pages/ContainersPage/components/ContainerUsageDialog';
 
-const ContainersTable = ({ target }: { target: ContainerSource }) => {
+import ContainerUsageDialog from './ContainerUsageDialog';
+
+const ContainersTable = ({ target }: { target: ContainerType }) => {
   const yml = useBitriseYmlStore((s) => s.ymlDocument);
   const containers = ContainerService.getAllContainers(yml, target);
 
