@@ -1,14 +1,16 @@
 import { ControlButton, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
-import { Container, ContainerType } from '@/core/models/Container';
+import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 
-const ContainersTable = ({ type }: { type: ContainerType }) => {
-  const containers = ContainerService.getAllContainers(type);
+type Props = {
+  containers: Container[];
+};
 
+const ContainersTable = ({ containers }: Props) => {
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
   const {
     isOpen: isContainerUsageDialogOpen,

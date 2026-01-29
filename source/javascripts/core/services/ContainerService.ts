@@ -1,6 +1,6 @@
 import { Document, isMap, YAMLMap } from 'yaml';
 
-import { ContainerModel } from '@/core/models/BitriseYml';
+import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import {
   Container,
   ContainerField,
@@ -115,22 +115,12 @@ function filterCredentials(credentials: ContainerModel['credentials']) {
   return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
-function getAllContainers(type: ContainerType): Container[] {
-  const doc = bitriseYmlStore.getState().ymlDocument;
-  const containers = YmlUtils.getMapIn(doc, ['containers']);
+const identity = (_: Container) => true;
 
-  if (!containers) {
-    return [];
-  }
-
-  return containers.items
-    .map((pair) => {
-      const id = String(pair.key);
-      const containerMap = pair.value as YAMLMap;
-      const userValues = containerMap.toJSON() as ContainerModel;
-      return { id, userValues };
-    })
-    .filter((container) => container.userValues.type === type);
+function getAllContainers(containers: Containers, selector: (container: Container) => boolean = identity): Container[] {
+  return Object.entries(containers)
+    .map(([id, userValues]) => ({ id, userValues }) as Container)
+    .filter(selector);
 }
 
 function getContainerOrThrowError(id: string, doc: Document) {

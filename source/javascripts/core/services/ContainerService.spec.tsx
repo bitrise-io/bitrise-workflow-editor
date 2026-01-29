@@ -1,4 +1,4 @@
-import { ContainerModel } from '@/core/models/BitriseYml';
+import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { ContainerType } from '@/core/models/Container';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
@@ -737,60 +737,53 @@ describe('ContainerService', () => {
   describe('getAllContainers', () => {
     describe('execution container target', () => {
       it('should return all execution containers', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        containers:
-          container-1:
-            type: execution
-            image: ubuntu:20.04
-          container-2:
-            type: execution
-            image: ubuntu:22.04
-      `);
+        const containers: Containers = {
+          'container-1': { type: 'execution', image: 'ubuntu:20.04' },
+          'container-2': { type: 'execution', image: 'ubuntu:22.04' },
+        };
 
-        const containers = ContainerService.getAllContainers(ContainerType.Execution);
+        const result = ContainerService.getAllContainers(
+          containers,
+          (container) => container.userValues.type === ContainerType.Execution,
+        );
 
-        expect(containers).toEqual([
+        expect(result).toEqual([
           { id: 'container-1', userValues: { type: 'execution', image: 'ubuntu:20.04' } },
           { id: 'container-2', userValues: { type: 'execution', image: 'ubuntu:22.04' } },
         ]);
       });
 
       it('should return empty array if no containers exist', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1: {}
-      `);
-
-        const containers = ContainerService.getAllContainers(ContainerType.Execution);
-
+        const containers = ContainerService.getAllContainers({});
         expect(containers).toEqual([]);
       });
 
       it('should return all container fields including credentials, ports, envs, and options', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        containers:
-          full-container:
-            type: execution
-            image: nginx:latest
-            credentials:
-              username: $DOCKER_USER
-              password: $DOCKER_PASS
-              server: registry.example.com
-            ports:
-            - 8080:80
-            - 8443:443
-            envs:
-            - ENV: production
-            - DEBUG: "false"
-            options: --memory=2g --cpus=2
-          minimal-container:
-            type: execution
-            image: ubuntu:20.04
-      `);
+        const containers: Containers = {
+          'full-container': {
+            type: 'execution',
+            image: 'nginx:latest',
+            credentials: {
+              username: '$DOCKER_USER',
+              password: '$DOCKER_PASS',
+              server: 'registry.example.com',
+            },
+            ports: ['8080:80', '8443:443'],
+            envs: [{ ENV: 'production' }, { DEBUG: 'false' }],
+            options: '--memory=2g --cpus=2',
+          },
+          'minimal-container': {
+            type: 'execution',
+            image: 'ubuntu:20.04',
+          },
+        };
 
-        const containers = ContainerService.getAllContainers(ContainerType.Execution);
+        const result = ContainerService.getAllContainers(
+          containers,
+          (container) => container.userValues.type === ContainerType.Execution,
+        );
 
-        expect(containers).toEqual([
+        expect(result).toEqual([
           {
             id: 'full-container',
             userValues: {
@@ -817,22 +810,18 @@ describe('ContainerService', () => {
       });
 
       it('should filter out service containers', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        containers:
-          golang:
-            type: execution
-            image: golang:1.22
-          redis:
-            type: service
-            image: redis:latest
-          ubuntu:
-            type: execution
-            image: ubuntu:20.04
-      `);
+        const containers: Containers = {
+          golang: { type: 'execution', image: 'golang:1.22' },
+          redis: { type: 'service', image: 'redis:latest' },
+          ubuntu: { type: 'execution', image: 'ubuntu:20.04' },
+        };
 
-        const containers = ContainerService.getAllContainers(ContainerType.Execution);
+        const result = ContainerService.getAllContainers(
+          containers,
+          (container) => container.userValues.type === ContainerType.Execution,
+        );
 
-        expect(containers).toEqual([
+        expect(result).toEqual([
           { id: 'golang', userValues: { type: 'execution', image: 'golang:1.22' } },
           { id: 'ubuntu', userValues: { type: 'execution', image: 'ubuntu:20.04' } },
         ]);
@@ -841,17 +830,15 @@ describe('ContainerService', () => {
 
     describe('service container target', () => {
       it('should return all service containers', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        containers:
-          postgres:
-            type: service
-            image: postgres:13
-          redis:
-            type: service
-            image: redis:6
-      `);
+        const containers: Containers = {
+          postgres: { type: 'service', image: 'postgres:13' },
+          redis: { type: 'service', image: 'redis:6' },
+        };
 
-        const services = ContainerService.getAllContainers(ContainerType.Service);
+        const services = ContainerService.getAllContainers(
+          containers,
+          (container) => container.userValues.type === ContainerType.Service,
+        );
 
         expect(services).toEqual([
           { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },
@@ -860,31 +847,21 @@ describe('ContainerService', () => {
       });
 
       it('should return empty array if no services exist', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1: {}
-      `);
-
-        const services = ContainerService.getAllContainers(ContainerType.Service);
-
+        const services = ContainerService.getAllContainers({});
         expect(services).toEqual([]);
       });
 
       it('should filter out execution containers', () => {
-        updateBitriseYmlDocumentByString(yaml`
-        containers:
-          postgres:
-            type: service
-            image: postgres:13
-          golang:
-            type: execution
-            image: golang:1.22
-          redis:
-            type: service
-            image: redis:6
-      `);
+        const containers: Containers = {
+          postgres: { type: 'service', image: 'postgres:13' },
+          golang: { type: 'execution', image: 'golang:1.22' },
+          redis: { type: 'service', image: 'redis:6' },
+        };
 
-        const services = ContainerService.getAllContainers(ContainerType.Service);
+        const services = ContainerService.getAllContainers(
+          containers,
+          (container) => container.userValues.type === ContainerType.Service,
+        );
 
         expect(services).toEqual([
           { id: 'postgres', userValues: { type: 'service', image: 'postgres:13' } },

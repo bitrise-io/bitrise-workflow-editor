@@ -2,11 +2,14 @@ import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
 
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
+import { useContainers } from '@/hooks/useContainers';
 
 import ContainersTable from './ContainersTable';
 
 const ExecutionContainersTab = () => {
-  const containers = ContainerService.getAllContainers(ContainerType.Execution);
+  const containers = useContainers((containers) => {
+    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
+  });
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
@@ -19,7 +22,7 @@ const ExecutionContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable type={ContainerType.Execution} />
+        <ContainersTable containers={containers} />
       ) : (
         <EmptyState
           title="Your execution containers will appear here"
