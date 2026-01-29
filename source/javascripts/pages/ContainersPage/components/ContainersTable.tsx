@@ -1,5 +1,5 @@
 import { ControlButton, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@bitrise/bitkit';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
@@ -18,6 +18,18 @@ const ContainersTable = ({ containers }: Props) => {
     onClose: onContainerUsageDialogClose,
   } = useDisclosure();
 
+  const containerUsageLookup = useMemo(() => {
+    const result = new Map<string, number>();
+    const ids = containers.map((container) => container.id);
+
+    ids.forEach((id) => {
+      const workflowsUsingContainer = ContainerService.getWorkflowsUsingContainer(id);
+      result.set(id, workflowsUsingContainer.length);
+    });
+
+    return result;
+  }, [containers]);
+
   return (
     <>
       <Table isFixed>
@@ -33,9 +45,7 @@ const ContainersTable = ({ containers }: Props) => {
         </Thead>
         <Tbody>
           {containers.map((container) => {
-            const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(container.id);
-
-            const workflowCount = workflowsUsedByContainer.length;
+            const workflowCount = containerUsageLookup.get(container.id) || 0;
             const usageLabel =
               workflowCount === 0 ? '(not used)' : workflowCount === 1 ? '1 Workflow' : `${workflowCount} Workflows`;
 

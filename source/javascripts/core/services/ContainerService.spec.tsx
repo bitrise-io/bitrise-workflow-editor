@@ -415,7 +415,7 @@ describe('ContainerService', () => {
         };
 
         expect(() => ContainerService.createContainer('existing-container', container)).toThrow(
-          "Execution container 'existing-container' already exists",
+          "Container 'existing-container' already exists",
         );
       });
     });
@@ -482,7 +482,7 @@ describe('ContainerService', () => {
         };
 
         expect(() => ContainerService.createContainer('existing-service', service)).toThrow(
-          "Service container 'existing-service' already exists",
+          "Container 'existing-service' already exists",
         );
       });
     });
