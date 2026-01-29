@@ -67,7 +67,7 @@ function createContainer(id: string, container: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
     if (doc.hasIn(['containers', id])) {
       const containerType = container.type === 'execution' ? 'Execution container' : 'Service container';
-      throw new Error(`${containerType} '${id}' already exists`);
+      throw new Error(`Container '${id}' already exists`);
     }
 
     const containerData = cleanContainerData(container);
