@@ -26,10 +26,9 @@ export const Default: StoryObj<typeof ContainersPage> = {
           image: 'python:3.11',
           env: ['PYTHONUNBUFFERED=1'],
         },
-        node: {
+        ruby: {
           type: 'execution',
-          image: 'node:20-alpine',
-          env: ['NODE_ENV=test'],
+          image: '1.1',
         },
         redis: {
           type: 'service',
@@ -53,26 +52,6 @@ export const Default: StoryObj<typeof ContainersPage> = {
           options:
             '--health-cmd "mysqladmin ping -h localhost" --health-interval 10s --health-timeout 5s --health-retries 5',
         },
-      });
-      set(TEST_BITRISE_YML, 'workflows.golang-test', {
-        steps: [
-          {
-            'script@1': {
-              execution_container: 'golang',
-              service_containers: ['redis', 'mongodb'],
-            },
-          },
-        ],
-      });
-      set(TEST_BITRISE_YML, 'workflows.second-golang-test', {
-        steps: [
-          {
-            'script@1': {
-              execution_container: 'golang',
-              service_containers: ['redis'],
-            },
-          },
-        ],
       });
       set(TEST_BITRISE_YML, 'workflows.python-test', {
         steps: [
