@@ -126,7 +126,7 @@ function getContainerOrThrowError(id: string, doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
 
   if (!container) {
-    throw new Error(`Container ${id} not found.`);
+    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
   }
 
   return container;

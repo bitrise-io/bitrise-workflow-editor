@@ -86,7 +86,7 @@ describe('ContainerService', () => {
       `);
 
         expect(() => ContainerService.addContainerReference('wf1', 0, 'non-existent')).toThrow(
-          'Container non-existent not found.',
+          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
         );
       });
 
@@ -225,7 +225,7 @@ describe('ContainerService', () => {
       `);
 
         expect(() => ContainerService.addContainerReference('wf1', 0, 'non-existent')).toThrow(
-          'Container non-existent not found.',
+          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
         );
       });
     });
@@ -596,7 +596,7 @@ describe('ContainerService', () => {
       `);
 
         expect(() => ContainerService.deleteContainer('third-container')).toThrow(
-          'Container third-container not found.',
+          "Container third-container not found. Ensure that the container exists in the 'containers' section.",
         );
       });
 
@@ -610,7 +610,9 @@ describe('ContainerService', () => {
           wf1: {}
       `);
 
-        expect(() => ContainerService.deleteContainer('non-existent')).toThrow('Container non-existent not found.');
+        expect(() => ContainerService.deleteContainer('non-existent')).toThrow(
+          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
+        );
       });
     });
     describe('service container target', () => {
@@ -729,7 +731,9 @@ describe('ContainerService', () => {
       it('should throw an error if service does not exist', () => {
         updateBitriseYmlDocumentByString(yaml``);
 
-        expect(() => ContainerService.deleteContainer('non-existent')).toThrow('Container non-existent not found.');
+        expect(() => ContainerService.deleteContainer('non-existent')).toThrow(
+          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
+        );
       });
     });
   });
@@ -1447,7 +1451,7 @@ describe('ContainerService', () => {
       `);
 
       expect(() => ContainerService.updateContainerId('non-existent', 'new-id')).toThrow(
-        'Container non-existent not found.',
+        "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
       );
     });
 
@@ -1665,7 +1669,7 @@ describe('ContainerService', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
       expect(() => ContainerService.updateContainerField('non-existent', 'image', 'ubuntu:20.04')).toThrow(
-        'Container non-existent not found.',
+        "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
       );
     });
   });
@@ -1871,7 +1875,7 @@ describe('ContainerService', () => {
       updateBitriseYmlDocumentByString(yaml``);
 
       expect(() => ContainerService.updateCredentialField('non-existent', 'username', 'user')).toThrow(
-        'Container non-existent not found.',
+        "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
       );
     });
   });
