@@ -24,14 +24,18 @@ import { EnvVarPopover } from '@/components/VariablePopover';
 import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 
-const CreateContainerDialog = (props: Omit<DialogProps, 'title'>) => {
-  const { isOpen, onClose } = props;
+type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
+  type: 'execution' | 'service';
+};
+
+const CreateContainerDialog = (props: CreateContainerDialogProps) => {
+  const { isOpen, onClose, type } = props;
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
   const defaultValues: Container = {
     id: '',
     userValues: {
-      type: 'execution',
+      type: type,
       image: '',
       ports: [],
       credentials: {

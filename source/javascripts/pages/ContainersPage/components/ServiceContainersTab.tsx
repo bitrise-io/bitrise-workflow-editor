@@ -33,7 +33,7 @@ const ServiceContainersTab = () => {
           iconName="Container"
         />
       )}
-      <CreateContainerDialog isOpen={isCreateDialogOpen} onClose={onCreateDialogClose} />
+      <CreateContainerDialog isOpen={isCreateDialogOpen} onClose={onCreateDialogClose} type="service" />
     </Box>
   );
 };

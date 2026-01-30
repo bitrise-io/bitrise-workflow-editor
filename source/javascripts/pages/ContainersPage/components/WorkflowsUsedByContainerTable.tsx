@@ -9,6 +9,10 @@ type Props = {
 const WorkflowsUsedByContainerTable = ({ workflows }: Props) => {
   const { replace } = useNavigation();
 
+  if (workflows.length === 0) {
+    return null;
+  }
+
   return (
     <Table isFixed variant="borderless" mt="24">
       <Thead>
