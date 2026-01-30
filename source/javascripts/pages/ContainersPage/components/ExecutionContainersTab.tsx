@@ -1,15 +1,18 @@
-import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
+import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
 
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import { useContainers } from '@/hooks/useContainers';
 
 import ContainersTable from './ContainersTable';
+import CreateContainerDialog from './CreateContainerDialog';
 
 const ExecutionContainersTab = () => {
   const containers = useContainers((containers) => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
   });
+
+  const { isOpen: isCreateDialogOpen, onOpen: onCreateDialogOpen, onClose: onCreateDialogClose } = useDisclosure();
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
@@ -17,7 +20,7 @@ const ExecutionContainersTab = () => {
         <Text color="text/secondary">
           Use execution containers to create your custom environment to run your Steps in.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" onClick={() => {}}>
+        <Button variant="secondary" leftIconName="Plus" size="md" onClick={onCreateDialogOpen}>
           Add container
         </Button>
       </Box>
@@ -30,6 +33,7 @@ const ExecutionContainersTab = () => {
           iconName="Container"
         />
       )}
+      <CreateContainerDialog isOpen={isCreateDialogOpen} onClose={onCreateDialogClose} />
     </Box>
   );
 };

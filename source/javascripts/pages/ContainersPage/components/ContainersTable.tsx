@@ -5,6 +5,7 @@ import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
+import DeleteContainerDialog from './DeleteContainerDialog';
 
 type Props = {
   containers: Container[];
@@ -16,6 +17,11 @@ const ContainersTable = ({ containers }: Props) => {
     isOpen: isContainerUsageDialogOpen,
     onOpen: onContainerUsageDialogOpen,
     onClose: onContainerUsageDialogClose,
+  } = useDisclosure();
+  const {
+    isOpen: isDeleteContainerDialogOpen,
+    onOpen: onDeleteContainerDialogOpen,
+    onClose: onDeleteContainerDialogClose,
   } = useDisclosure();
 
   const containerUsageLookup = useMemo(() => {
@@ -85,7 +91,7 @@ const ContainersTable = ({ containers }: Props) => {
                     aria-label="Delete container"
                     iconName="MinusCircle"
                     color="icon/negative"
-                    onClick={() => {}}
+                    onClick={onDeleteContainerDialogOpen}
                   />
                 </Td>
               </Tr>
@@ -98,6 +104,7 @@ const ContainersTable = ({ containers }: Props) => {
         onClose={onContainerUsageDialogClose}
         selectedContainerId={selectedContainerId}
       />
+      <DeleteContainerDialog isOpen={isDeleteContainerDialogOpen} onClose={onDeleteContainerDialogClose} />
     </>
   );
 };

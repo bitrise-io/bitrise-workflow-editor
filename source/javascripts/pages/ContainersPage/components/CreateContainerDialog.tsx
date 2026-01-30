@@ -21,7 +21,7 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
-import { Container, ContainerType } from '@/core/models/Container';
+import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 
 const CreateContainerDialog = (props: Omit<DialogProps, 'title'>) => {
@@ -31,6 +31,7 @@ const CreateContainerDialog = (props: Omit<DialogProps, 'title'>) => {
   const defaultValues: Container = {
     id: '',
     userValues: {
+      type: 'execution',
       image: '',
       ports: [],
       credentials: {
@@ -48,7 +49,7 @@ const CreateContainerDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const onSubmit = (container: Container) => {
     console.log('Form submitted:', container);
-    ContainerService.createContainer(container.id, container.userValues, ContainerType.Execution);
+    ContainerService.createContainer(container.id, container.userValues);
     onClose();
   };
 
