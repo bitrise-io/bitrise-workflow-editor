@@ -1,14 +1,24 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Text } from '@bitrise/bitkit';
 
-const DeleteContainerDialog = (props: Omit<DialogProps, 'title'>) => {
-  const { isOpen, onClose } = props;
+import ContainerService from '@/core/services/ContainerService';
+
+import WorkflowsUsedByContainerTable from './WorkflowsUsedByContainerTable';
+
+type DeleteContainerDialogProps = Omit<DialogProps, 'title'> & {
+  selectedContainerId: string;
+};
+
+const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
+  const { isOpen, onClose, selectedContainerId } = props;
+  const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(selectedContainerId);
+
   return (
     <Dialog title="Delete container?" isOpen={isOpen} onClose={onClose}>
       <DialogBody>
         <Text mb="24">
           Are you sure you want to delete{' '}
           <Text as="span" textStyle="body/lg/semibold">
-            node?
+            {selectedContainerId}?
           </Text>
         </Text>
         <Box display="flex" alignItems="center" gap="8" mb="8">
@@ -19,6 +29,7 @@ const DeleteContainerDialog = (props: Omit<DialogProps, 'title'>) => {
           <Icon name="Cross" color="icon/negative" />
           <Text>All container usage will be deleted from the following Workflows:</Text>
         </Box>
+        <WorkflowsUsedByContainerTable workflows={workflowsUsedByContainer} />
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>

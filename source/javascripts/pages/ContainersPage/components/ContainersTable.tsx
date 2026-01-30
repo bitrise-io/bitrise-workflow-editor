@@ -91,7 +91,10 @@ const ContainersTable = ({ containers }: Props) => {
                     aria-label="Delete container"
                     iconName="MinusCircle"
                     color="icon/negative"
-                    onClick={onDeleteContainerDialogOpen}
+                    onClick={() => {
+                      onDeleteContainerDialogOpen();
+                      setSelectedContainerId(container.id);
+                    }}
                   />
                 </Td>
               </Tr>
@@ -104,7 +107,11 @@ const ContainersTable = ({ containers }: Props) => {
         onClose={onContainerUsageDialogClose}
         selectedContainerId={selectedContainerId}
       />
-      <DeleteContainerDialog isOpen={isDeleteContainerDialogOpen} onClose={onDeleteContainerDialogClose} />
+      <DeleteContainerDialog
+        isOpen={isDeleteContainerDialogOpen}
+        onClose={onDeleteContainerDialogClose}
+        selectedContainerId={selectedContainerId}
+      />
     </>
   );
 };
