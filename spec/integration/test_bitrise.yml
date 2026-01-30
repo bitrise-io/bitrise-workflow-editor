@@ -1,12 +1,44 @@
 format_version: "11"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
-services:
-  postgres:
-    image: postgres:13
 containers:
-  ruby:
-    image: ruby:3.2
+  golang:
+    type: execution
+    image: golang:1.22
+  node:
+    type: execution
+    image: node:20-alpine
+    env:
+      - NODE_ENV=test
+  python:
+    type: execution
+    image: python:3.11
+    env:
+      - PYTHONUNBUFFERED=1
+  redis:
+    type: service
+    image: redis:latest
+    ports:
+    - 6379:6379
+    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+  mongodb:
+    type: service
+    image: mongo:7
+    ports:
+    - 27017:27017
+    env:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    options: --health-cmd "mongosh --eval 'db.adminCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+  mysql:
+    type: service
+    image: mysql:8
+    ports:
+    - 3306:3306
+    env:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=testdb
+    options: --health-cmd "mysqladmin ping -h localhost" --health-interval 10s --health-timeout 5s --health-retries 5
 app:
   envs:
     - ACCESS_KEY: "120"
@@ -152,6 +184,7 @@ workflows:
           title: Bitbucket (ssh) step
           inputs:
             - lane: bitbucket2
+          execution_container: node
   local-steps:
     steps:
       - path::./spec/integration/fixture/test_local_step: {}
@@ -159,6 +192,9 @@ workflows:
           title: A local step with overwritten title & input
           inputs:
             - company_name: Mando
+          execution_container: golang
+          service_containers:
+          - redis
   steplib-steps:
     steps:
       - https://github.com/bitrise-io/bitrise-steplib.git::script@0.9.0:
@@ -173,6 +209,10 @@ workflows:
             - content: |-
                 #!/usr/bin/env bash
                 echo "Hello implicit default library step (::id@version)!"
+          execution_container: golang
+          service_containers:
+          - redis
+          - mongodb
       - script@0.9.0:
           title: Implicit library, explicit version (id@version)
           inputs:

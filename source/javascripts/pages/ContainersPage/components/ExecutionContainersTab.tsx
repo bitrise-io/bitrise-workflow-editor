@@ -1,0 +1,37 @@
+import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
+
+import { ContainerType } from '@/core/models/Container';
+import ContainerService from '@/core/services/ContainerService';
+import { useContainers } from '@/hooks/useContainers';
+
+import ContainersTable from './ContainersTable';
+
+const ExecutionContainersTab = () => {
+  const containers = useContainers((containers) => {
+    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
+  });
+
+  return (
+    <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
+      <Box display="flex" justifyContent="space-between" alignItems="center" gap="32">
+        <Text color="text/secondary">
+          Use execution containers to create your custom environment to run your Steps in.
+        </Text>
+        <Button variant="secondary" leftIconName="Plus" size="md" onClick={() => {}}>
+          Add container
+        </Button>
+      </Box>
+      {containers.length > 0 ? (
+        <ContainersTable containers={containers} />
+      ) : (
+        <EmptyState
+          title="Your execution containers will appear here"
+          description="Add your first execution container to specify the tools, languages, and OS your Steps and Step bundles need to run."
+          iconName="Container"
+        />
+      )}
+    </Box>
+  );
+};
+
+export default ExecutionContainersTab;

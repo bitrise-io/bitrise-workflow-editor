@@ -17,6 +17,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useHashLocation from '@/hooks/useHashLocation';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
@@ -77,6 +78,8 @@ const Navigation = (props: Props) => {
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
 
+  const enableContainersPage = useFeatureFlag('enable-wfe-containers-page');
+
   useEffect(() => {
     if (data?.usesRepositoryYml) {
       segmentTrack('Workflow Editor Tab Displayed', {
@@ -109,6 +112,11 @@ const Navigation = (props: Props) => {
         <NavigationItem path={withSearchParams(paths.triggers)} icon="Trigger">
           Triggers
         </NavigationItem>
+        {enableContainersPage && (
+          <NavigationItem path={withSearchParams(paths.containers)} icon="Container">
+            Containers
+          </NavigationItem>
+        )}
         {RuntimeUtils.isWebsiteMode() && (
           <NavigationItem path={withSearchParams(paths.stacksAndMachines)} icon="Stack">
             Stacks & Machines
