@@ -35,7 +35,15 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="danger-primary">Delete</Button>
+        <Button
+          variant="danger-primary"
+          onClick={() => {
+            ContainerService.deleteContainer(selectedContainerId);
+            onClose();
+          }}
+        >
+          Delete
+        </Button>
       </DialogFooter>
     </Dialog>
   );
