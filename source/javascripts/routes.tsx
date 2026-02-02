@@ -7,6 +7,7 @@ export const paths = {
   secrets: '/secrets',
   envVars: '/env_vars',
   triggers: '/triggers',
+  containers: '/containers',
   stacksAndMachines: '/stacks',
   licenses: '/licenses',
   yml: '/yml',
@@ -36,6 +37,10 @@ export const routes = [
   {
     path: paths.triggers,
     component: lazyWithPreload(() => import('./pages/TriggersPage/TriggersPage')),
+  },
+  {
+    path: paths.containers,
+    component: lazyWithPreload(() => import('./pages/ContainersPage/ContainersPage')),
   },
   {
     path: paths.stacksAndMachines,
