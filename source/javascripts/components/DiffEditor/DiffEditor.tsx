@@ -2,6 +2,7 @@ import { ProgressBitbot } from '@bitrise/bitkit';
 import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
 
 import MonacoUtils from '@/core/utils/MonacoUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 type Props = {
   originalText: string;
@@ -19,6 +20,8 @@ const diffEditorOptions: DiffEditorProps['options'] = {
 };
 
 const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', onChange }: Props) => {
+  const enableWfeBitriseLanguageServer = useFeatureFlag('enable-wfe-bitrise-language-server');
+
   const handleEditorDidMount = (editor: MonacoDiffEditor) => {
     const modifiedEditor = editor.getModifiedEditor();
 
@@ -54,6 +57,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
         beforeMount={(monaco) => {
           MonacoUtils.configureForYaml(monaco);
           MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+          if (enableWfeBitriseLanguageServer) MonacoUtils.configureBitriseLanguageServer(monaco);
         }}
       />
     </>
