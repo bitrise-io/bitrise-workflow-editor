@@ -22,6 +22,7 @@ import {
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
 import { EnvVarPopover } from '@/components/VariablePopover';
 import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
@@ -72,6 +73,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
       title={`Create ${type} container`}
       isOpen={isOpen}
       onClose={onClose}
+      scrollBehavior="inside"
       as="form"
       onSubmit={handleSubmit(onSubmit)}
     >
@@ -134,7 +136,9 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               </Text>
               <Text textStyle="body/md/regular">
                 Authenticate to pull private images and avoid rate limits issues. Add credentials here (Bitrise CLI runs
-                docker login automatically) or use an OAuth Step.{' '}
+                docker login automatically) or use an OAuth Step.
+              </Text>
+              <Text textStyle="body/md/regular">
                 <Link href="#" isExternal isUnderlined>
                   Learn more
                 </Link>
@@ -152,22 +156,16 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
                 />
               )}
             />
-            <Box display="flex" alignItems="flex-end" gap="8">
-              <Controller
-                control={control}
-                name="userValues.credentials.username"
-                render={({ field }) => <Input label="Username" width="100%" {...field} />}
-              />
-              <EnvVarPopover size="lg" onSelect={() => {}} />
-            </Box>
-            <Box display="flex" alignItems="flex-end" gap="8">
-              <Controller
-                control={control}
-                name="userValues.credentials.password"
-                render={({ field }) => <Input label="Password" type="password" width="100%" {...field} />}
-              />
-              <EnvVarPopover size="lg" onSelect={() => {}} />
-            </Box>
+            <Controller
+              control={control}
+              name="userValues.credentials.username"
+              render={({ field }) => <StepInput label="Username" isSensitive size="lg" {...field} />}
+            />
+            <Controller
+              control={control}
+              name="userValues.credentials.password"
+              render={({ field }) => <StepInput label="Password" isSensitive size="lg" {...field} />}
+            />
             <Divider />
             <Box display="flex" alignItems="flex-end" gap="10">
               <Input label="Environment Variables" placeholder="Key" width="100%" />

@@ -25,7 +25,19 @@ function validationErrorIfRequired(value: string, isRequired?: boolean) {
 }
 
 const StepInput = forwardRef(
-  ({ isSensitive, isDisabled, helperText, helper, defaultValue: propDefaultValue, onChange, ...props }: Props, ref) => {
+  (
+    {
+      isSensitive,
+      isDisabled,
+      helperText,
+      helper,
+      defaultValue: propDefaultValue,
+      onChange,
+      size = 'md',
+      ...props
+    }: Props,
+    ref,
+  ) => {
     const { stepBundleId, workflowId } = useStepDrawerContext();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
@@ -54,6 +66,7 @@ const StepInput = forwardRef(
       <AutoGrowableInput
         ref={ref}
         {...props}
+        size={size}
         value={value}
         onBlur={handleBlur}
         fontFamily="monospace"
@@ -86,10 +99,10 @@ const StepInput = forwardRef(
                 }}
               />
             )}
-            {isSensitive && <SecretPopover size="md" onSelect={({ key }) => insertVariable(key)} />}
+            {isSensitive && <SecretPopover size={size || 'md'} onSelect={({ key }) => insertVariable(key)} />}
             {!isSensitive && (
               <EnvVarPopover
-                size="md"
+                size={size || 'md'}
                 workflowId={workflowId}
                 stepBundleId={stepBundleId}
                 onSelect={({ key }) => insertVariable(key)}
