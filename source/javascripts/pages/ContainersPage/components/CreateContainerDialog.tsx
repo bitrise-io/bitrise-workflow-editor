@@ -13,16 +13,19 @@ import {
   Icon,
   Input,
   Link,
+  Notification,
   Text,
   Textarea,
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
 import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
+import { useContainers } from '@/hooks/useContainers';
 
 type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
   type: 'execution' | 'service';
@@ -30,6 +33,8 @@ type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
 
 const CreateContainerDialog = (props: CreateContainerDialogProps) => {
   const { isOpen, onClose, type } = props;
+
+  const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
   const defaultValues: Container = {
@@ -47,19 +52,24 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
     },
   };
 
-  const { control, handleSubmit } = useForm<Container>({
+  const { control, formState, handleSubmit, reset } = useForm<Container>({
     defaultValues,
   });
 
   const onSubmit = (container: Container) => {
-    console.log('Form submitted:', container);
     ContainerService.createContainer(container.id, container.userValues);
     onClose();
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      reset(defaultValues);
+    }
+  }, [isOpen, reset]);
+
   return (
     <Dialog
-      title="Create execution container"
+      title={`Create ${type} container`}
       isOpen={isOpen}
       onClose={onClose}
       as="form"
@@ -69,19 +79,28 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
         <Controller
           control={control}
           name="id"
-          render={({ field }) => (
+          rules={{
+            required: 'Unique ID is required',
+            validate: (value) => ContainerService.validateName(value, '', containerIds),
+          }}
+          render={({ field: { onChange, ...fieldProps } }) => (
             <Input
               label="Unique ID"
               helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
               placeholder="e.g. node, postgres, redis"
               isRequired
-              {...field}
+              onChange={(e) => {
+                const sanitizedValue = ContainerService.sanitizeName(e.target.value);
+                onChange(sanitizedValue);
+              }}
+              {...fieldProps}
             />
           )}
         />
         <Controller
           control={control}
           name="userValues.image"
+          rules={{ required: 'Image is required' }}
           render={({ field }) => (
             <Input
               label="Image"
@@ -109,9 +128,18 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
             <Text textStyle="heading/h3" mt="8">
               Authentication credentials
             </Text>
-            <Text textStyle="body/md/regular" color="text/secondary">
-              Set to access your private images with the docker login command.
-            </Text>
+            <Notification status="info">
+              <Text textStyle="comp/notification/title" mb="2">
+                Authentication recommended
+              </Text>
+              <Text textStyle="body/md/regular">
+                Authenticate to pull private images and avoid pull rate limits. Add credentials here (Bitrise runs
+                docker login automatically) or use an OAuth Step.{' '}
+                <Link href="#" isExternal isUnderlined>
+                  Learn more
+                </Link>
+              </Text>
+            </Notification>
             <Controller
               control={control}
               name="userValues.credentials.server"
@@ -188,7 +216,9 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit">Create container</Button>
+        <Button type="submit" isDisabled={!formState.isValid}>
+          Create container
+        </Button>
       </DialogFooter>
     </Dialog>
   );

@@ -111,6 +111,7 @@ const ContainersTable = ({ containers }: Props) => {
         isOpen={isDeleteContainerDialogOpen}
         onClose={onDeleteContainerDialogClose}
         selectedContainerId={selectedContainerId}
+        type="definition"
       />
     </>
   );
