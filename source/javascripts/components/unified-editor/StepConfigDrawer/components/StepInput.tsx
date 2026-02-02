@@ -99,10 +99,12 @@ const StepInput = forwardRef(
                 }}
               />
             )}
-            {isSensitive && <SecretPopover size={size || 'md'} onSelect={({ key }) => insertVariable(key)} />}
+            {isSensitive && (
+              <SecretPopover size={size as 'sm' | 'md' | 'lg'} onSelect={({ key }) => insertVariable(key)} />
+            )}
             {!isSensitive && (
               <EnvVarPopover
-                size={size || 'md'}
+                size={size as 'sm' | 'md' | 'lg'}
                 workflowId={workflowId}
                 stepBundleId={stepBundleId}
                 onSelect={({ key }) => insertVariable(key)}

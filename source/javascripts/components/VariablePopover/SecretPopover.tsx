@@ -32,7 +32,7 @@ const filterPredicate = (item: Secret, filter: string): boolean =>
     item.key.toUpperCase().includes(filter.toUpperCase()) || item.source?.toUpperCase().includes(filter.toUpperCase()),
   );
 
-const SecretPopover = ({ size = 'md', onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
   const appSlug = PageProps.appSlug();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
   const { isLoading, data: secrets = [] } = useSecrets({
