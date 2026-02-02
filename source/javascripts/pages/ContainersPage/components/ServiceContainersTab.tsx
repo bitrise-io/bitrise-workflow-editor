@@ -2,11 +2,13 @@ import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
 
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import { useContainers } from '@/hooks/useContainers';
+import useContainers from '@/hooks/useContainers';
+import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
 import ContainersTable from './ContainersTable';
 
 const ServiceContainersTab = () => {
+  const containerUsageLookup = useContainerWorkflowUsage();
   const containers = useContainers((containers) => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
@@ -22,7 +24,7 @@ const ServiceContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable containers={containers} />
+        <ContainersTable containers={containers} containerUsageLookup={containerUsageLookup} />
       ) : (
         <EmptyState
           title="Your service containers will appear here"

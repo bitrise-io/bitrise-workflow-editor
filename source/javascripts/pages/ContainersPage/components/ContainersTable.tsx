@@ -1,34 +1,22 @@
 import { ControlButton, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@bitrise/bitkit';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { Container } from '@/core/models/Container';
-import ContainerService from '@/core/services/ContainerService';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 
 type Props = {
   containers: Container[];
+  containerUsageLookup: Map<string, string[]>;
 };
 
-const ContainersTable = ({ containers }: Props) => {
+const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
   const {
     isOpen: isContainerUsageDialogOpen,
     onOpen: onContainerUsageDialogOpen,
     onClose: onContainerUsageDialogClose,
   } = useDisclosure();
-
-  const containerUsageLookup = useMemo(() => {
-    const result = new Map<string, number>();
-    const ids = containers.map((container) => container.id);
-
-    ids.forEach((id) => {
-      const workflowsUsingContainer = ContainerService.getWorkflowsUsingContainer(id);
-      result.set(id, workflowsUsingContainer.length);
-    });
-
-    return result;
-  }, [containers]);
 
   return (
     <>
@@ -45,7 +33,7 @@ const ContainersTable = ({ containers }: Props) => {
         </Thead>
         <Tbody>
           {containers.map((container) => {
-            const workflowCount = containerUsageLookup.get(container.id) || 0;
+            const workflowCount = containerUsageLookup.get(container.id)?.length || 0;
             const usageLabel =
               workflowCount === 0 ? '(not used)' : workflowCount === 1 ? '1 Workflow' : `${workflowCount} Workflows`;
 
