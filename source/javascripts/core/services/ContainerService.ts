@@ -1,3 +1,4 @@
+import { uniq } from 'es-toolkit';
 import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
@@ -12,8 +13,11 @@ import {
 } from '@/core/models/Container';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
-import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
+
+const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
+const ServiceContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
 
 function addContainerReference(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -83,8 +87,8 @@ function deleteContainer(id: string) {
     YmlUtils.deleteByPath(doc, ['containers', id]);
 
     const keep = ['workflows', '*', 'steps', '*', '*'];
-    YmlUtils.deleteByValue(doc, [...keep, ContainerReferenceField.Execution], id, keep);
-    YmlUtils.deleteByValue(doc, [...keep, ContainerReferenceField.Service, '*'], id, keep);
+    YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keep);
 
     return doc;
   });
@@ -142,42 +146,26 @@ function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: n
   return stepData;
 }
 
-function getWorkflowsUsingContainer(containerId: string): string[] {
-  const doc = bitriseYmlStore.getState().ymlDocument;
-  const workflows = YmlUtils.getMapIn(doc, ['workflows']);
-  const result: string[] = [];
-
-  if (!workflows) {
-    return result;
-  }
-
-  const executionContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
-  const serviceContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
-
-  const checkPath = (path: (string | number)[], searchPath: (string | number)[]) => {
-    if (path.length !== searchPath.length) {
-      return false;
-    }
-    return path.every((segment, index) => searchPath[index] === '*' || searchPath[index] === segment);
-  };
-
-  YmlUtils.collectPaths(doc).forEach((path) => {
-    if (!checkPath(path, executionContainerPath) && !checkPath(path, serviceContainerPath)) {
-      return;
+function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
+  const possibleReferencePaths = [
+    ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
+  ];
+  const paths = possibleReferencePaths.filter(([path]) => {
+    const node = doc.getIn(path);
+    if (YmlUtils.isEqualValues(node, containerId)) {
+      return true;
     }
 
-    const node = doc.getIn(path, true);
-    const matches = isMap(node) ? String(node.items[0]?.key) === containerId : String(node) === containerId;
-
-    if (matches) {
-      const workflowId = String(path[1]);
-      if (!result.includes(workflowId)) {
-        result.push(workflowId);
-      }
+    if (isMap(node) && node.items.length > 0) {
+      const key = String(node.items[0]?.key);
+      return key === containerId;
     }
+
+    return false;
   });
 
-  return result;
+  return uniq(paths.map((path) => String(path[0][1])));
 }
 
 function updateContainerId(id: Container['id'], newId: Container['id']) {
@@ -192,12 +180,9 @@ function updateContainerId(id: Container['id'], newId: Container['id']) {
       throw new Error(`Container '${newId}' already exists.`);
     }
 
-    const executionContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
-    const serviceContainerPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
-
     YmlUtils.updateKeyByPath(doc, ['containers', id], newId);
-    YmlUtils.updateValueByValue(doc, executionContainerPath, id, newId);
-    YmlUtils.updateValueByValue(doc, serviceContainerPath, id, newId);
+    YmlUtils.updateValueByValue(doc, ExecutionContainerWildcardRefPath, id, newId);
+    YmlUtils.updateValueByValue(doc, ServiceContainerWildcardRefPath, id, newId);
 
     return doc;
   });

@@ -2,6 +2,7 @@ import { Dialog, DialogBody, DialogFooter, DialogProps, Divider, Text } from '@b
 
 import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import WorkflowsUsedByContainerTable from './WorkflowsUsedByContainerTable';
 
@@ -11,8 +12,9 @@ type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
 
 const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
   const { isOpen, onClose, selectedContainerId } = props;
-  const workflowsUsedByContainer = ContainerService.getWorkflowsUsingContainer(selectedContainerId);
-
+  const workflowsUsedByContainer = useBitriseYmlStore((state) =>
+    ContainerService.getWorkflowsUsingContainer(state.ymlDocument, selectedContainerId),
+  );
   return (
     <Dialog title="Container usage" isOpen={isOpen} onClose={onClose}>
       <DialogBody>
