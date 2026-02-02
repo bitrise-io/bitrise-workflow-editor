@@ -25,7 +25,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { EnvVarPopover } from '@/components/VariablePopover';
 import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import { useContainers } from '@/hooks/useContainers';
+import useContainers from '@/hooks/useContainers';
 
 type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
   type: 'execution' | 'service';
@@ -133,7 +133,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
                 Authentication recommended
               </Text>
               <Text textStyle="body/md/regular">
-                Authenticate to pull private images and avoid pull rate limits. Add credentials here (Bitrise runs
+                Authenticate to pull private images and avoid rate limits issues. Add credentials here (Bitrise CLI runs
                 docker login automatically) or use an OAuth Step.{' '}
                 <Link href="#" isExternal isUnderlined>
                   Learn more
@@ -216,7 +216,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit" isDisabled={!formState.isValid}>
+        <Button type="submit" isDisabled={!formState.isValid || !formState.isDirty}>
           Create container
         </Button>
       </DialogFooter>
