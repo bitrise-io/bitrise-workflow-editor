@@ -2234,4 +2234,86 @@ describe('ContainerService', () => {
       ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
     });
   });
+
+  describe('validateName', () => {
+    describe('when the initial name is empty', () => {
+      it('returns true if container name is valid and unique', () => {
+        const result = ContainerService.validateName('c4', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe(true);
+      });
+
+      it('returns error message when container name is empty', () => {
+        const result = ContainerService.validateName('', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name is required');
+      });
+
+      it('returns error message when container name is whitespace only', () => {
+        const result = ContainerService.validateName('   ', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name is required');
+      });
+
+      it('returns error message when container name contains invalid characters', () => {
+        const result = ContainerService.validateName('invalid@name!', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name must only contain letters, numbers, dashes, underscores or periods');
+      });
+
+      it('returns error message when container name is not unique', () => {
+        const result = ContainerService.validateName('c1', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name should be unique');
+      });
+    });
+
+    describe('when the initial name is not empty', () => {
+      it('returns true if container name is valid and unique', () => {
+        const result = ContainerService.validateName('my-first-container', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe(true);
+      });
+
+      it('returns error message when container name is empty', () => {
+        const result = ContainerService.validateName('', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name is required');
+      });
+
+      it('returns error message when container name is whitespace only', () => {
+        const result = ContainerService.validateName('   ', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name is required');
+      });
+
+      it('returns error message when container name contains invalid characters', () => {
+        const result = ContainerService.validateName('invalid@name!', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name must only contain letters, numbers, dashes, underscores or periods');
+      });
+
+      it('returns error message when container name is not unique', () => {
+        const result = ContainerService.validateName('c2', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Container name should be unique');
+      });
+    });
+  });
+
+  describe('sanitizeName', () => {
+    it('returns the same name if it contains only valid characters', () => {
+      const name = 'valid.name-123';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('valid.name-123');
+    });
+
+    it('removes invalid characters from the name', () => {
+      const name = '@name!';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('name');
+    });
+
+    it('removes spaces from the name', () => {
+      const name = ' name with spaces ';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('namewithspaces');
+    });
+
+    it('returns an empty string if the name contains only invalid characters', () => {
+      const name = '@!#$%^&*()';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('');
+    });
+  });
 });

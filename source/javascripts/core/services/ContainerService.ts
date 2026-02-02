@@ -277,6 +277,28 @@ function updateContainerReferenceRecreate(
   });
 }
 
+const CONTAINER_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
+
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function validateName(containerName: string, initialContainerName: string, containerNames: string[]) {
+  if (!containerName.trim()) {
+    return 'Container name is required';
+  }
+
+  if (!CONTAINER_NAME_REGEX.test(containerName)) {
+    return 'Container name must only contain letters, numbers, dashes, underscores or periods';
+  }
+
+  if (containerName !== initialContainerName && containerNames?.includes(containerName)) {
+    return 'Container name should be unique';
+  }
+
+  return true;
+}
+
 export default {
   addContainerReference,
   createContainer,
@@ -285,8 +307,10 @@ export default {
   getContainerOrThrowError,
   getWorkflowsUsingContainer,
   removeContainerReference,
+  sanitizeName,
   updateContainerId,
   updateContainerField,
   updateContainerReferenceRecreate,
   updateCredentialField,
+  validateName,
 };
