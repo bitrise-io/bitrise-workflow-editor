@@ -116,12 +116,16 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
         <Controller
           control={control}
           name="userValues.ports"
-          render={({ field }) => (
+          render={({ field: { onChange, ...fieldProps } }) => (
             <Input
               label="Ports"
               helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
               placeholder="e.g. 3000:3000, 5432:5432"
-              {...field}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                onChange(inputValue === '' ? [] : inputValue.split(',').map((port) => port.trim()));
+              }}
+              {...fieldProps}
             />
           )}
         />
