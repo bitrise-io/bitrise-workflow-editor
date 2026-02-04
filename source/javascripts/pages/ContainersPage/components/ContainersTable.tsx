@@ -1,4 +1,17 @@
-import { ControlButton, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@bitrise/bitkit';
+import {
+  Box,
+  ControlButton,
+  Link,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
+  useResponsive,
+} from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { Container } from '@/core/models/Container';
@@ -24,9 +37,11 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
     onClose: onDeleteContainerDialogClose,
   } = useDisclosure();
 
+  const { isMobile } = useResponsive();
+
   return (
-    <>
-      <Table isFixed>
+    <Box overflowX="auto">
+      <Table isFixed={!isMobile}>
         <Thead>
           <Tr>
             <Th textStyle="heading/h5" width="160px">
@@ -73,7 +88,7 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
                     iconName="Pencil"
                     color="icon/primary"
                     onClick={() => {}}
-                    mr="8"
+                    mr={['0', '8']}
                   />
                   <ControlButton
                     aria-label="Delete container"
@@ -101,7 +116,7 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
         selectedContainerId={selectedContainerId}
         type="definition"
       />
-    </>
+    </Box>
   );
 };
 

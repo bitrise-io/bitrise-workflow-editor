@@ -18,11 +18,11 @@ const ServiceContainersTab = () => {
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
-      <Box display="flex" justifyContent="space-between" alignItems="center" gap="32">
+      <Box display="flex" justifyContent="space-between" alignItems="center" gap={['12', '32']} flexWrap="wrap">
         <Text color="text/secondary">
           Use service containers to attach custom services you want to use during your Workflows.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" onClick={onCreateDialogOpen}>
+        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onCreateDialogOpen}>
           Add container
         </Button>
       </Box>
