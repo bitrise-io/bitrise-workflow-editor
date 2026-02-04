@@ -4,18 +4,32 @@ import { useState } from 'react';
 import { Container } from '@/core/models/Container';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
+// import DeleteContainerDialog from './DeleteContainerDialog';
 
-type Props = {
+type ContainersTableProps = {
   containers: Container[];
   containerUsageLookup: Map<string, string[]>;
+  openCreateDialog: () => void;
+  setEditedContainer: (value: Container | null) => void;
 };
 
-const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
+const ContainersTable = ({
+  containers,
+  containerUsageLookup,
+  openCreateDialog,
+  setEditedContainer,
+}: ContainersTableProps) => {
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
+
   const {
     isOpen: isContainerUsageDialogOpen,
     onOpen: onContainerUsageDialogOpen,
     onClose: onContainerUsageDialogClose,
+  } = useDisclosure();
+  const {
+    // isOpen: isDeleteContainerDialogOpen,
+    onOpen: onDeleteContainerDialogOpen,
+    // onClose: onDeleteContainerDialogClose,
   } = useDisclosure();
 
   return (
@@ -66,14 +80,20 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
                     aria-label="Edit container"
                     iconName="Pencil"
                     color="icon/primary"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setEditedContainer(container);
+                      openCreateDialog();
+                    }}
                     mr="8"
                   />
                   <ControlButton
                     aria-label="Delete container"
                     iconName="MinusCircle"
                     color="icon/negative"
-                    onClick={() => {}}
+                    onClick={() => {
+                      onDeleteContainerDialogOpen();
+                      setSelectedContainerId(container.id);
+                    }}
                   />
                 </Td>
               </Tr>
@@ -86,6 +106,12 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
         onClose={onContainerUsageDialogClose}
         selectedContainerId={selectedContainerId}
       />
+      {/* <DeleteContainerDialog
+        isOpen={isDeleteContainerDialogOpen}
+        onClose={onDeleteContainerDialogClose}
+        selectedContainerId={selectedContainerId}
+        type="definition"
+      /> */}
     </>
   );
 };

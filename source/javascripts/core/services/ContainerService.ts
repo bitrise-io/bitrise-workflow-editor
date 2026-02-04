@@ -168,6 +168,37 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string): string[
   return uniq(paths.map((path) => String(path[0][1])));
 }
 
+function updateContainer(id: Container['id'], newContainer: ContainerModel) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const container = getContainerOrThrowError(id, doc);
+
+    const containerData = cleanContainerData(newContainer);
+    const oldKeys = Object.keys(container.toJSON());
+    const newKeys = Object.keys(containerData);
+
+    const removedKeys = oldKeys.filter((key) => !newKeys.includes(key));
+    const addedKeys = newKeys.filter((key) => !oldKeys.includes(key));
+    const updatedKeys = newKeys.filter((key) => oldKeys.includes(key));
+
+    // Remove keys that are not in the new container
+    removedKeys.forEach((key) => {
+      YmlUtils.deleteByPath(container, [key]);
+    });
+
+    // Update keys that are in both old and new container
+    updatedKeys.forEach((key) => {
+      YmlUtils.setIn(container, [key], containerData[key as keyof ContainerModel]);
+    });
+
+    // Add keys that are in the new container
+    addedKeys.forEach((key) => {
+      YmlUtils.setIn(container, [key], containerData[key as keyof ContainerModel]);
+    });
+
+    return doc;
+  });
+}
+
 function updateContainerId(id: Container['id'], newId: Container['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc);
@@ -262,6 +293,57 @@ function updateContainerReferenceRecreate(
   });
 }
 
+const CONTAINER_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
+
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function validateName(containerName: string, initialContainerName: string, containerNames: string[]) {
+  if (!containerName.trim()) {
+    return 'Container name is required';
+  }
+
+  if (!CONTAINER_NAME_REGEX.test(containerName)) {
+    return 'Container name must only contain letters, numbers, dashes, underscores or periods';
+  }
+
+  if (containerName !== initialContainerName && containerNames?.includes(containerName)) {
+    return 'Container name should be unique';
+  }
+
+  return true;
+}
+
+function validatePorts(ports: Container['userValues']['ports']) {
+  if (!ports || ports.length === 0) {
+    return true;
+  }
+
+  const PORT_REGEX = /^\d+:\d+$/;
+  const invalidPorts = ports.filter((port) => !PORT_REGEX.test(port));
+
+  if (invalidPorts.length > 0) {
+    return 'Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)';
+  }
+
+  const portNumbers = ports.flatMap((port) => port.split(':').map(Number));
+  const invalidPortNumbers = portNumbers.filter((num) => num < 1 || num > 65535);
+
+  if (invalidPortNumbers.length > 0) {
+    return 'Port numbers must be between 1 and 65535';
+  }
+
+  const hostPorts = ports.map((port) => port.split(':')[0]);
+  const duplicateHostPorts = hostPorts.filter((port, index) => hostPorts.indexOf(port) !== index);
+
+  if (duplicateHostPorts.length > 0) {
+    return 'Host ports must be unique';
+  }
+
+  return true;
+}
+
 export default {
   addContainerReference,
   createContainer,
@@ -270,8 +352,12 @@ export default {
   getContainerOrThrowError,
   getWorkflowsUsingContainer,
   removeContainerReference,
+  sanitizeName,
+  updateContainer,
   updateContainerId,
   updateContainerField,
   updateContainerReferenceRecreate,
   updateCredentialField,
+  validateName,
+  validatePorts,
 };

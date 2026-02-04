@@ -1369,6 +1369,307 @@ describe('ContainerService', () => {
     });
   });
 
+  describe('updateContainer', () => {
+    it('updates all fields of the container', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+              ports:
+              - 3000:3000
+              credentials:
+                username: user
+                password: pass
+              options: '--privileged'
+        `,
+      );
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:20-alpine',
+        ports: ['8080:8080', '9090:9090'],
+        credentials: {
+          username: 'newuser',
+          password: 'newpass',
+          server: 'ghcr.io',
+        },
+        options: '--health-cmd "node --version"',
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:20-alpine
+            ports:
+            - 8080:8080
+            - 9090:9090
+            credentials:
+              username: newuser
+              password: newpass
+              server: ghcr.io
+            options: '--health-cmd "node --version"'
+      `);
+    });
+
+    it('adds new fields to the container', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            postgres:
+              type: service
+              image: postgres:15
+        `,
+      );
+
+      ContainerService.updateContainer('postgres', {
+        type: 'service',
+        image: 'postgres:15',
+        ports: ['5432:5432'],
+        credentials: {
+          username: 'postgres',
+          password: 'secret',
+        },
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          postgres:
+            type: service
+            image: postgres:15
+            ports:
+            - 5432:5432
+            credentials:
+              username: postgres
+              password: secret
+      `);
+    });
+
+    it('removes fields that are not in the new container', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            redis:
+              type: service
+              image: redis:7
+              ports:
+              - 6379:6379
+              credentials:
+                username: admin
+                password: secret
+              options: '--maxmemory 100mb'
+        `,
+      );
+
+      ContainerService.updateContainer('redis', {
+        type: 'service',
+        image: 'redis:7-alpine',
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          redis:
+            type: service
+            image: redis:7-alpine
+      `);
+    });
+
+    it('removes credentials when they become empty', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+              credentials:
+                username: user
+                password: pass
+        `,
+      );
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:18',
+        credentials: {
+          username: '',
+          password: '',
+        },
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+      `);
+    });
+
+    it('removes ports when they become empty', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+              ports:
+              - 3000:3000
+        `,
+      );
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:18',
+        ports: [],
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+      `);
+    });
+
+    it('should throw an error if the container does not exist', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+        `,
+      );
+
+      expect(() => {
+        ContainerService.updateContainer('postgres', {
+          type: 'service',
+          image: 'postgres:15',
+        });
+      }).toThrow("Container postgres not found. Ensure that the container exists in the 'containers' section.");
+    });
+
+    it('updates only credential fields that are provided', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+              credentials:
+                username: user
+                password: pass
+        `,
+      );
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:18',
+        credentials: {
+          username: 'newuser',
+          password: 'pass',
+          server: 'ghcr.io',
+        },
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+            credentials:
+              username: newuser
+              password: pass
+              server: ghcr.io
+      `);
+    });
+
+    it('updates options field', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            redis:
+              type: service
+              image: redis:7
+              options: '--maxmemory 100mb'
+        `,
+      );
+
+      ContainerService.updateContainer('redis', {
+        type: 'service',
+        image: 'redis:7',
+        options: '--maxmemory 256mb --maxmemory-policy allkeys-lru',
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          redis:
+            type: service
+            image: redis:7
+            options: '--maxmemory 256mb --maxmemory-policy allkeys-lru'
+      `);
+    });
+
+    it('removes options when empty', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            redis:
+              type: service
+              image: redis:7
+              options: '--maxmemory 100mb'
+        `,
+      );
+
+      ContainerService.updateContainer('redis', {
+        type: 'service',
+        image: 'redis:7',
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          redis:
+            type: service
+            image: redis:7
+      `);
+    });
+  });
+
   describe('updateContainerId', () => {
     it('should update container ID and all references in workflows', () => {
       updateBitriseYmlDocumentByString(yaml`
@@ -2242,6 +2543,83 @@ describe('ContainerService', () => {
           true,
         ),
       ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
+    });
+  });
+
+  describe('validatePorts', () => {
+    it('returns true for empty ports array', () => {
+      const result = ContainerService.validatePorts([]);
+      expect(result).toBe(true);
+    });
+
+    it('returns true for undefined ports', () => {
+      const result = ContainerService.validatePorts(undefined);
+      expect(result).toBe(true);
+    });
+
+    it('returns true for valid port ranges', () => {
+      const result = ContainerService.validatePorts(['1:1', '65535:65535', '8080:8080']);
+      expect(result).toBe(true);
+    });
+
+    it('returns error message for invalid port format without colon', () => {
+      const result = ContainerService.validatePorts(['3000']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for invalid port format with multiple colons', () => {
+      const result = ContainerService.validatePorts(['3000:8080:9090']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for invalid port format with letters', () => {
+      const result = ContainerService.validatePorts(['abc:3000', '8080:def']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for port numbers below valid range', () => {
+      const result = ContainerService.validatePorts(['0:3000']);
+      expect(result).toBe('Port numbers must be between 1 and 65535');
+    });
+
+    it('returns error message for port numbers above valid range', () => {
+      const result = ContainerService.validatePorts(['70000:3000']);
+      expect(result).toBe('Port numbers must be between 1 and 65535');
+    });
+
+    it('returns error message for container port out of range', () => {
+      const result = ContainerService.validatePorts(['3000:70000']);
+      expect(result).toBe('Port numbers must be between 1 and 65535');
+    });
+
+    it('returns error message for duplicate host ports', () => {
+      const result = ContainerService.validatePorts(['3000:8080', '3000:9090']);
+      expect(result).toBe('Host ports must be unique');
+    });
+
+    it('allows same container port with different host ports', () => {
+      const result = ContainerService.validatePorts(['3000:8080', '4000:8080']);
+      expect(result).toBe(true);
+    });
+
+    it('returns error message for multiple invalid conditions', () => {
+      const result = ContainerService.validatePorts(['invalid', '3000:3000', '3000:8080']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for empty strings in port array', () => {
+      const result = ContainerService.validatePorts(['']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for port with only colon', () => {
+      const result = ContainerService.validatePorts([':']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for negative port numbers', () => {
+      const result = ContainerService.validatePorts(['-1:3000']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
     });
   });
 });
