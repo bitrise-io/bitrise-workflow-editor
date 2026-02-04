@@ -284,6 +284,35 @@ function validateName(containerName: string, initialContainerName: string, conta
   return true;
 }
 
+function validatePorts(ports: Container['userValues']['ports']) {
+  if (!ports || ports.length === 0) {
+    return true;
+  }
+
+  const PORT_REGEX = /^\d+:\d+$/;
+  const invalidPorts = ports.filter((port) => !PORT_REGEX.test(port));
+
+  if (invalidPorts.length > 0) {
+    return 'Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)';
+  }
+
+  const portNumbers = ports.flatMap((port) => port.split(':').map(Number));
+  const invalidPortNumbers = portNumbers.filter((num) => num < 1 || num > 65535);
+
+  if (invalidPortNumbers.length > 0) {
+    return 'Port numbers must be between 1 and 65535';
+  }
+
+  const hostPorts = ports.map((port) => port.split(':')[0]);
+  const duplicateHostPorts = hostPorts.filter((port, index) => hostPorts.indexOf(port) !== index);
+
+  if (duplicateHostPorts.length > 0) {
+    return 'Host ports must be unique';
+  }
+
+  return true;
+}
+
 export default {
   addContainerReference,
   createContainer,
@@ -298,4 +327,5 @@ export default {
   updateContainerReferenceRecreate,
   updateCredentialField,
   validateName,
+  validatePorts,
 };

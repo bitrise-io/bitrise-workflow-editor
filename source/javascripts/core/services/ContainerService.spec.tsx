@@ -2326,4 +2326,81 @@ describe('ContainerService', () => {
       expect(result).toBe('');
     });
   });
+
+  describe('validatePorts', () => {
+    it('returns true for empty ports array', () => {
+      const result = ContainerService.validatePorts([]);
+      expect(result).toBe(true);
+    });
+
+    it('returns true for undefined ports', () => {
+      const result = ContainerService.validatePorts(undefined);
+      expect(result).toBe(true);
+    });
+
+    it('returns true for valid port ranges', () => {
+      const result = ContainerService.validatePorts(['1:1', '65535:65535', '8080:8080']);
+      expect(result).toBe(true);
+    });
+
+    it('returns error message for invalid port format without colon', () => {
+      const result = ContainerService.validatePorts(['3000']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for invalid port format with multiple colons', () => {
+      const result = ContainerService.validatePorts(['3000:8080:9090']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for invalid port format with letters', () => {
+      const result = ContainerService.validatePorts(['abc:3000', '8080:def']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for port numbers below valid range', () => {
+      const result = ContainerService.validatePorts(['0:3000']);
+      expect(result).toBe('Port numbers must be between 1 and 65535');
+    });
+
+    it('returns error message for port numbers above valid range', () => {
+      const result = ContainerService.validatePorts(['70000:3000']);
+      expect(result).toBe('Port numbers must be between 1 and 65535');
+    });
+
+    it('returns error message for container port out of range', () => {
+      const result = ContainerService.validatePorts(['3000:70000']);
+      expect(result).toBe('Port numbers must be between 1 and 65535');
+    });
+
+    it('returns error message for duplicate host ports', () => {
+      const result = ContainerService.validatePorts(['3000:8080', '3000:9090']);
+      expect(result).toBe('Host ports must be unique');
+    });
+
+    it('allows same container port with different host ports', () => {
+      const result = ContainerService.validatePorts(['3000:8080', '4000:8080']);
+      expect(result).toBe(true);
+    });
+
+    it('returns error message for multiple invalid conditions', () => {
+      const result = ContainerService.validatePorts(['invalid', '3000:3000', '3000:8080']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for empty strings in port array', () => {
+      const result = ContainerService.validatePorts(['']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for port with only colon', () => {
+      const result = ContainerService.validatePorts([':']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+
+    it('returns error message for negative port numbers', () => {
+      const result = ContainerService.validatePorts(['-1:3000']);
+      expect(result).toBe('Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)');
+    });
+  });
 });

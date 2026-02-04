@@ -32,18 +32,24 @@ type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
   type: 'execution' | 'service';
 };
 
+type FormData = Omit<Container, 'userValues'> & {
+  userValues: Omit<Container['userValues'], 'ports'> & {
+    ports: string;
+  };
+};
+
 const CreateContainerDialog = (props: CreateContainerDialogProps) => {
   const { isOpen, onClose, type } = props;
 
   const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
-  const defaultValues: Container = {
+  const defaultValues: FormData = {
     id: '',
     userValues: {
       type: type,
       image: '',
-      ports: [],
+      ports: '',
       credentials: {
         server: '',
         username: '',
@@ -53,11 +59,24 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
     },
   };
 
-  const { control, formState, handleSubmit, reset } = useForm<Container>({
+  const { control, formState, handleSubmit, reset } = useForm<FormData>({
     defaultValues,
+    mode: 'onChange',
   });
 
-  const onSubmit = (container: Container) => {
+  const onSubmit = (formData: FormData) => {
+    const convertedPorts = formData.userValues.ports
+      .split(',')
+      .map((port) => port.trim())
+      .filter((port) => port !== '');
+    const container: Container = {
+      ...formData,
+      userValues: {
+        ...formData.userValues,
+        ports: convertedPorts,
+      },
+    };
+
     ContainerService.createContainer(container.id, container.userValues);
     onClose();
   };
@@ -116,16 +135,25 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
         <Controller
           control={control}
           name="userValues.ports"
-          render={({ field: { onChange, ...fieldProps } }) => (
+          rules={{
+            validate: (ports) => {
+              const convertedPorts =
+                ports === ''
+                  ? []
+                  : ports
+                      .split(',')
+                      .map((port) => port.trim())
+                      .filter((port) => port !== '');
+              return ContainerService.validatePorts(convertedPorts);
+            },
+          }}
+          render={({ field }) => (
             <Input
               label="Ports"
               helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
               placeholder="e.g. 3000:3000, 5432:5432"
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                onChange(inputValue === '' ? [] : inputValue.split(',').map((port) => port.trim()));
-              }}
-              {...fieldProps}
+              errorText={formState.errors.userValues?.ports?.message}
+              {...field}
             />
           )}
         />
