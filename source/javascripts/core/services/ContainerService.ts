@@ -270,6 +270,13 @@ function sanitizeName(value: string) {
   return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
 }
 
+function sanitizePort(port: string): string {
+  const [host, container] = port.split(':');
+  const sanitizedHost = host.replace(/^0+(?=\d)/, '');
+  const sanitizedContainer = container.replace(/^0+(?=\d)/, '');
+  return `${sanitizedHost}:${sanitizedContainer}`;
+}
+
 function validateName(containerId: string, initialContainerName: string, containerNames: string[]) {
   if (!containerId.trim()) {
     return 'Unique id is required';
@@ -322,6 +329,7 @@ export default {
   getAllContainers,
   getContainerOrThrowError,
   getWorkflowsUsingContainer,
+  sanitizePort,
   removeContainerReference,
   sanitizeName,
   updateContainerId,

@@ -71,7 +71,8 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
     const convertedPorts = formData.userValues.ports
       .split(',')
       .map((port) => port.trim())
-      .filter((port) => port !== '');
+      .filter((port) => port !== '')
+      .map((port) => ContainerService.sanitizePort(port));
     const container: Container = {
       ...formData,
       userValues: {
