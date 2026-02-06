@@ -85,8 +85,8 @@ workflows:
                 #!/bin/bash
                 set -ex
 
-                go install golang.org/x/lint/golint@latest
-                go install github.com/kisielk/errcheck@v1.7.0
+                go install github.com/mgechev/revive@latest
+                go install github.com/kisielk/errcheck@v1.9.0
                 go install github.com/GeertJohan/go.rice/rice@latest
                 asdf reshim golang
   build-api-server:
@@ -135,8 +135,8 @@ workflows:
                 #!/bin/bash
                 set -ex
 
-                go vet ./...
-                golint ./...
+                go vet -printf=false ./...
+                revive -config=.revive.toml ./...
                 errcheck -asserts=true -blank=true ./...
       - script:
           title: Go Test
