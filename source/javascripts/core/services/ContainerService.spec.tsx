@@ -419,6 +419,7 @@ describe('ContainerService', () => {
         );
       });
     });
+
     describe('service container target', () => {
       it('should create a new service container', () => {
         updateBitriseYmlDocumentByString(yaml`
@@ -509,6 +510,32 @@ describe('ContainerService', () => {
             type: execution
             image: ubuntu:22.04
       `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should delete and existing container with recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            my-container:
+              type: execution
+              image: ubuntu:20.04
+          workflows:
+            wf1:
+              steps:
+                - script:
+                    execution_container:
+                      my-container:
+                        recreate: true
+        `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}`;
 
         expect(getYmlString()).toEqual(expectedYml);
       });
@@ -615,6 +642,7 @@ describe('ContainerService', () => {
         );
       });
     });
+
     describe('service container target', () => {
       it('should delete an existing service', () => {
         updateBitriseYmlDocumentByString(yaml`
@@ -635,6 +663,32 @@ describe('ContainerService', () => {
             type: service
             image: redis:6
       `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should delete and existing container with recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            my-container:
+              type: service
+              image: ubuntu:20.04
+          workflows:
+            wf1:
+              steps:
+                - script:
+                    service_containers:
+                      - my-container:
+                          recreate: true
+        `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}`;
 
         expect(getYmlString()).toEqual(expectedYml);
       });

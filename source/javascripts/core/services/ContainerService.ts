@@ -88,7 +88,9 @@ function deleteContainer(id: string) {
 
     const keep = ['workflows', '*', 'steps', '*', '*'];
     YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keep);
     YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keep);
 
     return doc;
   });
