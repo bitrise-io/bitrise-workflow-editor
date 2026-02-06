@@ -15,6 +15,7 @@ import FloatingDrawer, {
 } from '../FloatingDrawer/FloatingDrawer';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
+import ContainersTab from './tabs/ContainersTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import PropertiesTab from './tabs/PropertiesTab';
 
@@ -92,6 +93,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
+                <Tab>Containers</Tab>
               </TabList>
             </Box>
           </FloatingDrawerHeader>
@@ -108,6 +110,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                   <OutputVariablesTab />
                 </TabPanel>
               )}
+              <TabPanel>
+                <ContainersTab />
+              </TabPanel>
             </TabPanels>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
