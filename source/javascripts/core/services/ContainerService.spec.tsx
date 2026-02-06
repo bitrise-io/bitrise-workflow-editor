@@ -2301,56 +2301,56 @@ describe('ContainerService', () => {
 
   describe('validateName', () => {
     describe('when the initial name is empty', () => {
-      it('returns true if container name is valid and unique', () => {
+      it('returns true if container id is valid and unique', () => {
         const result = ContainerService.validateName('c4', '', ['c1', 'c2', 'c3']);
         expect(result).toBe(true);
       });
 
-      it('returns error message when container name is empty', () => {
+      it('returns error message when container id is empty', () => {
         const result = ContainerService.validateName('', '', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name is required');
+        expect(result).toBe('Unique id is required');
       });
 
-      it('returns error message when container name is whitespace only', () => {
+      it('returns error message when container id is whitespace only', () => {
         const result = ContainerService.validateName('   ', '', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name is required');
+        expect(result).toBe('Unique id is required');
       });
 
-      it('returns error message when container name contains invalid characters', () => {
+      it('returns error message when container id contains invalid characters', () => {
         const result = ContainerService.validateName('invalid@name!', '', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name must only contain letters, numbers, dashes, underscores or periods');
+        expect(result).toBe('Unique id must only contain letters, numbers, dashes, underscores or periods');
       });
 
-      it('returns error message when container name is not unique', () => {
+      it('returns error message when container id is not unique', () => {
         const result = ContainerService.validateName('c1', '', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name should be unique');
+        expect(result).toBe('Id should be unique');
       });
     });
 
     describe('when the initial name is not empty', () => {
-      it('returns true if container name is valid and unique', () => {
+      it('returns true if container id is valid and unique', () => {
         const result = ContainerService.validateName('my-first-container', 'c1', ['c1', 'c2', 'c3']);
         expect(result).toBe(true);
       });
 
-      it('returns error message when container name is empty', () => {
+      it('returns error message when container id is empty', () => {
         const result = ContainerService.validateName('', 'c1', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name is required');
+        expect(result).toBe('Unique id is required');
       });
 
-      it('returns error message when container name is whitespace only', () => {
+      it('returns error message when container id is whitespace only', () => {
         const result = ContainerService.validateName('   ', 'c1', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name is required');
+        expect(result).toBe('Unique id is required');
       });
 
-      it('returns error message when container name contains invalid characters', () => {
+      it('returns error message when container id contains invalid characters', () => {
         const result = ContainerService.validateName('invalid@name!', 'c1', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name must only contain letters, numbers, dashes, underscores or periods');
+        expect(result).toBe('Unique id must only contain letters, numbers, dashes, underscores or periods');
       });
 
-      it('returns error message when container name is not unique', () => {
+      it('returns error message when container id is not unique', () => {
         const result = ContainerService.validateName('c2', 'c1', ['c1', 'c2', 'c3']);
-        expect(result).toBe('Container name should be unique');
+        expect(result).toBe('Id should be unique');
       });
     });
   });

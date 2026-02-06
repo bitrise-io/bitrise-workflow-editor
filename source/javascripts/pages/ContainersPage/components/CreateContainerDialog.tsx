@@ -112,7 +112,9 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               label="Unique ID"
               helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
               placeholder="e.g. node, postgres, redis"
+              errorText={formState.errors.id?.message}
               isRequired
+              data-1p-ignore
               onChange={(e) => {
                 const sanitizedValue = ContainerService.sanitizeName(e.target.value);
                 onChange(sanitizedValue);
@@ -130,6 +132,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               label="Image"
               helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
               placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
+              errorText={formState.errors.userValues?.image?.message}
               isRequired
               {...field}
             />
