@@ -280,7 +280,7 @@ function validateName(containerId: string, initialContainerName: string, contain
   }
 
   if (containerId !== initialContainerName && containerNames?.includes(containerId)) {
-    return 'Unique id should be unique';
+    return 'Id should be unique';
   }
 
   return true;
