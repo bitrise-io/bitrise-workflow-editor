@@ -21,7 +21,7 @@ import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
 
 type Props = {
-  size: 'sm' | 'md';
+  size: 'sm' | 'md' | 'lg';
   isOpen?: boolean;
   mode?: Mode;
   onSelect: (item: Secret) => void;

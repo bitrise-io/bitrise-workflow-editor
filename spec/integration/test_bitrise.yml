@@ -192,7 +192,9 @@ workflows:
           title: A local step with overwritten title & input
           inputs:
             - company_name: Mando
-          execution_container: golang
+          execution_container:
+            golang:
+              recreate: true 
           service_containers:
           - redis
   steplib-steps:
