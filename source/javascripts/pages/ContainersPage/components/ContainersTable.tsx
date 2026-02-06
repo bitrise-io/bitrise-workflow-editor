@@ -95,8 +95,8 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
                     iconName="MinusCircle"
                     color="icon/negative"
                     onClick={() => {
-                      onDeleteContainerDialogOpen();
                       setSelectedContainerId(container.id);
+                      onDeleteContainerDialogOpen();
                     }}
                   />
                 </Td>

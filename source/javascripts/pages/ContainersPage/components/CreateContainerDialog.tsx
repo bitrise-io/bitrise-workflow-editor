@@ -19,7 +19,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
@@ -44,20 +44,23 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
   const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
-  const defaultValues: FormData = {
-    id: '',
-    userValues: {
-      type: type,
-      image: '',
-      ports: '',
-      credentials: {
-        server: '',
-        username: '',
-        password: '',
+  const defaultValues: FormData = useMemo(
+    () => ({
+      id: '',
+      userValues: {
+        type: type,
+        image: '',
+        ports: '',
+        credentials: {
+          server: '',
+          username: '',
+          password: '',
+        },
+        options: '',
       },
-      options: '',
-    },
-  };
+    }),
+    [type],
+  );
 
   const { control, formState, handleSubmit, reset } = useForm<FormData>({
     defaultValues,
@@ -85,7 +88,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
     if (isOpen) {
       reset(defaultValues);
     }
-  }, [isOpen, reset]);
+  }, [defaultValues, isOpen, reset]);
 
   return (
     <Dialog
@@ -171,7 +174,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
                 docker login automatically) or use an OAuth Step.
               </Text>
               <Text textStyle="body/md/regular">
-                <Link href="#" isExternal isUnderlined>
+                <Link href="https://docs.bitrise.io" isExternal isUnderlined>
                   Learn more
                 </Link>
               </Text>
@@ -182,7 +185,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               render={({ field }) => (
                 <Input
                   label="Registry server"
-                  helperText="Fully qualified registry server url to used by docker login command."
+                  helperText="Fully qualified registry server URL to be used by docker login command."
                   placeholder="e.g. ghcr.io"
                   {...field}
                 />
@@ -226,7 +229,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
                   helperText={
                     <>
                       Additional parameters passed to docker create command.{' '}
-                      <Link colorScheme="purple" href="#" isExternal>
+                      <Link colorScheme="purple" href="https://docs.bitrise.io" isExternal>
                         Learn more about not supported options
                       </Link>
                     </>

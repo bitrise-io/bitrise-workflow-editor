@@ -270,17 +270,17 @@ function sanitizeName(value: string) {
   return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
 }
 
-function validateName(containerName: string, initialContainerName: string, containerNames: string[]) {
-  if (!containerName.trim()) {
-    return 'Container name is required';
+function validateName(containerId: string, initialContainerName: string, containerNames: string[]) {
+  if (!containerId.trim()) {
+    return 'Unique id is required';
   }
 
-  if (!CONTAINER_NAME_REGEX.test(containerName)) {
-    return 'Container name must only contain letters, numbers, dashes, underscores or periods';
+  if (!CONTAINER_NAME_REGEX.test(containerId)) {
+    return 'Unique id must only contain letters, numbers, dashes, underscores or periods';
   }
 
-  if (containerName !== initialContainerName && containerNames?.includes(containerName)) {
-    return 'Container name should be unique';
+  if (containerId !== initialContainerName && containerNames?.includes(containerId)) {
+    return 'Unique id should be unique';
   }
 
   return true;

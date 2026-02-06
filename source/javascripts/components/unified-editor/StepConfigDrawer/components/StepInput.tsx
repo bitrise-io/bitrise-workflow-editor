@@ -8,11 +8,12 @@ import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import SensitiveBadge from './SensitiveBadge';
 import StepHelperText from './StepHelperText';
 
-type Props = Omit<AutoGrowableInputProps, 'helperText' | 'onChange'> & {
+type Props = Omit<AutoGrowableInputProps, 'helperText' | 'onChange' | 'size'> & {
   helperText?: string;
   isSensitive?: boolean;
   helper?: { summary?: string; details?: string };
   onChange?: (value: string) => void;
+  size?: 'sm' | 'md' | 'lg';
 };
 
 type CursorPosition = {
@@ -99,12 +100,10 @@ const StepInput = forwardRef(
                 }}
               />
             )}
-            {isSensitive && (
-              <SecretPopover size={size as 'sm' | 'md' | 'lg'} onSelect={({ key }) => insertVariable(key)} />
-            )}
+            {isSensitive && <SecretPopover size={size} onSelect={({ key }) => insertVariable(key)} />}
             {!isSensitive && (
               <EnvVarPopover
-                size={size as 'sm' | 'md' | 'lg'}
+                size={size}
                 workflowId={workflowId}
                 stepBundleId={stepBundleId}
                 onSelect={({ key }) => insertVariable(key)}

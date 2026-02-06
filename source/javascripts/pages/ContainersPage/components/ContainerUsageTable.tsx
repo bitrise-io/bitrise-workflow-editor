@@ -6,7 +6,7 @@ type Props = {
   workflows: string[];
 };
 
-const WorkflowsUsedByContainerTable = ({ workflows }: Props) => {
+const ContainerUsageTable = ({ workflows }: Props) => {
   const { replace } = useNavigation();
 
   return (
@@ -14,6 +14,7 @@ const WorkflowsUsedByContainerTable = ({ workflows }: Props) => {
       <Thead>
         <Tr>
           <Th textStyle="heading/h5">Workflow name</Th>
+          <Th width="60px" textAlign="right" />
         </Tr>
       </Thead>
       <Tbody>
@@ -22,7 +23,7 @@ const WorkflowsUsedByContainerTable = ({ workflows }: Props) => {
             <Td>
               <Text textStyle="body/md/regular">{workflowId}</Text>
             </Td>
-            <Td width="60px" textAlign="right">
+            <Td>
               <ControlButton
                 aria-label="Go to Workflow"
                 iconName="ArrowNorthEast"
@@ -36,4 +37,4 @@ const WorkflowsUsedByContainerTable = ({ workflows }: Props) => {
   );
 };
 
-export default WorkflowsUsedByContainerTable;
+export default ContainerUsageTable;

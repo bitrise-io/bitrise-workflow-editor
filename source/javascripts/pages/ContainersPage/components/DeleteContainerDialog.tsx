@@ -3,7 +3,7 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, DialogProps, Divider, Ic
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import WorkflowsUsedByContainerTable from './WorkflowsUsedByContainerTable';
+import ContainerUsageTable from './ContainerUsageTable';
 
 type DeleteContainerDialogProps = Omit<DialogProps, 'title'> & {
   selectedContainerId: string;
@@ -36,7 +36,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
               <Icon name="Cross" color="icon/negative" />
               <Text>All container usage will be deleted from the following Workflows:</Text>
             </Box>
-            <WorkflowsUsedByContainerTable workflows={workflowsUsedByContainer} />
+            <ContainerUsageTable workflows={workflowsUsedByContainer} />
             <Divider color="border/regular" />
           </>
         )}

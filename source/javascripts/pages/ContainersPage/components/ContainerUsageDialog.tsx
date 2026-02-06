@@ -4,7 +4,7 @@ import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import WorkflowsUsedByContainerTable from './WorkflowsUsedByContainerTable';
+import ContainerUsageTable from './ContainerUsageTable';
 
 type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
   selectedContainerId: Container['id'];
@@ -23,7 +23,7 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
           {selectedContainerId}
         </Text>{' '}
         is used in {workflowsUsedByContainer.length} Workflow{workflowsUsedByContainer.length !== 1 ? 's' : ''}.
-        <WorkflowsUsedByContainerTable workflows={workflowsUsedByContainer} />
+        <ContainerUsageTable workflows={workflowsUsedByContainer} />
         <Divider color="border/regular" />
       </DialogBody>
       <DialogFooter />
