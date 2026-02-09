@@ -271,10 +271,19 @@ function sanitizeName(value: string) {
 }
 
 function sanitizePort(port: string): string {
-  const [host, container] = port.split(':');
-  const sanitizedHost = host.replace(/^0+(?=\d)/, '');
-  const sanitizedContainer = container.replace(/^0+(?=\d)/, '');
-  return `${sanitizedHost}:${sanitizedContainer}`;
+  const sanitize = (value: string) => value.replace(/^0+(?=\d)/, '');
+
+  if (port.includes(':')) {
+    const [host, container] = port.split(':');
+
+    if (!host || !container) {
+      return sanitize(port);
+    }
+
+    return `${sanitize(host)}:${sanitize(container)}`;
+  }
+
+  return sanitize(port);
 }
 
 function validateName(containerId: string, initialContainerName: string, containerNames: string[]) {
