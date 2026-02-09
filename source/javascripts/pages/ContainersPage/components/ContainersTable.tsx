@@ -1,9 +1,23 @@
-import { ControlButton, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure } from '@bitrise/bitkit';
+import {
+  Box,
+  ControlButton,
+  Link,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
+  useResponsive,
+} from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { Container } from '@/core/models/Container';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
+import DeleteContainerDialog from './DeleteContainerDialog';
 
 type Props = {
   containers: Container[];
@@ -17,10 +31,17 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
     onOpen: onContainerUsageDialogOpen,
     onClose: onContainerUsageDialogClose,
   } = useDisclosure();
+  const {
+    isOpen: isDeleteContainerDialogOpen,
+    onOpen: onDeleteContainerDialogOpen,
+    onClose: onDeleteContainerDialogClose,
+  } = useDisclosure();
+
+  const { isMobile } = useResponsive();
 
   return (
-    <>
-      <Table isFixed>
+    <Box overflowX="auto">
+      <Table isFixed={!isMobile}>
         <Thead>
           <Tr>
             <Th textStyle="heading/h5" width="160px">
@@ -67,13 +88,16 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
                     iconName="Pencil"
                     color="icon/primary"
                     onClick={() => {}}
-                    mr="8"
+                    mr={['0', '8']}
                   />
                   <ControlButton
                     aria-label="Delete container"
                     iconName="MinusCircle"
                     color="icon/negative"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setSelectedContainerId(container.id);
+                      onDeleteContainerDialogOpen();
+                    }}
                   />
                 </Td>
               </Tr>
@@ -86,7 +110,13 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
         onClose={onContainerUsageDialogClose}
         selectedContainerId={selectedContainerId}
       />
-    </>
+      <DeleteContainerDialog
+        isOpen={isDeleteContainerDialogOpen}
+        onClose={onDeleteContainerDialogClose}
+        selectedContainerId={selectedContainerId}
+        type="definition"
+      />
+    </Box>
   );
 };
 
