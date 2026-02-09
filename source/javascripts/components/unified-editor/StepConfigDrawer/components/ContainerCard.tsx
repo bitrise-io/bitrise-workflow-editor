@@ -1,12 +1,33 @@
-import { Button, Card, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Card, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
-const ContainerCard = () => {
+import { ContainerType } from '@/core/models/Container';
+import ContainerService from '@/core/services/ContainerService';
+import useContainers from '@/hooks/useContainers';
+
+import ContainersMenu from './ContainersMenu';
+
+type ContainerCardProps = {
+  type: ContainerType;
+};
+
+const ContainerCard = (props: ContainerCardProps) => {
+  const { type } = props;
+
+  const executionContainers = useContainers((containers) => {
+    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
+  });
+  const serviceContainers = useContainers((containers) => {
+    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
+  });
+
   return (
     <Card variant="outline" overflow="hidden">
       <Table variant="borderless" disableRowHover>
         <Thead>
           <Tr>
-            <Th>Execution Container</Th>
+            <Th>
+              <Text pl="12">{type === 'execution' ? 'Execution' : 'Service'} Container</Text>
+            </Th>
             <Th>Behavior</Th>
             <Th />
           </Tr>
@@ -14,9 +35,7 @@ const ContainerCard = () => {
         <Tbody>
           <Tr>
             <Td>
-              <Button variant="tertiary" leftIconName="Plus" size="sm">
-                Add container
-              </Button>
+              <ContainersMenu containers={type === ContainerType.Execution ? executionContainers : serviceContainers} />
             </Td>
             <Td />
             <Td />
