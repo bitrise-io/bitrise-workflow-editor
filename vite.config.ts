@@ -64,7 +64,14 @@ export default defineConfig(({ mode }) => {
     ],
 
     resolve: {
-      alias: { '@': resolve(rootDir, 'source/javascripts') },
+      alias: {
+        '@': resolve(rootDir, 'source/javascripts'),
+        '@bitrise/languageserver-core': resolve(rootDir, 'node_modules/@bitrise/languageserver/packages/core'),
+        '@bitrise/languageserver-monaco': resolve(
+          rootDir,
+          'node_modules/@bitrise/languageserver/packages/monaco-worker',
+        ),
+      },
       dedupe: ['zustand'], // Required for iframe compatibility
     },
 

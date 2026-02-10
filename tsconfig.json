@@ -9,13 +9,19 @@
     "paths": {
       "@/*": [
         "./source/javascripts/*"
+      ],
+      "@bitrise/languageserver-core": [
+        "./node_modules/@bitrise/languageserver/packages/core"
+      ],
+      "@bitrise/languageserver-core/*": [
+        "./node_modules/@bitrise/languageserver/packages/core/*"
       ]
     },
     "target": "ES2022",
     "lib": [
       "dom",
       "es2015",
-      "es2019",
+      "es2019"
     ],
     "module": "ESNext",
     "moduleResolution": "bundler",
