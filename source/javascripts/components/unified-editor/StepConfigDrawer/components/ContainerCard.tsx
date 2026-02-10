@@ -1,4 +1,4 @@
-import { Card, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Card, DefinitionTooltip, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
@@ -28,7 +28,11 @@ const ContainerCard = (props: ContainerCardProps) => {
             <Th>
               <Text pl="12">{type === 'execution' ? 'Execution' : 'Service'} Container</Text>
             </Th>
-            <Th>Behavior</Th>
+            <Th>
+              <DefinitionTooltip label="By default, this step will use an already running container if any. Check “Recreate container” to destroy it and create a clean instance.">
+                Behavior
+              </DefinitionTooltip>
+            </Th>
             <Th />
           </Tr>
         </Thead>

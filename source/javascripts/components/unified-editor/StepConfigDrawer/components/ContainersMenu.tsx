@@ -21,7 +21,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
             <Text color="text/helper">{container.userValues.image}</Text>
           </MenuItem>
         ))}
-        <Divider color="border/minimal" />
+        <Divider color="border/minimal" mb="8" />
         <MenuItem onClick={() => {}}>Manage containers</MenuItem>
       </MenuList>
     </Menu>
