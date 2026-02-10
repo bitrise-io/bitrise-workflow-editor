@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, YAMLMap } from 'yaml';
+import { Document, isMap, isSeq, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import {
@@ -11,6 +11,7 @@ import {
   CredentialField,
   CredentialFieldValue,
 } from '@/core/models/Container';
+import { Workflow } from '@/core/models/Workflow';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -126,6 +127,34 @@ function getAllContainers(containers: Containers, selector: (container: Containe
   return Object.entries(containers)
     .map(([id, userValues]) => ({ id, userValues }) as Container)
     .filter(selector);
+}
+
+function getContainerReferences(
+  workflowId: Workflow['id'],
+  stepIndex: number,
+  type: ContainerType,
+  doc: Document,
+): string | string[] | undefined {
+  const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+
+  if (type === ContainerType.Execution) {
+    return stepData.get(ContainerReferenceField.Execution) as string | undefined;
+  }
+
+  if (type === ContainerType.Service) {
+    const serviceContainers = stepData.get(ContainerReferenceField.Service);
+    if (!serviceContainers) {
+      return undefined;
+    }
+
+    if (isSeq(serviceContainers)) {
+      return serviceContainers.toJSON() as string[];
+    }
+
+    return undefined;
+  }
+
+  return undefined;
 }
 
 function getContainerOrThrowError(id: string, doc: Document) {
@@ -337,6 +366,7 @@ export default {
   deleteContainer,
   getAllContainers,
   getContainerOrThrowError,
+  getContainerReferences,
   getWorkflowsUsingContainer,
   sanitizePort,
   removeContainerReference,

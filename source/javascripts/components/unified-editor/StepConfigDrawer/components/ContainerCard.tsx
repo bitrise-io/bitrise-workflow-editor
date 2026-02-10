@@ -4,6 +4,8 @@ import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
 
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
+import useContainerReferences from '../useContainerReferences';
 import ContainersMenu from './ContainersMenu';
 
 type ContainerCardProps = {
@@ -12,6 +14,7 @@ type ContainerCardProps = {
 
 const ContainerCard = (props: ContainerCardProps) => {
   const { type } = props;
+  const { stepIndex, workflowId } = useStepDrawerContext();
 
   const executionContainers = useContainers((containers) => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
@@ -19,6 +22,11 @@ const ContainerCard = (props: ContainerCardProps) => {
   const serviceContainers = useContainers((containers) => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
+
+  const executionReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Execution);
+  const serviceReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Service);
+  console.log('executionReferences', executionReferences);
+  console.log('serviceReferences', serviceReferences);
 
   return (
     <Card variant="outline" overflow="hidden">
@@ -37,6 +45,24 @@ const ContainerCard = (props: ContainerCardProps) => {
           </Tr>
         </Thead>
         <Tbody>
+          {type === ContainerType.Execution && executionReferences && Array.isArray(executionReferences)
+            ? executionReferences.map((container) => (
+                <Tr key={container}>
+                  <Td>{container}</Td>
+                  <Td>Use existing</Td>
+                  <Td />
+                </Tr>
+              ))
+            : null}
+          {type === ContainerType.Service && serviceReferences && Array.isArray(serviceReferences)
+            ? serviceReferences.map((container) => (
+                <Tr key={container}>
+                  <Td>{container}</Td>
+                  <Td>Use existing</Td>
+                  <Td />
+                </Tr>
+              ))
+            : null}
           <Tr>
             <Td>
               <ContainersMenu
