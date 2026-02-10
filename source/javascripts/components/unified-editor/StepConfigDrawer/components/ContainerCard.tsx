@@ -4,6 +4,7 @@ import {
   Checkbox,
   ControlButton,
   DefinitionTooltip,
+  Icon,
   Link,
   Table,
   Tbody,
@@ -14,7 +15,9 @@ import {
   Tr,
 } from '@bitrise/bitkit';
 
+import { useStepDrawerContext } from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer.context';
 import { Container, ContainerType } from '@/core/models/Container';
+import ContainerService from '@/core/services/ContainerService';
 import useNavigation from '@/hooks/useNavigation';
 
 import ContainersMenu from './ContainersMenu';
@@ -27,6 +30,8 @@ type ContainerCardProps = {
 
 const ContainerCard = (props: ContainerCardProps) => {
   const { type, containers, references } = props;
+
+  const { stepIndex, workflowId } = useStepDrawerContext();
   const { replace } = useNavigation();
 
   const getContainerById = (containerId: string) => {
@@ -70,7 +75,12 @@ const ContainerCard = (props: ContainerCardProps) => {
                   </Td>
                   <Td width="60px">
                     <Box display="flex" justifyContent="center" pr="12">
-                      <ControlButton aria-label="Delete container" iconName="MinusCircle" color="icon/negative" />
+                      <ControlButton
+                        aria-label="Delete container"
+                        iconName="MinusCircle"
+                        color="icon/negative"
+                        onClick={() => ContainerService.removeContainerReference(workflowId, stepIndex, containerId)}
+                      />
                     </Box>
                   </Td>
                 </Tr>
@@ -90,9 +100,12 @@ const ContainerCard = (props: ContainerCardProps) => {
                   {shouldShowAddButton ? (
                     <ContainersMenu containers={containers} type={type} />
                   ) : (
-                    <Text textStyle="body/md/regular" color="text/secondary">
-                      You can only add one execution container per Step.
-                    </Text>
+                    <Box display="flex" alignItems="center" gap="4" pl="4">
+                      <Icon name="InfoCircle" color="icon/tertiary" size="16" />
+                      <Text textStyle="body/md/regular" color="text/secondary">
+                        You can only add one execution container per Step.
+                      </Text>
+                    </Box>
                   )}
                 </>
               )}
