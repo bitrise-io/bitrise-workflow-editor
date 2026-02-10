@@ -39,7 +39,10 @@ const ContainerCard = (props: ContainerCardProps) => {
         <Tbody>
           <Tr>
             <Td>
-              <ContainersMenu containers={type === ContainerType.Execution ? executionContainers : serviceContainers} />
+              <ContainersMenu
+                containers={type === ContainerType.Execution ? executionContainers : serviceContainers}
+                type={type}
+              />
             </Td>
             <Td />
             <Td />

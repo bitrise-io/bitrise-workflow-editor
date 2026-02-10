@@ -96,6 +96,8 @@ export type StepModel = {
   timeout?: number;
   no_output_timeout?: number;
   asset_urls?: Record<string, string>;
+  execution_container?: string;
+  service_containers?: string[];
 };
 
 export type StepToolkitModel = {
