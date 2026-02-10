@@ -19,7 +19,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
@@ -46,35 +46,21 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
-  const defaultValues: FormData = useMemo(
-    () => ({
-      id: editedContainer?.id || '',
-      userValues: {
-        type: type,
-        image: editedContainer?.userValues.image || '',
-        ports: editedContainer?.userValues.ports?.join(', ') || '',
-        credentials: {
-          server: editedContainer?.userValues.credentials?.server || '',
-          username: editedContainer?.userValues.credentials?.username || '',
-          password: editedContainer?.userValues.credentials?.password || '',
-        },
-        options: editedContainer?.userValues.options || '',
-      },
-    }),
-    [
-      editedContainer?.id,
-      editedContainer?.userValues.image,
-      editedContainer?.userValues.ports,
-      editedContainer?.userValues.credentials?.server,
-      editedContainer?.userValues.credentials?.username,
-      editedContainer?.userValues.credentials?.password,
-      editedContainer?.userValues.options,
-      type,
-    ],
-  );
-
   const { control, formState, handleSubmit, reset } = useForm<FormData>({
-    defaultValues,
+    defaultValues: {
+      id: '',
+      userValues: {
+        type,
+        image: '',
+        ports: '',
+        credentials: {
+          server: '',
+          username: '',
+          password: '',
+        },
+        options: '',
+      },
+    },
     mode: 'onChange',
   });
 
@@ -105,11 +91,25 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
 
   useEffect(() => {
     if (isOpen) {
-      reset(defaultValues);
+      const formData: FormData = {
+        id: editedContainer?.id || '',
+        userValues: {
+          type,
+          image: editedContainer?.userValues.image || '',
+          ports: editedContainer?.userValues.ports?.join(', ') || '',
+          credentials: {
+            server: editedContainer?.userValues.credentials?.server || '',
+            username: editedContainer?.userValues.credentials?.username || '',
+            password: editedContainer?.userValues.credentials?.password || '',
+          },
+          options: editedContainer?.userValues.options || '',
+        },
+      };
+      reset(formData);
     } else {
       setEditedContainer(null);
     }
-  }, [defaultValues, isOpen, reset, setEditedContainer]);
+  }, [isOpen, editedContainer, type, reset, setEditedContainer]);
 
   return (
     <Dialog
