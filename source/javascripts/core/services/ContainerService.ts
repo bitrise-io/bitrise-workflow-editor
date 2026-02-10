@@ -134,11 +134,12 @@ function getContainerReferences(
   stepIndex: number,
   type: ContainerType,
   doc: Document,
-): string | string[] | undefined {
+): string[] | undefined {
   const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
   if (type === ContainerType.Execution) {
-    return stepData.get(ContainerReferenceField.Execution) as string | undefined;
+    const executionContainer = stepData.get(ContainerReferenceField.Execution) as string | undefined;
+    return executionContainer ? [executionContainer] : undefined;
   }
 
   if (type === ContainerType.Service) {

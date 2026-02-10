@@ -25,8 +25,6 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   const executionReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Execution);
   const serviceReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Service);
-  console.log('executionReferences', executionReferences);
-  console.log('serviceReferences', serviceReferences);
 
   return (
     <Card variant="outline" overflow="hidden">
@@ -45,24 +43,24 @@ const ContainerCard = (props: ContainerCardProps) => {
           </Tr>
         </Thead>
         <Tbody>
-          {type === ContainerType.Execution && executionReferences && Array.isArray(executionReferences)
-            ? executionReferences.map((container) => (
-                <Tr key={container}>
-                  <Td>{container}</Td>
-                  <Td>Use existing</Td>
-                  <Td />
-                </Tr>
-              ))
-            : null}
-          {type === ContainerType.Service && serviceReferences && Array.isArray(serviceReferences)
-            ? serviceReferences.map((container) => (
-                <Tr key={container}>
-                  <Td>{container}</Td>
-                  <Td>Use existing</Td>
-                  <Td />
-                </Tr>
-              ))
-            : null}
+          {type === ContainerType.Execution &&
+            !!executionReferences &&
+            executionReferences.map((container) => (
+              <Tr key={container}>
+                <Td>{container}</Td>
+                <Td>Use existing</Td>
+                <Td />
+              </Tr>
+            ))}
+          {type === ContainerType.Service &&
+            !!serviceReferences &&
+            serviceReferences.map((container) => (
+              <Tr key={container}>
+                <Td>{container}</Td>
+                <Td>Use existing</Td>
+                <Td />
+              </Tr>
+            ))}
           <Tr>
             <Td>
               <ContainersMenu
