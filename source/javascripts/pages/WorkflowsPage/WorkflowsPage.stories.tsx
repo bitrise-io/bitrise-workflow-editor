@@ -1,6 +1,7 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
+import { stringify } from 'yaml';
 
 import {
   getCertificates,
@@ -11,6 +12,7 @@ import {
 import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import WorkflowsPage from './WorkflowsPage';
 
@@ -101,6 +103,15 @@ export const LegacyDedicated: Story = {
 export const SelfHostedRunner: Story = {
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
+  },
+};
+
+export const NoContainers: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'containers', {});
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
   },
 };
 
