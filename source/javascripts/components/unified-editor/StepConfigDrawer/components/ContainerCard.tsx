@@ -87,31 +87,37 @@ const ContainerCard = (props: ContainerCardProps) => {
               );
             })}
           <Tr>
-            <Td>
-              {!containers.length ? (
-                <Text textStyle="body/md/regular" color="text/secondary">
+            {!containers.length ? (
+              <Td colSpan={3}>
+                <Text textStyle="body/md/regular" color="text/secondary" pl="12">
                   No {type} containers available.{' '}
                   <Link colorScheme="purple" onClick={() => replace('/containers', { tab: type })}>
                     Manage {type} containers
                   </Link>
                 </Text>
-              ) : (
-                <>
-                  {shouldShowAddButton ? (
-                    <ContainersMenu containers={containers} type={type} />
-                  ) : (
+              </Td>
+            ) : (
+              <>
+                {shouldShowAddButton ? (
+                  <>
+                    <Td>
+                      <ContainersMenu containers={containers} type={type} />
+                    </Td>
+                    <Td />
+                    <Td />
+                  </>
+                ) : (
+                  <Td colSpan={3}>
                     <Box display="flex" alignItems="center" gap="4" pl="4">
                       <Icon name="InfoCircle" color="icon/tertiary" size="16" />
                       <Text textStyle="body/md/regular" color="text/secondary">
                         You can only add one execution container per Step.
                       </Text>
                     </Box>
-                  )}
-                </>
-              )}
-            </Td>
-            <Td />
-            <Td />
+                  </Td>
+                )}
+              </>
+            )}
           </Tr>
         </Tbody>
       </Table>
