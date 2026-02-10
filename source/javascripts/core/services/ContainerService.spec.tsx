@@ -419,6 +419,7 @@ describe('ContainerService', () => {
         );
       });
     });
+
     describe('service container target', () => {
       it('should create a new service container', () => {
         updateBitriseYmlDocumentByString(yaml`
@@ -509,6 +510,32 @@ describe('ContainerService', () => {
             type: execution
             image: ubuntu:22.04
       `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should delete and existing container with recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            my-container:
+              type: execution
+              image: ubuntu:20.04
+          workflows:
+            wf1:
+              steps:
+                - script:
+                    execution_container:
+                      my-container:
+                        recreate: true
+        `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}`;
 
         expect(getYmlString()).toEqual(expectedYml);
       });
@@ -615,6 +642,7 @@ describe('ContainerService', () => {
         );
       });
     });
+
     describe('service container target', () => {
       it('should delete an existing service', () => {
         updateBitriseYmlDocumentByString(yaml`
@@ -635,6 +663,32 @@ describe('ContainerService', () => {
             type: service
             image: redis:6
       `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should delete and existing container with recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            my-container:
+              type: service
+              image: ubuntu:20.04
+          workflows:
+            wf1:
+              steps:
+                - script:
+                    service_containers:
+                      - my-container:
+                          recreate: true
+        `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}`;
 
         expect(getYmlString()).toEqual(expectedYml);
       });
@@ -2543,6 +2597,88 @@ describe('ContainerService', () => {
           true,
         ),
       ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
+    });
+  });
+
+  describe('validateName', () => {
+    describe('when the initial name is empty', () => {
+      it('returns true if container id is valid and unique', () => {
+        const result = ContainerService.validateName('c4', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe(true);
+      });
+
+      it('returns error message when container id is empty', () => {
+        const result = ContainerService.validateName('', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Unique id is required');
+      });
+
+      it('returns error message when container id is whitespace only', () => {
+        const result = ContainerService.validateName('   ', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Unique id is required');
+      });
+
+      it('returns error message when container id contains invalid characters', () => {
+        const result = ContainerService.validateName('invalid@name!', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Unique id must only contain letters, numbers, dashes, underscores or periods');
+      });
+
+      it('returns error message when container id is not unique', () => {
+        const result = ContainerService.validateName('c1', '', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Id should be unique');
+      });
+    });
+
+    describe('when the initial name is not empty', () => {
+      it('returns true if container id is valid and unique', () => {
+        const result = ContainerService.validateName('my-first-container', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe(true);
+      });
+
+      it('returns error message when container id is empty', () => {
+        const result = ContainerService.validateName('', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Unique id is required');
+      });
+
+      it('returns error message when container id is whitespace only', () => {
+        const result = ContainerService.validateName('   ', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Unique id is required');
+      });
+
+      it('returns error message when container id contains invalid characters', () => {
+        const result = ContainerService.validateName('invalid@name!', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Unique id must only contain letters, numbers, dashes, underscores or periods');
+      });
+
+      it('returns error message when container id is not unique', () => {
+        const result = ContainerService.validateName('c2', 'c1', ['c1', 'c2', 'c3']);
+        expect(result).toBe('Id should be unique');
+      });
+    });
+  });
+
+  describe('sanitizeName', () => {
+    it('returns the same name if it contains only valid characters', () => {
+      const name = 'valid.name-123';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('valid.name-123');
+    });
+
+    it('removes invalid characters from the name', () => {
+      const name = '@name!';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('name');
+    });
+
+    it('removes spaces from the name', () => {
+      const name = ' name with spaces ';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('namewithspaces');
+    });
+
+    it('returns an empty string if the name contains only invalid characters', () => {
+      const name = '@!#$%^&*()';
+      const result = ContainerService.sanitizeName(name);
+      expect(result).toBe('');
     });
   });
 

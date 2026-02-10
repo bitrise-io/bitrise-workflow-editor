@@ -20,11 +20,11 @@ const ExecutionContainersTab = () => {
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
-      <Box display="flex" justifyContent="space-between" alignItems="center" gap="32">
+      <Box display="flex" justifyContent="space-between" alignItems="center" gap={['12', '32']} flexWrap="wrap">
         <Text color="text/secondary">
           Use execution containers to create your custom environment to run your Steps in.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" onClick={onCreateDialogOpen}>
+        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onCreateDialogOpen}>
           Add container
         </Button>
       </Box>

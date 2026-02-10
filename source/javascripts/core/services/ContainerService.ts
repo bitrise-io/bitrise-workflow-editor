@@ -88,7 +88,9 @@ function deleteContainer(id: string) {
 
     const keep = ['workflows', '*', 'steps', '*', '*'];
     YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keep);
     YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keep);
 
     return doc;
   });
@@ -299,17 +301,33 @@ function sanitizeName(value: string) {
   return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
 }
 
-function validateName(containerName: string, initialContainerName: string, containerNames: string[]) {
-  if (!containerName.trim()) {
-    return 'Container name is required';
+function sanitizePort(port: string): string {
+  const sanitize = (value: string) => value.replace(/^0+(?=\d)/, '');
+
+  if (port.includes(':')) {
+    const [host, container] = port.split(':');
+
+    if (!host || !container) {
+      return sanitize(port);
+    }
+
+    return `${sanitize(host)}:${sanitize(container)}`;
   }
 
-  if (!CONTAINER_NAME_REGEX.test(containerName)) {
-    return 'Container name must only contain letters, numbers, dashes, underscores or periods';
+  return sanitize(port);
+}
+
+function validateName(containerId: string, initialContainerName: string, containerNames: string[]) {
+  if (!containerId.trim()) {
+    return 'Unique id is required';
   }
 
-  if (containerName !== initialContainerName && containerNames?.includes(containerName)) {
-    return 'Container name should be unique';
+  if (!CONTAINER_NAME_REGEX.test(containerId)) {
+    return 'Unique id must only contain letters, numbers, dashes, underscores or periods';
+  }
+
+  if (containerId !== initialContainerName && containerNames?.includes(containerId)) {
+    return 'Id should be unique';
   }
 
   return true;
@@ -351,6 +369,7 @@ export default {
   getAllContainers,
   getContainerOrThrowError,
   getWorkflowsUsingContainer,
+  sanitizePort,
   removeContainerReference,
   sanitizeName,
   updateContainer,

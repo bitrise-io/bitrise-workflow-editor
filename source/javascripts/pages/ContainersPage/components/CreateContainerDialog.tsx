@@ -19,7 +19,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
@@ -46,20 +46,32 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
   const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
-  const defaultValues = {
-    id: editedContainer?.id || '',
-    userValues: {
-      type: type,
-      image: editedContainer?.userValues.image || '',
-      ports: editedContainer?.userValues.ports?.join(', ') || '',
-      credentials: {
-        server: editedContainer?.userValues.credentials?.server || '',
-        username: editedContainer?.userValues.credentials?.username || '',
-        password: editedContainer?.userValues.credentials?.password || '',
+  const defaultValues: FormData = useMemo(
+    () => ({
+      id: editedContainer?.id || '',
+      userValues: {
+        type: type,
+        image: editedContainer?.userValues.image || '',
+        ports: editedContainer?.userValues.ports?.join(', ') || '',
+        credentials: {
+          server: editedContainer?.userValues.credentials?.server || '',
+          username: editedContainer?.userValues.credentials?.username || '',
+          password: editedContainer?.userValues.credentials?.password || '',
+        },
+        options: editedContainer?.userValues.options || '',
       },
-      options: editedContainer?.userValues.options || '',
-    },
-  };
+    }),
+    [
+      editedContainer?.id,
+      editedContainer?.userValues.image,
+      editedContainer?.userValues.ports,
+      editedContainer?.userValues.credentials?.server,
+      editedContainer?.userValues.credentials?.username,
+      editedContainer?.userValues.credentials?.password,
+      editedContainer?.userValues.options,
+      type,
+    ],
+  );
 
   const { control, formState, handleSubmit, reset } = useForm<FormData>({
     defaultValues,
@@ -70,7 +82,8 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
     const convertedPorts = formData.userValues.ports
       .split(',')
       .map((port) => port.trim())
-      .filter((port) => port !== '');
+      .filter((port) => port !== '')
+      .map((port) => ContainerService.sanitizePort(port));
     const container: Container = {
       ...formData,
       userValues: {
@@ -96,7 +109,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
     } else {
       setEditedContainer(null);
     }
-  }, [isOpen, reset, editedContainer]);
+  }, [defaultValues, isOpen, reset, setEditedContainer]);
 
   return (
     <Dialog
@@ -120,7 +133,9 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               label="Unique ID"
               helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
               placeholder="e.g. node, postgres, redis"
+              errorText={formState.errors.id?.message}
               isRequired
+              data-1p-ignore
               onChange={(e) => {
                 const sanitizedValue = ContainerService.sanitizeName(e.target.value);
                 onChange(sanitizedValue);
@@ -138,6 +153,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               label="Image"
               helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
               placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
+              errorText={formState.errors.userValues?.image?.message}
               isRequired
               {...field}
             />
@@ -182,7 +198,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
                 docker login automatically) or use an OAuth Step.
               </Text>
               <Text textStyle="body/md/regular">
-                <Link href="#" isExternal isUnderlined>
+                <Link href="https://docs.bitrise.io" isExternal isUnderlined>
                   Learn more
                 </Link>
               </Text>
@@ -193,7 +209,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
               render={({ field }) => (
                 <Input
                   label="Registry server"
-                  helperText="Fully qualified registry server url to used by docker login command."
+                  helperText="Fully qualified registry server URL to be used by docker login command."
                   placeholder="e.g. ghcr.io"
                   {...field}
                 />
@@ -220,7 +236,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
             </Box>
             <Checkbox>
               Replace variables in input
-              <Tooltip label="Enable this if you want to replace Environment Variables in your input with the variable's assigned value.">
+              <Tooltip label="Enable this if you want to replace Environment Variables in your input with the variable’s assigned value.">
                 <Icon name="InfoCircle" color="icon/tertiary" size="16" ml="4" />
               </Tooltip>
             </Checkbox>
@@ -237,7 +253,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
                   helperText={
                     <>
                       Additional parameters passed to docker create command.{' '}
-                      <Link colorScheme="purple" href="#" isExternal>
+                      <Link colorScheme="purple" href="https://docs.bitrise.io" isExternal>
                         Learn more about not supported options
                       </Link>
                     </>
