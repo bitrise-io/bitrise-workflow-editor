@@ -125,7 +125,6 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           control={control}
           name="id"
           rules={{
-            required: 'Unique ID is required',
             validate: (value) => ContainerService.validateName(value, editedContainer?.id || '', containerIds),
           }}
           render={({ field: { onChange, ...fieldProps } }) => (

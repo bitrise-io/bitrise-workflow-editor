@@ -10,13 +10,13 @@ import ContainersTable from './ContainersTable';
 import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
 
 const ServiceContainersTab = () => {
-  const [editedContainer, setEditedContainer] = useState<Container | null>(null);
   const containerUsageLookup = useContainerWorkflowUsage();
   const containers = useContainers((containers) => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
 
-  const { isOpen: isCreateDialogOpen, onOpen: onCreateDialogOpen, onClose: onCreateDialogClose } = useDisclosure();
+  const [editedContainer, setEditedContainer] = useState<Container | null>(null);
+  const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
@@ -24,7 +24,7 @@ const ServiceContainersTab = () => {
         <Text color="text/secondary">
           Use service containers to attach custom services you want to use during your Workflows.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onCreateDialogOpen}>
+        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onDialogOpen}>
           Add container
         </Button>
       </Box>
@@ -32,7 +32,7 @@ const ServiceContainersTab = () => {
         <ContainersTable
           containers={containers}
           containerUsageLookup={containerUsageLookup}
-          openCreateDialog={onCreateDialogOpen}
+          openDialog={onDialogOpen}
           setEditedContainer={setEditedContainer}
         />
       ) : (
@@ -44,8 +44,8 @@ const ServiceContainersTab = () => {
       )}
       <CreateOrEditContainerDialog
         editedContainer={editedContainer}
-        isOpen={isCreateDialogOpen}
-        onClose={onCreateDialogClose}
+        isOpen={isDialogOpen}
+        onClose={onDialogClose}
         setEditedContainer={setEditedContainer}
         type="service"
       />

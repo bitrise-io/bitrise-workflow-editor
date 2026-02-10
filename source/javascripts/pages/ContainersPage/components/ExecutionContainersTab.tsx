@@ -10,13 +10,13 @@ import ContainersTable from './ContainersTable';
 import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
 
 const ExecutionContainersTab = () => {
-  const [editedContainer, setEditedContainer] = useState<Container | null>(null);
   const containerUsageLookup = useContainerWorkflowUsage();
   const containers = useContainers((containers) => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
   });
 
-  const { isOpen: isCreateDialogOpen, onOpen: onCreateDialogOpen, onClose: onCreateDialogClose } = useDisclosure();
+  const [editedContainer, setEditedContainer] = useState<Container | null>(null);
+  const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
 
   return (
     <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
@@ -24,7 +24,7 @@ const ExecutionContainersTab = () => {
         <Text color="text/secondary">
           Use execution containers to create your custom environment to run your Steps in.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onCreateDialogOpen}>
+        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onDialogOpen}>
           Add container
         </Button>
       </Box>
@@ -32,7 +32,7 @@ const ExecutionContainersTab = () => {
         <ContainersTable
           containers={containers}
           containerUsageLookup={containerUsageLookup}
-          openCreateDialog={onCreateDialogOpen}
+          openDialog={onDialogOpen}
           setEditedContainer={setEditedContainer}
         />
       ) : (
@@ -45,8 +45,8 @@ const ExecutionContainersTab = () => {
       <CreateOrEditContainerDialog
         editedContainer={editedContainer}
         setEditedContainer={setEditedContainer}
-        isOpen={isCreateDialogOpen}
-        onClose={onCreateDialogClose}
+        isOpen={isDialogOpen}
+        onClose={onDialogClose}
         type="execution"
       />
     </Box>

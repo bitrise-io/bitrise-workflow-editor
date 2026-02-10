@@ -22,14 +22,14 @@ import DeleteContainerDialog from './DeleteContainerDialog';
 type ContainersTableProps = {
   containers: Container[];
   containerUsageLookup: Map<string, string[]>;
-  openCreateDialog: () => void;
+  openDialog: () => void;
   setEditedContainer: (value: Container | null) => void;
 };
 
 const ContainersTable = ({
   containers,
   containerUsageLookup,
-  openCreateDialog,
+  openDialog,
   setEditedContainer,
 }: ContainersTableProps) => {
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
@@ -97,7 +97,7 @@ const ContainersTable = ({
                     color="icon/primary"
                     onClick={() => {
                       setEditedContainer(container);
-                      openCreateDialog();
+                      openDialog();
                     }}
                     mr={['0', '8']}
                   />
