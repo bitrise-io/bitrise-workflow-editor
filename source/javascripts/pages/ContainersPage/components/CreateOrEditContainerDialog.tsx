@@ -28,7 +28,7 @@ import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
 
-type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
+type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
   editedContainer: Container | null;
   setEditedContainer: Dispatch<SetStateAction<Container | null>>;
   type: 'execution' | 'service';
@@ -40,7 +40,7 @@ type FormData = Omit<Container, 'userValues'> & {
   };
 };
 
-const CreateContainerDialog = (props: CreateContainerDialogProps) => {
+const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) => {
   const { editedContainer, isOpen, onClose, setEditedContainer, type } = props;
 
   const containerIds = useContainers((s) => Object.keys(s));
@@ -281,4 +281,4 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
   );
 };
 
-export default CreateContainerDialog;
+export default CreateOrEditContainerDialog;

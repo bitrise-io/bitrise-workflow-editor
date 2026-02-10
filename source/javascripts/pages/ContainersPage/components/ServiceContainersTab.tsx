@@ -7,7 +7,7 @@ import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
 import ContainersTable from './ContainersTable';
-import CreateContainerDialog from './CreateContainerDialog';
+import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
 
 const ServiceContainersTab = () => {
   const [editedContainer, setEditedContainer] = useState<Container | null>(null);
@@ -42,7 +42,7 @@ const ServiceContainersTab = () => {
           iconName="Container"
         />
       )}
-      <CreateContainerDialog
+      <CreateOrEditContainerDialog
         editedContainer={editedContainer}
         isOpen={isCreateDialogOpen}
         onClose={onCreateDialogClose}
