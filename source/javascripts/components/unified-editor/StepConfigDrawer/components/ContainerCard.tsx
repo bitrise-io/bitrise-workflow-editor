@@ -14,36 +14,20 @@ import {
   Tr,
 } from '@bitrise/bitkit';
 
-import { ContainerType } from '@/core/models/Container';
-import ContainerService from '@/core/services/ContainerService';
-import useContainers from '@/hooks/useContainers';
+import { Container, ContainerType } from '@/core/models/Container';
 import useNavigation from '@/hooks/useNavigation';
 
-import { useStepDrawerContext } from '../StepConfigDrawer.context';
-import useContainerReferences from '../useContainerReferences';
 import ContainersMenu from './ContainersMenu';
 
 type ContainerCardProps = {
   type: ContainerType;
+  containers: Container[];
+  references: string[] | undefined;
 };
 
 const ContainerCard = (props: ContainerCardProps) => {
-  const { type } = props;
-  const { stepIndex, workflowId } = useStepDrawerContext();
+  const { type, containers, references } = props;
   const { replace } = useNavigation();
-
-  const executionContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
-  });
-  const serviceContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
-  });
-
-  const executionReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Execution);
-  const serviceReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Service);
-
-  const containers = type === ContainerType.Execution ? executionContainers : serviceContainers;
-  const references = type === ContainerType.Execution ? executionReferences : serviceReferences;
 
   const getContainerById = (containerId: string) => {
     return containers.find((c) => c.id === containerId);
