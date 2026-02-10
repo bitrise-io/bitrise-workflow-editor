@@ -88,7 +88,9 @@ function deleteContainer(id: string) {
 
     const keep = ['workflows', '*', 'steps', '*', '*'];
     YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keep);
     YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keep);
+    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keep);
 
     return doc;
   });
@@ -262,6 +264,73 @@ function updateContainerReferenceRecreate(
   });
 }
 
+const CONTAINER_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
+
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function sanitizePort(port: string): string {
+  const sanitize = (value: string) => value.replace(/^0+(?=\d)/, '');
+
+  if (port.includes(':')) {
+    const [host, container] = port.split(':');
+
+    if (!host || !container) {
+      return sanitize(port);
+    }
+
+    return `${sanitize(host)}:${sanitize(container)}`;
+  }
+
+  return sanitize(port);
+}
+
+function validateName(containerId: string, initialContainerName: string, containerNames: string[]) {
+  if (!containerId.trim()) {
+    return 'Unique id is required';
+  }
+
+  if (!CONTAINER_NAME_REGEX.test(containerId)) {
+    return 'Unique id must only contain letters, numbers, dashes, underscores or periods';
+  }
+
+  if (containerId !== initialContainerName && containerNames?.includes(containerId)) {
+    return 'Id should be unique';
+  }
+
+  return true;
+}
+
+function validatePorts(ports: Container['userValues']['ports']) {
+  if (!ports || ports.length === 0) {
+    return true;
+  }
+
+  const PORT_REGEX = /^\d+:\d+$/;
+  const invalidPorts = ports.filter((port) => !PORT_REGEX.test(port));
+
+  if (invalidPorts.length > 0) {
+    return 'Port mappings must be in the format [HostPort]:[ContainerPort] (e.g., 3000:3000)';
+  }
+
+  const portNumbers = ports.flatMap((port) => port.split(':').map(Number));
+  const invalidPortNumbers = portNumbers.filter((num) => num < 1 || num > 65535);
+
+  if (invalidPortNumbers.length > 0) {
+    return 'Port numbers must be between 1 and 65535';
+  }
+
+  const hostPorts = ports.map((port) => port.split(':')[0]);
+  const duplicateHostPorts = hostPorts.filter((port, index) => hostPorts.indexOf(port) !== index);
+
+  if (duplicateHostPorts.length > 0) {
+    return 'Host ports must be unique';
+  }
+
+  return true;
+}
+
 export default {
   addContainerReference,
   createContainer,
@@ -269,9 +338,13 @@ export default {
   getAllContainers,
   getContainerOrThrowError,
   getWorkflowsUsingContainer,
+  sanitizePort,
   removeContainerReference,
+  sanitizeName,
   updateContainerId,
   updateContainerField,
   updateContainerReferenceRecreate,
   updateCredentialField,
+  validateName,
+  validatePorts,
 };
