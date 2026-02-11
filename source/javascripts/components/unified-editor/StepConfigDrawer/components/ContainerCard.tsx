@@ -14,9 +14,10 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
+import React from 'react';
 
 import { useStepDrawerContext } from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer.context';
-import { Container, ContainerType } from '@/core/models/Container';
+import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useNavigation from '@/hooks/useNavigation';
 
@@ -25,13 +26,13 @@ import ContainersMenu from './ContainersMenu';
 type ContainerCardProps = {
   type: ContainerType;
   containers: Container[];
-  references: string[] | undefined;
+  references: ContainerReference[] | undefined;
 };
 
 const ContainerCard = (props: ContainerCardProps) => {
   const { type, containers, references } = props;
 
-  const { stepIndex, workflowId } = useStepDrawerContext();
+  const { stepIndex, stepBundleId, workflowId } = useStepDrawerContext();
   const { replace } = useNavigation();
 
   const getContainerById = (containerId: string) => {
@@ -39,6 +40,12 @@ const ContainerCard = (props: ContainerCardProps) => {
   };
 
   const shouldShowAddButton = type === ContainerType.Service || (type === ContainerType.Execution && !references);
+
+  const handleRecreate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    const containerId = e.target.value;
+    ContainerService.updateContainerReferenceRecreate(workflowId, stepIndex, type, containerId, isChecked);
+  };
 
   return (
     <Card variant="outline" overflow="hidden">
@@ -58,20 +65,22 @@ const ContainerCard = (props: ContainerCardProps) => {
         </Thead>
         <Tbody>
           {!!references &&
-            references.map((containerId) => {
-              const container = getContainerById(containerId);
+            references.map((reference) => {
+              const container = getContainerById(reference.id);
               return (
-                <Tr key={containerId}>
+                <Tr key={reference.id}>
                   <Td>
                     <Text textStyle="body/md/regular" px="12" hasEllipsis>
-                      {containerId}
+                      {reference.id}
                     </Text>
                     <Text textStyle="body/sm/regular" color="text/secondary" px="12" hasEllipsis>
                       {container?.userValues.image}
                     </Text>
                   </Td>
                   <Td>
-                    <Checkbox>Recreate container</Checkbox>
+                    <Checkbox isChecked={reference.recreate} onChange={handleRecreate} value={reference.id}>
+                      Recreate container
+                    </Checkbox>
                   </Td>
                   <Td width="60px">
                     <Box display="flex" justifyContent="center" pr="12">
@@ -79,7 +88,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                         aria-label="Delete container"
                         iconName="MinusCircle"
                         color="icon/negative"
-                        onClick={() => ContainerService.removeContainerReference(workflowId, stepIndex, containerId)}
+                        onClick={() => ContainerService.removeContainerReference(workflowId, stepIndex, reference.id)}
                       />
                     </Box>
                   </Td>
@@ -111,7 +120,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                     <Box display="flex" alignItems="center" gap="4" pl="4">
                       <Icon name="InfoCircle" color="icon/tertiary" size="16" />
                       <Text textStyle="body/md/regular" color="text/secondary">
-                        You can only add one execution container per Step.
+                        You can only add one execution container per {stepBundleId ? 'Step bundle' : 'Step'}.
                       </Text>
                     </Box>
                   </Td>

@@ -1,11 +1,12 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, isSeq, YAMLMap } from 'yaml';
+import { Document, isMap, isScalar, isSeq, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import {
   Container,
   ContainerField,
   ContainerFieldValue,
+  ContainerReference,
   ContainerReferenceField,
   ContainerType,
   CredentialField,
@@ -134,12 +135,35 @@ function getContainerReferences(
   stepIndex: number,
   type: ContainerType,
   doc: Document,
-): string[] | undefined {
+): ContainerReference[] | undefined {
   const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
+  const parseReference = (value: unknown): ContainerReference | null => {
+    if (isScalar(value)) {
+      return { id: String(value.value), recreate: false };
+    }
+
+    if (typeof value === 'string') {
+      return { id: value, recreate: false };
+    }
+
+    if (isMap(value) && value.items.length > 0) {
+      const containerId = String(value.items[0]?.key);
+      const containerData = value.items[0]?.value;
+      const recreate = isMap(containerData) && containerData.get('recreate') === true;
+      return { id: containerId, recreate };
+    }
+
+    return null;
+  };
+
   if (type === ContainerType.Execution) {
-    const executionContainer = stepData.get(ContainerReferenceField.Execution) as string | undefined;
-    return executionContainer ? [executionContainer] : undefined;
+    const executionContainer = stepData.get(ContainerReferenceField.Execution);
+    if (!executionContainer) {
+      return undefined;
+    }
+    const ref = parseReference(executionContainer);
+    return ref ? [ref] : undefined;
   }
 
   if (type === ContainerType.Service) {
@@ -149,7 +173,10 @@ function getContainerReferences(
     }
 
     if (isSeq(serviceContainers)) {
-      return serviceContainers.toJSON() as string[];
+      const refs = serviceContainers.items
+        .map((item) => parseReference(item))
+        .filter((ref): ref is ContainerReference => ref !== null);
+      return refs.length > 0 ? refs : undefined;
     }
 
     return undefined;
