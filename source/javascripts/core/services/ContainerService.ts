@@ -241,6 +241,15 @@ function updateContainerId(id: Container['id'], newId: Container['id']) {
     YmlUtils.updateValueByValue(doc, ExecutionContainerWildcardRefPath, id, newId);
     YmlUtils.updateValueByValue(doc, ServiceContainerWildcardRefPath, id, newId);
 
+    [ExecutionContainerWildcardRefPath, ServiceContainerWildcardRefPath].forEach((basePath) => {
+      YmlUtils.getMatchingPaths(doc, basePath).forEach(([path]) => {
+        const node = doc.getIn(path);
+        if (isMap(node) && node.has(id)) {
+          YmlUtils.updateKeyByPath(doc, [...path, id], newId);
+        }
+      });
+    });
+
     return doc;
   });
 }
