@@ -162,6 +162,37 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string): string[
   return uniq(paths.map((path) => String(path[0][1])));
 }
 
+function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
+  const oldCredentials = container.get('credentials');
+
+  if (oldCredentials && isMap(oldCredentials)) {
+    const oldCredKeys = oldCredentials.items.map((item) => String(item.key));
+    const newCredKeys = newCredentials ? Object.keys(newCredentials) : [];
+
+    // Remove credential keys that are not in the new credentials
+    const removedCredKeys = oldCredKeys.filter((credKey) => !newCredKeys.includes(credKey));
+    removedCredKeys.forEach((credKey) => {
+      YmlUtils.deleteByPath(container, ['credentials', credKey]);
+    });
+
+    // Update and add credential keys
+    if (newCredentials) {
+      Object.entries(newCredentials).forEach(([credKey, credValue]) => {
+        if (credValue) {
+          YmlUtils.setIn(container, ['credentials', credKey], credValue);
+        } else {
+          YmlUtils.deleteByPath(container, ['credentials', credKey]);
+        }
+      });
+    }
+  } else if (newCredentials) {
+    const filteredCredentials = filterCredentials(newCredentials);
+    if (filteredCredentials) {
+      YmlUtils.setIn(container, ['credentials'], filteredCredentials);
+    }
+  }
+}
+
 function updateContainer(id: Container['id'], newContainer: ContainerModel) {
   updateBitriseYmlDocument(({ doc }) => {
     const container = getContainerOrThrowError(id, doc);
@@ -183,18 +214,8 @@ function updateContainer(id: Container['id'], newContainer: ContainerModel) {
     [...updatedKeys, ...addedKeys].forEach((key) => {
       const value = containerData[key as keyof ContainerModel];
 
-      // Update credentials to preserve field order
-      if (key === 'credentials' && value && typeof value === 'object' && !Array.isArray(value)) {
-        const credentials = value as ContainerModel['credentials'];
-        if (credentials) {
-          Object.entries(credentials).forEach(([credKey, credValue]) => {
-            if (credValue) {
-              YmlUtils.setIn(container, ['credentials', credKey], credValue);
-            } else {
-              YmlUtils.deleteByPath(container, ['credentials', credKey]);
-            }
-          });
-        }
+      if (key === 'credentials') {
+        updateCredentials(container, newContainer.credentials);
       } else {
         YmlUtils.setIn(container, [key], value);
       }
