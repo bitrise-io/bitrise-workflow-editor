@@ -164,10 +164,13 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string): string[
 
 function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
   const oldCredentials = container.get('credentials');
-
   if (oldCredentials && isMap(oldCredentials)) {
     const oldCredKeys = oldCredentials.items.map((item) => String(item.key));
     const newCredKeys = newCredentials ? Object.keys(newCredentials) : [];
+    if (!newCredentials) {
+      YmlUtils.deleteByPath(container, ['credentials']);
+      return;
+    }
 
     // Remove credential keys that are not in the new credentials
     const removedCredKeys = oldCredKeys.filter((credKey) => !newCredKeys.includes(credKey));
@@ -176,15 +179,13 @@ function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['c
     });
 
     // Update and add credential keys
-    if (newCredentials) {
-      Object.entries(newCredentials).forEach(([credKey, credValue]) => {
-        if (credValue) {
-          YmlUtils.setIn(container, ['credentials', credKey], credValue);
-        } else {
-          YmlUtils.deleteByPath(container, ['credentials', credKey]);
-        }
-      });
-    }
+    Object.entries(newCredentials).forEach(([credKey, credValue]) => {
+      if (credValue) {
+        YmlUtils.setIn(container, ['credentials', credKey], credValue);
+      } else {
+        YmlUtils.deleteByPath(container, ['credentials', credKey]);
+      }
+    });
   } else if (newCredentials) {
     const filteredCredentials = filterCredentials(newCredentials);
     if (filteredCredentials) {
