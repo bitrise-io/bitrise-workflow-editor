@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, isScalar, isSeq, YAMLMap } from 'yaml';
+import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import {
@@ -130,6 +130,8 @@ function getAllContainers(containers: Containers, selector: (container: Containe
     .filter(selector);
 }
 
+type ContainerReferenceValue = string | Record<string, { recreate?: boolean }>;
+
 function getContainerReferences(
   workflowId: Workflow['id'],
   stepIndex: number,
@@ -138,27 +140,23 @@ function getContainerReferences(
 ): ContainerReference[] | undefined {
   const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
 
-  const parseReference = (value: unknown): ContainerReference | null => {
-    if (isScalar(value)) {
-      return { id: String(value.value), recreate: false };
-    }
-
+  const parseReference = (value: ContainerReferenceValue): ContainerReference => {
     if (typeof value === 'string') {
       return { id: value, recreate: false };
     }
 
-    if (isMap(value) && value.items.length > 0) {
-      const containerId = String(value.items[0]?.key);
-      const containerData = value.items[0]?.value;
-      const recreate = isMap(containerData) && containerData.get('recreate') === true;
+    const entries = Object.entries(value);
+    if (entries.length > 0) {
+      const [containerId, config] = entries[0];
+      const recreate = config?.recreate === true;
       return { id: containerId, recreate };
     }
 
-    return null;
+    return { id: String(value), recreate: false };
   };
 
   if (type === ContainerType.Execution) {
-    const executionContainer = stepData.get(ContainerReferenceField.Execution);
+    const executionContainer = stepData.get(ContainerReferenceField.Execution) as ContainerReferenceValue | undefined;
     if (!executionContainer) {
       return undefined;
     }
@@ -167,16 +165,11 @@ function getContainerReferences(
   }
 
   if (type === ContainerType.Service) {
-    const serviceContainers = stepData.get(ContainerReferenceField.Service);
-    if (!serviceContainers) {
-      return undefined;
-    }
-
-    if (isSeq(serviceContainers)) {
-      const refs = serviceContainers.items
-        .map((item) => parseReference(item))
-        .filter((ref): ref is ContainerReference => ref !== null);
-      return refs.length > 0 ? refs : undefined;
+    const serviceContainers = YmlUtils.getSeqIn(stepData, [ContainerReferenceField.Service])?.toJSON() as
+      | ContainerReferenceValue[]
+      | undefined;
+    if (serviceContainers && serviceContainers.length > 0) {
+      return serviceContainers.map(parseReference);
     }
 
     return undefined;
