@@ -2,15 +2,7 @@ import { uniq } from 'es-toolkit';
 import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
-import {
-  Container,
-  ContainerField,
-  ContainerFieldValue,
-  ContainerReferenceField,
-  ContainerType,
-  CredentialField,
-  CredentialFieldValue,
-} from '@/core/models/Container';
+import { Container, ContainerReferenceField, ContainerType } from '@/core/models/Container';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -187,14 +179,25 @@ function updateContainer(id: Container['id'], newContainer: ContainerModel) {
       YmlUtils.deleteByPath(container, [key]);
     });
 
-    // Update keys that are in both old and new container
-    updatedKeys.forEach((key) => {
-      YmlUtils.setIn(container, [key], containerData[key as keyof ContainerModel]);
-    });
+    // Update and add keys
+    [...updatedKeys, ...addedKeys].forEach((key) => {
+      const value = containerData[key as keyof ContainerModel];
 
-    // Add keys that are in the new container
-    addedKeys.forEach((key) => {
-      YmlUtils.setIn(container, [key], containerData[key as keyof ContainerModel]);
+      // Update credentials to preserve field order
+      if (key === 'credentials' && value && typeof value === 'object' && !Array.isArray(value)) {
+        const credentials = value as ContainerModel['credentials'];
+        if (credentials) {
+          Object.entries(credentials).forEach(([credKey, credValue]) => {
+            if (credValue) {
+              YmlUtils.setIn(container, ['credentials', credKey], credValue);
+            } else {
+              YmlUtils.deleteByPath(container, ['credentials', credKey]);
+            }
+          });
+        }
+      } else {
+        YmlUtils.setIn(container, [key], value);
+      }
     });
 
     return doc;
@@ -216,40 +219,6 @@ function updateContainerId(id: Container['id'], newId: Container['id']) {
     YmlUtils.updateKeyByPath(doc, ['containers', id], newId);
     YmlUtils.updateValueByValue(doc, ExecutionContainerWildcardRefPath, id, newId);
     YmlUtils.updateValueByValue(doc, ServiceContainerWildcardRefPath, id, newId);
-
-    return doc;
-  });
-}
-
-function updateContainerField<T extends ContainerField>(id: Container['id'], field: T, value: ContainerFieldValue<T>) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc);
-
-    const shouldDelete = Array.isArray(value) && value.length === 0;
-
-    if (!value || shouldDelete) {
-      YmlUtils.deleteByPath(container, [field]);
-    } else {
-      YmlUtils.setIn(container, [field], value);
-    }
-
-    return doc;
-  });
-}
-
-function updateCredentialField<T extends CredentialField>(
-  id: Container['id'],
-  field: T,
-  value: CredentialFieldValue<T>,
-) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc);
-
-    if (value) {
-      YmlUtils.setIn(container, ['credentials', field], value);
-    } else {
-      YmlUtils.deleteByPath(container, ['credentials', field]);
-    }
 
     return doc;
   });
@@ -374,9 +343,7 @@ export default {
   sanitizeName,
   updateContainer,
   updateContainerId,
-  updateContainerField,
   updateContainerReferenceRecreate,
-  updateCredentialField,
   validateName,
   validatePorts,
 };
