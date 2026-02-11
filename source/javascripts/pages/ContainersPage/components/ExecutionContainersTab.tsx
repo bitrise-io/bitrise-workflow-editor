@@ -44,9 +44,9 @@ const ExecutionContainersTab = () => {
       )}
       <CreateOrEditContainerDialog
         editedContainer={editedContainer}
-        setEditedContainer={setEditedContainer}
         isOpen={isDialogOpen}
         onClose={onDialogClose}
+        onCloseComplete={() => setEditedContainer(null)}
         type="execution"
       />
     </Box>

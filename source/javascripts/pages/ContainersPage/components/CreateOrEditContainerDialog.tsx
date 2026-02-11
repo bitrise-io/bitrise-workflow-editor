@@ -19,7 +19,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
@@ -30,7 +30,6 @@ import useContainers from '@/hooks/useContainers';
 
 type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
   editedContainer: Container | null;
-  setEditedContainer: Dispatch<SetStateAction<Container | null>>;
   type: 'execution' | 'service';
 };
 
@@ -41,7 +40,7 @@ type FormData = Omit<Container, 'userValues'> & {
 };
 
 const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) => {
-  const { editedContainer, isOpen, onClose, setEditedContainer, type } = props;
+  const { editedContainer, isOpen, onClose, onCloseComplete, type } = props;
 
   const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
@@ -106,16 +105,18 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         },
       };
       reset(formData);
-    } else {
-      setEditedContainer(null);
     }
-  }, [isOpen, editedContainer, type, reset, setEditedContainer]);
+  }, [isOpen, editedContainer, type, reset]);
 
   return (
     <Dialog
       title={editedContainer ? `Edit ${type} container` : `Create ${type} container`}
       isOpen={isOpen}
       onClose={onClose}
+      onCloseComplete={() => {
+        reset();
+        onCloseComplete?.();
+      }}
       scrollBehavior="inside"
       as="form"
       onSubmit={handleSubmit(onSubmit)}

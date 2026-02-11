@@ -46,7 +46,7 @@ const ServiceContainersTab = () => {
         editedContainer={editedContainer}
         isOpen={isDialogOpen}
         onClose={onDialogClose}
-        setEditedContainer={setEditedContainer}
+        onCloseComplete={() => setEditedContainer(null)}
         type="service"
       />
     </Box>
