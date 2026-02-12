@@ -1578,24 +1578,24 @@ describe('ContainerService', () => {
       `);
     });
 
-    it('removes ports when they become empty', () => {
-      updateBitriseYmlDocumentByString(
-        yaml`
-          workflows:
-            primary: {}
-          containers:
-            node:
-              type: execution
-              image: node:18
-              ports:
-              - 3000:3000
-        `,
-      );
+    it('removes server when set to empty string', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+            credentials:
+              username: user
+              password: pass
+              server: registry.example.com
+      `);
 
       ContainerService.updateContainer('node', {
         type: 'execution',
         image: 'node:18',
-        ports: [],
+        credentials: { username: 'user', password: 'pass', server: '' },
       });
 
       expect(getYmlString()).toEqual(yaml`
@@ -1605,27 +1605,10 @@ describe('ContainerService', () => {
           node:
             type: execution
             image: node:18
+            credentials:
+              username: user
+              password: pass
       `);
-    });
-
-    it('should throw an error if the container does not exist', () => {
-      updateBitriseYmlDocumentByString(
-        yaml`
-          workflows:
-            primary: {}
-          containers:
-            node:
-              type: execution
-              image: node:18
-        `,
-      );
-
-      expect(() => {
-        ContainerService.updateContainer('postgres', {
-          type: 'service',
-          image: 'postgres:15',
-        });
-      }).toThrow("Container postgres not found. Ensure that the container exists in the 'containers' section.");
     });
 
     it('updates only credential fields that are provided', () => {
@@ -1664,6 +1647,134 @@ describe('ContainerService', () => {
               username: newuser
               password: pass
               server: ghcr.io
+      `);
+    });
+
+    it('updates references if they have recreate field', () => {
+      updateBitriseYmlDocumentByString(
+        yaml` 
+        workflows: 
+          primary: 
+            steps: 
+            - script
+        containers: 
+          node: 
+            type: execution 
+            image: node:18
+        execution_container: 
+          node: 
+            recreate: true 
+         `,
+      );
+
+      ContainerService.updateContainer('node', { type: 'execution', image: 'node:20' });
+
+      expect(getYmlString()).toEqual(
+        yaml`
+        workflows:
+          primary:
+            steps:
+            - script
+        containers:
+          node:
+            type: execution
+            image: node:20
+        execution_container:
+          node:
+            recreate: true
+        `,
+      );
+    });
+
+    it('removes ports when they become empty', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+              ports:
+              - 3000:3000
+        `,
+      );
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:18',
+        ports: [],
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+      `);
+    });
+
+    it('updates ports correctly when multiple ports are changed to a single port', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+            ports:
+            - 3000:3000
+      `);
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:18',
+        ports: ['3000:3000'],
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+            ports:
+            - 3000:3000
+      `);
+    });
+
+    it('updates ports correctly when multiple ports added', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+            ports:
+            - 3000:3000
+      `);
+
+      ContainerService.updateContainer('node', {
+        type: 'execution',
+        image: 'node:18',
+        ports: ['3000:3000', '8080:8080', '9090:9090'],
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          node:
+            type: execution
+            image: node:18
+            ports:
+            - 3000:3000
+            - 8080:8080
+            - 9090:9090
       `);
     });
 
@@ -1724,6 +1835,53 @@ describe('ContainerService', () => {
             image: redis:7
       `);
     });
+
+    it('removes options when set to empty string', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          primary: {}
+        containers:
+          redis:
+            type: service
+            image: redis:7
+            options: '--maxmemory 100mb'
+      `);
+
+      ContainerService.updateContainer('redis', {
+        type: 'service',
+        image: 'redis:7',
+        options: '',
+      });
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary: {}
+        containers:
+          redis:
+            type: service
+            image: redis:7
+      `);
+    });
+
+    it('should throw an error if the container does not exist', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary: {}
+          containers:
+            node:
+              type: execution
+              image: node:18
+        `,
+      );
+
+      expect(() => {
+        ContainerService.updateContainer('postgres', {
+          type: 'service',
+          image: 'postgres:15',
+        });
+      }).toThrow("Container postgres not found. Ensure that the container exists in the 'containers' section.");
+    });
   });
 
   describe('updateContainerId', () => {
@@ -1740,7 +1898,8 @@ describe('ContainerService', () => {
                 execution_container: ubuntu
           wf2:
             steps:
-            - deploy: {}
+            - deploy:
+                execution_container: ubuntu
       `);
 
       ContainerService.updateContainerId('ubuntu', 'ubuntu20');
@@ -1757,7 +1916,8 @@ describe('ContainerService', () => {
                 execution_container: ubuntu20
           wf2:
             steps:
-            - deploy: {}
+            - deploy:
+                execution_container: ubuntu20
       `;
 
       expect(getYmlString()).toBe(expectedYml);
@@ -1806,6 +1966,49 @@ describe('ContainerService', () => {
                 - redis
       `;
 
+      expect(getYmlString()).toBe(expectedYml);
+    });
+
+    it('should update references that have recreate field', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        containers:
+          ubuntu:
+            type: execution
+            image: ubuntu:20.04
+          redis:
+            type: service
+            image: redis:6
+        workflows:
+          wf1:
+            steps:
+            - script:
+                execution_container:
+                  ubuntu:
+                    recreate: true
+                service_containers:
+                - redis
+      `);
+
+      ContainerService.updateContainerId('ubuntu', 'ubuntu20');
+
+      const expectedYml = yaml`
+        containers:
+          ubuntu20:
+            type: execution
+            image: ubuntu:20.04
+          redis:
+            type: service
+            image: redis:6
+        workflows:
+          wf1:
+            steps:
+            - script:
+                execution_container:
+                  ubuntu20:
+                    recreate: true
+                service_containers:
+                - redis
+      `;
       expect(getYmlString()).toBe(expectedYml);
     });
 
