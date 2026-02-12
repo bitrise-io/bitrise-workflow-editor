@@ -11,6 +11,26 @@ import YmlUtils from '@/core/utils/YmlUtils';
 const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
 const ServiceContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
 
+function getContainerOrThrowError(id: string, doc: Document) {
+  const container = YmlUtils.getMapIn(doc, ['containers', id]);
+
+  if (!container) {
+    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
+  }
+
+  return container;
+}
+
+function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
+  const step = StepService.getStepOrThrowError('workflows', workflowId, stepIndex, doc);
+  const stepData = step.items[0]?.value;
+  if (!isMap(stepData)) {
+    throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+  }
+
+  return stepData;
+}
+
 function addContainerReference(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
@@ -32,6 +52,18 @@ function addContainerReference(workflowId: string, stepIndex: number, containerI
 
     return doc;
   });
+}
+
+function filterCredentials(credentials: ContainerModel['credentials']) {
+  if (!credentials) {
+    return undefined;
+  }
+
+  const filteredCredentials = Object.entries(credentials)
+    .filter(([_, value]) => !!value)
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+  return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
 function cleanContainerData(container: ContainerModel) {
@@ -100,44 +132,12 @@ function removeContainerReference(workflowId: string, stepIndex: number, contain
   });
 }
 
-function filterCredentials(credentials: ContainerModel['credentials']) {
-  if (!credentials) {
-    return undefined;
-  }
-
-  const filteredCredentials = Object.entries(credentials)
-    .filter(([_, value]) => !!value)
-    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-  return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
-}
-
 const identity = (_: Container) => true;
 
 function getAllContainers(containers: Containers, selector: (container: Container) => boolean = identity): Container[] {
   return Object.entries(containers)
     .map(([id, userValues]) => ({ id, userValues }) as Container)
     .filter(selector);
-}
-
-function getContainerOrThrowError(id: string, doc: Document) {
-  const container = YmlUtils.getMapIn(doc, ['containers', id]);
-
-  if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
-  }
-
-  return container;
-}
-
-function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
-  const step = StepService.getStepOrThrowError('workflows', workflowId, stepIndex, doc);
-  const stepData = step.items[0]?.value;
-  if (!isMap(stepData)) {
-    throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-  }
-
-  return stepData;
 }
 
 function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
@@ -164,34 +164,36 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string): string[
 
 function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
   const oldCredentials = container.get('credentials');
-  if (oldCredentials && isMap(oldCredentials)) {
-    const oldCredKeys = oldCredentials.items.map((item) => String(item.key));
-    const newCredKeys = newCredentials ? Object.keys(newCredentials) : [];
-    if (!newCredentials) {
-      YmlUtils.deleteByPath(container, ['credentials']);
-      return;
-    }
+  const hasOldCredentials = oldCredentials && isMap(oldCredentials);
+  const filteredNewCredentials = filterCredentials(newCredentials);
 
-    // Remove credential keys that are not in the new credentials
-    const removedCredKeys = oldCredKeys.filter((credKey) => !newCredKeys.includes(credKey));
-    removedCredKeys.forEach((credKey) => {
-      YmlUtils.deleteByPath(container, ['credentials', credKey]);
-    });
-
-    // Update and add credential keys
-    Object.entries(newCredentials).forEach(([credKey, credValue]) => {
-      if (credValue) {
-        YmlUtils.setIn(container, ['credentials', credKey], credValue);
-      } else {
-        YmlUtils.deleteByPath(container, ['credentials', credKey]);
-      }
-    });
-  } else if (newCredentials) {
-    const filteredCredentials = filterCredentials(newCredentials);
-    if (filteredCredentials) {
-      YmlUtils.setIn(container, ['credentials'], filteredCredentials);
-    }
+  if (!filteredNewCredentials) {
+    return;
   }
+
+  if (!filteredNewCredentials && hasOldCredentials) {
+    YmlUtils.deleteByPath(container, ['credentials']);
+  }
+
+  if (hasOldCredentials) {
+    const oldCredKeys = oldCredentials.items.map((item) => String(item.key));
+    const newCredKeys = Object.keys(filteredNewCredentials);
+
+    // Remove old keys that are not in new credentials
+    const keysToRemove = oldCredKeys.filter((key) => !newCredKeys.includes(key));
+    keysToRemove.forEach((key) => {
+      YmlUtils.deleteByPath(container, ['credentials', key]);
+    });
+
+    // Update or add credential keys
+    Object.entries(filteredNewCredentials).forEach(([key, value]) => {
+      YmlUtils.setIn(container, ['credentials', key], value);
+    });
+    return;
+  }
+
+  // Add new credentials if there were no credentials before
+  YmlUtils.setIn(container, ['credentials'], filteredNewCredentials);
 }
 
 function updateContainer(id: Container['id'], newContainer: ContainerModel) {
@@ -242,14 +244,9 @@ function updateContainerId(id: Container['id'], newId: Container['id']) {
     YmlUtils.updateValueByValue(doc, ExecutionContainerWildcardRefPath, id, newId);
     YmlUtils.updateValueByValue(doc, ServiceContainerWildcardRefPath, id, newId);
 
-    [ExecutionContainerWildcardRefPath, ServiceContainerWildcardRefPath].forEach((basePath) => {
-      YmlUtils.getMatchingPaths(doc, basePath).forEach(([path]) => {
-        const node = doc.getIn(path);
-        if (isMap(node) && node.has(id)) {
-          YmlUtils.updateKeyByPath(doc, [...path, id], newId);
-        }
-      });
-    });
+    // Update container IDs in recreate flag references
+    YmlUtils.updateKeyByPath(doc, [...ExecutionContainerWildcardRefPath, id], newId);
+    YmlUtils.updateKeyByPath(doc, [...ServiceContainerWildcardRefPath, id], newId);
 
     return doc;
   });
