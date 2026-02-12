@@ -19,7 +19,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
@@ -28,7 +28,8 @@ import { Container } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
 
-type CreateContainerDialogProps = Omit<DialogProps, 'title'> & {
+type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
+  editedContainer: Container | null;
   type: 'execution' | 'service';
 };
 
@@ -38,17 +39,17 @@ type FormData = Omit<Container, 'userValues'> & {
   };
 };
 
-const CreateContainerDialog = (props: CreateContainerDialogProps) => {
-  const { isOpen, onClose, type } = props;
+const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) => {
+  const { editedContainer, isOpen, onClose, onCloseComplete, type } = props;
 
   const containerIds = useContainers((s) => Object.keys(s));
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
-  const defaultValues: FormData = useMemo(
-    () => ({
+  const { control, formState, handleSubmit, reset } = useForm<FormData>({
+    defaultValues: {
       id: '',
       userValues: {
-        type: type,
+        type,
         image: '',
         ports: '',
         credentials: {
@@ -58,12 +59,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
         },
         options: '',
       },
-    }),
-    [type],
-  );
-
-  const { control, formState, handleSubmit, reset } = useForm<FormData>({
-    defaultValues,
+    },
     mode: 'onChange',
   });
 
@@ -81,21 +77,46 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
       },
     };
 
-    ContainerService.createContainer(container.id, container.userValues);
+    if (editedContainer) {
+      if (container.id !== editedContainer.id) {
+        ContainerService.updateContainerId(editedContainer.id, container.id);
+      }
+      ContainerService.updateContainer(container.id, container.userValues);
+    } else {
+      ContainerService.createContainer(container.id, container.userValues);
+    }
     onClose();
   };
 
   useEffect(() => {
     if (isOpen) {
-      reset(defaultValues);
+      const formData: FormData = {
+        id: editedContainer?.id || '',
+        userValues: {
+          type,
+          image: editedContainer?.userValues.image || '',
+          ports: editedContainer?.userValues.ports?.join(', ') || '',
+          credentials: {
+            server: editedContainer?.userValues.credentials?.server || '',
+            username: editedContainer?.userValues.credentials?.username || '',
+            password: editedContainer?.userValues.credentials?.password || '',
+          },
+          options: editedContainer?.userValues.options || '',
+        },
+      };
+      reset(formData);
     }
-  }, [defaultValues, isOpen, reset]);
+  }, [isOpen, editedContainer, type, reset]);
 
   return (
     <Dialog
-      title={`Create ${type} container`}
+      title={editedContainer ? `Edit ${type} container` : `Create ${type} container`}
       isOpen={isOpen}
       onClose={onClose}
+      onCloseComplete={() => {
+        reset();
+        onCloseComplete?.();
+      }}
       scrollBehavior="inside"
       as="form"
       onSubmit={handleSubmit(onSubmit)}
@@ -105,8 +126,7 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
           control={control}
           name="id"
           rules={{
-            required: 'Unique ID is required',
-            validate: (value) => ContainerService.validateName(value, '', containerIds),
+            validate: (value) => ContainerService.validateName(value, editedContainer?.id || '', containerIds),
           }}
           render={({ field: { onChange, ...fieldProps } }) => (
             <Input
@@ -254,11 +274,11 @@ const CreateContainerDialog = (props: CreateContainerDialogProps) => {
           Cancel
         </Button>
         <Button type="submit" isDisabled={!formState.isValid || !formState.isDirty}>
-          Create container
+          {editedContainer ? 'Save' : 'Create container'}
         </Button>
       </DialogFooter>
     </Dialog>
   );
 };
 
-export default CreateContainerDialog;
+export default CreateOrEditContainerDialog;

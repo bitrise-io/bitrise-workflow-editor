@@ -19,13 +19,21 @@ import { Container } from '@/core/models/Container';
 import ContainerUsageDialog from './ContainerUsageDialog';
 import DeleteContainerDialog from './DeleteContainerDialog';
 
-type Props = {
+type ContainersTableProps = {
   containers: Container[];
   containerUsageLookup: Map<string, string[]>;
+  openDialog: () => void;
+  setEditedContainer: (value: Container | null) => void;
 };
 
-const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
+const ContainersTable = ({
+  containers,
+  containerUsageLookup,
+  openDialog,
+  setEditedContainer,
+}: ContainersTableProps) => {
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
+
   const {
     isOpen: isContainerUsageDialogOpen,
     onOpen: onContainerUsageDialogOpen,
@@ -87,7 +95,10 @@ const ContainersTable = ({ containers, containerUsageLookup }: Props) => {
                     aria-label="Edit container"
                     iconName="Pencil"
                     color="icon/primary"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setEditedContainer(container);
+                      openDialog();
+                    }}
                     mr={['0', '8']}
                   />
                   <ControlButton

@@ -2,15 +2,7 @@ import { uniq } from 'es-toolkit';
 import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
-import {
-  Container,
-  ContainerField,
-  ContainerFieldValue,
-  ContainerReferenceField,
-  ContainerType,
-  CredentialField,
-  CredentialFieldValue,
-} from '@/core/models/Container';
+import { Container, ContainerReferenceField, ContainerType } from '@/core/models/Container';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -18,6 +10,26 @@ import YmlUtils from '@/core/utils/YmlUtils';
 
 const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
 const ServiceContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
+
+function getContainerOrThrowError(id: string, doc: Document) {
+  const container = YmlUtils.getMapIn(doc, ['containers', id]);
+
+  if (!container) {
+    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
+  }
+
+  return container;
+}
+
+function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
+  const step = StepService.getStepOrThrowError('workflows', workflowId, stepIndex, doc);
+  const stepData = step.items[0]?.value;
+  if (!isMap(stepData)) {
+    throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+  }
+
+  return stepData;
+}
 
 function addContainerReference(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -40,6 +52,18 @@ function addContainerReference(workflowId: string, stepIndex: number, containerI
 
     return doc;
   });
+}
+
+function filterCredentials(credentials: ContainerModel['credentials']) {
+  if (!credentials) {
+    return undefined;
+  }
+
+  const filteredCredentials = Object.entries(credentials)
+    .filter(([_, value]) => !!value)
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+  return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
 }
 
 function cleanContainerData(container: ContainerModel) {
@@ -108,44 +132,12 @@ function removeContainerReference(workflowId: string, stepIndex: number, contain
   });
 }
 
-function filterCredentials(credentials: ContainerModel['credentials']) {
-  if (!credentials) {
-    return undefined;
-  }
-
-  const filteredCredentials = Object.entries(credentials)
-    .filter(([_, value]) => !!value)
-    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-  return Object.keys(filteredCredentials).length > 0 ? filteredCredentials : undefined;
-}
-
 const identity = (_: Container) => true;
 
 function getAllContainers(containers: Containers, selector: (container: Container) => boolean = identity): Container[] {
   return Object.entries(containers)
     .map(([id, userValues]) => ({ id, userValues }) as Container)
     .filter(selector);
-}
-
-function getContainerOrThrowError(id: string, doc: Document) {
-  const container = YmlUtils.getMapIn(doc, ['containers', id]);
-
-  if (!container) {
-    throw new Error(`Container ${id} not found. Ensure that the container exists in the 'containers' section.`);
-  }
-
-  return container;
-}
-
-function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
-  const step = StepService.getStepOrThrowError('workflows', workflowId, stepIndex, doc);
-  const stepData = step.items[0]?.value;
-  if (!isMap(stepData)) {
-    throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
-  }
-
-  return stepData;
 }
 
 function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
@@ -170,6 +162,72 @@ function getWorkflowsUsingContainer(doc: Document, containerId: string): string[
   return uniq(paths.map((path) => String(path[0][1])));
 }
 
+function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
+  const oldCredentials = container.get('credentials');
+  const hasOldCredentials = oldCredentials && isMap(oldCredentials);
+  const filteredNewCredentials = filterCredentials(newCredentials);
+
+  if (!filteredNewCredentials) {
+    return;
+  }
+
+  if (!filteredNewCredentials && hasOldCredentials) {
+    YmlUtils.deleteByPath(container, ['credentials']);
+  }
+
+  if (hasOldCredentials) {
+    const oldCredKeys = oldCredentials.items.map((item) => String(item.key));
+    const newCredKeys = Object.keys(filteredNewCredentials);
+
+    // Remove old keys that are not in new credentials
+    const keysToRemove = oldCredKeys.filter((key) => !newCredKeys.includes(key));
+    keysToRemove.forEach((key) => {
+      YmlUtils.deleteByPath(container, ['credentials', key]);
+    });
+
+    // Update or add credential keys
+    Object.entries(filteredNewCredentials).forEach(([key, value]) => {
+      YmlUtils.setIn(container, ['credentials', key], value);
+    });
+    return;
+  }
+
+  // Add new credentials if there were no credentials before
+  YmlUtils.setIn(container, ['credentials'], filteredNewCredentials);
+}
+
+function updateContainer(id: Container['id'], newContainer: ContainerModel) {
+  updateBitriseYmlDocument(({ doc }) => {
+    const container = getContainerOrThrowError(id, doc);
+
+    const containerData = cleanContainerData(newContainer);
+    const oldKeys = Object.keys(container.toJSON());
+    const newKeys = Object.keys(containerData);
+
+    const removedKeys = oldKeys.filter((key) => !newKeys.includes(key));
+    const addedKeys = newKeys.filter((key) => !oldKeys.includes(key));
+    const updatedKeys = newKeys.filter((key) => oldKeys.includes(key));
+
+    // Remove keys that are not in the new container
+    removedKeys.forEach((key) => {
+      YmlUtils.deleteByPath(container, [key]);
+    });
+
+    // Update and add keys
+    [...updatedKeys, ...addedKeys].forEach((key) => {
+      const value = containerData[key as keyof ContainerModel];
+
+      if (key === 'credentials') {
+        updateCredentials(container, newContainer.credentials);
+      } else {
+        YmlUtils.setIn(container, [key], value);
+      }
+    });
+
+    return doc;
+  });
+}
+
 function updateContainerId(id: Container['id'], newId: Container['id']) {
   updateBitriseYmlDocument(({ doc }) => {
     getContainerOrThrowError(id, doc);
@@ -186,39 +244,9 @@ function updateContainerId(id: Container['id'], newId: Container['id']) {
     YmlUtils.updateValueByValue(doc, ExecutionContainerWildcardRefPath, id, newId);
     YmlUtils.updateValueByValue(doc, ServiceContainerWildcardRefPath, id, newId);
 
-    return doc;
-  });
-}
-
-function updateContainerField<T extends ContainerField>(id: Container['id'], field: T, value: ContainerFieldValue<T>) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc);
-
-    const shouldDelete = Array.isArray(value) && value.length === 0;
-
-    if (!value || shouldDelete) {
-      YmlUtils.deleteByPath(container, [field]);
-    } else {
-      YmlUtils.setIn(container, [field], value);
-    }
-
-    return doc;
-  });
-}
-
-function updateCredentialField<T extends CredentialField>(
-  id: Container['id'],
-  field: T,
-  value: CredentialFieldValue<T>,
-) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(id, doc);
-
-    if (value) {
-      YmlUtils.setIn(container, ['credentials', field], value);
-    } else {
-      YmlUtils.deleteByPath(container, ['credentials', field]);
-    }
+    // Update container IDs in recreate flag references
+    YmlUtils.updateKeyByPath(doc, [...ExecutionContainerWildcardRefPath, id], newId);
+    YmlUtils.updateKeyByPath(doc, [...ServiceContainerWildcardRefPath, id], newId);
 
     return doc;
   });
@@ -341,10 +369,9 @@ export default {
   sanitizePort,
   removeContainerReference,
   sanitizeName,
+  updateContainer,
   updateContainerId,
-  updateContainerField,
   updateContainerReferenceRecreate,
-  updateCredentialField,
   validateName,
   validatePorts,
 };
