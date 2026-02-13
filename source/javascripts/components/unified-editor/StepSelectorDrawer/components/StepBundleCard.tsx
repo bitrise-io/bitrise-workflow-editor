@@ -192,7 +192,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
             <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} workflowId={workflowId} />
             </Box>
           </Collapse>
         </>
