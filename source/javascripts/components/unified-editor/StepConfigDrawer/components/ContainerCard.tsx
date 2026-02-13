@@ -110,7 +110,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                 {shouldShowAddButton ? (
                   <>
                     <Td>
-                      <ContainersMenu containers={containers} type={type} />
+                      <ContainersMenu containers={containers} references={references} type={type} />
                     </Td>
                     <Td />
                     <Td />

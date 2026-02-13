@@ -1,6 +1,6 @@
 import { Button, Divider, Menu, MenuButton, MenuItem, MenuList, Text } from '@bitrise/bitkit';
 
-import { Container, ContainerType } from '@/core/models/Container';
+import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useNavigation from '@/hooks/useNavigation';
 
@@ -8,14 +8,18 @@ import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 type ContainersMenuProps = {
   containers: Container[];
+  references?: ContainerReference[];
   type: ContainerType;
 };
 
 const ContainersMenu = (props: ContainersMenuProps) => {
-  const { containers, type } = props;
+  const { containers, references, type } = props;
 
   const { stepIndex, workflowId } = useStepDrawerContext();
   const { replace } = useNavigation();
+
+  const selectedContainerIds = new Set(references?.map((ref) => ref.id) || []);
+  const availableContainers = containers.filter((container) => !selectedContainerIds.has(container.id));
 
   return (
     <Menu>
@@ -23,7 +27,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
         Add container
       </MenuButton>
       <MenuList>
-        {containers.map((container) => (
+        {availableContainers.map((container) => (
           <MenuItem
             key={container.id}
             onClick={() => ContainerService.addContainerReference(workflowId, stepIndex, container.id)}
@@ -35,7 +39,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
             <Text color="text/helper">{container.userValues.image}</Text>
           </MenuItem>
         ))}
-        <Divider color="border/minimal" mb="8" />
+        {availableContainers.length > 0 && <Divider color="border/minimal" mb="8" />}
         <MenuItem onClick={() => replace('/containers', { tab: type })}>Manage containers</MenuItem>
       </MenuList>
     </Menu>
