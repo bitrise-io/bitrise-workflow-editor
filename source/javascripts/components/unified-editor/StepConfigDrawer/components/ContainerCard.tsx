@@ -27,11 +27,11 @@ type ContainerCardProps = {
   type: ContainerType;
   containers: Container[];
   references: ContainerReference[] | undefined;
+  isStepBundle?: boolean | string;
 };
 
 const ContainerCard = (props: ContainerCardProps) => {
-  const { type, containers, references } = props;
-
+  const { type, containers, references, isStepBundle } = props;
   const { stepIndex, stepBundleId, workflowId } = useStepDrawerContext();
   const { replace } = useNavigation();
 
@@ -120,7 +120,8 @@ const ContainerCard = (props: ContainerCardProps) => {
                     <Box display="flex" alignItems="center" gap="4" pl="4">
                       <Icon name="InfoCircle" color="icon/tertiary" size="16" />
                       <Text textStyle="body/md/regular" color="text/secondary">
-                        You can only add one execution container per {stepBundleId ? 'Step bundle' : 'Step'}.
+                        You can only add one execution container per{' '}
+                        {isStepBundle || (isStepBundle && stepBundleId) ? 'Step bundle' : 'Step'}.
                       </Text>
                     </Box>
                   </Td>
