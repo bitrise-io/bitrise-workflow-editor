@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, DialogProps, Divider, Icon, Text } from '@bitrise/bitkit';
+import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Divider, Text } from '@bitrise/bitkit';
 
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -26,16 +26,14 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
             {selectedContainerId}?
           </Text>
         </Text>
-        <Box display="flex" alignItems="center" gap="8">
-          <Icon name="Cross" color="icon/negative" />
-          <Text>All settings of this container will be deleted.</Text>
-        </Box>
+        <Text>
+          The container will be permanently deleted.
+          {type === 'definition' && workflowsUsedByContainer.length > 0 && (
+            <Text as="span"> It will be removed from {workflowsUsedByContainer.length} Workflows.</Text>
+          )}
+        </Text>
         {type === 'definition' && workflowsUsedByContainer.length > 0 && (
           <>
-            <Box display="flex" alignItems="center" gap="8" mt="8">
-              <Icon name="Cross" color="icon/negative" />
-              <Text>All container usage will be deleted from the following Workflows:</Text>
-            </Box>
             <ContainerUsageTable workflows={workflowsUsedByContainer} />
             <Divider color="border/regular" />
           </>
