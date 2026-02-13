@@ -93,7 +93,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
-                <Tab>Containers</Tab>
+                {!!workflowId && <Tab>Containers</Tab>}
               </TabList>
             </Box>
           </FloatingDrawerHeader>
@@ -110,9 +110,11 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                   <OutputVariablesTab />
                 </TabPanel>
               )}
-              <TabPanel>
-                <ContainersTab />
-              </TabPanel>
+              {!!workflowId && (
+                <TabPanel>
+                  <ContainersTab />
+                </TabPanel>
+              )}
             </TabPanels>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
