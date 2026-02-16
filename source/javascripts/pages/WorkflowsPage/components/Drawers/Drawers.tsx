@@ -117,7 +117,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(WorkflowsPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
-          parentWorkflowId={workflowId}
+          parentWorkflowId={stepBundleId ? undefined : workflowId}
           stepIndex={selectedStepIndices[0]}
           parentStepBundleId={stepBundleId}
         />
