@@ -77,7 +77,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   const isHighlighted = isSelected({ workflowId, stepBundleId, stepIndex });
   const isPlaceholder = sortable.isDragging;
-  const currentStepBundleId = StepBundleService.cvsToId(cvs);
   const isButton = onSelectStep && (workflowId || stepBundleId);
 
   const handleClick = isButton
@@ -86,7 +85,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
           type: LibraryType.BUNDLE,
-          stepBundleId: stepBundleId || currentStepBundleId,
+          stepBundleId: stepBundleId,
           wfId: workflowId,
         });
       }
