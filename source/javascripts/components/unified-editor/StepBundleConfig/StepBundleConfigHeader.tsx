@@ -5,24 +5,21 @@ import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
 
-import { useStepDrawerContext } from '../StepConfigDrawer/StepConfigDrawer.context';
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type HeaderProps = {
   variant: 'panel' | 'drawer';
+  showContainers?: boolean;
 };
 
-const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
+const StepBundleConfigHeader = ({ variant, showContainers = false }: HeaderProps) => {
   const { cvs, stepBundleId, title } = useStepBundleConfigContext((s) => ({
     cvs: s.stepBundle?.cvs || '',
     stepBundleId: s.stepBundle?.id || s.stepBundleId || '',
     title: s.stepBundle?.mergedValues?.title || s.stepBundle?.id || 'Step bundle',
   }));
 
-  const { workflowId } = useStepDrawerContext();
-
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
-
   const { replace } = useNavigation();
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
@@ -59,7 +56,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
         <Tab>Properties</Tab>
-        {!!workflowId && <Tab>Containers</Tab>}
+        {showContainers && <Tab>Containers</Tab>}
       </TabList>
     </>
   );

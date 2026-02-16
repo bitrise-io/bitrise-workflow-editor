@@ -124,6 +124,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onCloseComplete={unmountDialog}
           parentWorkflowId={workflowId}
           stepIndex={selectedStepIndices[0]}
+          showContainers={true}
           parentStepBundleId={stepBundleId}
         />
       )}
