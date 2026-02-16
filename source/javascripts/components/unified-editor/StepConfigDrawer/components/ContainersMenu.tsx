@@ -8,12 +8,13 @@ import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 type ContainersMenuProps = {
   containers: Container[];
+  isDisabled?: boolean;
   references?: ContainerReference[];
   type: ContainerType;
 };
 
 const ContainersMenu = (props: ContainersMenuProps) => {
-  const { containers, references, type } = props;
+  const { containers, isDisabled, references, type } = props;
 
   const { stepIndex, workflowId } = useStepDrawerContext();
   const { replace } = useNavigation();
@@ -23,7 +24,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
 
   return (
     <Menu>
-      <MenuButton as={Button} variant="tertiary" leftIconName="Plus" size="sm">
+      <MenuButton as={Button} variant="tertiary" leftIconName="Plus" size="sm" isDisabled={isDisabled}>
         Add container
       </MenuButton>
       <MenuList>

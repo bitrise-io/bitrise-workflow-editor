@@ -21,6 +21,7 @@ const ContainersTab = () => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
 
+  //TODO: pass stepbundleID
   const executionReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Execution);
   const serviceReferences = useContainerReferences(workflowId, stepIndex, ContainerType.Service);
 
@@ -54,29 +55,32 @@ const ContainersTab = () => {
     parentStepBundleIndex >= 0 &&
     (!!parentBundleExecutionReferences || !!parentBundleServiceReferences);
 
+  const childHasReferences = !!executionReferences || !!serviceReferences;
+
   return (
     <Box display="flex" flexDir="column" gap="24">
-      {parentHasReferences && (
+      {!childHasReferences && parentHasReferences ? (
         <Notification status="info">
           <Text textStyle="comp/notification/title">Containers managed by Step bundle</Text>
           <Text textStyle="comp/notification/message">
             This Step is part of a containerized Step bundle. You can change the container settings on the Step bundle.
           </Text>
         </Notification>
-      )}
-      {!parentHasReferences && (
+      ) : (
         <>
           <ContainerCard
             type={ContainerType.Execution}
             containers={executionContainers}
             references={executionReferences}
             isStepBundle={isStepBundle}
+            isDisabled={childHasReferences && parentHasReferences}
           />
           <ContainerCard
             type={ContainerType.Service}
             containers={serviceContainers}
             references={serviceReferences}
             isStepBundle={isStepBundle}
+            isDisabled={childHasReferences && parentHasReferences}
           />
         </>
       )}
