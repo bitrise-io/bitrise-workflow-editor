@@ -9,7 +9,7 @@ function useContainerReferences(
 ): ContainerReference[] | undefined {
   const ymlDocument = useBitriseYmlStore((state) => state.ymlDocument);
 
-  if (!workflowId) {
+  if (!workflowId || stepIndex < 0) {
     return undefined;
   }
 
