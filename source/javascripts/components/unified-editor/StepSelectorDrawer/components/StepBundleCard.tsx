@@ -131,7 +131,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
 
   const stepBundleInstance = useStepBundle({
-    stepBundleId: workflowId || stepBundleId ? undefined : StepBundleService.cvsToId(cvs),
+    stepBundleId: StepBundleService.cvsToId(cvs),
     parentWorkflowId: workflowId,
     parentStepBundleId: stepBundleId,
     stepIndex,
