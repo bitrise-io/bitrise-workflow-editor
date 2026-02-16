@@ -3,6 +3,7 @@ import { sortBy, uniqBy } from 'es-toolkit';
 import aa from 'search-insights';
 
 import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
@@ -53,6 +54,17 @@ aa('init', {
 
 // Search Functions
 function searchSteps(query: string, categories: string[], maintainers: string[]) {
+  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
+
+  // If non-Bitrise steps are not allowed, force filter to only 'bitrise' maintainer
+  let effectiveMaintainers: string[];
+  if (allowNonBitriseSteps) {
+    effectiveMaintainers = maintainers;
+  } else {
+    const filtered = maintainers.filter((m) => m === Maintainer.Bitrise);
+    effectiveMaintainers = filtered.length > 0 ? filtered : [Maintainer.Bitrise];
+  }
+
   return client.searchSingleIndex<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
     searchParams: {
@@ -64,7 +76,7 @@ function searchSteps(query: string, categories: string[], maintainers: string[])
         'is_latest:true',
         'is_deprecated:false',
         categories.map((category) => `step.type_tags:${category}`),
-        maintainers.map((maintainer) => `info.maintainer:${maintainer}`),
+        effectiveMaintainers.map((maintainer) => `info.maintainer:${maintainer}`),
       ],
     },
   });
@@ -72,13 +84,18 @@ function searchSteps(query: string, categories: string[], maintainers: string[])
 
 // Browse Functions
 async function getAllSteps() {
+  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
   const results: Array<AlgoliaStepResponse> = [];
+
+  const filters = allowNonBitriseSteps
+    ? 'is_latest:true AND is_deprecated:false'
+    : 'is_latest:true AND is_deprecated:false AND info.maintainer:bitrise';
 
   await client.browseObjects<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
     aggregator: ({ hits }) => results.push(...hits),
     browseParams: {
-      filters: 'is_latest:true AND is_deprecated:false',
+      filters,
     },
   });
 

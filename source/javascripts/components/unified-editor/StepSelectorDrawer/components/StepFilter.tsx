@@ -12,6 +12,7 @@ import { capitalize, startCase } from 'es-toolkit';
 import { memo, useCallback, useMemo } from 'react';
 
 import StepService from '@/core/services/StepService';
+import PageProps from '@/core/utils/PageProps';
 import { useAlgoliaSteps } from '@/hooks/useAlgolia';
 
 import useSearch from '../hooks/useSearch';
@@ -43,6 +44,7 @@ const MAINTAINERS: Array<{
 ];
 
 const StepFilterCategories = memo(function StepFilterCategories() {
+  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
   const { data: steps = [] } = useAlgoliaSteps();
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
 
@@ -76,7 +78,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
         ))}
         <Divider orientation="vertical" height="auto" />
         {MAINTAINERS.map(({ key, icon, label }) => (
-          <SelectableTag key={key} value={key}>
+          <SelectableTag key={key} value={key} isDisabled={!allowNonBitriseSteps && key !== 'bitrise'}>
             <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
             {label}
           </SelectableTag>

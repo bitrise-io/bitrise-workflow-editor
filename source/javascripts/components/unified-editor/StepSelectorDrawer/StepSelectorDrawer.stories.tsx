@@ -95,3 +95,9 @@ export const Error: Story = {
 };
 
 export const WithStepLimit: Story = withStepLimit(Default);
+
+export const OnlyBitriseSteps: Story = {
+  beforeEach: () => {
+    set(window, 'parent.pageProps.limits.allowNonBitriseSteps', false);
+  },
+};
