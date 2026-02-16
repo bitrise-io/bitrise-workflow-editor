@@ -5,7 +5,7 @@ import useStep from '@/hooks/useStep';
 
 import VersionChangedDialog from '../VersionChangedDialog/VersionChangedDialog';
 
-type Props = { workflowId: string; stepIndex: number; stepBundleId?: string };
+type Props = { workflowId: string; stepIndex: number; stepBundleId?: string; parentWorkflowId?: string };
 type State = {
   workflowId: string;
   stepIndex: number;
@@ -13,6 +13,7 @@ type State = {
   data?: Step;
   error?: Error;
   stepBundleId?: string;
+  parentWorkflowId?: string;
 };
 
 const initialState: State = {
@@ -21,17 +22,24 @@ const initialState: State = {
   isLoading: true,
   workflowId: '',
   stepBundleId: '',
+  parentWorkflowId: '',
   stepIndex: -1,
 };
 const Context = createContext(initialState);
 
-const StepConfigDrawerProvider = ({ children, workflowId, stepBundleId, stepIndex }: PropsWithChildren<Props>) => {
-  const result = useStep({ workflowId, stepBundleId, stepIndex });
+const StepConfigDrawerProvider = ({
+  children,
+  workflowId,
+  stepBundleId,
+  stepIndex,
+  parentWorkflowId,
+}: PropsWithChildren<Props>) => {
+  const result = useStep({ workflowId: stepBundleId ? undefined : workflowId, stepBundleId, stepIndex });
 
   const value = useMemo<State>(() => {
     if (!result) return initialState;
-    return { workflowId, stepBundleId, stepIndex, ...result } as State;
-  }, [result, workflowId, stepBundleId, stepIndex]);
+    return { workflowId, stepBundleId, stepIndex, parentWorkflowId, ...result } as State;
+  }, [result, workflowId, stepBundleId, stepIndex, parentWorkflowId]);
 
   const [newVersion, setNewVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
   const [oldVersion, setOldVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);

@@ -23,10 +23,13 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepBundleId?: string;
   workflowId: string;
   stepIndex: number;
+  parentWorkflowId?: string;
 };
 
-const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
-  const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
+const StepConfigDrawerContent = (
+  props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex' | 'parentWorkflowId'>,
+) => {
+  const { workflowId, stepBundleId, stepIndex, parentWorkflowId, data } = useStepDrawerContext();
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
@@ -93,7 +96,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
-                {!!workflowId && <Tab>Containers</Tab>}
+                {!!(workflowId || parentWorkflowId) && <Tab>Containers</Tab>}
               </TabList>
             </Box>
           </FloatingDrawerHeader>
@@ -110,7 +113,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                   <OutputVariablesTab />
                 </TabPanel>
               )}
-              {!!workflowId && (
+              {!!(workflowId || parentWorkflowId) && (
                 <TabPanel>
                   <ContainersTab />
                 </TabPanel>
@@ -123,9 +126,14 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
   );
 };
 
-const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, ...props }: Props) => {
+const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, parentWorkflowId, ...props }: Props) => {
   return (
-    <StepConfigDrawerProvider workflowId={workflowId} stepBundleId={stepBundleId} stepIndex={stepIndex}>
+    <StepConfigDrawerProvider
+      workflowId={workflowId}
+      stepBundleId={stepBundleId}
+      stepIndex={stepIndex}
+      parentWorkflowId={parentWorkflowId}
+    >
       <StepConfigDrawerContent {...props} />
     </StepConfigDrawerProvider>
   );
