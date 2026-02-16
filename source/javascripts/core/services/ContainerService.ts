@@ -129,6 +129,21 @@ function removeContainerReference(workflowId: string, stepIndex: number, contain
     YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Execution], containerId);
     YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Service, '*'], containerId);
 
+    YmlUtils.deleteByPredicate(stepData, [ContainerReferenceField.Execution], (node) => {
+      if (isMap(node) && node.items.length > 0) {
+        const key = String(node.items[0]?.key);
+        return key === containerId;
+      }
+      return false;
+    });
+    YmlUtils.deleteByPredicate(stepData, [ContainerReferenceField.Service, '*'], (node) => {
+      if (isMap(node) && node.items.length > 0) {
+        const key = String(node.items[0]?.key);
+        return key === containerId;
+      }
+      return false;
+    });
+
     return doc;
   });
 }
@@ -167,11 +182,17 @@ function getContainerReferences(
   };
 
   if (type === ContainerType.Execution) {
-    const executionContainer = stepData.get(ContainerReferenceField.Execution) as ContainerReferenceValue | undefined;
-    if (!executionContainer) {
+    const executionContainerNode = stepData.get(ContainerReferenceField.Execution);
+    if (!executionContainerNode) {
       return undefined;
     }
-    const ref = parseReference(executionContainer);
+    const executionContainer =
+      typeof executionContainerNode === 'string'
+        ? executionContainerNode
+        : isMap(executionContainerNode)
+          ? executionContainerNode.toJSON()
+          : executionContainerNode;
+    const ref = parseReference(executionContainer as ContainerReferenceValue);
     return ref ? [ref] : undefined;
   }
 
