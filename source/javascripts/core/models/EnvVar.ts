@@ -8,4 +8,5 @@ export type EnvVar = {
 export enum EnvVarSource {
   App = 'app',
   Workflows = 'workflows',
+  Containers = 'containers',
 }

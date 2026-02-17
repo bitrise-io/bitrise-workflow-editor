@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Document, isMap } from 'yaml';
+import { Document, isMap, YAMLSeq } from 'yaml';
 
 import { bitriseYmlStore, getBitriseYml, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 
@@ -58,6 +58,10 @@ function getEnvPath(source: EnvVarSource, sourceId?: string, index?: number, key
     path = ['workflows', sourceId, 'envs'];
   }
 
+  if (source === EnvVarSource.Containers && sourceId) {
+    path = ['containers', sourceId, 'envs'];
+  }
+
   if (index !== undefined) {
     path.push(index);
   }
@@ -77,6 +81,22 @@ function getWorkflowOrThrowError(doc: Document, at: { sourceId?: string }) {
   return WorkflowService.getWorkflowOrThrowError(at.sourceId, doc);
 }
 
+function getContainerOrThrowError(doc: Document, at: { sourceId?: string }) {
+  if (!at.sourceId) {
+    throw new Error('sourceId is required when source is Containers');
+  }
+
+  const container = YmlUtils.getMapIn(doc, ['containers', at.sourceId]);
+
+  if (!container || !isMap(container)) {
+    throw new Error(
+      `Container '${at.sourceId}' not found. Ensure that the container exists in the 'containers' section.`,
+    );
+  }
+
+  return container;
+}
+
 function getSourceOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }) {
   if (at.source === EnvVarSource.App) {
     const app = YmlUtils.getMapIn(doc, ['app']);
@@ -88,14 +108,26 @@ function getSourceOrThrowError(doc: Document, at: { source: EnvVarSource; source
     return app;
   }
 
-  if (!at.sourceId) {
-    throw new Error('sourceId is required when source is Workflows');
+  if (at.source === EnvVarSource.Workflows) {
+    if (!at.sourceId) {
+      throw new Error('sourceId is required when source is Workflows');
+    }
+
+    return WorkflowService.getWorkflowOrThrowError(at.sourceId, doc);
   }
 
-  return WorkflowService.getWorkflowOrThrowError(at.sourceId, doc);
+  if (at.source === EnvVarSource.Containers) {
+    if (!at.sourceId) {
+      throw new Error('sourceId is required when source is Containers');
+    }
+
+    return getContainerOrThrowError(doc, at);
+  }
+
+  throw new Error(`Unsupported source: ${at.source}`);
 }
 
-function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }) {
+function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sourceId?: string }): YAMLSeq<unknown> {
   const source = getSourceOrThrowError(doc, at);
   const envs = YmlUtils.getSeqIn(source, ['envs']);
 
@@ -103,7 +135,14 @@ function getEnvVarSeqOrThrowError(doc: Document, at: { source: EnvVarSource; sou
     if (at.source === EnvVarSource.App) {
       throw new Error(`The 'app.envs' section doesn't exist`);
     }
-    throw new Error(`Workflow '${at.sourceId!}' doesn't have an 'envs' section`);
+    if (at.source === EnvVarSource.Workflows) {
+      throw new Error(`Workflow '${at.sourceId!}' doesn't have an 'envs' section`);
+    }
+    if (at.source === EnvVarSource.Containers) {
+      throw new Error(`Container '${at.sourceId!}' doesn't have an 'envs' section`);
+    }
+
+    throw new Error(`The 'envs' section doesn't exist for source: ${at.source}`);
   }
 
   return envs;
@@ -117,7 +156,18 @@ function getEnvVarOrThrowError(doc: Document, at: { source: EnvVarSource; source
     if (at.source === EnvVarSource.App) {
       throw new Error(`Project-level environment variable not found, index ${at.index} is out of bounds`);
     }
-    throw new Error(`Environment variable not found in Workflow '${at.sourceId}', index ${at.index} is out of bounds`);
+    if (at.source === EnvVarSource.Workflows) {
+      throw new Error(
+        `Environment variable not found in Workflow '${at.sourceId}', index ${at.index} is out of bounds`,
+      );
+    }
+    if (at.source === EnvVarSource.Containers) {
+      throw new Error(
+        `Environment variable not found in Container '${at.sourceId}', index ${at.index} is out of bounds`,
+      );
+    }
+
+    throw new Error(`Environment variable not found for source: ${at.source}, index ${at.index} is out of bounds`);
   }
 
   return env;
@@ -155,10 +205,36 @@ function getWorkflowEnvs(workflowId: string): EnvVar[] {
   return workflowEnvs.map((envVar) => fromYml(envVar, `Workflow: ${workflowId}`));
 }
 
+function getContainerEnvs(containerId: string): EnvVar[] {
+  const yml = getBitriseYml();
+  const { ymlDocument } = bitriseYmlStore.getState();
+  const containers = yml.containers || {};
+
+  // Return environment variables from all containers
+  if (containerId === '*') {
+    const allContainerEnvs: EnvVar[] = [];
+
+    Object.entries(containers).forEach(([id, container]) => {
+      const containerEnvs = container?.envs || [];
+      containerEnvs.forEach((envVar) => {
+        allContainerEnvs.push(fromYml(envVar, `Container: ${id}`));
+      });
+    });
+
+    return allContainerEnvs;
+  }
+
+  getContainerOrThrowError(ymlDocument, { sourceId: containerId });
+
+  // Return environment variables from a specific container
+  const containerEnvs = containers[containerId]?.envs || [];
+  return containerEnvs.map((envVar) => fromYml(envVar, `Container: ${containerId}`));
+}
+
 /**
  * Get environment variables based on source and source ID
- * @param source - Source of environment variables (Project or Workflow)
- * @param sourceId - Specific Workflow ID or '*' for all workflows,
+ * @param source - Source of environment variables (Project, Workflow, or Container)
+ * @param sourceId - Specific Workflow/Container ID or '*' for all
  * @returns List of environment variables
  */
 function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
@@ -176,14 +252,27 @@ function getAll(source?: EnvVarSource, sourceId?: string): EnvVar[] {
     return getWorkflowEnvs(sourceId);
   }
 
-  // Get all environment variables (both project and all workflows)
-  return [...getAppEnvs(), ...getWorkflowEnvs('*')];
+  if (source === EnvVarSource.Containers && sourceId !== '*') {
+    getContainerOrThrowError(bitriseYmlStore.getState().ymlDocument, { sourceId });
+  }
+
+  // Get container-specific environment variables
+  if (source === EnvVarSource.Containers && sourceId) {
+    return getContainerEnvs(sourceId);
+  }
+
+  // Get all environment variables (project, all workflows, and all containers)
+  return [...getAppEnvs(), ...getWorkflowEnvs('*'), ...getContainerEnvs('*')];
 }
 
 function append(envVar: EnvVar, at: { source: EnvVarSource; sourceId?: string }) {
   updateBitriseYmlDocument(({ doc }) => {
     if (at.source === EnvVarSource.Workflows) {
       getWorkflowOrThrowError(doc, at);
+    }
+
+    if (at.source === EnvVarSource.Containers) {
+      getContainerOrThrowError(doc, at);
     }
 
     YmlUtils.addIn(doc, getEnvPath(at.source, at.sourceId), toYml(envVar));
@@ -200,11 +289,14 @@ function remove(at: { source: EnvVarSource; sourceId?: string; index: number }) 
   updateBitriseYmlDocument(({ doc }) => {
     getEnvVarOrThrowError(doc, at);
 
-    YmlUtils.deleteByPath(
-      doc,
-      getEnvPath(at.source, at.sourceId, at.index),
-      at.source === EnvVarSource.App ? [] : ['workflows', at.sourceId!],
-    );
+    let keepPath: (string | number)[] = [];
+    if (at.source === EnvVarSource.Workflows) {
+      keepPath = ['workflows', at.sourceId!];
+    } else if (at.source === EnvVarSource.Containers) {
+      keepPath = ['containers', at.sourceId!];
+    }
+
+    YmlUtils.deleteByPath(doc, getEnvPath(at.source, at.sourceId, at.index), keepPath);
 
     return doc;
   });
