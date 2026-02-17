@@ -7,7 +7,7 @@ import { MouseEvent, useMemo, useRef } from 'react';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import useContainerReferences from '@/components/unified-editor/StepConfigDrawer/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
-import { ContainerReference, ContainerType } from '@/core/models/Container';
+import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -49,13 +49,15 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   const executionReferences = useContainerReferences(workflowId || '', stepIndex, ContainerType.Execution);
   const serviceReferences = useContainerReferences(workflowId || '', stepIndex, ContainerType.Service);
-  let references: ContainerReference[] = [];
+
+  const allReferences = [];
   if (executionReferences) {
-    references = references.concat(executionReferences);
+    allReferences.push(...executionReferences);
   }
   if (serviceReferences) {
-    references = references.concat(serviceReferences);
+    allReferences.push(...serviceReferences);
   }
+  const referenceIds = allReferences.map((ref) => ref.id).join(', ');
 
   const sortable = useSortable({
     id: uniqueId,
@@ -199,12 +201,12 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                     {usedInWorkflowsText}
                   </Text>
-                  {references.length > 0 && (
+                  {referenceIds.length > 0 && (
                     <>
                       <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
                       <Icon name="Container" size="16" color="icon/tertiary" />
                       <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                        {references.map((ref) => ref.id).join(', ')}
+                        {referenceIds}
                       </Text>
                     </>
                   )}

@@ -1,4 +1,16 @@
-import { Avatar, Box, Card, CardProps, ColorButton, Icon, Skeleton, SkeletonBox, Text, Tooltip } from '@bitrise/bitkit';
+import {
+  Avatar,
+  Box,
+  Card,
+  CardProps,
+  ColorButton,
+  Dot,
+  Icon,
+  Skeleton,
+  SkeletonBox,
+  Text,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -7,12 +19,14 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useStep from '@/hooks/useStep';
 
+import useContainerReferences from '../../StepConfigDrawer/useContainerReferences';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -90,6 +104,18 @@ const StepCard = ({
     onUpgradeStep,
     onUpgradeStepInStepBundle,
   } = useStepActions();
+
+  const executionReferences = useContainerReferences(workflowId || '', stepIndex, ContainerType.Execution);
+  const serviceReferences = useContainerReferences(workflowId || '', stepIndex, ContainerType.Service);
+
+  const allReferences = [];
+  if (executionReferences) {
+    allReferences.push(...executionReferences);
+  }
+  if (serviceReferences) {
+    allReferences.push(...serviceReferences);
+  }
+  const referenceIds = allReferences.map((ref) => ref.id).join(', ');
 
   const {
     error,
@@ -250,13 +276,24 @@ const StepCard = ({
                     <Text textStyle="body/sm/regular" hasEllipsis>
                       {title}
                     </Text>
-                    {showSecondary && (
-                      <StepSecondaryText
-                        isUpgradable={isUpgradable}
-                        errorText={error ? 'Failed to load Step' : undefined}
-                        resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                      />
-                    )}
+                    <Box display="flex" alignItems="center" gap="4">
+                      {showSecondary && (
+                        <StepSecondaryText
+                          isUpgradable={isUpgradable}
+                          errorText={error ? 'Failed to load Step' : undefined}
+                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                        />
+                      )}
+                      {referenceIds.length > 0 && (
+                        <>
+                          <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
+                          <Icon name="Container" size="16" color="icon/tertiary" />
+                          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                            {referenceIds}
+                          </Text>
+                        </>
+                      )}
+                    </Box>
                   </Box>
 
                   {buttonGroup}
