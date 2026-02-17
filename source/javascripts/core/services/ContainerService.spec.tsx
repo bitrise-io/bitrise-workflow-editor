@@ -929,6 +929,386 @@ describe('ContainerService', () => {
     });
   });
 
+  describe('getContainerReferences', () => {
+    describe('execution container type', () => {
+      it('should return execution container reference as string', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          ubuntu:
+            type: execution
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  execution_container: ubuntu
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'ubuntu', recreate: false }]);
+      });
+
+      it('should return execution container reference with recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          ubuntu:
+            type: execution
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  execution_container:
+                    ubuntu:
+                      recreate: true
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'ubuntu', recreate: true }]);
+      });
+
+      it('should return undefined when no execution container exists', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          ubuntu:
+            type: execution
+            image: ubuntu:20.04
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  title: Test
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return execution container reference with recreate false when recreate is explicitly false', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          node:
+            type: execution
+            image: node:18
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  execution_container:
+                    node:
+                      recreate: false
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'node', recreate: false }]);
+      });
+
+      it('should throw error when workflow does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+      `);
+
+        expect(() =>
+          ContainerService.getContainerReferences(
+            'non-existent',
+            0,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toThrow('workflows.non-existent not found');
+      });
+
+      it('should throw error when step index does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+      `);
+
+        expect(() =>
+          ContainerService.getContainerReferences(
+            'wf1',
+            5,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toThrow('Step at index 5 not found in workflows.wf1');
+      });
+    });
+
+    describe('service container type', () => {
+      it('should return single service container reference as string', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  service_containers:
+                    - postgres
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'postgres', recreate: false }]);
+      });
+
+      it('should return multiple service container references', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+          redis:
+            type: service
+            image: redis:6
+          mysql:
+            type: service
+            image: mysql:8
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  service_containers:
+                    - postgres
+                    - redis
+                    - mysql
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([
+          { id: 'postgres', recreate: false },
+          { id: 'redis', recreate: false },
+          { id: 'mysql', recreate: false },
+        ]);
+      });
+
+      it('should return service container reference with recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  service_containers:
+                    - postgres:
+                        recreate: true
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'postgres', recreate: true }]);
+      });
+
+      it('should return mixed service containers with and without recreate flags', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+          redis:
+            type: service
+            image: redis:6
+          mysql:
+            type: service
+            image: mysql:8
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  service_containers:
+                    - postgres:
+                        recreate: true
+                    - redis
+                    - mysql:
+                        recreate: false
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([
+          { id: 'postgres', recreate: true },
+          { id: 'redis', recreate: false },
+          { id: 'mysql', recreate: false },
+        ]);
+      });
+
+      it('should return undefined when no service containers exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  title: Test
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return undefined when service_containers is empty array', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  service_containers: []
+      `);
+
+        const result = ContainerService.getContainerReferences(
+          'wf1',
+          0,
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should throw error when workflow does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+      `);
+
+        expect(() =>
+          ContainerService.getContainerReferences(
+            'non-existent',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toThrow('workflows.non-existent not found');
+      });
+
+      it('should throw error when step index does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+      `);
+
+        expect(() =>
+          ContainerService.getContainerReferences(
+            'wf1',
+            10,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toThrow('Step at index 10 not found in workflows.wf1');
+      });
+    });
+
+    it('should return correct container references for different step indices', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        containers:
+          ubuntu:
+            type: execution
+            image: ubuntu:20.04
+          node:
+            type: execution
+            image: node:18
+          postgres:
+            type: service
+            image: postgres:13
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  execution_container: ubuntu
+              - script:
+                  execution_container: node
+                  service_containers:
+                    - postgres
+              - script:
+                  title: No containers
+      `);
+
+      const doc = bitriseYmlStore.getState().ymlDocument;
+      const result1 = ContainerService.getContainerReferences('wf1', 0, ContainerType.Execution, doc);
+      const result2 = ContainerService.getContainerReferences('wf1', 1, ContainerType.Execution, doc);
+      const result3 = ContainerService.getContainerReferences('wf1', 1, ContainerType.Service, doc);
+      const result4 = ContainerService.getContainerReferences('wf1', 2, ContainerType.Execution, doc);
+
+      expect(result1).toEqual([{ id: 'ubuntu', recreate: false }]);
+      expect(result2).toEqual([{ id: 'node', recreate: false }]);
+      expect(result3).toEqual([{ id: 'postgres', recreate: false }]);
+      expect(result4).toBeUndefined();
+    });
+  });
+
   describe('getWorkflowsUsingContainer', () => {
     describe('execution container target', () => {
       it('should return workflows using a specific execution container', () => {
