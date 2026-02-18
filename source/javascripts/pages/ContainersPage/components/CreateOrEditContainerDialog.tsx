@@ -64,7 +64,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
     mode: 'onChange',
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'userValues.envs',
   });
@@ -108,6 +108,9 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           type,
           image: editedContainer?.userValues.image || '',
           ports: editedContainer?.userValues.ports?.join(', ') || '',
+          envs: editedContainer?.userValues.envs?.map((env) => EnvVarService.fromYml(env)) || [
+            { key: '', value: '', source: '' },
+          ],
           credentials: {
             server: editedContainer?.userValues.credentials?.server || '',
             username: editedContainer?.userValues.credentials?.username || '',
@@ -237,10 +240,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               name="userValues.credentials.password"
               render={({ field }) => <StepInput label="Password" isSensitive size="lg" {...field} />}
             />
-            <Divider />
-            <Text textStyle="heading/h3" mt="8">
-              Environment Variables
-            </Text>
+            <Divider mt="8" />
             {fields.map((item, index) => (
               <Box key={item.id} display="flex" alignItems="flex-end" gap="10">
                 <Controller
@@ -264,7 +264,11 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   )}
                 />
                 <ButtonGroup>
-                  <EnvVarPopover size="lg" onSelect={() => {}} />
+                  <EnvVarPopover
+                    size="lg"
+                    onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
+                    showCreate={false}
+                  />
                   <ControlButton
                     iconName="Trash"
                     isDanger
