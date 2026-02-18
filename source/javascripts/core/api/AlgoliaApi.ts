@@ -3,7 +3,6 @@ import { sortBy, uniqBy } from 'es-toolkit';
 import aa from 'search-insights';
 
 import GlobalProps from '@/core/utils/GlobalProps';
-import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import { EnvironmentItemOptionsModel, StepModel } from '../models/BitriseYml';
@@ -54,17 +53,6 @@ aa('init', {
 
 // Search Functions
 function searchSteps(query: string, categories: string[], maintainers: string[]) {
-  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
-
-  // If non-Bitrise steps are not allowed, force filter to only 'bitrise' maintainer
-  let effectiveMaintainers: string[];
-  if (allowNonBitriseSteps) {
-    effectiveMaintainers = maintainers;
-  } else {
-    const filtered = maintainers.filter((m) => m === Maintainer.Bitrise);
-    effectiveMaintainers = filtered.length > 0 ? filtered : [Maintainer.Bitrise];
-  }
-
   return client.searchSingleIndex<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
     searchParams: {
@@ -76,20 +64,21 @@ function searchSteps(query: string, categories: string[], maintainers: string[])
         'is_latest:true',
         'is_deprecated:false',
         categories.map((category) => `step.type_tags:${category}`),
-        effectiveMaintainers.map((maintainer) => `info.maintainer:${maintainer}`),
+        maintainers.map((maintainer) => `info.maintainer:${maintainer}`),
       ],
     },
   });
 }
 
 // Browse Functions
-async function getAllSteps() {
-  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
+async function getAllSteps(maintainers: string[] = []) {
   const results: Array<AlgoliaStepResponse> = [];
 
-  const filters = allowNonBitriseSteps
-    ? 'is_latest:true AND is_deprecated:false'
-    : 'is_latest:true AND is_deprecated:false AND info.maintainer:bitrise';
+  const maintainerFilter = maintainers.length > 0 ? maintainers.map((m) => `info.maintainer:${m}`).join(' OR ') : '';
+
+  const filters = maintainerFilter
+    ? `is_latest:true AND is_deprecated:false AND (${maintainerFilter})`
+    : 'is_latest:true AND is_deprecated:false';
 
   await client.browseObjects<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
