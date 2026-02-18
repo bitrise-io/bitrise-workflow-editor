@@ -1,5 +1,7 @@
 import { TabPanel, TabPanelProps, TabPanels } from '@bitrise/bitkit';
 
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+
 import ContainersTab from '../StepConfigDrawer/tabs/ContainersTab';
 import StepBundleConfigurationTab from './StepBundleConfigurationTab';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
@@ -12,6 +14,8 @@ type ConfigContentProps = {
 } & TabPanelProps;
 
 const StepBundleConfigContent = ({ onDelete, onChangeId, showContainers, variant, ...rest }: ConfigContentProps) => {
+  const enableContainers = useFeatureFlag('enable-wfe-containers-page');
+
   return (
     <TabPanels {...rest}>
       <TabPanel height="100%">
@@ -20,7 +24,7 @@ const StepBundleConfigContent = ({ onDelete, onChangeId, showContainers, variant
       <TabPanel display="flex" flexDirection="column" gap="24">
         <StepBundlePropertiesTab onDelete={onDelete} onChangeId={onChangeId} variant={variant} />
       </TabPanel>
-      {showContainers && (
+      {enableContainers && showContainers && (
         <TabPanel height="100%">
           <ContainersTab />
         </TabPanel>

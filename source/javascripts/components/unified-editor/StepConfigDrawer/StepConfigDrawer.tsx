@@ -5,6 +5,7 @@ import defaultIcon from '@/../images/step/icon-default.svg';
 import StepBadge from '@/components/StepBadge';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -39,6 +40,8 @@ const StepConfigDrawerContent = (
     data?.resolvedInfo?.normalizedVersion,
     data?.resolvedInfo?.versions,
   );
+
+  const enableContainers = useFeatureFlag('enable-wfe-containers-page');
 
   return (
     <Tabs>
@@ -96,7 +99,7 @@ const StepConfigDrawerContent = (
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
-                {!!(workflowId || parentWorkflowId) && <Tab>Containers</Tab>}
+                {enableContainers && !!(workflowId || parentWorkflowId) && <Tab>Containers</Tab>}
               </TabList>
             </Box>
           </FloatingDrawerHeader>
@@ -113,7 +116,7 @@ const StepConfigDrawerContent = (
                   <OutputVariablesTab />
                 </TabPanel>
               )}
-              {!!(workflowId || parentWorkflowId) && (
+              {enableContainers && !!(workflowId || parentWorkflowId) && (
                 <TabPanel>
                   <ContainersTab />
                 </TabPanel>
