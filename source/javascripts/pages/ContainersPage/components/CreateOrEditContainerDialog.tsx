@@ -284,7 +284,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               variant="tertiary"
               leftIconName="Plus"
               size="md"
-              maxW="131"
+              width="fit-content"
               onClick={() => append({ key: '', value: '', source: '' })}
             >
               Add Env Var
