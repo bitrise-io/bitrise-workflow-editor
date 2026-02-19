@@ -28,6 +28,7 @@ type Props = {
   isOpen?: boolean;
   mode?: Mode;
   onSelect: (item: EnvVar) => void;
+  showCreate?: boolean;
   stepBundleId?: string;
   workflowId?: string;
 };
@@ -40,6 +41,7 @@ const EnvVarPopover = ({
   onSelect,
   isOpen: initialIsOpen,
   mode: initialMode,
+  showCreate = true,
   stepBundleId,
   workflowId,
 }: Props) => {
@@ -124,9 +126,11 @@ const EnvVarPopover = ({
             {isMode(Mode.SELECT) && (
               <>
                 <Text textStyle="heading/h4">Insert variable</Text>
-                <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
-                  Create
-                </Button>
+                {showCreate && (
+                  <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
+                    Create
+                  </Button>
+                )}
               </>
             )}
           </PopoverHeader>
