@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Checkbox,
   Collapse,
   ControlButton,
   Dialog,
@@ -10,22 +9,22 @@ import {
   DialogFooter,
   DialogProps,
   Divider,
-  Icon,
   Input,
   Link,
   Notification,
   Text,
   Textarea,
-  Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
 import { EnvVarPopover } from '@/components/VariablePopover';
 import { Container } from '@/core/models/Container';
+import { EnvVar } from '@/core/models/EnvVar';
 import ContainerService from '@/core/services/ContainerService';
+import EnvVarService from '@/core/services/EnvVarService';
 import useContainers from '@/hooks/useContainers';
 
 type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
@@ -34,7 +33,8 @@ type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
 };
 
 type FormData = Omit<Container, 'userValues'> & {
-  userValues: Omit<Container['userValues'], 'ports'> & {
+  userValues: Omit<Container['userValues'], 'envs' | 'ports'> & {
+    envs?: EnvVar[];
     ports: string;
   };
 };
@@ -57,10 +57,16 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           username: '',
           password: '',
         },
+        envs: [{ key: '', value: '', source: '' }],
         options: '',
       },
     },
     mode: 'onChange',
+  });
+
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: 'userValues.envs',
   });
 
   const onSubmit = (formData: FormData) => {
@@ -69,11 +75,17 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
       .map((port) => port.trim())
       .filter((port) => port !== '')
       .map((port) => ContainerService.sanitizePort(port));
+
+    const convertedEnvs = formData.userValues.envs
+      ?.filter((env) => env.key?.trim() && env.value?.trim())
+      ?.map((env) => EnvVarService.toYml(env));
+
     const container: Container = {
       ...formData,
       userValues: {
         ...formData.userValues,
         ports: convertedPorts,
+        envs: convertedEnvs,
       },
     };
 
@@ -96,6 +108,9 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           type,
           image: editedContainer?.userValues.image || '',
           ports: editedContainer?.userValues.ports?.join(', ') || '',
+          envs: editedContainer?.userValues.envs?.map((env) => EnvVarService.fromYml(env)) || [
+            { key: '', value: '', source: '' },
+          ],
           credentials: {
             server: editedContainer?.userValues.credentials?.server || '',
             username: editedContainer?.userValues.credentials?.username || '',
@@ -225,22 +240,53 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               name="userValues.credentials.password"
               render={({ field }) => <StepInput label="Password" isSensitive size="lg" {...field} />}
             />
-            <Divider />
-            <Box display="flex" alignItems="flex-end" gap="10">
-              <Input label="Environment Variables" placeholder="Key" width="100%" />
-              <Input placeholder="Value" width="100%" />
-              <ButtonGroup>
-                <EnvVarPopover size="lg" onSelect={() => {}} />
-                <ControlButton iconName="Trash" size="lg" aria-label="Remove environment variable" />
-              </ButtonGroup>
-            </Box>
-            <Checkbox>
-              Replace variables in input
-              <Tooltip label="Enable this if you want to replace Environment Variables in your input with the variable’s assigned value.">
-                <Icon name="InfoCircle" color="icon/tertiary" size="16" ml="4" />
-              </Tooltip>
-            </Checkbox>
-            <Button variant="tertiary" leftIconName="Plus" size="md" maxW="131">
+            <Divider mt="8" />
+            {fields.map((item, index) => (
+              <Box key={item.id} display="flex" alignItems="flex-end" gap="10">
+                <Controller
+                  control={control}
+                  name={`userValues.envs.${index}.key`}
+                  render={({ field: { value, ...fieldProps } }) => (
+                    <Input
+                      label="Environment Variables"
+                      placeholder="Key"
+                      width="100%"
+                      value={value || ''}
+                      {...fieldProps}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={`userValues.envs.${index}.value`}
+                  render={({ field: { value, ...fieldProps } }) => (
+                    <Input placeholder="Value" width="100%" value={value || ''} {...fieldProps} />
+                  )}
+                />
+                <ButtonGroup>
+                  <EnvVarPopover
+                    size="lg"
+                    onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
+                    showCreate={false}
+                  />
+                  <ControlButton
+                    iconName="Trash"
+                    isDanger
+                    isDisabled={fields.length === 1}
+                    size="lg"
+                    aria-label="Remove environment variable"
+                    onClick={() => remove(index)}
+                  />
+                </ButtonGroup>
+              </Box>
+            ))}
+            <Button
+              variant="tertiary"
+              leftIconName="Plus"
+              size="md"
+              width="fit-content"
+              onClick={() => append({ key: '', value: '', source: '' })}
+            >
               Add Env Var
             </Button>
             <Divider />
