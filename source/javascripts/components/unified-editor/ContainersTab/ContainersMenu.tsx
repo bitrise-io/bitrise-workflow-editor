@@ -5,11 +5,12 @@ import useNavigation from '@/hooks/useNavigation';
 
 type ContainersMenuProps = {
   containers: Container[];
+  onAddContainer: (containerId: string) => void;
   type: ContainerType;
 };
 
 const ContainersMenu = (props: ContainersMenuProps) => {
-  const { containers, type } = props;
+  const { containers, onAddContainer, type } = props;
   const { replace } = useNavigation();
 
   return (
@@ -21,7 +22,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
         {containers.map((container) => (
           <MenuItem
             key={container.id}
-            // onClick={() => ContainerService.addContainerReference(workflowId, stepIndex, container.id)}
+            onClick={() => onAddContainer(container.id)}
             display="flex"
             flexDir="column"
             alignItems="flex-start"

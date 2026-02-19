@@ -22,6 +22,7 @@ import ContainersMenu from './ContainersMenu';
 
 type ContainerCardProps = {
   containers: Container[];
+  onAddContainer: (containerId: string) => void;
   onRecreate: (containerId: string, recreate: boolean) => void;
   onRemove: (containerId: string) => void;
   references: ContainerReference[] | undefined;
@@ -29,7 +30,7 @@ type ContainerCardProps = {
 };
 
 const ContainerCard = (props: ContainerCardProps) => {
-  const { containers, onRecreate, onRemove, references, type } = props;
+  const { containers, onAddContainer, onRecreate, onRemove, references, type } = props;
   const { replace } = useNavigation();
 
   const getContainerById = (containerId: string) => {
@@ -116,7 +117,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                 {shouldShowAddButton ? (
                   <>
                     <Td>
-                      <ContainersMenu containers={availableContainers} type={type} />
+                      <ContainersMenu containers={availableContainers} onAddContainer={onAddContainer} type={type} />
                     </Td>
                     <Td />
                     <Td />

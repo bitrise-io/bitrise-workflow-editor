@@ -9,6 +9,7 @@ import ContainerCard from './ContainerCard';
 export type Source = 'workflows' | 'step_bundles';
 
 type ContainersTabProps = {
+  onAddContainer: (containerId: string, type: ContainerType) => void;
   source: Source;
   sourceId: string;
   stepIndex: number;
@@ -16,7 +17,7 @@ type ContainersTabProps = {
 };
 
 const ContainersTab = (props: ContainersTabProps) => {
-  const { source, sourceId, stepIndex, variant } = props;
+  const { onAddContainer, source, sourceId, stepIndex, variant } = props;
   console.log(source, sourceId, stepIndex, variant);
 
   const executionContainers = useContainers((containers) => {
@@ -63,6 +64,7 @@ const ContainersTab = (props: ContainersTabProps) => {
       <ContainerCard
         type={ContainerType.Execution}
         containers={executionContainers}
+        onAddContainer={(containerId) => onAddContainer(containerId, ContainerType.Execution)}
         onRecreate={console.log}
         onRemove={console.log}
         references={[]}
@@ -70,6 +72,7 @@ const ContainersTab = (props: ContainersTabProps) => {
       <ContainerCard
         type={ContainerType.Service}
         containers={serviceContainers}
+        onAddContainer={(containerId) => onAddContainer(containerId, ContainerType.Service)}
         onRecreate={console.log}
         onRemove={console.log}
         references={[]}

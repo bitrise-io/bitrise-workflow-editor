@@ -4,9 +4,9 @@ import { ChangeEventHandler } from 'react';
 import StepBundleService from '@/core/services/StepBundleService';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
-import WhenToRunCard from '../WhenToRunCard/WhenToRunCard';
-import { useStepBundleConfigContext } from './StepBundleConfig.context';
-import StepBundleConfigInputs from './StepBundleConfigInputs';
+import WhenToRunCard from '../../WhenToRunCard/WhenToRunCard';
+import { useStepBundleConfigContext } from '../StepBundleConfig.context';
+import StepBundleConfigInputs from '../StepBundleConfigInputs';
 
 const StepBundleConfigurationTab = () => {
   const { stepBundle, stepBundleId, parentStepBundleId, parentWorkflowId, stepIndex } = useStepBundleConfigContext();
