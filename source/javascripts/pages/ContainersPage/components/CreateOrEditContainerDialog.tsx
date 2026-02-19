@@ -78,7 +78,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
 
     const convertedEnvs = formData.userValues.envs
       ?.filter((env) => env.key?.trim() && env.value?.trim())
-      .map((env) => EnvVarService.toYml(env));
+      ?.map((env) => EnvVarService.toYml(env));
 
     const container: Container = {
       ...formData,
