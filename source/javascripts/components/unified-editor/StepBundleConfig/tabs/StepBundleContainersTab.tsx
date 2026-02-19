@@ -1,39 +1,56 @@
 import ContainersTab from '@/components/unified-editor/ContainersTab/ContainersTab';
 import { useStepBundleConfigContext } from '@/components/unified-editor/StepBundleConfig/StepBundleConfig.context';
+import useContainerReferences from '@/components/unified-editor/StepConfigDrawer/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
-import StepBundleService from '@/core/services/StepBundleService';
+import useContainers from '@/hooks/useContainers';
 
 const StepBundleContainersTab = () => {
-  const { stepBundle, stepBundleId, parentStepBundleId, parentWorkflowId, stepIndex } = useStepBundleConfigContext();
+  const { stepBundleId, parentStepBundleId, parentWorkflowId, stepIndex } = useStepBundleConfigContext();
 
   const isDefaultMode = !parentStepBundleId && !parentWorkflowId;
+  const source = parentWorkflowId ? 'workflows' : 'step_bundles';
+  const sourceId = parentStepBundleId || parentWorkflowId || '';
 
-  const at = {
-    cvs: stepBundle?.cvs || `bundle::${stepBundle?.id}`,
-    source: parentStepBundleId ? 'step_bundles' : ('workflows' as 'step_bundles' | 'workflows'),
-    sourceId: parentStepBundleId || parentWorkflowId || '',
-    stepIndex,
-  };
-
-  console.log(at);
-
-  const handleAdd = (containerId: string, type: ContainerType) => {
+  const handleAdd = (containerId: string) => {
     if (stepBundleId) {
       if (isDefaultMode) {
-        StepBundleService.updateStepBundleField(stepBundleId, 'title', containerId + type);
+        ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId);
       } else {
-        ContainerService.addContainerReference(
-          parentStepBundleId ? 'step_bundles' : 'workflows',
-          parentStepBundleId || parentWorkflowId || '',
-          stepIndex,
-          containerId,
-        );
+        ContainerService.addContainerReference(source, sourceId, stepIndex, containerId);
       }
     }
   };
 
-  return <ContainersTab onAddContainer={handleAdd} />;
+  const executionContainers = useContainers((containers) => {
+    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
+  });
+  const serviceContainers = useContainers((containers) => {
+    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
+  });
+
+  const executionReferences = useContainerReferences(
+    source,
+    sourceId || stepBundleId || '',
+    stepIndex,
+    ContainerType.Execution,
+  );
+  const serviceReferences = useContainerReferences(
+    source,
+    sourceId || stepBundleId || '',
+    stepIndex,
+    ContainerType.Service,
+  );
+
+  return (
+    <ContainersTab
+      executionContainers={executionContainers}
+      executionReferences={executionReferences}
+      serviceContainers={serviceContainers}
+      serviceReferences={serviceReferences}
+      onAddContainer={handleAdd}
+    />
+  );
 };
 
 export default StepBundleContainersTab;

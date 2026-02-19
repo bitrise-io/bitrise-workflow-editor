@@ -1,26 +1,21 @@
 import { Box } from '@bitrise/bitkit';
 
-import { ContainerType } from '@/core/models/Container';
-import ContainerService from '@/core/services/ContainerService';
-import useContainers from '@/hooks/useContainers';
+import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
 
 import ContainerCard from './ContainerCard';
 
 export type Source = 'workflows' | 'step_bundles';
 
 type ContainersTabProps = {
+  executionContainers: Container[];
+  executionReferences?: ContainerReference[];
   onAddContainer: (containerId: string, type: ContainerType) => void;
+  serviceContainers: Container[];
+  serviceReferences?: ContainerReference[];
 };
 
 const ContainersTab = (props: ContainersTabProps) => {
-  const { onAddContainer } = props;
-
-  const executionContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
-  });
-  const serviceContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
-  });
+  const { executionContainers, executionReferences, onAddContainer, serviceContainers, serviceReferences } = props;
 
   return (
     <Box display="flex" flexDir="column" gap="24">
@@ -30,7 +25,7 @@ const ContainersTab = (props: ContainersTabProps) => {
         onAddContainer={(containerId) => onAddContainer(containerId, ContainerType.Execution)}
         onRecreate={() => {}}
         onRemove={() => {}}
-        references={[]}
+        references={executionReferences}
       />
       <ContainerCard
         type={ContainerType.Service}
@@ -38,7 +33,7 @@ const ContainersTab = (props: ContainersTabProps) => {
         onAddContainer={(containerId) => onAddContainer(containerId, ContainerType.Service)}
         onRecreate={() => {}}
         onRemove={() => {}}
-        references={[]}
+        references={serviceReferences}
       />
     </Box>
   );

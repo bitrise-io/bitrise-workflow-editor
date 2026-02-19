@@ -25,7 +25,7 @@ type ContainerCardProps = {
   onAddContainer: (containerId: string) => void;
   onRecreate: (containerId: string, recreate: boolean) => void;
   onRemove: (containerId: string) => void;
-  references: ContainerReference[] | undefined;
+  references?: ContainerReference[];
   type: ContainerType;
 };
 
@@ -37,7 +37,8 @@ const ContainerCard = (props: ContainerCardProps) => {
     return containers.find((c) => c.id === containerId);
   };
 
-  const shouldShowAddButton = type === ContainerType.Service || (type === ContainerType.Execution && !references);
+  const shouldShowAddButton =
+    type === ContainerType.Service || (type === ContainerType.Execution && references?.length !== 1);
 
   const selectedReferenceIds = new Set(references?.map((ref) => ref.id) || []);
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));

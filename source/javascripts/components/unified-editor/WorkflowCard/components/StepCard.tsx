@@ -19,14 +19,12 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useStep from '@/hooks/useStep';
 
-import useContainerReferences from '../../StepConfigDrawer/useContainerReferences';
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -105,8 +103,8 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const executionReferences = useContainerReferences(workflowId || '', stepIndex, ContainerType.Execution);
-  const serviceReferences = useContainerReferences(workflowId || '', stepIndex, ContainerType.Service);
+  const executionReferences: any = [];
+  const serviceReferences: any = [];
 
   const allReferences = [];
   if (executionReferences) {

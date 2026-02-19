@@ -3,7 +3,7 @@ import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
-import { Workflow } from '@/core/models/Workflow';
+import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -44,20 +44,26 @@ function addContainerReference(
   containerId: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    const stepData = getStepDataOrThrowError(doc, source, sourceId, index);
+    let yamlMap;
+    if (index === -1) {
+      yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+    } else {
+      yamlMap = getStepDataOrThrowError(doc, source, sourceId, index);
+    }
+
     const container = getContainerOrThrowError(containerId, doc);
 
     const type = container.getIn(['type']) as string;
 
     if (type === ContainerType.Execution) {
-      YmlUtils.setIn(stepData, [ContainerReferenceField.Execution], containerId);
+      YmlUtils.setIn(yamlMap, [ContainerReferenceField.Execution], containerId);
     }
 
     if (type === ContainerType.Service) {
-      if (YmlUtils.isInSeq(stepData, [ContainerReferenceField.Service], containerId)) {
+      if (YmlUtils.isInSeq(yamlMap, [ContainerReferenceField.Service], containerId)) {
         throw new Error(`Service container '${containerId}' is already added to the step`);
       }
-      YmlUtils.addIn(stepData, [ContainerReferenceField.Service], containerId);
+      YmlUtils.addIn(yamlMap, [ContainerReferenceField.Service], containerId);
     }
 
     return doc;
@@ -168,12 +174,18 @@ function getAllContainers(containers: Containers, selector: (container: Containe
 type ContainerReferenceValue = string | Record<string, { recreate?: boolean }>;
 
 function getContainerReferences(
-  workflowId: Workflow['id'],
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
   stepIndex: number,
   type: ContainerType,
   doc: Document,
 ): ContainerReference[] | undefined {
-  const stepData = getStepDataOrThrowError(doc, 'workflows', workflowId, stepIndex);
+  let yamlMap;
+  if (stepIndex === -1) {
+    yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+  } else {
+    yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+  }
 
   const parseReference = (value: ContainerReferenceValue): ContainerReference => {
     if (typeof value === 'string') {
@@ -191,7 +203,7 @@ function getContainerReferences(
   };
 
   if (type === ContainerType.Execution) {
-    const executionContainerNode = stepData.get(ContainerReferenceField.Execution);
+    const executionContainerNode = yamlMap.get(ContainerReferenceField.Execution);
     if (!executionContainerNode) {
       return undefined;
     }
@@ -206,7 +218,7 @@ function getContainerReferences(
   }
 
   if (type === ContainerType.Service) {
-    const serviceContainers = YmlUtils.getSeqIn(stepData, [ContainerReferenceField.Service])?.toJSON() as
+    const serviceContainers = YmlUtils.getSeqIn(yamlMap, [ContainerReferenceField.Service])?.toJSON() as
       | ContainerReferenceValue[]
       | undefined;
     if (serviceContainers && serviceContainers.length > 0) {
