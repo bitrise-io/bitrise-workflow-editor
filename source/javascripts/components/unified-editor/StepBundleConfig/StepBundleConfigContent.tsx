@@ -2,7 +2,7 @@ import { TabPanel, TabPanelProps, TabPanels } from '@bitrise/bitkit';
 
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
-import ContainersTab from '../StepConfigDrawer/tabs/ContainersTab';
+import ContainersTab from '../ContainersTab/ContainersTab';
 import StepBundleConfigurationTab from './StepBundleConfigurationTab';
 import StepBundlePropertiesTab from './StepBundlePropertiesTab';
 
@@ -25,7 +25,7 @@ const StepBundleConfigContent = ({ onDelete, onChangeId, variant, ...rest }: Con
       </TabPanel>
       {enableContainers && (
         <TabPanel height="100%">
-          <ContainersTab />
+          <ContainersTab source="step_bundles" sourceId={''} stepIndex={0} variant={variant} />
         </TabPanel>
       )}
     </TabPanels>

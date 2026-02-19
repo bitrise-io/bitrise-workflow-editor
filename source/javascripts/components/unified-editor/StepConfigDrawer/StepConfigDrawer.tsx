@@ -7,6 +7,7 @@ import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
+import ContainersTab from '../ContainersTab/ContainersTab';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -16,7 +17,6 @@ import FloatingDrawer, {
 } from '../FloatingDrawer/FloatingDrawer';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
-import ContainersTab from './tabs/ContainersTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import PropertiesTab from './tabs/PropertiesTab';
 
@@ -118,7 +118,12 @@ const StepConfigDrawerContent = (
               )}
               {enableContainers && (
                 <TabPanel>
-                  <ContainersTab />
+                  <ContainersTab
+                    source={stepBundleId ? 'step_bundles' : 'workflows'}
+                    sourceId={workflowId || stepBundleId || ''}
+                    stepIndex={stepIndex}
+                    variant="drawer"
+                  />
                 </TabPanel>
               )}
             </TabPanels>

@@ -14,26 +14,22 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import React from 'react';
 
-import { useStepDrawerContext } from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer.context';
 import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
-import ContainerService from '@/core/services/ContainerService';
 import useNavigation from '@/hooks/useNavigation';
 
 import ContainersMenu from './ContainersMenu';
 
 type ContainerCardProps = {
   containers: Container[];
-  isStepBundle?: boolean | string;
-  isDisabled?: boolean;
+  onRecreate: (containerId: string, recreate: boolean) => void;
+  onRemove: (containerId: string) => void;
   references: ContainerReference[] | undefined;
   type: ContainerType;
 };
 
 const ContainerCard = (props: ContainerCardProps) => {
-  const { containers, isDisabled, isStepBundle, references, type } = props;
-  const { stepIndex, stepBundleId, workflowId } = useStepDrawerContext();
+  const { containers, onRecreate, onRemove, references, type } = props;
   const { replace } = useNavigation();
 
   const getContainerById = (containerId: string) => {
@@ -42,11 +38,14 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   const shouldShowAddButton = type === ContainerType.Service || (type === ContainerType.Execution && !references);
 
-  const handleRecreate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = e.target.checked;
-    const containerId = e.target.value;
-    ContainerService.updateContainerReferenceRecreate(workflowId, stepIndex, type, containerId, isChecked);
-  };
+  const selectedReferenceIds = new Set(references?.map((ref) => ref.id) || []);
+  const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
+
+  // const handleRecreate = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const isChecked = e.target.checked;
+  //   const containerId = e.target.value;
+  //   ContainerService.updateContainerReferenceRecreate(workflowId, stepIndex, type, containerId, isChecked);
+  // };
 
   return (
     <Card variant="outline" overflow="hidden">
@@ -54,11 +53,11 @@ const ContainerCard = (props: ContainerCardProps) => {
         <Thead>
           <Tr>
             <Th>
-              <Text px="12" color={isDisabled ? 'text/disabled' : 'text/primary'}>
+              <Text px="12" color="text/primary">
                 {type === 'execution' ? 'Execution' : 'Service'} Container
               </Text>
             </Th>
-            <Th color={isDisabled ? 'text/disabled' : 'text/primary'}>
+            <Th color="text/primary">
               <DefinitionTooltip label='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
                 Behavior
               </DefinitionTooltip>
@@ -73,29 +72,18 @@ const ContainerCard = (props: ContainerCardProps) => {
               return (
                 <Tr key={reference.id}>
                   <Td>
-                    <Text
-                      textStyle="body/md/regular"
-                      color={isDisabled ? 'text/disabled' : 'text/body'}
-                      px="12"
-                      hasEllipsis
-                    >
+                    <Text textStyle="body/md/regular" color="text/body" px="12" hasEllipsis>
                       {reference.id}
                     </Text>
-                    <Text
-                      textStyle="body/sm/regular"
-                      color={isDisabled ? 'text/disabled' : 'text/secondary'}
-                      px="12"
-                      hasEllipsis
-                    >
+                    <Text textStyle="body/sm/regular" color="text/secondary" px="12" hasEllipsis>
                       {container?.userValues.image}
                     </Text>
                   </Td>
                   <Td>
                     <Checkbox
                       isChecked={reference.recreate}
-                      onChange={handleRecreate}
+                      onChange={(e) => onRecreate(reference.id, e.target.checked)}
                       value={reference.id}
-                      isDisabled={isDisabled}
                     >
                       Recreate container
                     </Checkbox>
@@ -105,8 +93,8 @@ const ContainerCard = (props: ContainerCardProps) => {
                       <ControlButton
                         aria-label="Delete container"
                         iconName="MinusCircle"
-                        color={isDisabled ? 'icon/disabled' : 'icon/negative'}
-                        onClick={() => ContainerService.removeContainerReference(workflowId, stepIndex, reference.id)}
+                        color="icon/negative"
+                        onClick={() => onRemove(reference.id)}
                       />
                     </Box>
                   </Td>
@@ -116,7 +104,7 @@ const ContainerCard = (props: ContainerCardProps) => {
           <Tr>
             {!containers.length ? (
               <Td colSpan={3}>
-                <Text textStyle="body/md/regular" color={isDisabled ? 'text/disabled' : 'text/secondary'} pl="12">
+                <Text textStyle="body/md/regular" color="text/secondary" pl="12">
                   No {type} containers available.{' '}
                   <Link colorScheme="purple" onClick={() => replace('/containers', { tab: type })}>
                     Manage {type} containers
@@ -128,12 +116,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                 {shouldShowAddButton ? (
                   <>
                     <Td>
-                      <ContainersMenu
-                        containers={containers}
-                        isDisabled={isDisabled}
-                        references={references}
-                        type={type}
-                      />
+                      <ContainersMenu containers={availableContainers} type={type} />
                     </Td>
                     <Td />
                     <Td />
@@ -141,10 +124,9 @@ const ContainerCard = (props: ContainerCardProps) => {
                 ) : (
                   <Td colSpan={3}>
                     <Box display="flex" alignItems="center" gap="4" pl="4">
-                      <Icon name="InfoCircle" color={isDisabled ? 'icon/disabled' : 'icon/tertiary'} size="16" />
-                      <Text textStyle="body/md/regular" color={isDisabled ? 'text/disabled' : 'text/secondary'}>
-                        You can only add one execution container per{' '}
-                        {isStepBundle || (isStepBundle && stepBundleId) ? 'Step bundle' : 'Step'}.
+                      <Icon name="InfoCircle" color="icon/tertiary" size="16" />
+                      <Text textStyle="body/md/regular" color="text/secondary">
+                        You can only add one execution container per Step.
                       </Text>
                     </Box>
                   </Td>
