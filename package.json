@@ -94,7 +94,7 @@
     "@swc/jest": "^0.2.39",
     "@types/jest": "^29.5.14",
     "@types/luxon": "^3.7.1",
-    "@types/node": "^24.9.2",
+    "@types/node": "^25.0.0",
     "@types/picomatch": "^4.0.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
