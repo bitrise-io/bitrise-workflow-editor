@@ -22,11 +22,16 @@ function getContainerOrThrowError(id: string, doc: Document) {
   return container;
 }
 
-function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: number): YAMLMap {
-  const step = StepService.getStepOrThrowError('workflows', workflowId, stepIndex, doc);
+function getStepDataOrThrowError(
+  doc: Document,
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
+  stepIndex: number,
+): YAMLMap {
+  const step = StepService.getStepOrThrowError(source, sourceId, stepIndex, doc);
   const stepData = step.items[0]?.value;
   if (!isMap(stepData)) {
-    throw new Error(`Invalid step data at index ${stepIndex} in workflow '${workflowId}'`);
+    throw new Error(`Invalid step data at index ${stepIndex} in ${source} '${sourceId}'`);
   }
 
   return stepData;
@@ -39,20 +44,20 @@ function addContainerReference(
   containerId: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    const step = StepService.getStepOrThrowError(source, sourceId, index, doc);
+    const stepData = getStepDataOrThrowError(doc, source, sourceId, index);
     const container = getContainerOrThrowError(containerId, doc);
 
     const type = container.getIn(['type']) as string;
 
     if (type === ContainerType.Execution) {
-      YmlUtils.setIn(step, [ContainerReferenceField.Execution], containerId);
+      YmlUtils.setIn(stepData, [ContainerReferenceField.Execution], containerId);
     }
 
     if (type === ContainerType.Service) {
-      if (YmlUtils.isInSeq(step, [ContainerReferenceField.Service], containerId)) {
+      if (YmlUtils.isInSeq(stepData, [ContainerReferenceField.Service], containerId)) {
         throw new Error(`Service container '${containerId}' is already added to the step`);
       }
-      YmlUtils.addIn(step, [ContainerReferenceField.Service], containerId);
+      YmlUtils.addIn(stepData, [ContainerReferenceField.Service], containerId);
     }
 
     return doc;
@@ -128,7 +133,7 @@ function deleteContainer(id: string) {
 function removeContainerReference(workflowId: string, stepIndex: number, containerId: string) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+    const stepData = getStepDataOrThrowError(doc, 'workflows', workflowId, stepIndex);
 
     YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Execution], containerId);
     YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Service, '*'], containerId);
@@ -168,7 +173,7 @@ function getContainerReferences(
   type: ContainerType,
   doc: Document,
 ): ContainerReference[] | undefined {
-  const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+  const stepData = getStepDataOrThrowError(doc, 'workflows', workflowId, stepIndex);
 
   const parseReference = (value: ContainerReferenceValue): ContainerReference => {
     if (typeof value === 'string') {
@@ -335,7 +340,7 @@ function updateContainerReferenceRecreate(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+    const stepData = getStepDataOrThrowError(doc, 'workflows', workflowId, stepIndex);
 
     const field =
       type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
