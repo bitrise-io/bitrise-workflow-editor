@@ -212,8 +212,45 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
   isConfiguredForBitriseLanguageServer = true;
 };
 
+export type ValidationStatus = 'valid' | 'invalid' | 'warnings';
+
+/**
+ * Subscribes to marker changes on a Monaco model and calls the callback
+ * with the derived validation status whenever markers change.
+ *
+ * Returns an IDisposable to unsubscribe.
+ */
+function onModelMarkerStatusChange(
+  model: monaco.editor.ITextModel,
+  callback: (status: ValidationStatus) => void,
+): monaco.IDisposable {
+  return monaco.editor.onDidChangeMarkers((changedUris) => {
+    const modelUri = model.uri.toString();
+    if (!changedUris.some((uri) => uri.toString() === modelUri)) {
+      return;
+    }
+
+    const markers = monaco.editor.getModelMarkers({ resource: model.uri });
+    let hasError = false;
+    let hasWarning = false;
+
+    for (const marker of markers) {
+      if (marker.severity === monaco.MarkerSeverity.Error) {
+        hasError = true;
+      } else if (marker.severity === monaco.MarkerSeverity.Warning) {
+        hasWarning = true;
+      }
+    }
+
+    if (hasError) callback('invalid');
+    else if (hasWarning) callback('warnings');
+    else callback('valid');
+  });
+}
+
 export default {
   configureForYaml,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
+  onModelMarkerStatusChange,
 };
