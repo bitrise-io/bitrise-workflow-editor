@@ -10,10 +10,9 @@ import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type HeaderProps = {
   variant: 'panel' | 'drawer';
-  showContainers?: boolean;
 };
 
-const StepBundleConfigHeader = ({ variant, showContainers = false }: HeaderProps) => {
+const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const { cvs, stepBundleId, title } = useStepBundleConfigContext((s) => ({
     cvs: s.stepBundle?.cvs || '',
     stepBundleId: s.stepBundle?.id || s.stepBundleId || '',
@@ -59,7 +58,7 @@ const StepBundleConfigHeader = ({ variant, showContainers = false }: HeaderProps
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
         <Tab>Properties</Tab>
-        {enableContainers && showContainers && <Tab>Containers</Tab>}
+        {enableContainers && <Tab>Containers</Tab>}
       </TabList>
     </>
   );

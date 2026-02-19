@@ -10,10 +10,9 @@ type ConfigContentProps = {
   onDelete?: () => void;
   onChangeId?: (name: string) => void;
   variant: 'panel' | 'drawer';
-  showContainers: boolean;
 } & TabPanelProps;
 
-const StepBundleConfigContent = ({ onDelete, onChangeId, showContainers, variant, ...rest }: ConfigContentProps) => {
+const StepBundleConfigContent = ({ onDelete, onChangeId, variant, ...rest }: ConfigContentProps) => {
   const enableContainers = useFeatureFlag('enable-wfe-containers-page');
 
   return (
@@ -24,7 +23,7 @@ const StepBundleConfigContent = ({ onDelete, onChangeId, showContainers, variant
       <TabPanel display="flex" flexDirection="column" gap="24">
         <StepBundlePropertiesTab onDelete={onDelete} onChangeId={onChangeId} variant={variant} />
       </TabPanel>
-      {enableContainers && showContainers && (
+      {enableContainers && (
         <TabPanel height="100%">
           <ContainersTab />
         </TabPanel>

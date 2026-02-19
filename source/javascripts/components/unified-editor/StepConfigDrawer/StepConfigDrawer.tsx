@@ -30,7 +30,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 const StepConfigDrawerContent = (
   props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex' | 'parentWorkflowId'>,
 ) => {
-  const { workflowId, stepBundleId, stepIndex, parentWorkflowId, data } = useStepDrawerContext();
+  const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
@@ -99,7 +99,7 @@ const StepConfigDrawerContent = (
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
-                {enableContainers && !!(workflowId || parentWorkflowId) && <Tab>Containers</Tab>}
+                {enableContainers && <Tab>Containers</Tab>}
               </TabList>
             </Box>
           </FloatingDrawerHeader>
@@ -116,7 +116,7 @@ const StepConfigDrawerContent = (
                   <OutputVariablesTab />
                 </TabPanel>
               )}
-              {enableContainers && !!(workflowId || parentWorkflowId) && (
+              {enableContainers && (
                 <TabPanel>
                   <ContainersTab />
                 </TabPanel>

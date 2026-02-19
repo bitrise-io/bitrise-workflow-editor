@@ -16,17 +16,9 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   parentWorkflowId?: string;
   parentStepBundleId?: string;
   stepIndex: number;
-  showContainers: boolean;
 };
 
-const StepBundleConfigDrawer = ({
-  stepBundleId,
-  stepIndex,
-  parentWorkflowId,
-  parentStepBundleId,
-  showContainers,
-  ...rest
-}: Props) => {
+const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, parentWorkflowId, parentStepBundleId, ...rest }: Props) => {
   return (
     <StepBundleConfigProvider
       stepBundleId={stepBundleId}
@@ -39,10 +31,10 @@ const StepBundleConfigDrawer = ({
           <FloatingDrawerContent>
             <FloatingDrawerCloseButton />
             <FloatingDrawerHeader>
-              <StepBundleConfigHeader variant="drawer" showContainers={showContainers} />
+              <StepBundleConfigHeader variant="drawer" />
             </FloatingDrawerHeader>
             <FloatingDrawerBody>
-              <StepBundleConfigContent showContainers={showContainers} variant="drawer" />
+              <StepBundleConfigContent variant="drawer" />
             </FloatingDrawerBody>
           </FloatingDrawerContent>
         </FloatingDrawer>
