@@ -3,11 +3,11 @@ import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import StepBadge from '@/components/StepBadge';
+import StepContainersTab from '@/components/unified-editor/StepConfigDrawer/tabs/StepContainersTab';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 
-import ContainersTab from '../ContainersTab/ContainersTab';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -118,12 +118,7 @@ const StepConfigDrawerContent = (
               )}
               {enableContainers && (
                 <TabPanel>
-                  <ContainersTab
-                    source={stepBundleId ? 'step_bundles' : 'workflows'}
-                    sourceId={workflowId || stepBundleId || ''}
-                    stepIndex={stepIndex}
-                    variant="drawer"
-                  />
+                  <StepContainersTab />
                 </TabPanel>
               )}
             </TabPanels>

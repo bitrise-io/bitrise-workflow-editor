@@ -32,23 +32,27 @@ function getStepDataOrThrowError(doc: Document, workflowId: string, stepIndex: n
   return stepData;
 }
 
-function addContainerReference(workflowId: string, stepIndex: number, containerId: string) {
+function addContainerReference(
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
+  index: number,
+  containerId: string,
+) {
   updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    const stepData = getStepDataOrThrowError(doc, workflowId, stepIndex);
+    const step = StepService.getStepOrThrowError(source, sourceId, index, doc);
     const container = getContainerOrThrowError(containerId, doc);
 
     const type = container.getIn(['type']) as string;
 
     if (type === ContainerType.Execution) {
-      YmlUtils.setIn(stepData, [ContainerReferenceField.Execution], containerId);
+      YmlUtils.setIn(step, [ContainerReferenceField.Execution], containerId);
     }
 
     if (type === ContainerType.Service) {
-      if (YmlUtils.isInSeq(stepData, [ContainerReferenceField.Service], containerId)) {
+      if (YmlUtils.isInSeq(step, [ContainerReferenceField.Service], containerId)) {
         throw new Error(`Service container '${containerId}' is already added to the step`);
       }
-      YmlUtils.addIn(stepData, [ContainerReferenceField.Service], containerId);
+      YmlUtils.addIn(step, [ContainerReferenceField.Service], containerId);
     }
 
     return doc;

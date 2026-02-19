@@ -3,16 +3,8 @@ import { useStepBundleConfigContext } from '@/components/unified-editor/StepBund
 import { ContainerType } from '@/core/models/Container';
 import StepBundleService from '@/core/services/StepBundleService';
 
-type StepBundleContainersTabProps = {
-  variant: 'panel' | 'drawer';
-};
-
-const StepBundleContainersTab = ({ variant }: StepBundleContainersTabProps) => {
+const StepBundleContainersTab = () => {
   const { stepBundle, stepBundleId, parentStepBundleId, parentWorkflowId, stepIndex } = useStepBundleConfigContext();
-
-  const defaultValues = stepBundle?.defaultValues ?? {};
-  const userValues = stepBundle?.userValues ?? {};
-  const mergedValues = stepBundle?.mergedValues ?? {};
 
   const isDefaultMode = !parentStepBundleId && !parentWorkflowId;
 
@@ -23,7 +15,7 @@ const StepBundleContainersTab = ({ variant }: StepBundleContainersTabProps) => {
     stepIndex,
   };
 
-  const onAddContainer = (containerId: string, type: ContainerType) => {
+  const handleAdd = (containerId: string, type: ContainerType) => {
     if (stepBundleId) {
       if (isDefaultMode) {
         StepBundleService.updateStepBundleField(stepBundleId, 'title', containerId + type);
@@ -33,26 +25,7 @@ const StepBundleContainersTab = ({ variant }: StepBundleContainersTabProps) => {
     }
   };
 
-  console.log({
-    defaultValues,
-    isDefaultMode,
-    userValues,
-    stepBundleId,
-    mergedValues,
-    at,
-    parentStepBundleId,
-    parentWorkflowId,
-  });
-
-  return (
-    <ContainersTab
-      onAddContainer={onAddContainer}
-      source="step_bundles"
-      sourceId={''}
-      stepIndex={0}
-      variant={variant}
-    />
-  );
+  return <ContainersTab onAddContainer={handleAdd} />;
 };
 
 export default StepBundleContainersTab;

@@ -25,7 +25,7 @@ const StepBundleConfigContent = ({ onDelete, onChangeId, variant, ...rest }: Con
       </TabPanel>
       {enableContainers && (
         <TabPanel height="100%">
-          <StepBundleContainersTab variant={variant} />
+          <StepBundleContainersTab />
         </TabPanel>
       )}
     </TabPanels>
