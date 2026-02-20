@@ -138,8 +138,9 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const [clientError, setClientError] = useState<Error>();
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
   const finalYmlEditor = useRef<ReturnType<MonacoDiffEditor['getModifiedEditor']>>();
-  const [ymlStatus, subscribeToModel] = useModelValidationStatus();
   const [nextData, setNextData] = useState<Partial<ReturnType<typeof useInitialCiConfigs>['data']>>();
+  // NOTE: Optimistic initial status, the actual status will be updated on editor mount when we subscribe to the model
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus('valid');
 
   const {
     error: saveError,
