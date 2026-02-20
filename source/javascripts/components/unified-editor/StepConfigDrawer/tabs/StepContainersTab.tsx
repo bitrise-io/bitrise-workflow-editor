@@ -27,16 +27,14 @@ const StepContainersTab = () => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
 
-  const {
-    instance: { execution: executionReferences, service: serviceReferences },
-  } = useContainerReferences(source, sourceId || stepBundleId || '', stepIndex);
+  const { instance } = useContainerReferences(source, sourceId || '', stepIndex);
 
   return (
     <ContainersTab
       executionContainers={executionContainers}
-      executionReferences={executionReferences}
+      executionReferences={instance?.[ContainerType.Execution] || []}
       serviceContainers={serviceContainers}
-      serviceReferences={serviceReferences}
+      serviceReferences={instance?.[ContainerType.Service] || []}
       onAddContainer={handleAdd}
     />
   );

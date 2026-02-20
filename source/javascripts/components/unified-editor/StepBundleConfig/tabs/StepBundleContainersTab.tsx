@@ -29,8 +29,7 @@ const StepBundleContainersTab = () => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
 
-  const { definition, instance } = useContainerReferences(source, sourceId || stepBundleId || '', stepIndex);
-  console.log({ definition, instance });
+  const { definition, instance } = useContainerReferences(source, sourceId || '', stepIndex, stepBundleId);
 
   return (
     <ContainersTab
