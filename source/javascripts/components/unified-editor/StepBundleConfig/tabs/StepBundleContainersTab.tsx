@@ -55,20 +55,17 @@ const StepBundleContainersTab = () => {
     withoutType: otherContainers,
   } = useContainers();
 
-  const { definition, instance } = useContainerReferences(source, sourceId || '', stepIndex, stepBundleId);
+  const references = useContainerReferences(source, sourceId || '', stepIndex, stepBundleId);
 
   return (
     <ContainersTab
       executionContainers={[...executionContainers, ...otherContainers]}
-      executionReferences={[
-        ...(definition?.[ContainerType.Execution] || []),
-        ...(instance?.[ContainerType.Execution] || []),
-      ]}
+      references={references}
       serviceContainers={[...serviceContainers, ...otherContainers]}
-      serviceReferences={[...(definition?.[ContainerType.Service] || []), ...(instance?.[ContainerType.Service] || [])]}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
       onRemove={handleRemove}
+      isDefinitionReferencesDisabled={!isDefinition}
     />
   );
 };

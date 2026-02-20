@@ -2,7 +2,7 @@ import { ContainerReference, ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-type ReturnValue = {
+export type UseContainerReferencesReturnValue = {
   definition?: Record<ContainerType, ContainerReference[] | undefined>;
   instance?: Record<ContainerType, ContainerReference[] | undefined>;
 };
@@ -12,10 +12,10 @@ function useContainerReferences(
   sourceId: string,
   stepIndex: number,
   stepBundleId?: string,
-): ReturnValue {
+): UseContainerReferencesReturnValue {
   const ymlDocument = useBitriseYmlStore((state) => state.ymlDocument);
 
-  const returnValue: ReturnValue = {};
+  const returnValue: UseContainerReferencesReturnValue = {};
 
   if (stepBundleId) {
     returnValue.definition = {

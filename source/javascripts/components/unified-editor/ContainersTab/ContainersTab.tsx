@@ -1,30 +1,31 @@
 import { Box } from '@bitrise/bitkit';
 
-import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
+import { Container, ContainerType } from '@/core/models/Container';
 
 import ContainerCard from './ContainerCard';
+import { UseContainerReferencesReturnValue } from './hooks/useContainerReferences';
 
 export type Source = 'workflows' | 'step_bundles';
 
 type ContainersTabProps = {
   executionContainers: Container[];
-  executionReferences?: ContainerReference[];
+  isDefinitionReferencesDisabled?: boolean;
   onAddContainer: (containerId: string, type: ContainerType) => void;
   onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
   onRemove: (containerId: string, type: ContainerType) => void;
+  references?: UseContainerReferencesReturnValue;
   serviceContainers: Container[];
-  serviceReferences?: ContainerReference[];
 };
 
 const ContainersTab = (props: ContainersTabProps) => {
   const {
     executionContainers,
-    executionReferences,
+    isDefinitionReferencesDisabled,
     onAddContainer,
     onRecreate,
     onRemove,
+    references,
     serviceContainers,
-    serviceReferences,
   } = props;
 
   return (
@@ -35,7 +36,9 @@ const ContainersTab = (props: ContainersTabProps) => {
         onAddContainer={onAddContainer}
         onRecreate={onRecreate}
         onRemove={onRemove}
-        references={executionReferences}
+        definitionReferences={references?.definition?.[ContainerType.Execution]}
+        instanceReferences={references?.instance?.[ContainerType.Execution]}
+        isDefinitionReferencesDisabled={isDefinitionReferencesDisabled}
       />
       <ContainerCard
         type={ContainerType.Service}
@@ -43,7 +46,9 @@ const ContainersTab = (props: ContainersTabProps) => {
         onAddContainer={onAddContainer}
         onRecreate={onRecreate}
         onRemove={onRemove}
-        references={serviceReferences}
+        definitionReferences={references?.definition?.[ContainerType.Service]}
+        instanceReferences={references?.instance?.[ContainerType.Service]}
+        isDefinitionReferencesDisabled={isDefinitionReferencesDisabled}
       />
     </Box>
   );

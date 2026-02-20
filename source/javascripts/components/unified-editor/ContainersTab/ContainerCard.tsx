@@ -20,25 +20,92 @@ import useNavigation from '@/hooks/useNavigation';
 
 import ContainersMenu from './ContainersMenu';
 
+type ContainerCardItemProps = {
+  container?: Container;
+  isDisabled?: boolean;
+  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
+  onRemove: (containerId: string, type: ContainerType) => void;
+  reference: ContainerReference;
+  type: ContainerType;
+};
+
+const ContainerCardItem = ({
+  container,
+  isDisabled,
+  onRecreate,
+  onRemove,
+  reference,
+  type,
+}: ContainerCardItemProps) => {
+  return (
+    <Tr key={reference.id}>
+      <Td>
+        <Text textStyle="body/md/regular" color="text/body" px="12" hasEllipsis>
+          {reference.id}
+        </Text>
+        <Text textStyle="body/sm/regular" color="text/secondary" px="12" hasEllipsis>
+          {container?.userValues.image}
+        </Text>
+      </Td>
+      <Td>
+        <Checkbox
+          isChecked={reference.recreate}
+          onChange={(e) => onRecreate(reference.id, e.target.checked, type)}
+          value={reference.id}
+          isDisabled={isDisabled}
+        >
+          Recreate container
+        </Checkbox>
+      </Td>
+      <Td width="60px">
+        <Box display="flex" justifyContent="center" pr="12">
+          <ControlButton
+            aria-label="Delete container"
+            iconName="MinusCircle"
+            color="icon/negative"
+            isDisabled={isDisabled}
+            onClick={() => onRemove(reference.id, type)}
+          />
+        </Box>
+      </Td>
+    </Tr>
+  );
+};
+
 type ContainerCardProps = {
   containers: Container[];
+  definitionReferences?: ContainerReference[];
+  instanceReferences?: ContainerReference[];
+  isDefinitionReferencesDisabled?: boolean;
   onAddContainer: (containerId: string, type: ContainerType) => void;
   onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
   onRemove: (containerId: string, type: ContainerType) => void;
-  references?: ContainerReference[];
   type: ContainerType;
 };
 
 const ContainerCard = (props: ContainerCardProps) => {
-  const { containers, onAddContainer, onRecreate, onRemove, references, type } = props;
+  const {
+    containers,
+    definitionReferences,
+    instanceReferences,
+    isDefinitionReferencesDisabled,
+    onAddContainer,
+    onRecreate,
+    onRemove,
+    type,
+  } = props;
   const { replace } = useNavigation();
 
   const getContainerById = (containerId: string) => {
     return containers.find((c) => c.id === containerId);
   };
 
-  const shouldShowAddButton =
-    type === ContainerType.Service || (type === ContainerType.Execution && references?.length !== 1);
+  const references = [...(definitionReferences || []), ...(instanceReferences || [])];
+
+  let shouldShowAddButton = type === ContainerType.Service;
+  if (type === ContainerType.Execution) {
+    shouldShowAddButton = references.length === 0;
+  }
 
   const selectedReferenceIds = new Set(references?.map((ref) => ref.id) || []);
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
@@ -62,39 +129,33 @@ const ContainerCard = (props: ContainerCardProps) => {
           </Tr>
         </Thead>
         <Tbody>
-          {!!references &&
-            references.map((reference) => {
+          {!!definitionReferences &&
+            definitionReferences.map((reference) => {
               const container = getContainerById(reference.id);
               return (
-                <Tr key={reference.id}>
-                  <Td>
-                    <Text textStyle="body/md/regular" color="text/body" px="12" hasEllipsis>
-                      {reference.id}
-                    </Text>
-                    <Text textStyle="body/sm/regular" color="text/secondary" px="12" hasEllipsis>
-                      {container?.userValues.image}
-                    </Text>
-                  </Td>
-                  <Td>
-                    <Checkbox
-                      isChecked={reference.recreate}
-                      onChange={(e) => onRecreate(reference.id, e.target.checked, type)}
-                      value={reference.id}
-                    >
-                      Recreate container
-                    </Checkbox>
-                  </Td>
-                  <Td width="60px">
-                    <Box display="flex" justifyContent="center" pr="12">
-                      <ControlButton
-                        aria-label="Delete container"
-                        iconName="MinusCircle"
-                        color="icon/negative"
-                        onClick={() => onRemove(reference.id, type)}
-                      />
-                    </Box>
-                  </Td>
-                </Tr>
+                <ContainerCardItem
+                  key={reference.id}
+                  reference={reference}
+                  container={container}
+                  onRecreate={onRecreate}
+                  onRemove={onRemove}
+                  type={type}
+                  isDisabled={isDefinitionReferencesDisabled}
+                />
+              );
+            })}
+          {!!instanceReferences &&
+            instanceReferences.map((reference) => {
+              const container = getContainerById(reference.id);
+              return (
+                <ContainerCardItem
+                  key={reference.id}
+                  reference={reference}
+                  container={container}
+                  onRecreate={onRecreate}
+                  onRemove={onRemove}
+                  type={type}
+                />
               );
             })}
           <Tr>
