@@ -116,7 +116,8 @@
     "storybook": "^10.0.2",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "vite-plugin-compression": "^0.5.1"
+    "vite-plugin-compression": "^0.5.1",
+    "wrangler": "^4.67.0"
   },
   "msw": {
     "workerDirectory": [
