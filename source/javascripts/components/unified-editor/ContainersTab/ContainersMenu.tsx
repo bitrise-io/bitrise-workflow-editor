@@ -4,25 +4,26 @@ import { Container, ContainerType } from '@/core/models/Container';
 import useNavigation from '@/hooks/useNavigation';
 
 type ContainersMenuProps = {
+  actionType: 'Add' | 'Change';
   containers: Container[];
-  onAddContainer: (containerId: string) => void;
+  onSelectContainer: (containerId: string) => void;
   type: ContainerType;
 };
 
 const ContainersMenu = (props: ContainersMenuProps) => {
-  const { containers, onAddContainer, type } = props;
+  const { actionType, containers, onSelectContainer, type } = props;
   const { replace } = useNavigation();
 
   return (
     <Menu>
       <MenuButton as={Button} variant="tertiary" leftIconName="Plus" size="sm">
-        Add container
+        {actionType} container
       </MenuButton>
       <MenuList>
         {containers.map((container) => (
           <MenuItem
             key={container.id}
-            onClick={() => onAddContainer(container.id)}
+            onClick={() => onSelectContainer(container.id)}
             display="flex"
             flexDir="column"
             alignItems="flex-start"

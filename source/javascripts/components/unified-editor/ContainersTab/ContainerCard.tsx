@@ -4,7 +4,6 @@ import {
   Checkbox,
   ControlButton,
   DefinitionTooltip,
-  Icon,
   Link,
   Table,
   Tbody,
@@ -102,11 +101,6 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   const references = [...(definitionReferences || []), ...(instanceReferences || [])];
 
-  let shouldShowAddButton = type === ContainerType.Service;
-  if (type === ContainerType.Execution) {
-    shouldShowAddButton = references.length === 0;
-  }
-
   const selectedReferenceIds = new Set(references?.map((ref) => ref.id) || []);
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
 
@@ -130,6 +124,7 @@ const ContainerCard = (props: ContainerCardProps) => {
         </Thead>
         <Tbody>
           {!!definitionReferences &&
+            (!instanceReferences?.length || type === ContainerType.Service) &&
             definitionReferences.map((reference) => {
               const container = getContainerById(reference.id);
               return (
@@ -170,28 +165,16 @@ const ContainerCard = (props: ContainerCardProps) => {
               </Td>
             ) : (
               <>
-                {shouldShowAddButton ? (
-                  <>
-                    <Td>
-                      <ContainersMenu
-                        containers={availableContainers}
-                        onAddContainer={(containerId) => onAddContainer(containerId, type)}
-                        type={type}
-                      />
-                    </Td>
-                    <Td />
-                    <Td />
-                  </>
-                ) : (
-                  <Td colSpan={3}>
-                    <Box display="flex" alignItems="center" gap="4" pl="4">
-                      <Icon name="InfoCircle" color="icon/tertiary" size="16" />
-                      <Text textStyle="body/md/regular" color="text/secondary">
-                        You can only add one execution container per Step.
-                      </Text>
-                    </Box>
-                  </Td>
-                )}
+                <Td>
+                  <ContainersMenu
+                    actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
+                    containers={availableContainers}
+                    onSelectContainer={(containerId) => onAddContainer(containerId, type)}
+                    type={type}
+                  />
+                </Td>
+                <Td />
+                <Td />
               </>
             )}
           </Tr>
