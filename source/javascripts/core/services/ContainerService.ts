@@ -5,7 +5,6 @@ import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
-import WorkflowService from '@/core/services/WorkflowService';
 import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
@@ -42,6 +41,7 @@ function addContainerReference(
   sourceId: string,
   index: number,
   containerId: string,
+  type: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
@@ -50,10 +50,6 @@ function addContainerReference(
     } else {
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, index);
     }
-
-    const container = getContainerOrThrowError(containerId, doc);
-
-    const type = container.getIn(['type']) as string;
 
     if (type === ContainerType.Execution) {
       YmlUtils.setIn(yamlMap, [ContainerReferenceField.Execution], containerId);
@@ -136,22 +132,37 @@ function deleteContainer(id: string) {
   });
 }
 
-function removeContainerReference(workflowId: string, stepIndex: number, containerId: string) {
+function removeContainerReference(
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
+  stepIndex: number,
+  containerId: string,
+  type: ContainerType,
+) {
   updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    const stepData = getStepDataOrThrowError(doc, 'workflows', workflowId, stepIndex);
+    let yamlMap;
+    if (stepIndex === -1) {
+      yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+    } else {
+      yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+    }
 
-    YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Execution], containerId);
-    YmlUtils.deleteByValue(stepData, [ContainerReferenceField.Service, '*'], containerId);
+    if (type === ContainerType.Execution) {
+      YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Execution], containerId);
+    }
 
-    YmlUtils.deleteByPredicate(stepData, [ContainerReferenceField.Execution], (node) => {
+    if (type === ContainerType.Service) {
+      YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Service, '*'], containerId);
+    }
+
+    YmlUtils.deleteByPredicate(yamlMap, [ContainerReferenceField.Execution], (node) => {
       if (isMap(node) && node.items.length > 0) {
         const key = String(node.items[0]?.key);
         return key === containerId;
       }
       return false;
     });
-    YmlUtils.deleteByPredicate(stepData, [ContainerReferenceField.Service, '*'], (node) => {
+    YmlUtils.deleteByPredicate(yamlMap, [ContainerReferenceField.Service, '*'], (node) => {
       if (isMap(node) && node.items.length > 0) {
         const key = String(node.items[0]?.key);
         return key === containerId;
@@ -347,19 +358,24 @@ function updateContainerId(id: Container['id'], newId: Container['id']) {
 }
 
 function updateContainerReferenceRecreate(
-  workflowId: string,
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
   stepIndex: number,
-  type: ContainerType,
   containerId: string,
+  type: ContainerType,
   recreate: boolean,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
-    const stepData = getStepDataOrThrowError(doc, 'workflows', workflowId, stepIndex);
+    let yamlMap;
+    if (stepIndex === -1) {
+      yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+    } else {
+      yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+    }
 
     const field =
       type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
-    if (!stepData.has(field)) {
+    if (!yamlMap.has(field)) {
       throw new Error(`No '${field}' found on step at index ${stepIndex}`);
     }
 
@@ -367,7 +383,7 @@ function updateContainerReferenceRecreate(
     const path = field === ContainerReferenceField.Execution ? [field] : [field, '*'];
 
     YmlUtils.updateValueByPredicate(
-      stepData,
+      yamlMap,
       path,
       (node) => {
         if (YmlUtils.isEqualValues(node, containerId)) {

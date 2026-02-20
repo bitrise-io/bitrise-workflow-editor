@@ -22,9 +22,9 @@ import ContainersMenu from './ContainersMenu';
 
 type ContainerCardProps = {
   containers: Container[];
-  onAddContainer: (containerId: string) => void;
-  onRecreate: (containerId: string, recreate: boolean) => void;
-  onRemove: (containerId: string) => void;
+  onAddContainer: (containerId: string, type: ContainerType) => void;
+  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
+  onRemove: (containerId: string, type: ContainerType) => void;
   references?: ContainerReference[];
   type: ContainerType;
 };
@@ -42,12 +42,6 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   const selectedReferenceIds = new Set(references?.map((ref) => ref.id) || []);
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
-
-  // const handleRecreate = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const isChecked = e.target.checked;
-  //   const containerId = e.target.value;
-  //   ContainerService.updateContainerReferenceRecreate(workflowId, stepIndex, type, containerId, isChecked);
-  // };
 
   return (
     <Card variant="outline" overflow="hidden">
@@ -84,7 +78,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   <Td>
                     <Checkbox
                       isChecked={reference.recreate}
-                      onChange={(e) => onRecreate(reference.id, e.target.checked)}
+                      onChange={(e) => onRecreate(reference.id, e.target.checked, type)}
                       value={reference.id}
                     >
                       Recreate container
@@ -96,7 +90,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                         aria-label="Delete container"
                         iconName="MinusCircle"
                         color="icon/negative"
-                        onClick={() => onRemove(reference.id)}
+                        onClick={() => onRemove(reference.id, type)}
                       />
                     </Box>
                   </Td>
@@ -118,7 +112,11 @@ const ContainerCard = (props: ContainerCardProps) => {
                 {shouldShowAddButton ? (
                   <>
                     <Td>
-                      <ContainersMenu containers={availableContainers} onAddContainer={onAddContainer} type={type} />
+                      <ContainersMenu
+                        containers={availableContainers}
+                        onAddContainer={(containerId) => onAddContainer(containerId, type)}
+                        type={type}
+                      />
                     </Td>
                     <Td />
                     <Td />

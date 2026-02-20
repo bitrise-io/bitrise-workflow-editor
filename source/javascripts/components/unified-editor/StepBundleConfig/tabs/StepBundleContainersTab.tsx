@@ -8,39 +8,67 @@ import useContainers from '@/hooks/useContainers';
 const StepBundleContainersTab = () => {
   const { stepBundleId, parentStepBundleId, parentWorkflowId, stepIndex } = useStepBundleConfigContext();
 
-  const isDefaultMode = !parentStepBundleId && !parentWorkflowId;
+  const isDefinition = !parentStepBundleId && !parentWorkflowId;
   const source = parentWorkflowId ? 'workflows' : 'step_bundles';
   const sourceId = parentStepBundleId || parentWorkflowId || '';
 
-  const handleAdd = (containerId: string) => {
+  const handleAdd = (containerId: string, type: ContainerType) => {
     if (stepBundleId) {
-      if (isDefaultMode) {
-        ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId);
+      if (isDefinition) {
+        ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId, type);
       } else {
-        ContainerService.addContainerReference(source, sourceId, stepIndex, containerId);
+        ContainerService.addContainerReference(source, sourceId, stepIndex, containerId, type);
       }
     }
   };
 
-  const executionContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
-  });
-  const serviceContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
-  });
+  const handleRecreate = (containerId: string, recreate: boolean, type: ContainerType) => {
+    if (stepBundleId) {
+      if (isDefinition) {
+        ContainerService.updateContainerReferenceRecreate(
+          'step_bundles',
+          stepBundleId,
+          -1,
+          containerId,
+          type,
+          recreate,
+        );
+      } else {
+        ContainerService.updateContainerReferenceRecreate(source, sourceId, stepIndex, containerId, type, recreate);
+      }
+    }
+  };
+
+  const handleRemove = (containerId: string, type: ContainerType) => {
+    if (stepBundleId) {
+      if (isDefinition) {
+        ContainerService.removeContainerReference('step_bundles', stepBundleId, -1, containerId, type);
+      } else {
+        ContainerService.removeContainerReference(source, sourceId, stepIndex, containerId, type);
+      }
+    }
+  };
+
+  const {
+    [ContainerType.Execution]: executionContainers,
+    [ContainerType.Service]: serviceContainers,
+    withoutType: otherContainers,
+  } = useContainers();
 
   const { definition, instance } = useContainerReferences(source, sourceId || '', stepIndex, stepBundleId);
 
   return (
     <ContainersTab
-      executionContainers={executionContainers}
+      executionContainers={[...executionContainers, ...otherContainers]}
       executionReferences={[
         ...(definition?.[ContainerType.Execution] || []),
         ...(instance?.[ContainerType.Execution] || []),
       ]}
-      serviceContainers={serviceContainers}
+      serviceContainers={[...serviceContainers, ...otherContainers]}
       serviceReferences={[...(definition?.[ContainerType.Service] || []), ...(instance?.[ContainerType.Service] || [])]}
       onAddContainer={handleAdd}
+      onRecreate={handleRecreate}
+      onRemove={handleRemove}
     />
   );
 };

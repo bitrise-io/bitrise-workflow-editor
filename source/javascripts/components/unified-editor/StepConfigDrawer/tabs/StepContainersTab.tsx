@@ -8,34 +8,57 @@ import useContainers from '@/hooks/useContainers';
 const StepContainersTab = () => {
   const { workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
 
-  const handleAdd = (containerId: string) => {
+  const handleAdd = (containerId: string, type: ContainerType) => {
     ContainerService.addContainerReference(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
+      type,
+    );
+  };
+
+  const handleRecreate = (containerId: string, recreate: boolean, type: ContainerType) => {
+    ContainerService.updateContainerReferenceRecreate(
+      stepBundleId ? 'step_bundles' : 'workflows',
+      stepBundleId || workflowId,
+      stepIndex,
+      containerId,
+      type,
+      recreate,
+    );
+  };
+
+  const handleRemove = (containerId: string, type: ContainerType) => {
+    ContainerService.removeContainerReference(
+      stepBundleId ? 'step_bundles' : 'workflows',
+      stepBundleId || workflowId,
+      stepIndex,
+      containerId,
+      type,
     );
   };
 
   const source = stepBundleId ? 'step_bundles' : 'workflows';
   const sourceId = stepBundleId || workflowId;
 
-  const executionContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
-  });
-  const serviceContainers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
-  });
+  const {
+    [ContainerType.Execution]: executionContainers,
+    [ContainerType.Service]: serviceContainers,
+    withoutType: otherContainers,
+  } = useContainers();
 
   const { instance } = useContainerReferences(source, sourceId || '', stepIndex);
 
   return (
     <ContainersTab
-      executionContainers={executionContainers}
+      executionContainers={[...executionContainers, ...otherContainers]}
       executionReferences={instance?.[ContainerType.Execution] || []}
-      serviceContainers={serviceContainers}
+      serviceContainers={[...serviceContainers, ...otherContainers]}
       serviceReferences={instance?.[ContainerType.Service] || []}
       onAddContainer={handleAdd}
+      onRecreate={handleRecreate}
+      onRemove={handleRemove}
     />
   );
 };

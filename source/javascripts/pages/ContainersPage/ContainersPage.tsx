@@ -12,9 +12,8 @@ import { getContainersBadge } from './utils/ContainersPage.utils';
 const TAB_IDS = [ContainerType.Execution, ContainerType.Service];
 
 const ContainersPage = () => {
-  const containerTypes = useContainers((containers) => Object.values(containers).map((c) => c?.type));
-  const executionContainerCount = containerTypes.filter((t) => t === ContainerType.Execution).length;
-  const serviceContainerCount = containerTypes.filter((t) => t === ContainerType.Service).length;
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
@@ -45,10 +44,10 @@ const ContainersPage = () => {
       </Text>
       <Tabs index={tabIndex} onChange={onTabChange}>
         <TabList px="16">
-          <Tab badge={getContainersBadge(executionContainerCount)}>Execution containers</Tab>
-          <Tab badge={getContainersBadge(serviceContainerCount)}>Service containers</Tab>
+          <Tab badge={getContainersBadge(executionContainers.length)}>Execution containers</Tab>
+          <Tab badge={getContainersBadge(serviceContainers.length)}>Service containers</Tab>
         </TabList>
-        <TabPanels>
+        <TabPanels p="32">
           <TabPanel>
             <ExecutionContainersTab />
           </TabPanel>

@@ -3,7 +3,6 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
 containers:
   golang:
-    type: execution
     image: golang:1.22
   node:
     type: execution
@@ -194,7 +193,7 @@ workflows:
             - company_name: Mando
           execution_container:
             golang:
-              recreate: true 
+              recreate: true
           service_containers:
           - redis
   steplib-steps:

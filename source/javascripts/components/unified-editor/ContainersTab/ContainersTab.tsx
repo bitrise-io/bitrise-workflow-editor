@@ -10,29 +10,39 @@ type ContainersTabProps = {
   executionContainers: Container[];
   executionReferences?: ContainerReference[];
   onAddContainer: (containerId: string, type: ContainerType) => void;
+  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
+  onRemove: (containerId: string, type: ContainerType) => void;
   serviceContainers: Container[];
   serviceReferences?: ContainerReference[];
 };
 
 const ContainersTab = (props: ContainersTabProps) => {
-  const { executionContainers, executionReferences, onAddContainer, serviceContainers, serviceReferences } = props;
+  const {
+    executionContainers,
+    executionReferences,
+    onAddContainer,
+    onRecreate,
+    onRemove,
+    serviceContainers,
+    serviceReferences,
+  } = props;
 
   return (
     <Box display="flex" flexDir="column" gap="24">
       <ContainerCard
         type={ContainerType.Execution}
         containers={executionContainers}
-        onAddContainer={(containerId) => onAddContainer(containerId, ContainerType.Execution)}
-        onRecreate={() => {}}
-        onRemove={() => {}}
+        onAddContainer={onAddContainer}
+        onRecreate={onRecreate}
+        onRemove={onRemove}
         references={executionReferences}
       />
       <ContainerCard
         type={ContainerType.Service}
         containers={serviceContainers}
-        onAddContainer={(containerId) => onAddContainer(containerId, ContainerType.Service)}
-        onRecreate={() => {}}
-        onRemove={() => {}}
+        onAddContainer={onAddContainer}
+        onRecreate={onRecreate}
+        onRemove={onRemove}
         references={serviceReferences}
       />
     </Box>
