@@ -28,7 +28,7 @@ import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import useMonacoMarkerStatus from '@/hooks/useMonacoMarkerStatus';
+import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 
@@ -138,7 +138,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const [clientError, setClientError] = useState<Error>();
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
   const finalYmlEditor = useRef<ReturnType<MonacoDiffEditor['getModifiedEditor']>>();
-  const [ymlStatus, subscribeToModel] = useMonacoMarkerStatus();
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus();
   const [nextData, setNextData] = useState<Partial<ReturnType<typeof useInitialCiConfigs>['data']>>();
 
   const {

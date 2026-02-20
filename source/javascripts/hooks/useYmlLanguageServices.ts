@@ -7,7 +7,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 export const BACKGROUND_MODEL_URI = monaco.Uri.parse('file:///bitrise.yml');
 
-function useBackgroundYmlValidation() {
+function useYmlLanguageServices() {
   const enableBitriseLanguageServer = useFeatureFlag('enable-wfe-bitrise-language-server');
 
   useEffect(() => {
@@ -33,21 +33,36 @@ function useBackgroundYmlValidation() {
       (state) => ({
         ymlDocument: state.ymlDocument,
         invalidYmlString: state.__invalidYmlString,
+        discardKey: state.discardKey,
       }),
-      () => {
-        // Skip when an editor widget is using the model — user typing drives it directly.
-        // Calling setValue() would overwrite with YAML round-tripped text, breaking
-        // cursor position and undo history.
+      (curr, prev) => {
+        const isDiscard = curr.discardKey !== prev.discardKey;
+
+        const syncModel = () => {
+          const newValue = getYmlString();
+          if (model && model.getValue() !== newValue) {
+            model.setValue(newValue);
+          }
+        };
+
         if (model.isAttachedToEditor()) {
+          if (isDiscard) {
+            // Defer until after React's synchronous render cycle disposes the old editor.
+            // Calling setValue() immediately would trigger async Monaco work that gets
+            // canceled when the editor unmounts, causing "Canceled" errors.
+            requestAnimationFrame(syncModel);
+          }
+          // Otherwise skip — user typing drives the model directly.
+          // Calling setValue() would overwrite with YAML round-tripped text,
+          // breaking cursor position and undo history.
           return;
         }
-        const newValue = getYmlString();
-        if (model && model.getValue() !== newValue) {
-          model.setValue(newValue);
-        }
+
+        syncModel();
       },
       {
-        equalityFn: (a, b) => a.ymlDocument === b.ymlDocument && a.invalidYmlString === b.invalidYmlString,
+        equalityFn: (a, b) =>
+          a.ymlDocument === b.ymlDocument && a.invalidYmlString === b.invalidYmlString && a.discardKey === b.discardKey,
       },
     );
 
@@ -63,4 +78,4 @@ function useBackgroundYmlValidation() {
   }, [enableBitriseLanguageServer]);
 }
 
-export default useBackgroundYmlValidation;
+export default useYmlLanguageServices;

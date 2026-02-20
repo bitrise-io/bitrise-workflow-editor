@@ -15,14 +15,14 @@ import { useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { forceRefreshStates, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import useMonacoMarkerStatus from '@/hooks/useMonacoMarkerStatus';
+import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor from './DiffEditor';
 
 const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
-  const [ymlStatus, subscribeToModel] = useMonacoMarkerStatus(useYmlValidationStatus());
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus(useYmlValidationStatus());
   const [currentText, setCurrentText] = useState<string | undefined>();
 
   const modifiedText = getYmlString();

@@ -14,9 +14,9 @@ import Client from '@/core/api/client';
 import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBackgroundYmlValidation from '@/hooks/useBackgroundYmlValidation';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
@@ -86,7 +86,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const hasChanges = useYmlHasChanges();
 
   useCiConfigSettings();
-  useBackgroundYmlValidation();
+  useYmlLanguageServices();
   const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
 
   useEventListener('beforeunload', (e) => {
