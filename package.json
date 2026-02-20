@@ -67,7 +67,6 @@
     "monaco-editor": "^0.53.0",
     "monaco-yaml": "^5.4.0",
     "node-diff3": "^3.1.2",
-    "picomatch": "^4.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.65.0",
@@ -93,7 +92,6 @@
     "@types/jest": "^29.5.14",
     "@types/luxon": "^3.7.1",
     "@types/node": "^24.9.2",
-    "@types/picomatch": "^4.0.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/semver": "^7.7.1",
@@ -118,9 +116,7 @@
     "storybook": "^10.0.2",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-monaco-editor": "^1.1.0",
-    "wrangler": "^4.45.4"
+    "vite-plugin-compression": "^0.5.1"
   },
   "msw": {
     "workerDirectory": [
