@@ -11,7 +11,7 @@ import MonacoUtils, { type ValidationStatus } from '@/core/utils/MonacoUtils';
  *   - You need validation status for a model that isn't the main background model
  *   - You want to avoid re-renders from BitriseYmlStore and only update on marker changes
  *
- * Example: DiffEditor and ConfigMergeEditor use this to track their modified models (changes what not saved in the BitriseYmlStore yet).
+ * Example: DiffEditor and ConfigMergeEditor use this to track their modified models (changes that are not saved in the BitriseYmlStore yet).
  *
  * Call `subscribeToModel(model)` after the editor mounts.
  * Cleanup happens automatically on unmount.

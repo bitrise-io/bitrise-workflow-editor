@@ -224,12 +224,7 @@ function onModelMarkerStatusChange(
   model: monaco.editor.ITextModel,
   callback: (status: ValidationStatus) => void,
 ): monaco.IDisposable {
-  return monaco.editor.onDidChangeMarkers((changedUris) => {
-    const modelUri = model.uri.toString();
-    if (!changedUris.some((uri) => uri.toString() === modelUri)) {
-      return;
-    }
-
+  const updateStatus = () => {
     const markers = monaco.editor.getModelMarkers({ resource: model.uri });
     let hasError = false;
     let hasWarning = false;
@@ -245,6 +240,19 @@ function onModelMarkerStatusChange(
     if (hasError) callback('invalid');
     else if (hasWarning) callback('warnings');
     else callback('valid');
+  };
+
+  // Check existing markers immediately
+  updateStatus();
+
+  // Subscribe to future marker changes
+  return monaco.editor.onDidChangeMarkers((changedUris) => {
+    const modelUri = model.uri.toString();
+    if (!changedUris.some((uri) => uri.toString() === modelUri)) {
+      return;
+    }
+
+    updateStatus();
   });
 }
 

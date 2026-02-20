@@ -19,7 +19,7 @@ import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
-import DiffEditor from './DiffEditor';
+import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
 const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   const [ymlStatus, subscribeToModel] = useModelValidationStatus(useYmlValidationStatus());
@@ -42,6 +42,13 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   const handleChange = (text: string) => {
     setCurrentText(text);
+  };
+
+  const handleEditorMount: DiffEditorProps['onMount'] = (editor) => {
+    const model = editor.getModifiedEditor().getModel();
+    if (model) {
+      subscribeToModel(model);
+    }
   };
 
   useEventListener(
@@ -80,12 +87,7 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
             originalText={originalText}
             modifiedText={modifiedText}
             onChange={handleChange}
-            onMount={(editor) => {
-              const model = editor.getModifiedEditor().getModel();
-              if (model) {
-                subscribeToModel(model);
-              }
-            }}
+            onMount={handleEditorMount}
           />
         )}
       </DialogBody>

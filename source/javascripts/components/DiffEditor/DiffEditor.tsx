@@ -1,7 +1,7 @@
 import { ProgressBitbot } from '@bitrise/bitkit';
 import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
 
-type Props = {
+export type Props = {
   originalText: string;
   modifiedText: string;
   onChange: (changedText: string) => void;
