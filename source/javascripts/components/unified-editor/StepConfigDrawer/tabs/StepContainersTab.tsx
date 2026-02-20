@@ -1,6 +1,6 @@
 import ContainersTab from '@/components/unified-editor/ContainersTab/ContainersTab';
+import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import { useStepDrawerContext } from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer.context';
-import useContainerReferences from '@/components/unified-editor/StepConfigDrawer/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
@@ -27,8 +27,9 @@ const StepContainersTab = () => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
 
-  const executionReferences = useContainerReferences(source, sourceId, stepIndex, ContainerType.Execution);
-  const serviceReferences = useContainerReferences(source, sourceId, stepIndex, ContainerType.Service);
+  const {
+    instance: { execution: executionReferences, service: serviceReferences },
+  } = useContainerReferences(source, sourceId || stepBundleId || '', stepIndex);
 
   return (
     <ContainersTab

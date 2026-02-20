@@ -1,6 +1,6 @@
 import ContainersTab from '@/components/unified-editor/ContainersTab/ContainersTab';
+import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import { useStepBundleConfigContext } from '@/components/unified-editor/StepBundleConfig/StepBundleConfig.context';
-import useContainerReferences from '@/components/unified-editor/StepConfigDrawer/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
@@ -29,25 +29,18 @@ const StepBundleContainersTab = () => {
     return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Service);
   });
 
-  const executionReferences = useContainerReferences(
-    source,
-    sourceId || stepBundleId || '',
-    stepIndex,
-    ContainerType.Execution,
-  );
-  const serviceReferences = useContainerReferences(
-    source,
-    sourceId || stepBundleId || '',
-    stepIndex,
-    ContainerType.Service,
-  );
+  const { definition, instance } = useContainerReferences(source, sourceId || stepBundleId || '', stepIndex);
+  console.log({ definition, instance });
 
   return (
     <ContainersTab
       executionContainers={executionContainers}
-      executionReferences={executionReferences}
+      executionReferences={[
+        ...(definition?.[ContainerType.Execution] || []),
+        ...(instance?.[ContainerType.Execution] || []),
+      ]}
       serviceContainers={serviceContainers}
-      serviceReferences={serviceReferences}
+      serviceReferences={[...(definition?.[ContainerType.Service] || []), ...(instance?.[ContainerType.Service] || [])]}
       onAddContainer={handleAdd}
     />
   );

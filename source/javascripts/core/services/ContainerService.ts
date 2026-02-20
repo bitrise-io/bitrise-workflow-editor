@@ -173,20 +173,7 @@ function getAllContainers(containers: Containers, selector: (container: Containe
 
 type ContainerReferenceValue = string | Record<string, { recreate?: boolean }>;
 
-function getContainerReferences(
-  source: 'workflows' | 'step_bundles',
-  sourceId: string,
-  stepIndex: number,
-  type: ContainerType,
-  doc: Document,
-): ContainerReference[] | undefined {
-  let yamlMap;
-  if (stepIndex === -1) {
-    yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
-  } else {
-    yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
-  }
-
+function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): ContainerReference[] | undefined {
   const parseReference = (value: ContainerReferenceValue): ContainerReference => {
     if (typeof value === 'string') {
       return { id: value, recreate: false };
@@ -229,6 +216,22 @@ function getContainerReferences(
   }
 
   return undefined;
+}
+
+function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: ContainerType, doc: Document) {
+  const yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+  return getContainerReferences(type, yamlMap);
+}
+
+function getContainerReferenceFromInstance(
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
+  stepIndex: number,
+  type: ContainerType,
+  doc: Document,
+) {
+  const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+  return getContainerReferences(type, yamlMap);
 }
 
 function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
@@ -457,6 +460,8 @@ export default {
   getAllContainers,
   getContainerOrThrowError,
   getContainerReferences,
+  getContainerReferenceFromInstance,
+  getContainerReferencesFromStepBundleDefinition,
   getWorkflowsUsingContainer,
   sanitizePort,
   removeContainerReference,
