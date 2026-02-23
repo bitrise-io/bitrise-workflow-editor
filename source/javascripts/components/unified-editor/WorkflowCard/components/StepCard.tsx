@@ -19,6 +19,8 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
+import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
@@ -103,17 +105,16 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
-  const executionReferences: any = [];
-  const serviceReferences: any = [];
+  const { definition, instance } = useContainerReferences(
+    workflowId ? 'workflows' : 'step_bundles',
+    workflowId || stepBundleId || '',
+    stepIndex ?? -1,
+    stepBundleId,
+  );
 
-  const allReferences = [];
-  if (executionReferences) {
-    allReferences.push(...executionReferences);
-  }
-  if (serviceReferences) {
-    allReferences.push(...serviceReferences);
-  }
-  const referenceIds = allReferences.map((ref) => ref.id).join(', ');
+  const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
+  const serviceReferences = instance?.[ContainerType.Service] ?? definition?.[ContainerType.Service] ?? [];
+  const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
 
   const {
     error,

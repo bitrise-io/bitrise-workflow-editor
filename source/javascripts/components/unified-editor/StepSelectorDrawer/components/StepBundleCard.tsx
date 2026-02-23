@@ -5,7 +5,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef } from 'react';
 
 import DragHandle from '@/components/DragHandle/DragHandle';
+import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
+import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -45,17 +47,15 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
-  const executionReferences: any = [];
-  const serviceReferences: any = [];
-
-  const allReferences = [];
-  if (executionReferences) {
-    allReferences.push(...executionReferences);
-  }
-  if (serviceReferences) {
-    allReferences.push(...serviceReferences);
-  }
-  const referenceIds = allReferences.map((ref) => ref.id).join(', ');
+  const { definition, instance } = useContainerReferences(
+    workflowId ? 'workflows' : 'step_bundles',
+    workflowId || stepBundleId || '',
+    stepIndex ?? -1,
+    StepBundleService.cvsToId(cvs),
+  );
+  const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
+  const serviceReferences = instance?.[ContainerType.Service] ?? definition?.[ContainerType.Service] ?? [];
+  const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
 
   const sortable = useSortable({
     id: uniqueId,
