@@ -88,8 +88,8 @@ function toStepVariable(response: AlgoliaStepInputResponse): EnvironmentItemMode
 const LOCAL_STEP_API = '/api/step-info';
 const LOCAL_STEP_LIBRARY_PATH = '/api/spec';
 
-async function getAlgoliaSteps(defaultStepLibrary: string, maintainers: string[] = []): Promise<StepApiResult[]> {
-  const steps = await AlgoliaApi.getAllSteps(maintainers);
+async function getAlgoliaSteps(defaultStepLibrary: string): Promise<StepApiResult[]> {
+  const steps = await AlgoliaApi.getAllSteps();
   return steps.map((step) => toStep(step.cvs, defaultStepLibrary, step)).filter(Boolean) as StepApiResult[];
 }
 

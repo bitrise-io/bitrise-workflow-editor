@@ -1,4 +1,5 @@
 import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
+import { useEffect, useMemo } from 'react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -30,6 +31,15 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
     tabIds: ['step', 'stepBundle'],
   });
 
+  const initialMaintainers = useMemo(() => PageProps.getInitialStepMaintainers(), []);
+
+  // Initialize the search store with the correct maintainer filter when the drawer opens
+  useEffect(() => {
+    if (props.isOpen) {
+      resetSearch(initialMaintainers);
+    }
+  }, [props.isOpen, resetSearch, initialMaintainers]);
+
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = PageProps.limits()?.uniqueStepLimit;
   const showStepLimit = typeof uniqueStepLimit === 'number';
@@ -37,7 +47,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
   const upgradeLink = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
   const handleCloseComplete = () => {
-    resetSearch();
+    resetSearch(initialMaintainers);
     onCloseComplete?.();
   };
 

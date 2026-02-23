@@ -8,7 +8,7 @@ type State = {
 };
 
 type Actions = {
-  reset: () => void;
+  reset: (initialMaintainers?: string[]) => void;
   setSearchStep: (searchStep: string) => void;
   setSearchStepBundle: (searchStepBundle: string) => void;
   setSearchStepCategories: (searchStepCategories: string[]) => void;
@@ -24,12 +24,12 @@ const useSearch = create<State & Actions>((set) => ({
   setSearchStepBundle: (stepBundleQuery: string) => set({ stepBundleQuery }),
   setSearchStepCategories: (stepCategoryFilter: string[]) => set({ stepCategoryFilter }),
   setSearchStepMaintainers: (stepMaintainerFilter: string[]) => set({ stepMaintainerFilter }),
-  reset: () =>
+  reset: (initialMaintainers: string[] = []) =>
     set({
       stepQuery: '',
       stepBundleQuery: '',
       stepCategoryFilter: [],
-      stepMaintainerFilter: [],
+      stepMaintainerFilter: initialMaintainers,
     }),
 }));
 

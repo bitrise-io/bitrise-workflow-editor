@@ -60,7 +60,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
   const handleFilterChange = useCallback(
     (values: string[]) => {
       const cats = values.filter((v) => categories.some((c) => c === v));
-      const mans = allowNonBitriseSteps ? values.filter((v) => MAINTAINERS.some((m) => m.key === v)) : ['bitrise'];
+      const mans = values.filter((v) => MAINTAINERS.some((m) => m.key === v));
 
       setSelectedCategories(cats);
       setSelectedMaintainers(mans);
