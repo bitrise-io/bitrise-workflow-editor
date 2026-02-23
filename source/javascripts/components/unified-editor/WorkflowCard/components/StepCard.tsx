@@ -106,8 +106,8 @@ const StepCard = ({
   } = useStepActions();
 
   const { definition, instance } = useContainerReferences(
-    workflowId ? 'workflows' : 'step_bundles',
-    workflowId || stepBundleId || '',
+    stepBundleId ? 'step_bundles' : 'workflows',
+    stepBundleId || workflowId || '',
     stepIndex ?? -1,
     stepBundleId,
   );

@@ -48,9 +48,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
   const { definition, instance } = useContainerReferences(
-    workflowId ? 'workflows' : 'step_bundles',
-    workflowId || stepBundleId || '',
-    stepIndex ?? -1,
+    stepBundleId ? 'step_bundles' : 'workflows',
+    stepBundleId || workflowId || '',
+    stepIndex,
     StepBundleService.cvsToId(cvs),
   );
   const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];

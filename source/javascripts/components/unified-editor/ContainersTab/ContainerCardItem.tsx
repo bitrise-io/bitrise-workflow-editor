@@ -40,7 +40,6 @@ const ContainerCardItem = ({
             >
               Recreate container
             </Checkbox>
-            g
           </Box>
         </Tooltip>
       </Td>

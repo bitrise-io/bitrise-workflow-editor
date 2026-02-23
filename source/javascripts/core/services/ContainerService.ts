@@ -186,46 +186,35 @@ function getAllContainers(containers: Containers, selector: (container: Containe
 
 type ContainerReferenceValue = string | Record<string, { recreate?: boolean }>;
 
+function parseContainerReference(value: ContainerReferenceValue): ContainerReference {
+  if (typeof value === 'string') {
+    return { id: value, recreate: false };
+  }
+
+  const [containerId, config] = Object.entries(value)[0] ?? [];
+  return { id: containerId ?? String(value), recreate: config?.recreate === true };
+}
+
 function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): ContainerReference[] | undefined {
-  const parseReference = (value: ContainerReferenceValue): ContainerReference => {
-    if (typeof value === 'string') {
-      return { id: value, recreate: false };
-    }
-
-    const entries = Object.entries(value);
-    if (entries.length > 0) {
-      const [containerId, config] = entries[0];
-      const recreate = config?.recreate === true;
-      return { id: containerId, recreate };
-    }
-
-    return { id: String(value), recreate: false };
-  };
-
   if (type === ContainerType.Execution) {
-    const executionContainerNode = yamlMap.get(ContainerReferenceField.Execution);
-    if (!executionContainerNode) {
+    const node = yamlMap.get(ContainerReferenceField.Execution);
+
+    if (!node) {
       return undefined;
     }
-    const executionContainer =
-      typeof executionContainerNode === 'string'
-        ? executionContainerNode
-        : isMap(executionContainerNode)
-          ? executionContainerNode.toJSON()
-          : executionContainerNode;
-    const ref = parseReference(executionContainer as ContainerReferenceValue);
-    return ref ? [ref] : undefined;
+
+    const value = isMap(node) ? node.toJSON() : node;
+    return [parseContainerReference(value)];
   }
 
   if (type === ContainerType.Service) {
     const serviceContainers = YmlUtils.getSeqIn(yamlMap, [ContainerReferenceField.Service])?.toJSON() as
       | ContainerReferenceValue[]
       | undefined;
-    if (serviceContainers && serviceContainers.length > 0) {
-      return serviceContainers.map(parseReference);
-    }
 
-    return undefined;
+    if (serviceContainers && serviceContainers.length > 0) {
+      return serviceContainers.map(parseContainerReference);
+    }
   }
 
   return undefined;
