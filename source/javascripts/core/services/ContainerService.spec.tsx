@@ -935,7 +935,7 @@ describe('ContainerService', () => {
     });
   });
 
-  describe('getContainerReferences', () => {
+  describe('getContainerReferenceFromInstance', () => {
     describe('execution container type', () => {
       it('should return execution container reference as string', () => {
         updateBitriseYmlDocumentByString(yaml`
@@ -1458,6 +1458,262 @@ describe('ContainerService', () => {
       expect(result2).toEqual([{ id: 'node', recreate: false }]);
       expect(result3).toEqual([{ id: 'postgres', recreate: false }]);
       expect(result4).toBeUndefined();
+    });
+  });
+
+  describe('getContainerReferencesFromStepBundleDefinition', () => {
+    describe('execution container type', () => {
+      it('should return execution container reference as string', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            execution_container: ubuntu
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'ubuntu', recreate: false }]);
+      });
+
+      it('should return execution container reference with recreate true', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            execution_container:
+              ubuntu:
+                recreate: true
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'ubuntu', recreate: true }]);
+      });
+
+      it('should return undefined when no execution container is set', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            steps:
+              - script: {}
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Execution,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should throw error when step bundle does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            execution_container: ubuntu
+      `);
+
+        expect(() =>
+          ContainerService.getContainerReferencesFromStepBundleDefinition(
+            'non_existent',
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toThrow("Step bundle 'non_existent' not found");
+      });
+    });
+
+    describe('service container type', () => {
+      it('should return single service container reference as string', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'postgres', recreate: false }]);
+      });
+
+      it('should return multiple service container references', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres
+              - redis
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([
+          { id: 'postgres', recreate: false },
+          { id: 'redis', recreate: false },
+        ]);
+      });
+
+      it('should return service container reference with recreate true', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres:
+                  recreate: true
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'postgres', recreate: true }]);
+      });
+
+      it('should return undefined when no service containers are set', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            steps:
+              - script: {}
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return undefined when service_containers is empty array', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers: []
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should return mixed service containers with and without recreate flag', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres:
+                  recreate: true
+              - redis
+              - mysql:
+                  recreate: false
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([
+          { id: 'postgres', recreate: true },
+          { id: 'redis', recreate: false },
+          { id: 'mysql', recreate: false },
+        ]);
+      });
+
+      it('should handle service container with empty config object', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres: {}
+      `);
+
+        const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+          'my_bundle',
+          ContainerType.Service,
+          bitriseYmlStore.getState().ymlDocument,
+        );
+
+        expect(result).toEqual([{ id: 'postgres', recreate: false }]);
+      });
+
+      it('should throw error when step bundle does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres
+      `);
+
+        expect(() =>
+          ContainerService.getContainerReferencesFromStepBundleDefinition(
+            'non_existent',
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toThrow("Step bundle 'non_existent' not found");
+      });
+    });
+
+    it('should return execution container with recreate false when explicitly set to false', () => {
+      updateBitriseYmlDocumentByString(yaml`
+      step_bundles:
+        my_bundle:
+          execution_container:
+            ubuntu:
+              recreate: false
+    `);
+
+      const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+        'my_bundle',
+        ContainerType.Execution,
+        bitriseYmlStore.getState().ymlDocument,
+      );
+
+      expect(result).toEqual([{ id: 'ubuntu', recreate: false }]);
+    });
+
+    it('should handle execution container with empty config object', () => {
+      updateBitriseYmlDocumentByString(yaml`
+      step_bundles:
+        my_bundle:
+          execution_container:
+            ubuntu: {}
+    `);
+
+      const result = ContainerService.getContainerReferencesFromStepBundleDefinition(
+        'my_bundle',
+        ContainerType.Execution,
+        bitriseYmlStore.getState().ymlDocument,
+      );
+
+      expect(result).toEqual([{ id: 'ubuntu', recreate: false }]);
     });
   });
 
