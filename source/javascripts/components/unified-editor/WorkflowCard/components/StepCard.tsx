@@ -118,7 +118,7 @@ const StepCard = ({
   const definitionService = stepIndex === -1 ? definition?.[ContainerType.Service] : undefined;
 
   const executionReferences = instanceExecution ?? definitionExecution ?? [];
-  const serviceReferences = instanceService ?? definitionService ?? [];
+  const serviceReferences = [...(instanceService || []), ...(definitionService || [])];
   const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
 
   const {

@@ -16,7 +16,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
 
   return (
     <Menu>
-      <MenuButton as={Button} variant="tertiary" leftIconName="Plus" size="sm">
+      <MenuButton as={Button} variant="tertiary" leftIconName={actionType === 'Add' ? 'Plus' : 'Replace'} size="sm">
         {actionType} container
       </MenuButton>
       <MenuList>

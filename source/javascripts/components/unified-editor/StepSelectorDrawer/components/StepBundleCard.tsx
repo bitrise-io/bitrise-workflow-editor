@@ -54,7 +54,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     StepBundleService.cvsToId(cvs),
   );
   const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
-  const serviceReferences = instance?.[ContainerType.Service] ?? definition?.[ContainerType.Service] ?? [];
+  const serviceReferences = [
+    ...(instance?.[ContainerType.Service] || []),
+    ...(definition?.[ContainerType.Service] || []),
+  ];
   const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
 
   const sortable = useSortable({

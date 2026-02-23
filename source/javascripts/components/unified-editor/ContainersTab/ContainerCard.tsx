@@ -1,75 +1,10 @@
-import {
-  Box,
-  Card,
-  Checkbox,
-  ControlButton,
-  DefinitionTooltip,
-  Link,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-} from '@bitrise/bitkit';
+import { Card, DefinitionTooltip, Link, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
+import ContainerCardItem from '@/components/unified-editor/ContainersTab/ContainerCardItem';
 import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
 import useNavigation from '@/hooks/useNavigation';
 
 import ContainersMenu from './ContainersMenu';
-
-type ContainerCardItemProps = {
-  container?: Container;
-  isDisabled?: boolean;
-  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
-  onRemove: (containerId: string, type: ContainerType) => void;
-  reference: ContainerReference;
-  type: ContainerType;
-};
-
-const ContainerCardItem = ({
-  container,
-  isDisabled,
-  onRecreate,
-  onRemove,
-  reference,
-  type,
-}: ContainerCardItemProps) => {
-  return (
-    <Tr key={reference.id}>
-      <Td>
-        <Text textStyle="body/md/regular" color="text/body" px="12" hasEllipsis>
-          {reference.id}
-        </Text>
-        <Text textStyle="body/sm/regular" color="text/secondary" px="12" hasEllipsis>
-          {container?.userValues.image}
-        </Text>
-      </Td>
-      <Td>
-        <Checkbox
-          isChecked={reference.recreate}
-          onChange={(e) => onRecreate(reference.id, e.target.checked, type)}
-          value={reference.id}
-          isDisabled={isDisabled}
-        >
-          Recreate container
-        </Checkbox>
-      </Td>
-      <Td width="60px">
-        <Box display="flex" justifyContent="center" pr="12">
-          <ControlButton
-            aria-label="Delete container"
-            iconName="MinusCircle"
-            color="icon/negative"
-            isDisabled={isDisabled}
-            onClick={() => onRemove(reference.id, type)}
-          />
-        </Box>
-      </Td>
-    </Tr>
-  );
-};
 
 type ContainerCardProps = {
   containers: Container[];
