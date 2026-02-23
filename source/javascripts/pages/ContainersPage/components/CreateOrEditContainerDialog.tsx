@@ -248,7 +248,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   name={`userValues.envs.${index}.key`}
                   render={({ field: { value, ...fieldProps } }) => (
                     <Input
-                      label="Environment Variables"
+                      label={index === 0 ? 'Environment Variables' : undefined}
                       placeholder="Key"
                       width="100%"
                       value={value || ''}
