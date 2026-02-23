@@ -25,12 +25,10 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
-import MonacoUtils from '@/core/utils/MonacoUtils';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
-import { getYmlValidationStatus } from '@/hooks/useYmlValidationStatus';
+import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 
@@ -140,9 +138,9 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   const [clientError, setClientError] = useState<Error>();
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
   const finalYmlEditor = useRef<ReturnType<MonacoDiffEditor['getModifiedEditor']>>();
-  const [ymlStatus, setYmlStatus] = useState<'invalid' | 'valid' | 'warnings'>('valid');
-  const enableWfeBitriseLanguageServer = useFeatureFlag('enable-wfe-bitrise-language-server');
   const [nextData, setNextData] = useState<Partial<ReturnType<typeof useInitialCiConfigs>['data']>>();
+  // NOTE: Optimistic initial status, the actual status will be updated on editor mount when we subscribe to the model
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus('valid');
 
   const {
     error: saveError,
@@ -179,11 +177,15 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
       }, new Set<string>([]));
 
       finalYmlEditor.current?.removeDecorations(Array.from(removableDecorationIds));
-      setYmlStatus(getYmlValidationStatus(finalYmlEditor.current?.getValue()));
     });
 
     editor.createDecorationsCollection(decorations);
-    setYmlStatus(getYmlValidationStatus(finalYmlEditor.current?.getValue()));
+
+    // Subscribe to marker changes on the modified model for validation status
+    const model = finalYmlEditor.current?.getModel();
+    if (model) {
+      subscribeToModel(model);
+    }
   };
 
   const handleCancel = () => {
@@ -287,9 +289,6 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 options={readOnlyDiffEditorOptions}
                 keepCurrentModifiedModel
                 keepCurrentOriginalModel
-                beforeMount={(monaco) => {
-                  MonacoUtils.configureForYaml(monaco);
-                }}
               />
             </Box>
           </Box>
@@ -310,11 +309,6 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 keepCurrentModifiedModel
                 keepCurrentOriginalModel
                 onMount={onFinalYmlEditorMount}
-                beforeMount={(monaco) => {
-                  MonacoUtils.configureForYaml(monaco);
-                  MonacoUtils.configureEnvVarsCompletionProvider(monaco);
-                  if (enableWfeBitriseLanguageServer) MonacoUtils.configureBitriseLanguageServer(monaco);
-                }}
               />
             </Box>
           </Box>
@@ -334,9 +328,6 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
                 options={readOnlyDiffEditorOptions}
                 keepCurrentModifiedModel
                 keepCurrentOriginalModel
-                beforeMount={(monaco) => {
-                  MonacoUtils.configureForYaml(monaco);
-                }}
               />
             </Box>
           </Box>
