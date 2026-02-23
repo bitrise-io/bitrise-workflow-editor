@@ -42,7 +42,7 @@ type FormData = Omit<Container, 'userValues'> & {
 const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) => {
   const { editedContainer, isOpen, onClose, onCloseComplete, type } = props;
 
-  const containerIds = useContainers((s) => Object.keys(s));
+  const containerIds = useContainers().all.map((container) => container.id);
   const { isOpen: isShowMore, onToggle } = useDisclosure();
 
   const { control, formState, handleSubmit, reset } = useForm<FormData>({
