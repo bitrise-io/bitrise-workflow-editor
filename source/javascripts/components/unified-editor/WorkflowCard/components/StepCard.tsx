@@ -112,8 +112,13 @@ const StepCard = ({
     stepBundleId,
   );
 
-  const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
-  const serviceReferences = instance?.[ContainerType.Service] ?? definition?.[ContainerType.Service] ?? [];
+  const instanceExecution = instance?.[ContainerType.Execution];
+  const instanceService = instance?.[ContainerType.Service];
+  const definitionExecution = stepIndex === -1 ? definition?.[ContainerType.Execution] : undefined;
+  const definitionService = stepIndex === -1 ? definition?.[ContainerType.Service] : undefined;
+
+  const executionReferences = instanceExecution ?? definitionExecution ?? [];
+  const serviceReferences = instanceService ?? definitionService ?? [];
   const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
 
   const {
