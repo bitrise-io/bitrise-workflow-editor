@@ -53,9 +53,8 @@ const StepContainersTab = () => {
   return (
     <ContainersTab
       executionContainers={[...executionContainers, ...otherContainers]}
-      executionReferences={instance?.[ContainerType.Execution] || []}
       serviceContainers={[...serviceContainers, ...otherContainers]}
-      serviceReferences={instance?.[ContainerType.Service] || []}
+      references={{ instance }}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
       onRemove={handleRemove}
