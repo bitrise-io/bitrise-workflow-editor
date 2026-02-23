@@ -1,8 +1,4 @@
-import { useMemo } from 'react';
-
 import AlgoliaApi from '@/core/api/AlgoliaApi';
-import { Maintainer } from '@/core/models/Step';
-import PageProps from '@/core/utils/PageProps';
 
 import useSearchAlgoliaSteps from '../hooks/useSearchAlgoliaSteps';
 import { SelectStepHandlerFn } from '../StepSelectorDrawer.types';
@@ -17,13 +13,7 @@ type Props = {
 };
 
 const AlgoliaStepList = ({ enabledSteps, onSelectStep }: Props) => {
-  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
-
-  const maintainersFilter = useMemo(() => {
-    return allowNonBitriseSteps ? undefined : [Maintainer.Bitrise];
-  }, [allowNonBitriseSteps]);
-
-  const { data, isFetching, isError, refetch } = useSearchAlgoliaSteps(maintainersFilter);
+  const { data, isFetching, isError, refetch } = useSearchAlgoliaSteps();
   const steps = data?.hits ?? [];
 
   if (isFetching) {

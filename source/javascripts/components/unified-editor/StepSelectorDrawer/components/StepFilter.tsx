@@ -60,7 +60,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
   const handleFilterChange = useCallback(
     (values: string[]) => {
       const cats = values.filter((v) => categories.some((c) => c === v));
-      const mans = values.filter((v) => MAINTAINERS.some((m) => m.key === v));
+      const mans = allowNonBitriseSteps ? values.filter((v) => MAINTAINERS.some((m) => m.key === v)) : ['bitrise'];
 
       setSelectedCategories(cats);
       setSelectedMaintainers(mans);
@@ -76,13 +76,14 @@ const StepFilterCategories = memo(function StepFilterCategories() {
             {capitalize(startCase(category))}
           </SelectableTag>
         ))}
-        <Divider orientation="vertical" height="auto" />
-        {MAINTAINERS.map(({ key, icon, label }) => (
-          <SelectableTag key={key} value={key} isDisabled={!allowNonBitriseSteps && key !== 'bitrise'}>
-            <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
-            {label}
-          </SelectableTag>
-        ))}
+        {allowNonBitriseSteps && <Divider orientation="vertical" height="auto" />}
+        {allowNonBitriseSteps &&
+          MAINTAINERS.map(({ key, icon, label }) => (
+            <SelectableTag key={key} value={key}>
+              <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
+              {label}
+            </SelectableTag>
+          ))}
       </Box>
     </SelectableTagGroup>
   );
