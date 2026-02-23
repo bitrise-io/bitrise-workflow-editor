@@ -31,6 +31,9 @@ if (import.meta.env.CLARITY === 'true') {
 if (import.meta.env.DATADOG_RUM === 'true') {
   loaders.push(import('./lib/ddrum'));
 }
+if (import.meta.env.INTERCOM_APP_ID) {
+  loaders.push(import('./lib/intrcm'));
+}
 
 try {
   await Promise.all(loaders);

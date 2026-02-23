@@ -84,6 +84,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.DATADOG_RUM': JSON.stringify(env.DATADOG_RUM || 'false'),
       'import.meta.env.PUBLIC_URL_ROOT': JSON.stringify(env.PUBLIC_URL_ROOT || ''),
       'import.meta.env.WFE_VERSION': JSON.stringify(version),
+      'import.meta.env.INTERCOM_APP_ID': JSON.stringify(env.INTERCOM_APP_ID || ''),
     },
 
     build: {
@@ -99,6 +100,15 @@ export default defineConfig(({ mode }) => {
       allowedHosts: true,
     },
 
-    envPrefix: ['VITE_', 'MODE', 'CLARITY', 'ANALYTICS', 'DATADOG_RUM', 'NODE_ENV', 'PUBLIC_URL_ROOT'],
+    envPrefix: [
+      'MODE',
+      'VITE_',
+      'CLARITY',
+      'NODE_ENV',
+      'ANALYTICS',
+      'DATADOG_RUM',
+      'PUBLIC_URL_ROOT',
+      'INTERCOM_APP_ID',
+    ],
   };
 });
