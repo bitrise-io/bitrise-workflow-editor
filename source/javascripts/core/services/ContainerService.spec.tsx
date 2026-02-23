@@ -20,7 +20,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        ContainerService.addContainerReference('wf1', 0, 'my-container');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
 
         const expectedYml = yaml`
         containers:
@@ -55,7 +55,7 @@ describe('ContainerService', () => {
                   execution_container: other-container
       `);
 
-        ContainerService.addContainerReference('wf1', 0, 'my-container');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
 
         const expectedYml = yaml`
         containers:
@@ -85,9 +85,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() => ContainerService.addContainerReference('wf1', 0, 'non-existent')).toThrow(
-          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
-        );
+        expect(() =>
+          ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent', ContainerType.Execution),
+        ).toThrow("Container non-existent not found. Ensure that the container exists in the 'containers' section.");
       });
 
       it('should throw an error if workflow does not exist', () => {
@@ -98,9 +98,15 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-        expect(() => ContainerService.addContainerReference('non-existent', 0, 'my-container')).toThrow(
-          "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
-        );
+        expect(() =>
+          ContainerService.addContainerReference(
+            'workflows',
+            'non-existent',
+            0,
+            'my-container',
+            ContainerType.Execution,
+          ),
+        ).toThrow('workflows.non-existent not found');
       });
 
       it('should throw an error if step does not exist', () => {
@@ -116,9 +122,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() => ContainerService.addContainerReference('wf1', 5, 'my-container')).toThrow(
-          'Step at index 5 not found in workflows.wf1',
-        );
+        expect(() =>
+          ContainerService.addContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Execution),
+        ).toThrow('Step at index 5 not found in workflows.wf1');
       });
     });
     describe('service container target', () => {
@@ -135,7 +141,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        ContainerService.addContainerReference('wf1', 0, 'postgres');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
 
         const expectedYml = yaml`
         containers:
@@ -172,7 +178,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.addContainerReference('wf1', 0, 'redis');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'redis', ContainerType.Service);
 
         const expectedYml = yaml`
         containers:
@@ -210,9 +216,9 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        expect(() => ContainerService.addContainerReference('wf1', 0, 'postgres')).toThrow(
-          "Service container 'postgres' is already added to the step",
-        );
+        expect(() =>
+          ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service),
+        ).toThrow("Service container 'postgres' is already added to the step");
       });
 
       it('should throw an error if service does not exist', () => {
@@ -224,9 +230,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() => ContainerService.addContainerReference('wf1', 0, 'non-existent')).toThrow(
-          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
-        );
+        expect(() =>
+          ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent', ContainerType.Service),
+        ).toThrow("Container non-existent not found. Ensure that the container exists in the 'containers' section.");
       });
     });
   });
@@ -944,7 +950,8 @@ describe('ContainerService', () => {
                   execution_container: ubuntu
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Execution,
@@ -969,7 +976,8 @@ describe('ContainerService', () => {
                       recreate: true
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Execution,
@@ -992,7 +1000,8 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Execution,
@@ -1017,7 +1026,8 @@ describe('ContainerService', () => {
                       recreate: false
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Execution,
@@ -1041,7 +1051,8 @@ describe('ContainerService', () => {
                     ubuntu: {}
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Execution,
@@ -1064,7 +1075,8 @@ describe('ContainerService', () => {
                   execution_container: my-container_v1.0
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Execution,
@@ -1083,7 +1095,8 @@ describe('ContainerService', () => {
       `);
 
         expect(() =>
-          ContainerService.getContainerReferences(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
             'non-existent',
             0,
             ContainerType.Execution,
@@ -1101,7 +1114,8 @@ describe('ContainerService', () => {
       `);
 
         expect(() =>
-          ContainerService.getContainerReferences(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
             'wf1',
             5,
             ContainerType.Execution,
@@ -1126,7 +1140,8 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1158,7 +1173,8 @@ describe('ContainerService', () => {
                     - mysql
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1187,7 +1203,8 @@ describe('ContainerService', () => {
                         recreate: true
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1221,7 +1238,8 @@ describe('ContainerService', () => {
                         recreate: false
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1255,7 +1273,8 @@ describe('ContainerService', () => {
                         recreate: true
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1281,7 +1300,8 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1304,7 +1324,8 @@ describe('ContainerService', () => {
                   service_containers: []
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1328,7 +1349,8 @@ describe('ContainerService', () => {
                     - postgres: {}
       `);
 
-        const result = ContainerService.getContainerReferences(
+        const result = ContainerService.getContainerReferenceFromInstance(
+          'workflows',
           'wf1',
           0,
           ContainerType.Service,
@@ -1347,7 +1369,8 @@ describe('ContainerService', () => {
       `);
 
         expect(() =>
-          ContainerService.getContainerReferences(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
             'non-existent',
             0,
             ContainerType.Service,
@@ -1365,7 +1388,8 @@ describe('ContainerService', () => {
       `);
 
         expect(() =>
-          ContainerService.getContainerReferences(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
             'wf1',
             10,
             ContainerType.Service,
@@ -1401,10 +1425,34 @@ describe('ContainerService', () => {
       `);
 
       const doc = bitriseYmlStore.getState().ymlDocument;
-      const result1 = ContainerService.getContainerReferences('wf1', 0, ContainerType.Execution, doc);
-      const result2 = ContainerService.getContainerReferences('wf1', 1, ContainerType.Execution, doc);
-      const result3 = ContainerService.getContainerReferences('wf1', 1, ContainerType.Service, doc);
-      const result4 = ContainerService.getContainerReferences('wf1', 2, ContainerType.Execution, doc);
+      const result1 = ContainerService.getContainerReferenceFromInstance(
+        'workflows',
+        'wf1',
+        0,
+        ContainerType.Execution,
+        doc,
+      );
+      const result2 = ContainerService.getContainerReferenceFromInstance(
+        'workflows',
+        'wf1',
+        1,
+        ContainerType.Execution,
+        doc,
+      );
+      const result3 = ContainerService.getContainerReferenceFromInstance(
+        'workflows',
+        'wf1',
+        1,
+        ContainerType.Service,
+        doc,
+      );
+      const result4 = ContainerService.getContainerReferenceFromInstance(
+        'workflows',
+        'wf1',
+        2,
+        ContainerType.Execution,
+        doc,
+      );
 
       expect(result1).toEqual([{ id: 'ubuntu', recreate: false }]);
       expect(result2).toEqual([{ id: 'node', recreate: false }]);
@@ -1682,7 +1730,7 @@ describe('ContainerService', () => {
                   execution_container: my-container
       `);
 
-        ContainerService.removeContainerReference('wf1', 0, 'my-container');
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
 
         const expectedYml = yaml`
         execution_containers:
@@ -1713,7 +1761,7 @@ describe('ContainerService', () => {
                   execution_container: my-container
       `);
 
-        ContainerService.removeContainerReference('wf1', 0, 'other-container');
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'other-container', ContainerType.Execution);
 
         const expectedYml = yaml`
         execution_containers:
@@ -1742,17 +1790,23 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() => ContainerService.removeContainerReference('wf1', 5, 'my-container')).toThrow(
-          'Step at index 5 not found in workflows.wf1',
-        );
+        expect(() =>
+          ContainerService.removeContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Execution),
+        ).toThrow('Step at index 5 not found in workflows.wf1');
       });
 
       it('should throw an error if workflow does not exist', () => {
         updateBitriseYmlDocumentByString(yaml``);
 
-        expect(() => ContainerService.removeContainerReference('non-existent', 0, 'my-container')).toThrow(
-          "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
-        );
+        expect(() =>
+          ContainerService.removeContainerReference(
+            'workflows',
+            'non-existent',
+            0,
+            'my-container',
+            ContainerType.Execution,
+          ),
+        ).toThrow('workflows.non-existent not found');
       });
     });
     describe('service container target', () => {
@@ -1771,7 +1825,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.removeContainerReference('wf1', 0, 'redis');
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'redis', ContainerType.Service);
 
         const expectedYml = yaml`
         service_containers:
@@ -1803,7 +1857,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.removeContainerReference('wf1', 0, 'postgres');
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
 
         const expectedYml = yaml`
         service_containers:
@@ -1834,7 +1888,7 @@ describe('ContainerService', () => {
                     - redis
       `);
 
-        ContainerService.removeContainerReference('wf1', 0, 'postgres');
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
 
         const expectedYml = yaml`
         service_containers:
@@ -1866,7 +1920,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.removeContainerReference('wf1', 0, 'postgres');
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
 
         const expectedYml = yaml`
         service_containers:
@@ -1892,17 +1946,23 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() => ContainerService.removeContainerReference('wf1', 5, 'my-container')).toThrow(
-          'Step at index 5 not found in workflows.wf1',
-        );
+        expect(() =>
+          ContainerService.removeContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Service),
+        ).toThrow('Step at index 5 not found in workflows.wf1');
       });
 
       it('should throw an error if workflow does not exist', () => {
         updateBitriseYmlDocumentByString(yaml``);
 
-        expect(() => ContainerService.removeContainerReference('non-existent', 0, 'my-container')).toThrow(
-          "Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.",
-        );
+        expect(() =>
+          ContainerService.removeContainerReference(
+            'workflows',
+            'non-existent',
+            0,
+            'my-container',
+            ContainerType.Service,
+          ),
+        ).toThrow('workflows.non-existent not found');
       });
     });
   });
@@ -2136,18 +2196,18 @@ describe('ContainerService', () => {
 
     it('updates references if they have recreate field', () => {
       updateBitriseYmlDocumentByString(
-        yaml` 
-        workflows: 
-          primary: 
-            steps: 
+        yaml`
+        workflows:
+          primary:
+            steps:
             - script
-        containers: 
-          node: 
-            type: execution 
+        containers:
+          node:
+            type: execution
             image: node:18
-        execution_container: 
-          node: 
-            recreate: true 
+        execution_container:
+          node:
+            recreate: true
          `,
       );
 
@@ -2552,7 +2612,14 @@ describe('ContainerService', () => {
                     - redis
       `);
 
-      ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Execution, 'my-container', true);
+      ContainerService.updateContainerReferenceRecreate(
+        'workflows',
+        'wf1',
+        0,
+        'my-container',
+        ContainerType.Execution,
+        true,
+      );
 
       const expectedYml = yaml`
         containers:
@@ -2609,7 +2676,14 @@ describe('ContainerService', () => {
                     - redis
       `);
 
-      ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Execution, 'my-container', false);
+      ContainerService.updateContainerReferenceRecreate(
+        'workflows',
+        'wf1',
+        0,
+        'my-container',
+        ContainerType.Execution,
+        false,
+      );
 
       const expectedYml = yaml`
         containers:
@@ -2659,7 +2733,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-      ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Service, 'postgres', true);
+      ContainerService.updateContainerReferenceRecreate('workflows', 'wf1', 0, 'postgres', ContainerType.Service, true);
 
       const expectedYml = yaml`
         containers:
@@ -2710,7 +2784,14 @@ describe('ContainerService', () => {
                         recreate: true
       `);
 
-      ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Service, 'postgres', false);
+      ContainerService.updateContainerReferenceRecreate(
+        'workflows',
+        'wf1',
+        0,
+        'postgres',
+        ContainerType.Service,
+        false,
+      );
 
       const expectedYml = yaml`
         containers:
@@ -2764,7 +2845,7 @@ describe('ContainerService', () => {
                     - redis
       `);
 
-      ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Service, 'redis', true);
+      ContainerService.updateContainerReferenceRecreate('workflows', 'wf1', 0, 'redis', ContainerType.Service, true);
 
       const expectedYml = yaml`
         containers:
@@ -2818,7 +2899,14 @@ describe('ContainerService', () => {
       `);
 
       expect(() =>
-        ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Execution, 'my-container', true),
+        ContainerService.updateContainerReferenceRecreate(
+          'workflows',
+          'wf1',
+          0,
+          'my-container',
+          ContainerType.Execution,
+          true,
+        ),
       ).toThrow("No 'execution_container' found on step at index 0");
     });
 
@@ -2843,7 +2931,14 @@ describe('ContainerService', () => {
       `);
 
       expect(() =>
-        ContainerService.updateContainerReferenceRecreate('wf1', 0, ContainerType.Service, 'postgres', true),
+        ContainerService.updateContainerReferenceRecreate(
+          'workflows',
+          'wf1',
+          0,
+          'postgres',
+          ContainerType.Service,
+          true,
+        ),
       ).toThrow("No 'service_containers' found on step at index 0");
     });
 
@@ -2871,13 +2966,14 @@ describe('ContainerService', () => {
 
       expect(() =>
         ContainerService.updateContainerReferenceRecreate(
+          'workflows',
           'non-existent',
           0,
-          ContainerType.Execution,
           'my-container',
+          ContainerType.Execution,
           true,
         ),
-      ).toThrow("Workflow non-existent not found. Ensure that the workflow exists in the 'workflows' section.");
+      ).toThrow('workflows.non-existent not found');
     });
   });
 

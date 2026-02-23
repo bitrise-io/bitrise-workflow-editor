@@ -44,6 +44,8 @@ function addContainerReference(
   type: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
+    getContainerOrThrowError(containerId, doc);
+
     let yamlMap;
     if (index === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
