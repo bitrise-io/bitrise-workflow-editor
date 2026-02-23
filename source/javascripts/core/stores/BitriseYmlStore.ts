@@ -22,6 +22,7 @@ export const bitriseYmlStore = createStore(
     savedYmlDocument: new Document(),
     __invalidYmlString: undefined as string | undefined,
     __savedInvalidYmlString: undefined as string | undefined,
+    validationStatus: 'valid' as 'valid' | 'invalid' | 'warnings',
   })),
 );
 
@@ -43,6 +44,10 @@ export function forceRefreshStates() {
   bitriseYmlStore.setState({
     discardKey: Date.now(),
   });
+}
+
+export function setValidationStatus(status: 'valid' | 'invalid' | 'warnings') {
+  bitriseYmlStore.setState({ validationStatus: status });
 }
 
 export function discardBitriseYmlDocument() {
