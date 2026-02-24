@@ -42,18 +42,15 @@ const StepContainersTab = () => {
   const source = stepBundleId ? 'step_bundles' : 'workflows';
   const sourceId = stepBundleId || workflowId;
 
-  const {
-    [ContainerType.Execution]: executionContainers,
-    [ContainerType.Service]: serviceContainers,
-    withoutType: otherContainers,
-  } = useContainers();
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
 
   const { instance } = useContainerReferences(source, sourceId || '', stepIndex);
 
   return (
     <ContainersTab
-      executionContainers={[...executionContainers, ...otherContainers]}
-      serviceContainers={[...serviceContainers, ...otherContainers]}
+      executionContainers={executionContainers}
+      serviceContainers={serviceContainers}
       references={{ instance }}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
