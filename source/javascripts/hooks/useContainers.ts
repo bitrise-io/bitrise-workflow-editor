@@ -6,7 +6,6 @@ type ReturnValue = {
   all: Container[];
   [ContainerType.Execution]: Container[];
   [ContainerType.Service]: Container[];
-  withoutType: Container[];
 };
 
 function useContainers(): ReturnValue {
@@ -16,7 +15,6 @@ function useContainers(): ReturnValue {
       all: containers,
       [ContainerType.Execution]: containers.filter((c) => c.userValues.type === ContainerType.Execution),
       [ContainerType.Service]: containers.filter((c) => c.userValues.type === ContainerType.Service),
-      withoutType: containers.filter((c) => !c.userValues.type),
     };
   });
 }

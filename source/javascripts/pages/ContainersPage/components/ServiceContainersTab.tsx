@@ -10,8 +10,7 @@ import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
 
 const ServiceContainersTab = () => {
   const containerUsageLookup = useContainerWorkflowUsage();
-  const { [ContainerType.Service]: serviceContainers, withoutType } = useContainers();
-  const containers = [...serviceContainers, ...withoutType];
+  const { [ContainerType.Service]: containers } = useContainers();
 
   const [editedContainer, setEditedContainer] = useState<Container | null>(null);
   const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();

@@ -49,19 +49,16 @@ const StepBundleContainersTab = () => {
     }
   };
 
-  const {
-    [ContainerType.Execution]: executionContainers,
-    [ContainerType.Service]: serviceContainers,
-    withoutType: otherContainers,
-  } = useContainers();
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
 
   const references = useContainerReferences(source, sourceId || '', stepIndex, stepBundleId);
 
   return (
     <ContainersTab
-      executionContainers={[...executionContainers, ...otherContainers]}
+      executionContainers={executionContainers}
       references={references}
-      serviceContainers={[...serviceContainers, ...otherContainers]}
+      serviceContainers={serviceContainers}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
       onRemove={handleRemove}

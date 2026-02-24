@@ -38,7 +38,7 @@ const ContainersPage = () => {
       </Text>
       <Text textStyle="body/md/regular" color="text/secondary" pb="24" px="32">
         Create custom environments and services for your Workflows.{' '}
-        <Link colorScheme="purple" isExternal href="#">
+        <Link colorScheme="purple" isExternal href="https://docs.bitrise.io">
           Learn more about containers
         </Link>
       </Text>
