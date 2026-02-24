@@ -22,19 +22,12 @@ const StepBundleContainersTab = () => {
     }
   };
 
-  const handleRecreate = (containerId: string, recreate: boolean, type: ContainerType) => {
+  const handleRecreate = (containerId: string, recreate: boolean) => {
     if (stepBundleId) {
       if (isDefinition) {
-        ContainerService.updateContainerReferenceRecreate(
-          'step_bundles',
-          stepBundleId,
-          -1,
-          containerId,
-          type,
-          recreate,
-        );
+        ContainerService.updateContainerReferenceRecreate('step_bundles', stepBundleId, -1, containerId, recreate);
       } else {
-        ContainerService.updateContainerReferenceRecreate(source, sourceId, stepIndex, containerId, type, recreate);
+        ContainerService.updateContainerReferenceRecreate(source, sourceId, stepIndex, containerId, recreate);
       }
     }
   };

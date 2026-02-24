@@ -339,7 +339,6 @@ function updateContainerReferenceRecreate(
   sourceId: string,
   stepIndex: number,
   containerId: string,
-  type: ContainerType,
   recreate: boolean,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -350,30 +349,32 @@ function updateContainerReferenceRecreate(
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
     }
 
-    const field =
-      type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
-    if (!yamlMap.has(field)) {
-      throw new Error(`No '${field}' found on step at index ${stepIndex}`);
-    }
+    const predicate = (node: unknown) => {
+      if (YmlUtils.isEqualValues(node, containerId)) {
+        return true;
+      }
+      if (isMap(node) && node.items.length > 0) {
+        const key = String(node.items[0]?.key);
+        return key === containerId;
+      }
+      return false;
+    };
 
     const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
-    const path = field === ContainerReferenceField.Execution ? [field] : [field, '*'];
 
-    YmlUtils.updateValueByPredicate(
-      yamlMap,
-      path,
-      (node) => {
-        if (YmlUtils.isEqualValues(node, containerId)) {
-          return true;
-        }
-        if (isMap(node) && node.items.length > 0) {
-          const key = String(node.items[0]?.key);
-          return key === containerId;
-        }
-        return false;
-      },
-      newValue,
-    );
+    const hasExecution = yamlMap.has(ContainerReferenceField.Execution);
+    const hasService = yamlMap.has(ContainerReferenceField.Service);
+    if (!hasExecution && !hasService) {
+      throw new Error(`No container reference found for '${containerId}' on step at index ${stepIndex}`);
+    }
+
+    if (hasExecution) {
+      YmlUtils.updateValueByPredicate(yamlMap, [ContainerReferenceField.Execution], predicate, newValue);
+    }
+
+    if (hasService) {
+      YmlUtils.updateValueByPredicate(yamlMap, [ContainerReferenceField.Service, '*'], predicate, newValue);
+    }
 
     return doc;
   });

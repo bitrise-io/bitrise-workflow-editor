@@ -18,13 +18,12 @@ const StepContainersTab = () => {
     );
   };
 
-  const handleRecreate = (containerId: string, recreate: boolean, type: ContainerType) => {
+  const handleRecreate = (containerId: string, recreate: boolean) => {
     ContainerService.updateContainerReferenceRecreate(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
-      type,
       recreate,
     );
   };
