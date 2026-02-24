@@ -12,12 +12,12 @@ const StepBundleContainersTab = () => {
   const source = parentWorkflowId ? 'workflows' : 'step_bundles';
   const sourceId = parentStepBundleId || parentWorkflowId || '';
 
-  const handleAdd = (containerId: string, type: ContainerType) => {
+  const handleAdd = (containerId: string) => {
     if (stepBundleId) {
       if (isDefinition) {
-        ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId, type);
+        ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId);
       } else {
-        ContainerService.addContainerReference(source, sourceId, stepIndex, containerId, type);
+        ContainerService.addContainerReference(source, sourceId, stepIndex, containerId);
       }
     }
   };

@@ -11,7 +11,7 @@ type ContainerCardProps = {
   definitionReferences?: ContainerReference[];
   instanceReferences?: ContainerReference[];
   isDefinitionReferencesDisabled?: boolean;
-  onAddContainer: (containerId: string, type: ContainerType) => void;
+  onAddContainer: (containerId: string) => void;
   onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
   onRemove: (containerId: string, type: ContainerType) => void;
   type: ContainerType;
@@ -104,7 +104,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   <ContainersMenu
                     actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
                     containers={availableContainers}
-                    onSelectContainer={(containerId) => onAddContainer(containerId, type)}
+                    onSelectContainer={(containerId) => onAddContainer(containerId)}
                     type={type}
                   />
                 </Td>

@@ -20,7 +20,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container');
 
         const expectedYml = yaml`
         containers:
@@ -55,7 +55,7 @@ describe('ContainerService', () => {
                   execution_container: other-container
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container');
 
         const expectedYml = yaml`
         containers:
@@ -85,9 +85,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() =>
-          ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent', ContainerType.Execution),
-        ).toThrow("Container non-existent not found. Ensure that the container exists in the 'containers' section.");
+        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent')).toThrow(
+          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
+        );
       });
 
       it('should throw an error if workflow does not exist', () => {
@@ -98,15 +98,9 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-        expect(() =>
-          ContainerService.addContainerReference(
-            'workflows',
-            'non-existent',
-            0,
-            'my-container',
-            ContainerType.Execution,
-          ),
-        ).toThrow('workflows.non-existent not found');
+        expect(() => ContainerService.addContainerReference('workflows', 'non-existent', 0, 'my-container')).toThrow(
+          'workflows.non-existent not found',
+        );
       });
 
       it('should throw an error if step does not exist', () => {
@@ -122,9 +116,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() =>
-          ContainerService.addContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Execution),
-        ).toThrow('Step at index 5 not found in workflows.wf1');
+        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 5, 'my-container')).toThrow(
+          'Step at index 5 not found in workflows.wf1',
+        );
       });
     });
     describe('service container target', () => {
@@ -141,7 +135,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres');
 
         const expectedYml = yaml`
         containers:
@@ -178,7 +172,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'redis', ContainerType.Service);
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'redis');
 
         const expectedYml = yaml`
         containers:
@@ -216,9 +210,9 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        expect(() =>
-          ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service),
-        ).toThrow("Service container 'postgres' is already added to the step");
+        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres')).toThrow(
+          "Service container 'postgres' is already added to the step",
+        );
       });
 
       it('should throw an error if service does not exist', () => {
@@ -230,9 +224,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() =>
-          ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent', ContainerType.Service),
-        ).toThrow("Container non-existent not found. Ensure that the container exists in the 'containers' section.");
+        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent')).toThrow(
+          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
+        );
       });
     });
   });

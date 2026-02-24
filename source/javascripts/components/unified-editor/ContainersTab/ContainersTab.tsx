@@ -10,7 +10,7 @@ export type Source = 'workflows' | 'step_bundles';
 type ContainersTabProps = {
   executionContainers: Container[];
   isDefinitionReferencesDisabled?: boolean;
-  onAddContainer: (containerId: string, type: ContainerType) => void;
+  onAddContainer: (containerId: string) => void;
   onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
   onRemove: (containerId: string, type: ContainerType) => void;
   references?: UseContainerReferencesReturnValue;

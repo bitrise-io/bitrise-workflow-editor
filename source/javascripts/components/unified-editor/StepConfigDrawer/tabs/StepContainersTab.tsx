@@ -8,13 +8,12 @@ import useContainers from '@/hooks/useContainers';
 const StepContainersTab = () => {
   const { workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
 
-  const handleAdd = (containerId: string, type: ContainerType) => {
+  const handleAdd = (containerId: string) => {
     ContainerService.addContainerReference(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
-      type,
     );
   };
 

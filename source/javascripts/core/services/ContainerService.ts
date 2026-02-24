@@ -41,10 +41,10 @@ function addContainerReference(
   sourceId: string,
   index: number,
   containerId: string,
-  type: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    getContainerOrThrowError(containerId, doc);
+    const container = getContainerOrThrowError(containerId, doc);
+    const type = container.get('type') as ContainerType;
 
     let yamlMap;
     if (index === -1) {
