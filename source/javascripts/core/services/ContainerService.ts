@@ -139,7 +139,6 @@ function removeContainerReference(
   sourceId: string,
   stepIndex: number,
   containerId: string,
-  type: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
@@ -149,28 +148,15 @@ function removeContainerReference(
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
     }
 
-    if (type === ContainerType.Execution) {
-      YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Execution], containerId);
-    }
+    YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Execution], containerId, []);
+    YmlUtils.deleteByPath(yamlMap, [ContainerReferenceField.Execution, containerId], []);
 
-    if (type === ContainerType.Service) {
-      YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Service, '*'], containerId);
-    }
+    YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Service, '*'], containerId, []);
+    YmlUtils.deleteByPath(yamlMap, [ContainerReferenceField.Service, '*', containerId], []);
 
-    YmlUtils.deleteByPredicate(yamlMap, [ContainerReferenceField.Execution], (node) => {
-      if (isMap(node) && node.items.length > 0) {
-        const key = String(node.items[0]?.key);
-        return key === containerId;
-      }
-      return false;
-    });
-    YmlUtils.deleteByPredicate(yamlMap, [ContainerReferenceField.Service, '*'], (node) => {
-      if (isMap(node) && node.items.length > 0) {
-        const key = String(node.items[0]?.key);
-        return key === containerId;
-      }
-      return false;
-    });
+    if (yamlMap.items.length === 0) {
+      yamlMap.flow = true;
+    }
 
     return doc;
   });

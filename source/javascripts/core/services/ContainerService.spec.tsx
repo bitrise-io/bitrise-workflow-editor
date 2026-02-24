@@ -1986,7 +1986,7 @@ describe('ContainerService', () => {
                   execution_container: my-container
       `);
 
-        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'my-container');
 
         const expectedYml = yaml`
         execution_containers:
@@ -2017,7 +2017,7 @@ describe('ContainerService', () => {
                   execution_container: my-container
       `);
 
-        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'other-container', ContainerType.Execution);
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'other-container');
 
         const expectedYml = yaml`
         execution_containers:
@@ -2046,23 +2046,17 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
-          ContainerService.removeContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Execution),
-        ).toThrow('Step at index 5 not found in workflows.wf1');
+        expect(() => ContainerService.removeContainerReference('workflows', 'wf1', 5, 'my-container')).toThrow(
+          'Step at index 5 not found in workflows.wf1',
+        );
       });
 
       it('should throw an error if workflow does not exist', () => {
         updateBitriseYmlDocumentByString(yaml``);
 
-        expect(() =>
-          ContainerService.removeContainerReference(
-            'workflows',
-            'non-existent',
-            0,
-            'my-container',
-            ContainerType.Execution,
-          ),
-        ).toThrow('workflows.non-existent not found');
+        expect(() => ContainerService.removeContainerReference('workflows', 'non-existent', 0, 'my-container')).toThrow(
+          'workflows.non-existent not found',
+        );
       });
     });
     describe('service container target', () => {
@@ -2081,7 +2075,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'redis', ContainerType.Service);
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'redis');
 
         const expectedYml = yaml`
         service_containers:
@@ -2113,7 +2107,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres');
 
         const expectedYml = yaml`
         service_containers:
@@ -2144,7 +2138,7 @@ describe('ContainerService', () => {
                     - redis
       `);
 
-        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres');
 
         const expectedYml = yaml`
         service_containers:
@@ -2176,7 +2170,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
+        ContainerService.removeContainerReference('workflows', 'wf1', 0, 'postgres');
 
         const expectedYml = yaml`
         service_containers:
@@ -2202,23 +2196,17 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
-          ContainerService.removeContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Service),
-        ).toThrow('Step at index 5 not found in workflows.wf1');
+        expect(() => ContainerService.removeContainerReference('workflows', 'wf1', 5, 'my-container')).toThrow(
+          'Step at index 5 not found in workflows.wf1',
+        );
       });
 
       it('should throw an error if workflow does not exist', () => {
         updateBitriseYmlDocumentByString(yaml``);
 
-        expect(() =>
-          ContainerService.removeContainerReference(
-            'workflows',
-            'non-existent',
-            0,
-            'my-container',
-            ContainerType.Service,
-          ),
-        ).toThrow('workflows.non-existent not found');
+        expect(() => ContainerService.removeContainerReference('workflows', 'non-existent', 0, 'my-container')).toThrow(
+          'workflows.non-existent not found',
+        );
       });
     });
   });

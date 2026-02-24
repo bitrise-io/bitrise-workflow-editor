@@ -29,13 +29,12 @@ const StepContainersTab = () => {
     );
   };
 
-  const handleRemove = (containerId: string, type: ContainerType) => {
+  const handleRemove = (containerId: string) => {
     ContainerService.removeContainerReference(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
-      type,
     );
   };
 

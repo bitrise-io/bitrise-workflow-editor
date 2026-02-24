@@ -39,12 +39,12 @@ const StepBundleContainersTab = () => {
     }
   };
 
-  const handleRemove = (containerId: string, type: ContainerType) => {
+  const handleRemove = (containerId: string) => {
     if (stepBundleId) {
       if (isDefinition) {
-        ContainerService.removeContainerReference('step_bundles', stepBundleId, -1, containerId, type);
+        ContainerService.removeContainerReference('step_bundles', stepBundleId, -1, containerId);
       } else {
-        ContainerService.removeContainerReference(source, sourceId, stepIndex, containerId, type);
+        ContainerService.removeContainerReference(source, sourceId, stepIndex, containerId);
       }
     }
   };
