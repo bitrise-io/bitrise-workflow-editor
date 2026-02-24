@@ -45,9 +45,9 @@ const MAINTAINERS: Array<{
 
 const StepFilterCategories = memo(function StepFilterCategories() {
   const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
-  const { data: steps = [] } = useAlgoliaSteps();
+  const allowedMaintainers = allowNonBitriseSteps ? [] : ['bitrise'];
+  const { data: steps = [] } = useAlgoliaSteps(allowedMaintainers);
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
-
   const selectedCategories = useSearch((s) => s.stepCategoryFilter);
   const selectedMaintainers = useSearch((s) => s.stepMaintainerFilter);
   const setSelectedCategories = useSearch((s) => s.setSearchStepCategories);
@@ -57,6 +57,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
     () => [...selectedCategories, ...selectedMaintainers],
     [selectedCategories, selectedMaintainers],
   );
+
   const handleFilterChange = useCallback(
     (values: string[]) => {
       const cats = values.filter((v) => categories.some((c) => c === v));

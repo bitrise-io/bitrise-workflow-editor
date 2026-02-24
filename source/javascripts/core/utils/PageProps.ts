@@ -27,16 +27,10 @@ function settings() {
   return pageProps()?.settings;
 }
 
-function getInitialStepMaintainers(): string[] {
-  const allowNonBitriseSteps = limits()?.allowNonBitriseSteps ?? true;
-  return allowNonBitriseSteps ? [] : ['bitrise'];
-}
-
 export default {
   app,
   appSlug,
   abilities,
   limits,
   settings,
-  getInitialStepMaintainers,
 };
