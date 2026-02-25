@@ -59,7 +59,17 @@ function useSelection() {
         const isStepBundleSelected = type === 'stepBundle' && state.selectionParent?.id === stepBundleId;
         const isStepIndexSelected = state.selectedStepIndices?.includes(stepIndex);
 
-        return (isWorkflowSelected || isStepBundleSelected) && isStepIndexSelected;
+        const result = (isWorkflowSelected || isStepBundleSelected) && isStepIndexSelected;
+
+        console.log('[isSelected]', {
+          input: { stepBundleId, stepIndex, workflowId },
+          selectionParent: state.selectionParent,
+          selectedStepIndices: state.selectedStepIndices,
+          computed: { type, isWorkflowSelected, isStepBundleSelected, isStepIndexSelected },
+          result,
+        });
+
+        return result;
       },
     }),
     [state],
