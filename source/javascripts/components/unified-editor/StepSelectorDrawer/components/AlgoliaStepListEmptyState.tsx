@@ -12,7 +12,7 @@ const AlgoliaStepListEmptyState = () => {
       title="No Steps are matching your filter"
       description="Modify your filters to get results."
     >
-      <Button variant="secondary" onClick={() => resetSearch()}>
+      <Button variant="secondary" onClick={resetSearch}>
         Clear filters
       </Button>
     </EmptyState>
