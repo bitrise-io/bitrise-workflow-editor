@@ -68,6 +68,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       uniqueId,
       stepIndex,
       workflowId,
+      stepBundleId,
     } satisfies SortableStepItem,
   });
 
