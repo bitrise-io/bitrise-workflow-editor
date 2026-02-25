@@ -157,9 +157,6 @@ const StepCard = ({
   const title = step?.title || step?.cvs || '';
   const isHighlighted = isSelected({ stepBundleId, stepIndex, workflowId });
 
-  if (isHighlighted) {
-    console.log('[StepCard] isHighlighted=true', { stepBundleId, stepIndex, workflowId });
-  }
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
 
   const isButton = !!onSelectStep;

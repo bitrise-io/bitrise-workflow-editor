@@ -33,22 +33,26 @@ function useContainerReferences(
   }
 
   if (stepIndex > -1) {
-    returnValue.instance = {
-      [ContainerType.Execution]: ContainerService.getContainerReferenceFromInstance(
-        source,
-        sourceId,
-        stepIndex,
-        ContainerType.Execution,
-        ymlDocument,
-      ),
-      [ContainerType.Service]: ContainerService.getContainerReferenceFromInstance(
-        source,
-        sourceId,
-        stepIndex,
-        ContainerType.Service,
-        ymlDocument,
-      ),
-    };
+    try {
+      returnValue.instance = {
+        [ContainerType.Execution]: ContainerService.getContainerReferenceFromInstance(
+          source,
+          sourceId,
+          stepIndex,
+          ContainerType.Execution,
+          ymlDocument,
+        ),
+        [ContainerType.Service]: ContainerService.getContainerReferenceFromInstance(
+          source,
+          sourceId,
+          stepIndex,
+          ContainerType.Service,
+          ymlDocument,
+        ),
+      };
+    } catch {
+      // If Step no longer exist (e.g. just deleted) — return empty result
+    }
   }
 
   return returnValue;
