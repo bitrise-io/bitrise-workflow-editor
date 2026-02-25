@@ -100,7 +100,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
           type: LibraryType.BUNDLE,
-          stepBundleId: stepBundleId || StepBundleService.cvsToId(cvs),
+          stepBundleId: stepBundleId,
           wfId: workflowId,
         });
       }
@@ -146,7 +146,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
 
   const stepBundleInstance = useStepBundle({
-    stepBundleId: StepBundleService.cvsToId(cvs),
+    stepBundleId: workflowId || stepBundleId ? undefined : StepBundleService.cvsToId(cvs),
     parentWorkflowId: workflowId,
     parentStepBundleId: stepBundleId,
     stepIndex,

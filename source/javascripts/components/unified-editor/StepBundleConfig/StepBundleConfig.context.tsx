@@ -16,10 +16,10 @@ const Context = createContext<Omit<Props, 'children'>>({
   stepIndex: -1,
 });
 
-const StepBundleConfigProvider = ({ children, parentWorkflowId, stepBundleId, stepIndex, ...props }: Props) => {
+const StepBundleConfigProvider = ({ children, ...props }: Props) => {
   return (
-    <StepConfigDrawerProvider stepBundleId={stepBundleId} workflowId={parentWorkflowId || ''} stepIndex={stepIndex}>
-      <Context.Provider value={{ parentWorkflowId, stepBundleId, stepIndex, ...props }}>{children}</Context.Provider>
+    <StepConfigDrawerProvider stepBundleId={props.stepBundleId} workflowId="" stepIndex={props.stepIndex}>
+      <Context.Provider value={props}>{children}</Context.Provider>
     </StepConfigDrawerProvider>
   );
 };

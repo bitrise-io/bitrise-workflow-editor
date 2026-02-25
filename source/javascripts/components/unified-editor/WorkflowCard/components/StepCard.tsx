@@ -125,7 +125,7 @@ const StepCard = ({
     error,
     isLoading,
     data: step,
-  } = useStep({ workflowId: stepBundleId ? undefined : workflowId, stepBundleId, stepIndex }) as {
+  } = useStep({ workflowId, stepBundleId, stepIndex }) as {
     data?: Step;
     error?: Error;
     isLoading: boolean;

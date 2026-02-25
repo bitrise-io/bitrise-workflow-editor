@@ -24,12 +24,9 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepBundleId?: string;
   workflowId: string;
   stepIndex: number;
-  parentWorkflowId?: string;
 };
 
-const StepConfigDrawerContent = (
-  props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex' | 'parentWorkflowId'>,
-) => {
+const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId' | 'stepIndex'>) => {
   const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
 
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
@@ -129,14 +126,9 @@ const StepConfigDrawerContent = (
   );
 };
 
-const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, parentWorkflowId, ...props }: Props) => {
+const StepConfigDrawer = ({ workflowId, stepIndex, stepBundleId, ...props }: Props) => {
   return (
-    <StepConfigDrawerProvider
-      workflowId={workflowId}
-      stepBundleId={stepBundleId}
-      stepIndex={stepIndex}
-      parentWorkflowId={parentWorkflowId}
-    >
+    <StepConfigDrawerProvider workflowId={workflowId} stepBundleId={stepBundleId} stepIndex={stepIndex}>
       <StepConfigDrawerContent {...props} />
     </StepConfigDrawerProvider>
   );
