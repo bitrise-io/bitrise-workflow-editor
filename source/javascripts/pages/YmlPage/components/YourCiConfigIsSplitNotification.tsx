@@ -1,16 +1,23 @@
 import { Notification } from '@bitrise/bitkit';
 
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useIsModular from '@/hooks/useIsModular';
 import useUserMetaData from '@/hooks/useUserMetaData';
 
 const SPLITTED_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 
 const YourCiConfigIsSplitNotification = () => {
   const { data: ymlSettings, isLoading } = useCiConfigSettings();
+  const isModular = useIsModular();
   const { value: splittedMetaDataValue, update: updateSplittedMetaData } = useUserMetaData(
     SPLITTED_METADATA_KEY,
     Boolean(ymlSettings && ymlSettings.isYmlSplit && ymlSettings.usesRepositoryYml),
   );
+
+  // Hide this notification when modular file tabs are visible
+  if (isModular) {
+    return null;
+  }
 
   if (isLoading || splittedMetaDataValue !== null) {
     return null;

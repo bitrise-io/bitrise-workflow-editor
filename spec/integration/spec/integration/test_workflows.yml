@@ -1,0 +1,20 @@
+workflows:
+  included-wf1:
+    summary: A workflow from an included fileihh
+    description: This workflow was defined in test_workflows.yml
+    steps:
+      - script@1:
+          title: Included workflow step
+          inputs:
+            - content: |
+                #!/usr/bin/env bash
+                echo "Hello from included-wf1!"
+  included-wf2:
+    summary: Another included workflow
+    before_run:
+      - included-wf1
+    steps:
+      - activate-ssh-key: {}
+      - git-clone@4.0.17:
+          inputs:
+            - clone_depth: "1"

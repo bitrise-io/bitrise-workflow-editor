@@ -13,17 +13,24 @@ import { useEventListener } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
+import ModularConfigApi from '@/core/api/ModularConfigApi';
 import {
   bitriseYmlStore,
   discardBitriseYmlDocument,
   getYmlString,
   initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
+import {
+  discardAllChanges as discardModularChanges,
+  getChangedEditableFiles,
+  markAllFilesSaved,
+} from '@/core/stores/ModularConfigStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useIsModular from '@/hooks/useIsModular';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -40,6 +47,7 @@ const Header = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const appPath = isWebsiteMode ? `/app/${appSlug}` : '';
   const { data: ciConfigSettings } = useCiConfigSettings();
+  const isModular = useIsModular();
 
   const toast = useToast();
   const { isMobile } = useResponsive();
@@ -104,11 +112,40 @@ const Header = () => {
   });
 
   const saveCIConfig = useCallback(
-    (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
+    async (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
       segmentTrack('Workflow Editor Save Button Clicked', {
         source,
         tab_name: currentPage,
       });
+
+      if (isModular) {
+        if (isWebsiteMode) {
+          // Web mode + modular: open extended update dialog
+          openUpdateConfigDialog();
+          return;
+        }
+
+        // Local mode + modular: save changed local files directly
+        const changedFiles = getChangedEditableFiles();
+        if (changedFiles.length === 0) return;
+
+        try {
+          await ModularConfigApi.saveConfigFiles({
+            projectSlug: appSlug,
+            files: changedFiles.map((f) => ({ path: f.path, contents: f.currentContents })),
+          });
+          markAllFilesSaved();
+        } catch (error) {
+          toast({
+            title: 'Failed to save changes',
+            description: error instanceof Error ? error.message : 'Something went wrong',
+            status: 'error',
+            duration: null,
+            isClosable: true,
+          });
+        }
+        return;
+      }
 
       if (ciConfigSettings?.usesRepositoryYml) {
         openUpdateConfigDialog();
@@ -122,7 +159,7 @@ const Header = () => {
         version: bitriseYmlStore.getState().version,
       });
     },
-    [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],
+    [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml, isModular, isWebsiteMode, toast],
   );
 
   const onDiscard = () => {
@@ -131,6 +168,11 @@ const Header = () => {
     useWorkflowsPageStore.setState(useWorkflowsPageStore.getInitialState());
     usePipelinesPageStore.setState(usePipelinesPageStore.getInitialState());
     useStepBundlesPageStore.setState(useStepBundlesPageStore.getInitialState());
+
+    if (isModular) {
+      const version = bitriseYmlStore.getState().version;
+      discardModularChanges(version);
+    }
 
     discardBitriseYmlDocument();
   };

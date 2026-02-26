@@ -1,0 +1,9 @@
+app:
+  envs:
+    - INCLUDED_ENV: from_included_file
+      opts:
+        is_expand: false
+    - API_URL: https://api.example.com
+      opts:
+        is_expand: true
+        is_sensitive: true

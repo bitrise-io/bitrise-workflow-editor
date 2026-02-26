@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 
 import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';
+import useIsModular from '@/hooks/useIsModular';
+import useMergedWorkflows from '@/hooks/useMergedWorkflows';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
@@ -13,7 +15,10 @@ type Props = Omit<DialogProps, 'title'> & {
 };
 
 const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...props }: Props) => {
-  const workflowIds = useWorkflows((s) => Object.keys(s));
+  const isModular = useIsModular();
+  const currentFileWorkflowIds = useWorkflows((s) => Object.keys(s));
+  const mergedWorkflowIds = useMergedWorkflows();
+  const workflowIds = isModular ? mergedWorkflowIds : currentFileWorkflowIds;
   const [, setSelectedWorkflow] = useSelectedWorkflow();
 
   useEffect(() => {

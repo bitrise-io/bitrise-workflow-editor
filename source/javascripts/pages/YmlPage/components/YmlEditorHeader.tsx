@@ -8,6 +8,8 @@ import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useIsModular from '@/hooks/useIsModular';
+import useModularConfig from '@/hooks/useModularConfig';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
@@ -16,6 +18,9 @@ const YmlEditorHeader = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const { isRepositoryYmlAvailable } = PageProps.limits() ?? {};
+  const isModular = useIsModular();
+  const activeFileIndex = useModularConfig((s) => s.activeFileIndex);
+  const activeFile = useModularConfig((s) => (s.activeFileIndex >= 0 ? s.files[s.activeFileIndex] : undefined));
 
   const ymlStatus = useYmlValidationStatus();
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -51,7 +56,11 @@ const YmlEditorHeader = () => {
   return (
     <Box display="flex" flexDirection={['column', 'row']} gap="16" alignItems={['flex-start', 'center']} p="32">
       <Text as="h2" textStyle="heading/h2">
-        Configuration YAML
+        {isModular && activeFileIndex >= 0 && activeFile
+          ? activeFile.path
+          : isModular && activeFileIndex === -1
+            ? 'Merged Configuration'
+            : 'Configuration YAML'}
       </Text>
       <Box marginInlineEnd="auto">
         <YmlValidationBadge status={ymlStatus} />
