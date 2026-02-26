@@ -59,7 +59,8 @@ function addContainerReference(
 
     if (type === ContainerType.Service) {
       if (YmlUtils.isInSeq(yamlMap, [ContainerReferenceField.Service], containerId)) {
-        throw new Error(`Service container '${containerId}' is already added to the step`);
+        const context = index === -1 ? `step bundle '${sourceId}'` : 'the step';
+        throw new Error(`Service container '${containerId}' is already added to ${context}`);
       }
       YmlUtils.addIn(yamlMap, [ContainerReferenceField.Service], containerId);
     }
@@ -218,7 +219,12 @@ function getContainerReferenceFromInstance(
   type: ContainerType,
   doc: Document,
 ) {
-  const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+  let yamlMap;
+  if (stepIndex === -1) {
+    yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+  } else {
+    yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+  }
   return getContainerReferences(type, yamlMap);
 }
 
@@ -365,7 +371,8 @@ function updateContainerReferenceRecreate(
     const hasExecution = yamlMap.has(ContainerReferenceField.Execution);
     const hasService = yamlMap.has(ContainerReferenceField.Service);
     if (!hasExecution && !hasService) {
-      throw new Error(`No container reference found for '${containerId}' on step at index ${stepIndex}`);
+      const context = stepIndex === -1 ? `in step bundle '${sourceId}'` : `on step at index ${stepIndex}`;
+      throw new Error(`No container reference found for '${containerId}' ${context}`);
     }
 
     if (hasExecution) {

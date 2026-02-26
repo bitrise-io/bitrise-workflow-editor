@@ -215,6 +215,23 @@ describe('ContainerService', () => {
         );
       });
 
+      it('should throw an error if service is already added to a step bundle', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres
+      `);
+
+        expect(() => ContainerService.addContainerReference('step_bundles', 'my_bundle', -1, 'postgres')).toThrow(
+          "Service container 'postgres' is already added to step bundle 'my_bundle'",
+        );
+      });
+
       it('should throw an error if service does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
@@ -3111,6 +3128,23 @@ describe('ContainerService', () => {
       expect(() =>
         ContainerService.updateContainerReferenceRecreate('workflows', 'wf1', 0, 'my-container', true),
       ).toThrow("No container reference found for 'my-container' on step at index 0");
+    });
+
+    it('should throw error if no container references exist on step bundle', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: execution
+            image: ubuntu:20.04
+        step_bundles:
+          my_bundle:
+            steps:
+              - script: {}
+      `);
+
+      expect(() =>
+        ContainerService.updateContainerReferenceRecreate('step_bundles', 'my_bundle', -1, 'my-container', true),
+      ).toThrow("No container reference found for 'my-container' in step bundle 'my_bundle'");
     });
 
     it('should throw error if workflow does not exist', () => {
