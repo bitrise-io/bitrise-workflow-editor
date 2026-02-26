@@ -33,39 +33,32 @@ const FileTabsBar = () => {
   };
 
   return (
-    <Box
-      borderBottom="1px solid"
-      borderColor="separator.primary"
-      backgroundColor="background/primary"
-      overflowX="auto"
-    >
+    <Box borderBottom="1px solid" borderColor="separator.primary" backgroundColor="background/primary" overflowX="auto">
       <Tabs index={tabIndex} onChange={handleTabChange}>
         <TabList>
-          <Tab leftIconName="Overview">
-            Merged{isMerging ? ' ...' : ''}
-          </Tab>
+          <Tooltip label="View only" placement="bottom">
+            <Tab leftIconName="Overview">Merged{isMerging ? ' ...' : ''}</Tab>
+          </Tooltip>
           {files.map((file) => {
             const hasChanges = file.currentContents !== file.savedContents;
             const shortPath = shortenPath(file.path);
 
             return (
-              <Tooltip key={file.path} label={file.path} placement="bottom">
-                <Tab leftIconName={file.isReadOnly ? 'Lock' : undefined}>
-                  {shortPath}
-                  {hasChanges && (
-                    <Box
-                      as="span"
-                      ml="6"
-                      w="8px"
-                      h="8px"
-                      borderRadius="full"
-                      backgroundColor="text/secondary"
-                      display="inline-block"
-                      flexShrink={0}
-                    />
-                  )}
-                </Tab>
-              </Tooltip>
+              <Tab key={file.path} leftIconName={file.isReadOnly ? 'Lock' : undefined}>
+                {shortPath}
+                {hasChanges && (
+                  <Box
+                    as="span"
+                    ml="6"
+                    w="8px"
+                    h="8px"
+                    borderRadius="full"
+                    backgroundColor="text/secondary"
+                    display="inline-block"
+                    flexShrink={0}
+                  />
+                )}
+              </Tab>
             );
           })}
         </TabList>
