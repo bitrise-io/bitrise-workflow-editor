@@ -3,14 +3,18 @@ import { toMerged } from 'es-toolkit';
 import { PipelineStages } from '@/core/models/BitriseYml';
 import { Stage } from '@/core/models/Stage';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 
 const usePipelineStages = (): Stage[] => {
   const { selectedPipeline } = usePipelineSelector();
+  const mergedYml = useMergedBitriseYml();
 
   return useBitriseYmlStore(({ yml }) => {
     const pipelineStages: PipelineStages = yml.pipelines?.[selectedPipeline]?.stages ?? [];
+    // Fall back to merged stages for cross-file reference resolution
+    const stages = mergedYml?.stages ? { ...mergedYml.stages, ...(yml.stages || {}) } : yml.stages || {};
 
     return pipelineStages.map((pipelineStageObj) => {
       const stageId = Object.keys(pipelineStageObj)[0];
@@ -18,7 +22,7 @@ const usePipelineStages = (): Stage[] => {
 
       return {
         id: stageId,
-        userValues: toMerged(yml.stages?.[stageId] || {}, {
+        userValues: toMerged(stages?.[stageId] || {}, {
           abort_on_fail: stage?.abort_on_fail,
           should_always_run: stage?.should_always_run,
         }),

@@ -1,7 +1,9 @@
 import { Box, Link, Tab, TabList, Text } from '@bitrise/bitkit';
-import { ReactNode } from 'react';
+import { ReactNode, useCallback } from 'react';
 
 import StepBundleService from '@/core/services/StepBundleService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { findFileIndexForEntity, modularConfigStore, setActiveFileIndex } from '@/core/stores/ModularConfigStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
 
@@ -22,6 +24,19 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
 
   const { replace } = useNavigation();
 
+  const handleEditDefinition = useCallback(() => {
+    // Switch to the file tab that contains this step bundle
+    const { isModular } = modularConfigStore.getState();
+    if (isModular && stepBundleId) {
+      const fileIndex = findFileIndexForEntity('step_bundles', stepBundleId);
+      if (fileIndex >= 0) {
+        const version = bitriseYmlStore.getState().version;
+        setActiveFileIndex(fileIndex, version);
+      }
+    }
+    replace('/step_bundles', { step_bundle_id: stepBundleId });
+  }, [stepBundleId, replace]);
+
   const usedIn = StepBundleService.getUsedByText(dependants.length);
   let subtitle: ReactNode = usedIn;
   if (variant === 'drawer') {
@@ -32,11 +47,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
           {stepBundleId}
         </Text>{' '}
         • {usedIn} •{' '}
-        <Link
-          as="button"
-          colorScheme="purple"
-          onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}
-        >
+        <Link as="button" colorScheme="purple" onClick={handleEditDefinition}>
           Edit definition
         </Link>
       </>

@@ -76,7 +76,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const hovered = useHover(ref);
   const { selectedPipeline } = usePipelineSelector();
 
-  const stepBundles = useStepBundles((s) => {
+  // Use merged step bundles so cross-file bundle references resolve
+  const stepBundles = useStepBundles({ withMerged: true }, (s) => {
     return Object.fromEntries(
       Object.entries(s).map(([_id, stepBundle]) => {
         return [_id, { steps: stepBundle?.steps }];

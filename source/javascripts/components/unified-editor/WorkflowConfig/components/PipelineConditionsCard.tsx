@@ -6,6 +6,7 @@ import DetailedHelperText from '@/components/DetailedHelperText';
 import { EnvVarPopover } from '@/components/VariablePopover';
 import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 import { useShallow } from '@/hooks/useShallow';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
@@ -111,10 +112,12 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
 
 const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
   const initValue = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.parallel || '');
+  const mergedYml = useMergedBitriseYml();
 
   const existingWorkflowIds = useBitriseYmlStore((s) => {
     return uniq([
       ...Object.keys(s.yml.workflows ?? {}),
+      ...Object.keys(mergedYml?.workflows ?? {}),
       ...Object.keys(s.yml.pipelines?.[pipelineId]?.workflows ?? {}),
     ]);
   });

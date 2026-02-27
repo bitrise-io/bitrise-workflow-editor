@@ -6,6 +6,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import { useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -44,7 +45,11 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
 
 const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const { droppableContainers } = useDndContext();
-  const workflowIds = useWorkflows((s) => Object.keys(s));
+  const mergedYml = useMergedBitriseYml();
+  // Include merged workflow IDs so cross-file chained workflows are recognized as valid
+  const activeWorkflowIds = useWorkflows((s) => Object.keys(s));
+  const mergedWorkflowIds = mergedYml?.workflows ? Object.keys(mergedYml.workflows) : [];
+  const workflowIds = [...new Set([...activeWorkflowIds, ...mergedWorkflowIds])];
 
   const { onChainedWorkflowsUpdate } = useWorkflowActions();
   const isAfterRun = placement === 'after_run';
@@ -52,7 +57,9 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
   const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
-    const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+    // Fall back to merged workflows for cross-file references
+    const workflow = yml.workflows?.[parentWorkflowId] ?? mergedYml?.workflows?.[parentWorkflowId];
+    const chainedWorkflowIds = workflow?.[placement] ?? [];
     return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
   });
 

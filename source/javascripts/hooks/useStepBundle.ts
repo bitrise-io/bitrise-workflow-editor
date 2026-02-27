@@ -4,6 +4,7 @@ import { StepBundleInstance } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 
 import useDefaultStepLibrary from './useDefaultStepLibrary';
 
@@ -20,14 +21,19 @@ type Props = {
 
 const useStepBundle = (props: Props) => {
   const defaultStepLibrary = useDefaultStepLibrary();
+  const mergedYml = useMergedBitriseYml();
 
   return useBitriseYmlStore(({ yml }) => {
     const { stepBundleId, parentWorkflowId, parentStepBundleId, stepIndex } = props;
+    // Combine active file + merged step bundles for cross-file resolution
+    const allStepBundles = mergedYml?.step_bundles
+      ? { ...mergedYml.step_bundles, ...(yml.step_bundles || {}) }
+      : yml.step_bundles || {};
 
     const result: UseStepBundleResult = { stepBundleId, parentWorkflowId, parentStepBundleId, stepIndex };
 
     if (stepBundleId) {
-      const stepBundle = yml.step_bundles?.[stepBundleId];
+      const stepBundle = allStepBundles?.[stepBundleId];
       result.stepBundle = stepBundle ? StepBundleService.ymlInstanceToStepBundle(stepBundleId, stepBundle) : undefined;
       return result;
     }
@@ -35,21 +41,25 @@ const useStepBundle = (props: Props) => {
     let stepListItemModel = undefined;
 
     if (parentWorkflowId) {
-      stepListItemModel = yml.workflows?.[parentWorkflowId]?.steps?.[stepIndex];
+      // Also check merged workflows for cross-file reference
+      const workflows = mergedYml?.workflows
+        ? { ...mergedYml.workflows, ...(yml.workflows || {}) }
+        : yml.workflows || {};
+      stepListItemModel = workflows?.[parentWorkflowId]?.steps?.[stepIndex];
     } else if (parentStepBundleId) {
-      stepListItemModel = yml.step_bundles?.[parentStepBundleId]?.steps?.[stepIndex];
+      stepListItemModel = allStepBundles?.[parentStepBundleId]?.steps?.[stepIndex];
     }
 
     const [cvs, instance] = Object.entries(stepListItemModel ?? {})[0] ?? ['', {}];
 
     const id = StepBundleService.cvsToId(cvs);
-    const stepBundle = toMerged(yml.step_bundles?.[id] ?? {}, instance ?? {});
+    const stepBundle = toMerged(allStepBundles?.[id] ?? {}, instance ?? {});
 
     result.stepBundle = StepService.isStepBundle(cvs, defaultStepLibrary, stepBundle)
       ? StepBundleService.ymlInstanceToStepBundle(
           id,
           stepBundle,
-          yml.step_bundles?.[id] || undefined,
+          allStepBundles?.[id] || undefined,
           instance || undefined,
         )
       : undefined;

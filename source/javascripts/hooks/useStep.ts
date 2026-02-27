@@ -8,6 +8,7 @@ import { Step, StepBundleInstance, StepLike, WithGroup } from '@/core/models/Ste
 import StepService from '@/core/services/StepService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 
 type YmlStepResult = {
   data?: StepLike;
@@ -15,16 +16,21 @@ type YmlStepResult = {
 
 function useStepFromYml(props: UseStepProps): YmlStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
+  const mergedYml = useMergedBitriseYml();
 
   return useBitriseYmlStore(({ yml }) => {
     let stepObjectFromYml: StepModel | WithGroup | StepBundleOverrideModel | null | undefined;
 
     if (props.workflowId) {
       const { workflowId, stepIndex } = props;
-      stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
+      // Fall back to merged workflows for cross-file references
+      const workflow = yml.workflows?.[workflowId] ?? mergedYml?.workflows?.[workflowId];
+      stepObjectFromYml = workflow?.steps?.[stepIndex];
     } else if (props.stepBundleId) {
       const { stepBundleId, stepIndex } = props;
-      stepObjectFromYml = yml.step_bundles?.[stepBundleId]?.steps?.[stepIndex];
+      // Fall back to merged step bundles for cross-file references
+      const stepBundle = yml.step_bundles?.[stepBundleId] ?? mergedYml?.step_bundles?.[stepBundleId];
+      stepObjectFromYml = stepBundle?.steps?.[stepIndex];
     }
 
     if (!stepObjectFromYml) {

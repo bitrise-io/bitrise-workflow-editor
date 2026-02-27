@@ -280,6 +280,26 @@ export function getChangedEditableFiles(): ConfigFileEntry[] {
   return files.filter((f) => !f.isReadOnly && f.currentContents !== f.savedContents);
 }
 
+/**
+ * Find which file contains a given entity (workflow, step_bundle, pipeline, etc.)
+ * by parsing each file's YAML and checking for the entity ID under the given section.
+ */
+export function findFileIndexForEntity(section: string, entityId: string): number {
+  const { files } = modularConfigStore.getState();
+
+  return files.findIndex((f) => {
+    try {
+      const doc = YmlUtils.toDoc(f.currentContents);
+      if (doc.errors.length > 0) return false;
+      const parsed = YmlUtils.toJSON(doc) as unknown as Record<string, Record<string, unknown> | undefined>;
+      const sectionData = parsed[section];
+      return sectionData != null && entityId in sectionData;
+    } catch {
+      return false;
+    }
+  });
+}
+
 export function getMergedBitriseYml(): BitriseYml | undefined {
   const { mergedYmlString } = modularConfigStore.getState();
   if (!mergedYmlString) return undefined;

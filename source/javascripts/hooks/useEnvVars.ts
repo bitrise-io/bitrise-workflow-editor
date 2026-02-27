@@ -9,6 +9,7 @@ import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 
 import useDefaultStepLibrary from './useDefaultStepLibrary';
 
@@ -38,11 +39,16 @@ const useAppLevelEnvVars = () => {
 };
 
 const useStepBundleLevelEnvVars = (ids: string[]) => {
+  const mergedYml = useMergedBitriseYml();
+
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
+    const allStepBundles = mergedYml?.step_bundles
+      ? { ...mergedYml.step_bundles, ...(s.yml.step_bundles || {}) }
+      : s.yml.step_bundles || {};
 
     ids.forEach((stepBundleId) => {
-      s.yml.step_bundles?.[stepBundleId]?.inputs?.forEach((envVarYml) => {
+      allStepBundles?.[stepBundleId]?.inputs?.forEach((envVarYml) => {
         const env = EnvVarService.fromYml(envVarYml, `Step bundle: ${stepBundleId}`);
         envVarMap.set(env.key, env);
       });
@@ -53,12 +59,17 @@ const useStepBundleLevelEnvVars = (ids: string[]) => {
 };
 
 const useWorkflowLevelEnvVars = (ids: string[]) => {
+  const mergedYml = useMergedBitriseYml();
+
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
+    const allWorkflows = mergedYml?.workflows
+      ? { ...mergedYml.workflows, ...(s.yml.workflows || {}) }
+      : s.yml.workflows || {};
 
     ids.forEach((workflowId) => {
-      WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
-        s.yml.workflows?.[id]?.envs?.forEach((envVarYml) => {
+      WorkflowService.getWorkflowChain(allWorkflows, workflowId).forEach((id) => {
+        allWorkflows?.[id]?.envs?.forEach((envVarYml) => {
           const env = EnvVarService.fromYml(envVarYml, `Workflow: ${id}`);
           envVarMap.set(env.key, env);
         });
@@ -71,12 +82,17 @@ const useWorkflowLevelEnvVars = (ids: string[]) => {
 
 const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
   const defaultStepLibrary = useDefaultStepLibrary();
+  const mergedYml = useMergedBitriseYml();
+
   const cvss = useBitriseYmlStore((s) => {
     const cvsSet = new Set<string>();
+    const allWorkflows = mergedYml?.workflows
+      ? { ...mergedYml.workflows, ...(s.yml.workflows || {}) }
+      : s.yml.workflows || {};
 
     ids.forEach((workflowId) => {
-      WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
-        s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
+      WorkflowService.getWorkflowChain(allWorkflows, workflowId).forEach((id) => {
+        allWorkflows?.[id]?.steps?.forEach((ymlStepObject) => {
           const [cvs, step] = Object.entries(ymlStepObject)[0];
           // TODO: Handle step bundles and with groups...
           if (StepService.isStep(cvs, defaultStepLibrary, step)) {

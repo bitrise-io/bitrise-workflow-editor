@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import NoWorkflowsEmptyState from './NoWorkflowsEmptyState';
@@ -16,7 +17,11 @@ type Props = {
 
 const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const [search, setSearch] = useState('');
-  const allWorkflowIds = useWorkflows((s) => Object.keys(s));
+  const mergedYml = useMergedBitriseYml();
+  // Use merged workflows so all workflows are available for pipeline assignment
+  const activeWorkflows = useWorkflows((s) => Object.keys(s));
+  const mergedWorkflowIds = mergedYml?.workflows ? Object.keys(mergedYml.workflows) : [];
+  const allWorkflowIds = [...new Set([...activeWorkflows, ...mergedWorkflowIds])];
   const workflowIdsInPipeline = useBitriseYmlStore((s) => Object.keys(s.yml.pipelines?.[pipelineId]?.workflows || {}));
 
   const workflowIds = allWorkflowIds.filter((id) => {

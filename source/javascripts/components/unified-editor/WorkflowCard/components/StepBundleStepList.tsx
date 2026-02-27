@@ -2,6 +2,7 @@
 import { memo } from 'react';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 
 import { useStepActions } from '../contexts/WorkflowCardContext';
 import StepList from './StepList';
@@ -11,8 +12,12 @@ type Props = {
 };
 
 const StepBundleStepList = ({ stepBundleId }: Props) => {
+  const mergedYml = useMergedBitriseYml();
+
   const steps = useBitriseYmlStore(({ yml }) => {
-    return (yml.step_bundles?.[stepBundleId]?.steps ?? []).map((s) => Object.keys(s)[0]);
+    // Fall back to merged step bundles for cross-file reference resolution
+    const stepBundle = yml.step_bundles?.[stepBundleId] ?? mergedYml?.step_bundles?.[stepBundleId];
+    return (stepBundle?.steps ?? []).map((s) => Object.keys(s)[0]);
   });
 
   const { onAddStepToStepBundle, onMoveStepInStepBundle } = useStepActions();

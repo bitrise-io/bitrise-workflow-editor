@@ -14,7 +14,8 @@ type StepBundleListProps = {
 };
 
 const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListProps) => {
-  const stepBundles = useStepBundles((s) => {
+  // Use merged step bundles so all bundles are available for selection
+  const stepBundles = useStepBundles({ withMerged: true }, (s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
         return [id, { steps: stepBundle?.steps, title: stepBundle?.title }];

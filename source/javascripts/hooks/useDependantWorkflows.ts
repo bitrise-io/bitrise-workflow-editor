@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import StepBundleService from '@/core/services/StepBundleService';
 import WorkflowService from '@/core/services/WorkflowService';
+import useMergedBitriseYml from '@/hooks/useMergedBitriseYml';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
@@ -13,10 +14,13 @@ type Props = {
 
 const useDependantWorkflows = (props: Props) => {
   const { workflowId, stepBundleCvs } = props;
+  const mergedYml = useMergedBitriseYml();
 
+  // Use merged workflows for accurate dependency counting across all files
   const workflows = useWorkflows((s) => {
+    const allWorkflows = mergedYml?.workflows ? { ...mergedYml.workflows, ...s } : s;
     return Object.fromEntries(
-      Object.entries(s).map(([id, wf]) => {
+      Object.entries(allWorkflows).map(([id, wf]) => {
         return [
           id,
           {
@@ -29,7 +33,8 @@ const useDependantWorkflows = (props: Props) => {
     );
   });
 
-  const stepBundles = useStepBundles((s) => {
+  // Use merged step bundles for accurate dependency counting
+  const stepBundles = useStepBundles({ withMerged: true }, (s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
         return [id, { steps: stepBundle?.steps }];
