@@ -21,9 +21,12 @@ import {
   initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
 import {
+  buildTreeFromFiles,
   discardAllChanges as discardModularChanges,
   getChangedEditableFiles,
+  getOriginalTree,
   markAllFilesSaved,
+  modularConfigStore,
 } from '@/core/stores/ModularConfigStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -129,10 +132,15 @@ const Header = () => {
         const changedFiles = getChangedEditableFiles();
         if (changedFiles.length === 0) return;
 
+        // Build the full config tree with current contents for merge validation
+        const tree = getOriginalTree();
+        const configTree = tree ? buildTreeFromFiles(modularConfigStore.getState().files, tree) : undefined;
+
         try {
           await ModularConfigApi.saveConfigFiles({
             projectSlug: appSlug,
             files: changedFiles.map((f) => ({ path: f.path, contents: f.currentContents })),
+            configTree,
           });
           markAllFilesSaved();
         } catch (error) {
@@ -159,7 +167,16 @@ const Header = () => {
         version: bitriseYmlStore.getState().version,
       });
     },
-    [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml, isModular, isWebsiteMode, toast],
+    [
+      appSlug,
+      currentPage,
+      save,
+      openUpdateConfigDialog,
+      ciConfigSettings?.usesRepositoryYml,
+      isModular,
+      isWebsiteMode,
+      toast,
+    ],
   );
 
   const onDiscard = () => {

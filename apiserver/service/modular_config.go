@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
+	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/bitrise/v2/configmerge"
 	bitriseLog "github.com/bitrise-io/bitrise/v2/log"
 	"github.com/bitrise-io/bitrise/v2/log/corelog"
@@ -123,6 +124,7 @@ func PostMergeConfigHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // PostConfigFilesHandler saves individual config files to disk.
+// It first merges the provided config tree and validates the merged result.
 // Only accepts files that are within the project directory (security check).
 func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
@@ -142,7 +144,8 @@ func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 		Contents string `json:"contents"`
 	}
 	type RequestModel struct {
-		Files []FileToSave `json:"files"`
+		Files    []FileToSave              `json:"files"`
+		TreeJSON *models.ConfigFileTreeModel `json:"config_tree,omitempty"`
 	}
 
 	var reqObj RequestModel
@@ -155,6 +158,24 @@ func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 	if len(reqObj.Files) == 0 {
 		RespondWithJSONBadRequestErrorMessage(w, "No files to save")
 		return
+	}
+
+	// Validate the merged config if a tree was provided
+	if reqObj.TreeJSON != nil {
+		mergedYml, err := reqObj.TreeJSON.Merge()
+		if err != nil {
+			log.Errorf("Failed to merge config for validation: %s", err)
+			RespondWithJSONBadRequestErrorMessage(w, "Failed to merge config for validation, error: %s", err)
+			return
+		}
+
+		warnings, validationErr := utility.ValidateBitriseConfigAndSecret(mergedYml, config.MinimalValidSecrets)
+		if validationErr != nil {
+			log.Errorf("Validation error: %s", validationErr)
+			RespondWithJSON(w, http.StatusBadRequest, NewErrorResponse("Merged configuration is invalid: %s", validationErr.Error()))
+			return
+		}
+		_ = warnings
 	}
 
 	// The file paths from ConfigFileTreeModel are relative to the working

@@ -26,6 +26,7 @@ type MergeConfigOptions = {
 type SaveConfigFilesOptions = {
   projectSlug: string;
   files: Array<{ path: string; contents: string }>;
+  configTree?: ConfigFileTree;
 };
 
 // API paths
@@ -64,10 +65,10 @@ async function mergeConfig({ projectSlug, tree, signal }: MergeConfigOptions): P
   return response.text();
 }
 
-async function saveConfigFiles({ projectSlug, files }: SaveConfigFilesOptions): Promise<void> {
+async function saveConfigFiles({ projectSlug, files, configTree }: SaveConfigFilesOptions): Promise<void> {
   const path = configFilesPath(projectSlug);
   await Client.post(path, {
-    body: JSON.stringify({ files }),
+    body: JSON.stringify({ files, config_tree: configTree }),
   });
 }
 

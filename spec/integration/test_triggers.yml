@@ -1,11 +1,1 @@
-trigger_map:
-  - type: push
-    workflow: included-wf1
-    push_branch: develop
-  - type: pull_request
-    workflow: included-wf2
-    pull_request_target_branch: main
-    pull_request_source_branch: "feature/*"
-  - type: tag
-    workflow: wf1
-    tag: "v*"
+null

@@ -2,6 +2,4 @@ pipelines:
   included-pipeline:
     workflows:
       included-wf1: {}
-      included-wf2:
-        depends_on:
-          - included-wf1
+      included-wf2: {}

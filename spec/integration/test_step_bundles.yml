@@ -1,5 +1,5 @@
 step_bundles:
-  included-bundle:
+  included_bundle:
     title: Included step bundle
     summary: A step bundle from an included file
     steps:
@@ -13,8 +13,12 @@ step_bundles:
         opts:
           title: Bundle Input
           summary: An input for the included bundle
-  deploy-bundle:
+  deploy_bundle:
     title: Deploy bundle
     summary: Deployment steps bundled together
     steps:
       - deploy-to-bitrise-io@1.7.1: {}
+workflows:
+  testbundl:
+    steps:
+      - bundle::included_bundle: {}
