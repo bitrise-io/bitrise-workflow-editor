@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import ModularConfigApi from '@/core/api/ModularConfigApi';
 import {
@@ -12,73 +12,74 @@ import {
 import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 
-import useModularConfig from './useModularConfig';
-
 const MERGE_DEBOUNCE_MS = 300;
 
+async function doMerge(abortController: AbortController) {
+  const tree = getOriginalTree();
+  if (!tree) return;
+
+  const { files: currentFiles } = modularConfigStore.getState();
+  const updatedTree = buildTreeFromFiles(currentFiles, tree);
+  const projectSlug = PageProps.appSlug();
+
+  setMerging(true);
+
+  try {
+    const mergedYml = await ModularConfigApi.mergeConfig({
+      projectSlug,
+      tree: updatedTree,
+      signal: abortController.signal,
+    });
+
+    if (!abortController.signal.aborted) {
+      updateMergedResult(mergedYml);
+
+      const { activeFileIndex: currentIndex } = modularConfigStore.getState();
+      if (currentIndex === -1) {
+        initializeBitriseYmlDocument({ ymlString: mergedYml, version: '' });
+      }
+    }
+  } catch (error) {
+    if (!abortController.signal.aborted) {
+      setMergeError(error instanceof Error ? error.message : String(error));
+    }
+  }
+}
+
+/**
+ * Subscribes to file content changes in ModularConfigStore and triggers
+ * debounced merge. Uses a Zustand store subscription (not a React effect
+ * on `files`) to avoid re-render loops.
+ */
 export default function useMergeConfig() {
-  const isModular = useModularConfig((s) => s.isModular);
-  const files = useModularConfig((s) => s.files);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const abortRef = useRef<AbortController>();
 
-  const triggerMerge = useCallback(async () => {
-    const tree = getOriginalTree();
-    if (!tree) return;
+  useEffect(() => {
+    // Subscribe to files changes at the store level, outside React rendering
+    const unsub = modularConfigStore.subscribe(
+      (state) => state.files.map((f) => f.currentContents),
+      () => {
+        const { isModular } = modularConfigStore.getState();
+        if (!isModular) return;
 
-    const { files: currentFiles } = modularConfigStore.getState();
-    const updatedTree = buildTreeFromFiles(currentFiles, tree);
-    const projectSlug = PageProps.appSlug();
-
-    // Abort any in-flight merge
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setMerging(true);
-
-    try {
-      const mergedYml = await ModularConfigApi.mergeConfig({
-        projectSlug,
-        tree: updatedTree,
-        signal: controller.signal,
-      });
-
-      if (!controller.signal.aborted) {
-        updateMergedResult(mergedYml);
-
-        // If on merged tab, update BitriseYmlStore to reflect new merge
-        const { activeFileIndex: currentIndex } = modularConfigStore.getState();
-        if (currentIndex === -1) {
-          initializeBitriseYmlDocument({ ymlString: mergedYml, version: '' });
+        if (debounceRef.current) {
+          clearTimeout(debounceRef.current);
         }
-      }
-    } catch (error) {
-      if (!controller.signal.aborted) {
-        setMergeError(error instanceof Error ? error.message : String(error));
-      }
-    }
-  }, []);
 
-  useEffect(() => {
-    if (!isModular) return;
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(triggerMerge, MERGE_DEBOUNCE_MS);
+        debounceRef.current = setTimeout(() => doMerge(controller), MERGE_DEBOUNCE_MS);
+      },
+      {
+        equalityFn: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
+      },
+    );
 
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [isModular, files, triggerMerge]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
+      unsub();
       abortRef.current?.abort();
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);

@@ -1,12 +1,12 @@
 step_bundles:
   included_bundle:
     title: Included step bundle
-    summary: A step bundle from an included file
+    summary: A step bundle from an included file oh nooo
     steps:
       - script@1:
           title: Bundle script
           inputs:
-            - content: echo "Hello from included bundle!"
+            - content: echo "Hello from included bundle! yesss"
       - activate-ssh-key: {}
     inputs:
       - bundle_input: default_value

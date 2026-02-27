@@ -101,10 +101,15 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
 
   const doc = bitriseYmlStore.getState().ymlDocument.clone();
 
-  bitriseYmlStore.setState({
-    ymlDocument: mutator({ doc }),
-    __invalidYmlString: undefined,
-  });
+  try {
+    bitriseYmlStore.setState({
+      ymlDocument: mutator({ doc }),
+      __invalidYmlString: undefined,
+    });
+  } catch {
+    // In modular mode, mutations may target entities from other files that
+    // don't exist in the active file's document. Silently ignore these.
+  }
 }
 
 // Read-only mode flag for modular merged tab

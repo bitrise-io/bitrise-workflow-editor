@@ -6,4 +6,4 @@ app:
     - API_URL: https://api.example.com
       opts:
         is_expand: true
-        is_sensitive: true
+        is_sensitive: false

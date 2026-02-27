@@ -2,22 +2,22 @@ format_version: "11"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
 include:
-  - path: spec/integration/test_workflows.yml
-  - path: spec/integration/test_pipelines.yml
-  - path: spec/integration/test_step_bundles.yml
-  - path: spec/integration/test_triggers.yml
-  - path: spec/integration/test_envs.yml
+- path: spec/integration/test_workflows.yml
+- path: spec/integration/test_pipelines.yml
+- path: spec/integration/test_step_bundles.yml
+- path: spec/integration/test_triggers.yml
+- path: spec/integration/test_envs.yml
 containers:
   golang:
     type: execution
-    image: golang:1.22
+    image: golang:1.23
   node:
     type: execution
     image: node:20-alpine
     env:
-      - NODE_ENV=test
+    - NODE_ENV=test
 
 workflows:
   include_a_bundle:
     steps:
-      - bundle::included_bundle:
+    - bundle::included_bundle:

@@ -107,12 +107,59 @@ export function buildTreeFromFiles(files: ConfigFileEntry[], originalTree: Confi
 let originalTree: ConfigFileTree | undefined;
 let _isSwitchingTabs = false;
 
+let _isLocalMode = false;
+
 export function getOriginalTree(): ConfigFileTree | undefined {
   return originalTree;
 }
 
+/**
+ * Refresh the file list from a new config tree (e.g. when includes change).
+ * Preserves unsaved changes for files that still exist in the new tree.
+ */
+export function refreshModularConfig(newTree: ConfigFileTree) {
+  const state = modularConfigStore.getState();
+  const oldFiles = state.files;
+
+  // Build a map of unsaved changes from the old file list
+  const unsavedChanges = new Map<string, string>();
+  oldFiles.forEach((f) => {
+    if (f.currentContents !== f.savedContents) {
+      unsavedChanges.set(f.path, f.currentContents);
+    }
+  });
+
+  originalTree = newTree;
+  const newFiles = flattenTree(newTree, _isLocalMode);
+
+  // Restore unsaved changes for files that still exist
+  const mergedFiles = newFiles.map((f) => {
+    const unsaved = unsavedChanges.get(f.path);
+    if (unsaved !== undefined) {
+      return { ...f, currentContents: unsaved };
+    }
+    return f;
+  });
+
+  // If the active tab's file no longer exists, switch to merged tab
+  let { activeFileIndex } = state;
+  if (activeFileIndex >= 0) {
+    const activeFilePath = oldFiles[activeFileIndex]?.path;
+    const newIndex = mergedFiles.findIndex((f) => f.path === activeFilePath);
+    if (newIndex < 0) {
+      activeFileIndex = -1;
+      setReadOnlyMode(true);
+    } else {
+      activeFileIndex = newIndex;
+    }
+  }
+
+  modularConfigStore.setState({ files: mergedFiles, activeFileIndex });
+}
+
 export function initializeModularConfig(tree: ConfigFileTree, isLocalMode: boolean) {
   originalTree = tree;
+  _isLocalMode = isLocalMode;
   const files = flattenTree(tree, isLocalMode);
 
   modularConfigStore.setState({
@@ -259,6 +306,30 @@ setSyncToModularConfig((ymlString: string) => {
   if (!isModular || activeFileIndex < 0) return;
   updateFileContents(activeFileIndex, ymlString);
 });
+
+// --- Entity ownership ---
+
+/**
+ * Check if an entity exists in the active file (not just in merged state).
+ * Returns true when not in modular mode (everything is editable).
+ */
+export function isEntityInActiveFile(section: string, entityId: string): boolean {
+  const { isModular, activeFileIndex, files } = modularConfigStore.getState();
+  if (!isModular || activeFileIndex < 0) return true;
+
+  const file = files[activeFileIndex];
+  if (!file) return false;
+
+  try {
+    const doc = YmlUtils.toDoc(file.currentContents);
+    if (doc.errors.length > 0) return false;
+    const parsed = YmlUtils.toJSON(doc) as unknown as Record<string, Record<string, unknown> | undefined>;
+    const sectionData = parsed[section];
+    return sectionData != null && entityId in sectionData;
+  } catch {
+    return false;
+  }
+}
 
 // Derived state helpers
 
