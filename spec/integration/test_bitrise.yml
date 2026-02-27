@@ -194,7 +194,7 @@ workflows:
             - company_name: Mando
           execution_container:
             golang:
-              recreate: true 
+              recreate: true
           service_containers:
           - redis
   steplib-steps:

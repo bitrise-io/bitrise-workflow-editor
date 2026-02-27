@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useNavigation from '@/hooks/useNavigation';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
@@ -19,8 +20,9 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   }));
 
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
-
   const { replace } = useNavigation();
+
+  const enableContainers = useFeatureFlag('enable-wfe-containers-page');
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
   let subtitle: ReactNode = usedIn;
@@ -56,6 +58,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
         <Tab>Properties</Tab>
+        {enableContainers && <Tab>Containers</Tab>}
       </TabList>
     </>
   );

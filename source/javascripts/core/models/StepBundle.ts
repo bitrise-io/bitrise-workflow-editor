@@ -11,4 +11,6 @@ export const STEP_BUNDLE_KEYS = [
   'steps',
   'is_always_run',
   'run_if',
+  'execution_container',
+  'service_containers',
 ] as const satisfies readonly (keyof StepBundleModel)[];

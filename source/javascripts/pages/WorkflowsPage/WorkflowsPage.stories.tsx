@@ -1,6 +1,7 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
+import { stringify } from 'yaml';
 
 import {
   getCertificates,
@@ -11,6 +12,7 @@ import {
 import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import WorkflowsPage from './WorkflowsPage';
 
@@ -101,6 +103,43 @@ export const LegacyDedicated: Story = {
 export const SelfHostedRunner: Story = {
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
+  },
+};
+
+export const NoContainerDefinitions: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'containers', {});
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const WithContainerDefinitions: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'containers', {
+        golang: {
+          type: 'execution',
+          image: 'golang:1.22',
+        },
+        redis: {
+          type: 'service',
+          image: 'redis:latest',
+          ports: ['6379:6379'],
+          options: '--health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5',
+        },
+        mongodb: {
+          type: 'service',
+          image: 'mongo:7',
+          ports: ['27017:27017'],
+          env: ['MONGO_INITDB_ROOT_USERNAME=admin', 'MONGO_INITDB_ROOT_PASSWORD=password'],
+          options:
+            '--health-cmd "mongosh --eval \'db.adminCommand({ping:1})\'" --health-interval 10s --health-timeout 5s --health-retries 5',
+        },
+      });
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
   },
 };
 
