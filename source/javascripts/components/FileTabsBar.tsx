@@ -6,7 +6,6 @@ import { setActiveFileIndex } from '@/core/stores/ModularConfigStore';
 import useModularConfig from '@/hooks/useModularConfig';
 
 function shortenPath(path: string): string {
-  // Remove repo/branch suffixes from configmerge-style keys like "file.yml@branch:main"
   const atIndex = path.indexOf('@');
   if (atIndex > 0) {
     return path.substring(0, atIndex);
@@ -18,7 +17,6 @@ const FileTabsBar = () => {
   const { isModular, activeFileIndex, files, isMerging } = useModularConfig();
 
   const tabIndex = useMemo(() => {
-    // Tab 0 = merged, Tab 1..N = individual files
     return activeFileIndex + 1;
   }, [activeFileIndex]);
 
@@ -27,7 +25,7 @@ const FileTabsBar = () => {
   }
 
   const handleTabChange = (index: number) => {
-    const fileIndex = index - 1; // -1 for merged tab
+    const fileIndex = index - 1;
     const version = bitriseYmlStore.getState().version;
     setActiveFileIndex(fileIndex, version);
   };

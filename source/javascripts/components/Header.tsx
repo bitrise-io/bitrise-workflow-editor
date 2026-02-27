@@ -123,16 +123,13 @@ const Header = () => {
 
       if (isModular) {
         if (isWebsiteMode) {
-          // Web mode + modular: open extended update dialog
           openUpdateConfigDialog();
           return;
         }
 
-        // Local mode + modular: save changed local files directly
         const changedFiles = getChangedEditableFiles();
         if (changedFiles.length === 0) return;
 
-        // Build the full config tree with current contents for merge validation
         const tree = getOriginalTree();
         const configTree = tree ? buildTreeFromFiles(modularConfigStore.getState().files, tree) : undefined;
 

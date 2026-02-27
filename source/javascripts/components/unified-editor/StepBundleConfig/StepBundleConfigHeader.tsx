@@ -25,7 +25,6 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const { replace } = useNavigation();
 
   const handleEditDefinition = useCallback(() => {
-    // Switch to the file tab that contains this step bundle
     const { isModular } = modularConfigStore.getState();
     if (isModular && stepBundleId) {
       const fileIndex = findFileIndexForEntity('step_bundles', stepBundleId);

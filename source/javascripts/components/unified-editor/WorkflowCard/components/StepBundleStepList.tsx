@@ -15,7 +15,6 @@ const StepBundleStepList = ({ stepBundleId }: Props) => {
   const mergedYml = useMergedBitriseYml();
 
   const steps = useBitriseYmlStore(({ yml }) => {
-    // Fall back to merged step bundles for cross-file reference resolution
     const stepBundle = yml.step_bundles?.[stepBundleId] ?? mergedYml?.step_bundles?.[stepBundleId];
     return (stepBundle?.steps ?? []).map((s) => Object.keys(s)[0]);
   });

@@ -46,7 +46,6 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
 const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const { droppableContainers } = useDndContext();
   const mergedYml = useMergedBitriseYml();
-  // Include merged workflow IDs so cross-file chained workflows are recognized as valid
   const activeWorkflowIds = useWorkflows((s) => Object.keys(s));
   const mergedWorkflowIds = mergedYml?.workflows ? Object.keys(mergedYml.workflows) : [];
   const workflowIds = [...new Set([...activeWorkflowIds, ...mergedWorkflowIds])];
@@ -57,7 +56,6 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
   const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
-    // Fall back to merged workflows for cross-file references
     const workflow = yml.workflows?.[parentWorkflowId] ?? mergedYml?.workflows?.[parentWorkflowId];
     const chainedWorkflowIds = workflow?.[placement] ?? [];
     return chainedWorkflowIds.filter((id) => workflowIds.includes(id));

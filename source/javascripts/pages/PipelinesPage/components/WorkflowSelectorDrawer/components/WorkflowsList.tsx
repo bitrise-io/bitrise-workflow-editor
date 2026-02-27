@@ -18,7 +18,6 @@ type Props = {
 const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const [search, setSearch] = useState('');
   const mergedYml = useMergedBitriseYml();
-  // Use merged workflows so all workflows are available for pipeline assignment
   const activeWorkflows = useWorkflows((s) => Object.keys(s));
   const mergedWorkflowIds = mergedYml?.workflows ? Object.keys(mergedYml.workflows) : [];
   const allWorkflowIds = [...new Set([...activeWorkflows, ...mergedWorkflowIds])];

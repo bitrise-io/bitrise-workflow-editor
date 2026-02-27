@@ -117,24 +117,19 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       setTimeout(preloadRoutes, 1000);
       isLoaded.current = true;
 
-      // Check for modular config (includes)
       const checkModular = async () => {
         try {
           const isWebMode = RuntimeUtils.isWebsiteMode();
           const projectSlug = PageProps.appSlug();
 
-          // Determine if we should look for modular config
           let shouldFetchModular = false;
 
           if (isWebMode) {
-            // Web mode: check settings for split config + repo yml
             shouldFetchModular = !!(ciConfigSettings?.isYmlSplit && ciConfigSettings?.usesRepositoryYml);
           } else {
-            // Local mode: parse the YAML to check for include key
             try {
               const parsed = JSON.parse(
                 JSON.stringify(
-                  // Quick check: does the YAML string contain 'include:'?
                   data.ymlString.includes('include:') ? { hasInclude: true } : { hasInclude: false },
                 ),
               );
@@ -146,25 +141,20 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
           if (!shouldFetchModular) return;
 
-          // Fetch the config file tree
           const tree = await ModularConfigApi.getConfigFiles({ projectSlug });
 
-          // Only activate modular mode if there are actual includes
           if (tree.includes && tree.includes.length > 0) {
             const isLocalMode = RuntimeUtils.isLocalMode();
             initializeModularConfig(tree, isLocalMode);
 
-            // Compute initial merge
             const mergedYml = await ModularConfigApi.mergeConfig({ projectSlug, tree });
             updateMergedResult(mergedYml);
 
-            // Default to merged tab: load merged YAML into BitriseYmlStore
             initializeBitriseYmlDocument({ ymlString: mergedYml, version: data.version });
           }
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error('Failed to load modular config:', err);
-          // Fall back to single-file mode - already initialized above
         }
       };
 

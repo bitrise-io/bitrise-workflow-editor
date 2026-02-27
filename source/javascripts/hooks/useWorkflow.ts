@@ -6,7 +6,6 @@ function useWorkflow<U = Workflow | undefined>(id: string, selector?: (state: Wo
   const mergedYml = useMergedBitriseYml();
 
   return useBitriseYmlStore(({ yml }) => {
-    // Try the active file first, fall back to merged for cross-file references
     const userValues = yml.workflows?.[id] ?? mergedYml?.workflows?.[id];
     const workflow = userValues ? { id, userValues } : undefined;
 

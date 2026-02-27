@@ -13,7 +13,6 @@ const usePipelineStages = (): Stage[] => {
 
   return useBitriseYmlStore(({ yml }) => {
     const pipelineStages: PipelineStages = yml.pipelines?.[selectedPipeline]?.stages ?? [];
-    // Fall back to merged stages for cross-file reference resolution
     const stages = mergedYml?.stages ? { ...mergedYml.stages, ...(yml.stages || {}) } : yml.stages || {};
 
     return pipelineStages.map((pipelineStageObj) => {

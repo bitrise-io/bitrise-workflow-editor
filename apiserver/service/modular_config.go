@@ -18,8 +18,6 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-// nopLogger implements bitriseLog.Logger with no-op methods
-// so we can use configmerge without a full bitrise logger
 type nopLogger struct{}
 
 var _ bitriseLog.Logger = nopLogger{}
@@ -41,8 +39,6 @@ func (l nopLogger) PrintBitriseStartedEvent(plan models.WorkflowRunPlan)      {}
 func (l nopLogger) PrintStepStartedEvent(params bitriseLog.StepStartedParams) {}
 func (l nopLogger) PrintStepFinishedEvent(params bitriseLog.StepFinishedParams) {}
 
-// GetConfigFilesHandler returns the config file tree with individual file contents.
-// If the root bitrise.yml has no includes, returns a single-file tree.
 func GetConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
 	if err != nil {
@@ -51,16 +47,13 @@ func GetConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the config has includes
 	isModular, err := configmerge.IsModularConfig(config.BitriseYMLPath)
 	if err != nil {
 		log.Warnf("Failed to check if config is modular: %s", err)
-		// Fall through - treat as non-modular
 		isModular = false
 	}
 
 	if !isModular {
-		// Return a simple single-file tree
 		tree := models.ConfigFileTreeModel{
 			Path:     filepath.Base(config.BitriseYMLPath),
 			Contents: contStr,
@@ -69,7 +62,6 @@ func GetConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Build the full config tree using configmerge
 	configReader, err := configmerge.NewConfigReader(nopLogger{})
 	if err != nil {
 		log.Errorf("Failed to create config reader: %s", err)
@@ -88,7 +80,6 @@ func GetConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 	RespondWithJSON(w, http.StatusOK, configTree)
 }
 
-// PostMergeConfigHandler accepts a ConfigFileTreeModel and returns the merged YAML.
 func PostMergeConfigHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		log.Errorf("Empty request body")
@@ -123,9 +114,6 @@ func PostMergeConfigHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// PostConfigFilesHandler saves individual config files to disk.
-// It first merges the provided config tree and validates the merged result.
-// Only accepts files that are within the project directory (security check).
 func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		log.Errorf("Empty request body")
@@ -160,7 +148,6 @@ func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate the merged config if a tree was provided
 	if reqObj.TreeJSON != nil {
 		mergedYml, err := reqObj.TreeJSON.Merge()
 		if err != nil {
@@ -178,9 +165,6 @@ func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 		_ = warnings
 	}
 
-	// The file paths from ConfigFileTreeModel are relative to the working
-	// directory (that's how configmerge resolves them), so we resolve from
-	// CWD as well. The security check ensures they don't escape the CWD.
 	absCwd, err := filepath.Abs(".")
 	if err != nil {
 		log.Errorf("Failed to resolve working directory: %s", err)
@@ -189,7 +173,6 @@ func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, file := range reqObj.Files {
-		// Resolve the file path relative to CWD (matching configmerge behaviour)
 		absFilePath, err := filepath.Abs(file.Path)
 		if err != nil {
 			log.Errorf("Failed to resolve file path (%s): %s", file.Path, err)
@@ -197,14 +180,12 @@ func PostConfigFilesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Security: ensure the file path is within the working directory
 		if !strings.HasPrefix(absFilePath, absCwd+string(os.PathSeparator)) && absFilePath != absCwd {
 			log.Errorf("File path (%s) is outside the project directory", file.Path)
 			RespondWithJSONBadRequestErrorMessage(w, "File path (%s) is outside the project directory", file.Path)
 			return
 		}
 
-		// Ensure parent directory exists
 		parentDir := filepath.Dir(absFilePath)
 		if err := os.MkdirAll(parentDir, 0755); err != nil {
 			log.Errorf("Failed to create parent directory for %s: %s", file.Path, err)

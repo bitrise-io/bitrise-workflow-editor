@@ -16,7 +16,6 @@ const useDependantWorkflows = (props: Props) => {
   const { workflowId, stepBundleCvs } = props;
   const mergedYml = useMergedBitriseYml();
 
-  // Use merged workflows for accurate dependency counting across all files
   const workflows = useWorkflows((s) => {
     const allWorkflows = mergedYml?.workflows ? { ...mergedYml.workflows, ...s } : s;
     return Object.fromEntries(
@@ -33,7 +32,6 @@ const useDependantWorkflows = (props: Props) => {
     );
   });
 
-  // Use merged step bundles for accurate dependency counting
   const stepBundles = useStepBundles({ withMerged: true }, (s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {

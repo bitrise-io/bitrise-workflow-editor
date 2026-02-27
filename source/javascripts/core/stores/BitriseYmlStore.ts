@@ -96,7 +96,6 @@ export function initializeBitriseYmlDocument({ ymlString, version }: { ymlString
 }
 
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
-  // In modular mode on merged tab, mutations are no-ops (read-only preview)
   if (_isReadOnlyMode) return;
 
   const doc = bitriseYmlStore.getState().ymlDocument.clone();
@@ -107,12 +106,9 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
       __invalidYmlString: undefined,
     });
   } catch {
-    // In modular mode, mutations may target entities from other files that
-    // don't exist in the active file's document. Silently ignore these.
   }
 }
 
-// Read-only mode flag for modular merged tab
 let _isReadOnlyMode = false;
 
 export function setReadOnlyMode(isReadOnly: boolean) {
@@ -143,8 +139,6 @@ bitriseYmlStore.subscribe(
   },
 );
 
-// Sync BitriseYmlStore changes back to ModularConfigStore active file.
-// This is called from a lazy-loaded function to avoid circular imports.
 let _syncToModularConfig: ((ymlString: string) => void) | undefined;
 
 export function setSyncToModularConfig(fn: (ymlString: string) => void) {

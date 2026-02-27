@@ -25,7 +25,6 @@ const useStepBundle = (props: Props) => {
 
   return useBitriseYmlStore(({ yml }) => {
     const { stepBundleId, parentWorkflowId, parentStepBundleId, stepIndex } = props;
-    // Combine active file + merged step bundles for cross-file resolution
     const allStepBundles = mergedYml?.step_bundles
       ? { ...mergedYml.step_bundles, ...(yml.step_bundles || {}) }
       : yml.step_bundles || {};
@@ -41,7 +40,6 @@ const useStepBundle = (props: Props) => {
     let stepListItemModel = undefined;
 
     if (parentWorkflowId) {
-      // Also check merged workflows for cross-file reference
       const workflows = mergedYml?.workflows
         ? { ...mergedYml.workflows, ...(yml.workflows || {}) }
         : yml.workflows || {};

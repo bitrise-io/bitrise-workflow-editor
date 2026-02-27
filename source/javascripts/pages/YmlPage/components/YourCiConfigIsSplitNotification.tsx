@@ -14,7 +14,6 @@ const YourCiConfigIsSplitNotification = () => {
     Boolean(ymlSettings && ymlSettings.isYmlSplit && ymlSettings.usesRepositoryYml),
   );
 
-  // Hide this notification when modular file tabs are visible
   if (isModular) {
     return null;
   }

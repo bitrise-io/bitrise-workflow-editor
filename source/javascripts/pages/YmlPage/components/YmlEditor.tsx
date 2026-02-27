@@ -34,11 +34,9 @@ const YmlEditor = () => {
     }
 
     if (isModular && activeFileIndex >= 0) {
-      // Update the file in ModularConfigStore
       updateFileContents(activeFileIndex, modifiedYmlString);
     }
 
-    // Always update BitriseYmlStore so visual pages reflect changes
     updateBitriseYmlDocumentByString(modifiedYmlString);
   };
 
@@ -46,21 +44,17 @@ const YmlEditor = () => {
     monacoEditorRef.current = editor;
   };
 
-  // Determine read-only state
   let isReadOnly: boolean | undefined = isLoadingSetting;
   if (isModular) {
     if (activeFileIndex === -1) {
-      // Merged tab is always read-only
       isReadOnly = true;
     } else if (activeFile?.isReadOnly) {
-      // Git-repo files are read-only
       isReadOnly = true;
     }
   } else if (ymlSettings?.usesRepositoryYml) {
     isReadOnly = true;
   }
 
-  // Determine the editor content
   const editorValue = isModular
     ? activeFileIndex === -1
       ? modularConfigStore.getState().mergedYmlString

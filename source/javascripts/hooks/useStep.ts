@@ -23,12 +23,10 @@ function useStepFromYml(props: UseStepProps): YmlStepResult {
 
     if (props.workflowId) {
       const { workflowId, stepIndex } = props;
-      // Fall back to merged workflows for cross-file references
       const workflow = yml.workflows?.[workflowId] ?? mergedYml?.workflows?.[workflowId];
       stepObjectFromYml = workflow?.steps?.[stepIndex];
     } else if (props.stepBundleId) {
       const { stepBundleId, stepIndex } = props;
-      // Fall back to merged step bundles for cross-file references
       const stepBundle = yml.step_bundles?.[stepBundleId] ?? mergedYml?.step_bundles?.[stepBundleId];
       stepObjectFromYml = stepBundle?.steps?.[stepIndex];
     }

@@ -29,7 +29,6 @@ type SaveConfigFilesOptions = {
   configTree?: ConfigFileTree;
 };
 
-// API paths
 const WEB_CONFIG_FILES_PATH = '/api/app/:projectSlug/config-files';
 const LOCAL_CONFIG_FILES_PATH = '/api/config-files';
 const LOCAL_MERGE_CONFIG_PATH = '/api/merge-config';

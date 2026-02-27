@@ -46,17 +46,11 @@ async function doMerge(abortController: AbortController) {
   }
 }
 
-/**
- * Subscribes to file content changes in ModularConfigStore and triggers
- * debounced merge. Uses a Zustand store subscription (not a React effect
- * on `files`) to avoid re-render loops.
- */
 export default function useMergeConfig() {
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const abortRef = useRef<AbortController>();
 
   useEffect(() => {
-    // Subscribe to files changes at the store level, outside React rendering
     const unsub = modularConfigStore.subscribe(
       (state) => state.files.map((f) => f.currentContents),
       () => {
