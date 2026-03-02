@@ -99,9 +99,15 @@ export const Error: Story = {
 export const WithStepLimit: Story = withStepLimit(Default);
 
 export const OnlyBitriseSteps: Story = {
-  beforeEach: () => {
+  beforeEach: (context) => {
+    context.originalAllowNonBitriseSteps = window.parent?.pageProps?.limits?.allowNonBitriseSteps;
     set(window, 'parent.pageProps.limits.allowNonBitriseSteps', false);
     initializeSearchDefaults();
+  },
+  afterEach: (context) => {
+    if (context.originalAllowNonBitriseSteps !== undefined) {
+      set(window, 'parent.pageProps.limits.allowNonBitriseSteps', context.originalAllowNonBitriseSteps);
+    }
   },
   parameters: {
     msw: {
