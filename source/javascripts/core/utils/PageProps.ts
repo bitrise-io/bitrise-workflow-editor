@@ -3,13 +3,7 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import RuntimeUtils from './RuntimeUtils';
 
 function pageProps() {
-  return (
-    WindowUtils.instance().pageProps ?? {
-      limits: {
-        allowNonBitriseSteps: false,
-      },
-    }
-  );
+  return WindowUtils.instance().pageProps;
 }
 
 function app() {
