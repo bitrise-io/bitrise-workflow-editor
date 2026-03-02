@@ -105,7 +105,7 @@ export const OnlyBitriseSteps: Story = {
     initializeSearchDefaults();
   },
   afterEach: (context) => {
-    if (context.originalAllowNonBitriseSteps !== undefined) {
+    if ('originalAllowNonBitriseSteps' in context) {
       set(window, 'parent.pageProps.limits.allowNonBitriseSteps', context.originalAllowNonBitriseSteps);
     }
   },
