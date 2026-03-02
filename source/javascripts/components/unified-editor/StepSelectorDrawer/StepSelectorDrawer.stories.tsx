@@ -100,8 +100,13 @@ export const WithStepLimit: Story = withStepLimit(Default);
 
 export const OnlyBitriseSteps: Story = {
   beforeEach: () => {
+    const original = window.parent?.pageProps?.limits?.allowNonBitriseSteps;
     set(window, 'parent.pageProps.limits.allowNonBitriseSteps', false);
     initializeSearchDefaults();
+    return () => {
+      set(window, 'parent.pageProps.limits.allowNonBitriseSteps', original);
+      initializeSearchDefaults();
+    };
   },
   parameters: {
     msw: {
