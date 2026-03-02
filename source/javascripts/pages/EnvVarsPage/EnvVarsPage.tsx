@@ -2,6 +2,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
 
+import ContainersTab from './tabs/ContainersTab';
 import ProjectTab from './tabs/ProjectTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
 
@@ -16,6 +17,7 @@ const EnvVarsPage = () => {
       <TabList px="16">
         <Tab>Project</Tab>
         <Tab>Workflows</Tab>
+        <Tab>Containers</Tab>
       </TabList>
       <TabPanels>
         <TabPanel>
@@ -23,6 +25,9 @@ const EnvVarsPage = () => {
         </TabPanel>
         <TabPanel>
           <WorkflowsTab />
+        </TabPanel>
+        <TabPanel>
+          <ContainersTab />
         </TabPanel>
       </TabPanels>
     </Tabs>

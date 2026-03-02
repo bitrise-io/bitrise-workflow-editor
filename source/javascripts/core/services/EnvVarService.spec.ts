@@ -1247,4 +1247,270 @@ describe('EnvVarService', () => {
       });
     });
   });
+
+  describe('container-level envs', () => {
+    describe('getAll', () => {
+      it('returns all env_vars from a specific container', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin
+                - POSTGRES_PASSWORD: secret
+                  opts:
+                    is_expand: false
+              redis:
+                type: service
+                image: redis:7
+                envs:
+                - REDIS_PORT: 6379`,
+        );
+
+        const result = EnvVarService.getAll(EnvVarSource.Containers, 'postgres');
+        expect(result).toEqual([
+          { key: 'POSTGRES_USER', value: 'admin', source: 'Container: postgres' },
+          { key: 'POSTGRES_PASSWORD', value: 'secret', source: 'Container: postgres', isExpand: false },
+        ]);
+      });
+
+      it('returns all env_vars from all containers', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin
+              redis:
+                type: service
+                image: redis:7
+                envs:
+                - REDIS_PORT: 6379`,
+        );
+
+        const result = EnvVarService.getAll(EnvVarSource.Containers, '*');
+        expect(result).toEqual([
+          { key: 'POSTGRES_USER', value: 'admin', source: 'Container: postgres' },
+          { key: 'REDIS_PORT', value: '6379', source: 'Container: redis' },
+        ]);
+      });
+
+      it('throws an error when container is not found', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16`,
+        );
+
+        expect(() => {
+          EnvVarService.getAll(EnvVarSource.Containers, 'nonexistent');
+        }).toThrow(`Container 'nonexistent' not found. Ensure that the container exists in the 'containers' section.`);
+      });
+    });
+
+    describe('create', () => {
+      it('creates an empty env_var at the end of containers.[id].envs', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin`,
+        );
+
+        EnvVarService.create({ source: EnvVarSource.Containers, sourceId: 'postgres' });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+              envs:
+              - POSTGRES_USER: admin
+              - "": ""
+                opts:
+                  is_expand: false
+        `);
+      });
+
+      it('creates containers.[id].envs when it does not exist', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16`,
+        );
+
+        EnvVarService.create({ source: EnvVarSource.Containers, sourceId: 'postgres' });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+              envs:
+              - "": ""
+                opts:
+                  is_expand: false
+        `);
+      });
+
+      it('throws an error when container is not found', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16`,
+        );
+
+        expect(() => {
+          EnvVarService.create({ source: EnvVarSource.Containers, sourceId: 'nonexistent' });
+        }).toThrow(`Container 'nonexistent' not found. Ensure that the container exists in the 'containers' section.`);
+      });
+    });
+
+    describe('remove', () => {
+      it('removes an env_var from containers.[id].envs', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin
+                - POSTGRES_PASSWORD: secret`,
+        );
+
+        EnvVarService.remove({ source: EnvVarSource.Containers, sourceId: 'postgres', index: 0 });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+              envs:
+              - POSTGRES_PASSWORD: secret
+        `);
+      });
+
+      it('removes the last env_var from containers.[id].envs', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin`,
+        );
+
+        EnvVarService.remove({ source: EnvVarSource.Containers, sourceId: 'postgres', index: 0 });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+        `);
+      });
+    });
+
+    describe('updateKey', () => {
+      it('updates the key of an env_var in containers.[id].envs', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin`,
+        );
+
+        EnvVarService.updateKey('DB_USER', {
+          source: EnvVarSource.Containers,
+          sourceId: 'postgres',
+          index: 0,
+          oldKey: 'POSTGRES_USER',
+        });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+              envs:
+              - DB_USER: admin
+        `);
+      });
+    });
+
+    describe('updateValue', () => {
+      it('updates the value of an env_var in containers.[id].envs', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin`,
+        );
+
+        EnvVarService.updateValue('root', {
+          source: EnvVarSource.Containers,
+          sourceId: 'postgres',
+          index: 0,
+          key: 'POSTGRES_USER',
+        });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+              envs:
+              - POSTGRES_USER: root
+        `);
+      });
+    });
+
+    describe('updateIsExpand', () => {
+      it('updates the isExpand property of an env_var in containers.[id].envs', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            containers:
+              postgres:
+                type: service
+                image: postgres:16
+                envs:
+                - POSTGRES_USER: admin`,
+        );
+
+        EnvVarService.updateIsExpand(false, { source: EnvVarSource.Containers, sourceId: 'postgres', index: 0 });
+
+        expect(getYmlString()).toEqual(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:16
+              envs:
+              - POSTGRES_USER: admin
+                opts:
+                  is_expand: false
+        `);
+      });
+    });
+  });
 });
