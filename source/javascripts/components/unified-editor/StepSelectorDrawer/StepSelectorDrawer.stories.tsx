@@ -2,7 +2,9 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { useState } from 'react';
 
+import { initializeSearchDefaults } from '@/components/unified-editor/StepSelectorDrawer/hooks/useSearch';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
+import { Maintainer } from '@/core/models/Step';
 
 import StepSelectorDrawer from './StepSelectorDrawer';
 
@@ -95,3 +97,20 @@ export const Error: Story = {
 };
 
 export const WithStepLimit: Story = withStepLimit(Default);
+
+export const OnlyBitriseSteps: Story = {
+  beforeEach: () => {
+    const original = window.parent?.pageProps?.limits?.allowNonBitriseSteps;
+    set(window, 'parent.pageProps.limits.allowNonBitriseSteps', false);
+    initializeSearchDefaults();
+    return () => {
+      set(window, 'parent.pageProps.limits.allowNonBitriseSteps', original);
+      initializeSearchDefaults();
+    };
+  },
+  parameters: {
+    msw: {
+      handlers: [StepApiMocks.getAlgoliaSteps({ status: 'success', maintainers: [Maintainer.Bitrise] })],
+    },
+  },
+};
