@@ -3,13 +3,7 @@ import { Button, EmptyState } from '@bitrise/bitkit';
 import useSearch from '../hooks/useSearch';
 
 const AlgoliaStepListEmptyState = () => {
-  const setSearchStep = useSearch((s) => s.setSearchStep);
-  const setSearchStepCategories = useSearch((s) => s.setSearchStepCategories);
-
-  const handleClearButtonClick = () => {
-    setSearchStep('');
-    setSearchStepCategories([]);
-  };
+  const resetSearch = useSearch((s) => s.reset);
 
   return (
     <EmptyState
@@ -18,7 +12,7 @@ const AlgoliaStepListEmptyState = () => {
       title="No Steps are matching your filter"
       description="Modify your filters to get results."
     >
-      <Button variant="secondary" onClick={handleClearButtonClick}>
+      <Button variant="secondary" onClick={resetSearch}>
         Clear filters
       </Button>
     </EmptyState>

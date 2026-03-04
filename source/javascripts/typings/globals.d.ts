@@ -41,6 +41,7 @@ declare global {
         uniqueStepLimit?: number;
         isPipelinesAvailable?: boolean;
         isRepositoryYmlAvailable?: boolean;
+        allowNonBitriseSteps?: boolean;
       };
       project?: {
         slug: string;

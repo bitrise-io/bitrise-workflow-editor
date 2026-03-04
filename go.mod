@@ -38,7 +38,7 @@ require (
 	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 // indirect
 	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.23
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
 	github.com/daaku/go.zipexe v1.0.2 // indirect

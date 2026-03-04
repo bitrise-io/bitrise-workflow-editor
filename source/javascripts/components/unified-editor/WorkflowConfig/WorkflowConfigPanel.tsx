@@ -42,6 +42,7 @@ const WorkflowConfigPanelContent = () => {
       borderColor="border/regular"
       index={tabIndex}
       onChange={onTabChange}
+      data-intercom-target="Workflow Config Panel"
     >
       <WorkflowConfigHeader variant="panel" context="workflow" />
       <TabPanels flex="1" minH="0">
