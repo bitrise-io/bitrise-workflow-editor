@@ -155,6 +155,10 @@ function removeContainerReference(
     YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Service, '*'], containerId, []);
     YmlUtils.deleteByPath(yamlMap, [ContainerReferenceField.Service, '*', containerId], []);
 
+    if (yamlMap.items.length === 0) {
+      yamlMap.flow = true;
+    }
+
     return doc;
   });
 }
