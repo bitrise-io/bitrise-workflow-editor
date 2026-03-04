@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, YAMLMap } from 'yaml';
+import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
@@ -155,10 +155,6 @@ function removeContainerReference(
     YmlUtils.deleteByValue(yamlMap, [ContainerReferenceField.Service, '*'], containerId, []);
     YmlUtils.deleteByPath(yamlMap, [ContainerReferenceField.Service, '*', containerId], []);
 
-    if (yamlMap.items.length === 0) {
-      yamlMap.flow = true;
-    }
-
     return doc;
   });
 }
@@ -193,11 +189,11 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
   if (type === ContainerType.Execution) {
     const node = yamlMap.get(ContainerReferenceField.Execution);
 
-    if (!node) {
+    if (!node || (!isMap(node) && !isScalar(node))) {
       return undefined;
     }
 
-    const value = isMap(node) ? node.toJSON() : node;
+    const value = isMap(node) ? node.toJSON() : node.value;
     return [parseContainerReference(value)];
   }
 
@@ -226,12 +222,10 @@ function getContainerReferenceFromInstance(
   type: ContainerType,
   doc: Document,
 ) {
-  let yamlMap;
   if (source === 'step_bundles' && stepIndex === -1) {
-    yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
-  } else {
-    yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+    return getContainerReferencesFromStepBundleDefinition(sourceId, type, doc);
   }
+  const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
   return getContainerReferences(type, yamlMap);
 }
 
@@ -375,20 +369,18 @@ function updateContainerReferenceRecreate(
 
     const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
 
-    const hasExecution = yamlMap.has(ContainerReferenceField.Execution);
-    const hasService = yamlMap.has(ContainerReferenceField.Service);
-    if (!hasExecution && !hasService) {
-      const context = stepIndex === -1 ? `in step bundle '${sourceId}'` : `on step at index ${stepIndex}`;
-      throw new Error(`No container reference found for '${containerId}' ${context}`);
+    const container = getContainerOrThrowError(containerId, doc);
+    const type = container.get('type') as ContainerType;
+    const field =
+      type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+
+    if (!yamlMap.has(field)) {
+      throw new Error(`No '${field}' found on step at index ${stepIndex}`);
     }
 
-    if (hasExecution) {
-      YmlUtils.updateValueByPredicate(yamlMap, [ContainerReferenceField.Execution], predicate, newValue);
-    }
+    const path = field === ContainerReferenceField.Execution ? [field] : [field, '*'];
 
-    if (hasService) {
-      YmlUtils.updateValueByPredicate(yamlMap, [ContainerReferenceField.Service, '*'], predicate, newValue);
-    }
+    YmlUtils.updateValueByPredicate(yamlMap, path, predicate, newValue);
 
     return doc;
   });
