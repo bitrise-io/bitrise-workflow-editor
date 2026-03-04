@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, isScalar, YAMLMap } from 'yaml';
+import { Document, isMap, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
@@ -177,9 +177,7 @@ function parseContainerReference(value: ContainerReferenceValue): ContainerRefer
   const [containerId, config] = Object.entries(value)[0] ?? [];
 
   if (!containerId) {
-    throw new Error(
-      `Container ${containerId} not found. Ensure that the container exists in the 'containers' section.`,
-    );
+    throw new Error(`Container not found. Ensure that the container exists in the 'containers' section.`);
   }
 
   return { id: containerId, recreate: config?.recreate === true };
@@ -189,11 +187,11 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
   if (type === ContainerType.Execution) {
     const node = yamlMap.get(ContainerReferenceField.Execution);
 
-    if (!node || (!isMap(node) && !isScalar(node))) {
+    if (!node || (!isMap(node) && typeof node !== 'string')) {
       return undefined;
     }
 
-    const value = isMap(node) ? node.toJSON() : node.value;
+    const value = isMap(node) ? node.toJSON() : node;
     return [parseContainerReference(value)];
   }
 
@@ -375,7 +373,11 @@ function updateContainerReferenceRecreate(
       type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
 
     if (!yamlMap.has(field)) {
-      throw new Error(`No '${field}' found on step at index ${stepIndex}`);
+      const location =
+        source === 'step_bundles' && stepIndex === -1
+          ? `in step bundle '${sourceId}'`
+          : `on step at index ${stepIndex}`;
+      throw new Error(`No container reference found for '${containerId}' ${location}`);
     }
 
     const path = field === ContainerReferenceField.Execution ? [field] : [field, '*'];
