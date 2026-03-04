@@ -39,7 +39,7 @@ function getStepDataOrThrowError(
 function addContainerReference(
   source: 'workflows' | 'step_bundles',
   sourceId: string,
-  index: number,
+  stepIndex: number,
   containerId: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -47,10 +47,10 @@ function addContainerReference(
     const type = container.get('type') as ContainerType;
 
     let yamlMap;
-    if (index === -1) {
+    if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
     } else {
-      yamlMap = getStepDataOrThrowError(doc, source, sourceId, index);
+      yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
     }
 
     if (type === ContainerType.Execution) {
@@ -59,7 +59,7 @@ function addContainerReference(
 
     if (type === ContainerType.Service) {
       if (YmlUtils.isInSeq(yamlMap, [ContainerReferenceField.Service], containerId)) {
-        const context = index === -1 ? `step bundle '${sourceId}'` : 'the step';
+        const context = stepIndex === -1 ? `step bundle '${sourceId}'` : 'the step';
         throw new Error(`Service container '${containerId}' is already added to ${context}`);
       }
       YmlUtils.addIn(yamlMap, [ContainerReferenceField.Service], containerId);
@@ -143,7 +143,7 @@ function removeContainerReference(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
-    if (stepIndex === -1) {
+    if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
     } else {
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
@@ -179,7 +179,14 @@ function parseContainerReference(value: ContainerReferenceValue): ContainerRefer
   }
 
   const [containerId, config] = Object.entries(value)[0] ?? [];
-  return { id: containerId ?? String(value), recreate: config?.recreate === true };
+
+  if (!containerId) {
+    throw new Error(
+      `Container ${containerId} not found. Ensure that the container exists in the 'containers' section.`,
+    );
+  }
+
+  return { id: containerId, recreate: config?.recreate === true };
 }
 
 function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): ContainerReference[] | undefined {
@@ -220,7 +227,7 @@ function getContainerReferenceFromInstance(
   doc: Document,
 ) {
   let yamlMap;
-  if (stepIndex === -1) {
+  if (source === 'step_bundles' && stepIndex === -1) {
     yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
   } else {
     yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
@@ -349,7 +356,7 @@ function updateContainerReferenceRecreate(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
-    if (stepIndex === -1) {
+    if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
     } else {
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
