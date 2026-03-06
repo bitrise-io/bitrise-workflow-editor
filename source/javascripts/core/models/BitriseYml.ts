@@ -48,6 +48,8 @@ export type StepBundleModel = {
   description?: string;
   run_if?: string;
   is_always_run?: boolean;
+  execution_container?: string;
+  service_containers?: string[];
 };
 
 export type StepBundleOverrideModel = Omit<StepBundleModel, 'steps'>;
@@ -96,6 +98,8 @@ export type StepModel = {
   timeout?: number;
   no_output_timeout?: number;
   asset_urls?: Record<string, string>;
+  execution_container?: string;
+  service_containers?: string[];
 };
 
 export type StepToolkitModel = {

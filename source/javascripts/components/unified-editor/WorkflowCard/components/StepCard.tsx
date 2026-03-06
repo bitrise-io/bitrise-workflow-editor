@@ -1,4 +1,16 @@
-import { Avatar, Box, Card, CardProps, ColorButton, Icon, Skeleton, SkeletonBox, Text, Tooltip } from '@bitrise/bitkit';
+import {
+  Avatar,
+  Box,
+  Card,
+  CardProps,
+  ColorButton,
+  Dot,
+  Icon,
+  Skeleton,
+  SkeletonBox,
+  Text,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -7,6 +19,8 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
+import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
@@ -91,6 +105,22 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
+  const { definition, instance } = useContainerReferences(
+    stepBundleId ? 'step_bundles' : 'workflows',
+    stepBundleId || workflowId || '',
+    stepIndex ?? -1,
+    stepBundleId,
+  );
+
+  const instanceExecution = instance?.[ContainerType.Execution];
+  const instanceService = instance?.[ContainerType.Service];
+  const definitionExecution = stepIndex === -1 ? definition?.[ContainerType.Execution] : undefined;
+  const definitionService = stepIndex === -1 ? definition?.[ContainerType.Service] : undefined;
+
+  const executionReferences = instanceExecution ?? definitionExecution ?? [];
+  const serviceReferences = [...(instanceService || []), ...(definitionService || [])];
+  const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
+
   const {
     error,
     isLoading,
@@ -126,6 +156,7 @@ const StepCard = ({
   const icon = step?.icon || defaultIcon;
   const title = step?.title || step?.cvs || '';
   const isHighlighted = isSelected({ stepBundleId, stepIndex, workflowId });
+
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
 
   const isButton = !!onSelectStep;
@@ -250,13 +281,24 @@ const StepCard = ({
                     <Text textStyle="body/sm/regular" hasEllipsis>
                       {title}
                     </Text>
-                    {showSecondary && (
-                      <StepSecondaryText
-                        isUpgradable={isUpgradable}
-                        errorText={error ? 'Failed to load Step' : undefined}
-                        resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                      />
-                    )}
+                    <Box display="flex" alignItems="center" gap="4">
+                      {showSecondary && (
+                        <StepSecondaryText
+                          isUpgradable={isUpgradable}
+                          errorText={error ? 'Failed to load Step' : undefined}
+                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                        />
+                      )}
+                      {referenceIds.length > 0 && (
+                        <>
+                          <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
+                          <Icon name="Container" size="16" color="icon/tertiary" />
+                          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                            {referenceIds}
+                          </Text>
+                        </>
+                      )}
+                    </Box>
                   </Box>
 
                   {buttonGroup}

@@ -1,11 +1,13 @@
 /* eslint-disable import/no-cycle */
-import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Card, CardProps, Collapse, ControlButton, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef } from 'react';
 
 import DragHandle from '@/components/DragHandle/DragHandle';
+import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
+import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -45,6 +47,19 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
+  const { definition, instance } = useContainerReferences(
+    stepBundleId ? 'step_bundles' : 'workflows',
+    stepBundleId || workflowId || '',
+    stepIndex,
+    StepBundleService.cvsToId(cvs),
+  );
+  const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
+  const serviceReferences = [
+    ...(instance?.[ContainerType.Service] || []),
+    ...(definition?.[ContainerType.Service] || []),
+  ];
+  const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
+
   const sortable = useSortable({
     id: uniqueId,
     disabled: !isSortable,
@@ -53,6 +68,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       uniqueId,
       stepIndex,
       workflowId,
+      stepBundleId,
     } satisfies SortableStepItem,
   });
 
@@ -85,7 +101,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
           type: LibraryType.BUNDLE,
-          stepBundleId,
+          stepBundleId: stepBundleId,
           wfId: workflowId,
         });
       }
@@ -183,9 +199,20 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 <Text textStyle="body/md/semibold" hasEllipsis>
                   {title}
                 </Text>
-                <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                  {usedInWorkflowsText}
-                </Text>
+                <Box display="flex" alignItems="center" gap="4">
+                  <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                    {usedInWorkflowsText}
+                  </Text>
+                  {referenceIds.length > 0 && (
+                    <>
+                      <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
+                      <Icon name="Container" size="16" color="icon/tertiary" />
+                      <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                        {referenceIds}
+                      </Text>
+                    </>
+                  )}
+                </Box>
               </Box>
               {buttonGroup}
             </Box>
