@@ -383,7 +383,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           />
         )}
       </Box>
-      <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
+      <Box flex="1" overflowY="auto" p="16" bg="background/secondary" data-intercom-target="Workflow Card Container">
         <WorkflowCard
           id={workflowId}
           isCollapsable={false}

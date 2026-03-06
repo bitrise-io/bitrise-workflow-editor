@@ -868,13 +868,18 @@ export const AlgoliaSteps: AlgoliaStepResponse[] = [
   },
 ];
 
-function getAlgoliaSteps({ status }: { status: 'success' | 'error' }) {
-  return http.post('*/1/indexes/steplib_steps/browse', async () => {
+function getAlgoliaSteps({ status, maintainers }: { status: 'success' | 'error'; maintainers?: Maintainer[] }) {
+  return http.post(/\/1\/indexes\/steplib_steps\/browse/, async () => {
     await delay();
 
     switch (status) {
-      case 'success':
-        return HttpResponse.json({ hits: Array.from(AlgoliaSteps) }, { status: 200 });
+      case 'success': {
+        const steps = Array.from(AlgoliaSteps);
+        const hits = maintainers
+          ? steps.filter((step) => maintainers.some((maintainer) => step.info?.maintainer === maintainer))
+          : steps;
+        return HttpResponse.json({ hits }, { status: 200 });
+      }
       case 'error':
       default:
         return new HttpResponse(null, {
