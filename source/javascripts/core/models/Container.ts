@@ -11,6 +11,7 @@ export enum ContainerType {
 }
 
 export type Container = { id: string; userValues: ContainerModel };
+export type ContainerReference = { id: string; recreate: boolean };
 
 export type ContainerField = keyof ContainerModel;
 export type CredentialField = keyof DockerCredentialModel;
