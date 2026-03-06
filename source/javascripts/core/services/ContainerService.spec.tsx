@@ -623,6 +623,76 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
+      it('should remove execution container references from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: execution
+            image: ubuntu:20.04
+          other-container:
+            type: execution
+            image: ubuntu:22.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  execution_container: my-container
+              - script:
+                  execution_container: other-container
+          bundle2:
+            steps:
+              - script:
+                  execution_container: my-container
+      `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        containers:
+          other-container:
+            type: execution
+            image: ubuntu:22.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script: {}
+              - script:
+                  execution_container: other-container
+          bundle2:
+            steps:
+              - script: {}
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove execution container reference with recreate flag from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: execution
+            image: ubuntu:20.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  execution_container:
+                    my-container:
+                      recreate: true
+      `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        step_bundles:
+          bundle1:
+            steps:
+              - script: {}
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
       it('should throw an error and not delete anything if container id not found', () => {
         updateBitriseYmlDocumentByString(yaml`
         containers:
@@ -794,6 +864,73 @@ describe('ContainerService', () => {
                 execution_container: ubuntu
                 service_containers:
                 - redis
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service container references from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          mysql:
+            type: service
+            image: mysql:8
+          redis:
+            type: service
+            image: redis:6
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  service_containers:
+                    - mysql
+                    - redis
+              - script:
+                  service_containers:
+                    - mysql
+      `);
+
+        ContainerService.deleteContainer('mysql');
+
+        const expectedYml = yaml`
+        containers:
+          redis:
+            type: service
+            image: redis:6
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  service_containers:
+                    - redis
+              - script: {}
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service container reference with recreate flag from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: service
+            image: ubuntu:20.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  service_containers:
+                    - my-container:
+                        recreate: true
+      `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        step_bundles:
+          bundle1:
+            steps:
+              - script: {}
       `;
 
         expect(getYmlString()).toEqual(expectedYml);

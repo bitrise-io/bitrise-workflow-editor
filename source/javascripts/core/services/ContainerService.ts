@@ -10,6 +10,23 @@ import YmlUtils from '@/core/utils/YmlUtils';
 
 const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
 const ServiceContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
+const StepBundleExecutionContainerWildcardRefPath = [
+  'step_bundles',
+  '*',
+  'steps',
+  '*',
+  '*',
+  ContainerReferenceField.Execution,
+];
+const StepBundleServiceContainerWildcardRefPath = [
+  'step_bundles',
+  '*',
+  'steps',
+  '*',
+  '*',
+  ContainerReferenceField.Service,
+  '*',
+];
 
 function getContainerOrThrowError(id: string, doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
@@ -125,11 +142,17 @@ function deleteContainer(id: string) {
 
     YmlUtils.deleteByPath(doc, ['containers', id]);
 
-    const keep = ['workflows', '*', 'steps', '*', '*'];
-    YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keep);
-    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keep);
-    YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keep);
-    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keep);
+    const keepWorkflow = ['workflows', '*', 'steps', '*', '*'];
+    YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keepWorkflow);
+    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keepWorkflow);
+    YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keepWorkflow);
+    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keepWorkflow);
+
+    const keepStepBundle = ['step_bundles', '*', 'steps', '*', '*'];
+    YmlUtils.deleteByValue(doc, StepBundleExecutionContainerWildcardRefPath, id, keepStepBundle);
+    YmlUtils.deleteByPath(doc, [...StepBundleExecutionContainerWildcardRefPath, id], keepStepBundle);
+    YmlUtils.deleteByValue(doc, StepBundleServiceContainerWildcardRefPath, id, keepStepBundle);
+    YmlUtils.deleteByPath(doc, [...StepBundleServiceContainerWildcardRefPath, id], keepStepBundle);
 
     return doc;
   });
