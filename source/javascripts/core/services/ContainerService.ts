@@ -237,6 +237,7 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 
 function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: ContainerType, doc: Document) {
   const yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+
   return getContainerReferences(type, yamlMap);
 }
 
