@@ -10,6 +10,23 @@ import YmlUtils from '@/core/utils/YmlUtils';
 
 const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
 const ServiceContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Service, '*'];
+const StepBundleExecutionContainerWildcardRefPath = [
+  'step_bundles',
+  '*',
+  'steps',
+  '*',
+  '*',
+  ContainerReferenceField.Execution,
+];
+const StepBundleServiceContainerWildcardRefPath = [
+  'step_bundles',
+  '*',
+  'steps',
+  '*',
+  '*',
+  ContainerReferenceField.Service,
+  '*',
+];
 
 function getContainerOrThrowError(id: string, doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
@@ -39,7 +56,7 @@ function getStepDataOrThrowError(
 function addContainerReference(
   source: 'workflows' | 'step_bundles',
   sourceId: string,
-  index: number,
+  stepIndex: number,
   containerId: string,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
@@ -47,10 +64,10 @@ function addContainerReference(
     const type = container.get('type') as ContainerType;
 
     let yamlMap;
-    if (index === -1) {
+    if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
     } else {
-      yamlMap = getStepDataOrThrowError(doc, source, sourceId, index);
+      yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
     }
 
     if (type === ContainerType.Execution) {
@@ -59,7 +76,8 @@ function addContainerReference(
 
     if (type === ContainerType.Service) {
       if (YmlUtils.isInSeq(yamlMap, [ContainerReferenceField.Service], containerId)) {
-        throw new Error(`Service container '${containerId}' is already added to the step`);
+        const context = stepIndex === -1 ? `step bundle '${sourceId}'` : 'the step';
+        throw new Error(`Service container '${containerId}' is already added to ${context}`);
       }
       YmlUtils.addIn(yamlMap, [ContainerReferenceField.Service], containerId);
     }
@@ -124,11 +142,17 @@ function deleteContainer(id: string) {
 
     YmlUtils.deleteByPath(doc, ['containers', id]);
 
-    const keep = ['workflows', '*', 'steps', '*', '*'];
-    YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keep);
-    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keep);
-    YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keep);
-    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keep);
+    const keepWorkflow = ['workflows', '*', 'steps', '*', '*'];
+    YmlUtils.deleteByValue(doc, ExecutionContainerWildcardRefPath, id, keepWorkflow);
+    YmlUtils.deleteByPath(doc, [...ExecutionContainerWildcardRefPath, id], keepWorkflow);
+    YmlUtils.deleteByValue(doc, ServiceContainerWildcardRefPath, id, keepWorkflow);
+    YmlUtils.deleteByPath(doc, [...ServiceContainerWildcardRefPath, id], keepWorkflow);
+
+    const keepStepBundle = ['step_bundles', '*', 'steps', '*', '*'];
+    YmlUtils.deleteByValue(doc, StepBundleExecutionContainerWildcardRefPath, id, keepStepBundle);
+    YmlUtils.deleteByPath(doc, [...StepBundleExecutionContainerWildcardRefPath, id], keepStepBundle);
+    YmlUtils.deleteByValue(doc, StepBundleServiceContainerWildcardRefPath, id, keepStepBundle);
+    YmlUtils.deleteByPath(doc, [...StepBundleServiceContainerWildcardRefPath, id], keepStepBundle);
 
     return doc;
   });
@@ -142,7 +166,7 @@ function removeContainerReference(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
-    if (stepIndex === -1) {
+    if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
     } else {
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
@@ -178,14 +202,19 @@ function parseContainerReference(value: ContainerReferenceValue): ContainerRefer
   }
 
   const [containerId, config] = Object.entries(value)[0] ?? [];
-  return { id: containerId ?? String(value), recreate: config?.recreate === true };
+
+  if (!containerId) {
+    throw new Error(`Container not found. Ensure that the container exists in the 'containers' section.`);
+  }
+
+  return { id: containerId, recreate: config?.recreate === true };
 }
 
 function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): ContainerReference[] | undefined {
   if (type === ContainerType.Execution) {
     const node = yamlMap.get(ContainerReferenceField.Execution);
 
-    if (!node) {
+    if (!node || (!isMap(node) && typeof node !== 'string')) {
       return undefined;
     }
 
@@ -208,6 +237,7 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 
 function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: ContainerType, doc: Document) {
   const yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+
   return getContainerReferences(type, yamlMap);
 }
 
@@ -218,6 +248,9 @@ function getContainerReferenceFromInstance(
   type: ContainerType,
   doc: Document,
 ) {
+  if (source === 'step_bundles' && stepIndex === -1) {
+    return getContainerReferencesFromStepBundleDefinition(sourceId, type, doc);
+  }
   const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
   return getContainerReferences(type, yamlMap);
 }
@@ -343,7 +376,7 @@ function updateContainerReferenceRecreate(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
-    if (stepIndex === -1) {
+    if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
     } else {
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
@@ -362,19 +395,22 @@ function updateContainerReferenceRecreate(
 
     const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
 
-    const hasExecution = yamlMap.has(ContainerReferenceField.Execution);
-    const hasService = yamlMap.has(ContainerReferenceField.Service);
-    if (!hasExecution && !hasService) {
-      throw new Error(`No container reference found for '${containerId}' on step at index ${stepIndex}`);
+    const container = getContainerOrThrowError(containerId, doc);
+    const type = container.get('type') as ContainerType;
+    const field =
+      type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+
+    if (!yamlMap.has(field)) {
+      const location =
+        source === 'step_bundles' && stepIndex === -1
+          ? `in step bundle '${sourceId}'`
+          : `on step at index ${stepIndex}`;
+      throw new Error(`No container reference found for '${containerId}' ${location}`);
     }
 
-    if (hasExecution) {
-      YmlUtils.updateValueByPredicate(yamlMap, [ContainerReferenceField.Execution], predicate, newValue);
-    }
+    const path = field === ContainerReferenceField.Execution ? [field] : [field, '*'];
 
-    if (hasService) {
-      YmlUtils.updateValueByPredicate(yamlMap, [ContainerReferenceField.Service, '*'], predicate, newValue);
-    }
+    YmlUtils.updateValueByPredicate(yamlMap, path, predicate, newValue);
 
     return doc;
   });

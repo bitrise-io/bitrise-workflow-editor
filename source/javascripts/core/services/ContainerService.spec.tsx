@@ -215,6 +215,23 @@ describe('ContainerService', () => {
         );
       });
 
+      it('should throw an error if service is already added to a step bundle', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          postgres:
+            type: service
+            image: postgres:13
+        step_bundles:
+          my_bundle:
+            service_containers:
+              - postgres
+      `);
+
+        expect(() => ContainerService.addContainerReference('step_bundles', 'my_bundle', -1, 'postgres')).toThrow(
+          "Service container 'postgres' is already added to step bundle 'my_bundle'",
+        );
+      });
+
       it('should throw an error if service does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
@@ -606,6 +623,76 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
+      it('should remove execution container references from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: execution
+            image: ubuntu:20.04
+          other-container:
+            type: execution
+            image: ubuntu:22.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  execution_container: my-container
+              - script:
+                  execution_container: other-container
+          bundle2:
+            steps:
+              - script:
+                  execution_container: my-container
+      `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        containers:
+          other-container:
+            type: execution
+            image: ubuntu:22.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script: {}
+              - script:
+                  execution_container: other-container
+          bundle2:
+            steps:
+              - script: {}
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove execution container reference with recreate flag from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: execution
+            image: ubuntu:20.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  execution_container:
+                    my-container:
+                      recreate: true
+      `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        step_bundles:
+          bundle1:
+            steps:
+              - script: {}
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
       it('should throw an error and not delete anything if container id not found', () => {
         updateBitriseYmlDocumentByString(yaml`
         containers:
@@ -777,6 +864,73 @@ describe('ContainerService', () => {
                 execution_container: ubuntu
                 service_containers:
                 - redis
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service container references from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          mysql:
+            type: service
+            image: mysql:8
+          redis:
+            type: service
+            image: redis:6
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  service_containers:
+                    - mysql
+                    - redis
+              - script:
+                  service_containers:
+                    - mysql
+      `);
+
+        ContainerService.deleteContainer('mysql');
+
+        const expectedYml = yaml`
+        containers:
+          redis:
+            type: service
+            image: redis:6
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  service_containers:
+                    - redis
+              - script: {}
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service container reference with recreate flag from step bundle steps', () => {
+        updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: service
+            image: ubuntu:20.04
+        step_bundles:
+          bundle1:
+            steps:
+              - script:
+                  service_containers:
+                    - my-container:
+                        recreate: true
+      `);
+
+        ContainerService.deleteContainer('my-container');
+
+        const expectedYml = yaml`
+        step_bundles:
+          bundle1:
+            steps:
+              - script: {}
       `;
 
         expect(getYmlString()).toEqual(expectedYml);
@@ -2179,6 +2333,206 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
+      it('should remove execution container reference from a step bundle definition', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+          step_bundles:
+            my_bundle:
+              execution_container: my-container
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', -1, 'my-container');
+
+        const expectedYml = yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+          step_bundles:
+            my_bundle: {}
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should not remove reference if container id does not match for step bundle definition', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+            other-container:
+              image: ubuntu:22.04
+          step_bundles:
+            my_bundle:
+              execution_container: my-container
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', -1, 'other-container');
+
+        const expectedYml = yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+            other-container:
+              image: ubuntu:22.04
+          step_bundles:
+            my_bundle:
+              execution_container: my-container
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove execution container reference from a step inside a step bundle', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+          step_bundles:
+            my_bundle:
+              steps:
+                - script:
+                    execution_container: my-container
+                - second-step:
+                    execution_container: my-container
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', 0, 'my-container');
+
+        const expectedYml = yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+          step_bundles:
+            my_bundle:
+              steps:
+                - script: {}
+                - second-step:
+                    execution_container: my-container
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service container reference from a step bundle definition', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+            redis:
+              image: redis:6
+          step_bundles:
+            my_bundle:
+              service_containers:
+                - postgres
+                - redis
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', -1, 'postgres');
+
+        const expectedYml = yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+            redis:
+              image: redis:6
+          step_bundles:
+            my_bundle:
+              service_containers:
+                - redis
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service_containers field when last service is removed from step bundle definition', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+          step_bundles:
+            my_bundle:
+              service_containers:
+                - postgres
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', -1, 'postgres');
+
+        const expectedYml = yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+          step_bundles:
+            my_bundle: {}
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service container reference from a step inside a step bundle', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+            redis:
+              image: redis:6
+          step_bundles:
+            my_bundle:
+              steps:
+                - script:
+                    service_containers:
+                      - postgres
+                      - redis
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', 0, 'postgres');
+
+        const expectedYml = yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+            redis:
+              image: redis:6
+          step_bundles:
+            my_bundle:
+              steps:
+                - script:
+                    service_containers:
+                      - redis
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
+      it('should remove service_containers field when last service is removed from a step inside a step bundle', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+          step_bundles:
+            my_bundle:
+              steps:
+                - script:
+                    service_containers:
+                      - postgres
+        `);
+
+        ContainerService.removeContainerReference('step_bundles', 'my_bundle', 0, 'postgres');
+
+        const expectedYml = yaml`
+          service_containers:
+            postgres:
+              image: postgres:13
+          step_bundles:
+            my_bundle:
+              steps:
+                - script: {}
+        `;
+
+        expect(getYmlString()).toEqual(expectedYml);
+      });
+
       it('should throw an error if step does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         service_containers:
@@ -2201,6 +2555,30 @@ describe('ContainerService', () => {
         expect(() => ContainerService.removeContainerReference('workflows', 'non-existent', 0, 'my-container')).toThrow(
           'workflows.non-existent not found',
         );
+      });
+
+      it('should throw an error if step does not exist in step bundle', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          execution_containers:
+            my-container:
+              image: ubuntu:20.04
+          step_bundles:
+            my_bundle:
+              steps:
+                - script: {}
+        `);
+
+        expect(() => ContainerService.removeContainerReference('step_bundles', 'my_bundle', 5, 'my-container')).toThrow(
+          'Step at index 5 not found in step_bundles.my_bundle',
+        );
+      });
+
+      it('should throw an error if step bundle does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml``);
+
+        expect(() =>
+          ContainerService.removeContainerReference('step_bundles', 'non-existent', 0, 'my-container'),
+        ).toThrow('step_bundles.non-existent not found');
       });
     });
   });
@@ -3111,6 +3489,23 @@ describe('ContainerService', () => {
       expect(() =>
         ContainerService.updateContainerReferenceRecreate('workflows', 'wf1', 0, 'my-container', true),
       ).toThrow("No container reference found for 'my-container' on step at index 0");
+    });
+
+    it('should throw error if no container references exist on step bundle', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        containers:
+          my-container:
+            type: execution
+            image: ubuntu:20.04
+        step_bundles:
+          my_bundle:
+            steps:
+              - script: {}
+      `);
+
+      expect(() =>
+        ContainerService.updateContainerReferenceRecreate('step_bundles', 'my_bundle', -1, 'my-container', true),
+      ).toThrow("No container reference found for 'my-container' in step bundle 'my_bundle'");
     });
 
     it('should throw error if workflow does not exist', () => {
