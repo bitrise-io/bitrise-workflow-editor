@@ -101,7 +101,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
           type: LibraryType.BUNDLE,
-          stepBundleId: stepBundleId,
+          stepBundleId,
           wfId: workflowId,
         });
       }

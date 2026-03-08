@@ -13,7 +13,6 @@ type State = {
   data?: Step;
   error?: Error;
   stepBundleId?: string;
-  parentWorkflowId?: string;
 };
 
 const initialState: State = {
