@@ -533,7 +533,6 @@ function updateStepBundleInputInstanceValue(
 
 export default {
   getDependantWorkflows,
-  getStepBundleOrThrowError,
   getUsedByText,
   sanitizeName,
   validateName,
