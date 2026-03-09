@@ -26,10 +26,12 @@ const ContainersPage = () => {
   };
 
   useEffect(() => {
-    if (searchParams.tab) {
+    if (searchParams.tab && TAB_IDS.includes(searchParams.tab as ContainerType)) {
       setTabIndex(TAB_IDS.indexOf(searchParams.tab as ContainerType));
+    } else {
+      setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [searchParams, setTabIndex]);
+  }, [searchParams, setSearchParams, setTabIndex]);
 
   return (
     <>
