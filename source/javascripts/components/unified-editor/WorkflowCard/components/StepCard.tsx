@@ -105,10 +105,21 @@ const StepCard = ({
     onUpgradeStepInStepBundle,
   } = useStepActions();
 
+  const {
+    error,
+    isLoading,
+    data: step,
+  } = useStep({ workflowId, stepBundleId, stepIndex }) as {
+    data?: Step;
+    error?: Error;
+    isLoading: boolean;
+  };
+
   const { definition, instance } = useContainerReferences(
     stepBundleId ? 'step_bundles' : 'workflows',
     stepBundleId || workflowId || '',
     stepIndex ?? -1,
+    !!step,
     stepBundleId,
   );
 
@@ -120,16 +131,6 @@ const StepCard = ({
   const executionReferences = instanceExecution ?? definitionExecution ?? [];
   const serviceReferences = [...(instanceService || []), ...(definitionService || [])];
   const referenceIds = [...executionReferences, ...serviceReferences].map((ref) => ref.id).join(', ');
-
-  const {
-    error,
-    isLoading,
-    data: step,
-  } = useStep({ workflowId, stepBundleId, stepIndex }) as {
-    data?: Step;
-    error?: Error;
-    isLoading: boolean;
-  };
 
   const sortable = useSortable({
     id: uniqueId,

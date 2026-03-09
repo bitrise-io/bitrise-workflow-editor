@@ -11,29 +11,30 @@ function useContainerReferences(
   source: 'workflows' | 'step_bundles',
   sourceId: string,
   stepIndex: number,
+  isEnabled: boolean,
   stepBundleId?: string,
 ): UseContainerReferencesReturnValue {
   const ymlDocument = useBitriseYmlStore((state) => state.ymlDocument);
 
   const returnValue: UseContainerReferencesReturnValue = {};
 
-  if (stepBundleId) {
-    returnValue.definition = {
-      [ContainerType.Execution]: ContainerService.getContainerReferencesFromStepBundleDefinition(
-        stepBundleId,
-        ContainerType.Execution,
-        ymlDocument,
-      ),
-      [ContainerType.Service]: ContainerService.getContainerReferencesFromStepBundleDefinition(
-        stepBundleId,
-        ContainerType.Service,
-        ymlDocument,
-      ),
-    };
-  }
+  if (isEnabled) {
+    if (stepBundleId) {
+      returnValue.definition = {
+        [ContainerType.Execution]: ContainerService.getContainerReferencesFromStepBundleDefinition(
+          stepBundleId,
+          ContainerType.Execution,
+          ymlDocument,
+        ),
+        [ContainerType.Service]: ContainerService.getContainerReferencesFromStepBundleDefinition(
+          stepBundleId,
+          ContainerType.Service,
+          ymlDocument,
+        ),
+      };
+    }
 
-  if (stepIndex > -1) {
-    try {
+    if (stepIndex > -1) {
       returnValue.instance = {
         [ContainerType.Execution]: ContainerService.getContainerReferenceFromInstance(
           source,
@@ -50,8 +51,6 @@ function useContainerReferences(
           ymlDocument,
         ),
       };
-    } catch {
-      // If Step no longer exist (e.g. just deleted) — return empty result
     }
   }
 

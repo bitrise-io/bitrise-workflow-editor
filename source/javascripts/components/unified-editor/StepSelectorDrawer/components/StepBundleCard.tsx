@@ -51,6 +51,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     stepBundleId ? 'step_bundles' : 'workflows',
     stepBundleId || workflowId || '',
     stepIndex,
+    !!(workflowId || stepBundleId),
     StepBundleService.cvsToId(cvs),
   );
   const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];

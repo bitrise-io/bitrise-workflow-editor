@@ -78,7 +78,7 @@ const ContainerCard = (props: ContainerCardProps) => {
               const container = getContainerById(reference.id);
               return (
                 <ContainerCardItem
-                  key={reference.id}
+                  key={`instance-${reference.id}`}
                   reference={reference}
                   container={container}
                   onRecreate={onRecreate}

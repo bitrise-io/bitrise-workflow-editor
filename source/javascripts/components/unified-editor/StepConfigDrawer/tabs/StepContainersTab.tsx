@@ -42,7 +42,7 @@ const StepContainersTab = () => {
   const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
     useContainers();
 
-  const { instance } = useContainerReferences(source, sourceId || '', stepIndex);
+  const { instance } = useContainerReferences(source, sourceId || '', stepIndex, stepIndex > -1);
 
   return (
     <ContainersTab
