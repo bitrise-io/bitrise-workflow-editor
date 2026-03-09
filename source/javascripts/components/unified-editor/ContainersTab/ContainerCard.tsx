@@ -36,7 +36,7 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   const references = [...(definitionReferences || []), ...(instanceReferences || [])];
 
-  const selectedReferenceIds = new Set(references?.map((ref) => ref.id) || []);
+  const selectedReferenceIds = new Set(references.map((ref) => ref.id));
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
 
   return (
@@ -102,7 +102,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   <ContainersMenu
                     actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
                     containers={availableContainers}
-                    onSelectContainer={(containerId) => onAddContainer(containerId)}
+                    onSelectContainer={onAddContainer}
                     type={type}
                   />
                 </Td>

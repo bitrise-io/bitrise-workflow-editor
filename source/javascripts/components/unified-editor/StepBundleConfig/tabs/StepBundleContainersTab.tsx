@@ -12,40 +12,37 @@ const StepBundleContainersTab = () => {
   const source = parentWorkflowId ? 'workflows' : 'step_bundles';
   const sourceId = parentStepBundleId || parentWorkflowId || '';
 
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
+  const references = useContainerReferences(source, sourceId || '', stepIndex, !!stepBundleId, stepBundleId);
+
+  if (!stepBundleId) {
+    return null;
+  }
+
   const handleAdd = (containerId: string) => {
-    if (stepBundleId) {
-      if (isDefinition) {
-        ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId);
-      } else {
-        ContainerService.addContainerReference(source, sourceId, stepIndex, containerId);
-      }
+    if (isDefinition) {
+      ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId);
+    } else {
+      ContainerService.addContainerReference(source, sourceId, stepIndex, containerId);
     }
   };
 
   const handleRecreate = (containerId: string, recreate: boolean) => {
-    if (stepBundleId) {
-      if (isDefinition) {
-        ContainerService.updateContainerReferenceRecreate('step_bundles', stepBundleId, -1, containerId, recreate);
-      } else {
-        ContainerService.updateContainerReferenceRecreate(source, sourceId, stepIndex, containerId, recreate);
-      }
+    if (isDefinition) {
+      ContainerService.updateContainerReferenceRecreate('step_bundles', stepBundleId, -1, containerId, recreate);
+    } else {
+      ContainerService.updateContainerReferenceRecreate(source, sourceId, stepIndex, containerId, recreate);
     }
   };
 
   const handleRemove = (containerId: string) => {
-    if (stepBundleId) {
-      if (isDefinition) {
-        ContainerService.removeContainerReference('step_bundles', stepBundleId, -1, containerId);
-      } else {
-        ContainerService.removeContainerReference(source, sourceId, stepIndex, containerId);
-      }
+    if (isDefinition) {
+      ContainerService.removeContainerReference('step_bundles', stepBundleId, -1, containerId);
+    } else {
+      ContainerService.removeContainerReference(source, sourceId, stepIndex, containerId);
     }
   };
-
-  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
-    useContainers();
-
-  const references = useContainerReferences(source, sourceId || '', stepIndex, !!stepBundleId, stepBundleId);
 
   return (
     <ContainersTab
