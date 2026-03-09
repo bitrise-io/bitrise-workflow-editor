@@ -47,13 +47,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
-  const { definition, instance } = useContainerReferences(
-    stepBundleId ? 'step_bundles' : 'workflows',
-    stepBundleId || workflowId || '',
+  const { definition, instance } = useContainerReferences({
+    source: stepBundleId ? 'step_bundles' : 'workflows',
+    sourceId: stepBundleId || workflowId || '',
     stepIndex,
-    !!(workflowId || stepBundleId),
-    StepBundleService.cvsToId(cvs),
-  );
+    isEnabled: !!(workflowId || stepBundleId),
+    stepBundleId: StepBundleService.cvsToId(cvs),
+  });
+
   const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
   const serviceReferences = [
     ...(instance?.[ContainerType.Service] || []),

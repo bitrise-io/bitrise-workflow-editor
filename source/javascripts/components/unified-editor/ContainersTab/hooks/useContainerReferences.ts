@@ -7,13 +7,16 @@ export type UseContainerReferencesReturnValue = {
   instance?: Record<ContainerType, ContainerReference[] | undefined>;
 };
 
-function useContainerReferences(
-  source: 'workflows' | 'step_bundles',
-  sourceId: string,
-  stepIndex: number,
-  isEnabled: boolean,
-  stepBundleId?: string,
-): UseContainerReferencesReturnValue {
+type UseContainerReferencesOptions = {
+  source: 'workflows' | 'step_bundles';
+  sourceId: string;
+  stepIndex: number;
+  isEnabled: boolean;
+  stepBundleId?: string;
+};
+
+function useContainerReferences(props: UseContainerReferencesOptions): UseContainerReferencesReturnValue {
+  const { source, sourceId, stepIndex, isEnabled, stepBundleId } = props;
   const ymlDocument = useBitriseYmlStore((state) => state.ymlDocument);
 
   const returnValue: UseContainerReferencesReturnValue = {};
@@ -34,7 +37,7 @@ function useContainerReferences(
       };
     }
 
-    if (stepIndex > -1 && sourceId) {
+    if (stepIndex > -1) {
       returnValue.instance = {
         [ContainerType.Execution]: ContainerService.getContainerReferenceFromInstance(
           source,

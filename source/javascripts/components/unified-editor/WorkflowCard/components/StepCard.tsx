@@ -115,13 +115,13 @@ const StepCard = ({
     isLoading: boolean;
   };
 
-  const { definition, instance } = useContainerReferences(
-    stepBundleId ? 'step_bundles' : 'workflows',
-    stepBundleId || workflowId || '',
-    stepIndex ?? -1,
-    !!step,
+  const { definition, instance } = useContainerReferences({
+    source: stepBundleId ? 'step_bundles' : 'workflows',
+    sourceId: stepBundleId || workflowId || '',
+    stepIndex: stepIndex ?? -1,
+    isEnabled: !!step,
     stepBundleId,
-  );
+  });
 
   const instanceExecution = instance?.[ContainerType.Execution];
   const instanceService = instance?.[ContainerType.Service];
