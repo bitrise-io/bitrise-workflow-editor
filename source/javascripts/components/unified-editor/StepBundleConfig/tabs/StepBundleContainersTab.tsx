@@ -14,7 +14,13 @@ const StepBundleContainersTab = () => {
 
   const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
     useContainers();
-  const references = useContainerReferences(source, sourceId || '', stepIndex, !!stepBundleId, stepBundleId);
+  const references = useContainerReferences(
+    source,
+    sourceId || '',
+    stepIndex,
+    !!stepBundleId && !isDefinition,
+    stepBundleId,
+  );
 
   if (!stepBundleId) {
     return null;

@@ -34,7 +34,7 @@ function useContainerReferences(
       };
     }
 
-    if (stepIndex > -1) {
+    if (stepIndex > -1 && sourceId) {
       returnValue.instance = {
         [ContainerType.Execution]: ContainerService.getContainerReferenceFromInstance(
           source,
