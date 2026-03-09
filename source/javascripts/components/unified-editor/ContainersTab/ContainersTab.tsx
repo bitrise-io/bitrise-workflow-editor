@@ -11,8 +11,8 @@ type ContainersTabProps = {
   executionContainers: Container[];
   isDefinitionReferencesDisabled?: boolean;
   onAddContainer: (containerId: string) => void;
-  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
-  onRemove: (containerId: string, type: ContainerType) => void;
+  onRecreate: (containerId: string, recreate: boolean) => void;
+  onRemove: (containerId: string) => void;
   references?: UseContainerReferencesReturnValue;
   serviceContainers: Container[];
 };

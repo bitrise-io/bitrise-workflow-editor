@@ -12,8 +12,8 @@ type ContainerCardProps = {
   instanceReferences?: ContainerReference[];
   isDefinitionReferencesDisabled?: boolean;
   onAddContainer: (containerId: string) => void;
-  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
-  onRemove: (containerId: string, type: ContainerType) => void;
+  onRecreate: (containerId: string, recreate: boolean) => void;
+  onRemove: (containerId: string) => void;
   type: ContainerType;
 };
 
@@ -69,7 +69,6 @@ const ContainerCard = (props: ContainerCardProps) => {
                   container={container}
                   onRecreate={onRecreate}
                   onRemove={onRemove}
-                  type={type}
                   isDisabled={isDefinitionReferencesDisabled}
                 />
               );
@@ -84,7 +83,6 @@ const ContainerCard = (props: ContainerCardProps) => {
                   container={container}
                   onRecreate={onRecreate}
                   onRemove={onRemove}
-                  type={type}
                 />
               );
             })}

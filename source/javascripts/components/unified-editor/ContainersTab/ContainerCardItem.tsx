@@ -1,24 +1,16 @@
 import { Box, Checkbox, ControlButton, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
 
-import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
+import { Container, ContainerReference } from '@/core/models/Container';
 
 type ContainerCardItemProps = {
   container?: Container;
   isDisabled?: boolean;
-  onRecreate: (containerId: string, recreate: boolean, type: ContainerType) => void;
-  onRemove: (containerId: string, type: ContainerType) => void;
+  onRecreate: (containerId: string, recreate: boolean) => void;
+  onRemove: (containerId: string) => void;
   reference: ContainerReference;
-  type: ContainerType;
 };
 
-const ContainerCardItem = ({
-  container,
-  isDisabled,
-  onRecreate,
-  onRemove,
-  reference,
-  type,
-}: ContainerCardItemProps) => {
+const ContainerCardItem = ({ container, isDisabled, onRecreate, onRemove, reference }: ContainerCardItemProps) => {
   return (
     <Tr key={reference.id}>
       <Td>
@@ -34,7 +26,7 @@ const ContainerCardItem = ({
           <Box display="inline-block">
             <Checkbox
               isChecked={reference.recreate}
-              onChange={(e) => onRecreate(reference.id, e.target.checked, type)}
+              onChange={(e) => onRecreate(reference.id, e.target.checked)}
               value={reference.id}
               isDisabled={isDisabled}
             >
@@ -50,7 +42,7 @@ const ContainerCardItem = ({
             iconName="MinusCircle"
             color="icon/negative"
             isDisabled={isDisabled}
-            onClick={() => onRemove(reference.id, type)}
+            onClick={() => onRemove(reference.id)}
           />
         </Box>
       </Td>
