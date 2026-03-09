@@ -177,6 +177,7 @@ const Navigation = (props: Props) => {
         <SidebarItem
           href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
           data-intercom-target="YAML Reference Navigation Item"
+          isExternal
         >
           <SidebarItemIcon name="Book" />
           {!isMobile && <SidebarItemLabel>YAML Reference</SidebarItemLabel>}
