@@ -186,6 +186,7 @@ const Navigation = (props: Props) => {
         <SidebarItem
           href="https://github.com/bitrise-io/workflow-recipes"
           data-intercom-target="Workflow Recipes Navigation Item"
+          isExternal
           onClick={() => segmentTrack('Workflow Editor Workflow Recipes Button Clicked')}
         >
           <SidebarItemIcon name="Doc" />
