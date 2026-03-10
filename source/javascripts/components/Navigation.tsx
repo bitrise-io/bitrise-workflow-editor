@@ -178,6 +178,7 @@ const Navigation = (props: Props) => {
           href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
           data-intercom-target="YAML Reference Navigation Item"
           isExternal
+          onClick={() => segmentTrack('Workflow Editor YAML Reference Button Clicked')}
         >
           <SidebarItemIcon name="Book" />
           {!isMobile && <SidebarItemLabel>YAML Reference</SidebarItemLabel>}
@@ -185,6 +186,7 @@ const Navigation = (props: Props) => {
         <SidebarItem
           href="https://github.com/bitrise-io/workflow-recipes"
           data-intercom-target="Workflow Recipes Navigation Item"
+          onClick={() => segmentTrack('Workflow Editor Workflow Recipes Button Clicked')}
         >
           <SidebarItemIcon name="Doc" />
           {!isMobile && <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>}
