@@ -52,7 +52,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     source: stepBundleId ? 'step_bundles' : 'workflows',
     sourceId: stepBundleId || workflowId || '',
     stepIndex,
-    isEnabled: !!(workflowId || stepBundleId),
+    isEnabled: !!(workflowId || stepBundleId || cvs),
     stepBundleId: StepBundleService.cvsToId(cvs),
   });
 
