@@ -330,7 +330,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         openDialog({
           type: WorkflowsPageDialogType.STEP_BUNDLE,
           workflowId: parentWorkflowId,
-          stepBundleId: newStepBundleId,
           selectedStepIndices: [Math.min(...stepIndices)],
         })();
       } else if (parentStepBundleId) {

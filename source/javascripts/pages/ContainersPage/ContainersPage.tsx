@@ -12,9 +12,8 @@ import { getContainersBadge } from './utils/ContainersPage.utils';
 const TAB_IDS = [ContainerType.Execution, ContainerType.Service];
 
 const ContainersPage = () => {
-  const containerTypes = useContainers((containers) => Object.values(containers).map((c) => c?.type));
-  const executionContainerCount = containerTypes.filter((t) => t === ContainerType.Execution).length;
-  const serviceContainerCount = containerTypes.filter((t) => t === ContainerType.Service).length;
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
@@ -27,10 +26,12 @@ const ContainersPage = () => {
   };
 
   useEffect(() => {
-    if (searchParams.tab) {
+    if (searchParams.tab && TAB_IDS.includes(searchParams.tab as ContainerType)) {
       setTabIndex(TAB_IDS.indexOf(searchParams.tab as ContainerType));
+    } else {
+      setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [searchParams, setTabIndex]);
+  }, [searchParams, setSearchParams, setTabIndex]);
 
   return (
     <>
@@ -39,16 +40,16 @@ const ContainersPage = () => {
       </Text>
       <Text textStyle="body/md/regular" color="text/secondary" pb="24" px="32">
         Create custom environments and services for your Workflows.{' '}
-        <Link colorScheme="purple" isExternal href="#">
+        <Link colorScheme="purple" isExternal href="https://docs.bitrise.io">
           Learn more about containers
         </Link>
       </Text>
       <Tabs index={tabIndex} onChange={onTabChange}>
         <TabList px="16">
-          <Tab badge={getContainersBadge(executionContainerCount)}>Execution containers</Tab>
-          <Tab badge={getContainersBadge(serviceContainerCount)}>Service containers</Tab>
+          <Tab badge={getContainersBadge(executionContainers.length)}>Execution containers</Tab>
+          <Tab badge={getContainersBadge(serviceContainers.length)}>Service containers</Tab>
         </TabList>
-        <TabPanels>
+        <TabPanels p="32">
           <TabPanel>
             <ExecutionContainersTab />
           </TabPanel>

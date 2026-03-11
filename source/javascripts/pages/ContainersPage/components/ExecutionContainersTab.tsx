@@ -2,7 +2,6 @@ import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
 import { Container, ContainerType } from '@/core/models/Container';
-import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
@@ -11,16 +10,21 @@ import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
 
 const ExecutionContainersTab = () => {
   const containerUsageLookup = useContainerWorkflowUsage();
-  const containers = useContainers((containers) => {
-    return ContainerService.getAllContainers(containers, (c) => c.userValues.type === ContainerType.Execution);
-  });
+  const { [ContainerType.Execution]: containers } = useContainers();
 
   const [editedContainer, setEditedContainer] = useState<Container | null>(null);
   const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
 
   return (
-    <Box p="32px 32px 48px" display="flex" flexDir="column" gap="16">
-      <Box display="flex" justifyContent="space-between" alignItems="center" gap={['12', '32']} flexWrap="wrap">
+    <>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        gap={['12', '32']}
+        flexWrap="wrap"
+        marginBlockEnd="16"
+      >
         <Text color="text/secondary">
           Use execution containers to create your custom environment to run your Steps in.
         </Text>
@@ -49,7 +53,7 @@ const ExecutionContainersTab = () => {
         onCloseComplete={() => setEditedContainer(null)}
         type="execution"
       />
-    </Box>
+    </>
   );
 };
 

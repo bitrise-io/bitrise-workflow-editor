@@ -29,10 +29,12 @@ const WorkflowConfigPanelContent = () => {
   };
 
   useEffect(() => {
-    if (searchParams.tab) {
+    if (searchParams.tab && TAB_IDS.includes(searchParams.tab as WorkflowConfigTab)) {
       setTabIndex(TAB_IDS.indexOf(searchParams.tab as WorkflowConfigTab));
+    } else {
+      setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [searchParams, setTabIndex]);
+  }, [searchParams, setSearchParams, setTabIndex]);
 
   return (
     <Tabs
