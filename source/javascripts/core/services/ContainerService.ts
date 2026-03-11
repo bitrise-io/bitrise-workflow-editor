@@ -267,26 +267,46 @@ function getContainerReferenceFromInstance(
   return getContainerReferences(type, yamlMap);
 }
 
+function referencesContainer(node: unknown, containerId: string): boolean {
+  if (YmlUtils.isEqualValues(node, containerId)) {
+    return true;
+  }
+  if (isMap(node) && node.items.length > 0) {
+    return String(node.items[0]?.key) === containerId;
+  }
+  return false;
+}
+
 function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
-  const possibleReferencePaths = [
+  const yml = doc.toJSON();
+
+  // Workflows that directly reference the container in their steps
+  const directWorkflowIds = [
     ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
     ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
-  ];
-  const paths = possibleReferencePaths.filter(([path]) => {
-    const node = doc.getIn(path);
-    if (YmlUtils.isEqualValues(node, containerId)) {
-      return true;
-    }
+  ]
+    .filter(([path]) => referencesContainer(doc.getIn(path), containerId))
+    .map(([path]) => String(path[1]));
 
-    if (isMap(node) && node.items.length > 0) {
-      const key = String(node.items[0]?.key);
-      return key === containerId;
-    }
+  // Step bundles that reference the container (definition-level or step-level)
+  const stepBundleIds = uniq(
+    [
+      ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionExecutionContainerWildcardRefPath),
+      ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionServiceContainerWildcardRefPath),
+      ...YmlUtils.getMatchingPaths(doc, StepBundleExecutionContainerWildcardRefPath),
+      ...YmlUtils.getMatchingPaths(doc, StepBundleServiceContainerWildcardRefPath),
+    ]
+      .filter(([path]) => referencesContainer(doc.getIn(path), containerId))
+      .map(([path]) => String(path[1])),
+  );
 
-    return false;
-  });
+  const workflows = yml?.workflows ?? {};
+  const stepBundles = yml?.step_bundles ?? {};
+  const workflowsFromStepBundles = stepBundleIds.flatMap((stepBundleId) =>
+    StepBundleService.getDependantWorkflows(workflows, StepBundleService.idToCvs(stepBundleId), stepBundles),
+  );
 
-  return uniq(paths.map((path) => String(path[0][1])));
+  return uniq([...directWorkflowIds, ...workflowsFromStepBundles]);
 }
 
 function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
