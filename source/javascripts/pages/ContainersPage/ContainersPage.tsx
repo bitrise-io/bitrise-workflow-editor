@@ -1,7 +1,10 @@
 import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ContainerType } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -18,6 +21,14 @@ const ContainersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
 
+  const trackSubtabDisplayed = (tab: ContainerType) => {
+    segmentTrack('Container Subtab Displayed', {
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      tab_name: tab === ContainerType.Execution ? 'execution_containers' : 'service_containers',
+    });
+  };
+
   const onTabChange = (index: number) => {
     setSearchParams({
       ...searchParams,
@@ -27,7 +38,9 @@ const ContainersPage = () => {
 
   useEffect(() => {
     if (searchParams.tab && TAB_IDS.includes(searchParams.tab as ContainerType)) {
-      setTabIndex(TAB_IDS.indexOf(searchParams.tab as ContainerType));
+      const index = TAB_IDS.indexOf(searchParams.tab as ContainerType);
+      setTabIndex(index);
+      trackSubtabDisplayed(TAB_IDS[index]);
     } else {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }

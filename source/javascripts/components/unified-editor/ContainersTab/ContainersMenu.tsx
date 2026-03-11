@@ -1,17 +1,25 @@
 import { Button, Divider, Menu, MenuButton, MenuItem, MenuList, Text } from '@bitrise/bitkit';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import useNavigation from '@/hooks/useNavigation';
+
+export type ContainerReferenceSource = 'step_bundle_definition' | 'step_bundle_instance' | 'step_instance';
 
 type ContainersMenuProps = {
   actionType: 'Add' | 'Change';
   containers: Container[];
   onSelectContainer: (containerId: string) => void;
+  source: ContainerReferenceSource;
+  stepBundleId?: string;
+  stepId?: string;
   type: ContainerType;
 };
 
 const ContainersMenu = (props: ContainersMenuProps) => {
-  const { actionType, containers, onSelectContainer, type } = props;
+  const { actionType, containers, onSelectContainer, source, stepBundleId, stepId, type } = props;
   const { replace } = useNavigation();
 
   return (
@@ -23,7 +31,19 @@ const ContainersMenu = (props: ContainersMenuProps) => {
         {containers.map((container) => (
           <MenuItem
             key={container.id}
-            onClick={() => onSelectContainer(container.id)}
+            onClick={() => {
+              onSelectContainer(container.id);
+              segmentTrack('Container Assigned', {
+                app_slug: PageProps.appSlug(),
+                workspace_slug: GlobalProps.workspaceSlug(),
+                container_type: type,
+                container_unique_id: container.id,
+                container_image: container.userValues.image,
+                source,
+                step_id: stepId,
+                step_bundle_id: stepBundleId,
+              });
+            }}
             display="flex"
             flexDir="column"
             alignItems="flex-start"

@@ -4,7 +4,7 @@ import ContainerCardItem from '@/components/unified-editor/ContainersTab/Contain
 import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
 import useNavigation from '@/hooks/useNavigation';
 
-import ContainersMenu from './ContainersMenu';
+import ContainersMenu, { type ContainerReferenceSource } from './ContainersMenu';
 
 type ContainerCardProps = {
   containers: Container[];
@@ -14,6 +14,9 @@ type ContainerCardProps = {
   onAddContainer: (containerId: string) => void;
   onRecreate: (containerId: string, recreate: boolean) => void;
   onRemove: (containerId: string) => void;
+  source: ContainerReferenceSource;
+  stepBundleId?: string;
+  stepId?: string;
   type: ContainerType;
 };
 
@@ -26,6 +29,9 @@ const ContainerCard = (props: ContainerCardProps) => {
     onAddContainer,
     onRecreate,
     onRemove,
+    source,
+    stepBundleId,
+    stepId,
     type,
   } = props;
   const { replace } = useNavigation();
@@ -103,6 +109,9 @@ const ContainerCard = (props: ContainerCardProps) => {
                     actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
                     containers={availableContainers}
                     onSelectContainer={onAddContainer}
+                    source={source}
+                    stepBundleId={stepBundleId}
+                    stepId={stepId}
                     type={type}
                   />
                 </Td>
