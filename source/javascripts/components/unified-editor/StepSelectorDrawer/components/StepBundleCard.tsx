@@ -11,6 +11,7 @@ import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useStepBundle from '@/hooks/useStepBundle';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
@@ -54,6 +55,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     isEnabled: !!(workflowId || stepBundleId),
     stepBundleId: StepBundleService.cvsToId(cvs),
   });
+
+  const enableContainers = useFeatureFlag('enable-wfe-containers-page');
 
   const executionReferences = instance?.[ContainerType.Execution] ?? definition?.[ContainerType.Execution] ?? [];
   const serviceReferences = [
@@ -205,7 +208,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                     {usedInWorkflowsText}
                   </Text>
-                  {referenceIds.length > 0 && (
+                  {enableContainers && referenceIds.length > 0 && (
                     <>
                       <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
                       <Icon name="Container" size="16" color="icon/tertiary" />
