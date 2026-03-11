@@ -27,6 +27,8 @@ const StepBundleServiceContainerWildcardRefPath = [
   ContainerReferenceField.Service,
   '*',
 ];
+const StepBundleDefinitionExecutionContainerWildcardRefPath = ['step_bundles', '*', ContainerReferenceField.Execution];
+const StepBundleDefinitionServiceContainerWildcardRefPath = ['step_bundles', '*', ContainerReferenceField.Service, '*'];
 
 function getContainerOrThrowError(id: string, doc: Document) {
   const container = YmlUtils.getMapIn(doc, ['containers', id]);
@@ -153,6 +155,16 @@ function deleteContainer(id: string) {
     YmlUtils.deleteByPath(doc, [...StepBundleExecutionContainerWildcardRefPath, id], keepStepBundle);
     YmlUtils.deleteByValue(doc, StepBundleServiceContainerWildcardRefPath, id, keepStepBundle);
     YmlUtils.deleteByPath(doc, [...StepBundleServiceContainerWildcardRefPath, id], keepStepBundle);
+
+    const keepStepBundleDefinition = ['step_bundles', '*'];
+    YmlUtils.deleteByValue(doc, StepBundleDefinitionExecutionContainerWildcardRefPath, id, keepStepBundleDefinition);
+    YmlUtils.deleteByPath(
+      doc,
+      [...StepBundleDefinitionExecutionContainerWildcardRefPath, id],
+      keepStepBundleDefinition,
+    );
+    YmlUtils.deleteByValue(doc, StepBundleDefinitionServiceContainerWildcardRefPath, id, keepStepBundleDefinition);
+    YmlUtils.deleteByPath(doc, [...StepBundleDefinitionServiceContainerWildcardRefPath, id], keepStepBundleDefinition);
 
     return doc;
   });
