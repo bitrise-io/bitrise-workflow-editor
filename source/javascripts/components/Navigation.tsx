@@ -83,15 +83,13 @@ const Navigation = (props: Props) => {
   const enableContainersPage = useFeatureFlag('enable-wfe-containers-page');
 
   useEffect(() => {
-    if (data?.usesRepositoryYml) {
-      segmentTrack('Workflow Editor Tab Displayed', {
-        app_slug: PageProps.appSlug(),
-        tab_name: currentPage,
-        is_default_tab: isDefaultTabRef.current,
-        yml_source: data.usesRepositoryYml ? 'git' : 'bitrise',
-      });
-      isDefaultTabRef.current = false;
-    }
+    segmentTrack('Workflow Editor Tab Displayed', {
+      app_slug: PageProps.appSlug(),
+      tab_name: currentPage,
+      is_default_tab: isDefaultTabRef.current,
+      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
+    });
+    isDefaultTabRef.current = false;
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
