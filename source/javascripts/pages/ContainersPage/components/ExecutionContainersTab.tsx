@@ -54,6 +54,7 @@ const ExecutionContainersTab = () => {
           containerUsageLookup={containerUsageLookup}
           openDialog={onDialogOpen}
           setEditedContainer={setEditedContainer}
+          source={ContainerType.Execution}
         />
       ) : (
         <EmptyState

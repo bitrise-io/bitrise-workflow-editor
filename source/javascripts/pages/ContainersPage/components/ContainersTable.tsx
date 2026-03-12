@@ -14,7 +14,10 @@ import {
 } from '@bitrise/bitkit';
 import { useState } from 'react';
 
-import { Container } from '@/core/models/Container';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { Container, ContainerType } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 import DeleteContainerDialog from './DeleteContainerDialog';
@@ -24,6 +27,7 @@ type ContainersTableProps = {
   containerUsageLookup: Map<string, string[]>;
   openDialog: () => void;
   setEditedContainer: (value: Container | null) => void;
+  source: ContainerType;
 };
 
 const ContainersTable = ({
@@ -31,6 +35,7 @@ const ContainersTable = ({
   containerUsageLookup,
   openDialog,
   setEditedContainer,
+  source,
 }: ContainersTableProps) => {
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
 
@@ -84,6 +89,15 @@ const ContainersTable = ({
                       onClick={() => {
                         onContainerUsageDialogOpen();
                         setSelectedContainerId(container.id);
+                        segmentTrack('Container Usage Popup', {
+                          app_slug: PageProps.appSlug(),
+                          workspace_slug: GlobalProps.workspaceSlug(),
+                          number_of_containers_in_use: workflowCount,
+                          source:
+                            source === ContainerType.Execution
+                              ? 'execution_containers_subtab'
+                              : 'service_containers_subtab',
+                        });
                       }}
                     >
                       {usageLabel}

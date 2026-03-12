@@ -54,6 +54,7 @@ const ServiceContainersTab = () => {
           containerUsageLookup={containerUsageLookup}
           openDialog={onDialogOpen}
           setEditedContainer={setEditedContainer}
+          source={ContainerType.Service}
         />
       ) : (
         <EmptyState
