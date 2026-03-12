@@ -19,6 +19,7 @@ type ContainersTabProps = {
   source: ContainerReferenceSource;
   stepBundleId?: string;
   stepId?: string;
+  stepVersion?: string;
 };
 
 const ContainersTab = (props: ContainersTabProps) => {
@@ -33,6 +34,7 @@ const ContainersTab = (props: ContainersTabProps) => {
     source,
     stepBundleId,
     stepId,
+    stepVersion,
   } = props;
 
   return (
@@ -46,6 +48,7 @@ const ContainersTab = (props: ContainersTabProps) => {
         source={source}
         stepBundleId={stepBundleId}
         stepId={stepId}
+        stepVersion={stepVersion}
         definitionReferences={references?.definition?.[ContainerType.Execution]}
         instanceReferences={references?.instance?.[ContainerType.Execution]}
         isDefinitionReferencesDisabled={isDefinitionReferencesDisabled}
@@ -59,6 +62,7 @@ const ContainersTab = (props: ContainersTabProps) => {
         source={source}
         stepBundleId={stepBundleId}
         stepId={stepId}
+        stepVersion={stepVersion}
         definitionReferences={references?.definition?.[ContainerType.Service]}
         instanceReferences={references?.instance?.[ContainerType.Service]}
         isDefinitionReferencesDisabled={isDefinitionReferencesDisabled}

@@ -58,6 +58,7 @@ const StepContainersTab = () => {
       source="step_instance"
       stepBundleId={stepBundleId}
       stepId={data?.id}
+      stepVersion={data?.resolvedInfo?.resolvedVersion}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
       onRemove={handleRemove}

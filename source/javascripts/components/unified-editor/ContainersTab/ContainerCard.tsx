@@ -17,6 +17,7 @@ type ContainerCardProps = {
   source: ContainerReferenceSource;
   stepBundleId?: string;
   stepId?: string;
+  stepVersion?: string;
   type: ContainerType;
 };
 
@@ -32,6 +33,7 @@ const ContainerCard = (props: ContainerCardProps) => {
     source,
     stepBundleId,
     stepId,
+    stepVersion,
     type,
   } = props;
   const { replace } = useNavigation();
@@ -41,7 +43,6 @@ const ContainerCard = (props: ContainerCardProps) => {
   };
 
   const references = [...(definitionReferences || []), ...(instanceReferences || [])];
-
   const selectedReferenceIds = new Set(references.map((ref) => ref.id));
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
 
@@ -79,6 +80,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   source={source}
                   stepBundleId={stepBundleId}
                   stepId={stepId}
+                  stepVersion={stepVersion}
                 />
               );
             })}
@@ -95,6 +97,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   source={source}
                   stepBundleId={stepBundleId}
                   stepId={stepId}
+                  stepVersion={stepVersion}
                 />
               );
             })}
@@ -118,6 +121,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                     source={source}
                     stepBundleId={stepBundleId}
                     stepId={stepId}
+                    stepVersion={stepVersion}
                     type={type}
                   />
                 </Td>

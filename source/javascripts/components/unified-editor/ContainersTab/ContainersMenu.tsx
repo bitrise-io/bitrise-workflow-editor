@@ -15,11 +15,12 @@ type ContainersMenuProps = {
   source: ContainerReferenceSource;
   stepBundleId?: string;
   stepId?: string;
+  stepVersion?: string;
   type: ContainerType;
 };
 
 const ContainersMenu = (props: ContainersMenuProps) => {
-  const { actionType, containers, onSelectContainer, source, stepBundleId, stepId, type } = props;
+  const { actionType, containers, onSelectContainer, source, stepBundleId, stepId, stepVersion, type } = props;
   const { replace } = useNavigation();
 
   return (
@@ -42,6 +43,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
                 source,
                 step_id: stepId,
                 step_bundle_id: stepBundleId,
+                step_version: stepVersion,
               });
             }}
             display="flex"

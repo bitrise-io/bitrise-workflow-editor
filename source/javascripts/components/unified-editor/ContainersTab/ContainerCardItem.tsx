@@ -16,10 +16,11 @@ type ContainerCardItemProps = {
   source: ContainerReferenceSource;
   stepBundleId?: string;
   stepId?: string;
+  stepVersion?: string;
 };
 
 const ContainerCardItem = (props: ContainerCardItemProps) => {
-  const { container, isDisabled, onRecreate, onRemove, reference, source, stepId, stepBundleId } = props;
+  const { container, isDisabled, onRecreate, onRemove, reference, source, stepId, stepBundleId, stepVersion } = props;
 
   const handleRemove = () => {
     onRemove(reference.id);
@@ -32,6 +33,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
       container_image: container?.userValues.image,
       step_id: stepId,
       step_bundle_id: stepBundleId,
+      step_version: stepVersion,
     });
   };
 
