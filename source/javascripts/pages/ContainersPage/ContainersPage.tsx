@@ -32,25 +32,6 @@ const ContainersPage = () => {
     [containerUsageLookup],
   );
 
-  const trackSubtabDisplayed = useCallback(
-    (tab: ContainerType) => {
-      segmentTrack('Container Subtab Displayed', {
-        app_slug: PageProps.appSlug(),
-        workspace_slug: GlobalProps.workspaceSlug(),
-        tab_name: tab === ContainerType.Execution ? 'execution_containers' : 'service_containers',
-        is_default_tab: tab === ContainerType.Execution ? true : false,
-        number_of_containers_in_use:
-          tab === ContainerType.Execution ? countInUse(executionContainers) : countInUse(serviceContainers),
-        number_of_containers_not_in_use:
-          tab === ContainerType.Execution
-            ? executionContainers.length - countInUse(executionContainers)
-            : serviceContainers.length - countInUse(serviceContainers),
-        source: tab === ContainerType.Execution ? 'execution_containers_subtab' : 'service_containers_subtab',
-      });
-    },
-    [countInUse, executionContainers, serviceContainers],
-  );
-
   const onTabChange = (index: number) => {
     setSearchParams({
       ...searchParams,
@@ -61,12 +42,26 @@ const ContainersPage = () => {
   useEffect(() => {
     if (searchParams.tab && TAB_IDS.includes(searchParams.tab as ContainerType)) {
       const index = TAB_IDS.indexOf(searchParams.tab as ContainerType);
+      const tab = TAB_IDS[index];
       setTabIndex(index);
-      trackSubtabDisplayed(TAB_IDS[index]);
+      segmentTrack('Container Subtab Displayed', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        tab_name: tab === ContainerType.Execution ? 'execution_containers' : 'service_containers',
+        is_default_tab: tab === ContainerType.Execution,
+        number_of_containers_in_use:
+          tab === ContainerType.Execution ? countInUse(executionContainers) : countInUse(serviceContainers),
+        number_of_containers_not_in_use:
+          tab === ContainerType.Execution
+            ? executionContainers.length - countInUse(executionContainers)
+            : serviceContainers.length - countInUse(serviceContainers),
+        source: tab === ContainerType.Execution ? 'execution_containers_subtab' : 'service_containers_subtab',
+      });
     } else {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [searchParams, setSearchParams, setTabIndex, trackSubtabDisplayed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.tab]);
 
   return (
     <>
