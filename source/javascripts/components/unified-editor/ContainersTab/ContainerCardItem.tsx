@@ -1,6 +1,9 @@
 import { Box, Checkbox, ControlButton, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerReference } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 
 type ContainerCardItemProps = {
   container?: Container;
@@ -8,9 +11,27 @@ type ContainerCardItemProps = {
   onRecreate: (containerId: string, recreate: boolean) => void;
   onRemove: (containerId: string) => void;
   reference: ContainerReference;
+  stepBundleId?: string;
+  stepId?: string;
 };
 
-const ContainerCardItem = ({ container, isDisabled, onRecreate, onRemove, reference }: ContainerCardItemProps) => {
+const ContainerCardItem = (props: ContainerCardItemProps) => {
+  const { container, isDisabled, onRecreate, onRemove, reference, stepId, stepBundleId } = props;
+
+  const handleRemove = () => {
+    onRemove(reference.id);
+    segmentTrack('Container Unassigned', {
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      source: 'containers_tab',
+      container_type: container?.userValues.type,
+      container_unique_id: reference.id,
+      container_image: container?.userValues.image,
+      step_id: stepId,
+      step_bundle_id: stepBundleId,
+    });
+  };
+
   return (
     <Tr key={reference.id}>
       <Td>
@@ -42,7 +63,7 @@ const ContainerCardItem = ({ container, isDisabled, onRecreate, onRemove, refere
             iconName="MinusCircle"
             color="icon/negative"
             isDisabled={isDisabled}
-            onClick={() => onRemove(reference.id)}
+            onClick={handleRemove}
           />
         </Box>
       </Td>

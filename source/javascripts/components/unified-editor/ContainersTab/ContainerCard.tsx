@@ -70,12 +70,14 @@ const ContainerCard = (props: ContainerCardProps) => {
               const container = getContainerById(reference.id);
               return (
                 <ContainerCardItem
-                  key={`definition-${reference.id}`}
-                  reference={reference}
                   container={container}
+                  isDisabled={isDefinitionReferencesDisabled}
+                  key={`definition-${reference.id}`}
                   onRecreate={onRecreate}
                   onRemove={onRemove}
-                  isDisabled={isDefinitionReferencesDisabled}
+                  reference={reference}
+                  stepBundleId={stepBundleId}
+                  stepId={stepId}
                 />
               );
             })}
@@ -89,6 +91,8 @@ const ContainerCard = (props: ContainerCardProps) => {
                   container={container}
                   onRecreate={onRecreate}
                   onRemove={onRemove}
+                  stepBundleId={stepBundleId}
+                  stepId={stepId}
                 />
               );
             })}

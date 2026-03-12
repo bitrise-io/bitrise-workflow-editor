@@ -1,11 +1,12 @@
 import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { ContainerType } from '@/core/models/Container';
+import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
+import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 import useSearchParams from '@/hooks/useSearchParams';
 
 import ExecutionContainersTab from './components/ExecutionContainersTab';
@@ -21,13 +22,34 @@ const ContainersPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
 
-  const trackSubtabDisplayed = (tab: ContainerType) => {
-    segmentTrack('Container Subtab Displayed', {
-      app_slug: PageProps.appSlug(),
-      workspace_slug: GlobalProps.workspaceSlug(),
-      tab_name: tab === ContainerType.Execution ? 'execution_containers' : 'service_containers',
-    });
-  };
+  const containerUsageLookup = useContainerWorkflowUsage();
+  const countInUse = useCallback(
+    (containers: Container[]) =>
+      containers.filter((c) => {
+        const usageCount = containerUsageLookup.get(c.id)?.length ?? 0;
+        return usageCount > 0;
+      }).length,
+    [containerUsageLookup],
+  );
+
+  const trackSubtabDisplayed = useCallback(
+    (tab: ContainerType) => {
+      segmentTrack('Container Subtab Displayed', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        tab_name: tab === ContainerType.Execution ? 'execution_containers' : 'service_containers',
+        is_default_tab: tab === ContainerType.Execution ? true : false,
+        number_of_containers_in_use:
+          tab === ContainerType.Execution ? countInUse(executionContainers) : countInUse(serviceContainers),
+        number_of_containers_not_in_use:
+          tab === ContainerType.Execution
+            ? executionContainers.length - countInUse(executionContainers)
+            : serviceContainers.length - countInUse(serviceContainers),
+        source: tab === ContainerType.Execution ? 'execution_containers_subtab' : 'service_containers_subtab',
+      });
+    },
+    [countInUse, executionContainers, serviceContainers],
+  );
 
   const onTabChange = (index: number) => {
     setSearchParams({
@@ -44,7 +66,7 @@ const ContainersPage = () => {
     } else {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [searchParams, setSearchParams, setTabIndex]);
+  }, [searchParams, setSearchParams, setTabIndex, trackSubtabDisplayed]);
 
   return (
     <>
