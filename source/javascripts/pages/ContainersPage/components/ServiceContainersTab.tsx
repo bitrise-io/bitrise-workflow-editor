@@ -1,7 +1,10 @@
 import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
@@ -28,7 +31,20 @@ const ServiceContainersTab = () => {
         <Text color="text/secondary">
           Use service containers to attach custom services you want to use during your Workflows.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onDialogOpen}>
+        <Button
+          variant="secondary"
+          leftIconName="Plus"
+          size="md"
+          minW={['100%', 'auto']}
+          onClick={() => {
+            onDialogOpen();
+            segmentTrack('Container Definition Creation Started', {
+              app_slug: PageProps.appSlug(),
+              workspace_slug: GlobalProps.workspaceSlug(),
+              container_type: 'service',
+            });
+          }}
+        >
           Add container
         </Button>
       </Box>
@@ -38,6 +54,7 @@ const ServiceContainersTab = () => {
           containerUsageLookup={containerUsageLookup}
           openDialog={onDialogOpen}
           setEditedContainer={setEditedContainer}
+          source={ContainerType.Service}
         />
       ) : (
         <EmptyState

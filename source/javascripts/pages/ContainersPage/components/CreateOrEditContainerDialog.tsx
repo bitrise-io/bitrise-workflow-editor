@@ -21,10 +21,13 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
 import { EnvVarPopover } from '@/components/VariablePopover';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container } from '@/core/models/Container';
 import { EnvVar } from '@/core/models/EnvVar';
 import ContainerService from '@/core/services/ContainerService';
 import EnvVarService from '@/core/services/EnvVarService';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
 
 type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
@@ -94,9 +97,34 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         ContainerService.updateContainerId(editedContainer.id, container.id);
       }
       ContainerService.updateContainer(container.id, container.userValues);
+
+      segmentTrack('Container Definition Updated', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        container_type: type,
+        container_unique_id: container.id,
+        container_image: container.userValues.image,
+        has_additional_param: container.userValues.options ? true : false,
+        has_port_mappings: container.userValues.ports && container.userValues.ports.length > 0 ? true : false,
+        has_env_vars: container.userValues.envs && container.userValues.envs.length > 0 ? true : false,
+        number_of_env_vars_defined: container.userValues.envs?.length,
+      });
     } else {
       ContainerService.createContainer(container.id, container.userValues);
+
+      segmentTrack('Container Definition Created', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        container_type: type,
+        container_unique_id: container.id,
+        container_image: container.userValues.image,
+        has_additional_param: container.userValues.options ? true : false,
+        has_port_mappings: container.userValues.ports && container.userValues.ports.length > 0 ? true : false,
+        has_env_vars: container.userValues.envs && container.userValues.envs.length > 0 ? true : false,
+        number_of_env_vars_defined: container.userValues.envs?.length,
+      });
     }
+
     onClose();
   };
 
