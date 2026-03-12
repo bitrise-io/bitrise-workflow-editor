@@ -89,7 +89,7 @@ const ContainersTable = ({
                       onClick={() => {
                         onContainerUsageDialogOpen();
                         setSelectedContainerId(container.id);
-                        segmentTrack('Container Usage Popup', {
+                        segmentTrack('Container Usage Popup Shown', {
                           app_slug: PageProps.appSlug(),
                           workspace_slug: GlobalProps.workspaceSlug(),
                           number_of_containers_in_use: workflowCount,
@@ -122,6 +122,12 @@ const ContainersTable = ({
                     onClick={() => {
                       setSelectedContainerId(container.id);
                       onDeleteContainerDialogOpen();
+                      segmentTrack('Container Usage Popup Shown', {
+                        app_slug: PageProps.appSlug(),
+                        workspace_slug: GlobalProps.workspaceSlug(),
+                        number_of_containers_in_use: workflowCount,
+                        source: 'container_deletion_dialog',
+                      });
                     }}
                   />
                 </Td>

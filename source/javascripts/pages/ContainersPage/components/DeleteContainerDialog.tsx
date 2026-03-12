@@ -41,8 +41,24 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
     onClose();
   };
 
+  const handleClose = () => {
+    onClose();
+    segmentTrack('Delete Container Popup Dismissed', {
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      container_type: type,
+      container_unique_id: selectedContainerId,
+      container_image: selectedContainer?.userValues.image,
+      has_additional_param: selectedContainer?.userValues.options ? true : false,
+      has_port_mappings:
+        selectedContainer?.userValues.ports && selectedContainer.userValues.ports.length > 0 ? true : false,
+      has_env_vars: selectedContainer?.userValues.envs && selectedContainer.userValues.envs.length > 0 ? true : false,
+      number_of_env_vars_defined: selectedContainer?.userValues.envs?.length,
+    });
+  };
+
   return (
-    <Dialog title="Delete container?" isOpen={isOpen} onClose={onClose}>
+    <Dialog title="Delete container?" isOpen={isOpen} onClose={handleClose}>
       <DialogBody>
         <Text mb="24">
           Are you sure you want to delete{' '}
@@ -64,7 +80,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={handleClose}>
           Cancel
         </Button>
         <Button variant="danger-primary" onClick={handleDelete}>
