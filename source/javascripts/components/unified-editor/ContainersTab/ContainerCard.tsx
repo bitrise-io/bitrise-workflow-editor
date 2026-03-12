@@ -76,6 +76,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   onRecreate={onRecreate}
                   onRemove={onRemove}
                   reference={reference}
+                  source={source}
                   stepBundleId={stepBundleId}
                   stepId={stepId}
                 />
@@ -91,6 +92,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                   container={container}
                   onRecreate={onRecreate}
                   onRemove={onRemove}
+                  source={source}
                   stepBundleId={stepBundleId}
                   stepId={stepId}
                 />

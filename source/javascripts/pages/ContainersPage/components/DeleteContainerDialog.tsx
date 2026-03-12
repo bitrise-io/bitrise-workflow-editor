@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Divider, Text } from '@bitrise/bitkit';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -11,11 +12,12 @@ import ContainerUsageTable from './ContainerUsageTable';
 
 type DeleteContainerDialogProps = Omit<DialogProps, 'title'> & {
   selectedContainerId: string;
+  source: ContainerType;
   type: 'definition' | 'reference';
 };
 
 const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
-  const { isOpen, onClose, selectedContainerId, type } = props;
+  const { isOpen, onClose, selectedContainerId, source, type } = props;
 
   const { all: containers } = useContainers();
   const selectedContainer = containers.find((c) => c.id === selectedContainerId);
@@ -29,7 +31,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
     segmentTrack('Container Definition Deleted', {
       app_slug: PageProps.appSlug(),
       workspace_slug: GlobalProps.workspaceSlug(),
-      container_type: type,
+      container_type: source,
       container_unique_id: selectedContainerId,
       container_image: selectedContainer?.userValues.image,
       has_additional_param: selectedContainer?.userValues.options ? true : false,
@@ -46,7 +48,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
     segmentTrack('Delete Container Popup Dismissed', {
       app_slug: PageProps.appSlug(),
       workspace_slug: GlobalProps.workspaceSlug(),
-      container_type: type,
+      container_type: source,
       container_unique_id: selectedContainerId,
       container_image: selectedContainer?.userValues.image,
       has_additional_param: selectedContainer?.userValues.options ? true : false,

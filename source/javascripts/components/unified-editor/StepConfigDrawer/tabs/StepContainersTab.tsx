@@ -55,7 +55,7 @@ const StepContainersTab = () => {
       executionContainers={executionContainers}
       serviceContainers={serviceContainers}
       references={{ instance }}
-      source={stepBundleId ? 'step_bundle_instance' : 'step_instance'}
+      source="step_instance"
       stepBundleId={stepBundleId}
       stepId={data?.id}
       onAddContainer={handleAdd}

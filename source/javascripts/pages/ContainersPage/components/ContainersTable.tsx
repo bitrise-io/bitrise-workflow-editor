@@ -146,6 +146,7 @@ const ContainersTable = ({
         onClose={onDeleteContainerDialogClose}
         selectedContainerId={selectedContainerId}
         type="definition"
+        source={source}
       />
     </Box>
   );

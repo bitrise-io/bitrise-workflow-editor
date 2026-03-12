@@ -5,25 +5,28 @@ import { Container, ContainerReference } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 
+import { ContainerReferenceSource } from './ContainersMenu';
+
 type ContainerCardItemProps = {
   container?: Container;
   isDisabled?: boolean;
   onRecreate: (containerId: string, recreate: boolean) => void;
   onRemove: (containerId: string) => void;
   reference: ContainerReference;
+  source: ContainerReferenceSource;
   stepBundleId?: string;
   stepId?: string;
 };
 
 const ContainerCardItem = (props: ContainerCardItemProps) => {
-  const { container, isDisabled, onRecreate, onRemove, reference, stepId, stepBundleId } = props;
+  const { container, isDisabled, onRecreate, onRemove, reference, source, stepId, stepBundleId } = props;
 
   const handleRemove = () => {
     onRemove(reference.id);
     segmentTrack('Container Unassigned', {
       app_slug: PageProps.appSlug(),
       workspace_slug: GlobalProps.workspaceSlug(),
-      source: 'containers_tab',
+      source: source,
       container_type: container?.userValues.type,
       container_unique_id: reference.id,
       container_image: container?.userValues.image,
