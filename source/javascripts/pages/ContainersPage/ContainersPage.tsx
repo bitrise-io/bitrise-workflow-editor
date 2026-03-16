@@ -55,7 +55,6 @@ const ContainersPage = () => {
           tab === ContainerType.Execution
             ? executionContainers.length - countInUse(executionContainers)
             : serviceContainers.length - countInUse(serviceContainers),
-        source: tab === ContainerType.Execution ? 'execution_containers_subtab' : 'service_containers_subtab',
       });
     } else {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
