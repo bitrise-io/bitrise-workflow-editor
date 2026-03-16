@@ -35,9 +35,9 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
       container_unique_id: selectedContainerId,
       container_image: selectedContainer?.userValues.image,
       has_additional_param: selectedContainer?.userValues.options ? true : false,
-      has_port_mappings:
+      has_port_mapping:
         selectedContainer?.userValues.ports && selectedContainer.userValues.ports.length > 0 ? true : false,
-      has_env_vars: selectedContainer?.userValues.envs && selectedContainer.userValues.envs.length > 0 ? true : false,
+      has_env_var: selectedContainer?.userValues.envs && selectedContainer.userValues.envs.length > 0 ? true : false,
       number_of_env_vars_defined: selectedContainer?.userValues.envs?.length,
     });
     onClose();
@@ -52,9 +52,9 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
       container_unique_id: selectedContainerId,
       container_image: selectedContainer?.userValues.image,
       has_additional_param: selectedContainer?.userValues.options ? true : false,
-      has_port_mappings:
+      has_port_mapping:
         selectedContainer?.userValues.ports && selectedContainer.userValues.ports.length > 0 ? true : false,
-      has_env_vars: selectedContainer?.userValues.envs && selectedContainer.userValues.envs.length > 0 ? true : false,
+      has_env_var: selectedContainer?.userValues.envs && selectedContainer.userValues.envs.length > 0 ? true : false,
       number_of_env_vars_defined: selectedContainer?.userValues.envs?.length || 0,
     });
   };

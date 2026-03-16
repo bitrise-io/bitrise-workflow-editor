@@ -105,8 +105,8 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         container_unique_id: container.id,
         container_image: container.userValues.image,
         has_additional_param: container.userValues.options ? true : false,
-        has_port_mappings: container.userValues.ports && container.userValues.ports.length > 0 ? true : false,
-        has_env_vars: container.userValues.envs && container.userValues.envs.length > 0 ? true : false,
+        has_port_mapping: container.userValues.ports && container.userValues.ports.length > 0 ? true : false,
+        has_env_var: container.userValues.envs && container.userValues.envs.length > 0 ? true : false,
         number_of_env_vars_defined: container.userValues.envs?.length,
       });
     } else {
@@ -119,8 +119,8 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         container_unique_id: container.id,
         container_image: container.userValues.image,
         has_additional_param: container.userValues.options ? true : false,
-        has_port_mappings: container.userValues.ports && container.userValues.ports.length > 0 ? true : false,
-        has_env_vars: container.userValues.envs && container.userValues.envs.length > 0 ? true : false,
+        has_port_mapping: container.userValues.ports && container.userValues.ports.length > 0 ? true : false,
+        has_env_var: container.userValues.envs && container.userValues.envs.length > 0 ? true : false,
         number_of_env_vars_defined: container.userValues.envs?.length,
       });
     }
