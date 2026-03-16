@@ -1,5 +1,5 @@
 import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
@@ -23,14 +23,11 @@ const ContainersPage = () => {
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
 
   const containerUsageLookup = useContainerWorkflowUsage();
-  const countInUse = useCallback(
-    (containers: Container[]) =>
-      containers.filter((c) => {
-        const usageCount = containerUsageLookup.get(c.id)?.length ?? 0;
-        return usageCount > 0;
-      }).length,
-    [containerUsageLookup],
-  );
+  const countInUse = (containers: Container[]) =>
+    containers.filter((c) => {
+      const usageCount = containerUsageLookup.get(c.id)?.length ?? 0;
+      return usageCount > 0;
+    }).length;
 
   const onTabChange = (index: number) => {
     setSearchParams({
@@ -59,7 +56,8 @@ const ContainersPage = () => {
     } else {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [countInUse, executionContainers, searchParams, serviceContainers, setSearchParams, setTabIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <>
