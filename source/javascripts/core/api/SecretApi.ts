@@ -215,7 +215,143 @@ async function deleteSecret({
   });
 }
 
-export type { SecretsLocalResponse, SecretsMonolithResponse };
+// CODE SIGNING FILES
+type ProvProfilesResponse = {
+  prov_profile_documents: Array<{
+    id: string;
+    processed: boolean;
+    is_expose: boolean;
+    is_protected: boolean;
+    upload_file_name: string;
+  }>;
+};
+
+type CertificatesResponse = {
+  build_certificates: Array<{
+    id: string;
+    processed: boolean;
+    is_expose: boolean;
+    is_protected: boolean;
+    upload_file_name: string;
+    certificate_password: string;
+  }>;
+};
+
+type FileStorageDocumentsResponse = {
+  project_file_storage_documents: Array<{
+    id: string;
+    processed: boolean;
+    is_expose: boolean;
+    is_protected: boolean;
+    upload_file_name: string;
+    user_env_key: string;
+  }>;
+};
+
+const CODE_SIGNING_SOURCE = 'code signing files';
+
+const PROV_PROFILES_PATH = '/api/app/:appSlug/prov_profile_document/show.json';
+const CERTIFICATES_PATH = '/api/app/:appSlug/build_certificate/show.json';
+const FILE_STORAGE_DOCUMENTS_PATH = '/api/app/:appSlug/project_file_storage_document/show.json';
+
+function getProvProfilesPath(appSlug: string) {
+  return PROV_PROFILES_PATH.replace(':appSlug', appSlug);
+}
+
+function getCertificatesPath(appSlug: string) {
+  return CERTIFICATES_PATH.replace(':appSlug', appSlug);
+}
+
+function getFileStorageDocumentsPath(appSlug: string) {
+  return FILE_STORAGE_DOCUMENTS_PATH.replace(':appSlug', appSlug);
+}
+
+const defaultCodeSigningSecret: Secret = {
+  key: '',
+  source: CODE_SIGNING_SOURCE,
+  isExpose: false,
+  isExpand: true,
+  isProtected: false,
+  isKeyChangeable: false,
+  isEditing: false,
+  isSaved: true,
+};
+
+type GetCodeSigningSecretsProps = {
+  appSlug: string;
+  projectType?: string;
+  signal?: AbortSignal;
+};
+
+async function getProvProfiles({ appSlug, projectType, signal }: GetCodeSigningSecretsProps): Promise<Secret[]> {
+  const response = await Client.get<ProvProfilesResponse>(getProvProfilesPath(appSlug), { signal });
+
+  const secrets: Secret[] = [];
+
+  if (response.prov_profile_documents.length > 0) {
+    secrets.push({ ...defaultCodeSigningSecret, key: 'BITRISE_PROVISION_URL' });
+  }
+
+  if (projectType !== 'xamarin') {
+    secrets.push({ ...defaultCodeSigningSecret, key: 'BITRISE_DEFAULT_PROVISION_URL' });
+  }
+
+  return secrets;
+}
+
+async function getCertificates({ appSlug, projectType, signal }: GetCodeSigningSecretsProps): Promise<Secret[]> {
+  const response = await Client.get<CertificatesResponse>(getCertificatesPath(appSlug), { signal });
+
+  const secrets: Secret[] = [];
+
+  if (response.build_certificates.length > 0) {
+    secrets.push({ ...defaultCodeSigningSecret, key: 'BITRISE_CERTIFICATE_URL' });
+    secrets.push({ ...defaultCodeSigningSecret, key: 'BITRISE_CERTIFICATE_PASSPHRASE' });
+  }
+
+  if (projectType !== 'xamarin') {
+    secrets.push({ ...defaultCodeSigningSecret, key: 'BITRISE_DEFAULT_CERTIFICATE_URL' });
+    secrets.push({ ...defaultCodeSigningSecret, key: 'BITRISE_DEFAULT_CERTIFICATE_PASSPHRASE' });
+  }
+
+  return secrets;
+}
+
+async function getFileStorageDocuments({ appSlug, signal }: GetCodeSigningSecretsProps): Promise<Secret[]> {
+  const response = await Client.get<FileStorageDocumentsResponse>(getFileStorageDocumentsPath(appSlug), { signal });
+
+  const secrets: Secret[] = [];
+
+  response.project_file_storage_documents.forEach(({ user_env_key: key }) => {
+    secrets.push({ ...defaultCodeSigningSecret, key: `BITRISEIO_${key}_URL` });
+
+    if (key.startsWith('ANDROID_KEYSTORE')) {
+      secrets.push({ ...defaultCodeSigningSecret, key: `BITRISEIO_${key}_ALIAS` });
+      secrets.push({ ...defaultCodeSigningSecret, key: `BITRISEIO_${key}_PASSWORD` });
+      secrets.push({ ...defaultCodeSigningSecret, key: `BITRISEIO_${key}_PRIVATE_KEY_PASSWORD` });
+    }
+  });
+
+  return secrets;
+}
+
+async function getCodeSigningSecrets({ appSlug, projectType, signal }: GetCodeSigningSecretsProps): Promise<Secret[]> {
+  const results = await Promise.all([
+    getProvProfiles({ appSlug, projectType, signal }),
+    getCertificates({ appSlug, projectType, signal }),
+    getFileStorageDocuments({ appSlug, projectType, signal }),
+  ]);
+
+  return results.flatMap((v) => v);
+}
+
+export type {
+  CertificatesResponse,
+  FileStorageDocumentsResponse,
+  ProvProfilesResponse,
+  SecretsLocalResponse,
+  SecretsMonolithResponse,
+};
 
 export default {
   getSecrets,
@@ -224,4 +360,8 @@ export default {
   deleteSecret,
   getSecretPath,
   getSecretLocalPath,
+  getCodeSigningSecrets,
+  getProvProfilesPath,
+  getCertificatesPath,
+  getFileStorageDocumentsPath,
 };

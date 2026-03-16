@@ -141,6 +141,23 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
             kind: monacoInstance.languages.CompletionItemKind.Variable,
           } satisfies languages.CompletionItem);
         });
+
+        const codeSigningSecrets = await SecretApi.getCodeSigningSecrets({
+          appSlug,
+          projectType,
+          signal: abortController.signal,
+        });
+
+        codeSigningSecrets.forEach(({ key, source }) => {
+          suggestions.push({
+            range,
+            label: `${key}`,
+            insertText: key,
+            sortText: `${key}`,
+            detail: `from ${source}`,
+            kind: monacoInstance.languages.CompletionItemKind.Variable,
+          } satisfies languages.CompletionItem);
+        });
       }
 
       async function loadStepOutputs() {
