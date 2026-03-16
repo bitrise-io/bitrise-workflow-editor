@@ -23,6 +23,17 @@ const ContainersMenu = (props: ContainersMenuProps) => {
   const { actionType, containers, onSelectContainer, source, stepBundleId, stepId, stepVersion, type } = props;
   const { replace } = useNavigation();
 
+  const handleManageContainers = () => {
+    replace('/containers', { tab: type });
+    segmentTrack('Manage Containers Link Clicked', {
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      tab_name: type === ContainerType.Execution ? 'execution_containers' : 'service_containers',
+      is_default_tab: type === ContainerType.Execution,
+      source,
+    });
+  };
+
   return (
     <Menu>
       <MenuButton as={Button} variant="tertiary" leftIconName={actionType === 'Add' ? 'Plus' : 'Replace'} size="sm">
@@ -55,7 +66,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
           </MenuItem>
         ))}
         {containers.length > 0 && <Divider color="border/minimal" mb="8" />}
-        <MenuItem onClick={() => replace('/containers', { tab: type })}>Manage containers</MenuItem>
+        <MenuItem onClick={handleManageContainers}>Manage containers</MenuItem>
       </MenuList>
     </Menu>
   );
