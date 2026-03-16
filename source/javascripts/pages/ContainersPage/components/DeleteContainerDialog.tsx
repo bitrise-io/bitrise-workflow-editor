@@ -38,7 +38,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
       has_port_mapping:
         selectedContainer?.userValues.ports && selectedContainer.userValues.ports.length > 0 ? true : false,
       has_env_var: selectedContainer?.userValues.envs && selectedContainer.userValues.envs.length > 0 ? true : false,
-      number_of_env_vars_defined: selectedContainer?.userValues.envs?.length,
+      number_of_env_vars_defined: selectedContainer?.userValues.envs?.length || 0,
     });
     onClose();
   };
