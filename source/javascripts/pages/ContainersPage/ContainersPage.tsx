@@ -60,8 +60,7 @@ const ContainersPage = () => {
     } else {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.tab]);
+  }, [countInUse, executionContainers, searchParams, serviceContainers, setSearchParams, setTabIndex]);
 
   return (
     <>
