@@ -336,6 +336,12 @@ async function getFileStorageDocuments({ appSlug, signal }: GetCodeSigningSecret
 }
 
 async function getCodeSigningSecrets({ appSlug, projectType, signal }: GetCodeSigningSecretsProps): Promise<Secret[]> {
+  // In non-website (e.g. local/CLI) modes or when appSlug is missing, monolith
+  // endpoints may be unavailable. Avoid issuing requests and return an empty list.
+  if (!RuntimeUtils.isWebsiteMode() || !appSlug) {
+    return [];
+  }
+
   const results = await Promise.all([
     getProvProfiles({ appSlug, projectType, signal }),
     getCertificates({ appSlug, projectType, signal }),
