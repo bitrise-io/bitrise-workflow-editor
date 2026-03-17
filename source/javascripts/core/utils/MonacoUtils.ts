@@ -109,8 +109,12 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
 
       token.onCancellationRequested(() => abortController.abort('Completion request cancelled by Monaco editor'));
 
-      async function loadEnvVars() {
-        const envVars = await EnvVarsApi.getEnvVars({ appSlug, projectType, signal: abortController.signal });
+      async function loadEnvVarsAndSecrets() {
+        const [envVars, projectLevelSecrets, codeSigningSecrets] = await Promise.all([
+          EnvVarsApi.getEnvVars({ appSlug, projectType, signal: abortController.signal }),
+          SecretApi.getSecrets({ appSlug, signal: abortController.signal }),
+          SecretApi.getCodeSigningSecrets({ appSlug, projectType, signal: abortController.signal }),
+        ]);
 
         envVars.forEach(({ key, source }) => {
           if (suggestions.some((s) => s.label === key)) {
@@ -126,18 +130,33 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
             kind: monacoInstance.languages.CompletionItemKind.Variable,
           } satisfies languages.CompletionItem);
         });
-      }
-
-      async function loadSecrets() {
-        const projectLevelSecrets = await SecretApi.getSecrets({ appSlug, signal: abortController.signal });
 
         projectLevelSecrets.forEach(({ key }) => {
+          if (suggestions.some((s) => s.label === key)) {
+            return;
+          }
+
           suggestions.push({
             range,
             label: `${key}`,
             insertText: key,
             sortText: `${key}`,
             detail: 'from project level secrets',
+            kind: monacoInstance.languages.CompletionItemKind.Variable,
+          } satisfies languages.CompletionItem);
+        });
+
+        codeSigningSecrets.forEach(({ key, source }) => {
+          if (suggestions.some((s) => s.label === key)) {
+            return;
+          }
+
+          suggestions.push({
+            range,
+            label: `${key}`,
+            insertText: key,
+            sortText: `${key}`,
+            detail: `from ${source}`,
             kind: monacoInstance.languages.CompletionItemKind.Variable,
           } satisfies languages.CompletionItem);
         });
@@ -186,7 +205,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
       }
 
       try {
-        await Promise.all([loadEnvVars(), loadSecrets(), loadStepOutputs()]);
+        await Promise.all([loadEnvVarsAndSecrets(), loadStepOutputs()]);
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
           return { suggestions: [] };

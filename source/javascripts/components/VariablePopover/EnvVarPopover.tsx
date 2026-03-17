@@ -16,6 +16,7 @@ import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/us
 import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import PageProps from '@/core/utils/PageProps';
+import useCodeSigningSecrets from '@/hooks/useCodeSigningSecrets';
 import useEnvVars from '@/hooks/useEnvVars';
 import { useSecrets } from '@/hooks/useSecrets';
 
@@ -56,9 +57,10 @@ const EnvVarPopover = ({
     appSlug,
     options: { enabled: shouldLoadVars },
   });
+  const { isLoading: isLoadingCodeSigning, data: codeSigningSecrets = [] } = useCodeSigningSecrets(shouldLoadVars);
 
-  const isLoading = isLoadingEnvVars || isLoadingSecrets;
-  const items = [...envs, ...secrets] as EnvVar[];
+  const isLoading = isLoadingEnvVars || isLoadingSecrets || isLoadingCodeSigning;
+  const items = [...envs, ...secrets, ...codeSigningSecrets] as EnvVar[];
   items.sort((a, b) => a.key.localeCompare(b.key));
 
   const handleOnCreate = useCallback(

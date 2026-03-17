@@ -3,13 +3,14 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
 
+import { getDefaultOutputs } from '@/core/api/EnvVarsApi.mswMocks';
 import {
   getCertificates,
-  getDefaultOutputs,
   getFileStorageDocuments,
   getProvProfiles,
-} from '@/core/api/EnvVarsApi.mswMocks';
-import { getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+  getSecrets,
+  getSecretsFromLocal,
+} from '@/core/api/SecretApi.mswMocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
@@ -72,8 +73,11 @@ export const WebsiteMode: Story = {
       handlers: [
         StepApiMocks.getLocalStep({ status: 'success' }),
         getSecrets(),
-        getDefaultOutputs(),
+        getCertificates(),
+        getProvProfiles(),
         getStacksAndMachines(),
+        getFileStorageDocuments(),
+        getDefaultOutputs(':appSlug'),
       ],
     },
   },

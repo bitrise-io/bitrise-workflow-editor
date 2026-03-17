@@ -1,6 +1,12 @@
 import { delay, http, HttpResponse } from 'msw';
 
-import SecretApi, { SecretsLocalResponse, SecretsMonolithResponse } from './SecretApi';
+import SecretApi, {
+  CertificatesResponse,
+  FileStorageDocumentsResponse,
+  ProvProfilesResponse,
+  SecretsLocalResponse,
+  SecretsMonolithResponse,
+} from './SecretApi';
 
 export const getSecrets = (override?: SecretsMonolithResponse[]) => {
   return http.get(SecretApi.getSecretPath(':appSlug'), async () => {
@@ -67,5 +73,61 @@ export const getSecretsFromLocal = (override?: SecretsLocalResponse['envs']) => 
     return HttpResponse.json({
       envs: secrets,
     } satisfies SecretsLocalResponse);
+  });
+};
+
+export const getProvProfiles = () => {
+  return http.get(SecretApi.getProvProfilesPath(':appSlug'), async () => {
+    await delay();
+
+    return HttpResponse.json({
+      prov_profile_documents: [
+        {
+          id: crypto.randomUUID(),
+          processed: true,
+          is_expose: false,
+          is_protected: false,
+          upload_file_name: 'file.json',
+        },
+      ],
+    } satisfies ProvProfilesResponse);
+  });
+};
+
+export const getCertificates = () => {
+  return http.get(SecretApi.getCertificatesPath(':appSlug'), async () => {
+    await delay();
+
+    return HttpResponse.json({
+      build_certificates: [
+        {
+          id: crypto.randomUUID(),
+          processed: true,
+          is_expose: false,
+          is_protected: false,
+          upload_file_name: 'file.json',
+          certificate_password: 'password',
+        },
+      ],
+    } satisfies CertificatesResponse);
+  });
+};
+
+export const getFileStorageDocuments = () => {
+  return http.get(SecretApi.getFileStorageDocumentsPath(':appSlug'), async () => {
+    await delay();
+
+    return HttpResponse.json({
+      project_file_storage_documents: [
+        {
+          id: crypto.randomUUID(),
+          processed: true,
+          is_expose: false,
+          is_protected: false,
+          upload_file_name: 'file.json',
+          user_env_key: 'SOMETHING_FILE',
+        },
+      ],
+    } satisfies FileStorageDocumentsResponse);
   });
 };
