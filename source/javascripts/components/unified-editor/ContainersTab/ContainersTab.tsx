@@ -3,6 +3,7 @@ import { Box } from '@bitrise/bitkit';
 import { Container, ContainerType } from '@/core/models/Container';
 
 import ContainerCard from './ContainerCard';
+import { type ContainerReferenceSource } from './ContainersMenu';
 import { UseContainerReferencesReturnValue } from './hooks/useContainerReferences';
 
 export type Source = 'workflows' | 'step_bundles';
@@ -15,6 +16,10 @@ type ContainersTabProps = {
   onRemove: (containerId: string) => void;
   references?: UseContainerReferencesReturnValue;
   serviceContainers: Container[];
+  source: ContainerReferenceSource;
+  stepBundleId?: string;
+  stepId?: string;
+  stepVersion?: string;
 };
 
 const ContainersTab = (props: ContainersTabProps) => {
@@ -26,6 +31,10 @@ const ContainersTab = (props: ContainersTabProps) => {
     onRemove,
     references,
     serviceContainers,
+    source,
+    stepBundleId,
+    stepId,
+    stepVersion,
   } = props;
 
   return (
@@ -36,6 +45,10 @@ const ContainersTab = (props: ContainersTabProps) => {
         onAddContainer={onAddContainer}
         onRecreate={onRecreate}
         onRemove={onRemove}
+        source={source}
+        stepBundleId={stepBundleId}
+        stepId={stepId}
+        stepVersion={stepVersion}
         definitionReferences={references?.definition?.[ContainerType.Execution]}
         instanceReferences={references?.instance?.[ContainerType.Execution]}
         isDefinitionReferencesDisabled={isDefinitionReferencesDisabled}
@@ -46,6 +59,10 @@ const ContainersTab = (props: ContainersTabProps) => {
         onAddContainer={onAddContainer}
         onRecreate={onRecreate}
         onRemove={onRemove}
+        source={source}
+        stepBundleId={stepBundleId}
+        stepId={stepId}
+        stepVersion={stepVersion}
         definitionReferences={references?.definition?.[ContainerType.Service]}
         instanceReferences={references?.instance?.[ContainerType.Service]}
         isDefinitionReferencesDisabled={isDefinitionReferencesDisabled}

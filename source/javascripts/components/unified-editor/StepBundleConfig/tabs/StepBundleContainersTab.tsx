@@ -55,6 +55,8 @@ const StepBundleContainersTab = () => {
       executionContainers={executionContainers}
       references={references}
       serviceContainers={serviceContainers}
+      source={isDefinition ? 'step_bundle_definition' : 'step_bundle_instance'}
+      stepBundleId={stepBundleId}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
       onRemove={handleRemove}

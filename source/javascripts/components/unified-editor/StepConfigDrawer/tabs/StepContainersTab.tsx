@@ -6,7 +6,7 @@ import ContainerService from '@/core/services/ContainerService';
 import useContainers from '@/hooks/useContainers';
 
 const StepContainersTab = () => {
-  const { workflowId, stepBundleId, stepIndex } = useStepDrawerContext();
+  const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
 
   const handleAdd = (containerId: string) => {
     ContainerService.addContainerReference(
@@ -55,6 +55,10 @@ const StepContainersTab = () => {
       executionContainers={executionContainers}
       serviceContainers={serviceContainers}
       references={{ instance }}
+      source="step_instance"
+      stepBundleId={stepBundleId}
+      stepId={data?.id}
+      stepVersion={data?.resolvedInfo?.resolvedVersion}
       onAddContainer={handleAdd}
       onRecreate={handleRecreate}
       onRemove={handleRemove}

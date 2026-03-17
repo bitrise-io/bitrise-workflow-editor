@@ -1,7 +1,10 @@
 import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
@@ -28,7 +31,20 @@ const ExecutionContainersTab = () => {
         <Text color="text/secondary">
           Use execution containers to create your custom environment to run your Steps in.
         </Text>
-        <Button variant="secondary" leftIconName="Plus" size="md" minW={['100%', 'auto']} onClick={onDialogOpen}>
+        <Button
+          variant="secondary"
+          leftIconName="Plus"
+          size="md"
+          minW={['100%', 'auto']}
+          onClick={() => {
+            onDialogOpen();
+            segmentTrack('Container Definition Creation Started', {
+              app_slug: PageProps.appSlug(),
+              workspace_slug: GlobalProps.workspaceSlug(),
+              container_type: 'execution',
+            });
+          }}
+        >
           Add container
         </Button>
       </Box>
@@ -38,6 +54,7 @@ const ExecutionContainersTab = () => {
           containerUsageLookup={containerUsageLookup}
           openDialog={onDialogOpen}
           setEditedContainer={setEditedContainer}
+          source={ContainerType.Execution}
         />
       ) : (
         <EmptyState
