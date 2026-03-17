@@ -10,7 +10,7 @@ const useCodeSigningSecrets = (enabled: boolean) => {
 
   return useQuery({
     enabled: enabled && !!appSlug,
-    initialData: [],
+    placeholderData: [],
     queryKey: ['app', appSlug, 'code-signing-secrets', projectType],
     queryFn: ({ signal }) => SecretApi.getCodeSigningSecrets({ appSlug, projectType, signal }),
   });

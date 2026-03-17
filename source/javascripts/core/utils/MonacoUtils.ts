@@ -132,6 +132,10 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
         });
 
         projectLevelSecrets.forEach(({ key }) => {
+          if (suggestions.some((s) => s.label === key)) {
+            return;
+          }
+
           suggestions.push({
             range,
             label: `${key}`,
@@ -143,6 +147,10 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
         });
 
         codeSigningSecrets.forEach(({ key, source }) => {
+          if (suggestions.some((s) => s.label === key)) {
+            return;
+          }
+
           suggestions.push({
             range,
             label: `${key}`,
