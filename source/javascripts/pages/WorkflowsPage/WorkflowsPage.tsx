@@ -3,16 +3,45 @@ import { useEffect } from 'react';
 
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
+import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { useBroadcastChannel } from '@/hooks/useBroadcastChannel';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';
 import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
 
+export const CI_CONFIG_EXPERT_CHANNEL = 'ci-config-expert';
+
+export type EntityType = 'workflow' | 'pipeline';
+
+// Iframe → Parent (inbound)
+export type InboundMessage =
+  | { type: 'create'; payload: { ciConfig: string; entityType: EntityType } }
+  | { type: 'explain'; payload: { ciConfig: string; entityId: string; entityType: EntityType } }
+  | { type: 'close-expert' };
+
+// Parent → Iframe (outbound)
+export type OutboundMessage = { type: 'apply-config'; payload: { ciConfig: string } };
+
 const WorkflowsPage = () => {
   const [selectedWorkflowId] = useSelectedWorkflow();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
+
+  const { data, post, timeStamp } = useBroadcastChannel<OutboundMessage, InboundMessage>({
+    name: CI_CONFIG_EXPERT_CHANNEL,
+  });
+
+  const handleCreateWorkflowWithAI = () => {
+    post({ type: 'create', payload: { ciConfig: getYmlString(), entityType: 'workflow' } });
+  };
+
+  useEffect(() => {
+    if (data?.type === 'apply-config') {
+      updateBitriseYmlDocumentByString(data.payload.ciConfig);
+    }
+  }, [data, timeStamp]);
 
   useEffect(() => {
     closeDialog();
@@ -25,6 +54,7 @@ const WorkflowsPage = () => {
           onCreateWorkflow={openDialog({
             type: WorkflowsPageDialogType.CREATE_WORKFLOW,
           })}
+          onCreateWorkflowWithAI={handleCreateWorkflowWithAI}
         />
         <Drawers />
       </Box>
