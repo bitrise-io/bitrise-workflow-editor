@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import { useBroadcastChannel } from '@/hooks/useBroadcastChannel';
+import { usePostMessage } from '@/hooks/usePostMessage';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';
@@ -29,8 +29,8 @@ const WorkflowsPage = () => {
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
 
-  const { data, post, timeStamp } = useBroadcastChannel<OutboundMessage, InboundMessage>({
-    name: CI_CONFIG_EXPERT_CHANNEL,
+  const { data, post, timeStamp } = usePostMessage<OutboundMessage, InboundMessage>({
+    channel: CI_CONFIG_EXPERT_CHANNEL,
   });
 
   const handleCreateWorkflowWithAI = () => {
