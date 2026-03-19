@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import { usePostMessage } from '@/hooks/usePostMessage';
+import WindowUtils from '@/core/utils/WindowUtils';
+import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';
@@ -29,19 +30,13 @@ const WorkflowsPage = () => {
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
 
-  const { data, post, timeStamp } = usePostMessage<OutboundMessage, InboundMessage>({
-    channel: CI_CONFIG_EXPERT_CHANNEL,
-  });
-
   const handleCreateWorkflowWithAI = () => {
-    post({ type: 'create', payload: { ciConfig: getYmlString(), entityType: 'workflow' } });
+    WindowUtils.postMessageToParent('create', { ciConfig: getYmlString(), entityType: 'workflow' as EntityType });
   };
 
-  useEffect(() => {
-    if (data?.type === 'apply-config') {
-      updateBitriseYmlDocumentByString(data.payload.ciConfig);
-    }
-  }, [data, timeStamp]);
+  useParentMessageListener<OutboundMessage['payload']>('apply-config', (payload) => {
+    updateBitriseYmlDocumentByString(payload.ciConfig);
+  });
 
   useEffect(() => {
     closeDialog();
