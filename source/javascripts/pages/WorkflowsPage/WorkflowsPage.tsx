@@ -12,29 +12,20 @@ import Drawers from './components/Drawers/Drawers';
 import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
 
-export const CI_CONFIG_EXPERT_CHANNEL = 'ci-config-expert';
-
-export type EntityType = 'workflow' | 'pipeline';
-
-// Iframe → Parent (inbound)
-export type InboundMessage =
-  | { type: 'create'; payload: { ciConfig: string; entityType: EntityType } }
-  | { type: 'explain'; payload: { ciConfig: string; entityId: string; entityType: EntityType } }
-  | { type: 'close-expert' };
-
-// Parent → Iframe (outbound)
-export type OutboundMessage = { type: 'apply-config'; payload: { ciConfig: string } };
-
 const WorkflowsPage = () => {
   const [selectedWorkflowId] = useSelectedWorkflow();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
 
   const handleCreateWorkflowWithAI = () => {
-    WindowUtils.postMessageToParent('create', { ciConfig: getYmlString(), entityType: 'workflow' as EntityType });
+    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
+      action: 'create',
+      ciConfig: getYmlString(),
+      entityType: 'workflow',
+    });
   };
 
-  useParentMessageListener<OutboundMessage['payload']>('apply-config', (payload) => {
+  useParentMessageListener<{ ciConfig: string }>('CI_CONFIG_RECEIVED', (payload) => {
     updateBitriseYmlDocumentByString(payload.ciConfig);
   });
 
