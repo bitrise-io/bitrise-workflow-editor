@@ -10,7 +10,10 @@ import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -130,10 +133,20 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const openRunWorkflowDialog = useCallback(
     (wfId: string) => {
-      openDialog({
-        type: WorkflowsPageDialogType.START_BUILD,
-        workflowId: wfId,
-      })();
+      const shouldShowTrialUpsellDialog = Boolean(
+        GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild,
+      );
+
+      if (shouldShowTrialUpsellDialog) {
+        WindowUtils.postMessageToParent('OPEN_TRIAL_UPSELL_DIALOG', {
+          reason: 'workflow_run',
+        });
+      } else {
+        openDialog({
+          type: WorkflowsPageDialogType.START_BUILD,
+          workflowId: wfId,
+        })();
+      }
     },
     [openDialog],
   );

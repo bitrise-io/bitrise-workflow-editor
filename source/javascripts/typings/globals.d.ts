@@ -22,6 +22,7 @@ declare global {
       account: {
         slug: string;
         name: string;
+        isRestricted?: boolean;
         sharedResourcesAvailable?: boolean;
         useReplacementForDeprecatedMachines?: any;
       };
@@ -50,6 +51,7 @@ declare global {
         buildTriggerToken?: string;
         gitRepoSlug?: string;
         isOwnerPaying?: boolean;
+        hasAnyBuild?: boolean;
       };
       settings?: {
         statusReport?: {
