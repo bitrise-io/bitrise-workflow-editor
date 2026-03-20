@@ -20,13 +20,21 @@ const WorkflowsPage = () => {
   const handleCreateWorkflowWithAI = () => {
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
       action: 'create',
-      ciConfig: getYmlString(),
-      entityType: 'workflow',
+      bitriseYmlContents: getYmlString(),
+      selectedPage: 'workflows',
+      yamlSelector: 'workflow',
     });
   };
 
-  useParentMessageListener<{ ciConfig: string }>('CI_CONFIG_RECEIVED', (payload) => {
-    updateBitriseYmlDocumentByString(payload.ciConfig);
+  useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
+    updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
+  });
+
+  useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
+    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
+      bitriseYmlContents: getYmlString(),
+      selectedPage: 'workflows',
+    });
   });
 
   useEffect(() => {
