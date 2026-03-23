@@ -3,6 +3,16 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 
 export {};
 
+export type AISettings<T> =
+  | {
+      disabled: 'by-project' | 'by-workspace' | 'unsupported';
+      options?: T;
+    }
+  | {
+      options: T;
+      disabled?: never;
+    };
+
 declare global {
   const TEST_BITRISE_YML: BitriseYml;
 
@@ -54,6 +64,11 @@ declare global {
         hasAnyBuild?: boolean;
       };
       settings?: {
+        ai: {
+          ciConfigExpert: AISettings<{ wfeIntegration: boolean }>;
+          failedBuilds: AISettings<any>;
+          fixer: AISettings<any>;
+        };
         statusReport?: {
           defaultProjectBasedStatusNameTemplate: string;
           defaultTargetBasedStatusNameTemplate: string;

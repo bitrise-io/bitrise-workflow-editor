@@ -147,4 +147,34 @@ export const WithContainerDefinitions: Story = {
   },
 };
 
+export const Empty: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
 export default meta;
