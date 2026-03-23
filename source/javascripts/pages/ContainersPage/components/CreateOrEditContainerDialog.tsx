@@ -241,7 +241,11 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                 docker login automatically) or use an OAuth Step.
               </Text>
               <Text textStyle="body/md/regular">
-                <Link href="https://docs.bitrise.io" isExternal isUnderlined>
+                <Link
+                  href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#docker-authentication-credentials"
+                  isExternal
+                  isUnderlined
+                >
                   Learn more
                 </Link>
               </Text>
@@ -327,7 +331,11 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   helperText={
                     <>
                       Additional parameters passed to docker create command.{' '}
-                      <Link colorScheme="purple" href="https://docs.bitrise.io" isExternal>
+                      <Link
+                        colorScheme="purple"
+                        href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#container-resource-options"
+                        isExternal
+                      >
                         Learn more about not supported options
                       </Link>
                     </>
