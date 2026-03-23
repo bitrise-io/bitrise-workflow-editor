@@ -7,14 +7,18 @@ import {
   DropdownProps,
   DropdownSearch,
   EmptyState,
+  Tooltip,
 } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
+
+import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 
 export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
   entityIds: string[];
   entityName?: string;
   onChange: (selectedValue: string | undefined) => void;
   onCreate?: () => void;
+  onCreateWithAI?: () => void;
   secondaryEntities?: {
     label: string;
     ids: string[];
@@ -22,11 +26,11 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
 }
 
 const EntitySelector = (props: EntitySelectorProps) => {
-  const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
+  const { entityIds, entityName, onChange, onCreate, onCreateWithAI, secondaryEntities, value } = props;
 
   const dropdownRef = useRef<HTMLButtonElement>(null);
-
   const [search, setSearch] = useState('');
+  const { isVisible: isAIButtonVisible, tooltipLabel, getProps: getAIButtonProps } = useAIButton();
 
   const filteredIds = useMemo(() => {
     return entityIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));
@@ -43,6 +47,11 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const handleCreate = () => {
     onCreate?.();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
+  };
+
+  const handleCreateWithAI = () => {
+    onCreateWithAI?.();
+    dropdownRef.current?.click();
   };
 
   return (
@@ -78,7 +87,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
           description="Modify your search to get results"
         />
       )}
-      {!!onCreate && (
+      {(!!onCreate || !!onCreateWithAI) && (
         <Box
           paddingY="8"
           position="sticky"
@@ -88,18 +97,37 @@ const EntitySelector = (props: EntitySelectorProps) => {
           borderColor="border/regular"
           backgroundColor="background/primary"
         >
-          <Button
-            borderRadius="0"
-            color="button.secondary"
-            fontWeight="400"
-            justifyContent="flex-start"
-            leftIconName="Plus"
-            variant="tertiary"
-            width="100%"
-            onClick={handleCreate}
-          >
-            Create {entityName}
-          </Button>
+          {!!onCreate && (
+            <Button
+              borderRadius="0"
+              color="button.secondary"
+              fontWeight="400"
+              justifyContent="flex-start"
+              leftIconName="Plus"
+              variant="tertiary"
+              width="100%"
+              onClick={handleCreate}
+            >
+              Create {entityName}
+            </Button>
+          )}
+          {isAIButtonVisible && !!onCreateWithAI && (
+            <Tooltip label={tooltipLabel}>
+              <Button
+                borderRadius="0"
+                color="button.secondary"
+                fontWeight="400"
+                justifyContent="flex-start"
+                leftIconName="SparkleFilled"
+                variant="tertiary"
+                width="100%"
+                onClick={handleCreateWithAI}
+                {...getAIButtonProps()}
+              >
+                Create {entityName} with AI
+              </Button>
+            </Tooltip>
+          )}
         </Box>
       )}
     </Dropdown>

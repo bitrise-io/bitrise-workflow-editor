@@ -1,7 +1,8 @@
-import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Tooltip } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
+import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -13,12 +14,21 @@ type Props = BoxProps & {
   onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
   onCreatePipelineClick?: () => void;
+  onCreatePipelineWithAIClick?: () => void;
 };
 
-const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+const Toolbar = ({
+  onCreatePipelineClick,
+  onCreatePipelineWithAIClick,
+  onRunClick,
+  onWorkflowsClick,
+  onPropertiesClick,
+  ...props
+}: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
+  const { isVisible: isAIButtonVisible, tooltipLabel, getProps: getAIButtonProps } = useAIButton();
 
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
@@ -47,6 +57,11 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const onCreatePipeline = () => {
     onCreatePipelineClick?.();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
+  };
+
+  const onCreatePipelineWithAI = () => {
+    onCreatePipelineWithAIClick?.();
+    dropdownRef.current?.click();
   };
 
   const [pipelineIds] = useMemo(() => {
@@ -120,6 +135,23 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           >
             Create Pipeline
           </Button>
+          {isAIButtonVisible && !!onCreatePipelineWithAIClick && (
+            <Tooltip label={tooltipLabel}>
+              <Button
+                w="100%"
+                border="none"
+                fontWeight="400"
+                borderRadius="0"
+                variant="secondary"
+                leftIconName="SparkleFilled"
+                justifyContent="flex-start"
+                onClick={onCreatePipelineWithAI}
+                {...getAIButtonProps()}
+              >
+                Create Pipeline with AI
+              </Button>
+            </Tooltip>
+          )}
         </Box>
       </Dropdown>
 

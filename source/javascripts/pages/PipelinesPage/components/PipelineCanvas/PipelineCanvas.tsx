@@ -1,6 +1,7 @@
 import { Box } from '@bitrise/bitkit';
 import { Controls, MiniMap } from '@xyflow/react';
 
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -19,6 +20,15 @@ const PipelineCanvas = () => {
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline]?.workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
+
+  const handleCreatePipelineWithAI = () => {
+    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
+      action: 'create',
+      bitriseYmlContents: getYmlString(),
+      selectedPage: 'pipelines',
+      yamlSelector: 'pipeline',
+    });
+  };
 
   const handleRunPipelineClick = () => {
     const shouldShowTrialUpsellDialog = Boolean(GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild);
@@ -58,6 +68,7 @@ const PipelineCanvas = () => {
           onCreatePipelineClick={openDialog({
             type: PipelinesPageDialogType.CREATE_PIPELINE,
           })}
+          onCreatePipelineWithAIClick={handleCreatePipelineWithAI}
           onRunClick={handleRunPipelineClick}
         />
         <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
