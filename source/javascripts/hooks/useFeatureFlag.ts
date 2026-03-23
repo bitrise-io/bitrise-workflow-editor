@@ -4,7 +4,6 @@ import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
   'enable-wfe-bitrise-language-server': false,
-  'enable-wfe-containers-page': false,
   'enable-wfe-step-bundles-when-to-run': false,
 };
 
