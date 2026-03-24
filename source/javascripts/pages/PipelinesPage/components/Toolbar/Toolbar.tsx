@@ -134,16 +134,26 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             Create Pipeline
           </Button>
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} shouldWrapChildren="block">
               <Button
                 w="100%"
                 border="none"
                 textStyle="body/lg/regular"
                 borderRadius="0"
                 variant="secondary"
-                leftIcon={<Icon name="SparkleFilled" size="24" color="status/ai/icon" />}
+                leftIcon={
+                  <Icon
+                    name="SparkleFilled"
+                    size="24"
+                    color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
+                  />
+                }
                 justifyContent="flex-start"
                 isDisabled={isAIButtonDisabled}
+                _disabled={{
+                  backgroundColor: 'background/primary',
+                  color: 'button/secondary/fg-disabled',
+                }}
                 onClick={onCreatePipelineWithAI}
               >
                 Create Pipeline with AI

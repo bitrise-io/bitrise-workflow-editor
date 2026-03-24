@@ -25,12 +25,84 @@ export default {
   ],
   beforeEach: () => {
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            options: { wfeIntegration: true },
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
   },
 } as Meta<typeof PipelinesPage>;
 
 type Story = StoryObj<typeof PipelinesPage>;
 
 export const CreateFirstGraphPipeline: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            disabled: 'by-workspace',
+            options: undefined,
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
+  parameters: {
+    bitriseYmlStore: { yml: { format_version: '2' } },
+  },
+};
+
+export const EmptyWithCreateWithAI: Story = {
+  parameters: {
+    bitriseYmlStore: { yml: { format_version: '2' } },
+  },
+};
+
+export const EmptyWithCreateWithAIDisabled: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
   parameters: {
     bitriseYmlStore: { yml: { format_version: '2' } },
   },

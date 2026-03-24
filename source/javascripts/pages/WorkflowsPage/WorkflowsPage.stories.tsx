@@ -147,7 +147,36 @@ export const WithContainerDefinitions: Story = {
   },
 };
 
-export const Empty: Story = {
+export const EmptyCreateWithAI: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            options: { wfeIntegration: true },
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
+export const EmptyCreateWithAIDisabled: Story = {
   beforeEach: () => {
     window.parent.pageProps = {
       ...window.parent.pageProps,
@@ -155,6 +184,36 @@ export const Empty: Story = {
         ai: {
           ciConfigExpert: {
             disabled: 'by-project',
+            options: undefined,
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
+export const EmptyWithoutCreateWithAI: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            disabled: 'by-workspace',
             options: undefined,
           },
           failedBuilds: {

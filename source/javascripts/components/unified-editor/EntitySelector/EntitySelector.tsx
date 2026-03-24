@@ -123,13 +123,19 @@ const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
           )}
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} shouldWrapChildren="block">
               <Button
                 borderRadius="0"
                 color="button.secondary"
                 textStyle="body/lg/regular"
                 justifyContent="flex-start"
-                leftIcon={<Icon name="SparkleFilled" size="24" color="status/ai/icon" />}
+                leftIcon={
+                  <Icon
+                    name="SparkleFilled"
+                    size="24"
+                    color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
+                  />
+                }
                 variant="tertiary"
                 width="100%"
                 isDisabled={isAIButtonDisabled}

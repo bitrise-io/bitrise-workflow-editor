@@ -28,7 +28,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
               variant="ai-primary"
               onClick={onAIButtonClick}
             >
-              Create Workflow with AI
+              Create Pipeline with AI
             </Button>
           </Tooltip>
         )}

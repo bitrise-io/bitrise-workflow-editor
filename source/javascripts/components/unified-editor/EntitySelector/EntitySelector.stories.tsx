@@ -7,16 +7,16 @@ const meta: Meta<EntitySelectorProps> = {
   component: EntitySelector,
   args: {
     entityIds: [
-      'foo',
-      'bar',
-      'akarmi',
-      'asddasasd',
-      'sdfdfdfsdf',
-      'asddsasddsa',
-      'asddasdassda',
-      'asddsadsadsa',
-      'asdffaadf',
-      'utso',
+      'Spongebob',
+      'Squidward',
+      'Sandy',
+      'Patrick',
+      'Mr. Krabs',
+      'Plankton',
+      'Gary',
+      'Pearl',
+      'Krusty Krab',
+      'Chum Bucket',
     ],
     entityName: 'Workflow',
     onCreate: () => {},
@@ -32,21 +32,78 @@ const meta: Meta<EntitySelectorProps> = {
 
 export default meta;
 
-const StoryCompoent = (props: EntitySelectorProps) => {
+const StoryComponent = (props: EntitySelectorProps) => {
   const [value, setValue] = useState<string | undefined>(props.entityIds[0]);
   return <EntitySelector {...props} onChange={setValue} value={value || undefined} />;
 };
 
 export const WithProps = {
-  render: StoryCompoent,
+  render: StoryComponent,
 };
 
 export const WithSecondaryList: StoryObj<EntitySelectorProps> = {
   args: {
     secondaryEntities: {
-      label: 'Secondary list',
-      ids: ['alma', 'banan'],
+      label: 'Secondary list: Pokemons',
+      ids: ['Charmander', 'Bulbasaur'],
     },
   },
-  render: StoryCompoent,
+  render: StoryComponent,
+};
+
+export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            options: { wfeIntegration: true },
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
+  args: {
+    aiSelectedPage: 'workflows',
+    aiYamlSelector: 'workflow',
+  },
+  render: StoryComponent,
+};
+
+export const WithCreateWithAIButtonDisabled: StoryObj<EntitySelectorProps> = {
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      settings: {
+        ai: {
+          ciConfigExpert: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          failedBuilds: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+          fixer: {
+            disabled: 'by-project',
+            options: undefined,
+          },
+        },
+      },
+    };
+  },
+  args: {
+    aiSelectedPage: 'workflows',
+    aiYamlSelector: 'workflow',
+  },
+  render: StoryComponent,
 };
