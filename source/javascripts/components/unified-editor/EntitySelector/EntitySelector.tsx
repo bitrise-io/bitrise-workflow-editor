@@ -18,7 +18,8 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
   entityName?: string;
   onChange: (selectedValue: string | undefined) => void;
   onCreate?: () => void;
-  onCreateWithAI?: () => void;
+  aiSelectedPage?: string;
+  aiYamlSelector?: string;
   secondaryEntities?: {
     label: string;
     ids: string[];
@@ -26,11 +27,20 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
 }
 
 const EntitySelector = (props: EntitySelectorProps) => {
-  const { entityIds, entityName, onChange, onCreate, onCreateWithAI, secondaryEntities, value } = props;
+  const { aiSelectedPage, aiYamlSelector, entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
 
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const [search, setSearch] = useState('');
-  const { isVisible: isAIButtonVisible, tooltipLabel, getProps: getAIButtonProps } = useAIButton();
+
+  const {
+    isVisible: isAIButtonVisible,
+    tooltipLabel,
+    getAIButtonProps,
+  } = useAIButton({
+    selectedPage: aiSelectedPage,
+    yamlSelector: aiYamlSelector,
+  });
+  const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   const filteredIds = useMemo(() => {
     return entityIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));
@@ -50,7 +60,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
   };
 
   const handleCreateWithAI = () => {
-    onCreateWithAI?.();
+    onAIButtonClick();
     dropdownRef.current?.click();
   };
 
@@ -87,7 +97,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
           description="Modify your search to get results"
         />
       )}
-      {(!!onCreate || !!onCreateWithAI) && (
+      {(!!onCreate || isAIButtonVisible) && (
         <Box
           paddingY="8"
           position="sticky"
@@ -111,7 +121,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
               Create {entityName}
             </Button>
           )}
-          {isAIButtonVisible && !!onCreateWithAI && (
+          {isAIButtonVisible && (
             <Tooltip label={tooltipLabel}>
               <Button
                 borderRadius="0"
@@ -121,8 +131,8 @@ const EntitySelector = (props: EntitySelectorProps) => {
                 leftIconName="SparkleFilled"
                 variant="tertiary"
                 width="100%"
+                isDisabled={isAIButtonDisabled}
                 onClick={handleCreateWithAI}
-                {...getAIButtonProps()}
               >
                 Create {entityName} with AI
               </Button>

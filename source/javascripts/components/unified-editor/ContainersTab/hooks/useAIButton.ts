@@ -1,23 +1,47 @@
+import { useState } from 'react';
+
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
+import WindowUtils from '@/core/utils/WindowUtils';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useParentMessageListener from '@/hooks/useParentMessageListener';
+
+type OpenCiConfigExpertPayload = {
+  action: string;
+  bitriseYmlContents: string;
+  selectedPage: string;
+  yamlSelector: string;
+};
 
 type AIButtonProps = {
   isDisabled: boolean;
+  onClick: () => void;
 };
 
 type UseAIButtonOptions = {
-  isAgenticRunInProgress?: boolean;
+  action?: string;
+  selectedPage?: string;
+  yamlSelector?: string;
 };
 
 type UseAIButtonResult = {
   isVisible: boolean;
   tooltipLabel: string;
-  getProps: () => AIButtonProps;
+  getAIButtonProps: () => AIButtonProps;
 };
 
-const useAIButton = (props: UseAIButtonOptions = {}): UseAIButtonResult => {
-  const { isAgenticRunInProgress = false } = props;
+const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
+  const { action = 'create', selectedPage = 'workflows', yamlSelector = 'workflow' } = options;
+  const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
+
+  useParentMessageListener('DISABLE_AI_BUTTONS', () => {
+    setIsAgenticRunInProgress(true);
+  });
+
+  useParentMessageListener('ENABLE_AI_BUTTONS', () => {
+    setIsAgenticRunInProgress(false);
+  });
 
   const ciConfigExpert = PageProps.settings()?.ai.ciConfigExpert;
   const isEnabledByWorkspace = !!ciConfigExpert && ciConfigExpert.disabled !== 'by-workspace';
@@ -39,9 +63,19 @@ const useAIButton = (props: UseAIButtonOptions = {}): UseAIButtonResult => {
     }
   }
 
-  const getProps = (): AIButtonProps => ({ isDisabled });
+  const onClick = () => {
+    const payload: OpenCiConfigExpertPayload = {
+      action,
+      bitriseYmlContents: getYmlString(),
+      selectedPage,
+      yamlSelector,
+    };
+    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', payload);
+  };
 
-  return { isVisible, tooltipLabel, getProps };
+  const getAIButtonProps = (): AIButtonProps => ({ isDisabled, onClick });
+
+  return { isVisible, tooltipLabel, getAIButtonProps };
 };
 
 export default useAIButton;

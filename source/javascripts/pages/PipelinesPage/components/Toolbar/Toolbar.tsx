@@ -14,21 +14,19 @@ type Props = BoxProps & {
   onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
   onCreatePipelineClick?: () => void;
-  onCreatePipelineWithAIClick?: () => void;
 };
 
-const Toolbar = ({
-  onCreatePipelineClick,
-  onCreatePipelineWithAIClick,
-  onRunClick,
-  onWorkflowsClick,
-  onPropertiesClick,
-  ...props
-}: Props) => {
+const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
-  const { isVisible: isAIButtonVisible, tooltipLabel, getProps: getAIButtonProps } = useAIButton();
+
+  const {
+    isVisible: isAIButtonVisible,
+    tooltipLabel,
+    getAIButtonProps,
+  } = useAIButton({ selectedPage: 'pipelines', yamlSelector: 'pipeline' });
+  const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
@@ -60,7 +58,7 @@ const Toolbar = ({
   };
 
   const onCreatePipelineWithAI = () => {
-    onCreatePipelineWithAIClick?.();
+    onAIButtonClick();
     dropdownRef.current?.click();
   };
 
@@ -135,7 +133,7 @@ const Toolbar = ({
           >
             Create Pipeline
           </Button>
-          {isAIButtonVisible && !!onCreatePipelineWithAIClick && (
+          {isAIButtonVisible && (
             <Tooltip label={tooltipLabel}>
               <Button
                 w="100%"
@@ -145,8 +143,8 @@ const Toolbar = ({
                 variant="secondary"
                 leftIconName="SparkleFilled"
                 justifyContent="flex-start"
+                isDisabled={isAIButtonDisabled}
                 onClick={onCreatePipelineWithAI}
-                {...getAIButtonProps()}
               >
                 Create Pipeline with AI
               </Button>
