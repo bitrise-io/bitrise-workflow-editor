@@ -120,7 +120,13 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
         <Priority pipelineId={pipelineId} />
         <GitStatusName pipelineId={pipelineId} />
 
-        <Button leftIconName="Trash" alignSelf="flex-start" variant="danger-secondary" onClick={onOpenDeleteDialog}>
+        <Button
+          leftIconName="Trash"
+          alignSelf="flex-start"
+          variant="danger-secondary"
+          onClick={onOpenDeleteDialog}
+          mb="24"
+        >
           Delete Pipeline
         </Button>
       </Box>

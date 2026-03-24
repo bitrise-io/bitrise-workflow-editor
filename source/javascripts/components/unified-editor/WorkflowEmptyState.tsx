@@ -1,6 +1,7 @@
 import { Button, ButtonGroup, EmptyState } from '@bitrise/bitkit';
+import { Tooltip } from 'chakra-ui-2--react';
 
-import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 
 type Props = {
   isAIButtonDisabled?: boolean;
@@ -8,8 +9,13 @@ type Props = {
   onCreateWorkflowWithAI?: () => void;
 };
 
-const WorkflowEmptyState = ({ isAIButtonDisabled, onCreateWorkflow, onCreateWorkflowWithAI }: Props) => {
-  const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
+const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
+  const {
+    isVisible: isAIButtonVisible,
+    tooltipLabel,
+    getAIButtonProps,
+  } = useAIButton({ selectedPage: 'workflows', yamlSelector: 'workflow' });
+  const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   return (
     <EmptyState
@@ -18,16 +24,18 @@ const WorkflowEmptyState = ({ isAIButtonDisabled, onCreateWorkflow, onCreateWork
       description="It looks like you haven't set up any Workflows. Create your first Workflow to automate your CI/CD pipeline."
     >
       <ButtonGroup spacing="0" gap="24">
-        {enableCiConfigExpertAgent && onCreateWorkflowWithAI && (
-          <Button
-            isDisabled={isAIButtonDisabled}
-            leftIconName="SparkleFilled"
-            size="md"
-            variant="ai-primary"
-            onClick={onCreateWorkflowWithAI}
-          >
-            Create Workflow with AI
-          </Button>
+        {isAIButtonVisible && (
+          <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+            <Button
+              isDisabled={isAIButtonDisabled}
+              leftIconName="SparkleFilled"
+              size="md"
+              variant="ai-primary"
+              onClick={onAIButtonClick}
+            >
+              Create Workflow with AI
+            </Button>
+          </Tooltip>
         )}
         <Button leftIconName="Plus" size="md" onClick={onCreateWorkflow} variant="secondary">
           Create Workflow manually
