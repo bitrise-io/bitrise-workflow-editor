@@ -4,7 +4,6 @@ import { Tooltip } from 'chakra-ui-2--react';
 import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 
 type Props = {
-  isAIButtonDisabled?: boolean;
   onCreateWorkflow: () => void;
 };
 

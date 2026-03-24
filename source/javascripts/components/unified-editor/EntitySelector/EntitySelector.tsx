@@ -33,15 +33,12 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const [search, setSearch] = useState('');
 
-  const {
-    isVisible: isAIButtonVisible,
-    tooltipLabel,
-    getAIButtonProps,
-  } = useAIButton({
+  const { isVisible, tooltipLabel, getAIButtonProps } = useAIButton({
     selectedPage: aiSelectedPage,
     yamlSelector: aiYamlSelector,
   });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
+  const isAIButtonVisible = isVisible && aiSelectedPage && aiYamlSelector;
 
   const filteredIds = useMemo(() => {
     return entityIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));
@@ -123,7 +120,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
           )}
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} shouldWrapChildren="block">
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
               <Button
                 borderRadius="0"
                 color="button.secondary"

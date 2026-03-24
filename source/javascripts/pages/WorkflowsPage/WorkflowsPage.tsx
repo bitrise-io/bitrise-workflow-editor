@@ -23,8 +23,10 @@ const WorkflowsPage = () => {
 
   useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
+      action: 'create',
       bitriseYmlContents: getYmlString(),
       selectedPage: 'workflows',
+      yamlSelector: 'workflow',
     });
   });
 
