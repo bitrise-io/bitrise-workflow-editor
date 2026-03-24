@@ -5,6 +5,7 @@ import { useEffect, useMemo } from 'react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 
 import Drawers from './components/Drawers/Drawers';
 import CreateFirstGraphPipelineEmptyState from './components/EmptyStates/CreateFirstGraphPipelineEmptyState';
@@ -18,6 +19,8 @@ const PipelinesPage = () => {
   const { keys } = usePipelineSelector();
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
+
+  useAIDrawerListener({ selectedPage: 'pipelines', yamlSelector: 'pipeline' });
 
   useEffect(() => {
     return () => closeDialog();

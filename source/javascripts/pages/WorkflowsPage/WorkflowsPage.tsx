@@ -3,9 +3,7 @@ import { useEffect } from 'react';
 
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
-import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import WindowUtils from '@/core/utils/WindowUtils';
-import useParentMessageListener from '@/hooks/useParentMessageListener';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';
@@ -17,18 +15,7 @@ const WorkflowsPage = () => {
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
 
-  useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
-    updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
-  });
-
-  useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
-    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
-      action: 'create',
-      bitriseYmlContents: getYmlString(),
-      selectedPage: 'workflows',
-      yamlSelector: 'workflow',
-    });
-  });
+  useAIDrawerListener({ selectedPage: 'workflows', yamlSelector: 'workflow' });
 
   useEffect(() => {
     closeDialog();

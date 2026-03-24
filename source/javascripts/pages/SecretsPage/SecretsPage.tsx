@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Secret } from '@/core/models/Secret';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 
 import SecretCard from './SecretCard';
@@ -18,6 +19,8 @@ const SecretsPage = () => {
   const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
   const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
   const { data: secrets } = useSecrets({ appSlug });
+
+  useAIDrawerListener({ selectedPage: 'secrets', yamlSelector: 'secret' });
 
   useEffect(() => {
     if (secrets) {

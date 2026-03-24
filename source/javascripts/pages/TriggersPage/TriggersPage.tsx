@@ -1,10 +1,14 @@
 import { Box, Link, Text } from '@bitrise/bitkit';
 
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
+
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
 import SetupWebhookNotification from './SetupWebhookNotification';
 
 const TriggersPage = () => {
+  useAIDrawerListener({ selectedPage: 'triggers', yamlSelector: 'trigger' });
+
   return (
     <Box p="32">
       <Text as="h2" textStyle="heading/h2" marginBlockEnd="4">

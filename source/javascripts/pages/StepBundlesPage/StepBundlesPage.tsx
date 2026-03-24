@@ -2,6 +2,7 @@ import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
@@ -15,6 +16,8 @@ const StepBundlesPage = () => {
   const { closeDialog } = useStepBundlesPageStore();
   const [stepBundleId] = useSelectedStepBundle();
   const hasStepBundles = stepBundlesIds.length > 0;
+
+  useAIDrawerListener({ selectedPage: 'step_bundles', yamlSelector: 'step_bundle' });
 
   useEffect(() => {
     closeDialog();

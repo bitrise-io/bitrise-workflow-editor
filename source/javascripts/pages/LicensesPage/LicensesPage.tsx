@@ -2,6 +2,7 @@ import { Box, Button, EmptyState, Link, Select, Table, Tbody, Td, Text, Th, Thea
 
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import GlobalProps from '@/core/utils/GlobalProps';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import { useGetLicensePoolsQuery } from '@/hooks/useLicensePools';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
@@ -9,6 +10,8 @@ const LicensesPage = () => {
   const workflows = useWorkflows();
   const workspaceSlug = GlobalProps.workspaceSlug();
   const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
+
+  useAIDrawerListener({ selectedPage: 'licenses', yamlSelector: 'license' });
 
   return (
     <Box p="32">

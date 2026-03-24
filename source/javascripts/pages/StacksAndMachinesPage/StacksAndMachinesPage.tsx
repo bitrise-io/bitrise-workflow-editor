@@ -2,6 +2,8 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
 
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
+
 import DefaultTab from './tabs/DefaultTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
 
@@ -12,6 +14,8 @@ const useTabs = create(
 );
 
 const StacksAndMachinesPage = () => {
+  useAIDrawerListener({ selectedPage: 'stacks_and_machines', yamlSelector: 'stack_or_machine' });
+
   return (
     <Tabs {...useTabs()} isLazy>
       <Text as="h2" textStyle="heading/h2" p="32">

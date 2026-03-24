@@ -7,6 +7,7 @@ import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
@@ -16,6 +17,8 @@ const YmlEditorHeader = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const { isRepositoryYmlAvailable } = PageProps.limits() ?? {};
+
+  useAIDrawerListener({ selectedPage: 'pipelines', yamlSelector: 'pipeline' });
 
   const ymlStatus = useYmlValidationStatus();
   const { isOpen, onClose, onOpen } = useDisclosure();
