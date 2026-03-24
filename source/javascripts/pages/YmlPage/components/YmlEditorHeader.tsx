@@ -18,7 +18,11 @@ const YmlEditorHeader = () => {
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const { isRepositoryYmlAvailable } = PageProps.limits() ?? {};
 
-  useAIDrawerListener({ selectedPage: 'pipelines', yamlSelector: 'pipeline' });
+  useAIDrawerListener({
+    action: 'create',
+    selectedPage: 'configuration_yml',
+    yamlSelector: 'configuration_yml',
+  });
 
   const ymlStatus = useYmlValidationStatus();
   const { isOpen, onClose, onOpen } = useDisclosure();
