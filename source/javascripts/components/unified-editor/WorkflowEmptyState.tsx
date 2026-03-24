@@ -6,7 +6,6 @@ import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIBu
 type Props = {
   isAIButtonDisabled?: boolean;
   onCreateWorkflow: () => void;
-  onCreateWorkflowWithAI?: () => void;
 };
 
 const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
