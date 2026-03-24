@@ -26,7 +26,7 @@ type UseAIButtonOptions = {
 
 type UseAIButtonResult = {
   isVisible: boolean;
-  tooltipLabel: string;
+  tooltipLabel?: string;
   getAIButtonProps: () => AIButtonProps;
 };
 
@@ -47,7 +47,7 @@ const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
   const isEnabledByWorkspace = !!ciConfigExpert && ciConfigExpert.disabled !== 'by-workspace';
   const isVisible = enableCiConfigExpertAgent && isEnabledByWorkspace;
 
-  let tooltipLabel = '';
+  let tooltipLabel;
   let isDisabled = false;
 
   if (isVisible) {

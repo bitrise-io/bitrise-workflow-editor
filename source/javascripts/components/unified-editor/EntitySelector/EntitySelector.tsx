@@ -122,7 +122,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
           )}
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel}>
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
               <Button
                 borderRadius="0"
                 color="button.secondary"

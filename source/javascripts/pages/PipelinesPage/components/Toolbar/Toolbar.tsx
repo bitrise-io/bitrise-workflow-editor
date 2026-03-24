@@ -134,7 +134,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             Create Pipeline
           </Button>
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel}>
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
               <Button
                 w="100%"
                 border="none"
