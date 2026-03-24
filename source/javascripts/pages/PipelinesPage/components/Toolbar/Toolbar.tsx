@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Tooltip } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -124,7 +124,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           <Button
             w="100%"
             border="none"
-            fontWeight="400"
+            textStyle="body/lg/regular"
             borderRadius="0"
             variant="secondary"
             leftIconName="PlusCircle"
@@ -138,10 +138,10 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
               <Button
                 w="100%"
                 border="none"
-                fontWeight="400"
+                textStyle="body/lg/regular"
                 borderRadius="0"
                 variant="secondary"
-                leftIconName="SparkleFilled"
+                leftIcon={<Icon name="SparkleFilled" size="24" color="status/ai/icon" />}
                 justifyContent="flex-start"
                 isDisabled={isAIButtonDisabled}
                 onClick={onCreatePipelineWithAI}

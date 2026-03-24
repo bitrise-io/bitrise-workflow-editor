@@ -7,6 +7,7 @@ import {
   DropdownProps,
   DropdownSearch,
   EmptyState,
+  Icon,
   Tooltip,
 } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
@@ -111,7 +112,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
             <Button
               borderRadius="0"
               color="button.secondary"
-              fontWeight="400"
+              textStyle="body/lg/regular"
               justifyContent="flex-start"
               leftIconName="Plus"
               variant="tertiary"
@@ -126,9 +127,9 @@ const EntitySelector = (props: EntitySelectorProps) => {
               <Button
                 borderRadius="0"
                 color="button.secondary"
-                fontWeight="400"
+                textStyle="body/lg/regular"
                 justifyContent="flex-start"
-                leftIconName="SparkleFilled"
+                leftIcon={<Icon name="SparkleFilled" size="24" color="status/ai/icon" />}
                 variant="tertiary"
                 width="100%"
                 isDisabled={isAIButtonDisabled}
