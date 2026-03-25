@@ -35,7 +35,6 @@ const WorkflowSelector = () => {
       entityName="Workflow"
       onChange={setSelectedWorkflow}
       onCreate={onCreateWorkflow}
-      aiYamlSelector="workflow"
       secondaryEntities={{
         label: 'utility workflows',
         ids: utilityWorkflows,

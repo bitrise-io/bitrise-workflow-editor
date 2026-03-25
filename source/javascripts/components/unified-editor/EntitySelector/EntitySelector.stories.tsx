@@ -62,8 +62,7 @@ export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
     window.parent.pageProps = aiButtonEnabled();
   },
   args: {
-    aiYamlSelector: 'workflows',
-    entityName: 'workflow',
+    entityName: 'Workflow',
   },
   render: StoryComponent,
 };
@@ -73,8 +72,7 @@ export const WithCreateWithAIButtonDisabled: StoryObj<EntitySelectorProps> = {
     window.parent.pageProps = aiButtonDisabled();
   },
   args: {
-    aiYamlSelector: 'workflows',
-    entityName: 'workflow',
+    entityName: 'Workflow',
   },
   render: StoryComponent,
 };

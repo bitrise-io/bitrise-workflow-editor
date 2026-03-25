@@ -1,10 +1,13 @@
-export const aiButtonEnabled = () => ({
+type CiConfigExpertOverride = {
+  disabled?: 'by-project' | 'by-workspace' | 'unsupported';
+  options?: { wfeIntegration: boolean };
+};
+
+const withCiConfigExpert = ({ disabled, options }: CiConfigExpertOverride = {}) => ({
   ...window.parent.pageProps,
   settings: {
     ai: {
-      ciConfigExpert: {
-        options: { wfeIntegration: true },
-      },
+      ciConfigExpert: disabled ? { disabled, options } : { options: options ?? { wfeIntegration: false } },
       failedBuilds: {
         disabled: 'by-project' as const,
         options: undefined,
@@ -17,42 +20,8 @@ export const aiButtonEnabled = () => ({
   },
 });
 
-export const aiButtonDisabled = () => ({
-  ...window.parent.pageProps,
-  settings: {
-    ai: {
-      ciConfigExpert: {
-        disabled: 'by-project' as const,
-        options: undefined,
-      },
-      failedBuilds: {
-        disabled: 'by-project' as const,
-        options: undefined,
-      },
-      fixer: {
-        disabled: 'by-project' as const,
-        options: undefined,
-      },
-    },
-  },
-});
+export const aiButtonEnabled = () => withCiConfigExpert({ options: { wfeIntegration: true } });
 
-export const aiButtonHidden = () => ({
-  ...window.parent.pageProps,
-  settings: {
-    ai: {
-      ciConfigExpert: {
-        disabled: 'by-workspace' as const,
-        options: undefined,
-      },
-      failedBuilds: {
-        disabled: 'by-project' as const,
-        options: undefined,
-      },
-      fixer: {
-        disabled: 'by-project' as const,
-        options: undefined,
-      },
-    },
-  },
-});
+export const aiButtonDisabled = () => withCiConfigExpert({ disabled: 'by-project' });
+
+export const aiButtonHidden = () => withCiConfigExpert({ disabled: 'by-workspace' });
