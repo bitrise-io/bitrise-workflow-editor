@@ -2,6 +2,7 @@ import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
+import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton.mswMocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 
 import PipelinesPage from './PipelinesPage';
@@ -25,24 +26,8 @@ export default {
   ],
   beforeEach: () => {
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            options: { wfeIntegration: true },
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
+    window.parent.pageProps = aiButtonEnabled();
   },
 } as Meta<typeof PipelinesPage>;
 
@@ -50,25 +35,7 @@ type Story = StoryObj<typeof PipelinesPage>;
 
 export const CreateFirstGraphPipeline: Story = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            disabled: 'by-workspace',
-            options: undefined,
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonHidden();
   },
   parameters: {
     bitriseYmlStore: { yml: { format_version: '2' } },
@@ -83,25 +50,7 @@ export const EmptyWithCreateWithAI: Story = {
 
 export const EmptyWithCreateWithAIDisabled: Story = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonDisabled();
   },
   parameters: {
     bitriseYmlStore: { yml: { format_version: '2' } },

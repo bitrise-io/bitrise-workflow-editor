@@ -3,6 +3,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
 
+import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton.mswMocks';
 import { getDefaultOutputs } from '@/core/api/EnvVarsApi.mswMocks';
 import {
   getCertificates,
@@ -21,6 +22,9 @@ type Story = StoryObj<typeof WorkflowsPage>;
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
+  },
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -149,24 +153,7 @@ export const WithContainerDefinitions: Story = {
 
 export const EmptyCreateWithAI: Story = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            options: { wfeIntegration: true },
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonEnabled();
   },
   parameters: {
     bitriseYmlStore: (() => {
@@ -178,25 +165,7 @@ export const EmptyCreateWithAI: Story = {
 
 export const EmptyCreateWithAIDisabled: Story = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonDisabled();
   },
   parameters: {
     bitriseYmlStore: (() => {
@@ -208,25 +177,7 @@ export const EmptyCreateWithAIDisabled: Story = {
 
 export const EmptyWithoutCreateWithAI: Story = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            disabled: 'by-workspace',
-            options: undefined,
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonHidden();
   },
   parameters: {
     bitriseYmlStore: (() => {

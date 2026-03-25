@@ -1,10 +1,16 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
+import { set } from 'es-toolkit/compat';
 import { useState } from 'react';
+
+import { aiButtonDisabled, aiButtonEnabled } from '@/components/unified-editor/AIButton.mswMocks';
 
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 
 const meta: Meta<EntitySelectorProps> = {
   component: EntitySelector,
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
+  },
   args: {
     entityIds: [
       'Spongebob',
@@ -53,24 +59,7 @@ export const WithSecondaryList: StoryObj<EntitySelectorProps> = {
 
 export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            options: { wfeIntegration: true },
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonEnabled();
   },
   args: {
     aiSelectedPage: 'workflows',
@@ -81,25 +70,7 @@ export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
 
 export const WithCreateWithAIButtonDisabled: StoryObj<EntitySelectorProps> = {
   beforeEach: () => {
-    window.parent.pageProps = {
-      ...window.parent.pageProps,
-      settings: {
-        ai: {
-          ciConfigExpert: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          failedBuilds: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-          fixer: {
-            disabled: 'by-project',
-            options: undefined,
-          },
-        },
-      },
-    };
+    window.parent.pageProps = aiButtonDisabled();
   },
   args: {
     aiSelectedPage: 'workflows',
