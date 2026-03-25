@@ -1,7 +1,7 @@
 import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
-import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 import WorkflowService from '@/core/services/WorkflowService';
+import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';

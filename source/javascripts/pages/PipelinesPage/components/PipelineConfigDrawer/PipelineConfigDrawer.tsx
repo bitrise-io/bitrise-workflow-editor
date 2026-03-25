@@ -1,6 +1,5 @@
 import { Box, Button, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip } from '@bitrise/bitkit';
 
-import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -8,6 +7,7 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import useAIButton from '@/hooks/useAIButton';
 
 import PropertiesTab from './tabs/PropertiesTab';
 import TriggersTab from './tabs/TriggersTab';

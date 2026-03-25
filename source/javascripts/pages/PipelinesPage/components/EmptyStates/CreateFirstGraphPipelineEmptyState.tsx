@@ -1,6 +1,6 @@
 import { Box, Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
 
-import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
+import useAIButton from '@/hooks/useAIButton';
 
 import graphPipelineImage from '../../assets/graph-pipeline.png';
 

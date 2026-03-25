@@ -2,8 +2,8 @@ import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Icon, 
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useAIButton from '@/hooks/useAIButton';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 

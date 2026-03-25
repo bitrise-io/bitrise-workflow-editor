@@ -12,7 +12,7 @@ import {
 } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
 
-import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
+import useAIButton from '@/hooks/useAIButton';
 
 export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
   entityIds: string[];

@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, EmptyState } from '@bitrise/bitkit';
 import { Tooltip } from 'chakra-ui-2--react';
 
-import useAIButton from '@/components/unified-editor/ContainersTab/hooks/useAIButton';
+import useAIButton from '@/hooks/useAIButton';
 
 type Props = {
   onCreateWorkflow: () => void;
