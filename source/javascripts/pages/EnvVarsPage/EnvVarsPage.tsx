@@ -2,16 +2,12 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
 
-import useAIDrawerListener from '@/hooks/useAIDrawerListener';
-
 import ProjectTab from './tabs/ProjectTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
 
 const useTabs = create(combine({ index: 0 }, (set) => ({ onChange: (index: number) => set({ index }) })));
 
 const EnvVarsPage = () => {
-  useAIDrawerListener({ selectedPage: 'env_vars', yamlSelector: 'env_var' });
-
   return (
     <Tabs {...useTabs()} isLazy>
       <Text as="h2" textStyle="heading/h2" p="32">

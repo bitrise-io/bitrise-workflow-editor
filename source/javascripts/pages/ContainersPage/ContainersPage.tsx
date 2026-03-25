@@ -5,7 +5,6 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
-import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 import useSearchParams from '@/hooks/useSearchParams';
@@ -36,8 +35,6 @@ const ContainersPage = () => {
       tab: TAB_IDS[index],
     });
   };
-
-  useAIDrawerListener({ selectedPage: 'containers', yamlSelector: 'container' });
 
   useEffect(() => {
     if (searchParams.tab && TAB_IDS.includes(searchParams.tab as ContainerType)) {

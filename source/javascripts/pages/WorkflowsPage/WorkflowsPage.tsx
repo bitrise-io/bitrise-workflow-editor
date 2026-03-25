@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
-import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';
@@ -14,8 +13,6 @@ const WorkflowsPage = () => {
   const [selectedWorkflowId] = useSelectedWorkflow();
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
-
-  useAIDrawerListener({ selectedPage: 'workflows', yamlSelector: 'workflow' });
 
   useEffect(() => {
     closeDialog();

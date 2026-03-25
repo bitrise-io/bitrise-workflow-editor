@@ -4,6 +4,7 @@ import { Redirect, Router, Switch } from 'wouter';
 import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
 import Navigation from '@/components/Navigation';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
@@ -25,6 +26,8 @@ const InvalidYmlRedirect = () => {
 };
 
 const MainLayout = () => {
+  useAIDrawerListener();
+
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
