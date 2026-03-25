@@ -21,11 +21,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
-  const {
-    isVisible: isAIButtonVisible,
-    tooltipLabel,
-    getAIButtonProps,
-  } = useAIButton({ selectedPage: 'pipelines', yamlSelector: 'pipeline' });
+  const { isVisible: isAIButtonVisible, tooltipLabel, getAIButtonProps } = useAIButton({ yamlSelector: 'pipelines' });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   const hasOptions = keys.length > 0;

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
+import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 
@@ -20,7 +21,6 @@ type AIButtonProps = {
 
 type UseAIButtonOptions = {
   action?: string;
-  selectedPage?: string;
   yamlSelector?: string;
 };
 
@@ -31,9 +31,10 @@ type UseAIButtonResult = {
 };
 
 const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
-  const { action = 'create', selectedPage = 'workflows', yamlSelector = 'workflow' } = options;
+  const { action = 'create', yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
+  const selectedPage = useCurrentPage();
 
   useParentMessageListener('DISABLE_AI_BUTTONS', () => {
     setIsAgenticRunInProgress(true);
@@ -67,7 +68,7 @@ const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
     const payload: OpenCiConfigExpertPayload = {
       action,
       bitriseYmlContents: getYmlString(),
-      selectedPage,
+      selectedPage: selectedPage || '',
       yamlSelector,
     };
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', payload);

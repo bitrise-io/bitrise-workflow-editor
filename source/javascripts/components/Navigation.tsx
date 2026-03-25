@@ -16,6 +16,7 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useAIDrawerListener from '@/hooks/useAIDrawerListener';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
@@ -79,6 +80,7 @@ const Navigation = (props: Props) => {
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
+  useAIDrawerListener();
 
   const enableContainersPage = useFeatureFlag('enable-wfe-containers-page');
 

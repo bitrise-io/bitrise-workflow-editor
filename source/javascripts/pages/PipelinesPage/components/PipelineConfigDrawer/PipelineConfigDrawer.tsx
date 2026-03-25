@@ -21,7 +21,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
     isVisible: isAIButtonVisible,
     tooltipLabel,
     getAIButtonProps,
-  } = useAIButton({ action: 'explain', selectedPage: 'pipelines', yamlSelector: `pipelines.${pipelineId}` });
+  } = useAIButton({ action: 'explain', yamlSelector: `pipelines.${pipelineId}` });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   if (!pipelineId) {

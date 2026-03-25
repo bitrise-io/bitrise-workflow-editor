@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
 
-import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton.mswMocks';
+import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton';
 import { getDefaultOutputs } from '@/core/api/EnvVarsApi.mswMocks';
 import {
   getCertificates,

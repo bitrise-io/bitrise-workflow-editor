@@ -9,11 +9,7 @@ type Props = {
 };
 
 const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
-  const {
-    isVisible: isAIButtonVisible,
-    tooltipLabel,
-    getAIButtonProps,
-  } = useAIButton({ selectedPage: 'pipelines', yamlSelector: 'pipeline' });
+  const { isVisible: isAIButtonVisible, tooltipLabel, getAIButtonProps } = useAIButton({ yamlSelector: 'pipelines' });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   const actions = (

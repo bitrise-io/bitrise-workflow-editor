@@ -2,7 +2,7 @@ import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
-import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton.mswMocks';
+import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 
 import PipelinesPage from './PipelinesPage';

@@ -19,7 +19,6 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
   entityName?: string;
   onChange: (selectedValue: string | undefined) => void;
   onCreate?: () => void;
-  aiSelectedPage?: string;
   aiYamlSelector?: string;
   secondaryEntities?: {
     label: string;
@@ -28,17 +27,16 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
 }
 
 const EntitySelector = (props: EntitySelectorProps) => {
-  const { aiSelectedPage, aiYamlSelector, entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
+  const { aiYamlSelector, entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
 
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const [search, setSearch] = useState('');
 
   const { isVisible, tooltipLabel, getAIButtonProps } = useAIButton({
-    selectedPage: aiSelectedPage,
     yamlSelector: aiYamlSelector,
   });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
-  const isAIButtonVisible = isVisible && aiSelectedPage && aiYamlSelector;
+  const isAIButtonVisible = isVisible && entityName === 'workflow';
 
   const filteredIds = useMemo(() => {
     return entityIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));

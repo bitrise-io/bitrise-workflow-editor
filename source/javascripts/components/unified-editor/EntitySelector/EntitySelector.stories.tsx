@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { useState } from 'react';
 
-import { aiButtonDisabled, aiButtonEnabled } from '@/components/unified-editor/AIButton.mswMocks';
+import { aiButtonDisabled, aiButtonEnabled } from '@/components/unified-editor/AIButton';
 
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 
@@ -62,8 +62,8 @@ export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
     window.parent.pageProps = aiButtonEnabled();
   },
   args: {
-    aiSelectedPage: 'workflows',
-    aiYamlSelector: 'workflow',
+    aiYamlSelector: 'workflows',
+    entityName: 'workflow',
   },
   render: StoryComponent,
 };
@@ -73,8 +73,8 @@ export const WithCreateWithAIButtonDisabled: StoryObj<EntitySelectorProps> = {
     window.parent.pageProps = aiButtonDisabled();
   },
   args: {
-    aiSelectedPage: 'workflows',
-    aiYamlSelector: 'workflow',
+    aiYamlSelector: 'workflows',
+    entityName: 'workflow',
   },
   render: StoryComponent,
 };

@@ -27,13 +27,13 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
     isVisible: isAIButtonVisible,
     tooltipLabel,
     getAIButtonProps,
-  } = useAIButton({ action: 'explain', selectedPage: 'workflows', yamlSelector: `workflows.${id}` });
+  } = useAIButton({ action: 'explain', yamlSelector: `workflows.${id}` });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   return (
     <>
       <Box display="flex" gap="16" p={variant === 'panel' ? '24px 24px 0px 24px' : '0'}>
-        <Box>
+        <div>
           <Text as="h3" textStyle="heading/h3">
             {title || id || 'Workflow'}
           </Text>
@@ -42,7 +42,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
               {WorkflowService.getUsedByText(dependants)}
             </Text>
           )}
-        </Box>
+        </div>
         {isAIButtonVisible && variant === 'panel' && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
             <Button
