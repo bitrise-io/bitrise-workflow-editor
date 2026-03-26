@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { useState } from 'react';
 
-import { aiButtonDisabled, aiButtonEnabled } from '@/components/unified-editor/AIButton';
+import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
 
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 

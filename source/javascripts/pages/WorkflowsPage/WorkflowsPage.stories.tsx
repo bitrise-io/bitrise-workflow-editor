@@ -3,7 +3,6 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
 
-import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/components/unified-editor/AIButton';
 import { getDefaultOutputs } from '@/core/api/EnvVarsApi.mswMocks';
 import {
   getCertificates,
@@ -15,6 +14,7 @@ import {
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
+import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/storyutils/getAISettings.utils';
 
 import WorkflowsPage from './WorkflowsPage';
 
