@@ -3,6 +3,7 @@ import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
@@ -23,11 +24,15 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
 
+  const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
+  const yamlSelector =
+    context === 'pipeline' && pipelineId ? `pipelines.${pipelineId}.workflows.${id}` : `workflows.${id}`;
+
   const {
     isVisible: isAIButtonVisible,
     tooltipLabel,
     getAIButtonProps,
-  } = useAIButton({ action: 'explain', yamlSelector: `workflows.${id}` });
+  } = useAIButton({ action: 'explain', yamlSelector });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   return (

@@ -1,9 +1,9 @@
-type CiConfigExpertOverride = {
+type CiConfigExpertProps = {
   disabled?: 'by-project' | 'by-workspace' | 'unsupported';
   options?: { wfeIntegration: boolean };
 };
 
-const withCiConfigExpert = ({ disabled, options }: CiConfigExpertOverride = {}) => ({
+const withCiConfigExpert = ({ disabled, options }: CiConfigExpertProps = {}) => ({
   ...window.parent.pageProps,
   settings: {
     ai: {
