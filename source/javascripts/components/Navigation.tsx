@@ -18,7 +18,6 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useHashLocation from '@/hooks/useHashLocation';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
@@ -80,8 +79,6 @@ const Navigation = (props: Props) => {
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
 
-  const enableContainersPage = useFeatureFlag('enable-wfe-containers-page');
-
   useEffect(() => {
     segmentTrack('Workflow Editor Tab Displayed', {
       app_slug: PageProps.appSlug(),
@@ -137,15 +134,13 @@ const Navigation = (props: Props) => {
         >
           Triggers
         </NavigationItem>
-        {enableContainersPage && (
-          <NavigationItem
-            path={withSearchParams(paths.containers)}
-            icon="Container"
-            intercomTarget="Containers Page Navigation Item"
-          >
-            Containers
-          </NavigationItem>
-        )}
+        <NavigationItem
+          path={withSearchParams(paths.containers)}
+          icon="Container"
+          intercomTarget="Containers Page Navigation Item"
+        >
+          Containers
+        </NavigationItem>
         {RuntimeUtils.isWebsiteMode() && (
           <NavigationItem
             path={withSearchParams(paths.stacksAndMachines)}

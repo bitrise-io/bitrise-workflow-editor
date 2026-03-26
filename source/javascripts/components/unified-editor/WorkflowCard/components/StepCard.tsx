@@ -25,7 +25,6 @@ import { Step } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useStep from '@/hooks/useStep';
 
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
@@ -123,8 +122,6 @@ const StepCard = ({
     isEnabled: !!step,
     stepBundleId,
   });
-
-  const enableContainers = useFeatureFlag('enable-wfe-containers-page');
 
   const instanceExecution = instance?.[ContainerType.Execution];
   const instanceService = instance?.[ContainerType.Service];
@@ -293,7 +290,7 @@ const StepCard = ({
                           resolvedVersion={step?.resolvedInfo?.resolvedVersion}
                         />
                       )}
-                      {enableContainers && referenceIds.length > 0 && (
+                      {referenceIds.length > 0 && (
                         <>
                           <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
                           <Icon name="Container" size="16" color="icon/tertiary" />
