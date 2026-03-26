@@ -1,8 +1,9 @@
-import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useAIButton from '@/hooks/useAIButton';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
@@ -19,6 +20,9 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const hasUnsavedChanges = useYmlHasChanges();
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
+
+  const { isVisible: isAIButtonVisible, tooltipLabel, getAIButtonProps } = useAIButton({ yamlSelector: 'pipelines' });
+  const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   const hasOptions = keys.length > 0;
   const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
@@ -47,6 +51,11 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const onCreatePipeline = () => {
     onCreatePipelineClick?.();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
+  };
+
+  const onCreatePipelineWithAI = () => {
+    onAIButtonClick();
+    dropdownRef.current?.click();
   };
 
   const [pipelineIds] = useMemo(() => {
@@ -111,7 +120,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           <Button
             w="100%"
             border="none"
-            fontWeight="400"
+            textStyle="body/lg/regular"
             borderRadius="0"
             variant="secondary"
             leftIconName="PlusCircle"
@@ -120,6 +129,33 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           >
             Create Pipeline
           </Button>
+          {isAIButtonVisible && (
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} display="block">
+              <Button
+                w="100%"
+                border="none"
+                textStyle="body/lg/regular"
+                borderRadius="0"
+                variant="secondary"
+                leftIcon={
+                  <Icon
+                    name="SparkleFilled"
+                    size="24"
+                    color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
+                  />
+                }
+                justifyContent="flex-start"
+                isDisabled={isAIButtonDisabled}
+                _disabled={{
+                  backgroundColor: 'background/primary',
+                  color: 'button/secondary/fg-disabled',
+                }}
+                onClick={onCreatePipelineWithAI}
+              >
+                Create Pipeline with AI
+              </Button>
+            </Tooltip>
+          )}
         </Box>
       </Dropdown>
 

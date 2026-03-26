@@ -7,8 +7,12 @@ import {
   DropdownProps,
   DropdownSearch,
   EmptyState,
+  Icon,
+  Tooltip,
 } from '@bitrise/bitkit';
 import { useMemo, useRef, useState } from 'react';
+
+import useAIButton from '@/hooks/useAIButton';
 
 export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
   entityIds: string[];
@@ -25,8 +29,13 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
 
   const dropdownRef = useRef<HTMLButtonElement>(null);
-
   const [search, setSearch] = useState('');
+
+  const { isVisible, tooltipLabel, getAIButtonProps } = useAIButton({
+    yamlSelector: entityName === 'Workflow' ? 'workflows' : undefined,
+  });
+  const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
+  const isAIButtonVisible = isVisible && entityName === 'Workflow';
 
   const filteredIds = useMemo(() => {
     return entityIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));
@@ -43,6 +52,11 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const handleCreate = () => {
     onCreate?.();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
+  };
+
+  const handleCreateWithAI = () => {
+    onAIButtonClick();
+    dropdownRef.current?.click();
   };
 
   return (
@@ -78,7 +92,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
           description="Modify your search to get results"
         />
       )}
-      {!!onCreate && (
+      {(!!onCreate || isAIButtonVisible) && (
         <Box
           paddingY="8"
           position="sticky"
@@ -88,18 +102,43 @@ const EntitySelector = (props: EntitySelectorProps) => {
           borderColor="border/regular"
           backgroundColor="background/primary"
         >
-          <Button
-            borderRadius="0"
-            color="button.secondary"
-            fontWeight="400"
-            justifyContent="flex-start"
-            leftIconName="Plus"
-            variant="tertiary"
-            width="100%"
-            onClick={handleCreate}
-          >
-            Create {entityName}
-          </Button>
+          {!!onCreate && (
+            <Button
+              borderRadius="0"
+              color="button.secondary"
+              textStyle="body/lg/regular"
+              justifyContent="flex-start"
+              leftIconName="Plus"
+              variant="tertiary"
+              width="100%"
+              onClick={handleCreate}
+            >
+              Create {entityName}
+            </Button>
+          )}
+          {isAIButtonVisible && (
+            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+              <Button
+                borderRadius="0"
+                color="button.secondary"
+                textStyle="body/lg/regular"
+                justifyContent="flex-start"
+                leftIcon={
+                  <Icon
+                    name="SparkleFilled"
+                    size="24"
+                    color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
+                  />
+                }
+                variant="tertiary"
+                width="100%"
+                isDisabled={isAIButtonDisabled}
+                onClick={handleCreateWithAI}
+              >
+                Create {entityName} with AI
+              </Button>
+            </Tooltip>
+          )}
         </Box>
       )}
     </Dropdown>

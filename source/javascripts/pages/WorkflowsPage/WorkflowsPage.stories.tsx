@@ -14,6 +14,7 @@ import {
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
+import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/storyutils/getAISettings.utils';
 
 import WorkflowsPage from './WorkflowsPage';
 
@@ -21,6 +22,9 @@ type Story = StoryObj<typeof WorkflowsPage>;
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
+  },
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -142,6 +146,42 @@ export const WithContainerDefinitions: Story = {
             '--health-cmd "mongosh --eval \'db.adminCommand({ping:1})\'" --health-interval 10s --health-timeout 5s --health-retries 5',
         },
       });
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
+export const EmptyCreateWithAI: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = aiButtonEnabled();
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
+export const EmptyCreateWithAIDisabled: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = aiButtonDisabled();
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
+export const EmptyWithoutCreateWithAI: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = aiButtonHidden();
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
       return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
     })(),
   },

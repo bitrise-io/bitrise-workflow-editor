@@ -1,4 +1,6 @@
-import { Box, Button, Card, Icon, Image, Link, List, ListItem, Text } from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+
+import useAIButton from '@/hooks/useAIButton';
 
 import graphPipelineImage from '../../assets/graph-pipeline.png';
 
@@ -7,11 +9,29 @@ type Props = {
 };
 
 const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
+  const { isVisible: isAIButtonVisible, tooltipLabel, getAIButtonProps } = useAIButton({ yamlSelector: 'pipelines' });
+  const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
+
   const actions = (
-    <>
-      <Button alignSelf={['stretch', 'center']} leftIconName="Plus" size="md" onClick={onCreate}>
-        Create Pipeline
-      </Button>
+    <Box display="flex" flexDir={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
+      <ButtonGroup spacing="0" gap="24">
+        {isAIButtonVisible && (
+          <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+            <Button
+              isDisabled={isAIButtonDisabled}
+              leftIconName="SparkleFilled"
+              size="md"
+              variant="ai-primary"
+              onClick={onAIButtonClick}
+            >
+              Create Pipeline with AI
+            </Button>
+          </Tooltip>
+        )}
+        <Button alignSelf={['stretch', 'center']} leftIconName="Plus" size="md" onClick={onCreate}>
+          Create Pipeline
+        </Button>
+      </ButtonGroup>
       <Link
         isExternal
         colorScheme="purple"
@@ -21,7 +41,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
         Read the docs
         <Icon size="16" name="ArrowNorthEast" ml="4" />
       </Link>
-    </>
+    </Box>
   );
 
   return (

@@ -14,11 +14,14 @@ import {
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
+import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { paths } from '@/routes';
@@ -78,6 +81,21 @@ const Navigation = (props: Props) => {
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
+
+  const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
+
+  useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
+    updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
+  });
+
+  useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
+    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
+      action: 'create',
+      bitriseYmlContents: getYmlString(),
+      selectedPage: currentPage,
+      yamlSelector,
+    });
+  });
 
   useEffect(() => {
     segmentTrack('Workflow Editor Tab Displayed', {
