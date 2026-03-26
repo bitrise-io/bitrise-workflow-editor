@@ -1,5 +1,4 @@
-import { Button, ButtonGroup, EmptyState } from '@bitrise/bitkit';
-import { Tooltip } from 'chakra-ui-2--react';
+import { Button, ButtonGroup, EmptyState, Tooltip } from '@bitrise/bitkit';
 
 import useAIButton from '@/hooks/useAIButton';
 

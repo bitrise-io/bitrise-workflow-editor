@@ -83,8 +83,7 @@ const Navigation = (props: Props) => {
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
 
-  const selectedPage = useCurrentPage();
-  const yamlSelector = selectedPage === 'workflows' || selectedPage === 'pipelines' ? selectedPage : undefined;
+  const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
 
   useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
     updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
@@ -94,7 +93,7 @@ const Navigation = (props: Props) => {
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
       action: 'create',
       bitriseYmlContents: getYmlString(),
-      selectedPage,
+      selectedPage: currentPage,
       yamlSelector,
     });
   });
