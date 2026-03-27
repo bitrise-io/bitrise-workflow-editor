@@ -47,15 +47,19 @@ function getStepDataOrThrowError(
   stepIndex: number,
 ): YAMLMap {
   const step = StepService.getStepOrThrowError(source, sourceId, stepIndex, doc);
-  const stepData = step.items[0]?.value;
+  const pair = step.items[0];
 
-  if (isMap(stepData)) {
-    return stepData;
+  if (!pair) {
+    throw new Error(`Invalid step data at index ${stepIndex} in ${source} '${sourceId}'`);
   }
 
-  if (stepData == null || (isScalar(stepData) && stepData.value == null)) {
+  if (isMap(pair.value)) {
+    return pair.value;
+  }
+
+  if (pair.value == null || (isScalar(pair.value) && pair.value.value == null)) {
     const emptyMap = new YAMLMap();
-    step.items[0].value = emptyMap;
+    pair.value = emptyMap;
     return emptyMap;
   }
 
