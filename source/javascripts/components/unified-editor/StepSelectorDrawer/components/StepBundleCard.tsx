@@ -47,11 +47,18 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
+  const stepBundleInstance = useStepBundle({
+    stepBundleId: workflowId || stepBundleId ? undefined : StepBundleService.cvsToId(cvs),
+    parentWorkflowId: workflowId,
+    parentStepBundleId: stepBundleId,
+    stepIndex,
+  });
+
   const { definition, instance } = useContainerReferences({
     source: stepBundleId ? 'step_bundles' : 'workflows',
     sourceId: stepBundleId || workflowId || '',
     stepIndex,
-    isEnabled: !!(workflowId || stepBundleId || cvs),
+    isEnabled: !!stepBundleInstance.stepBundle,
     stepBundleId: StepBundleService.cvsToId(cvs),
   });
 
@@ -147,13 +154,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       />
     );
   }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
-
-  const stepBundleInstance = useStepBundle({
-    stepBundleId: workflowId || stepBundleId ? undefined : StepBundleService.cvsToId(cvs),
-    parentWorkflowId: workflowId,
-    parentStepBundleId: stepBundleId,
-    stepIndex,
-  });
 
   const title = stepBundleInstance.stepBundle?.mergedValues?.title || StepBundleService.cvsToId(cvs);
 
