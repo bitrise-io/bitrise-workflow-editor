@@ -3,7 +3,7 @@ import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem } from '../WorkflowCard.types';
@@ -25,25 +25,39 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
 
 const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => {
   const id = stepBundleId || workflowId || '';
-  const initialSortableItems: SortableStepItem[] = useMemo(() => {
-    return steps.map((cvs, stepIndex) => ({
-      uniqueId: crypto.randomUUID(),
-      stepIndex,
-      stepBundleId,
-      workflowId,
-      cvs,
-    }));
-  }, [stepBundleId, steps, workflowId]);
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMove);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
-  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>([]);
+  const [prevSteps, setPrevSteps] = useState(steps);
+  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(() =>
+    steps.map((cvs, stepIndex) => ({
+      uniqueId: crypto.randomUUID(),
+      stepIndex,
+      stepBundleId,
+      workflowId,
+      cvs,
+    })),
+  );
 
-  useEffect(() => {
-    setSortableItems(initialSortableItems);
-  }, [initialSortableItems]);
+  if (steps !== prevSteps) {
+    setPrevSteps(steps);
+    setSortableItems((prev) => {
+      return steps.map((cvs, stepIndex) => {
+        const existing = prev.find((item) => item.cvs === cvs && item.stepIndex === stepIndex);
+        return (
+          existing ?? {
+            uniqueId: crypto.randomUUID(),
+            stepIndex,
+            stepBundleId,
+            workflowId,
+            cvs,
+          }
+        );
+      });
+    });
+  }
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveItem(event.active.data.current as SortableStepItem);
