@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, YAMLMap } from 'yaml';
+import { Document, isMap, isScalar, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
@@ -47,12 +47,23 @@ function getStepDataOrThrowError(
   stepIndex: number,
 ): YAMLMap {
   const step = StepService.getStepOrThrowError(source, sourceId, stepIndex, doc);
-  const stepData = step.items[0]?.value;
-  if (!isMap(stepData)) {
+  const pair = step.items[0];
+
+  if (!pair) {
     throw new Error(`Invalid step data at index ${stepIndex} in ${source} '${sourceId}'`);
   }
 
-  return stepData;
+  if (isMap(pair.value)) {
+    return pair.value;
+  }
+
+  if (pair.value == null || (isScalar(pair.value) && pair.value.value == null)) {
+    const emptyMap = new YAMLMap();
+    pair.value = emptyMap;
+    return emptyMap;
+  }
+
+  throw new Error(`Invalid step data at index ${stepIndex} in ${source} '${sourceId}'`);
 }
 
 function addContainerReference(

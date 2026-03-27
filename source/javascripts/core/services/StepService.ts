@@ -483,11 +483,10 @@ function updateStepField<T extends Key>(
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, index, doc);
-    const stepData = step.items[0].value;
-
-    if (!isMap(stepData)) {
-      return doc;
+    if (!isMap(step.items[0].value)) {
+      step.items[0].value = new YAMLMap();
     }
+    const stepData = step.items[0].value as YAMLMap;
 
     if (value !== defaultValue) {
       YmlUtils.setIn(stepData, [field], value);
@@ -501,16 +500,20 @@ function updateStepField<T extends Key>(
 
 function updateStepInput(source: Source, sourceId: string, index: number, input: string, value: unknown) {
   updateBitriseYmlDocument(({ doc }) => {
-    const step = getStepOrThrowError(source, sourceId, index, doc).items[0].value as YAMLMap;
-    const inputsSeq = YmlUtils.getSeqIn(step, ['inputs'], true);
+    const step = getStepOrThrowError(source, sourceId, index, doc);
+    if (!isMap(step.items[0].value)) {
+      step.items[0].value = new YAMLMap();
+    }
+    const stepData = step.items[0].value as YAMLMap;
+    const inputsSeq = YmlUtils.getSeqIn(stepData, ['inputs'], true);
     const inputIndex = inputsSeq.items.findIndex((item) => isMap(item) && item.has(input));
 
     if (value === '') {
-      YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
+      YmlUtils.deleteByPath(stepData, ['inputs', inputIndex, input]);
     } else if (inputIndex === -1) {
       YmlUtils.addIn(inputsSeq, [], { [input]: YmlUtils.toScalar(value) });
     } else {
-      YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], value);
+      YmlUtils.updateValueByPath(stepData, ['inputs', inputIndex, input], value);
     }
 
     return doc;
