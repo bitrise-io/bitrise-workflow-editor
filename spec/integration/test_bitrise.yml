@@ -22,26 +22,29 @@ containers:
     type: service
     image: redis:latest
     ports:
-    - 6379:6379
-    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      - 6379:6379
+    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s
+      --health-retries 5
   mongodb:
     type: service
     image: mongo:7
     ports:
-    - 27017:27017
+      - 27017:27017
     env:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
-    options: --health-cmd "mongosh --eval 'db.adminCommand({ping:1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+    options: --health-cmd "mongosh --eval 'db.adminCommand({ping:1})'"
+      --health-interval 10s --health-timeout 5s --health-retries 5
   mysql:
     type: service
     image: mysql:8
     ports:
-    - 3306:3306
+      - 3306:3306
     env:
       - MYSQL_ROOT_PASSWORD=rootpass
       - MYSQL_DATABASE=testdb
-    options: --health-cmd "mysqladmin ping -h localhost" --health-interval 10s --health-timeout 5s --health-retries 5
+    options: --health-cmd "mysqladmin ping -h localhost" --health-interval 10s
+      --health-timeout 5s --health-retries 5
 app:
   envs:
     - ACCESS_KEY: "120"
@@ -199,7 +202,7 @@ workflows:
             golang:
               recreate: true
           service_containers:
-          - redis
+            - redis
   steplib-steps:
     steps:
       - https://github.com/bitrise-io/bitrise-steplib.git::script@0.9.0:
@@ -216,8 +219,8 @@ workflows:
                 echo "Hello implicit default library step (::id@version)!"
           execution_container: golang
           service_containers:
-          - redis
-          - mongodb
+            - redis
+            - mongodb
       - script@0.9.0:
           title: Implicit library, explicit version (id@version)
           inputs:
@@ -529,18 +532,20 @@ workflows:
 
                 # Installing Swiftlint 0.35.0
                 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a150ab2162228b957db1871947315f2278b21252/Formula/swiftlint.rb
-      - activate-ssh-key:
+      - activate-ssh-key: {}
       - certificate-and-profile-installer@1.10.2:
+          inputs:
+            - certificate_url: $test
+      - xamarin-user-management: {}
+      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest: {}
       - authenticate-host-with-netrc@0.9.4:
           inputs:
             - username: $username
             - password: $PAT
             - host: github.com
-      - xamarin-user-management:
-      - bundle::verylonglonglonglonglonglonglonglonglonglonglonglonglonglongtest:
-      - bundle::install_deps:
+      - bundle::install_deps: {}
       - with:
-          container: ruby
+          container: golang
           services:
             - postgres
 step_bundles:

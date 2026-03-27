@@ -47,12 +47,14 @@ function getStepDataOrThrowError(
   stepIndex: number,
 ): YAMLMap {
   const step = StepService.getStepOrThrowError(source, sourceId, stepIndex, doc);
-  const stepData = step.items[0]?.value;
+  let stepData = step.items[0]?.value;
+
   if (!isMap(stepData)) {
-    throw new Error(`Invalid step data at index ${stepIndex} in ${source} '${sourceId}'`);
+    stepData = new YAMLMap();
+    step.items[0].value = stepData;
   }
 
-  return stepData;
+  return stepData as YAMLMap;
 }
 
 function addContainerReference(
