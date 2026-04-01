@@ -37,7 +37,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   return (
     <>
-      <Box display="flex" gap="16" p={variant === 'panel' ? '24px 24px 0px 24px' : '0'}>
+      <Box display="flex" alignItems="center" gap="16" p={variant === 'panel' ? '24px 24px 0px 24px' : '0'}>
         <div>
           <Text as="h3" textStyle="heading/h3">
             {title || id || 'Workflow'}
