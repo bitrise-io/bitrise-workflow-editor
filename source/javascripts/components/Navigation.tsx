@@ -90,7 +90,6 @@ const Navigation = (props: Props) => {
 
   useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
-      action: 'create',
       bitriseYmlContents: getYmlString(),
       selectedPage: currentPage,
       yamlSelector,
