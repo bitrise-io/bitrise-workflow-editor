@@ -8,7 +8,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 
 type OpenCiConfigExpertPayload = {
-  action: string;
+  action?: AIButtonAction;
   bitriseYmlContents: string;
   selectedPage: string;
   yamlSelector: string;
@@ -19,8 +19,10 @@ type AIButtonProps = {
   onClick: () => void;
 };
 
+type AIButtonAction = 'create_workflow' | 'create_pipeline' | 'explain_workflow' | 'explain_pipeline';
+
 type UseAIButtonOptions = {
-  action?: string;
+  action?: AIButtonAction;
   yamlSelector?: string;
 };
 
@@ -31,7 +33,7 @@ type UseAIButtonResult = {
 };
 
 const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
-  const { action = 'create', yamlSelector = 'workflow' } = options;
+  const { action, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();

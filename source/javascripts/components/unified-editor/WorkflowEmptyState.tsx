@@ -7,7 +7,11 @@ type Props = {
 };
 
 const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
-  const { isVisible: isAIButtonVisible, tooltipLabel, getAIButtonProps } = useAIButton({ yamlSelector: 'workflows' });
+  const {
+    isVisible: isAIButtonVisible,
+    tooltipLabel,
+    getAIButtonProps,
+  } = useAIButton({ action: 'create_workflow', yamlSelector: 'workflows' });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   return (
