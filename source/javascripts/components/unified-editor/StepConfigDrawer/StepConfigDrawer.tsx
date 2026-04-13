@@ -3,6 +3,7 @@ import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import StepBadge from '@/components/StepBadge';
+import StepContainersTab from '@/components/unified-editor/StepConfigDrawer/tabs/StepContainersTab';
 import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 
@@ -92,6 +93,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}
+                <Tab>Containers</Tab>
               </TabList>
             </Box>
           </FloatingDrawerHeader>
@@ -108,6 +110,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                   <OutputVariablesTab />
                 </TabPanel>
               )}
+              <TabPanel>
+                <StepContainersTab />
+              </TabPanel>
             </TabPanels>
           </FloatingDrawerBody>
         </FloatingDrawerContent>

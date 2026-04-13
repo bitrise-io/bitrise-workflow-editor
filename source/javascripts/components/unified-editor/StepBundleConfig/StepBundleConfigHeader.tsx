@@ -19,7 +19,6 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   }));
 
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
-
   const { replace } = useNavigation();
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
@@ -56,6 +55,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
         <Tab>Properties</Tab>
+        <Tab>Containers</Tab>
       </TabList>
     </>
   );

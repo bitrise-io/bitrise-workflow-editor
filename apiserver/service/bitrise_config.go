@@ -86,7 +86,7 @@ func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 	warnings, validationErr := utility.ValidateBitriseConfigAndSecret(reqObj.BitriseYML, config.MinimalValidSecrets)
 	if validationErr != nil {
 		log.Errorf("Validation error: %s", validationErr)
-		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(reqObj.BitriseYML, validationErr.Error()))
+		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(reqObj.BitriseYML, "%s", validationErr.Error()))
 		return
 	}
 
@@ -110,7 +110,7 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := utility.ValidateBitriseConfigAndSecret(contStr, config.MinimalValidSecrets); err != nil {
 		log.Errorf("Validation error: %s", err)
-		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(contStr, err.Error()))
+		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(contStr, "%s", err.Error()))
 		return
 	}
 
@@ -173,7 +173,7 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 	warnings, validationErr := utility.ValidateBitriseConfigAndSecret(string(contAsYAML), config.MinimalValidSecrets)
 	if validationErr != nil {
 		log.Errorf("Validation error: %s", validationErr)
-		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(string(contAsYAML), validationErr.Error()))
+		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(string(contAsYAML), "%s", validationErr.Error()))
 		return
 	}
 

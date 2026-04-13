@@ -84,7 +84,7 @@ workflows:
 		{
 			_, err := ValidateBitriseConfigAndSecret(`{}`, config.MinimalValidSecrets)
 			require.Error(t, err)
-			require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: Failed to parse bitrise config, error: missing format_version"), err.Error())
+			require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: failed to parse bitrise config, error: missing format_version"), err.Error())
 		}
 	}
 
@@ -97,7 +97,7 @@ app:
 `, config.MinimalValidSecrets)
 
 		require.Error(t, err)
-		require.True(t, strings.Contains(err.Error(), "Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: Failed to parse bitrise config, error: yaml: unmarshal errors:\n  line 4: cannot unmarshal !!str `A` into models.EnvironmentItemModel"), err.Error())
+		require.True(t, strings.Contains(err.Error(), "Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: failed to parse bitrise config, error: yaml: unmarshal errors:\n  line 4: cannot unmarshal !!str `A` into models.EnvironmentItemModel"), err.Error())
 	}
 
 	t.Log("Invalid configs - missing format_version")
@@ -112,14 +112,14 @@ workflows:
 `, config.MinimalValidSecrets)
 
 		require.Error(t, err)
-		require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: Failed to parse bitrise config, error: missing format_version"), err.Error())
+		require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: failed to parse bitrise config, error: missing format_version"), err.Error())
 	}
 
 	t.Log("Invalid secrets - envs as empty hash")
 	{
 		_, err := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, "envs: {}")
 		require.Error(t, err)
-		require.True(t, strings.Contains(err.Error(), "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!map into []models.EnvironmentItemModel"), err.Error())
+		require.True(t, strings.Contains(err.Error(), "Validation failed: Secret validation error: failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!map into []models.EnvironmentItemModel"), err.Error())
 	}
 
 	t.Log("Invalid secrets - envs as hash with value")
@@ -127,6 +127,6 @@ workflows:
 		_, err := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, `envs:
   KEY_ONE: value one`)
 		require.Error(t, err)
-		require.True(t, strings.Contains(err.Error(), "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!map into []models.EnvironmentItemModel"), err.Error())
+		require.True(t, strings.Contains(err.Error(), "Validation failed: Secret validation error: failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!map into []models.EnvironmentItemModel"), err.Error())
 	}
 }

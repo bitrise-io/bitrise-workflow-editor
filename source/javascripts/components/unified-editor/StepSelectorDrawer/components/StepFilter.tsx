@@ -12,6 +12,7 @@ import { capitalize, startCase } from 'es-toolkit';
 import { memo, useCallback, useMemo } from 'react';
 
 import StepService from '@/core/services/StepService';
+import PageProps from '@/core/utils/PageProps';
 import { useAlgoliaSteps } from '@/hooks/useAlgolia';
 
 import useSearch from '../hooks/useSearch';
@@ -43,9 +44,10 @@ const MAINTAINERS: Array<{
 ];
 
 const StepFilterCategories = memo(function StepFilterCategories() {
-  const { data: steps = [] } = useAlgoliaSteps();
+  const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
+  const allowedMaintainers = allowNonBitriseSteps ? [] : ['bitrise'];
+  const { data: steps = [] } = useAlgoliaSteps(allowedMaintainers);
   const categories = useMemo(() => StepService.getStepCategories(steps), [steps]);
-
   const selectedCategories = useSearch((s) => s.stepCategoryFilter);
   const selectedMaintainers = useSearch((s) => s.stepMaintainerFilter);
   const setSelectedCategories = useSearch((s) => s.setSearchStepCategories);
@@ -55,6 +57,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
     () => [...selectedCategories, ...selectedMaintainers],
     [selectedCategories, selectedMaintainers],
   );
+
   const handleFilterChange = useCallback(
     (values: string[]) => {
       const cats = values.filter((v) => categories.some((c) => c === v));
@@ -74,13 +77,14 @@ const StepFilterCategories = memo(function StepFilterCategories() {
             {capitalize(startCase(category))}
           </SelectableTag>
         ))}
-        <Divider orientation="vertical" height="auto" />
-        {MAINTAINERS.map(({ key, icon, label }) => (
-          <SelectableTag key={key} value={key}>
-            <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
-            {label}
-          </SelectableTag>
-        ))}
+        {allowNonBitriseSteps && <Divider orientation="vertical" height="auto" />}
+        {allowNonBitriseSteps &&
+          MAINTAINERS.map(({ key, icon, label }) => (
+            <SelectableTag key={key} value={key}>
+              <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
+              {label}
+            </SelectableTag>
+          ))}
       </Box>
     </SelectableTagGroup>
   );

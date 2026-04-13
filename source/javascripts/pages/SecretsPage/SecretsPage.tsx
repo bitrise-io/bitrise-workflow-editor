@@ -10,8 +10,8 @@ import SecretCard from './SecretCard';
 
 const SecretsPage = () => {
   const appSlug = PageProps.appSlug();
-  const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/secrets`;
-  const planSelectorPath = `/workspaces/${GlobalProps.workspaceSlug()}/plan_selector`;
+  const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/settings/shared-resources`;
+  const planSelectorPath = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
   const sharedSecretsAvailable = GlobalProps.workspace()?.sharedResourcesAvailable;
 
   const [deleteId, setDeleteId] = useState<string | null>(null);

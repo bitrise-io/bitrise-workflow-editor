@@ -538,6 +538,7 @@ export default {
   validateName,
   getStepBundleChains,
   getStepBundleChain,
+  getStepBundleOrThrowError,
   cvsToId,
   idToCvs,
   ymlInstanceToStepBundle,

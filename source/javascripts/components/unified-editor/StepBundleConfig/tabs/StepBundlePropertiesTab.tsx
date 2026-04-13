@@ -4,9 +4,9 @@ import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
-import DeleteStepBundleDialog from '../DeleteStepBundleDialog/DeleteStepBundleDialog';
-import useChangeStepBundleId from './hooks/useChangeStepBundleId';
-import { useStepBundleConfigContext } from './StepBundleConfig.context';
+import DeleteStepBundleDialog from '../../DeleteStepBundleDialog/DeleteStepBundleDialog';
+import useChangeStepBundleId from '../hooks/useChangeStepBundleId';
+import { useStepBundleConfigContext } from '../StepBundleConfig.context';
 
 type StepBundlePropertiesTabProps = {
   onDelete?: () => void;

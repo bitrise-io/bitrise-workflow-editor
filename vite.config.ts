@@ -64,7 +64,14 @@ export default defineConfig(({ mode }) => {
     ],
 
     resolve: {
-      alias: { '@': resolve(rootDir, 'source/javascripts') },
+      alias: {
+        '@': resolve(rootDir, 'source/javascripts'),
+        '@bitrise/languageserver-core': resolve(rootDir, 'node_modules/@bitrise/languageserver/packages/core'),
+        '@bitrise/languageserver-monaco': resolve(
+          rootDir,
+          'node_modules/@bitrise/languageserver/packages/monaco-worker',
+        ),
+      },
       dedupe: ['zustand'], // Required for iframe compatibility
     },
 
@@ -72,10 +79,12 @@ export default defineConfig(({ mode }) => {
       'process.env': {},
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
       'import.meta.env.MODE': JSON.stringify(env.MODE || 'CLI'),
+      'import.meta.env.CLARITY': JSON.stringify(env.CLARITY || 'false'),
       'import.meta.env.ANALYTICS': JSON.stringify(env.ANALYTICS || 'false'),
       'import.meta.env.DATADOG_RUM': JSON.stringify(env.DATADOG_RUM || 'false'),
       'import.meta.env.PUBLIC_URL_ROOT': JSON.stringify(env.PUBLIC_URL_ROOT || ''),
       'import.meta.env.WFE_VERSION': JSON.stringify(version),
+      'import.meta.env.INTERCOM_APP_ID': JSON.stringify(env.INTERCOM_APP_ID || ''),
     },
 
     build: {
@@ -91,6 +100,15 @@ export default defineConfig(({ mode }) => {
       allowedHosts: true,
     },
 
-    envPrefix: ['VITE_', 'MODE', 'ANALYTICS', 'DATADOG_RUM', 'NODE_ENV', 'PUBLIC_URL_ROOT'],
+    envPrefix: [
+      'MODE',
+      'VITE_',
+      'CLARITY',
+      'NODE_ENV',
+      'ANALYTICS',
+      'DATADOG_RUM',
+      'PUBLIC_URL_ROOT',
+      'INTERCOM_APP_ID',
+    ],
   };
 });

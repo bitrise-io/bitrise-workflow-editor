@@ -71,14 +71,18 @@ function searchSteps(query: string, categories: string[], maintainers: string[])
 }
 
 // Browse Functions
-async function getAllSteps() {
+async function getAllSteps(maintainers: string[] = []) {
   const results: Array<AlgoliaStepResponse> = [];
 
   await client.browseObjects<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
     aggregator: ({ hits }) => results.push(...hits),
     browseParams: {
-      filters: 'is_latest:true AND is_deprecated:false',
+      facetFilters: [
+        'is_latest:true',
+        'is_deprecated:false',
+        maintainers.map((maintainer) => `info.maintainer:${maintainer}`),
+      ],
     },
   });
 

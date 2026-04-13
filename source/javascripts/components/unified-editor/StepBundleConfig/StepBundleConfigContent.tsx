@@ -1,7 +1,9 @@
 import { TabPanel, TabPanelProps, TabPanels } from '@bitrise/bitkit';
 
-import StepBundleConfigurationTab from './StepBundleConfigurationTab';
-import StepBundlePropertiesTab from './StepBundlePropertiesTab';
+import StepBundleContainersTab from '@/components/unified-editor/StepBundleConfig/tabs/StepBundleContainersTab';
+
+import StepBundleConfigurationTab from './tabs/StepBundleConfigurationTab';
+import StepBundlePropertiesTab from './tabs/StepBundlePropertiesTab';
 
 type ConfigContentProps = {
   onDelete?: () => void;
@@ -17,6 +19,9 @@ const StepBundleConfigContent = ({ onDelete, onChangeId, variant, ...rest }: Con
       </TabPanel>
       <TabPanel display="flex" flexDirection="column" gap="24">
         <StepBundlePropertiesTab onDelete={onDelete} onChangeId={onChangeId} variant={variant} />
+      </TabPanel>
+      <TabPanel height="100%">
+        <StepBundleContainersTab />
       </TabPanel>
     </TabPanels>
   );

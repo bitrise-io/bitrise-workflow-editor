@@ -14,6 +14,7 @@ import { useState } from 'react';
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
 import { Secret } from '@/core/models/Secret';
 import PageProps from '@/core/utils/PageProps';
+import useCodeSigningSecrets from '@/hooks/useCodeSigningSecrets';
 import { useSecrets, useUpsertSecret } from '@/hooks/useSecrets';
 
 import CreateSecret from './components/CreateSecret';
@@ -21,7 +22,7 @@ import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
 
 type Props = {
-  size: 'sm' | 'md';
+  size: 'sm' | 'md' | 'lg';
   isOpen?: boolean;
   mode?: Mode;
   onSelect: (item: Secret) => void;
@@ -35,10 +36,13 @@ const filterPredicate = (item: Secret, filter: string): boolean =>
 const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
   const appSlug = PageProps.appSlug();
   const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
-  const { isLoading, data: secrets = [] } = useSecrets({
+  const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
     appSlug,
     options: { enabled: shouldLoadVars },
   });
+  const { isLoading: isLoadingCodeSigning, data: codeSigningSecrets = [] } = useCodeSigningSecrets(shouldLoadVars);
+  const isLoading = isLoadingSecrets || isLoadingCodeSigning;
+  const items = [...secrets, ...codeSigningSecrets];
 
   const { mutate: createSecret } = useUpsertSecret({
     appSlug: PageProps.appSlug(),
@@ -63,7 +67,7 @@ const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMod
     getFilterInputProps,
     getActionListItemProps,
   } = useMultiModePopover({
-    items: secrets,
+    items,
     mode: initialMode,
     isOpen: initialIsOpen,
     onCreate: createSecret,

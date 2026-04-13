@@ -14,10 +14,14 @@ import {
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
+import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { paths } from '@/routes';
@@ -26,6 +30,7 @@ type Props = Omit<SidebarProps, 'children'>;
 type NavigationItemProps = PropsWithChildren<{
   path: string;
   icon: TypeIconName;
+  intercomTarget?: string;
 }>;
 
 function usePathWithSearchParams() {
@@ -40,7 +45,7 @@ function usePathWithSearchParams() {
   );
 }
 
-const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
+const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItemProps) => {
   const toast = useToast();
   const { isMobile } = useResponsive();
   const [hashPath, navigate] = useHashLocation();
@@ -63,7 +68,7 @@ const NavigationItem = ({ children, path, icon }: NavigationItemProps) => {
   }, [ymlStatus, navigate, path, toast]);
 
   return (
-    <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation}>
+    <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation} data-intercom-target={intercomTarget}>
       <SidebarItemIcon name={icon} />
       {!isMobile && <SidebarItemLabel>{children}</SidebarItemLabel>}
     </SidebarItem>
@@ -77,55 +82,125 @@ const Navigation = (props: Props) => {
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
 
+  const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
+
+  useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
+    updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
+  });
+
+  useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
+    WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
+      bitriseYmlContents: getYmlString(),
+      selectedPage: currentPage,
+      yamlSelector,
+    });
+  });
+
   useEffect(() => {
-    if (data?.usesRepositoryYml) {
-      segmentTrack('Workflow Editor Tab Displayed', {
-        tab_name: currentPage,
-        is_default_tab: isDefaultTabRef.current,
-        yml_source: data.usesRepositoryYml ? 'git' : 'bitrise',
-      });
-      isDefaultTabRef.current = false;
-    }
+    segmentTrack('Workflow Editor Tab Displayed', {
+      app_slug: PageProps.appSlug(),
+      tab_name: currentPage,
+      is_default_tab: isDefaultTabRef.current,
+      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
+    });
+    isDefaultTabRef.current = false;
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
       <SidebarContainer>
-        <NavigationItem path={withSearchParams(paths.workflows)} icon="Workflow">
+        <NavigationItem
+          path={withSearchParams(paths.workflows)}
+          icon="Workflow"
+          intercomTarget="Workflows Page Navigation Item"
+        >
           Workflows
         </NavigationItem>
-        <NavigationItem path={withSearchParams(paths.pipelines)} icon="WorkflowFlow">
+        <NavigationItem
+          path={withSearchParams(paths.pipelines)}
+          icon="WorkflowFlow"
+          intercomTarget="Pipelines Page Navigation Item"
+        >
           Pipelines
         </NavigationItem>
-        <NavigationItem path={withSearchParams(paths.stepBundles)} icon="Steps">
+        <NavigationItem
+          path={withSearchParams(paths.stepBundles)}
+          icon="Steps"
+          intercomTarget="Step Bundles Page Navigation Item"
+        >
           Step Bundles
         </NavigationItem>
-        <NavigationItem path={withSearchParams(paths.secrets)} icon="Lock">
+        <NavigationItem
+          path={withSearchParams(paths.secrets)}
+          icon="Lock"
+          intercomTarget="Secrets Page Navigation Item"
+        >
           Secrets
         </NavigationItem>
-        <NavigationItem path={withSearchParams(paths.envVars)} icon="Dollars">
+        <NavigationItem
+          path={withSearchParams(paths.envVars)}
+          icon="Dollars"
+          intercomTarget="Env Vars Page Navigation Item"
+        >
           Env Vars
         </NavigationItem>
-        <NavigationItem path={withSearchParams(paths.triggers)} icon="Trigger">
+        <NavigationItem
+          path={withSearchParams(paths.triggers)}
+          icon="Trigger"
+          intercomTarget="Triggers Page Navigation Item"
+        >
           Triggers
         </NavigationItem>
+        <NavigationItem
+          path={withSearchParams(paths.containers)}
+          icon="Container"
+          intercomTarget="Containers Page Navigation Item"
+        >
+          Containers
+        </NavigationItem>
         {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem path={withSearchParams(paths.stacksAndMachines)} icon="Stack">
+          <NavigationItem
+            path={withSearchParams(paths.stacksAndMachines)}
+            icon="Stack"
+            intercomTarget="Stacks & Machines Page Navigation Item"
+          >
             Stacks & Machines
           </NavigationItem>
         )}
         {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem path={withSearchParams(paths.licenses)} icon="Key">
+          <NavigationItem
+            path={withSearchParams(paths.licenses)}
+            icon="Key"
+            intercomTarget="Licenses Page Navigation Item"
+          >
             Licenses
           </NavigationItem>
         )}
         <SidebarDivider />
-        <NavigationItem path={withSearchParams(paths.yml)} icon="Code">
+        <NavigationItem
+          path={withSearchParams(paths.yml)}
+          icon="Code"
+          intercomTarget="Configuration YAML Page Navigation Item"
+        >
           Configuration YAML
         </NavigationItem>
       </SidebarContainer>
       <SidebarFooter>
-        <SidebarItem href="https://github.com/bitrise-io/workflow-recipes">
+        <SidebarItem
+          href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
+          data-intercom-target="YAML Reference Navigation Item"
+          isExternal
+          onClick={() => segmentTrack('Workflow Editor YAML Reference Button Clicked')}
+        >
+          <SidebarItemIcon name="Book" />
+          {!isMobile && <SidebarItemLabel>YAML Reference</SidebarItemLabel>}
+        </SidebarItem>
+        <SidebarItem
+          href="https://github.com/bitrise-io/workflow-recipes"
+          data-intercom-target="Workflow Recipes Navigation Item"
+          isExternal
+          onClick={() => segmentTrack('Workflow Editor Workflow Recipes Button Clicked')}
+        >
           <SidebarItemIcon name="Doc" />
           {!isMobile && <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>}
         </SidebarItem>

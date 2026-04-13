@@ -8,11 +8,12 @@ import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import SensitiveBadge from './SensitiveBadge';
 import StepHelperText from './StepHelperText';
 
-type Props = Omit<AutoGrowableInputProps, 'helperText' | 'onChange'> & {
+type Props = Omit<AutoGrowableInputProps, 'helperText' | 'onChange' | 'size'> & {
   helperText?: string;
   isSensitive?: boolean;
   helper?: { summary?: string; details?: string };
   onChange?: (value: string) => void;
+  size?: 'sm' | 'md' | 'lg';
 };
 
 type CursorPosition = {
@@ -25,7 +26,19 @@ function validationErrorIfRequired(value: string, isRequired?: boolean) {
 }
 
 const StepInput = forwardRef(
-  ({ isSensitive, isDisabled, helperText, helper, defaultValue: propDefaultValue, onChange, ...props }: Props, ref) => {
+  (
+    {
+      isSensitive,
+      isDisabled,
+      helperText,
+      helper,
+      defaultValue: propDefaultValue,
+      onChange,
+      size = 'md',
+      ...props
+    }: Props,
+    ref,
+  ) => {
     const { stepBundleId, workflowId } = useStepDrawerContext();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
@@ -54,6 +67,7 @@ const StepInput = forwardRef(
       <AutoGrowableInput
         ref={ref}
         {...props}
+        size={size}
         value={value}
         onBlur={handleBlur}
         fontFamily="monospace"
@@ -86,10 +100,10 @@ const StepInput = forwardRef(
                 }}
               />
             )}
-            {isSensitive && <SecretPopover size="md" onSelect={({ key }) => insertVariable(key)} />}
+            {isSensitive && <SecretPopover size={size} onSelect={({ key }) => insertVariable(key)} />}
             {!isSensitive && (
               <EnvVarPopover
-                size="md"
+                size={size}
                 workflowId={workflowId}
                 stepBundleId={stepBundleId}
                 onSelect={({ key }) => insertVariable(key)}

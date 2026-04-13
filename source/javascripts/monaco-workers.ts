@@ -2,6 +2,7 @@
 // Workers are served through Cloudflare proxy at /workflow_editor/* (same-origin)
 // See: https://github.com/remcohaszing/monaco-yaml#vite
 
+import BitriseYamlWorker from '@bitrise/languageserver/monaco/bitrise.worker?worker';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 
 import YamlWorker from './yaml.worker?worker';
@@ -16,6 +17,9 @@ declare global {
 
 window.MonacoEnvironment = {
   getWorker(_, label) {
+    if (label === 'bitrise-yaml') {
+      return new BitriseYamlWorker();
+    }
     if (label === 'yaml') {
       return new YamlWorker();
     }

@@ -16,12 +16,31 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
 import { preloadRoutes } from './routes';
+
+const loaders = [];
+if (import.meta.env.CLARITY === 'true') {
+  loaders.push(import('./lib/clrty'));
+}
+if (import.meta.env.DATADOG_RUM === 'true') {
+  loaders.push(import('./lib/ddrum'));
+}
+if (import.meta.env.INTERCOM_APP_ID) {
+  loaders.push(import('./lib/intrcm'));
+}
+
+try {
+  await Promise.all(loaders);
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.error('Error loading optional libraries:', e);
+}
 
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   // NOTE: The API server running in local mode, has a built-in termination timer
@@ -70,6 +89,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const hasChanges = useYmlHasChanges();
 
   useCiConfigSettings();
+  useYmlLanguageServices();
   const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
 
   useEventListener('beforeunload', (e) => {

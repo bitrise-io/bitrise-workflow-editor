@@ -1,68 +1,17 @@
-/* eslint-disable no-underscore-dangle */
-import { datadogRum } from '@datadog/browser-rum';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
-import { create } from 'zustand';
-
-import YmlUtils from '@/core/utils/YmlUtils';
-
 import useBitriseYmlStore from './useBitriseYmlStore';
 
-const ajv = new Ajv({ strict: false, allErrors: true });
-const SCHEMA_URL = 'https://json.schemastore.org/bitrise.json';
-
-const useIsAjvValidatorReady = create(() => false);
-
-(async function initializeSchemaValidator() {
-  addFormats(ajv);
-  try {
-    ajv.addSchema(await fetch(SCHEMA_URL).then((response) => response.json()), SCHEMA_URL);
-    useIsAjvValidatorReady.setState(true);
-  } catch (error) {
-    datadogRum.addError(new Error('Failed to load Bitrise YML schema to AJV'), { error });
-  }
-})();
-
 function useYmlValidationStatus() {
-  const isAjvValidatorReady = useIsAjvValidatorReady();
-
   return useBitriseYmlStore((s) => {
-    // eslint-disable-next-line no-underscore-dangle
+    // The `__invalidYmlString` property is set when the YML string is initially invalid, so we are not able to parse it.
+    // Which means that the validation status should be 'invalid' regardless of the actual validation status.
+    // In this case we don't need to wait for the Monaco editor to parse the YML string and update the validation
+    // status, which would cause a flicker in the UI.
     if (s.__invalidYmlString !== undefined) {
       return 'invalid' as const;
     }
 
-    if (s.ymlDocument.warnings.length > 0) {
-      return 'warnings' as const;
-    }
-
-    if (isAjvValidatorReady && !ajv.validate(SCHEMA_URL, s.yml)) {
-      return 'warnings' as const;
-    }
-
-    return 'valid' as const;
+    return s.validationStatus;
   });
-}
-
-export function getYmlValidationStatus(ymlString?: string) {
-  if (!ymlString || ymlString.trim() === '') {
-    return 'invalid' as const;
-  }
-
-  const doc = YmlUtils.toDoc(ymlString);
-  if (doc.errors.length > 0) {
-    return 'invalid' as const;
-  }
-
-  if (doc.warnings.length > 0) {
-    return 'warnings' as const;
-  }
-
-  if (useIsAjvValidatorReady.getState() && !ajv.validate(SCHEMA_URL, doc.toJSON())) {
-    return 'warnings' as const;
-  }
-
-  return 'valid' as const;
 }
 
 export default useYmlValidationStatus;

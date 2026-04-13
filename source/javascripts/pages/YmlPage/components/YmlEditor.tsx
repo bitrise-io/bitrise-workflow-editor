@@ -4,8 +4,8 @@ import { useUnmount } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
 
 const YmlEditor = () => {
   const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
@@ -39,13 +39,10 @@ const YmlEditor = () => {
       theme="vs-dark"
       language="yaml"
       keepCurrentModel
+      path={BACKGROUND_MODEL_URI.toString()}
       defaultValue={getYmlString()}
       onChange={handleEditorChange}
       onMount={handleEditorDidMount}
-      beforeMount={(monaco) => {
-        MonacoUtils.configureForYaml(monaco);
-        MonacoUtils.configureEnvVarsCompletionProvider(monaco);
-      }}
       options={{
         readOnly: isLoadingSetting || ymlSettings?.usesRepositoryYml,
       }}

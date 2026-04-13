@@ -82,7 +82,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 	libraryInfos, err := tools.StepmanLocalLibraryInfos()
 	if err != nil {
 		log.Errorf(err.Error())
-		RespondWithJSONBadRequestErrorMessage(w, err.Error())
+		RespondWithJSONBadRequestErrorMessage(w, "%s", err.Error())
 		return
 	}
 
@@ -105,7 +105,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 		libraryInfos, err = tools.StepmanLocalLibraryInfos()
 		if err != nil {
 			log.Errorf(err.Error())
-			RespondWithJSONBadRequestErrorMessage(w, err.Error())
+			RespondWithJSONBadRequestErrorMessage(w, "%s", err.Error())
 			return
 		}
 	}

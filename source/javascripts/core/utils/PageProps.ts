@@ -1,5 +1,7 @@
 import WindowUtils from '@/core/utils/WindowUtils';
 
+import RuntimeUtils from './RuntimeUtils';
+
 function pageProps() {
   return WindowUtils.instance().pageProps;
 }
@@ -9,7 +11,8 @@ function app() {
 }
 
 function appSlug() {
-  return app()?.slug ?? '';
+  const fallback = RuntimeUtils.isWebsiteMode() ? window.location.pathname.match(/\/app\/([^/]+)/)?.[1] : undefined;
+  return app()?.slug ?? fallback ?? '';
 }
 
 function abilities() {

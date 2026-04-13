@@ -16,6 +16,7 @@ import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/us
 import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import PageProps from '@/core/utils/PageProps';
+import useCodeSigningSecrets from '@/hooks/useCodeSigningSecrets';
 import useEnvVars from '@/hooks/useEnvVars';
 import { useSecrets } from '@/hooks/useSecrets';
 
@@ -24,10 +25,11 @@ import FilterInput from './components/FilterInput';
 import LoadingState from './components/LoadingState';
 
 type Props = {
-  size: 'sm' | 'md';
+  size: 'sm' | 'md' | 'lg';
   isOpen?: boolean;
   mode?: Mode;
   onSelect: (item: EnvVar) => void;
+  showCreate?: boolean;
   stepBundleId?: string;
   workflowId?: string;
 };
@@ -40,6 +42,7 @@ const EnvVarPopover = ({
   onSelect,
   isOpen: initialIsOpen,
   mode: initialMode,
+  showCreate = true,
   stepBundleId,
   workflowId,
 }: Props) => {
@@ -54,9 +57,10 @@ const EnvVarPopover = ({
     appSlug,
     options: { enabled: shouldLoadVars },
   });
+  const { isLoading: isLoadingCodeSigning, data: codeSigningSecrets = [] } = useCodeSigningSecrets(shouldLoadVars);
 
-  const isLoading = isLoadingEnvVars || isLoadingSecrets;
-  const items = [...envs, ...secrets] as EnvVar[];
+  const isLoading = isLoadingEnvVars || isLoadingSecrets || isLoadingCodeSigning;
+  const items = [...envs, ...secrets, ...codeSigningSecrets] as EnvVar[];
   items.sort((a, b) => a.key.localeCompare(b.key));
 
   const handleOnCreate = useCallback(
@@ -124,9 +128,11 @@ const EnvVarPopover = ({
             {isMode(Mode.SELECT) && (
               <>
                 <Text textStyle="heading/h4">Insert variable</Text>
-                <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
-                  Create
-                </Button>
+                {showCreate && (
+                  <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
+                    Create
+                  </Button>
+                )}
               </>
             )}
           </PopoverHeader>

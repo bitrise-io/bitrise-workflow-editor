@@ -1,22 +1,28 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
+import { set } from 'es-toolkit/compat';
 import { useState } from 'react';
+
+import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
 
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 
 const meta: Meta<EntitySelectorProps> = {
   component: EntitySelector,
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
+  },
   args: {
     entityIds: [
-      'foo',
-      'bar',
-      'akarmi',
-      'asddasasd',
-      'sdfdfdfsdf',
-      'asddsasddsa',
-      'asddasdassda',
-      'asddsadsadsa',
-      'asdffaadf',
-      'utso',
+      'Spongebob',
+      'Squidward',
+      'Sandy',
+      'Patrick',
+      'Mr. Krabs',
+      'Plankton',
+      'Gary',
+      'Pearl',
+      'Krusty Krab',
+      'Chum Bucket',
     ],
     entityName: 'Workflow',
     onCreate: () => {},
@@ -32,21 +38,41 @@ const meta: Meta<EntitySelectorProps> = {
 
 export default meta;
 
-const StoryCompoent = (props: EntitySelectorProps) => {
+const StoryComponent = (props: EntitySelectorProps) => {
   const [value, setValue] = useState<string | undefined>(props.entityIds[0]);
   return <EntitySelector {...props} onChange={setValue} value={value || undefined} />;
 };
 
 export const WithProps = {
-  render: StoryCompoent,
+  render: StoryComponent,
 };
 
 export const WithSecondaryList: StoryObj<EntitySelectorProps> = {
   args: {
     secondaryEntities: {
-      label: 'Secondary list',
-      ids: ['alma', 'banan'],
+      label: 'Secondary list: Pokemons',
+      ids: ['Charmander', 'Bulbasaur'],
     },
   },
-  render: StoryCompoent,
+  render: StoryComponent,
+};
+
+export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
+  beforeEach: () => {
+    window.parent.pageProps = aiButtonEnabled();
+  },
+  args: {
+    entityName: 'Workflow',
+  },
+  render: StoryComponent,
+};
+
+export const WithCreateWithAIButtonDisabled: StoryObj<EntitySelectorProps> = {
+  beforeEach: () => {
+    window.parent.pageProps = aiButtonDisabled();
+  },
+  args: {
+    entityName: 'Workflow',
+  },
+  render: StoryComponent,
 };

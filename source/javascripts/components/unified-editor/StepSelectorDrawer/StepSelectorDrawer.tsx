@@ -1,4 +1,5 @@
 import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
+import { useEffect } from 'react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -14,7 +15,7 @@ import AlgoliaStepList from './components/AlgoliaStepList';
 import StepBundleFilter from './components/StepBundleFilter';
 import StepBundleList from './components/StepBundleList';
 import StepFilter from './components/StepFilter';
-import useSearch from './hooks/useSearch';
+import useSearch, { initializeSearchDefaults } from './hooks/useSearch';
 import { SelectStepHandlerFn } from './StepSelectorDrawer.types';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
@@ -35,6 +36,10 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
   const showStepLimit = typeof uniqueStepLimit === 'number';
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
   const upgradeLink = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
+
+  useEffect(() => {
+    initializeSearchDefaults();
+  }, []);
 
   const handleCloseComplete = () => {
     resetSearch();

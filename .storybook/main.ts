@@ -43,6 +43,7 @@ const config: StorybookConfig = {
     ${head}
     <script>
       window.env = {
+        CLARITY: 'false',
         ANALYTICS: 'false',
         DATADOG_RUM: 'false',
         MODE: 'WEBSITE',

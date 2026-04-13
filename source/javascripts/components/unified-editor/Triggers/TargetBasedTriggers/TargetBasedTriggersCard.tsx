@@ -1,8 +1,14 @@
-import { Box, Button, ExpandableCard, Icon, Text } from '@bitrise/bitkit';
+import { Box, Button, ExpandableCard, Icon, Text, TypeIconName } from '@bitrise/bitkit';
 
 import { TargetBasedTrigger, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 
 import TargetBasedTriggerItem from './TargerBasedTriggerItem';
+
+const ICON_MAP: Record<TriggerType, TypeIconName> = {
+  push: 'Push',
+  pull_request: 'Pull',
+  tag: 'Tag',
+};
 
 type Props = {
   triggerType: TriggerType;
@@ -31,7 +37,7 @@ const TriggerCard = ({
       buttonPadding="16px 24px"
       buttonContent={
         <Box display="flex" justifyContent="flex-start">
-          <Icon name="Push" marginRight={8} />
+          <Icon name={ICON_MAP[triggerType]} marginRight={8} />
           <Text textStyle="body/lg/semibold">{TYPE_MAP[triggerType]}</Text>
         </Box>
       }
