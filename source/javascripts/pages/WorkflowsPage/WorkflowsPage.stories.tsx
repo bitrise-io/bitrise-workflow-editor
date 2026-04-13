@@ -121,6 +121,10 @@ export const NoContainerDefinitions: Story = {
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },
+  beforeEach: () => {
+    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
+    window.parent.pageProps = aiButtonEnabled();
+  },
 };
 
 export const WithContainerDefinitions: Story = {
