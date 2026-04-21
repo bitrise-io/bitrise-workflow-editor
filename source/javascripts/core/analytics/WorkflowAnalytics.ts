@@ -12,7 +12,12 @@ export function trackCreateWorkflowDialogShown(source: 'workflow_empty_state' | 
   });
 }
 
-export function trackWorkflowCreated(workflowId: string, baseWorkflowId?: string) {
+export function trackWorkflowCreated(
+  workflowId: string,
+  baseWorkflowId?: string,
+  isCreatedWithAiConfigAssistant: boolean = false,
+  aiAssistantConversationId?: string,
+) {
   segmentTrack('Workflow Created', {
     event_type: 'product',
     platform: 'website',
@@ -21,5 +26,7 @@ export function trackWorkflowCreated(workflowId: string, baseWorkflowId?: string
     workflow_name: workflowId,
     based_on_workflow_name: baseWorkflowId,
     is_based_on_existing_workflow: !!baseWorkflowId,
+    is_created_with_ai_config_assistant: isCreatedWithAiConfigAssistant,
+    ai_assistant_conversation_id: aiAssistantConversationId,
   });
 }

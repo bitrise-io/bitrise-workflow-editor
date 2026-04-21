@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
@@ -15,6 +16,8 @@ type Props = Omit<DialogProps, 'title'> & {
 const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...props }: Props) => {
   const workflowIds = useWorkflows((s) => Object.keys(s));
   const [, setSelectedWorkflow] = useSelectedWorkflow();
+  const aiConversationId = useCiConfigExpertStore((s) => s.conversationId);
+  const isCreatedWithCiConfigExpert = useCiConfigExpertStore((s) => s.isCreatedWithCiConfigExpert);
 
   useEffect(() => {
     if (props.isOpen) {
@@ -24,7 +27,7 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
 
   const handleCreateWorkflow = (workflowId: string, baseWorkflowId?: string) => {
     onCreateWorkflow(workflowId, baseWorkflowId);
-    trackWorkflowCreated(workflowId, baseWorkflowId);
+    trackWorkflowCreated(workflowId, baseWorkflowId, isCreatedWithCiConfigExpert, aiConversationId);
   };
 
   const handleCloseComplete = (workflowId: string) => {
