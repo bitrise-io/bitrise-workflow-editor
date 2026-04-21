@@ -19,6 +19,7 @@ import {
   getYmlString,
   initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -47,6 +48,10 @@ const Header = () => {
   const hasChanges = useYmlHasChanges();
   const ymlStatus = useYmlValidationStatus();
 
+  const conversationId = useCiConfigExpertStore((s) => s.conversationId);
+  const turnIndex = useCiConfigExpertStore((s) => s.turnIndex);
+  const turnCount = useCiConfigExpertStore((s) => s.turnCount);
+
   const {
     isOpen: isDiffViewerOpen,
     onOpen: openDiffViewer,
@@ -55,6 +60,8 @@ const Header = () => {
     onOpen: () => {
       segmentTrack('Workflow Editor Diff Button Clicked', {
         tab_name: currentPage,
+        ai_assistant_conversation_id: conversationId,
+        turn_index: turnIndex,
       });
     },
   });
@@ -108,6 +115,8 @@ const Header = () => {
       segmentTrack('Workflow Editor Save Button Clicked', {
         source,
         tab_name: currentPage,
+        ai_assistant_conversation_id: conversationId,
+        turn_count: turnCount,
       });
 
       if (ciConfigSettings?.usesRepositoryYml) {
@@ -120,13 +129,26 @@ const Header = () => {
         ymlString: getYmlString(),
         tabOpenDuringSave: currentPage,
         version: bitriseYmlStore.getState().version,
+        conversationId,
       });
     },
-    [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],
+    [
+      currentPage,
+      conversationId,
+      turnCount,
+      ciConfigSettings?.usesRepositoryYml,
+      save,
+      appSlug,
+      openUpdateConfigDialog,
+    ],
   );
 
   const onDiscard = () => {
-    segmentTrack('Workflow Editor Discard Button Clicked', { tab_name: currentPage });
+    segmentTrack('Workflow Editor Discard Button Clicked', {
+      tab_name: currentPage,
+      ai_assistant_conversation_id: conversationId,
+      turn_count: turnCount,
+    });
 
     useWorkflowsPageStore.setState(useWorkflowsPageStore.getInitialState());
     usePipelinesPageStore.setState(usePipelinesPageStore.getInitialState());
