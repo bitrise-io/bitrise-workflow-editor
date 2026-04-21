@@ -5,7 +5,6 @@ import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/C
 import { trackCreatePipelineDialogShown, trackPipelineCreated } from '@/core/analytics/PipelineAnalytics';
 import PipelineService from '@/core/services/PipelineService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
-import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
@@ -18,8 +17,6 @@ type Props = Omit<DialogProps, 'title'> & {
 const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...props }: Props) => {
   const { displayPipelineConversionNotificationFor } = usePipelineConversionNotification();
   const { keys: pipelineIds, onSelectPipeline: setSelectedPipeline } = usePipelineSelector();
-  const aiConversationId = useCiConfigExpertStore((s) => s.conversationId);
-  const isCreatedWithCiConfigExpert = useCiConfigExpertStore((s) => s.isCreatedWithCiConfigExpert);
 
   const baseEntityIds = useBitriseYmlStore(({ yml }) => {
     const pipelineEntries = Object.entries(yml.pipelines ?? {});
@@ -40,15 +37,7 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
     const basePipelineType = PipelineService.getPipelineType(basePipelineId ?? '', yml);
     const numberOfStages = PipelineService.numberOfStages(basePipeline ?? {});
 
-    trackPipelineCreated(
-      pipelineId,
-      basePipelineId,
-      basePipelineType,
-      numberOfStages,
-      'create_pipeline_popup',
-      isCreatedWithCiConfigExpert,
-      aiConversationId,
-    );
+    trackPipelineCreated(pipelineId, basePipelineId, basePipelineType, numberOfStages, 'create_pipeline_popup');
 
     if (!basePipeline || PipelineService.isGraph(basePipeline)) {
       return;

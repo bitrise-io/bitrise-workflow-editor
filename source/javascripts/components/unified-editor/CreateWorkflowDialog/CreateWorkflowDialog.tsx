@@ -24,7 +24,7 @@ const CreateWorkflowDialog = ({ onClose, onCloseComplete, onCreateWorkflow, ...p
 
   const handleCreateWorkflow = (workflowId: string, baseWorkflowId?: string) => {
     onCreateWorkflow(workflowId, baseWorkflowId);
-    trackWorkflowCreated(workflowId, baseWorkflowId, false);
+    trackWorkflowCreated(workflowId, baseWorkflowId);
   };
 
   const handleCloseComplete = (workflowId: string) => {

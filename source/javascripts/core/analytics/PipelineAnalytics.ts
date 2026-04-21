@@ -18,8 +18,6 @@ export function trackPipelineCreated(
   basePipelineType: 'graph' | 'staged' | undefined,
   numberOfStages: number | undefined,
   source: 'create_pipeline_popup' | 'pipeline_conversion_signposting_banner',
-  isCreatedWithAiConfigAssistant: boolean = false,
-  aiAssistantConversationId?: string | undefined,
 ) {
   segmentTrack('Pipeline Created', {
     event_type: 'product',
@@ -33,8 +31,6 @@ export function trackPipelineCreated(
     based_on_pipeline_type: basePipelineType,
     based_on_pipeline_number_of_stages: numberOfStages,
     is_based_on_existing_pipeline: !!basePipelineId,
-    is_created_with_ai_config_assistant: isCreatedWithAiConfigAssistant,
-    ai_assistant_conversation_id: aiAssistantConversationId,
   });
 }
 
