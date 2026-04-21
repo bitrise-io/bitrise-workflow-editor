@@ -99,7 +99,6 @@ const Navigation = (props: Props) => {
   });
 
   useParentMessageListener('REQUEST_AI_DRAWER_OPEN', () => {
-    useCiConfigExpertStore.setState({ isCreatedWithCiConfigExpert: true });
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', {
       bitriseYmlContents: getYmlString(),
       selectedPage: currentPage,

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
-import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -66,7 +65,6 @@ const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
   }
 
   const onClick = () => {
-    useCiConfigExpertStore.setState({ isCreatedWithCiConfigExpert: true });
     const payload: OpenCiConfigExpertPayload = {
       action,
       bitriseYmlContents: getYmlString(),
