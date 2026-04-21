@@ -153,6 +153,7 @@ const Header = () => {
     useWorkflowsPageStore.setState(useWorkflowsPageStore.getInitialState());
     usePipelinesPageStore.setState(usePipelinesPageStore.getInitialState());
     useStepBundlesPageStore.setState(useStepBundlesPageStore.getInitialState());
+    useCiConfigExpertStore.setState(useCiConfigExpertStore.getInitialState());
 
     discardBitriseYmlDocument();
   };
