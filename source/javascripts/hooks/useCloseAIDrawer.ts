@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
-import { getAIDrawerOpen } from '../core/utils/AIDrawer';
-
 function closeAIDrawer() {
-  if (getAIDrawerOpen()) {
+  if (useCiConfigExpertStore.getState().isAIDrawerOpen) {
     WindowUtils.postMessageToParent('CLOSE_CI_CONFIG_EXPERT');
   }
 }

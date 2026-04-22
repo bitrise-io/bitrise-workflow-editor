@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
@@ -9,8 +9,6 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
-
-import { getAIDrawerOpen, setAIDrawerOpen, subscribeAIDrawerOpen } from '../core/utils/AIDrawer';
 
 type OpenCiConfigExpertPayload = {
   action: string;
@@ -36,20 +34,10 @@ type UseAIButtonResult = {
   getAIButtonProps: () => AIButtonProps;
 };
 
-function useAIDrawerOpen(): boolean {
-  const [isOpen, setIsOpen] = useState(getAIDrawerOpen);
-
-  useEffect(() => {
-    return subscribeAIDrawerOpen(() => setIsOpen(getAIDrawerOpen()));
-  }, []);
-
-  return isOpen;
-}
-
 const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   const { action, source, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
-  const isAIDrawerOpen = useAIDrawerOpen();
+  const isAIDrawerOpen = useCiConfigExpertStore((s) => s.isAIDrawerOpen);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -64,7 +52,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   });
 
   useParentMessageListener('CI_CONFIG_EXPERT_CLOSED', () => {
-    setAIDrawerOpen(false);
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: false });
   });
 
   const ciConfigExpert = PageProps.settings()?.ai.ciConfigExpert;
@@ -108,7 +96,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
       yamlSelector,
     };
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', payload);
-    setAIDrawerOpen(true);
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: true });
   };
 
   const getAIButtonProps = (): AIButtonProps => ({ isDisabled, onClick });

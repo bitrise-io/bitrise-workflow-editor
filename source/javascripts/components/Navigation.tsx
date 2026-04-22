@@ -16,7 +16,6 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
-import { setAIDrawerOpen } from '@/core/utils/AIDrawer';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -105,7 +104,7 @@ const Navigation = (props: Props) => {
       selectedPage: currentPage,
       yamlSelector,
     });
-    setAIDrawerOpen(true);
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: true });
   });
 
   useEffect(() => {
