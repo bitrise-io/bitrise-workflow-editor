@@ -53,6 +53,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
 
   useParentMessageListener('CI_CONFIG_EXPERT_CLOSED', () => {
     useCiConfigExpertStore.setState({ isAIDrawerOpen: false });
+    setIsAgenticRunInProgress(false);
   });
 
   const ciConfigExpert = PageProps.settings()?.ai.ciConfigExpert;

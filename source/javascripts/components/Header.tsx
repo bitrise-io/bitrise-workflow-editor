@@ -24,6 +24,7 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
@@ -58,6 +59,7 @@ const Header = () => {
     onClose: closeDiffViewer,
   } = useDisclosure({
     onOpen: () => {
+      closeAIDrawer();
       segmentTrack('Workflow Editor Diff Button Clicked', {
         tab_name: currentPage,
         ai_assistant_conversation_id: conversationId,

@@ -3,9 +3,10 @@ import { useEffect } from 'react';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
-function closeAIDrawer() {
+export function closeAIDrawer() {
   if (useCiConfigExpertStore.getState().isAIDrawerOpen) {
     WindowUtils.postMessageToParent('CLOSE_CI_CONFIG_EXPERT');
   }
@@ -25,9 +26,16 @@ function useCloseAIDrawer() {
       }
     });
 
+    const unsubscribeStepBundles = useStepBundlesPageStore.subscribe((state) => {
+      if (state.openedDialogType !== StepBundlesPageDialogType.NONE) {
+        closeAIDrawer();
+      }
+    });
+
     return () => {
       unsubscribeWorkflows();
       unsubscribePipelines();
+      unsubscribeStepBundles();
     };
   }, []);
 }
