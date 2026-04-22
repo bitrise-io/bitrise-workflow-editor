@@ -15,6 +15,7 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import { setAIDrawerOpen } from '@/core/utils/AIDrawer';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -82,10 +83,19 @@ const Navigation = (props: Props) => {
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
-
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
 
-  useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
+  useParentMessageListener<{
+    bitriseYmlContents: string;
+    conversationId: string | undefined;
+    turnIndex: number | undefined;
+    turnCount: number | undefined;
+  }>('CI_CONFIG_RECEIVED', (payload) => {
+    useCiConfigExpertStore.setState({
+      conversationId: payload.conversationId,
+      turnIndex: payload.turnIndex,
+      turnCount: payload.turnCount,
+    });
     updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
   });
 
