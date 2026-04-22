@@ -32,7 +32,11 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
     isVisible: isAIButtonVisible,
     tooltipLabel,
     getAIButtonProps,
-  } = useAIButton({ action: 'explain', yamlSelector });
+  } = useAIButton({
+    action: 'explain',
+    source: 'workflow_canvas',
+    yamlSelector,
+  });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   return (

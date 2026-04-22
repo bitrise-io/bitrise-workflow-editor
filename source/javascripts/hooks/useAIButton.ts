@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -21,6 +24,7 @@ type AIButtonProps = {
 
 type UseAIButtonOptions = {
   action?: string;
+  source?: string;
   yamlSelector?: string;
 };
 
@@ -31,10 +35,12 @@ type UseAIButtonResult = {
 };
 
 const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
-  const { action = 'create', yamlSelector = 'workflow' } = options;
+  const { action = 'create', source, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();
+  const conversationId = useCiConfigExpertStore((s) => s.conversationId);
+  const turnCount = useCiConfigExpertStore((s) => s.turnCount);
 
   useParentMessageListener('DISABLE_AI_BUTTONS', () => {
     setIsAgenticRunInProgress(true);
@@ -65,6 +71,17 @@ const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
   }
 
   const onClick = () => {
+    segmentTrack('AI Assistant Opened', {
+      workspace_slug: GlobalProps.workspaceSlug(),
+      app_slug: PageProps.appSlug(),
+      source,
+      ai_assistant_conversation_id: conversationId,
+      ai_assistant_action: action,
+      is_resumed: !!turnCount,
+      prior_turn_count: turnCount ?? 0,
+      ai_assistant_type: 'ai_config_assistant',
+    });
+
     const payload: OpenCiConfigExpertPayload = {
       action,
       bitriseYmlContents: getYmlString(),
