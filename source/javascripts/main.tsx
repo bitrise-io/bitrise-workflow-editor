@@ -16,6 +16,7 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
 
@@ -90,6 +91,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
   useCiConfigSettings();
   useYmlLanguageServices();
+  useCloseAIDrawer();
   const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
 
   useEventListener('beforeunload', (e) => {

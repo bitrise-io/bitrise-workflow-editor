@@ -7,6 +7,8 @@ import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 
+import { getAIDrawerOpen, setAIDrawerOpen, subscribeAIDrawerOpen } from '../core/utils/AIDrawer';
+
 type OpenCiConfigExpertPayload = {
   action: string;
   bitriseYmlContents: string;
@@ -30,25 +32,11 @@ type UseAIButtonResult = {
   getAIButtonProps: () => AIButtonProps;
 };
 
-type Listener = () => void;
-
-let isAIDrawerOpenGlobal = false;
-const aiDrawerListeners = new Set<Listener>();
-
-function setAIDrawerOpen(value: boolean) {
-  isAIDrawerOpenGlobal = value;
-  aiDrawerListeners.forEach((listener) => listener());
-}
-
 function useAIDrawerOpen(): boolean {
-  const [isOpen, setIsOpen] = useState(isAIDrawerOpenGlobal);
+  const [isOpen, setIsOpen] = useState(getAIDrawerOpen);
 
   useEffect(() => {
-    const listener = () => setIsOpen(isAIDrawerOpenGlobal);
-    aiDrawerListeners.add(listener);
-    return () => {
-      aiDrawerListeners.delete(listener);
-    };
+    return subscribeAIDrawerOpen(() => setIsOpen(getAIDrawerOpen()));
   }, []);
 
   return isOpen;
