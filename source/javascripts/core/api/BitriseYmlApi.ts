@@ -21,6 +21,7 @@ type SaveCiConfigOptions = {
   version?: string;
   projectSlug: string;
   tabOpenDuringSave?: string;
+  conversationId?: string;
 };
 
 // API CALLS
@@ -53,7 +54,7 @@ async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<
   };
 }
 
-async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: SaveCiConfigOptions) {
+async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug, conversationId }: SaveCiConfigOptions) {
   const path = ciConfigPath({ projectSlug });
   const headers: HeadersInit = version ? { [CI_CONFIG_VERSION_HEADER]: version } : {};
 
@@ -63,6 +64,7 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug }: S
       body: JSON.stringify({
         app_config_datastore_yaml: data,
         tab_open_during_save: tabOpenDuringSave,
+        conversation_id: conversationId,
       }),
     });
   }

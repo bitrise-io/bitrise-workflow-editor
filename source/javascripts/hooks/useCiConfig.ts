@@ -15,6 +15,7 @@ type UseSaveCiConfigProps = {
   ymlString: string;
   projectSlug: string;
   tabOpenDuringSave?: string;
+  conversationId?: string;
 };
 
 type UseGetCiConfigOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientError>, 'queryKey' | 'queryFn'>;
@@ -31,12 +32,13 @@ export function useGetCiConfig(props: UseGetCiConfigProps, options?: UseGetCiCon
 
 export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
   return useMutation({
-    mutationFn: async ({ projectSlug, ymlString, version, tabOpenDuringSave }) => {
+    mutationFn: async ({ projectSlug, ymlString, version, tabOpenDuringSave, conversationId }) => {
       await BitriseYmlApi.saveCiConfig({
         version,
         projectSlug,
         data: ymlString,
         tabOpenDuringSave,
+        conversationId,
       });
 
       // Re-fetch YML to get the latest version
