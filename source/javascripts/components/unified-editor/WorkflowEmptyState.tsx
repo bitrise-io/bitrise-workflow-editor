@@ -12,6 +12,7 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
     tooltipLabel,
     getAIButtonProps,
   } = useAIButton({
+    action: 'create_workflow',
     source: 'workflow_empty_state',
     yamlSelector: 'workflows',
   });

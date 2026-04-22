@@ -33,7 +33,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
     tooltipLabel,
     getAIButtonProps,
   } = useAIButton({
-    action: 'explain',
+    action: 'explain_workflow',
     source: 'workflow_canvas',
     yamlSelector,
   });

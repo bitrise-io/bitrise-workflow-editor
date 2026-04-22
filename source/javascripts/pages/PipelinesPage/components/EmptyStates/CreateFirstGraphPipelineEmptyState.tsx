@@ -14,6 +14,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
     tooltipLabel,
     getAIButtonProps,
   } = useAIButton({
+    action: 'create_pipeline',
     source: 'pipeline_empty_state',
     yamlSelector: 'pipelines',
   });

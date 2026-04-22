@@ -23,7 +23,7 @@ type AIButtonProps = {
 };
 
 type UseAIButtonOptions = {
-  action?: string;
+  action: string;
   source?: string;
   yamlSelector?: string;
 };
@@ -34,8 +34,8 @@ type UseAIButtonResult = {
   getAIButtonProps: () => AIButtonProps;
 };
 
-const useAIButton = (options: UseAIButtonOptions = {}): UseAIButtonResult => {
-  const { action = 'create', source, yamlSelector = 'workflow' } = options;
+const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
+  const { action, source, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();

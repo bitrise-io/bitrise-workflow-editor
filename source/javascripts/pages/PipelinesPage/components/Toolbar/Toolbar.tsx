@@ -26,6 +26,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     tooltipLabel,
     getAIButtonProps,
   } = useAIButton({
+    action: 'create_pipeline',
     source: 'pipeline_selector',
     yamlSelector: 'pipelines',
   });
