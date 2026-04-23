@@ -37,6 +37,7 @@ type UseAIButtonResult = {
 const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   const { action, source, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
+  const isAIDrawerOpen = useCiConfigExpertStore((s) => s.isAIDrawerOpen);
   const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -47,6 +48,11 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   });
 
   useParentMessageListener('ENABLE_AI_BUTTONS', () => {
+    setIsAgenticRunInProgress(false);
+  });
+
+  useParentMessageListener('CI_CONFIG_EXPERT_CLOSED', () => {
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: false });
     setIsAgenticRunInProgress(false);
   });
 
@@ -61,6 +67,8 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
     if (isAgenticRunInProgress) {
       isDisabled = true;
       tooltipLabel = 'AI functions are not available while an agentic run is in progress.';
+    } else if (isAIDrawerOpen) {
+      isDisabled = true;
     } else if (ciConfigExpert?.disabled === 'by-project') {
       isDisabled = true;
       tooltipLabel = 'AI functions are disabled. Go to Project settings to turn them on.';
@@ -89,6 +97,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
       yamlSelector,
     };
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', payload);
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: true });
   };
 
   const getAIButtonProps = (): AIButtonProps => ({ isDisabled, onClick });

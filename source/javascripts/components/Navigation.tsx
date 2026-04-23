@@ -104,6 +104,7 @@ const Navigation = (props: Props) => {
       selectedPage: currentPage,
       yamlSelector,
     });
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: true });
   });
 
   useEffect(() => {
