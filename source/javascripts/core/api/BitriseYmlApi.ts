@@ -64,8 +64,8 @@ async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<
   return {
     ymlString: await response.text(),
     version: response.headers.get(CI_CONFIG_VERSION_HEADER) || '',
-    branch: response.headers.get(CI_CONFIG_BRANCH_HEADER) ?? undefined,
-    commitSha: response.headers.get(CI_CONFIG_COMMIT_SHA_HEADER) ?? undefined,
+    branch: response.headers.get(CI_CONFIG_BRANCH_HEADER) || '',
+    commitSha: response.headers.get(CI_CONFIG_COMMIT_SHA_HEADER) || '',
   };
 }
 
