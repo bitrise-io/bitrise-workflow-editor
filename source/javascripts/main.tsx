@@ -90,7 +90,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const isLoaded = useRef(false);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
-  const requestedBranch = RuntimeUtils.isWebsiteMode() ? (searchParams.branch ?? undefined) : undefined;
+  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
 
   useCiConfigSettings();
   useYmlLanguageServices();
@@ -117,10 +117,12 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (!isLoaded.current && data) {
+    if (data) {
       initializeBitriseYmlDocument(data);
-      setTimeout(preloadRoutes, 1000);
-      isLoaded.current = true;
+      if (!isLoaded.current) {
+        setTimeout(preloadRoutes, 1000);
+        isLoaded.current = true;
+      }
     }
   }, [data]);
 

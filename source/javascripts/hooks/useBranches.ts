@@ -9,11 +9,12 @@ type UseBranchesProps = {
   enabled?: boolean;
 };
 
-export function useBranches({ q, limit }: UseBranchesProps = {}) {
+export function useBranches({ q, limit, enabled = true }: UseBranchesProps = {}) {
   const appSlug = PageProps.appSlug();
 
   return useQuery({
     queryKey: [`/api/app/${appSlug}/git-branches`, { q, limit }],
     queryFn: ({ signal }) => BranchesApi.getBranches({ appSlug, signal, q, limit }),
+    enabled,
   });
 }
