@@ -6,8 +6,8 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   return (
     <Dialog title="Switch branch" isOpen={isOpen} onClose={onClose}>
       <DialogBody>
-        <Text>Load configuration from another branch.</Text>
-        <Select placeholder="Select branch" mt="24" />
+        <Text>Load configuration from selected branch.</Text>
+        <Select label="Branch" placeholder="Select branch" isRequired mt="24" />
       </DialogBody>
       <DialogFooter>
         <Button onClick={onClose} variant="secondary">
