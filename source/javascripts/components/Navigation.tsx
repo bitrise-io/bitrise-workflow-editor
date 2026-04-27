@@ -1,4 +1,12 @@
 import {
+  Box,
+  ControlButton,
+  Dot,
+  Icon,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Sidebar,
   SidebarContainer,
   SidebarDivider,
@@ -7,6 +15,7 @@ import {
   SidebarItemIcon,
   SidebarItemLabel,
   SidebarProps,
+  Text,
   TypeIconName,
   useResponsive,
   useToast,
@@ -119,6 +128,43 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
+      <Box
+        paddingLeft="32"
+        paddingRight="12"
+        py="12"
+        border="1px solid"
+        borderColor="border/minimal"
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap="8"
+      >
+        <div>
+          <Box display="flex" alignItems="center">
+            <Text textStyle="body/md/semibold" color="text/primary">
+              bitrise.yml
+            </Text>
+            <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
+            <Text textStyle="body/md/semibold" color="text/primary">
+              {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
+            </Text>
+          </Box>
+          <Box display="flex" alignItems="center" gap="4" mt="4">
+            <Icon name="Branch" size="16" color="icon/tertiary" />
+            <Text textStyle="body/sm/regular" color="text/secondary">
+              main (default)
+            </Text>
+          </Box>
+        </div>
+        <Menu>
+          <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="sm" aria-label="More" />
+          <MenuList>
+            <MenuItem leftIconName="Branch">Switch branch...</MenuItem>
+            <MenuItem leftIconName="Download">Download YAML file</MenuItem>
+            <MenuItem leftIconName="Folder">Change storage...</MenuItem>
+          </MenuList>
+        </Menu>
+      </Box>
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}
