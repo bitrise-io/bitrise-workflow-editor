@@ -72,7 +72,7 @@ function useStepFromApi(cvs = ''): ApiStepResult {
   const defaultStepLibrary = useDefaultStepLibrary();
   const { data, error, isLoading } = useQuery({
     queryKey: ['steps', { cvs, defaultStepLibrary }],
-    queryFn: () => StepApi.getStepByCvs(cvs, defaultStepLibrary),
+    queryFn: () => StepApi.getStepByCvs(cvs, defaultStepLibrary).then((result) => result ?? null),
     enabled: Boolean(
       cvs && !StepService.isStepBundle(cvs, defaultStepLibrary) && !StepService.isWithGroup(cvs, defaultStepLibrary),
     ),
