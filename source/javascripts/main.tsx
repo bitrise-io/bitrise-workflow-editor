@@ -17,6 +17,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
+import useSearchParams from '@/hooks/useSearchParams';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
 
@@ -88,11 +89,17 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
   const hasChanges = useYmlHasChanges();
+  const [searchParams] = useSearchParams();
+  const requestedBranch = RuntimeUtils.isWebsiteMode() ? (searchParams.branch ?? undefined) : undefined;
 
   useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
-  const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
+  const { data, error, refetch } = useGetCiConfig({
+    projectSlug: PageProps.appSlug(),
+    skipValidation: true,
+    branch: requestedBranch,
+  });
 
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog

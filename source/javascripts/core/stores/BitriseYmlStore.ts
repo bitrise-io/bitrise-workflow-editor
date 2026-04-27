@@ -23,6 +23,8 @@ export const bitriseYmlStore = createStore(
     __invalidYmlString: undefined as string | undefined,
     __savedInvalidYmlString: undefined as string | undefined,
     validationStatus: 'valid' as 'valid' | 'invalid' | 'warnings',
+    configBranch: undefined as string | undefined,
+    configCommitSha: undefined as string | undefined,
   })),
 );
 
