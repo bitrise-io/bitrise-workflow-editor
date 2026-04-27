@@ -1,15 +1,15 @@
 module github.com/bitrise-io/bitrise-workflow-editor
 
-go 1.25.5
+go 1.25.7
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise/v2 v2.38.0
+	github.com/bitrise-io/bitrise/v2 v2.39.4
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
-	github.com/bitrise-io/envman/v2 v2.5.5
+	github.com/bitrise-io/envman/v2 v2.5.6
 	github.com/bitrise-io/go-utils v1.0.15
-	github.com/bitrise-io/stepman v0.18.6
+	github.com/bitrise-io/stepman v0.19.0
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
@@ -18,6 +18,7 @@ require (
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.0 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
@@ -35,8 +36,8 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
 	github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 // indirect
-	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 // indirect
-	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.23
+	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.44 // indirect
+	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.33
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
