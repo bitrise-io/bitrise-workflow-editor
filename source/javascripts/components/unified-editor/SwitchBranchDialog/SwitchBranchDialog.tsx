@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Select, Text } from '@bitrise/bitkit';
 
-const SwitchBranchDialog = (props: DialogProps) => {
+const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
 
   return (

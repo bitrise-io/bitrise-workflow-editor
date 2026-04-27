@@ -20,8 +20,9 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 
+import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -87,6 +88,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
 
 const Navigation = (props: Props) => {
   const currentPage = useCurrentPage();
+  const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const { isMobile } = useResponsive();
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
@@ -159,11 +161,14 @@ const Navigation = (props: Props) => {
         <Menu>
           <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="sm" aria-label="More" />
           <MenuList>
-            <MenuItem leftIconName="Branch">Switch branch...</MenuItem>
+            <MenuItem leftIconName="Branch" onClick={() => setIsSwitchBranchDialogOpen(true)}>
+              Switch branch...
+            </MenuItem>
             <MenuItem leftIconName="Download">Download YAML file</MenuItem>
             <MenuItem leftIconName="Folder">Change storage...</MenuItem>
           </MenuList>
         </Menu>
+        <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
       </Box>
       <SidebarContainer>
         <NavigationItem
