@@ -51,7 +51,7 @@ const YmlStorageInfo = () => {
       paddingRight="12"
       py="12"
       mb="24"
-      border="1px solid"
+      borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
       alignItems="center"
