@@ -30,7 +30,7 @@ const YmlConfigInfo = () => {
   const { isOpen: isStorageDialogOpen, onClose: onStorageDialogClose, onOpen: onStorageDialogOpen } = useDisclosure();
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
-  const { data, isLoading } = useCiConfigSettings();
+  const { data, isPending } = useCiConfigSettings();
 
   const handleDownload = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
@@ -65,17 +65,15 @@ const YmlConfigInfo = () => {
           <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
           </Text>
-          {isLoading ? (
+          <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
+          {isPending ? (
             <Skeleton>
-              <SkeletonBox height="20" width="100" />
+              <SkeletonBox height="20px" width="100px" />
             </Skeleton>
           ) : (
-            <>
-              <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
-              <Text as="h5" textStyle="body/md/semibold" color="text/primary">
-                {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
-              </Text>
-            </>
+            <Text as="h5" textStyle="body/md/semibold" color="text/primary">
+              {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
+            </Text>
           )}
         </Box>
         {enableBranchSwitching && (
