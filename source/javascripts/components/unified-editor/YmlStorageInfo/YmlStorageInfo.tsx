@@ -7,6 +7,8 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Skeleton,
+  SkeletonBox,
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
@@ -28,7 +30,7 @@ const YmlStorageInfo = () => {
   const { isOpen: isStorageDialogOpen, onClose: onStorageDialogClose, onOpen: onStorageDialogOpen } = useDisclosure();
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
-  const { data } = useCiConfigSettings();
+  const { data, isLoading } = useCiConfigSettings();
 
   const handleDownload = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
@@ -63,10 +65,18 @@ const YmlStorageInfo = () => {
           <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
           </Text>
-          <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
-          <Text as="h5" textStyle="body/md/semibold" color="text/primary">
-            {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
-          </Text>
+          {isLoading ? (
+            <Skeleton>
+              <SkeletonBox height="20" width="100" />
+            </Skeleton>
+          ) : (
+            <>
+              <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
+              <Text as="h5" textStyle="body/md/semibold" color="text/primary">
+                {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
+              </Text>
+            </>
+          )}
         </Box>
         {enableBranchSwitching && (
           <Box display="flex" alignItems="center" gap="4" mt="4">
