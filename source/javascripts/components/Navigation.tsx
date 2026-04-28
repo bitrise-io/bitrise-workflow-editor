@@ -1,12 +1,4 @@
 import {
-  Box,
-  ControlButton,
-  Dot,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Sidebar,
   SidebarContainer,
   SidebarDivider,
@@ -15,14 +7,13 @@ import {
   SidebarItemIcon,
   SidebarItemLabel,
   SidebarProps,
-  Text,
   TypeIconName,
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
-import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
+import YmlStorageInfo from '@/components/unified-editor/YmlStorageInfo/YmlStorageInfo';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -31,7 +22,6 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
@@ -89,13 +79,11 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
 
 const Navigation = (props: Props) => {
   const currentPage = useCurrentPage();
-  const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const { isMobile } = useResponsive();
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
-  const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
   useParentMessageListener<{
     bitriseYmlContents: string;
@@ -132,48 +120,7 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
-      {enableBranchSwitching && (
-        <Box
-          paddingLeft="32"
-          paddingRight="12"
-          py="12"
-          border="1px solid"
-          borderColor="border/minimal"
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          gap="8"
-        >
-          <div>
-            <Box display="flex" alignItems="center">
-              <Text textStyle="body/md/semibold" color="text/primary">
-                bitrise.yml
-              </Text>
-              <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
-              <Text textStyle="body/md/semibold" color="text/primary">
-                {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
-              </Text>
-            </Box>
-            <Box display="flex" alignItems="center" gap="4" mt="4">
-              <Icon name="Branch" size="16" color="icon/tertiary" />
-              <Text textStyle="body/sm/regular" color="text/secondary">
-                main (default)
-              </Text>
-            </Box>
-          </div>
-          <Menu>
-            <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="sm" aria-label="More" />
-            <MenuList>
-              <MenuItem leftIconName="Branch" onClick={() => setIsSwitchBranchDialogOpen(true)}>
-                Switch branch...
-              </MenuItem>
-              <MenuItem leftIconName="Download">Download YAML file</MenuItem>
-              <MenuItem leftIconName="Folder">Change storage...</MenuItem>
-            </MenuList>
-          </Menu>
-          <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
-        </Box>
-      )}
+      <YmlStorageInfo />
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}
