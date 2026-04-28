@@ -13,7 +13,7 @@ import {
 } from '@bitrise/bitkit';
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
-import YmlStorageInfo from '@/components/unified-editor/YmlStorageInfo/YmlStorageInfo';
+import YmlConfigInfo from '@/components/unified-editor/YmlConfigInfo/YmlConfigInfo';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -120,7 +120,7 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
-      <YmlStorageInfo />
+      <YmlConfigInfo />
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}
