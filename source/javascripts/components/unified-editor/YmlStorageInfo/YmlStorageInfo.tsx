@@ -1,15 +1,49 @@
-import { Box, ControlButton, Dot, Icon, Menu, MenuButton, MenuItem, MenuList, Text } from '@bitrise/bitkit';
-import { useState } from 'react';
+import {
+  Box,
+  ControlButton,
+  Dot,
+  Icon,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+  useDisclosure,
+} from '@bitrise/bitkit';
 
 import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
+import { download } from '@/core/utils/CommonUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlSourceDialog';
 
 const YmlStorageInfo = () => {
-  const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
+  const {
+    isOpen: isSwitchBranchDialogOpen,
+    onClose: onSwitchBranchDialogClose,
+    onOpen: onSwitchBranchDialogOpen,
+  } = useDisclosure();
+  const { isOpen: isStorageDialogOpen, onClose: onStorageDialogClose, onOpen: onStorageDialogOpen } = useDisclosure();
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
   const { data } = useCiConfigSettings();
+
+  const handleDownload = () => {
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'yml_editor_header',
+    });
+    download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
+  };
+
+  const handleStorageChange = () => {
+    segmentTrack('Change Configuration Yml Source Button Clicked', {
+      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
+    });
+    onStorageDialogOpen();
+  };
 
   return (
     <Box
@@ -25,11 +59,11 @@ const YmlStorageInfo = () => {
     >
       <div>
         <Box display="flex" alignItems="center">
-          <Text textStyle="body/md/semibold" color="text/primary">
+          <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
           </Text>
           <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
-          <Text textStyle="body/md/semibold" color="text/primary">
+          <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
           </Text>
         </Box>
@@ -46,15 +80,20 @@ const YmlStorageInfo = () => {
         <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="sm" aria-label="More" />
         <MenuList>
           {enableBranchSwitching && (
-            <MenuItem leftIconName="Branch" onClick={() => setIsSwitchBranchDialogOpen(true)}>
+            <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen}>
               Switch branch...
             </MenuItem>
           )}
-          <MenuItem leftIconName="Download">Download YAML file</MenuItem>
-          <MenuItem leftIconName="Folder">Change storage...</MenuItem>
+          <MenuItem leftIconName="Download" onClick={handleDownload}>
+            Download YAML file
+          </MenuItem>
+          <MenuItem leftIconName="Folder" onClick={handleStorageChange}>
+            Change storage...
+          </MenuItem>
         </MenuList>
       </Menu>
-      <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
+      <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={onSwitchBranchDialogClose} />
+      <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={onStorageDialogClose} />
     </Box>
   );
 };
