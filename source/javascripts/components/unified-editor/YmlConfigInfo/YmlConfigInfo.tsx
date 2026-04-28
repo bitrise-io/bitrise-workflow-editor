@@ -68,7 +68,7 @@ const YmlConfigInfo = () => {
           <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
           {isPending ? (
             <Skeleton>
-              <SkeletonBox height="20px" width="100px" />
+              <SkeletonBox height="20px" width="75px" />
             </Skeleton>
           ) : (
             <Text as="h5" textStyle="body/md/semibold" color="text/primary">
