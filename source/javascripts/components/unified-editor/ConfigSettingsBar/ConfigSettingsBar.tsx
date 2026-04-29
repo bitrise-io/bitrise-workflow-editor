@@ -1,6 +1,7 @@
 import {
   Box,
   ControlButton,
+  DefinitionTooltip,
   Dot,
   Icon,
   Menu,
@@ -68,7 +69,7 @@ const ConfigSettingsBar = () => {
       justifyContent="space-between"
       gap="8"
     >
-      <div>
+      <Box minW={0}>
         <Box display="flex" alignItems="center">
           <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
@@ -84,15 +85,24 @@ const ConfigSettingsBar = () => {
             </Text>
           )}
         </Box>
-        {enableBranchSwitching && (
+        {enableBranchSwitching && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" mt="4">
             <Icon name="Branch" size="16" color="icon/tertiary" />
-            <Text textStyle="body/sm/regular" color="text/secondary">
+            <DefinitionTooltip
+              label={`Editing bitrise.yml from ${branchLabel}.`}
+              triggerProps={{
+                textStyle: 'body/sm/regular',
+                color: 'text/secondary',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {branchLabel}
-            </Text>
+            </DefinitionTooltip>
           </Box>
         )}
-      </div>
+      </Box>
       <Menu size="md">
         <MenuButton
           as={ControlButton}

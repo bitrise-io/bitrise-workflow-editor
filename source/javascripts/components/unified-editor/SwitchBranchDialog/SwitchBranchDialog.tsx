@@ -6,6 +6,7 @@ import {
   DialogProps,
   Dropdown,
   DropdownOption,
+  DropdownSearch,
   Notification,
   Text,
 } from '@bitrise/bitkit';
@@ -19,7 +20,10 @@ import { loadConfigFromBranch, useGetCiConfig } from '@/hooks/useCiConfig';
 
 const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
-  const { data, isLoading } = useBranches();
+
+  const [search, setSearch] = useState<string>('');
+  const { data, isLoading } = useBranches({ q: search });
+
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [value, setValue] = useState<string>(configBranch || '');
   const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined);
@@ -59,7 +63,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           value={value}
           onChange={(e) => setValue(e.target.value ?? '')}
           required
-          search
+          search={<DropdownSearch placeholder="Search..." value={search} onChange={setSearch} />}
           mt="24"
         >
           {data?.branches.map((branch) => (
