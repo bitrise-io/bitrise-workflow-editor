@@ -1,4 +1,14 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Notification, Select, Text } from '@bitrise/bitkit';
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogProps,
+  Dropdown,
+  DropdownOption,
+  Notification,
+  Text,
+} from '@bitrise/bitkit';
 import { FormEvent, useEffect, useState } from 'react';
 
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
@@ -11,6 +21,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
   const { data, isLoading } = useBranches();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
+  const [value, setValue] = useState<string>(configBranch || '');
   const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined);
 
   const {
@@ -34,29 +45,29 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const branch = new FormData(e.currentTarget).get('branch') as string;
-    setSelectedBranch(branch);
+    setSelectedBranch(value);
   };
 
   return (
     <Dialog title="Switch branch" isOpen={isOpen} onClose={onClose} as="form" onSubmit={handleSubmit}>
       <DialogBody>
         <Text>Load configuration from selected branch.</Text>
-        <Select
-          name="branch"
+        <Dropdown
           label="Branch"
           placeholder="Select branch"
-          isRequired
+          disabled={isLoading}
+          value={value}
+          onChange={(e) => setValue(e.target.value ?? '')}
+          required
+          search
           mt="24"
-          isDisabled={isLoading}
-          defaultValue={configBranch}
         >
           {data?.branches.map((branch) => (
-            <option key={branch} value={branch}>
+            <DropdownOption key={branch} value={branch}>
               {branch}
-            </option>
+            </DropdownOption>
           ))}
-        </Select>
+        </Dropdown>
       </DialogBody>
       <DialogFooter>
         {configError && (
