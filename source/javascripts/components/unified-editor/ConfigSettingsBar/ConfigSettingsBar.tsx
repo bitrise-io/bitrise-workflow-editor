@@ -104,13 +104,7 @@ const ConfigSettingsBar = () => {
         )}
       </Box>
       <Menu size="md">
-        <MenuButton
-          as={ControlButton}
-          iconName="MoreVertical"
-          color="icon/secondary"
-          size={enableBranchSwitching ? 'sm' : 'xs'}
-          aria-label="More"
-        />
+        <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
         <MenuList>
           {enableBranchSwitching && (
             <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen}>

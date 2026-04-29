@@ -14,11 +14,13 @@ const YmlPage = () => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
-      <Text as="h2" textStyle="heading/h2">
-        Configuration YAML
-      </Text>
-      <Box marginInlineEnd="auto">
-        <YmlValidationBadge status={ymlStatus} />
+      <Box display="flex" flexDirection={['column', 'row']} gap="16" alignItems={['flex-start', 'center']} p="32">
+        <Text as="h2" textStyle="heading/h2">
+          Configuration YAML
+        </Text>
+        <Box marginInlineEnd="auto">
+          <YmlValidationBadge status={ymlStatus} />
+        </Box>
       </Box>
       <Box flexGrow="1" flexShrink="1" paddingBlock="12" backgroundColor="#1e1e1e" position="relative">
         {isWebsiteMode && <YourCiConfigIsSplitNotification />}
