@@ -30,3 +30,4 @@ ld.local.json
 /playwright/.cache/
 
 debug-storybook.log
+/.claude/settings.local.json
