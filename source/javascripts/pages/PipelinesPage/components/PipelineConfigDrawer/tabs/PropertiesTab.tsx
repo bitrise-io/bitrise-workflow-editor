@@ -18,7 +18,7 @@ type Props = {
   pipelineId: string;
 };
 
-const TitleInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
+const NameInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
   const { keys, onSelectPipeline } = usePipelineSelector();
   const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
 
@@ -39,11 +39,11 @@ const TitleInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
   return (
     <EditableInput
       isRequired
-      name="title"
-      label="Title"
+      name="name"
+      label="Name"
       defaultValue={pipelineId}
       sanitize={PipelineService.sanitizeName}
-      validate={(title) => PipelineService.validateName(title, pipelineId, keys)}
+      validate={(name) => PipelineService.validateName(name, pipelineId, keys)}
       onCommit={handleCommit}
     />
   );
@@ -114,7 +114,7 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
   return (
     <>
       <Box display="flex" flexDir="column" gap="24" pb="24">
-        <TitleInput pipelineId={pipelineId} />
+        <NameInput pipelineId={pipelineId} />
         <SummaryInput pipelineId={pipelineId} />
         <DescriptionInput pipelineId={pipelineId} />
         <Priority pipelineId={pipelineId} />

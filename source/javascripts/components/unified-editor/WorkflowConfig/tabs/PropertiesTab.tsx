@@ -17,7 +17,7 @@ type Props = {
   onDelete?: (id: string) => void;
 };
 
-const TitleInput = ({ onRename }: Pick<Props, 'onRename'>) => {
+const NameInput = ({ onRename }: Pick<Props, 'onRename'>) => {
   const rename = useRenameWorkflow(onRename);
   const value = useWorkflowConfigContext((s) => s?.id || '');
   const otherWorkflows = Object.keys(getBitriseYml().workflows ?? {});
@@ -31,11 +31,11 @@ const TitleInput = ({ onRename }: Pick<Props, 'onRename'>) => {
   return (
     <EditableInput
       isRequired
-      name="title"
-      label="Title"
+      name="name"
+      label="Name"
       value={value}
       sanitize={WorkflowService.sanitizeName}
-      validate={(title) => WorkflowService.validateName(title, value, otherWorkflows)}
+      validate={(name) => WorkflowService.validateName(name, value, otherWorkflows)}
       onCommit={handleCommit}
     />
   );
@@ -95,7 +95,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
 
   return (
     <Box gap="16" display="flex" flexDir="column">
-      <TitleInput onRename={onRename} />
+      <NameInput onRename={onRename} />
       <SummaryInput workflowId={workflowId} />
       <DescriptionInput workflowId={workflowId} />
       {shouldShowDivider && <Divider marginBlock="8" />}
