@@ -86,7 +86,7 @@ const ConfigSettingsBar = () => {
           </Box>
         )}
       </div>
-      <Menu>
+      <Menu size="md">
         <MenuButton
           as={ControlButton}
           iconName="MoreVertical"
