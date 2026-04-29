@@ -21,7 +21,7 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlSourceDialog';
 
-const YmlConfigInfo = () => {
+const ConfigSettingsBar = () => {
   const {
     isOpen: isSwitchBranchDialogOpen,
     onClose: onSwitchBranchDialogClose,
@@ -107,4 +107,4 @@ const YmlConfigInfo = () => {
   );
 };
 
-export default YmlConfigInfo;
+export default ConfigSettingsBar;
