@@ -96,7 +96,7 @@ const ConfigSettingsBar = () => {
           <MenuItem leftIconName="Download" onClick={handleDownload}>
             Download YAML file
           </MenuItem>
-          <MenuItem leftIconName="Folder" onClick={handleStorageChange}>
+          <MenuItem leftIconName="Folder" onClick={handleStorageChange} isDisabled={isPending}>
             Change storage...
           </MenuItem>
         </MenuList>
