@@ -88,7 +88,7 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
-  const loadedBranch = useRef<string | undefined>(undefined);
+  const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
   const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
