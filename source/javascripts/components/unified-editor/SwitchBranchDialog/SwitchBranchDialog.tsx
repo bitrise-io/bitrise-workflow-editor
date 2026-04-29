@@ -9,7 +9,7 @@ import { loadConfigFromBranch, useGetCiConfig } from '@/hooks/useCiConfig';
 
 const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
-  const { data, isLoading } = useBranches({ enabled: isOpen });
+  const { data, isLoading } = useBranches();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined);
 
