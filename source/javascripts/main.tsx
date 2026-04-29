@@ -88,6 +88,7 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
+  const loadedBranch = useRef<string | undefined>(undefined);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
   const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
@@ -117,14 +118,15 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && loadedBranch.current !== requestedBranch) {
       initializeBitriseYmlDocument(data);
+      loadedBranch.current = requestedBranch;
       if (!isLoaded.current) {
         setTimeout(preloadRoutes, 1000);
         isLoaded.current = true;
       }
     }
-  }, [data]);
+  }, [data, requestedBranch]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
