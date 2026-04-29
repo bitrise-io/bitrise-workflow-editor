@@ -10,13 +10,12 @@ import {
   Notification,
   Text,
 } from '@bitrise/bitkit';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useBranches } from '@/hooks/useBranches';
-import { loadConfigFromBranch, useGetCiConfig } from '@/hooks/useCiConfig';
+import { loadConfigFromBranch, useSwitchBranch } from '@/hooks/useCiConfig';
 
 const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
@@ -25,31 +24,21 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { data, isLoading } = useBranches({ q: search });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
-  const [value, setValue] = useState<string>(configBranch || '');
-  const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined);
+  const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
 
-  const {
-    isFetching: isLoadingConfig,
-    error: configError,
-    data: configData,
-  } = useGetCiConfig(
-    { projectSlug: PageProps.appSlug(), branch: selectedBranch },
-    {
-      enabled: !!selectedBranch,
-    },
-  );
+  const { isPending: isLoadingConfig, error: configError, mutateAsync: switchBranch } = useSwitchBranch();
 
-  useEffect(() => {
-    if (!isLoadingConfig && selectedBranch && configData && !configError) {
-      loadConfigFromBranch(selectedBranch);
-      bitriseYmlStore.setState({ configBranch: selectedBranch });
-      onClose?.();
-    }
-  }, [isLoadingConfig, selectedBranch, configData, configError, onClose]);
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSelectedBranch(value);
+    await switchBranch(
+      { projectSlug: PageProps.appSlug(), branch: selectedBranch },
+      {
+        onSuccess: () => {
+          loadConfigFromBranch(selectedBranch);
+          onClose?.();
+        },
+      },
+    );
   };
 
   return (
@@ -60,8 +49,8 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           label="Branch"
           placeholder="Select branch"
           disabled={isLoading || data?.branches.length === 0}
-          value={value}
-          onChange={(e) => setValue(e.target.value ?? '')}
+          value={selectedBranch}
+          onChange={(e) => setSelectedBranch(e.target.value ?? '')}
           required
           search={<DropdownSearch placeholder="Search..." value={search} onChange={setSearch} />}
           mt="24"

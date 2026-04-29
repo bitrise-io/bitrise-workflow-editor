@@ -37,6 +37,13 @@ export function loadConfigFromBranch(branch: string) {
   setSearchParamsInLocationHash({ ...current, branch });
 }
 
+export function useSwitchBranch() {
+  return useMutation({
+    mutationFn: ({ projectSlug, branch }: { projectSlug: string; branch: string }) =>
+      BitriseYmlApi.getCiConfig({ projectSlug, branch }),
+  });
+}
+
 export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
   return useMutation({
     mutationFn: async ({ projectSlug, ymlString, version, tabOpenDuringSave, conversationId }) => {
