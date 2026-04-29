@@ -97,16 +97,16 @@ export function initializeBitriseYmlDocument({
       savedYmlDocument: doc,
       __invalidYmlString: undefined,
       __savedInvalidYmlString: undefined,
-      configBranch: branch,
-      configCommitSha: commitSha,
+      configBranch: branch || undefined,
+      configCommitSha: commitSha || undefined,
     });
   } else {
     bitriseYmlStore.setState({
       version,
       __invalidYmlString: ymlString,
       __savedInvalidYmlString: ymlString,
-      configBranch: branch,
-      configCommitSha: commitSha,
+      configBranch: branch || undefined,
+      configCommitSha: commitSha || undefined,
     });
   }
 }
