@@ -13,7 +13,7 @@ import {
 import { FormEvent, useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useBranches } from '@/hooks/useBranches';
@@ -44,9 +44,9 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
     await switchBranch(
       { projectSlug: PageProps.appSlug(), branch: selectedBranch },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          initializeBitriseYmlDocument({ ...data, branch: data.branch || selectedBranch });
           loadConfigFromBranch(selectedBranch);
-          bitriseYmlStore.setState({ configBranch: selectedBranch });
           onClose?.();
         },
       },
