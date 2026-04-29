@@ -13,6 +13,7 @@ import {
 } from '@bitrise/bitkit';
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
+import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/ConfigSettingsBar';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -119,6 +120,7 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
+      <ConfigSettingsBar />
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}

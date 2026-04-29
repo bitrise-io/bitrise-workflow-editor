@@ -340,6 +340,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlSourceDialogProps, 'onC
       yml_source: selectedSource,
     });
     forceRefreshStates();
+    onClose();
   };
 
   const onValidateAndSave = () => {
