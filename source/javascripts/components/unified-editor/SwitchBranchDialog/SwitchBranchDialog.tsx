@@ -59,7 +59,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         <Dropdown
           label="Branch"
           placeholder="Select branch"
-          disabled={isLoading}
+          disabled={isLoading || data?.branches.length === 0}
           value={value}
           onChange={(e) => setValue(e.target.value ?? '')}
           required

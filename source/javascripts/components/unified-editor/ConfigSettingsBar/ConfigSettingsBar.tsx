@@ -11,6 +11,7 @@ import {
   Skeleton,
   SkeletonBox,
   Text,
+  Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
 
@@ -22,6 +23,7 @@ import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlSourceDialog';
 
 const ConfigSettingsBar = () => {
@@ -32,6 +34,7 @@ const ConfigSettingsBar = () => {
   } = useDisclosure();
   const { isOpen: isStorageDialogOpen, onClose: onStorageDialogClose, onOpen: onStorageDialogOpen } = useDisclosure();
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
+  const hasChanges = useYmlHasChanges();
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const defaultBranch = PageProps.app()?.defaultBranch;
@@ -107,9 +110,11 @@ const ConfigSettingsBar = () => {
         <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
         <MenuList>
           {enableBranchSwitching && (
-            <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen}>
-              Switch branch...
-            </MenuItem>
+            <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
+              <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen} isDisabled={hasChanges}>
+                Switch branch...
+              </MenuItem>
+            </Tooltip>
           )}
           <MenuItem leftIconName="Download" onClick={handleDownload}>
             Download YAML file

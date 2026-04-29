@@ -29,3 +29,11 @@ export const StoredInRepository: Story = {
     },
   },
 };
+
+export const SwitchBranchError: Story = {
+  parameters: {
+    msw: {
+      handlers: [getBranches(), getCiConfig('Failed to load bitrise.yml from branch'), getYmlSettings()],
+    },
+  },
+};
