@@ -7,7 +7,7 @@ type GetBranchesOptions = {
   q?: string;
 };
 
-type GetBranchesResult = {
+export type GetBranchesResult = {
   branches: string[];
 };
 
