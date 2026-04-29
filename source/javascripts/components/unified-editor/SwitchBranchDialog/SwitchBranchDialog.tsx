@@ -10,8 +10,10 @@ import {
   Notification,
   Text,
 } from '@bitrise/bitkit';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useBranches } from '@/hooks/useBranches';
@@ -21,12 +23,21 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
 
   const [search, setSearch] = useState<string>('');
-  const { data, isLoading } = useBranches({ q: search });
+  const [debouncedSearch] = useDebounceValue(search, 500);
+  const { data, isLoading } = useBranches({ q: debouncedSearch });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
 
-  const { isPending: isLoadingConfig, error: configError, mutateAsync: switchBranch } = useSwitchBranch();
+  const { isPending: isLoadingConfig, error: configError, mutateAsync: switchBranch, reset } = useSwitchBranch();
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSearch('');
+      setSelectedBranch(configBranch || '');
+      reset();
+    }
+  }, [configBranch, isOpen, reset]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,6 +46,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
       {
         onSuccess: () => {
           loadConfigFromBranch(selectedBranch);
+          bitriseYmlStore.setState({ configBranch: selectedBranch });
           onClose?.();
         },
       },
