@@ -53,7 +53,7 @@ const ConfigSettingsBar = () => {
       paddingRight="12"
       py="12"
       mb="24"
-      minH="64"
+      minH="65"
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
