@@ -120,7 +120,7 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
-      <ConfigSettingsBar />
+      {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar />}
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}
