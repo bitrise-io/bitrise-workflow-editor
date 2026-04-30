@@ -3,10 +3,7 @@ import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlS
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
-enum ToolsSource {
-  Root = 'root',
-  Workflow = 'workflow',
-}
+type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
 function parseToolVersion(raw: string): ParsedToolVersion {
   if (raw === 'unset') {
@@ -14,7 +11,7 @@ function parseToolVersion(raw: string): ParsedToolVersion {
   }
 
   if (raw === 'latest') {
-    return { strategy: 'absolute-latest' };
+    return { strategy: 'latest-released' };
   }
 
   const colonIndex = raw.indexOf(':');
@@ -23,11 +20,11 @@ function parseToolVersion(raw: string): ParsedToolVersion {
     const suffix = raw.slice(colonIndex + 1);
 
     if (suffix === 'latest') {
-      return { strategy: 'latest-of', prefix };
+      return { strategy: 'latest-released', prefix };
     }
 
     if (suffix === 'installed') {
-      return { strategy: 'preinstalled', prefix };
+      return { strategy: 'latest-installed', prefix };
     }
   }
 
@@ -40,37 +37,31 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   }
 
   switch (parsed.strategy) {
-    case 'absolute-latest':
-      return 'latest';
-    case 'latest-of':
-      return `${parsed.prefix}:latest`;
-    case 'preinstalled':
+    case 'latest-released':
+      return parsed.prefix ? `${parsed.prefix}:latest` : 'latest';
+    case 'latest-installed':
       return `${parsed.prefix}:installed`;
     case 'exact':
       return parsed.version;
   }
 }
 
-function validateSourceId(source: ToolsSource, workflowId?: string, doc = bitriseYmlStore.getState().ymlDocument) {
-  if (source === ToolsSource.Workflow && !workflowId) {
-    throw new Error('workflowId is required when source is Workflow');
-  }
-
-  if (source === ToolsSource.Workflow && workflowId) {
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+function validateScope(scope: ToolScope, doc = bitriseYmlStore.getState().ymlDocument) {
+  if (scope.type === 'workflow') {
+    WorkflowService.getWorkflowOrThrowError(scope.workflowId, doc);
   }
 }
 
-function getToolsPath(source: ToolsSource, workflowId?: string): (string | number)[] {
-  if (source === ToolsSource.Workflow && workflowId) {
-    return ['workflows', workflowId, 'tools'];
+function getToolsPath(scope: ToolScope): (string | number)[] {
+  if (scope.type === 'workflow') {
+    return ['workflows', scope.workflowId, 'tools'];
   }
   return ['tools'];
 }
 
-function getKeepPath(source: ToolsSource, workflowId?: string): (string | number)[] {
-  if (source === ToolsSource.Workflow && workflowId) {
-    return ['workflows', workflowId];
+function getKeepPath(scope: ToolScope): (string | number)[] {
+  if (scope.type === 'workflow') {
+    return ['workflows', scope.workflowId];
   }
   return [];
 }
@@ -87,29 +78,29 @@ function validateToolId(id: string, existingIds: string[] = []) {
   return true;
 }
 
-function setTool(toolId: string, versionString: string, source: ToolsSource, workflowId?: string) {
+function setTool(toolId: string, versionString: string, scope: ToolScope) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, workflowId, doc);
+    validateScope(scope, doc);
 
-    const path = getToolsPath(source, workflowId);
+    const path = getToolsPath(scope);
     const tools = YmlUtils.getMapIn(doc, path, true);
     YmlUtils.setIn(tools, [toolId], versionString, false);
     return doc;
   });
 }
 
-function deleteTool(toolId: string, source: ToolsSource, workflowId?: string) {
+function deleteTool(toolId: string, scope: ToolScope) {
   updateBitriseYmlDocument(({ doc }) => {
-    validateSourceId(source, workflowId, doc);
+    validateScope(scope, doc);
 
-    const path = getToolsPath(source, workflowId);
-    const keep = getKeepPath(source, workflowId);
+    const path = getToolsPath(scope);
+    const keep = getKeepPath(scope);
     YmlUtils.deleteByPath(doc, [...path, toolId], keep);
     return doc;
   });
 }
 
-export { ToolsSource };
+export type { ToolScope };
 export default {
   parseToolVersion,
   serializeToolVersion,

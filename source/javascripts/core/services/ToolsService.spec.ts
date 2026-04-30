@@ -1,20 +1,20 @@
-import ToolsService, { ToolsSource } from '@/core/services/ToolsService';
+import ToolsService from '@/core/services/ToolsService';
 
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 describe('ToolsService', () => {
   describe('parseToolVersion', () => {
-    it('parses "latest" as absolute-latest', () => {
-      expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'absolute-latest' });
+    it('parses "latest" as latest-released without prefix', () => {
+      expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'latest-released' });
     });
 
-    it('parses "<prefix>:latest" as latest-of', () => {
-      expect(ToolsService.parseToolVersion('22:latest')).toEqual({ strategy: 'latest-of', prefix: '22' });
-      expect(ToolsService.parseToolVersion('3.3:latest')).toEqual({ strategy: 'latest-of', prefix: '3.3' });
+    it('parses "<prefix>:latest" as latest-released with prefix', () => {
+      expect(ToolsService.parseToolVersion('22:latest')).toEqual({ strategy: 'latest-released', prefix: '22' });
+      expect(ToolsService.parseToolVersion('3.3:latest')).toEqual({ strategy: 'latest-released', prefix: '3.3' });
     });
 
-    it('parses "<prefix>:installed" as preinstalled', () => {
-      expect(ToolsService.parseToolVersion('3.3:installed')).toEqual({ strategy: 'preinstalled', prefix: '3.3' });
+    it('parses "<prefix>:installed" as latest-installed', () => {
+      expect(ToolsService.parseToolVersion('3.3:installed')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
     });
 
     it('parses a bare semver as exact', () => {
@@ -39,16 +39,16 @@ describe('ToolsService', () => {
   });
 
   describe('serializeToolVersion', () => {
-    it('serializes absolute-latest', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'absolute-latest' })).toBe('latest');
+    it('serializes latest-released without prefix', () => {
+      expect(ToolsService.serializeToolVersion({ strategy: 'latest-released' })).toBe('latest');
     });
 
-    it('serializes latest-of', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'latest-of', prefix: '22' })).toBe('22:latest');
+    it('serializes latest-released with prefix', () => {
+      expect(ToolsService.serializeToolVersion({ strategy: 'latest-released', prefix: '22' })).toBe('22:latest');
     });
 
-    it('serializes preinstalled', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'preinstalled', prefix: '3.3' })).toBe('3.3:installed');
+    it('serializes latest-installed', () => {
+      expect(ToolsService.serializeToolVersion({ strategy: 'latest-installed', prefix: '3.3' })).toBe('3.3:installed');
     });
 
     it('serializes exact', () => {
@@ -84,7 +84,7 @@ describe('ToolsService', () => {
       it('creates the tools block when absent', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('node', '22:latest', ToolsSource.Root);
+        ToolsService.setTool('node', '22:latest', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -99,7 +99,7 @@ describe('ToolsService', () => {
             node: 22:latest
         `);
 
-        ToolsService.setTool('python', '3.13.4', ToolsSource.Root);
+        ToolsService.setTool('python', '3.13.4', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -115,7 +115,7 @@ describe('ToolsService', () => {
             python: "3.13.4"
         `);
 
-        ToolsService.setTool('node', 'latest', ToolsSource.Root);
+        ToolsService.setTool('node', 'latest', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -133,7 +133,7 @@ describe('ToolsService', () => {
               steps: []
         `);
 
-        ToolsService.setTool('node', '22:latest', ToolsSource.Workflow, 'primary');
+        ToolsService.setTool('node', '22:latest', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -152,7 +152,7 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.setTool('python', '3.13.4', ToolsSource.Workflow, 'primary');
+        ToolsService.setTool('python', '3.13.4', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -171,7 +171,7 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.setTool('node', 'unset', ToolsSource.Workflow, 'primary');
+        ToolsService.setTool('node', 'unset', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -191,7 +191,7 @@ describe('ToolsService', () => {
               steps: []
         `);
 
-        ToolsService.setTool('python', '3.13.4', ToolsSource.Workflow, 'secondary');
+        ToolsService.setTool('python', '3.13.4', { type: 'workflow', workflowId: 'secondary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -208,13 +208,7 @@ describe('ToolsService', () => {
       it('throws when workflow does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        expect(() => ToolsService.setTool('node', 'latest', ToolsSource.Workflow, 'missing')).toThrow();
-      });
-
-      it('throws when workflowId is missing', () => {
-        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
-
-        expect(() => ToolsService.setTool('node', 'latest', ToolsSource.Workflow)).toThrow();
+        expect(() => ToolsService.setTool('node', 'latest', { type: 'workflow', workflowId: 'missing' })).toThrow();
       });
     });
   });
@@ -228,7 +222,7 @@ describe('ToolsService', () => {
             python: "3.13.4"
         `);
 
-        ToolsService.deleteTool('node', ToolsSource.Root);
+        ToolsService.deleteTool('node', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -243,7 +237,7 @@ describe('ToolsService', () => {
             node: 22:latest
         `);
 
-        ToolsService.deleteTool('node', ToolsSource.Root);
+        ToolsService.deleteTool('node', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`format_version: '13'`);
       });
@@ -259,7 +253,7 @@ describe('ToolsService', () => {
                 python: "3.13.4"
         `);
 
-        ToolsService.deleteTool('node', ToolsSource.Workflow, 'primary');
+        ToolsService.deleteTool('node', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -278,7 +272,7 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.deleteTool('node', ToolsSource.Workflow, 'primary');
+        ToolsService.deleteTool('node', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:

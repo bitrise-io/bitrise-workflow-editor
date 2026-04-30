@@ -5,6 +5,10 @@ export function useTools(): Tools {
   return useBitriseYmlStore(({ yml }) => yml.tools ?? {});
 }
 
-export function useWorkflowTools(workflowId: string): Tools {
-  return useBitriseYmlStore(({ yml }) => yml.workflows?.[workflowId]?.tools ?? {});
+export function useWorkflowTools(workflowId: string): Tools | undefined {
+  return useBitriseYmlStore(({ yml }) => {
+    const workflow = yml.workflows?.[workflowId];
+    if (!workflow) return undefined;
+    return workflow.tools ?? {};
+  });
 }
