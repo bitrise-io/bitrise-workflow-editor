@@ -27,7 +27,13 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           <Radio value="current">Push to current branch</Radio>
           <Radio value="new">Create new branch</Radio>
         </RadioGroup>
-        <Input label="Target branch" helperText="Must follow git branch naming rules." isRequired mt="24" />
+        <Input
+          label="Target branch"
+          placeholder="new-branch-name"
+          helperText="Must follow git branch naming rules."
+          isRequired
+          mt="24"
+        />
         <Textarea
           label="Commit message"
           placeholder="e.g. Update Bitrise configuration via Workflow Editor"

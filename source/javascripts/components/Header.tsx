@@ -34,6 +34,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 const Header = () => {
@@ -82,13 +83,19 @@ const Header = () => {
 
   const {
     isOpen: isUpdateConfigDialogOpen,
-    onOpen: openUpdateConfigDialog,
+    // onOpen: openUpdateConfigDialog,
     onClose: closeUpdateConfigDialog,
   } = useDisclosure({
     onOpen: () => {
       // TODO: analytics
     },
   });
+
+  const {
+    isOpen: isPushBranchDialogOpen,
+    onOpen: openPushBranchDialog,
+    onClose: closePushBranchDialog,
+  } = useDisclosure();
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,
@@ -122,7 +129,8 @@ const Header = () => {
       });
 
       if (ciConfigSettings?.usesRepositoryYml) {
-        openUpdateConfigDialog();
+        //openUpdateConfigDialog();
+        openPushBranchDialog();
         return;
       }
 
@@ -134,15 +142,7 @@ const Header = () => {
         conversationId,
       });
     },
-    [
-      currentPage,
-      conversationId,
-      turnCount,
-      ciConfigSettings?.usesRepositoryYml,
-      save,
-      appSlug,
-      openUpdateConfigDialog,
-    ],
+    [currentPage, conversationId, turnCount, ciConfigSettings?.usesRepositoryYml, save, appSlug, openPushBranchDialog],
   );
 
   const onDiscard = () => {
@@ -244,6 +244,7 @@ const Header = () => {
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
       <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
+      <PushBranchDialog isOpen={isPushBranchDialogOpen} onClose={closePushBranchDialog} />
     </Box>
   );
 };
