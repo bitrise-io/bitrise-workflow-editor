@@ -9,22 +9,37 @@ import {
   RadioGroup,
   Textarea,
 } from '@bitrise/bitkit';
+import { useState } from 'react';
 
 const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
+  const [branchMode, setBranchMode] = useState<'current' | 'new'>('current');
 
   return (
     <Dialog title="Push changes" isOpen={isOpen} onClose={onClose} as="form">
       <DialogBody>
-        <RadioGroup>
-          <Radio>Push to current branch</Radio>
-          <Radio>Create new branch</Radio>
+        <RadioGroup
+          display="flex"
+          gap="24"
+          value={branchMode}
+          onChange={(value) => setBranchMode(value as 'current' | 'new')}
+        >
+          <Radio value="current">Push to current branch</Radio>
+          <Radio value="new">Create new branch</Radio>
         </RadioGroup>
-        <Input label="Target branch" helperText="Must follow git branch naming rules." mt="24" />
-        <Textarea label="Commit message" helperText="Appears in your git commit history." mt="24" />
+        <Input label="Target branch" helperText="Must follow git branch naming rules." isRequired mt="24" />
+        <Textarea
+          label="Commit message"
+          placeholder="e.g. Update Bitrise configuration via Workflow Editor"
+          helperText="Appears in your git commit history."
+          isRequired
+          mt="24"
+        />
       </DialogBody>
       <DialogFooter>
-        <Button variant="tertiary">Manual update</Button>
+        <Button variant="tertiary" mr="auto">
+          Manual update
+        </Button>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
