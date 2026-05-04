@@ -20,6 +20,7 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: () => void }) {
     isPushPending,
     pushBranch: push,
     pushError,
+    clearPushError,
   } = usePushBranch({
     onSuccess: onClose,
     onMergeConflict: () => {
@@ -33,7 +34,10 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: () => void }) {
       <Button onClick={onOpen}>Save changes</Button>
       <PushBranchDialog
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={() => {
+          clearPushError();
+          onClose();
+        }}
         isPushPending={isPushPending}
         pushError={pushError}
         onPush={push}

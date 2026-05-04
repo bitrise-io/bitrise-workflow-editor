@@ -101,7 +101,7 @@ const Header = () => {
     onClose: closePushBranchDialog,
   } = useDisclosure();
 
-  const { isPushPending, pushBranch, pushError } = usePushBranch({
+  const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
     onSuccess: closePushBranchDialog,
     onMergeConflict: () => {
       closePushBranchDialog();
@@ -271,7 +271,10 @@ const Header = () => {
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
       <PushBranchDialog
         isOpen={isPushBranchDialogOpen}
-        onClose={closePushBranchDialog}
+        onClose={() => {
+          clearPushError();
+          closePushBranchDialog();
+        }}
         isPushPending={isPushPending}
         pushError={pushError}
         onPush={pushBranch}
