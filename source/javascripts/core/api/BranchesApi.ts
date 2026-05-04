@@ -21,7 +21,7 @@ async function getBranches({ appSlug, signal, limit, q }: GetBranchesOptions): P
     params.append('q', q);
   }
 
-  const path = `/api/app/${appSlug}/git-branches`;
+  const path = `/app/${appSlug}/git-branches`;
   const qs = params.toString();
   const url = qs ? `${path}?${qs}` : path;
   return Client.get<GetBranchesResult>(url, { signal });
