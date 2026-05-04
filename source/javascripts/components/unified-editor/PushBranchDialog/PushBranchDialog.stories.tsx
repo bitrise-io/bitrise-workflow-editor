@@ -13,6 +13,9 @@ export default {
     onClose: { type: 'function' },
   },
   parameters: {
+    bitriseYmlStore: {
+      configBranch: 'main',
+    },
     msw: {
       handlers: [pushBranch()],
     },
@@ -22,6 +25,14 @@ export default {
 type Story = StoryObj<typeof PushBranchDialog>;
 
 export const Default: Story = {};
+
+export const NewBranch: Story = {
+  parameters: {
+    msw: {
+      handlers: [pushBranch(undefined, 'https://github.com/owner/repo/compare/main...feature-x?expand=1')],
+    },
+  },
+};
 
 export const Error: Story = {
   parameters: {

@@ -13,11 +13,12 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import UpdateConfigurationDialog from '@/components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 import BranchesApi from '@/core/api/BranchesApi';
+import { ClientError } from '@/core/api/client';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -46,7 +47,6 @@ function validateBranchName(branch: string): string | true {
 
 const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
-  const [branchType, setBranchType] = useState<'current' | 'new'>('current');
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const configCommitSha = useBitriseYmlStore((s) => s.configCommitSha);
 
@@ -66,13 +66,17 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
     [configBranch],
   );
 
-  const { control, formState, handleSubmit, reset } = useForm<FormValues>({
+  const { control, formState, handleSubmit, reset, setValue } = useForm<FormValues>({
     defaultValues,
     mode: 'onChange',
   });
 
+  const branchValue = useWatch({ control, name: 'branch' });
+  const isCurrentBranch = branchValue === (configBranch ?? '');
+
   const {
     mutate: pushBranch,
+    reset: resetMutation,
     error: pushError,
     isPending: isPushPending,
   } = useMutation({
@@ -105,9 +109,9 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   useEffect(() => {
     if (isOpen) {
       reset(defaultValues);
-      setBranchType('current');
+      resetMutation();
     }
-  }, [isOpen, reset, defaultValues]);
+  }, [isOpen, reset, resetMutation, defaultValues]);
 
   return (
     <>
@@ -116,8 +120,11 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           <RadioGroup
             display="flex"
             gap="24"
-            value={branchType}
-            onChange={(value) => setBranchType(value as 'current' | 'new')}
+            value={isCurrentBranch ? 'current' : 'new'}
+            onChange={(value) => {
+              const newBranch = value === 'current' ? (configBranch ?? '') : '';
+              setValue('branch', newBranch, { shouldValidate: true });
+            }}
           >
             <Radio value="current">Push to current branch</Radio>
             <Radio value="new">Create new branch</Radio>
@@ -126,7 +133,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             control={control}
             name="branch"
             rules={{
-              validate: branchType === 'new' ? validateBranchName : undefined,
+              validate: !isCurrentBranch ? validateBranchName : undefined,
             }}
             render={({ field, fieldState }) => (
               <Input
@@ -134,7 +141,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
                 placeholder="new-branch-name"
                 helperText="Must follow git branch naming rules."
                 isRequired
-                isReadOnly={branchType === 'current'}
+                isReadOnly={isCurrentBranch}
                 errorText={fieldState.error?.message}
                 mt="24"
                 {...field}
@@ -159,7 +166,9 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         <DialogFooter>
           {pushError && (
             <Notification status="error">
-              The main branch is protected, changes can&apos;t be pushed directly. Use Manual update.
+              {pushError instanceof ClientError && pushError.status === 403
+                ? "You don't have permission to push to this branch."
+                : 'Failed to push changes. Please try again.'}
             </Notification>
           )}
           <Button
