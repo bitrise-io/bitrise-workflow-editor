@@ -8,12 +8,10 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { useMutation } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
   bitriseYmlStore,
@@ -24,12 +22,12 @@ import {
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import usePushBranch from '@/hooks/usePushBranch';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -38,7 +36,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
-import PushBranchDialog, { PushBranchFormValues } from './unified-editor/PushBranchDialog/PushBranchDialog';
+import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 const Header = () => {
@@ -54,16 +52,11 @@ const Header = () => {
   const hasChanges = useYmlHasChanges();
   const ymlStatus = useYmlValidationStatus();
 
-  const configBranch = useBitriseYmlStore((s) => s.configBranch);
-  const configCommitSha = useBitriseYmlStore((s) => s.configCommitSha);
-
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
   const turnIndex = useCiConfigExpertStore((s) => s.turnIndex);
   const turnCount = useCiConfigExpertStore((s) => s.turnCount);
 
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
-
-  const [pushError, setPushError] = useState<string | undefined>();
 
   const {
     isOpen: isDiffViewerOpen,
@@ -106,9 +99,13 @@ const Header = () => {
     isOpen: isPushBranchDialogOpen,
     onOpen: openPushBranchDialog,
     onClose: closePushBranchDialog,
-  } = useDisclosure({
-    onClose: () => {
-      setPushError(undefined);
+  } = useDisclosure();
+
+  const { isPushPending, pushBranch, pushError } = usePushBranch({
+    onSuccess: closePushBranchDialog,
+    onMergeConflict: () => {
+      closePushBranchDialog();
+      openMergeDialog();
     },
   });
 
@@ -131,41 +128,6 @@ const Header = () => {
         duration: null,
         isClosable: true,
       });
-    },
-  });
-
-  const { isPending: isPushPending, mutate: pushBranch } = useMutation({
-    mutationFn: ({ branch, message }: PushBranchFormValues) =>
-      BranchesApi.pushBranch({
-        appSlug,
-        branch,
-        sourceBranch: configBranch ?? '',
-        commitSha: configCommitSha ?? '',
-        bitriseYml: getYmlString(),
-        message,
-      }),
-    onSuccess: (data) => {
-      closePushBranchDialog();
-      toast({
-        title: 'Changes pushed successfully',
-        description: 'Continue in your git provider and open a pull request.',
-        status: 'success',
-        isClosable: true,
-        action: data?.pr_url ? { label: 'Open PR', href: data.pr_url, target: '_blank' } : undefined,
-      });
-    },
-    onError: (error) => {
-      if (error instanceof ClientError && error.status === 409) {
-        closePushBranchDialog();
-        openMergeDialog();
-        return;
-      }
-
-      if (error instanceof ClientError && error.status === 403) {
-        setPushError("You don't have permission to push to this branch.");
-      } else {
-        setPushError('Failed to push changes. Please try again.');
-      }
     },
   });
 
