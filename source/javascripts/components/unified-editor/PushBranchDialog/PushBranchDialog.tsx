@@ -84,7 +84,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const {
     mutate: pushBranch,
     reset: resetMutation,
-    error: pushError,
+    error,
     isPending: isPushPending,
   } = useMutation({
     mutationFn: ({ branch, message }: FormValues) =>
@@ -114,6 +114,14 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
       }
     },
   });
+
+  let pushError: string | undefined;
+  const clientError = error instanceof ClientError;
+  if (clientError && error.status === 403) {
+    pushError = "You don't have permission to push to this branch.";
+  } else if (error && !(clientError && error.status === 409)) {
+    pushError = 'Failed to push changes. Please try again.';
+  }
 
   const onSubmit = (data: FormValues) => {
     pushBranch(data);
@@ -146,6 +154,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             control={control}
             name="branch"
             rules={{
+              required: 'Branch name is required',
               validate: !isCurrentBranch ? validateBranchName : undefined,
             }}
             render={({ field, fieldState }) => (
@@ -164,6 +173,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           <Controller
             control={control}
             name="message"
+            rules={{ required: 'Commit message is required' }}
             render={({ field }) => (
               <Textarea
                 label="Commit message"
@@ -177,13 +187,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           />
         </DialogBody>
         <DialogFooter>
-          {pushError && (
-            <Notification status="error">
-              {pushError instanceof ClientError && pushError.status === 403
-                ? "You don't have permission to push to this branch."
-                : 'Failed to push changes. Please try again.'}
-            </Notification>
-          )}
+          {pushError && <Notification status="error">{pushError}</Notification>}
           <Button
             variant="tertiary"
             onClick={() => {
