@@ -2,12 +2,16 @@ import { useToast } from '@bitrise/bitkit';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { PushBranchFormValues } from '@/components/unified-editor/PushBranchDialog/PushBranchDialog';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+export type PushBranchPayload = {
+  branch: string;
+  message: string;
+};
 
 type UsePushBranchOptions = {
   onSuccess?: (prUrl?: string) => void;
@@ -24,15 +28,19 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
   const clearPushError = () => setPushError(undefined);
 
   const { isPending: isPushPending, mutate: pushBranch } = useMutation({
-    mutationFn: ({ branch, message }: PushBranchFormValues) =>
-      BranchesApi.pushBranch({
+    mutationFn: ({ branch, message }: PushBranchPayload) => {
+      if (!configBranch || !configCommitSha) {
+        throw new Error('Configuration is not loaded. Please reload and try again.');
+      }
+      return BranchesApi.pushBranch({
         appSlug,
         branch,
-        sourceBranch: configBranch ?? '',
-        commitSha: configCommitSha ?? '',
+        sourceBranch: configBranch,
+        commitSha: configCommitSha,
         bitriseYml: getYmlString(),
         message,
-      }),
+      });
+    },
     onSuccess: (data) => {
       onSuccess?.(data?.pr_url);
       toast({

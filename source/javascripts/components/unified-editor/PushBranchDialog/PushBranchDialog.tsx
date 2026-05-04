@@ -14,16 +14,12 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-
-export type PushBranchFormValues = {
-  branch: string;
-  message: string;
-};
+import { PushBranchPayload } from '@/hooks/usePushBranch';
 
 type Props = Omit<DialogProps, 'title'> & {
   isPushPending?: boolean;
   pushError?: string;
-  onPush: (values: PushBranchFormValues) => void;
+  onPush: (values: PushBranchPayload) => void;
   onManualUpdate: () => void;
 };
 
@@ -48,7 +44,7 @@ const PushBranchDialog = ({ isPushPending, pushError, onPush, onManualUpdate, ..
   const { isOpen, onClose } = props;
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
 
-  const defaultValues: PushBranchFormValues = useMemo(
+  const defaultValues: PushBranchPayload = useMemo(
     () => ({
       branch: configBranch ?? '',
       message: 'Update bitrise.yml via Workflow Editor',
@@ -56,7 +52,7 @@ const PushBranchDialog = ({ isPushPending, pushError, onPush, onManualUpdate, ..
     [configBranch],
   );
 
-  const { control, formState, handleSubmit, reset } = useForm<PushBranchFormValues>({
+  const { control, formState, handleSubmit, reset } = useForm<PushBranchPayload>({
     defaultValues,
     mode: 'onChange',
   });
