@@ -17,7 +17,21 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion('3.3:installed')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
     });
 
-    it('parses a bare semver as exact', () => {
+    it('parses bare "installed" as latest-installed without prefix', () => {
+      expect(ToolsService.parseToolVersion('installed')).toEqual({ strategy: 'latest-installed' });
+    });
+
+    it('parses bare partial versions as latest-installed with that prefix', () => {
+      expect(ToolsService.parseToolVersion('3')).toEqual({ strategy: 'latest-installed', prefix: '3' });
+      expect(ToolsService.parseToolVersion('3.3')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
+    });
+
+    it('parses "x"-suffixed partial versions by stripping ".x" segments', () => {
+      expect(ToolsService.parseToolVersion('3.3.x')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
+      expect(ToolsService.parseToolVersion('3.x.x')).toEqual({ strategy: 'latest-installed', prefix: '3' });
+    });
+
+    it('parses a bare complete semver triple as exact', () => {
       expect(ToolsService.parseToolVersion('3.13.4')).toEqual({ strategy: 'exact', version: '3.13.4' });
     });
 
@@ -47,8 +61,12 @@ describe('ToolsService', () => {
       expect(ToolsService.serializeToolVersion({ strategy: 'latest-released', prefix: '22' })).toBe('22:latest');
     });
 
-    it('serializes latest-installed', () => {
+    it('serializes latest-installed with prefix', () => {
       expect(ToolsService.serializeToolVersion({ strategy: 'latest-installed', prefix: '3.3' })).toBe('3.3:installed');
+    });
+
+    it('serializes latest-installed without prefix', () => {
+      expect(ToolsService.serializeToolVersion({ strategy: 'latest-installed' })).toBe('installed');
     });
 
     it('serializes exact', () => {
@@ -59,24 +77,66 @@ describe('ToolsService', () => {
       expect(ToolsService.serializeToolVersion({ kind: 'unset' })).toBe('unset');
     });
 
-    it.each([['latest'], ['22:latest'], ['3.3:installed'], ['3.13.4'], ['unset']])('round-trips %p', (raw: string) => {
-      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion(raw))).toBe(raw);
+    it.each([['latest'], ['installed'], ['22:latest'], ['3.3:installed'], ['3.13.4'], ['unset']])(
+      'round-trips %p',
+      (raw: string) => {
+        expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion(raw))).toBe(raw);
+      },
+    );
+
+    it('normalises "x"-suffixed partials when round-tripping', () => {
+      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3.x.x'))).toBe('3:installed');
+      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3.3.x'))).toBe('3.3:installed');
+      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3'))).toBe('3:installed');
     });
   });
 
   describe('validateToolId', () => {
     it('rejects empty and whitespace-only IDs', () => {
-      expect(ToolsService.validateToolId('')).toBe('Tool ID is required');
-      expect(ToolsService.validateToolId('   ')).toBe('Tool ID is required');
+      expect(ToolsService.validateToolId('', '')).toBe('Tool ID is required');
+      expect(ToolsService.validateToolId('   ', '')).toBe('Tool ID is required');
     });
 
     it('rejects duplicate IDs', () => {
-      expect(ToolsService.validateToolId('node', ['node', 'python'])).toBe('Tool ID must be unique');
+      expect(ToolsService.validateToolId('node', '', ['node', 'python'])).toBe('Tool ID must be unique');
     });
 
     it('accepts a fresh ID', () => {
-      expect(ToolsService.validateToolId('ruby', ['node', 'python'])).toBe(true);
+      expect(ToolsService.validateToolId('ruby', '', ['node', 'python'])).toBe(true);
     });
+
+    it('accepts re-using the original ID when renaming', () => {
+      expect(ToolsService.validateToolId('node', 'node', ['node', 'python'])).toBe(true);
+    });
+  });
+
+  describe('validateToolVersion', () => {
+    it('rejects empty and whitespace-only versions', () => {
+      expect(ToolsService.validateToolVersion('')).toBe('Tool version is required');
+      expect(ToolsService.validateToolVersion('   ')).toBe('Tool version is required');
+    });
+
+    it('rejects a leading colon', () => {
+      expect(ToolsService.validateToolVersion(':latest')).toBe('Tool version must not start with ":"');
+    });
+
+    it('rejects a trailing colon with no suffix', () => {
+      expect(ToolsService.validateToolVersion('22:')).toBe(
+        'Tool version must specify "latest" or "installed" after ":"',
+      );
+    });
+
+    it('rejects unknown suffixes after a colon', () => {
+      expect(ToolsService.validateToolVersion('22:beta')).toBe('Tool version suffix must be "latest" or "installed"');
+      expect(ToolsService.validateToolVersion('foo:bar')).toBe('Tool version suffix must be "latest" or "installed"');
+    });
+
+    it.each([['latest'], ['installed'], ['unset'], ['22:latest'], ['3.3:installed'], ['3'], ['3.3'], ['3.13.4']])(
+      'accepts %p',
+      (raw: string) => {
+        expect(ToolsService.validateToolVersion(raw)).toBe(true);
+      },
+    );
   });
 
   describe('setTool', () => {
@@ -279,6 +339,12 @@ describe('ToolsService', () => {
             primary:
               steps: []
         `);
+      });
+
+      it('throws when workflow does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        expect(() => ToolsService.deleteTool('node', { type: 'workflow', workflowId: 'missing' })).toThrow();
       });
     });
   });
