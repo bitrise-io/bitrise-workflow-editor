@@ -20,6 +20,12 @@ type PushBranchOptions = {
   message: string;
 };
 
+export type PushBranchResult = {
+  status: 'ok';
+  commit_sha: string;
+  pr_url?: string;
+};
+
 async function getBranches({ appSlug, signal, limit, q }: GetBranchesOptions): Promise<GetBranchesResult> {
   const params = new URLSearchParams();
   if (limit !== undefined) {
@@ -37,7 +43,7 @@ async function getBranches({ appSlug, signal, limit, q }: GetBranchesOptions): P
 }
 
 async function pushBranch({ appSlug, branch, sourceBranch, commitSha, bitriseYml, message }: PushBranchOptions) {
-  return Client.post(`/api/app/${appSlug}/config/push`, {
+  return Client.post<PushBranchResult>(`/api/app/${appSlug}/config/push`, {
     body: JSON.stringify({
       branch,
       source_branch: sourceBranch,
