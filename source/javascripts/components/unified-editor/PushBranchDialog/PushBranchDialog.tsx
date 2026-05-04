@@ -13,7 +13,7 @@ import { useState } from 'react';
 
 const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
-  const [branchMode, setBranchMode] = useState<'current' | 'new'>('current');
+  const [branchType, setBranchType] = useState<'current' | 'new'>('current');
 
   return (
     <Dialog title="Push changes" isOpen={isOpen} onClose={onClose} as="form">
@@ -21,8 +21,8 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         <RadioGroup
           display="flex"
           gap="24"
-          value={branchMode}
-          onChange={(value) => setBranchMode(value as 'current' | 'new')}
+          value={branchType}
+          onChange={(value) => setBranchType(value as 'current' | 'new')}
         >
           <Radio value="current">Push to current branch</Radio>
           <Radio value="new">Create new branch</Radio>

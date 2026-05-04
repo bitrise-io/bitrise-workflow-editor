@@ -26,6 +26,7 @@ import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -53,6 +54,8 @@ const Header = () => {
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
   const turnIndex = useCiConfigExpertStore((s) => s.turnIndex);
   const turnCount = useCiConfigExpertStore((s) => s.turnCount);
+
+  const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
   const {
     isOpen: isDiffViewerOpen,
@@ -83,7 +86,7 @@ const Header = () => {
 
   const {
     isOpen: isUpdateConfigDialogOpen,
-    // onOpen: openUpdateConfigDialog,
+    onOpen: openUpdateConfigDialog,
     onClose: closeUpdateConfigDialog,
   } = useDisclosure({
     onOpen: () => {
@@ -129,8 +132,11 @@ const Header = () => {
       });
 
       if (ciConfigSettings?.usesRepositoryYml) {
-        //openUpdateConfigDialog();
-        openPushBranchDialog();
+        if (enableBranchSwitching) {
+          openPushBranchDialog();
+        } else {
+          openUpdateConfigDialog();
+        }
         return;
       }
 
@@ -142,7 +148,17 @@ const Header = () => {
         conversationId,
       });
     },
-    [currentPage, conversationId, turnCount, ciConfigSettings?.usesRepositoryYml, save, appSlug, openPushBranchDialog],
+    [
+      currentPage,
+      conversationId,
+      turnCount,
+      ciConfigSettings?.usesRepositoryYml,
+      save,
+      appSlug,
+      enableBranchSwitching,
+      openPushBranchDialog,
+      openUpdateConfigDialog,
+    ],
   );
 
   const onDiscard = () => {
