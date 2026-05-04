@@ -13,7 +13,7 @@ export function useBranches({ q, limit, enabled = true }: UseBranchesProps = {})
   const appSlug = PageProps.appSlug();
 
   return useQuery({
-    queryKey: [`/api/app/${appSlug}/git-branches`, { q, limit }],
+    queryKey: [`/app/${appSlug}/git-branches`, { q, limit }],
     queryFn: ({ signal }) => BranchesApi.getBranches({ appSlug, signal, q, limit }),
     enabled,
   });
