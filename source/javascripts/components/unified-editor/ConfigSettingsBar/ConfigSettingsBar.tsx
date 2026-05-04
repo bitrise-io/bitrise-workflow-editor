@@ -1,6 +1,7 @@
 import {
   Box,
   ControlButton,
+  DefinitionTooltip,
   Dot,
   Icon,
   Menu,
@@ -10,6 +11,7 @@ import {
   Skeleton,
   SkeletonBox,
   Text,
+  Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
 
@@ -17,8 +19,11 @@ import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/S
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
+import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlSourceDialog';
 
 const ConfigSettingsBar = () => {
@@ -29,6 +34,12 @@ const ConfigSettingsBar = () => {
   } = useDisclosure();
   const { isOpen: isStorageDialogOpen, onClose: onStorageDialogClose, onOpen: onStorageDialogOpen } = useDisclosure();
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
+  const hasChanges = useYmlHasChanges();
+
+  const configBranch = useBitriseYmlStore((s) => s.configBranch);
+  const defaultBranch = PageProps.app()?.defaultBranch;
+  const branch = configBranch || defaultBranch;
+  const branchLabel = branch && branch === defaultBranch ? `${branch} (default)` : branch;
 
   const { data, isPending } = useCiConfigSettings();
 
@@ -61,7 +72,7 @@ const ConfigSettingsBar = () => {
       justifyContent="space-between"
       gap="8"
     >
-      <div>
+      <Box minW={0}>
         <Box display="flex" alignItems="center">
           <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
@@ -77,28 +88,33 @@ const ConfigSettingsBar = () => {
             </Text>
           )}
         </Box>
-        {enableBranchSwitching && (
+        {enableBranchSwitching && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" mt="4">
             <Icon name="Branch" size="16" color="icon/tertiary" />
-            <Text textStyle="body/sm/regular" color="text/secondary">
-              main (default)
-            </Text>
+            <DefinitionTooltip
+              label={`Editing bitrise.yml from ${branchLabel}.`}
+              triggerProps={{
+                textStyle: 'body/sm/regular',
+                color: 'text/secondary',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {branchLabel}
+            </DefinitionTooltip>
           </Box>
         )}
-      </div>
+      </Box>
       <Menu size="md">
-        <MenuButton
-          as={ControlButton}
-          iconName="MoreVertical"
-          color="icon/secondary"
-          size={enableBranchSwitching ? 'sm' : 'xs'}
-          aria-label="More"
-        />
+        <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
         <MenuList>
           {enableBranchSwitching && (
-            <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen}>
-              Switch branch...
-            </MenuItem>
+            <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
+              <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen} isDisabled={hasChanges}>
+                Switch branch...
+              </MenuItem>
+            </Tooltip>
           )}
           <MenuItem leftIconName="Download" onClick={handleDownload}>
             Download YAML file
