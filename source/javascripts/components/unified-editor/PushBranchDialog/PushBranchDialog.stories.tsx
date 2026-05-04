@@ -64,6 +64,7 @@ const meta: Meta<typeof PushBranchDialog> = {
   parameters: {
     bitriseYmlStore: {
       configBranch: 'main',
+      configCommitSha: 'abc123',
     },
     msw: {
       handlers: [pushBranch()],
@@ -105,6 +106,7 @@ export const MergeConflict: Story = {
     },
     bitriseYmlStore: {
       configBranch: 'main',
+      configCommitSha: 'abc123',
       ymlDocument: YmlUtils.toDoc(yourYaml),
       savedYmlDocument: YmlUtils.toDoc(baseYaml),
       savedYmlVersion: '',
