@@ -3,17 +3,22 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import Client from './client';
 
 const CI_CONFIG_VERSION_HEADER = 'Bitrise-Config-Version';
+const CI_CONFIG_BRANCH_HEADER = 'X-Config-Branch';
+const CI_CONFIG_COMMIT_SHA_HEADER = 'X-Config-Commit-SHA';
 
 type GetCiConfigOptions = {
   projectSlug: string;
   signal?: AbortSignal;
   forceToReadFromRepo?: boolean;
   skipValidation?: boolean;
+  branch?: string;
 };
 
 type GetCiConfigResult = {
   ymlString: string;
   version: string;
+  branch?: string;
+  commitSha?: string;
 };
 
 type SaveCiConfigOptions = {
@@ -28,7 +33,12 @@ type SaveCiConfigOptions = {
 const BITRISE_YML_PATH = `/api/app/:projectSlug/config.yml`;
 const LOCAL_BITRISE_YML_PATH = `/api/bitrise-yml`;
 
-function ciConfigPath({ projectSlug, forceToReadFromRepo, skipValidation }: Omit<GetCiConfigOptions, 'signal'>) {
+function ciConfigPath({
+  projectSlug,
+  forceToReadFromRepo,
+  skipValidation,
+  branch,
+}: Omit<GetCiConfigOptions, 'signal'>) {
   const basePath = RuntimeUtils.isWebsiteMode()
     ? BITRISE_YML_PATH.replace(':projectSlug', projectSlug)
     : LOCAL_BITRISE_YML_PATH;
@@ -39,6 +49,9 @@ function ciConfigPath({ projectSlug, forceToReadFromRepo, skipValidation }: Omit
   }
   if (skipValidation) {
     queryParams.append('skip_validation', '1');
+  }
+  if (branch) {
+    queryParams.append('branch', branch);
   }
 
   return [basePath, queryParams.toString()].filter(Boolean).join('?');
@@ -51,6 +64,8 @@ async function getCiConfig({ signal, ...options }: GetCiConfigOptions): Promise<
   return {
     ymlString: await response.text(),
     version: response.headers.get(CI_CONFIG_VERSION_HEADER) || '',
+    branch: response.headers.get(CI_CONFIG_BRANCH_HEADER) || '',
+    commitSha: response.headers.get(CI_CONFIG_COMMIT_SHA_HEADER) || '',
   };
 }
 
