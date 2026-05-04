@@ -24,7 +24,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const { data, isLoading } = useBranches({ q: debouncedSearch });
+  const { data, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
