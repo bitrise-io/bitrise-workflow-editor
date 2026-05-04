@@ -1,14 +1,12 @@
+import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
 import PushBranchDialog from '@/components/unified-editor/PushBranchDialog/PushBranchDialog';
 
 import { pushBranch } from './PushBranchDialog.mswMocks';
 
-export default {
+const meta: Meta<typeof PushBranchDialog> = {
   component: PushBranchDialog,
-  args: {
-    isOpen: true,
-  },
   argTypes: {
     onClose: { type: 'function' },
   },
@@ -20,7 +18,20 @@ export default {
       handlers: [pushBranch()],
     },
   },
-} as Meta<typeof PushBranchDialog>;
+  render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    return (
+      <Box padding="25">
+        <Button onClick={onOpen}>Save changes</Button>
+        <PushBranchDialog {...args} isOpen={isOpen} onClose={onClose} />
+      </Box>
+    );
+  },
+};
+
+export default meta;
 
 type Story = StoryObj<typeof PushBranchDialog>;
 

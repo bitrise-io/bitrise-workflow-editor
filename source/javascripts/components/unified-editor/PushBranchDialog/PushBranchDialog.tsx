@@ -61,7 +61,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const defaultValues: FormValues = useMemo(
     () => ({
       branch: configBranch ?? '',
-      message: '',
+      message: 'Update bitrise.yml via Workflow Editor',
     }),
     [configBranch],
   );
@@ -154,7 +154,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             render={({ field }) => (
               <Textarea
                 label="Commit message"
-                placeholder="e.g. Update Bitrise configuration via Workflow Editor"
+                placeholder="e.g. Update bitrise.yml via Workflow Editor"
                 helperText="Appears in your git commit history."
                 isRequired
                 mt="24"
@@ -185,7 +185,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           <Button variant="secondary" onClick={onClose} isDisabled={isPushPending}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={isPushPending} isDisabled={!formState.isDirty || !formState.isValid}>
+          <Button type="submit" isLoading={isPushPending} isDisabled={!formState.isValid}>
             Push changes
           </Button>
         </DialogFooter>
