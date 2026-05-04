@@ -16,6 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
+import ConfigMergeDialog from '@/components/ConfigMergeDialog/ConfigMergeDialog';
 import UpdateConfigurationDialog from '@/components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
@@ -54,6 +55,12 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
     isOpen: isUpdateConfigDialogOpen,
     onOpen: openUpdateConfigDialog,
     onClose: closeUpdateConfigDialog,
+  } = useDisclosure();
+
+  const {
+    isOpen: isConfigMergeDialogOpen,
+    onOpen: openConfigMergeDialog,
+    onClose: closeConfigMergeDialog,
   } = useDisclosure();
 
   const toast = useToast();
@@ -99,6 +106,12 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         isClosable: true,
         action: data?.pr_url ? { label: 'Open PR', href: data.pr_url, target: '_blank' } : undefined,
       });
+    },
+    onError: (error) => {
+      if (error instanceof ClientError && error.status === 409) {
+        onClose();
+        openConfigMergeDialog();
+      }
     },
   });
 
@@ -191,6 +204,7 @@ const PushBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         </DialogFooter>
       </Dialog>
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
+      <ConfigMergeDialog isOpen={isConfigMergeDialogOpen} onClose={closeConfigMergeDialog} />
     </>
   );
 };

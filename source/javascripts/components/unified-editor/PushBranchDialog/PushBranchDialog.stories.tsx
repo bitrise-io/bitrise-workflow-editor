@@ -1,9 +1,13 @@
 import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
+import { http, HttpResponse } from 'msw';
 
+import { baseYaml, remoteYaml, yourYaml } from '@/components/ConfigMergeDialog/ConfigMergeDialog.mocks';
 import PushBranchDialog from '@/components/unified-editor/PushBranchDialog/PushBranchDialog';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import YmlUtils from '@/core/utils/YmlUtils';
 
-import { pushBranch } from './PushBranchDialog.mswMocks';
+import { pushBranch, pushBranchMergeConflict } from './PushBranchDialog.mswMocks';
 
 const meta: Meta<typeof PushBranchDialog> = {
   component: PushBranchDialog,
@@ -49,6 +53,23 @@ export const Error: Story = {
   parameters: {
     msw: {
       handlers: [pushBranch('Failed to push changes to branch')],
+    },
+  },
+};
+
+export const MergeConflict: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        pushBranchMergeConflict(),
+        http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), () => HttpResponse.text(remoteYaml)),
+      ],
+    },
+    bitriseYmlStore: {
+      configBranch: 'main',
+      ymlDocument: YmlUtils.toDoc(yourYaml),
+      savedYmlDocument: YmlUtils.toDoc(baseYaml),
+      savedYmlVersion: '',
     },
   },
 };

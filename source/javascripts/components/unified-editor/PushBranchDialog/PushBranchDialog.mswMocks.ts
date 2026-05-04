@@ -15,3 +15,10 @@ export function pushBranch(error?: string, prUrl?: string) {
     return HttpResponse.json({ status: 'ok', commit_sha: 'abc123' }, { status: 200 });
   });
 }
+
+export function pushBranchMergeConflict() {
+  return http.post('/api/app/:appSlug/config/push', async (): Promise<Response> => {
+    await delay();
+    return HttpResponse.json({ error_msg: 'Merge conflict' }, { status: 409 });
+  });
+}
