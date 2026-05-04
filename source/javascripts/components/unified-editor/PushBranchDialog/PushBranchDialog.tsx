@@ -79,9 +79,10 @@ const PushBranchDialog = ({ isPushPending, pushError, onPush, onManualUpdate, ..
           value={isCurrentBranch ? 'current' : 'new'}
           onChange={(value) => {
             const newBranch = value === 'current' ? (configBranch ?? '') : '';
-            reset({ ...formState.defaultValues, branch: newBranch } as PushBranchFormValues, {
-              keepErrors: false,
-            });
+            reset(
+              { branch: newBranch, message: formState.defaultValues?.message ?? defaultValues.message },
+              { keepErrors: false },
+            );
           }}
         >
           <Radio value="current">Push to current branch</Radio>
