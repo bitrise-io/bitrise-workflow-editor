@@ -1,14 +1,10 @@
 import { Box, Text } from '@bitrise/bitkit';
 
-type Props = {
-  workflowId?: string;
-};
-
-const ToolVersions = ({ workflowId }: Props) => {
+const ToolVersions = () => {
   return (
-    <Box>
+    <Box marginBlockStart="12">
       <Text as="h4" textStyle="heading/h4" mb="12">
-        {workflowId ? `Tool setup for ${workflowId}` : 'Tool setup'}
+        Tool setup
       </Text>
       <Text textStyle="body/md/regular" color="text/secondary">
         Tool version setup coming soon.
