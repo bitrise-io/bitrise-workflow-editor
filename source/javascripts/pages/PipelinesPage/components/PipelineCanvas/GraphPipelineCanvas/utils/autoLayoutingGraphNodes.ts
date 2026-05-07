@@ -1,7 +1,5 @@
 import dagre from '@dagrejs/dagre';
 
-import { PipelineWorkflow } from '@/core/models/Workflow';
-
 import {
   CANVAS_PADDING,
   TOOLBAR_CONTAINER_HEIGHT,
@@ -10,9 +8,15 @@ import {
   WORKFLOW_NODE_HEIGHT,
   WORKFLOW_NODE_WIDTH,
 } from '../GraphPipelineCanvas.const';
-import { GraphPipelineNodeType, isPlaceholderNode, isWorkflowNode } from '../GraphPipelineCanvas.types';
+import {
+  GraphPipelineNodeType,
+  isGeneratedWorkflowsPlaceholderNode,
+  isPlaceholderNode,
+  isWorkflowNode,
+  PipelineCanvasWorkflow,
+} from '../GraphPipelineCanvas.types';
 
-function autoLayoutingGraphNodes(workflows: PipelineWorkflow[], nodes: GraphPipelineNodeType[]) {
+function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: GraphPipelineNodeType[]) {
   const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
   graph.setGraph({
@@ -29,6 +33,9 @@ function autoLayoutingGraphNodes(workflows: PipelineWorkflow[], nodes: GraphPipe
     if (isPlaceholderNode(node)) {
       graph.setNode(node.id, { width: WORKFLOW_NODE_WIDTH, height: WORKFLOW_NODE_HEIGHT });
       node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
+    } else if (isGeneratedWorkflowsPlaceholderNode(node)) {
+      graph.setNode(node.id, { width: WORKFLOW_NODE_WIDTH, height: WORKFLOW_NODE_HEIGHT });
+      graph.setEdge(node.data.generatorId, node.id);
     } else {
       const workflow = workflows.find((w) => w.id === node.id);
 
