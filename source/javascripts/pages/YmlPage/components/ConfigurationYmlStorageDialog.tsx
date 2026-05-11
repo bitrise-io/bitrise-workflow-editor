@@ -316,8 +316,8 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
   const isYmlRootPathChanged = (ymlSettings?.ymlRootPath ?? '') !== ymlRootPath;
   const switchBitriseToGit = !ymlSettings?.usesRepositoryYml && selectedStorage === 'git';
   const switchGitToBitrise = ymlSettings?.usesRepositoryYml && selectedStorage === 'bitrise';
-  const isSourceChanged = (ymlSettings?.usesRepositoryYml ? 'git' : 'bitrise') !== selectedStorage;
-  const isValidateAndSaveDisabled = isYmlSettingsLoading || (!isSourceChanged && !isYmlRootPathChanged);
+  const isStorageChanged = (ymlSettings?.usesRepositoryYml ? 'git' : 'bitrise') !== selectedStorage;
+  const isValidateAndSaveDisabled = isYmlSettingsLoading || (!isStorageChanged && !isYmlRootPathChanged);
   const lastModifiedFormatted = ymlSettings?.lastModified ? getFormattedDate(new Date(ymlSettings.lastModified)) : null;
   const isValidateAndSaveLoading =
     isPendingSaveYmlSettings || isFetchingCiConfigFromRepo || isFetchingCiConfigFromBitrise || isPendingSaveCiConfig;
@@ -475,7 +475,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Tooltip label={toolTip} isDisabled={isSourceChanged}>
+        <Tooltip label={toolTip} isDisabled={isStorageChanged}>
           <Button
             onClick={onValidateAndSave}
             isLoading={isValidateAndSaveLoading}
