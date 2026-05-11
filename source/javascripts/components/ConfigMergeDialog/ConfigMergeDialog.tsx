@@ -359,7 +359,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
             label="YAML is invalid, please fix it before applying changes"
           >
             <Button variant="primary" isLoading={isLoading} isDisabled={ymlStatus === 'invalid'} onClick={handleSave}>
-              Save results
+              Apply changes
             </Button>
           </Tooltip>
         </ButtonGroup>

@@ -26,6 +26,8 @@ import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import usePushBranch from '@/hooks/usePushBranch';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -34,6 +36,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 const Header = () => {
@@ -52,6 +55,8 @@ const Header = () => {
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
   const turnIndex = useCiConfigExpertStore((s) => s.turnIndex);
   const turnCount = useCiConfigExpertStore((s) => s.turnCount);
+
+  const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
   const {
     isOpen: isDiffViewerOpen,
@@ -90,6 +95,20 @@ const Header = () => {
     },
   });
 
+  const {
+    isOpen: isPushBranchDialogOpen,
+    onOpen: openPushBranchDialog,
+    onClose: closePushBranchDialog,
+  } = useDisclosure();
+
+  const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
+    onSuccess: closePushBranchDialog,
+    onMergeConflict: () => {
+      closePushBranchDialog();
+      openMergeDialog();
+    },
+  });
+
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,
     onError: (error: ClientError) => {
@@ -122,7 +141,11 @@ const Header = () => {
       });
 
       if (ciConfigSettings?.usesRepositoryYml) {
-        openUpdateConfigDialog();
+        if (enableBranchSwitching) {
+          openPushBranchDialog();
+        } else {
+          openUpdateConfigDialog();
+        }
         return;
       }
 
@@ -141,6 +164,8 @@ const Header = () => {
       ciConfigSettings?.usesRepositoryYml,
       save,
       appSlug,
+      enableBranchSwitching,
+      openPushBranchDialog,
       openUpdateConfigDialog,
     ],
   );
@@ -244,6 +269,17 @@ const Header = () => {
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
       <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
+      <PushBranchDialog
+        isOpen={isPushBranchDialogOpen}
+        onClose={() => {
+          clearPushError();
+          closePushBranchDialog();
+        }}
+        isPushPending={isPushPending}
+        pushError={pushError}
+        onPush={pushBranch}
+        onManualUpdate={openUpdateConfigDialog}
+      />
     </Box>
   );
 };

@@ -11,6 +11,21 @@ export type GetBranchesResult = {
   branches: string[];
 };
 
+type PushBranchOptions = {
+  appSlug: string;
+  branch: string;
+  sourceBranch: string;
+  commitSha: string;
+  bitriseYml: string;
+  message: string;
+};
+
+export type PushBranchResult = {
+  status: 'ok';
+  commit_sha: string;
+  pr_url?: string;
+};
+
 async function getBranches({ appSlug, signal, limit, q }: GetBranchesOptions): Promise<GetBranchesResult> {
   const params = new URLSearchParams();
   if (limit !== undefined) {
@@ -21,10 +36,22 @@ async function getBranches({ appSlug, signal, limit, q }: GetBranchesOptions): P
     params.append('q', q);
   }
 
-  const path = `/api/app/${appSlug}/git-branches`;
+  const path = `/app/${appSlug}/git-branches`;
   const qs = params.toString();
   const url = qs ? `${path}?${qs}` : path;
   return Client.get<GetBranchesResult>(url, { signal });
 }
 
-export default { getBranches };
+async function pushBranch({ appSlug, branch, sourceBranch, commitSha, bitriseYml, message }: PushBranchOptions) {
+  return Client.post<PushBranchResult>(`/api/app/${appSlug}/config/push`, {
+    body: JSON.stringify({
+      branch,
+      source_branch: sourceBranch,
+      commit_sha: commitSha,
+      bitrise_yml: bitriseYml,
+      message,
+    }),
+  });
+}
+
+export default { getBranches, pushBranch };
