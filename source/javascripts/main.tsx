@@ -17,6 +17,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
+import useSearchParams from '@/hooks/useSearchParams';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
 
@@ -87,12 +88,19 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
+  const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
+  const [searchParams] = useSearchParams();
+  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
 
   useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
-  const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
+  const { data, error, refetch } = useGetCiConfig({
+    projectSlug: PageProps.appSlug(),
+    skipValidation: true,
+    branch: requestedBranch,
+  });
 
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog
@@ -110,12 +118,15 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (!isLoaded.current && data) {
+    if (data && loadedBranch.current !== requestedBranch) {
       initializeBitriseYmlDocument(data);
-      setTimeout(preloadRoutes, 1000);
-      isLoaded.current = true;
+      loadedBranch.current = requestedBranch;
+      if (!isLoaded.current) {
+        setTimeout(preloadRoutes, 1000);
+        isLoaded.current = true;
+      }
     }
-  }, [data]);
+  }, [data, requestedBranch]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';

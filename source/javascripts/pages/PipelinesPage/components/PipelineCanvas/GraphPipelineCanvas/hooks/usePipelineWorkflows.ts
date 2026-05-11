@@ -1,9 +1,10 @@
-import { PipelineWorkflow } from '@/core/models/Workflow';
+import PipelineService from '@/core/services/PipelineService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
+import { PipelineCanvasWorkflow } from '../GraphPipelineCanvas.types';
 
-const usePipelineWorkflows = (): PipelineWorkflow[] => {
+const usePipelineWorkflows = (): PipelineCanvasWorkflow[] => {
   const { selectedPipeline } = usePipelineSelector();
 
   return useBitriseYmlStore(({ yml }) => {
@@ -15,7 +16,8 @@ const usePipelineWorkflows = (): PipelineWorkflow[] => {
         uses: pipelineWorkflow?.uses,
         parallel: pipelineWorkflow?.parallel,
         dependsOn: pipelineWorkflow?.depends_on ?? [],
-      } satisfies PipelineWorkflow;
+        isGenerator: PipelineService.isGeneratorWorkflow(pipelineWorkflow?.uses || id, yml),
+      } satisfies PipelineCanvasWorkflow;
     });
   });
 };

@@ -65,6 +65,7 @@ pipelines:
       push:
         - branch: main
     workflows:
+      generator: {}
       tmp: { depends_on: [ wf1 ], parallel: 4 }
       wf1: {}
       wf2:
@@ -125,6 +126,9 @@ stages:
     workflows:
       - wf3: {}
 workflows:
+  generator:
+    steps:
+      - git::https://github.com/bitrise-silver/steps-extend-pipeline.git@main: {}
   custom-steplib-steps:
     triggers:
       push:
