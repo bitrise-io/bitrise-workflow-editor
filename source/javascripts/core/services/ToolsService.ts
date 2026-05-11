@@ -12,7 +12,7 @@ function parseToolVersion(raw: string): ParsedToolVersion {
   const lower = raw.toLowerCase();
 
   if (lower === 'unset') {
-    return { kind: 'unset' };
+    return { strategy: 'unset' };
   }
 
   if (lower === 'latest') {
@@ -46,11 +46,9 @@ function parseToolVersion(raw: string): ParsedToolVersion {
 }
 
 function serializeToolVersion(parsed: ParsedToolVersion): string {
-  if ('kind' in parsed) {
-    return 'unset';
-  }
-
   switch (parsed.strategy) {
+    case 'unset':
+      return 'unset';
     case 'latest-released':
       return parsed.prefix ? `${parsed.prefix}:latest` : 'latest';
     case 'latest-installed':
@@ -66,18 +64,8 @@ function validateScope(scope: ToolScope, doc = bitriseYmlStore.getState().ymlDoc
   }
 }
 
-function getToolsPath(scope: ToolScope): (string | number)[] {
-  if (scope.type === 'workflow') {
-    return ['workflows', scope.workflowId, 'tools'];
-  }
-  return ['tools'];
-}
-
-function getKeepPath(scope: ToolScope): (string | number)[] {
-  if (scope.type === 'workflow') {
-    return ['workflows', scope.workflowId];
-  }
-  return [];
+function getScopePath(scope: ToolScope): (string | number)[] {
+  return scope.type === 'workflow' ? ['workflows', scope.workflowId] : [];
 }
 
 function validateToolId(id: string, initialId: string, existingIds: string[] = []) {
@@ -122,8 +110,7 @@ function setTool(toolId: string, versionString: string, scope: ToolScope) {
   updateBitriseYmlDocument(({ doc }) => {
     validateScope(scope, doc);
 
-    const path = getToolsPath(scope);
-    const tools = YmlUtils.getMapIn(doc, path, true);
+    const tools = YmlUtils.getMapIn(doc, [...getScopePath(scope), 'tools'], true);
     YmlUtils.setIn(tools, [toolId], versionString, false);
     return doc;
   });
@@ -133,9 +120,8 @@ function deleteTool(toolId: string, scope: ToolScope) {
   updateBitriseYmlDocument(({ doc }) => {
     validateScope(scope, doc);
 
-    const path = getToolsPath(scope);
-    const keep = getKeepPath(scope);
-    YmlUtils.deleteByPath(doc, [...path, toolId], keep);
+    const scopePath = getScopePath(scope);
+    YmlUtils.deleteByPath(doc, [...scopePath, 'tools', toolId], scopePath);
     return doc;
   });
 }

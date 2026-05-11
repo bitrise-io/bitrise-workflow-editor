@@ -36,18 +36,18 @@ describe('ToolsService', () => {
     });
 
     it('parses "unset"', () => {
-      expect(ToolsService.parseToolVersion('unset')).toEqual({ kind: 'unset' });
+      expect(ToolsService.parseToolVersion('unset')).toEqual({ strategy: 'unset' });
     });
 
-    it('treats empty string as exact with empty version', () => {
+    it('parses an empty string as exact with empty version', () => {
       expect(ToolsService.parseToolVersion('')).toEqual({ strategy: 'exact', version: '' });
     });
 
-    it('treats a malformed value with unknown suffix as exact', () => {
+    it('parses a malformed value with unknown suffix as exact', () => {
       expect(ToolsService.parseToolVersion('foo:bar')).toEqual({ strategy: 'exact', version: 'foo:bar' });
     });
 
-    it('treats a leading-colon value as exact', () => {
+    it('parses a leading-colon value as exact', () => {
       expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'exact', version: ':latest' });
     });
 
@@ -56,7 +56,7 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'latest-released' });
       expect(ToolsService.parseToolVersion('Installed')).toEqual({ strategy: 'latest-installed' });
       expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({ strategy: 'latest-installed' });
-      expect(ToolsService.parseToolVersion('Unset')).toEqual({ kind: 'unset' });
+      expect(ToolsService.parseToolVersion('Unset')).toEqual({ strategy: 'unset' });
       expect(ToolsService.parseToolVersion('22:Latest')).toEqual({ strategy: 'latest-released', prefix: '22' });
       expect(ToolsService.parseToolVersion('3.3:INSTALLED')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
     });
@@ -84,7 +84,7 @@ describe('ToolsService', () => {
     });
 
     it('serializes unset', () => {
-      expect(ToolsService.serializeToolVersion({ kind: 'unset' })).toBe('unset');
+      expect(ToolsService.serializeToolVersion({ strategy: 'unset' })).toBe('unset');
     });
 
     it.each([['latest'], ['installed'], ['22:latest'], ['3.3:installed'], ['3.13.4'], ['unset']])(
@@ -94,7 +94,7 @@ describe('ToolsService', () => {
       },
     );
 
-    it('normalises "x"-suffixed partials when round-tripping', () => {
+    it('normalizes "x"-suffixed partials when round-tripping', () => {
       expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3.x.x'))).toBe('3:installed');
       expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3.3.x'))).toBe('3.3:installed');
       expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3'))).toBe('3:installed');
