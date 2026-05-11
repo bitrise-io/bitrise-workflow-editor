@@ -9,22 +9,24 @@ const PARTIAL_VERSION_REGEX = /^\d+(\.\d+)*(\.x)*$/;
 const COMPLETE_SEMVER_REGEX = /^\d+\.\d+\.\d+$/;
 
 function parseToolVersion(raw: string): ParsedToolVersion {
-  if (raw === 'unset') {
+  const lower = raw.toLowerCase();
+
+  if (lower === 'unset') {
     return { kind: 'unset' };
   }
 
-  if (raw === 'latest') {
+  if (lower === 'latest') {
     return { strategy: 'latest-released' };
   }
 
-  if (raw === 'installed') {
+  if (lower === 'installed') {
     return { strategy: 'latest-installed' };
   }
 
   const colonIndex = raw.indexOf(':');
   if (colonIndex > 0) {
     const prefix = raw.slice(0, colonIndex);
-    const suffix = raw.slice(colonIndex + 1);
+    const suffix = raw.slice(colonIndex + 1).toLowerCase();
 
     if (suffix === 'latest') {
       return { strategy: 'latest-released', prefix };
@@ -108,7 +110,7 @@ function validateToolVersion(raw: string) {
       return 'Tool version must specify "latest" or "installed" after ":"';
     }
 
-    if (suffix !== 'latest' && suffix !== 'installed') {
+    if (suffix.toLowerCase() !== 'latest' && suffix.toLowerCase() !== 'installed') {
       return 'Tool version suffix must be "latest" or "installed"';
     }
   }

@@ -50,6 +50,16 @@ describe('ToolsService', () => {
     it('treats a leading-colon value as exact', () => {
       expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'exact', version: ':latest' });
     });
+
+    it('parses keywords case-insensitively', () => {
+      expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'latest-released' });
+      expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'latest-released' });
+      expect(ToolsService.parseToolVersion('Installed')).toEqual({ strategy: 'latest-installed' });
+      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({ strategy: 'latest-installed' });
+      expect(ToolsService.parseToolVersion('Unset')).toEqual({ kind: 'unset' });
+      expect(ToolsService.parseToolVersion('22:Latest')).toEqual({ strategy: 'latest-released', prefix: '22' });
+      expect(ToolsService.parseToolVersion('3.3:INSTALLED')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
+    });
   });
 
   describe('serializeToolVersion', () => {
