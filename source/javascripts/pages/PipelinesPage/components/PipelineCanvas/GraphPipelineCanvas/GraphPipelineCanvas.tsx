@@ -21,10 +21,16 @@ import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import GraphPipelineCanvasEmptyState from '../../EmptyStates/GraphPipelineCanvasEmptyState';
+import GeneratedWorkflowsPlaceholderNode from './components/GeneratedWorkflowsPlaceholderNode';
 import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import PlaceholderNode from './components/PlaceholderWorkflowNode';
 import WorkflowNode from './components/WorkflowNode';
-import { GRAPH_EDGE_TYPE, PLACEHOLDER_NODE_TYPE, WORKFLOW_NODE_TYPE } from './GraphPipelineCanvas.const';
+import {
+  GENERATED_WORKFLOWS_PLACEHOLDER_NODE_TYPE,
+  GRAPH_EDGE_TYPE,
+  PLACEHOLDER_NODE_TYPE,
+  WORKFLOW_NODE_TYPE,
+} from './GraphPipelineCanvas.const';
 import { GraphPipelineEdgeType, GraphPipelineNodeType, isWorkflowNode } from './GraphPipelineCanvas.types';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
@@ -34,6 +40,7 @@ import validateConnection from './utils/validateConnection';
 const nodeTypes: NodeTypes = {
   [WORKFLOW_NODE_TYPE]: WorkflowNode,
   [PLACEHOLDER_NODE_TYPE]: PlaceholderNode,
+  [GENERATED_WORKFLOWS_PLACEHOLDER_NODE_TYPE]: GeneratedWorkflowsPlaceholderNode,
 };
 
 const edgeTypes: EdgeTypes = {

@@ -1,10 +1,11 @@
-import { PipelineWorkflow } from '@/core/models/Workflow';
-
-import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
+import { GraphPipelineEdgeType, GraphPipelineNodeType, PipelineCanvasWorkflow } from '../GraphPipelineCanvas.types';
+import createGeneratedWorkflowsPlaceholderNode, {
+  generatedWorkflowsPlaceholderNodeId,
+} from './createGeneratedWorkflowsPlaceholderNode';
 import createGraphPipelineEdge from './createGraphPipelineEdge';
 import createWorkflowNode from './createWorkflowNode';
 
-function transformWorkflowsToGraphEntities(workflows: PipelineWorkflow[]) {
+function transformWorkflowsToGraphEntities(workflows: PipelineCanvasWorkflow[]) {
   const nodes: GraphPipelineNodeType[] = [];
   const edges: GraphPipelineEdgeType[] = [];
 
@@ -14,6 +15,17 @@ function transformWorkflowsToGraphEntities(workflows: PipelineWorkflow[]) {
     workflow.dependsOn?.forEach((source) => {
       edges.push(createGraphPipelineEdge(source, workflow.id));
     });
+
+    if (workflow.isGenerator) {
+      nodes.push(createGeneratedWorkflowsPlaceholderNode(workflow.id));
+      edges.push({
+        ...createGraphPipelineEdge(workflow.id, generatedWorkflowsPlaceholderNodeId(workflow.id)),
+        animated: true,
+        deletable: false,
+        selectable: false,
+        reconnectable: false,
+      });
+    }
   });
 
   return { nodes, edges };
