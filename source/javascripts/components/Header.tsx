@@ -101,14 +101,6 @@ const Header = () => {
     onClose: closePushBranchDialog,
   } = useDisclosure();
 
-  const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
-    onSuccess: closePushBranchDialog,
-    onMergeConflict: () => {
-      closePushBranchDialog();
-      openMergeDialog();
-    },
-  });
-
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,
     onError: (error: ClientError) => {
@@ -128,6 +120,23 @@ const Header = () => {
         duration: null,
         isClosable: true,
       });
+    },
+  });
+
+  const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
+    onSuccess: () => {
+      closePushBranchDialog();
+      save({
+        projectSlug: appSlug,
+        ymlString: getYmlString(),
+        tabOpenDuringSave: currentPage,
+        version: bitriseYmlStore.getState().version,
+        conversationId,
+      });
+    },
+    onMergeConflict: () => {
+      closePushBranchDialog();
+      openMergeDialog();
     },
   });
 
