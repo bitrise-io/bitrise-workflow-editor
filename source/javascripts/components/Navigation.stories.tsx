@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
 import { getBranches, getCiConfig } from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
-import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlSource.mswMocks';
+import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
 
 import Navigation from './Navigation';
 
