@@ -1,7 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
+import { delay, http, HttpResponse } from 'msw';
 
 import { getBranches, getCiConfig } from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
+import { GetBranchesResult } from '@/core/api/BranchesApi';
 import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
 
 import Navigation from './Navigation';
@@ -34,6 +36,21 @@ export const SwitchBranchError: Story = {
   parameters: {
     msw: {
       handlers: [getBranches(), getCiConfig('Failed to load bitrise.yml from branch'), getYmlSettings()],
+    },
+  },
+};
+
+export const SwitchBranchSingleOption: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/app/:appSlug/git-branches', async (): Promise<Response> => {
+          await delay();
+          return HttpResponse.json<GetBranchesResult>({ branches: ['main'] });
+        }),
+        getCiConfig(),
+        getYmlSettings(),
+      ],
     },
   },
 };
