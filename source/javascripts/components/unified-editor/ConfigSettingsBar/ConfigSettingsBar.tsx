@@ -20,9 +20,11 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlStorageDialog';
 
@@ -36,9 +38,11 @@ const ConfigSettingsBar = () => {
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
   const hasChanges = useYmlHasChanges();
 
+  const [searchParams] = useSearchParams();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const defaultBranch = PageProps.app()?.defaultBranch;
-  const branch = configBranch || defaultBranch;
+  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
+  const branch = configBranch || requestedBranch || defaultBranch;
   const branchLabel = branch && branch === defaultBranch ? `${branch} (default)` : branch;
 
   const { data, isPending } = useCiConfigSettings();
