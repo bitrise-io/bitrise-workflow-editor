@@ -1,14 +1,12 @@
-import { PipelineWorkflow } from '@/core/models/Workflow';
-
 import {
   DEFAULT_WORKFLOW_NODE_ZINDEX,
   WORKFLOW_NODE_HEIGHT,
   WORKFLOW_NODE_TYPE,
   WORKFLOW_NODE_WIDTH,
 } from '../GraphPipelineCanvas.const';
-import { GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
+import { GraphPipelineNodeType, PipelineCanvasWorkflow } from '../GraphPipelineCanvas.types';
 
-function createWorkflowNode(workflow: PipelineWorkflow) {
+function createWorkflowNode(workflow: PipelineCanvasWorkflow) {
   return {
     id: workflow.id,
     data: {

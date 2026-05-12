@@ -295,6 +295,125 @@ describe('PipelineService', () => {
     });
   });
 
+  describe('isGeneratorWorkflow', () => {
+    it('returns false if the workflow does not exist', () => {
+      const yml: BitriseYml = { format_version: '' };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(false);
+    });
+
+    it('returns false if the workflow has no steps', () => {
+      const yml: BitriseYml = { format_version: '', workflows: { wf1: {} } };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(false);
+    });
+
+    it('returns false if no step matches', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ 'script@1': {} }] } },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(false);
+    });
+
+    it('returns true for steplib extend-pipeline with a version', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ 'extend-pipeline@1': {} }] } },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('returns true for steplib extend-pipeline without a version', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ 'extend-pipeline': {} }] } },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('returns true for the fully qualified Bitrise steplib URL form', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'https://github.com/bitrise-io/bitrise-steplib.git::extend-pipeline@1': {} }],
+          },
+        },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('returns true for git:: HTTPS source pointing to extend-pipeline.git', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'git::https://github.com/bitrise-io/extend-pipeline.git@main': {} }],
+          },
+        },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('returns true for git:: SSH source pointing to extend-pipeline.git', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'git::git@github.com:bitrise-io/extend-pipeline.git@main': {} }],
+          },
+        },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('returns true for git:: source with bitrise steps-<id> repo naming', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'git::https://github.com/bitrise-silver/steps-extend-pipeline.git@main': {} }],
+          },
+        },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('returns true for path:: source ending in extend-pipeline', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ 'path::./extend-pipeline': {} }] } },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('does not match when the last path segment differs', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ 'path::./tools/extend-pipeline-helper': {} }] } },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(false);
+    });
+
+    it('walks the before_run chain when looking for the step', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { before_run: ['util'], steps: [{ 'script@1': {} }] },
+          util: { steps: [{ 'extend-pipeline@1': {} }] },
+        },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(true);
+    });
+
+    it('does not expand bundle:: references', () => {
+      const yml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ 'bundle::extend-pipeline': {} }] } },
+      };
+      expect(PipelineService.isGeneratorWorkflow('wf1', yml)).toBe(false);
+    });
+  });
+
   describe('numberOfStages', () => {
     it('returns the correct number of stages', () => {
       const pipeline: PipelineModel = {

@@ -15,7 +15,10 @@ export type BitriseYml = {
   stages?: Stages;
   step_bundles?: StepBundles;
   include?: IncludeItemModel[];
+  tools?: Tools;
 };
+
+export type Tools = Record<string, string>;
 
 export type EnvironmentItemOptionsModel = {
   is_expand?: boolean;
@@ -128,6 +131,7 @@ export type WorkflowModel = {
   triggers?: TriggersModel;
   status_report_name?: string;
   priority?: number;
+  tools?: Tools;
 };
 
 export type TriggerMapItemModel = {
