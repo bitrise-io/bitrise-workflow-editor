@@ -45,7 +45,8 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.354.0",
+    "@bitrise/bitkit": "^13.356.0",
+    "@bitrise/bitkit-v2": "^0.3.214",
     "@bitrise/languageserver": "git+https://github.com/bitrise-io/bitrise-yml-language-server.git#833b15995769404349b63986ea779b60fccce531",
     "@dagrejs/dagre": "^3.0.0",
     "@datadog/browser-rum": "^6.33.0",
