@@ -120,13 +120,28 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (data && loadedBranch.current !== requestedBranch) {
       initializeBitriseYmlDocument(data);
+      if (requestedBranch) {
+        if (data.branch && data.branch === requestedBranch) {
+          toast({
+            status: 'success',
+            isClosable: true,
+            description: `Configuration is loaded from ${requestedBranch} branch.`,
+          });
+        } else if (data.branch && data.branch !== requestedBranch) {
+          toast({
+            status: 'warning',
+            isClosable: true,
+            description: `Config unavailable on ${requestedBranch}. Using ${data.branch} (default branch).`,
+          });
+        }
+      }
       loadedBranch.current = requestedBranch;
       if (!isLoaded.current) {
         setTimeout(preloadRoutes, 1000);
         isLoaded.current = true;
       }
     }
-  }, [data, requestedBranch]);
+  }, [data, requestedBranch, toast]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
