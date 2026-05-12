@@ -24,7 +24,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const { data, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
+  const { data, error: branchesError, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
@@ -84,13 +84,18 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             </Text>
           </Notification>
         )}
+        {branchesError && (
+          <Notification status="error" mb="8">
+            <Text textStyle="comp/notification/message">Failed to load branches.</Text>
+          </Notification>
+        )}
         <Button onClick={onClose} variant="secondary">
           Cancel
         </Button>
         <Button
           type="submit"
           isLoading={isLoadingConfig}
-          isDisabled={isLoading || (data?.branches && data.branches.length === 1)}
+          isDisabled={isLoading || !data?.branches || data.branches.length === 1}
         >
           Switch
         </Button>

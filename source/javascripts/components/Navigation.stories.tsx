@@ -2,7 +2,11 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { delay, http, HttpResponse } from 'msw';
 
-import { getBranches, getCiConfig } from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
+import {
+  getBranches,
+  getBranchesError,
+  getCiConfig,
+} from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
 import { GetBranchesResult } from '@/core/api/BranchesApi';
 import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
 
@@ -36,6 +40,14 @@ export const SwitchBranchError: Story = {
   parameters: {
     msw: {
       handlers: [getBranches(), getCiConfig('Failed to load bitrise.yml from branch'), getYmlSettings()],
+    },
+  },
+};
+
+export const FailedToLoadBranches: Story = {
+  parameters: {
+    msw: {
+      handlers: [getBranchesError(), getCiConfig(), getYmlSettings()],
     },
   },
 };

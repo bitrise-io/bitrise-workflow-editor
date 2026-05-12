@@ -20,6 +20,13 @@ export function getBranches() {
   });
 }
 
+export function getBranchesError() {
+  return http.get('/app/:appSlug/git-branches', async (): Promise<Response> => {
+    await delay();
+    return HttpResponse.json({ error_msg: 'Failed to load branches' }, { status: 500 });
+  });
+}
+
 export function getCiConfig(error?: string) {
   return http.get('/api/app/:appSlug/config.yml', async () => {
     await delay();
