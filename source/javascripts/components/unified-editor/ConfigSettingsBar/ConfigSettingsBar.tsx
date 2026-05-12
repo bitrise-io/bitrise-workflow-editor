@@ -19,6 +19,7 @@ import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/S
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -115,7 +116,18 @@ const ConfigSettingsBar = () => {
         <MenuList>
           {enableBranchSwitching && (
             <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
-              <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen} isDisabled={hasChanges}>
+              <MenuItem
+                leftIconName="Branch"
+                onClick={() => {
+                  onSwitchBranchDialogOpen();
+                  segmentTrack('Branch Switch Popup Shown', {
+                    app_slug: PageProps.appSlug(),
+                    workspace_slug: GlobalProps.workspaceSlug(),
+                    // git_provider,
+                  });
+                }}
+                isDisabled={hasChanges}
+              >
                 Switch branch...
               </MenuItem>
             </Tooltip>

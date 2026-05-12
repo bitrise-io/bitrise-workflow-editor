@@ -13,7 +13,9 @@ import {
 import { FormEvent, useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useBranches } from '@/hooks/useBranches';
@@ -24,13 +26,13 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const { data, error: branchesError, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
+  const { data, error: getBranchesError, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
   const targetBranch = data?.branches.length === 1 ? data.branches[0] : selectedBranch;
 
-  const { isPending: isLoadingConfig, error: configError, mutateAsync: switchBranch, reset } = useSwitchBranch();
+  const { isPending: isLoadingConfig, error: switchBranchError, mutateAsync: switchBranch, reset } = useSwitchBranch();
 
   useEffect(() => {
     if (!isOpen) {
@@ -48,7 +50,26 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         onSuccess: (data) => {
           initializeBitriseYmlDocument({ ...data, branch: data.branch || targetBranch });
           loadConfigFromBranch(targetBranch);
+          segmentTrack('Branch Switch Succeeded', {
+            app_slug: PageProps.appSlug(),
+            workspace_slug: GlobalProps.workspaceSlug(),
+            // git_provider,
+            current_branch: configBranch,
+            requested_branch: targetBranch,
+            default_branch: PageProps.app()?.defaultBranch,
+          });
           onClose?.();
+        },
+        onError: () => {
+          segmentTrack('Branch Switch Failed', {
+            app_slug: PageProps.appSlug(),
+            workspace_slug: GlobalProps.workspaceSlug(),
+            // git_provider,
+            current_branch: configBranch,
+            requested_branch: targetBranch,
+            default_branch: PageProps.app()?.defaultBranch,
+            error_reason: switchBranchError?.message,
+          });
         },
       },
     );
@@ -76,7 +97,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         </Dropdown>
       </DialogBody>
       <DialogFooter>
-        {configError && (
+        {switchBranchError && (
           <Notification status="error" mb="8">
             <Text textStyle="comp/notification/title">Failed to load configuration</Text>
             <Text textStyle="comp/notification/message">
@@ -84,7 +105,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             </Text>
           </Notification>
         )}
-        {branchesError && (
+        {getBranchesError && (
           <Notification status="error" mb="8">
             <Text textStyle="comp/notification/message">Failed to load branches.</Text>
           </Notification>
@@ -96,6 +117,16 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           type="submit"
           isLoading={isLoadingConfig}
           isDisabled={isLoading || !data?.branches || data.branches.length === 1}
+          onClick={() => {
+            segmentTrack('Branch Switch Attempted', {
+              app_slug: PageProps.appSlug(),
+              workspace_slug: GlobalProps.workspaceSlug(),
+              // git_provider,
+              current_branch: configBranch,
+              requested_branch: targetBranch,
+              default_branch: PageProps.app()?.defaultBranch,
+            });
+          }}
         >
           Switch
         </Button>
