@@ -169,10 +169,16 @@ const Header = () => {
   const saveCIConfig = useCallback(
     (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
       segmentTrack('Workflow Editor Save Button Clicked', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
         source,
         tab_name: currentPage,
+        platform: 'website',
         ai_assistant_conversation_id: conversationId,
         turn_count: turnCount,
+        current_branch: bitriseYmlStore.getState().configBranch,
+        default_branch: PageProps.app()?.defaultBranch,
+        // git_provider,
       });
 
       if (ciConfigSettings?.usesRepositoryYml) {
