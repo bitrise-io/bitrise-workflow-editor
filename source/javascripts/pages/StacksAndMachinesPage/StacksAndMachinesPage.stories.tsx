@@ -161,4 +161,10 @@ export const WithInvalidDefaultStack: Story = {
   },
 };
 
+export const WithToolVersions: Story = {
+  beforeEach: () => {
+    set(window, 'localFeatureFlags.enable-wfe-tool-versions', true);
+  },
+};
+
 export default meta;
