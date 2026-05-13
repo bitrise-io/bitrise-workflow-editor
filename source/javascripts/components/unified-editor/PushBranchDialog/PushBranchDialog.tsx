@@ -13,6 +13,9 @@ import {
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PushBranchPayload } from '@/hooks/usePushBranch';
 
@@ -136,7 +139,22 @@ const PushBranchDialog = ({ isPushPending, pushError, onPush, onManualUpdate, ..
         <Button variant="secondary" onClick={onClose} isDisabled={isPushPending}>
           Cancel
         </Button>
-        <Button type="submit" isLoading={isPushPending} isDisabled={!formState.isValid}>
+        <Button
+          type="submit"
+          isLoading={isPushPending}
+          isDisabled={!formState.isValid}
+          onClick={() => {
+            segmentTrack('Push Config Changes Attempted', {
+              app_slug: PageProps.appSlug(),
+              workspace_slug: GlobalProps.workspaceSlug(),
+              // git_provider,
+              current_branch: configBranch,
+              target_branch: branchValue,
+              is_new_target_branch: !isCurrentBranch,
+              default_branch: PageProps.app()?.defaultBranch,
+            });
+          }}
+        >
           Push changes
         </Button>
       </DialogFooter>

@@ -20,6 +20,7 @@ import {
   initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -99,7 +100,18 @@ const Header = () => {
     isOpen: isPushBranchDialogOpen,
     onOpen: openPushBranchDialog,
     onClose: closePushBranchDialog,
-  } = useDisclosure();
+  } = useDisclosure({
+    onOpen: () => {
+      const configBranch = bitriseYmlStore.getState().configBranch;
+      segmentTrack('Push Config Changes Popup Shown', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        // git_provider,
+        current_branch: configBranch,
+        default_branch: PageProps.app()?.defaultBranch,
+      });
+    },
+  });
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,

@@ -7,6 +7,7 @@ export function trackCreateWorkflowDialogShown(source: 'workflow_empty_state' | 
   segmentTrack('Create Workflow Popup Shown', {
     source,
     event_type: 'interaction',
+    platform: 'website',
     app_slug: PageProps.appSlug(),
     workspace_slug: GlobalProps.workspaceSlug(),
   });
