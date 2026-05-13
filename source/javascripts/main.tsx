@@ -1,7 +1,8 @@
 /* _eslint-disable import/no-import-module-exports */
 import '@/monaco-workers';
 
-import { Box, Button, Image, Link, Provider as BitkitProvider, Text, useToast } from '@bitrise/bitkit';
+import { Box, Button, Image, Link, Provider, Text, useToast } from '@bitrise/bitkit';
+import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -120,13 +121,28 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (data && loadedBranch.current !== requestedBranch) {
       initializeBitriseYmlDocument(data);
+      if (requestedBranch) {
+        if (data.branch && data.branch === requestedBranch) {
+          toast({
+            status: 'success',
+            isClosable: true,
+            description: `Configuration is loaded from ${requestedBranch} branch.`,
+          });
+        } else if (data.branch && data.branch !== requestedBranch) {
+          toast({
+            status: 'warning',
+            isClosable: true,
+            description: `Config unavailable on ${requestedBranch}. Using ${data.branch} (default branch).`,
+          });
+        }
+      }
       loadedBranch.current = requestedBranch;
       if (!isLoaded.current) {
         setTimeout(preloadRoutes, 1000);
         isLoaded.current = true;
       }
     }
-  }, [data, requestedBranch]);
+  }, [data, requestedBranch, toast]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
@@ -181,11 +197,13 @@ const App = () => {
       <ErrorBoundary fallback={PassThroughFallback}>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
-            <BitkitProvider>
-              <InitialDataLoader>
-                <MainLayout />
-              </InitialDataLoader>
-            </BitkitProvider>
+            <Provider resetCSS={false}>
+              <BitkitProvider>
+                <InitialDataLoader>
+                  <MainLayout />
+                </InitialDataLoader>
+              </BitkitProvider>
+            </Provider>
           </ReactFlowProvider>
         </QueryClientProvider>
       </ErrorBoundary>

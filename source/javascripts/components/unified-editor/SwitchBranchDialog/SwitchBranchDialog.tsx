@@ -24,10 +24,11 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const { data, isLoading } = useBranches({ q: debouncedSearch });
+  const { data, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
+  const targetBranch = data?.branches.length === 1 ? data.branches[0] : selectedBranch;
 
   const { isPending: isLoadingConfig, error: configError, mutateAsync: switchBranch, reset } = useSwitchBranch();
 
@@ -42,11 +43,11 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await switchBranch(
-      { projectSlug: PageProps.appSlug(), branch: selectedBranch },
+      { projectSlug: PageProps.appSlug(), branch: targetBranch },
       {
         onSuccess: (data) => {
-          initializeBitriseYmlDocument({ ...data, branch: data.branch || selectedBranch });
-          loadConfigFromBranch(selectedBranch);
+          initializeBitriseYmlDocument({ ...data, branch: data.branch || targetBranch });
+          loadConfigFromBranch(targetBranch);
           onClose?.();
         },
       },
@@ -60,8 +61,8 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         <Dropdown
           label="Branch"
           placeholder="Select branch"
-          disabled={isLoading || data?.branches.length === 0}
-          value={selectedBranch}
+          disabled={isLoading}
+          value={targetBranch}
           onChange={(e) => setSelectedBranch(e.target.value ?? '')}
           required
           search={<DropdownSearch placeholder="Search..." value={search} onChange={setSearch} />}
@@ -79,14 +80,18 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           <Notification status="error" mb="8">
             <Text textStyle="comp/notification/title">Failed to load configuration</Text>
             <Text textStyle="comp/notification/message">
-              Could not load bitrise.yml from {selectedBranch}. Check that the file exists on this branch and try again.
+              Could not load bitrise.yml from {targetBranch}. Check that the file exists on this branch and try again.
             </Text>
           </Notification>
         )}
         <Button onClick={onClose} variant="secondary">
           Cancel
         </Button>
-        <Button type="submit" isLoading={isLoadingConfig}>
+        <Button
+          type="submit"
+          isLoading={isLoadingConfig}
+          isDisabled={isLoading || (data?.branches && data.branches.length === 1)}
+        >
           Switch
         </Button>
       </DialogFooter>

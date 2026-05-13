@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { getCiConfig, getYmlSettings, postCiConfig, putYmlSettings } from './ConfigurationYmlSource.mswMocks';
-import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
+import { getCiConfig, getYmlSettings, postCiConfig, putYmlSettings } from './ConfigurationYmlStorage.mswMocks';
+import ConfigurationYmlSourceDialog from './ConfigurationYmlStorageDialog';
 
 const defaultMswHandlers = [getCiConfig(), putYmlSettings(), postCiConfig(), getYmlSettings()];
 

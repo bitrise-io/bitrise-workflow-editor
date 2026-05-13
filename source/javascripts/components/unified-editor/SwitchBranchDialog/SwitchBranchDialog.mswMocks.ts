@@ -3,7 +3,7 @@ import { delay, http, HttpResponse } from 'msw';
 import { GetBranchesResult } from '@/core/api/BranchesApi';
 
 export function getBranches() {
-  return http.get('/api/app/:appSlug/git-branches', async (): Promise<Response> => {
+  return http.get('/app/:appSlug/git-branches', async (): Promise<Response> => {
     await delay();
 
     return HttpResponse.json<GetBranchesResult>({

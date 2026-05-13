@@ -9,6 +9,8 @@ export const GRAPH_EDGE_TYPE = 'graph-edge';
 export const WORKFLOW_NODE_TYPE = 'workflow';
 export const PLACEHOLDER_NODE_TYPE = 'placeholder';
 export const PLACEHOLDER_NODE_ID = crypto.randomUUID();
+export const GENERATED_WORKFLOWS_PLACEHOLDER_NODE_TYPE = 'generated-workflows-placeholder';
+export const GENERATED_WORKFLOWS_PLACEHOLDER_NODE_ID_PREFIX = '__generated_workflows__::';
 
 export const DEFAULT_GRAPH_EDGE_ZINDEX = 0;
 export const HIGHLIGHTED_GRAPH_EDGE_ZINDEX = 1;

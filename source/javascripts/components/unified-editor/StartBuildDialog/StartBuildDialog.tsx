@@ -2,6 +2,7 @@ import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, useToast 
 import { useCallback, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import useStartBuild from './useStartBuild';
 
@@ -11,7 +12,8 @@ type RunWorkflowDialogProps = Omit<DialogProps, 'title'> & {
 };
 
 const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflowDialogProps) => {
-  const initialBranch = PageProps.app()?.defaultBranch || '';
+  const configBranch = useBitriseYmlStore((s) => s.configBranch);
+  const initialBranch = configBranch || PageProps.app()?.defaultBranch || '';
   const [branch, setBranch] = useState(initialBranch);
   const toast = useToast();
   const { mutate: startBuild, isPending } = useStartBuild();
