@@ -234,7 +234,7 @@ const ConfigMergeDialogContent = ({
           },
         },
       );
-      segmentTrack('Workflow Editor Config Merge Popup Apply Changes', {
+      segmentTrack('Workflow Editor Config Merge Popup Save Results Button Clicked', {
         tab_name: currentPage,
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
