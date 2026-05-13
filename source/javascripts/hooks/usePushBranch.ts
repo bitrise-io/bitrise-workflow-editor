@@ -17,7 +17,7 @@ export type PushBranchPayload = {
 
 type UsePushBranchOptions = {
   onSuccess?: (prUrl?: string) => void;
-  onMergeConflict?: () => void;
+  onMergeConflict?: (branch: string) => void;
 };
 
 function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}) {
@@ -77,7 +77,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     },
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
-        onMergeConflict?.();
+        onMergeConflict?.(branch);
         return;
       }
       segmentTrack('Push Config Changes Failed', {

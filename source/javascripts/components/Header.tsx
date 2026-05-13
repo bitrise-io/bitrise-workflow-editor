@@ -74,17 +74,7 @@ const Header = () => {
     },
   });
 
-  const {
-    isOpen: isMergeDialogOpen,
-    onOpen: openMergeDialog,
-    onClose: closeMergeDialog,
-  } = useDisclosure({
-    onOpen: () => {
-      segmentTrack('Workflow Editor Config Merge Popup Shown', {
-        tab_name: currentPage,
-      });
-    },
-  });
+  const { isOpen: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
 
   const {
     isOpen: isUpdateConfigDialogOpen,
@@ -117,6 +107,16 @@ const Header = () => {
     onSuccess: initializeBitriseYmlDocument,
     onError: (error: ClientError) => {
       if (error.status === 409) {
+        const configBranch = bitriseYmlStore.getState().configBranch;
+        segmentTrack('Workflow Editor Config Merge Popup Shown', {
+          tab_name: currentPage,
+          app_slug: PageProps.appSlug(),
+          workspace_slug: GlobalProps.workspaceSlug(),
+          platform: 'website',
+          // git_provider,
+          target_branch: configBranch,
+          is_new_target_branch: false,
+        });
         openMergeDialog();
         return;
       }
@@ -146,7 +146,17 @@ const Header = () => {
         conversationId,
       });
     },
-    onMergeConflict: () => {
+    onMergeConflict: (branch) => {
+      const configBranch = bitriseYmlStore.getState().configBranch;
+      segmentTrack('Workflow Editor Config Merge Popup Shown', {
+        tab_name: currentPage,
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        platform: 'website',
+        // git_provider,
+        target_branch: branch,
+        is_new_target_branch: branch !== configBranch,
+      });
       closePushBranchDialog();
       openMergeDialog();
     },

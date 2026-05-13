@@ -58,6 +58,10 @@ const ConfigSettingsBar = () => {
 
   const handleStorageChange = () => {
     segmentTrack('Change Configuration Yml Source Button Clicked', {
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      // git_provider,
+      platform: 'website',
       yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
     });
     onStorageDialogOpen();

@@ -26,6 +26,7 @@ import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import { download, getFormattedDate } from '@/core/utils/CommonUtils';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings, usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
@@ -346,9 +347,13 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
   const onValidateAndSave = () => {
     const eventProps: Record<string, string> = {
       yml_source: selectedStorage,
+      workspace_slug: GlobalProps.workspaceSlug(),
+      app_slug: PageProps.appSlug(),
+      platform: 'website',
+      // git_provider,
     };
     if (switchGitToBitrise) {
-      eventProps.selected_yml_source = gitToBitriseStorage;
+      eventProps.selected_yml_source = gitToBitriseStorage === 'git-ci-config' ? 'git' : 'bitrise';
     }
     segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
 

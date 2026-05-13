@@ -222,7 +222,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
           },
         },
       );
-      segmentTrack('Workflow Editor Config Merge Popup Save Results Button Clicked', {
+      segmentTrack('Workflow Editor Config Merge Popup Apply Changes', {
         tab_name: currentPage,
       });
     } catch (error) {
