@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+@./node_modules/@bitrise/bitkit-v2/AGENTS.md
+
 ## Project Overview
 
 Bitrise Workflow Editor — a React + Go application for editing CI/CD workflow configurations (bitrise.yml). Runs as a Bitrise CLI plugin (default) or as a website integrated with the Bitrise monolith. Transitioning from AngularJS to React.
@@ -33,7 +35,7 @@ go test ./...            # Go tests
 ### Frontend (`source/javascripts/`)
 
 - **Framework:** React 18 + TypeScript (strict mode), built with Vite
-- **UI:** Chakra UI via `@bitrise/bitkit`
+- **UI:** `@bitrise/bitkit-v2` (new, Chakra UI v3) for new components; `@bitrise/bitkit` (legacy, Chakra UI v2) still present but being replaced — use v2 for all new work, and migrate v1 components to v2 in any file you touch
 - **State:** Zustand — `BitriseYmlStore` is the central store holding the YAML document
 - **Data fetching:** TanStack React Query
 - **Routing:** wouter (lazy-loaded pages)
@@ -138,4 +140,4 @@ spec/              # Test files (Jest unit + Playwright E2E)
 - The app runs inside an **iframe** on the Bitrise website — routing uses hash-based location (`useHashLocation`) and communicates with the parent window via `WindowUtils`
 - `BitriseYmlStore` always **clones the YAML document before mutations** — this is critical for `YmlUtils` caching to work correctly (WeakMap keyed by document identity)
 - `YmlUtils` is a comprehensive YAML manipulation library (~30 functions) wrapping the `yaml` library — use it for all YAML node operations instead of manipulating nodes directly
-- Error handling in services uses **throw** for sync errors; toasts via `useToast` from `@bitrise/bitkit` for user-facing notifications in components
+- Error handling in services uses **throw** for sync errors; toasts via `createBitkitToast` from `@bitrise/bitkit-v2` for user-facing notifications in components (legacy: `useToast` from `@bitrise/bitkit`)
