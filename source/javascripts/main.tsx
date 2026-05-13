@@ -23,6 +23,8 @@ import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
+import { segmentTrack } from './core/analytics/SegmentBaseTracking';
+import GlobalProps from './core/utils/GlobalProps';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
 import { preloadRoutes } from './routes';
 
@@ -93,7 +95,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const [searchParams] = useSearchParams();
   const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
 
-  useCiConfigSettings();
+  const { data: ymlSettings } = useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
   const { data, error, refetch } = useGetCiConfig({
@@ -142,6 +144,18 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       }
     }
   }, [data, requestedBranch, toast]);
+
+  useEffect(() => {
+    if (data && ymlSettings?.usesRepositoryYml) {
+      segmentTrack('Config Branch Loaded', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        // git_provider,
+        current_branch: data.branch,
+        default_branch: PageProps.app()?.defaultBranch,
+      });
+    }
+  }, [data, ymlSettings?.usesRepositoryYml]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
