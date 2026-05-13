@@ -2,8 +2,10 @@ import { Box, Link, Notification } from '@bitrise/bitkit';
 import { RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
+import ToolVersions from '@/components/ToolVersions/ToolVersions';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import PageProps from '@/core/utils/PageProps';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
@@ -36,6 +38,7 @@ const StackAndMachine = ({
   stackRollbackVersion,
   withoutDefaultOptions,
 }: Props) => {
+  const isToolVersionsEnabled = useFeatureFlag('enable-wfe-tool-versions');
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -146,6 +149,7 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
+      {isToolVersionsEnabled && <ToolVersions />}
     </StackAndMachineWrapper>
   );
 };
