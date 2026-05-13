@@ -60,7 +60,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           });
           onClose?.();
         },
-        onError: () => {
+        onError: (error) => {
           segmentTrack('Branch Switch Failed', {
             app_slug: PageProps.appSlug(),
             workspace_slug: GlobalProps.workspaceSlug(),
@@ -68,7 +68,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             current_branch: configBranch,
             requested_branch: targetBranch,
             default_branch: PageProps.app()?.defaultBranch,
-            error_reason: switchBranchError?.message,
+            error_reason: error?.message,
           });
         },
       },
@@ -116,7 +116,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         <Button
           type="submit"
           isLoading={isLoadingConfig}
-          isDisabled={isLoading || !data?.branches || data.branches.length === 1}
+          isDisabled={isLoading || !data?.branches || targetBranch === configBranch}
           onClick={() => {
             segmentTrack('Branch Switch Attempted', {
               app_slug: PageProps.appSlug(),

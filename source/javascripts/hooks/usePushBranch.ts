@@ -43,6 +43,17 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         message,
       });
     },
+    onMutate: ({ branch }: PushBranchPayload) => {
+      segmentTrack('Push Config Changes Attempted', {
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        // git_provider,
+        current_branch: configBranch,
+        target_branch: branch,
+        is_new_target_branch: branch !== configBranch,
+        default_branch: PageProps.app()?.defaultBranch,
+      });
+    },
     onSuccess: (data, { branch }) => {
       onSuccess?.(data?.pr_url);
       segmentTrack('Push Config Changes Succeeded', {
