@@ -1,7 +1,8 @@
 /* _eslint-disable import/no-import-module-exports */
 import '@/monaco-workers';
 
-import { Box, Button, Image, Link, Provider as BitkitProvider, Text, useToast } from '@bitrise/bitkit';
+import { Box, Button, Image, Link, Provider, Text, useToast } from '@bitrise/bitkit';
+import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -196,11 +197,13 @@ const App = () => {
       <ErrorBoundary fallback={PassThroughFallback}>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
-            <BitkitProvider>
-              <InitialDataLoader>
-                <MainLayout />
-              </InitialDataLoader>
-            </BitkitProvider>
+            <Provider resetCSS={false}>
+              <BitkitProvider>
+                <InitialDataLoader>
+                  <MainLayout />
+                </InitialDataLoader>
+              </BitkitProvider>
+            </Provider>
           </ReactFlowProvider>
         </QueryClientProvider>
       </ErrorBoundary>

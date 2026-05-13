@@ -7,6 +7,7 @@ module.exports = {
   },
   moduleNameMapper: {
     '\\.(css|less|svg)$': 'identity-obj-proxy',
+    '^@bitrise/bitkit-v2$': '<rootDir>/node_modules/@bitrise/bitkit-v2/dist/main.js',
     '@/(.*)': '<rootDir>/source/javascripts/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/spec/setup-jest.ts'],
