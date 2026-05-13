@@ -21,7 +21,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
 
   const handleCopyToClipboard = () => {
     segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
-      yml_source: 'bitrise',
+      yml_source: 'git',
       source: 'update_configuration_yml_modal',
     });
 
