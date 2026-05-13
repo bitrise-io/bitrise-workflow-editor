@@ -50,8 +50,11 @@ const ConfigSettingsBar = () => {
 
   const handleDownload = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'yml_editor_header',
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
+      source: 'config_settings_bar',
+      platform: 'website',
     });
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };

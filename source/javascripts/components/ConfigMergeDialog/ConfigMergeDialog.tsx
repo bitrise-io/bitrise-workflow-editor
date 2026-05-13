@@ -25,6 +25,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -32,7 +33,10 @@ import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 
-type Props = Omit<DialogProps, 'title'>;
+type Props = Omit<DialogProps, 'title'> & {
+  targetBranch: string;
+  isNewTargetBranch: boolean;
+};
 
 const diffEditorOptions: DiffEditorProps['options'] = {
   diffWordWrap: 'off',
@@ -133,7 +137,15 @@ function useInitialCiConfigs() {
   });
 }
 
-const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
+const ConfigMergeDialogContent = ({
+  onClose,
+  targetBranch,
+  isNewTargetBranch,
+}: {
+  onClose: VoidFunction;
+  targetBranch: string;
+  isNewTargetBranch: boolean;
+}) => {
   const currentPage = useCurrentPage();
   const [clientError, setClientError] = useState<Error>();
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
@@ -224,6 +236,12 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
       );
       segmentTrack('Workflow Editor Config Merge Popup Apply Changes', {
         tab_name: currentPage,
+        app_slug: PageProps.appSlug(),
+        workspace_slug: GlobalProps.workspaceSlug(),
+        platform: 'website',
+        // git_provider,
+        target_branch: targetBranch,
+        is_new_target_branch: isNewTargetBranch,
       });
     } catch (error) {
       setClientError(error as Error);
@@ -368,7 +386,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   );
 };
 
-const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
+const ConfigMergeDialog = ({ isOpen, onClose, targetBranch, isNewTargetBranch, ...props }: Props) => {
   const currentPage = useCurrentPage();
 
   const handleClose = () => {
@@ -389,7 +407,7 @@ const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
       onClose={handleClose}
       minHeight={['100dvh', 'unset']}
     >
-      <ConfigMergeDialogContent onClose={onClose} />
+      <ConfigMergeDialogContent onClose={onClose} targetBranch={targetBranch} isNewTargetBranch={isNewTargetBranch} />
       <style>{`
         .monaco-diff-editor .conflict {
           border: 1px solid rgba(255, 0, 0, 1);

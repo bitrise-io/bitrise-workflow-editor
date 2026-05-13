@@ -149,6 +149,9 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
 
   const onDownloadClick = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      platform: 'website',
       yml_source: 'bitrise',
       source: 'configuration_yml_source',
     });

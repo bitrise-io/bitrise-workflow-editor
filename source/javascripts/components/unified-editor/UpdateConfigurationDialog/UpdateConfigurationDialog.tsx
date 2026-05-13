@@ -5,6 +5,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 
 type Props = {
@@ -47,7 +48,10 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
 
   const handleDownloadClick = () => {
     segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      yml_source: 'bitrise',
+      app_slug: PageProps.appSlug(),
+      workspace_slug: GlobalProps.workspaceSlug(),
+      yml_source: 'git',
+      platform: 'website',
       source: 'update_configuration_yml_modal',
     });
 

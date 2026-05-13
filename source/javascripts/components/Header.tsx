@@ -8,7 +8,7 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -59,6 +59,8 @@ const Header = () => {
 
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
+  const [mergeDialogContext, setMergeDialogContext] = useState({ targetBranch: '', isNewTargetBranch: false });
+
   const {
     isOpen: isDiffViewerOpen,
     onOpen: openDiffViewer,
@@ -108,6 +110,7 @@ const Header = () => {
     onError: (error: ClientError) => {
       if (error.status === 409) {
         const configBranch = bitriseYmlStore.getState().configBranch;
+        setMergeDialogContext({ targetBranch: configBranch ?? '', isNewTargetBranch: false });
         segmentTrack('Workflow Editor Config Merge Popup Shown', {
           tab_name: currentPage,
           app_slug: PageProps.appSlug(),
@@ -148,6 +151,7 @@ const Header = () => {
     },
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;
+      setMergeDialogContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
       segmentTrack('Workflow Editor Config Merge Popup Shown', {
         tab_name: currentPage,
         app_slug: PageProps.appSlug(),
@@ -298,7 +302,12 @@ const Header = () => {
         </Tooltip>
       </Box>
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
-      <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />
+      <ConfigMergeDialog
+        isOpen={isMergeDialogOpen}
+        onClose={closeMergeDialog}
+        targetBranch={mergeDialogContext.targetBranch}
+        isNewTargetBranch={mergeDialogContext.isNewTargetBranch}
+      />
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
       <PushBranchDialog
         isOpen={isPushBranchDialogOpen}
