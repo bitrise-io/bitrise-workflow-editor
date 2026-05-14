@@ -21,7 +21,10 @@ import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import {
+  trackConfigMergePopupDismissed,
+  trackConfigMergeSaveClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
@@ -32,7 +35,10 @@ import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 
-type Props = Omit<DialogProps, 'title'>;
+type Props = Omit<DialogProps, 'title'> & {
+  targetBranch: string;
+  isNewTargetBranch: boolean;
+};
 
 const diffEditorOptions: DiffEditorProps['options'] = {
   diffWordWrap: 'off',
@@ -133,7 +139,15 @@ function useInitialCiConfigs() {
   });
 }
 
-const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
+const ConfigMergeDialogContent = ({
+  onClose,
+  targetBranch,
+  isNewTargetBranch,
+}: {
+  onClose: VoidFunction;
+  targetBranch: string;
+  isNewTargetBranch: boolean;
+}) => {
   const currentPage = useCurrentPage();
   const [clientError, setClientError] = useState<Error>();
   const { data, error: initialError, isFetching, refetch } = useInitialCiConfigs();
@@ -190,10 +204,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
 
   const handleCancel = () => {
     onClose();
-    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
-      tab_name: currentPage,
-      popup_step_dismiss_method: 'close_button',
-    });
+    trackConfigMergePopupDismissed(currentPage);
   };
 
   const handleSave = () => {
@@ -222,9 +233,7 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
           },
         },
       );
-      segmentTrack('Workflow Editor Config Merge Popup Save Results Button Clicked', {
-        tab_name: currentPage,
-      });
+      trackConfigMergeSaveClicked(currentPage, targetBranch, isNewTargetBranch);
     } catch (error) {
       setClientError(error as Error);
     }
@@ -368,15 +377,12 @@ const ConfigMergeDialogContent = ({ onClose }: { onClose: VoidFunction }) => {
   );
 };
 
-const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
+const ConfigMergeDialog = ({ isOpen, onClose, targetBranch, isNewTargetBranch, ...props }: Props) => {
   const currentPage = useCurrentPage();
 
   const handleClose = () => {
     onClose();
-    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
-      tab_name: currentPage,
-      popup_step_dismiss_method: 'close_button',
-    });
+    trackConfigMergePopupDismissed(currentPage);
   };
 
   return (
@@ -389,7 +395,7 @@ const ConfigMergeDialog = ({ isOpen, onClose, ...props }: Props) => {
       onClose={handleClose}
       minHeight={['100dvh', 'unset']}
     >
-      <ConfigMergeDialogContent onClose={onClose} />
+      <ConfigMergeDialogContent onClose={onClose} targetBranch={targetBranch} isNewTargetBranch={isNewTargetBranch} />
       <style>{`
         .monaco-diff-editor .conflict {
           border: 1px solid rgba(255, 0, 0, 1);

@@ -13,6 +13,11 @@ import {
 import { FormEvent, useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
+import {
+  trackBranchSwitchAttempted,
+  trackBranchSwitchFailed,
+  trackBranchSwitchSucceeded,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -24,13 +29,13 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
 
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const { data, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
+  const { data, error: getBranchesError, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
   const targetBranch = data?.branches.length === 1 ? data.branches[0] : selectedBranch;
 
-  const { isPending: isLoadingConfig, error: configError, mutateAsync: switchBranch, reset } = useSwitchBranch();
+  const { isPending: isLoadingConfig, error: switchBranchError, mutateAsync: switchBranch, reset } = useSwitchBranch();
 
   useEffect(() => {
     if (!isOpen) {
@@ -48,7 +53,11 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         onSuccess: (data) => {
           initializeBitriseYmlDocument({ ...data, branch: data.branch || targetBranch });
           loadConfigFromBranch(targetBranch);
+          trackBranchSwitchSucceeded(configBranch, targetBranch);
           onClose?.();
+        },
+        onError: (error) => {
+          trackBranchSwitchFailed(configBranch, targetBranch, error?.message);
         },
       },
     );
@@ -76,12 +85,17 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         </Dropdown>
       </DialogBody>
       <DialogFooter>
-        {configError && (
+        {switchBranchError && (
           <Notification status="error" mb="8">
             <Text textStyle="comp/notification/title">Failed to load configuration</Text>
             <Text textStyle="comp/notification/message">
               Could not load bitrise.yml from {targetBranch}. Check that the file exists on this branch and try again.
             </Text>
+          </Notification>
+        )}
+        {getBranchesError && (
+          <Notification status="error" mb="8">
+            <Text textStyle="comp/notification/message">Failed to load branches.</Text>
           </Notification>
         )}
         <Button onClick={onClose} variant="secondary">
@@ -90,7 +104,8 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         <Button
           type="submit"
           isLoading={isLoadingConfig}
-          isDisabled={isLoading || (data?.branches && data.branches.length === 1)}
+          isDisabled={isLoading || !data?.branches || targetBranch === configBranch}
+          onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
         >
           Switch
         </Button>

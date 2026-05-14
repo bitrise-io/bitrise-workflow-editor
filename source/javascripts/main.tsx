@@ -24,6 +24,7 @@ import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
+import { trackConfigBranchLoaded } from './core/analytics/ConfigManagementAnalytics';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
 import { preloadRoutes } from './routes';
 
@@ -89,12 +90,13 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
+  const isTracked = useRef(false);
   const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
   const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
 
-  useCiConfigSettings();
+  const { data: ymlSettings } = useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
   const { data, error, refetch } = useGetCiConfig({
@@ -143,6 +145,13 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       }
     }
   }, [data, requestedBranch, toast]);
+
+  useEffect(() => {
+    if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
+      isTracked.current = true;
+      trackConfigBranchLoaded(data.branch);
+    }
+  }, [data, ymlSettings?.usesRepositoryYml]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';

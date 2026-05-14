@@ -16,13 +16,19 @@ import {
 } from '@bitrise/bitkit';
 
 import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import {
+  trackBranchSwitchPopupShown,
+  trackChangeStorageButtonClicked,
+  trackDownloadYmlClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlStorageDialog';
 
@@ -36,25 +42,22 @@ const ConfigSettingsBar = () => {
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
   const hasChanges = useYmlHasChanges();
 
+  const [searchParams] = useSearchParams();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const defaultBranch = PageProps.app()?.defaultBranch;
-  const branch = configBranch || defaultBranch;
+  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
+  const branch = configBranch || requestedBranch || defaultBranch;
   const branchLabel = branch && branch === defaultBranch ? `${branch} (default)` : branch;
 
   const { data, isPending } = useCiConfigSettings();
 
   const handleDownload = () => {
-    segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'yml_editor_header',
-    });
+    trackDownloadYmlClicked(data?.usesRepositoryYml ? 'git' : 'bitrise', 'config_settings_bar');
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
   const handleStorageChange = () => {
-    segmentTrack('Change Configuration Yml Source Button Clicked', {
-      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
-    });
+    trackChangeStorageButtonClicked(data?.usesRepositoryYml ? 'git' : 'bitrise');
     onStorageDialogOpen();
   };
 
@@ -111,7 +114,14 @@ const ConfigSettingsBar = () => {
         <MenuList>
           {enableBranchSwitching && (
             <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
-              <MenuItem leftIconName="Branch" onClick={onSwitchBranchDialogOpen} isDisabled={hasChanges}>
+              <MenuItem
+                leftIconName="Branch"
+                onClick={() => {
+                  onSwitchBranchDialogOpen();
+                  trackBranchSwitchPopupShown();
+                }}
+                isDisabled={hasChanges}
+              >
                 Switch branch...
               </MenuItem>
             </Tooltip>

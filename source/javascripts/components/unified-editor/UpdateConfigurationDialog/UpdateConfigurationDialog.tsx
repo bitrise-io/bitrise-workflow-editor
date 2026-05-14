@@ -2,7 +2,7 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@
 import { useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
@@ -19,10 +19,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   const [isCopiedOrDownloded, setIsCopiedOrDownloaded] = useState(false);
 
   const handleCopyToClipboard = () => {
-    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'update_configuration_yml_modal',
-    });
+    trackCopyYmlClicked('git', 'update_configuration_yml_modal');
 
     copyToClipboard(getYmlString()).then((isCopied) => {
       if (isCopied) {
@@ -46,10 +43,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   };
 
   const handleDownloadClick = () => {
-    segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'update_configuration_yml_modal',
-    });
+    trackDownloadYmlClicked('git', 'update_configuration_yml_modal');
 
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
 
