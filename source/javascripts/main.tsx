@@ -24,8 +24,7 @@ import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
-import { segmentTrack } from './core/analytics/SegmentBaseTracking';
-import GlobalProps from './core/utils/GlobalProps';
+import { trackConfigBranchLoaded } from './core/analytics/ConfigManagementAnalytics';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
 import { preloadRoutes } from './routes';
 
@@ -91,6 +90,7 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
+  const isTracked = useRef(false);
   const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
@@ -147,14 +147,9 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   }, [data, requestedBranch, toast]);
 
   useEffect(() => {
-    if (data && ymlSettings?.usesRepositoryYml) {
-      segmentTrack('Config Branch Loaded', {
-        app_slug: PageProps.appSlug(),
-        workspace_slug: GlobalProps.workspaceSlug(),
-        git_provider: PageProps.app()?.gitProvider,
-        current_branch: data.branch,
-        default_branch: PageProps.app()?.defaultBranch,
-      });
+    if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
+      isTracked.current = true;
+      trackConfigBranchLoaded(data.branch);
     }
   }, [data, ymlSettings?.usesRepositoryYml]);
 

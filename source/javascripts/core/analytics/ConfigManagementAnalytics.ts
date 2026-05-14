@@ -178,6 +178,16 @@ export function trackOpenPrAttempted(targetBranch: string) {
   });
 }
 
+export function trackConfigBranchLoaded(currentBranch: string | undefined) {
+  segmentTrack('Config Branch Loaded', {
+    app_slug: PageProps.appSlug(),
+    workspace_slug: GlobalProps.workspaceSlug(),
+    git_provider: PageProps.app()?.gitProvider,
+    current_branch: currentBranch,
+    default_branch: PageProps.app()?.defaultBranch,
+  });
+}
+
 export function trackConfigMergePopupShown(
   tabName: string | undefined,
   targetBranch: string | undefined,

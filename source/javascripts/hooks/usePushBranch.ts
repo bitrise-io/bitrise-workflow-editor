@@ -70,6 +70,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     },
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
+        trackPushConfigChangesFailed(configBranch, branch, 'merge_conflict');
         onMergeConflict?.(branch);
         return;
       }
