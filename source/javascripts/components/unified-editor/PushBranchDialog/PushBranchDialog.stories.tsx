@@ -1,6 +1,7 @@
 import { Box, Button, useDisclosure } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { http, HttpResponse } from 'msw';
+import { useState } from 'react';
 
 import ConfigMergeDialog from '@/components/ConfigMergeDialog/ConfigMergeDialog';
 import { baseYaml, remoteYaml, yourYaml } from '@/components/ConfigMergeDialog/ConfigMergeDialog.mocks';
@@ -8,11 +9,12 @@ import PushBranchDialog from '@/components/unified-editor/PushBranchDialog/PushB
 import UpdateConfigurationDialog from '@/components/unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import YmlUtils from '@/core/utils/YmlUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePushBranch from '@/hooks/usePushBranch';
 
 import { pushBranch, pushBranchMergeConflict } from './PushBranchDialog.mswMocks';
 
-function StoryWrapper({ onMergeConflict }: { onMergeConflict?: () => void }) {
+function StoryWrapper({ onMergeConflict }: { onMergeConflict?: (branch: string) => void }) {
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
   const { isOpen: isUpdateConfigOpen, onOpen: openUpdateConfig, onClose: closeUpdateConfig } = useDisclosure();
 
@@ -23,9 +25,9 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: () => void }) {
     clearPushError,
   } = usePushBranch({
     onSuccess: onClose,
-    onMergeConflict: () => {
+    onMergeConflict: (branch) => {
       onClose();
-      onMergeConflict?.();
+      onMergeConflict?.(branch);
     },
   });
 
@@ -49,12 +51,26 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: () => void }) {
 }
 
 function MergeConflictStory() {
+  const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const { isOpen: isMergeOpen, onOpen: openMerge, onClose: closeMerge } = useDisclosure();
+  const [mergeContext, setMergeContext] = useState<{ targetBranch: string; isNewTargetBranch: boolean }>();
 
   return (
     <>
-      <StoryWrapper onMergeConflict={openMerge} />
-      <ConfigMergeDialog isOpen={isMergeOpen} onClose={closeMerge} />
+      <StoryWrapper
+        onMergeConflict={(branch) => {
+          setMergeContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
+          openMerge();
+        }}
+      />
+      {mergeContext && (
+        <ConfigMergeDialog
+          isOpen={isMergeOpen}
+          onClose={closeMerge}
+          targetBranch={mergeContext.targetBranch}
+          isNewTargetBranch={mergeContext.isNewTargetBranch}
+        />
+      )}
     </>
   );
 }
