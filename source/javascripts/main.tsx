@@ -151,7 +151,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       segmentTrack('Config Branch Loaded', {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         current_branch: data.branch,
         default_branch: PageProps.app()?.defaultBranch,
       });

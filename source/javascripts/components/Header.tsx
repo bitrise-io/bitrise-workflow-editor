@@ -98,7 +98,7 @@ const Header = () => {
       segmentTrack('Push Config Changes Popup Shown', {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         current_branch: configBranch,
         default_branch: PageProps.app()?.defaultBranch,
       });
@@ -116,7 +116,7 @@ const Header = () => {
           app_slug: PageProps.appSlug(),
           workspace_slug: GlobalProps.workspaceSlug(),
           platform: 'website',
-          // git_provider,
+          git_provider: PageProps.app()?.gitProvider,
           target_branch: configBranch,
           is_new_target_branch: false,
         });
@@ -157,7 +157,7 @@ const Header = () => {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
         platform: 'website',
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         target_branch: branch,
         is_new_target_branch: branch !== configBranch,
       });
@@ -178,7 +178,7 @@ const Header = () => {
         turn_count: turnCount,
         current_branch: bitriseYmlStore.getState().configBranch,
         default_branch: PageProps.app()?.defaultBranch,
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
       });
 
       if (ciConfigSettings?.usesRepositoryYml) {

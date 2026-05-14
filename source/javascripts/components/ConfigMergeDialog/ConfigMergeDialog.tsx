@@ -239,7 +239,7 @@ const ConfigMergeDialogContent = ({
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
         platform: 'website',
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         target_branch: targetBranch,
         is_new_target_branch: isNewTargetBranch,
       });

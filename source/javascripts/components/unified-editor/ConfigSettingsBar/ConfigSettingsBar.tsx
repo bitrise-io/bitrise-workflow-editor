@@ -63,8 +63,7 @@ const ConfigSettingsBar = () => {
     segmentTrack('Change Configuration Yml Source Button Clicked', {
       app_slug: PageProps.appSlug(),
       workspace_slug: GlobalProps.workspaceSlug(),
-      // git_provider,
-      platform: 'website',
+      git_provider: PageProps.app()?.gitProvider,
       yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
     });
     onStorageDialogOpen();
@@ -130,7 +129,7 @@ const ConfigSettingsBar = () => {
                   segmentTrack('Branch Switch Popup Shown', {
                     app_slug: PageProps.appSlug(),
                     workspace_slug: GlobalProps.workspaceSlug(),
-                    // git_provider,
+                    git_provider: PageProps.app()?.gitProvider,
                   });
                 }}
                 isDisabled={hasChanges}

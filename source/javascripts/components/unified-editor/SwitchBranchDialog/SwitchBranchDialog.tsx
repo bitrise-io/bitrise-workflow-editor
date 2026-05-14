@@ -53,7 +53,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           segmentTrack('Branch Switch Succeeded', {
             app_slug: PageProps.appSlug(),
             workspace_slug: GlobalProps.workspaceSlug(),
-            // git_provider,
+            git_provider: PageProps.app()?.gitProvider,
             current_branch: configBranch,
             requested_branch: targetBranch,
             default_branch: PageProps.app()?.defaultBranch,
@@ -64,7 +64,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           segmentTrack('Branch Switch Failed', {
             app_slug: PageProps.appSlug(),
             workspace_slug: GlobalProps.workspaceSlug(),
-            // git_provider,
+            git_provider: PageProps.app()?.gitProvider,
             current_branch: configBranch,
             requested_branch: targetBranch,
             default_branch: PageProps.app()?.defaultBranch,
@@ -121,7 +121,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
             segmentTrack('Branch Switch Attempted', {
               app_slug: PageProps.appSlug(),
               workspace_slug: GlobalProps.workspaceSlug(),
-              // git_provider,
+              git_provider: PageProps.app()?.gitProvider,
               current_branch: configBranch,
               requested_branch: targetBranch,
               default_branch: PageProps.app()?.defaultBranch,

@@ -47,7 +47,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       segmentTrack('Push Config Changes Attempted', {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         current_branch: configBranch,
         target_branch: branch,
         is_new_target_branch: branch !== configBranch,
@@ -59,7 +59,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       segmentTrack('Push Config Changes Succeeded', {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         current_branch: configBranch,
         target_branch: branch,
         is_new_target_branch: branch !== configBranch,
@@ -79,7 +79,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
                 segmentTrack('Open Pr Attempted', {
                   app_slug: PageProps.appSlug(),
                   workspace_slug: GlobalProps.workspaceSlug(),
-                  //git_provider,
+                  git_provider: PageProps.app()?.gitProvider,
                   target_branch: branch,
                 }),
             }
@@ -94,7 +94,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       segmentTrack('Push Config Changes Failed', {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
-        // git_provider,
+        git_provider: PageProps.app()?.gitProvider,
         current_branch: configBranch,
         target_branch: branch,
         is_new_target_branch: branch !== configBranch,

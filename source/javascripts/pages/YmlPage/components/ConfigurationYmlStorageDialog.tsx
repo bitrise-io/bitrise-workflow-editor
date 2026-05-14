@@ -352,8 +352,8 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
       yml_source: selectedStorage,
       workspace_slug: GlobalProps.workspaceSlug(),
       app_slug: PageProps.appSlug(),
+      git_provider: PageProps.app()?.gitProvider || '',
       platform: 'website',
-      // git_provider,
     };
     if (switchGitToBitrise) {
       eventProps.selected_yml_source = gitToBitriseStorage === 'git-ci-config' ? 'git' : 'bitrise';
