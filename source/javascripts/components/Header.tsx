@@ -11,6 +11,11 @@ import {
 import { useCallback, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
+import {
+  trackConfigMergePopupShown,
+  trackPushConfigChangesPopupShown,
+  trackSaveButtonClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
 import {
@@ -20,7 +25,6 @@ import {
   initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
@@ -94,14 +98,7 @@ const Header = () => {
     onClose: closePushBranchDialog,
   } = useDisclosure({
     onOpen: () => {
-      const configBranch = bitriseYmlStore.getState().configBranch;
-      segmentTrack('Push Config Changes Popup Shown', {
-        app_slug: PageProps.appSlug(),
-        workspace_slug: GlobalProps.workspaceSlug(),
-        git_provider: PageProps.app()?.gitProvider,
-        current_branch: configBranch,
-        default_branch: PageProps.app()?.defaultBranch,
-      });
+      trackPushConfigChangesPopupShown(bitriseYmlStore.getState().configBranch);
     },
   });
 
@@ -111,15 +108,7 @@ const Header = () => {
       if (error.status === 409) {
         const configBranch = bitriseYmlStore.getState().configBranch;
         setMergeDialogContext({ targetBranch: configBranch ?? '', isNewTargetBranch: false });
-        segmentTrack('Workflow Editor Config Merge Popup Shown', {
-          tab_name: currentPage,
-          app_slug: PageProps.appSlug(),
-          workspace_slug: GlobalProps.workspaceSlug(),
-          platform: 'website',
-          git_provider: PageProps.app()?.gitProvider,
-          target_branch: configBranch,
-          is_new_target_branch: false,
-        });
+        trackConfigMergePopupShown(currentPage, configBranch, false);
         openMergeDialog();
         return;
       }
@@ -152,15 +141,7 @@ const Header = () => {
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;
       setMergeDialogContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
-      segmentTrack('Workflow Editor Config Merge Popup Shown', {
-        tab_name: currentPage,
-        app_slug: PageProps.appSlug(),
-        workspace_slug: GlobalProps.workspaceSlug(),
-        platform: 'website',
-        git_provider: PageProps.app()?.gitProvider,
-        target_branch: branch,
-        is_new_target_branch: branch !== configBranch,
-      });
+      trackConfigMergePopupShown(currentPage, branch, branch !== configBranch);
       closePushBranchDialog();
       openMergeDialog();
     },
@@ -168,18 +149,7 @@ const Header = () => {
 
   const saveCIConfig = useCallback(
     (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
-      segmentTrack('Workflow Editor Save Button Clicked', {
-        app_slug: PageProps.appSlug(),
-        workspace_slug: GlobalProps.workspaceSlug(),
-        source,
-        tab_name: currentPage,
-        platform: 'website',
-        ai_assistant_conversation_id: conversationId,
-        turn_count: turnCount,
-        current_branch: bitriseYmlStore.getState().configBranch,
-        default_branch: PageProps.app()?.defaultBranch,
-        git_provider: PageProps.app()?.gitProvider,
-      });
+      trackSaveButtonClicked(source, currentPage, bitriseYmlStore.getState().configBranch, conversationId, turnCount);
 
       if (ciConfigSettings?.usesRepositoryYml) {
         if (enableBranchSwitching) {

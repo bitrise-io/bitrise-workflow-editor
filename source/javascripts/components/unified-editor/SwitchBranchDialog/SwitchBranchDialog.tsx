@@ -13,9 +13,12 @@ import {
 import { FormEvent, useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import {
+  trackBranchSwitchAttempted,
+  trackBranchSwitchFailed,
+  trackBranchSwitchSucceeded,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useBranches } from '@/hooks/useBranches';
@@ -50,26 +53,11 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
         onSuccess: (data) => {
           initializeBitriseYmlDocument({ ...data, branch: data.branch || targetBranch });
           loadConfigFromBranch(targetBranch);
-          segmentTrack('Branch Switch Succeeded', {
-            app_slug: PageProps.appSlug(),
-            workspace_slug: GlobalProps.workspaceSlug(),
-            git_provider: PageProps.app()?.gitProvider,
-            current_branch: configBranch,
-            requested_branch: targetBranch,
-            default_branch: PageProps.app()?.defaultBranch,
-          });
+          trackBranchSwitchSucceeded(configBranch, targetBranch);
           onClose?.();
         },
         onError: (error) => {
-          segmentTrack('Branch Switch Failed', {
-            app_slug: PageProps.appSlug(),
-            workspace_slug: GlobalProps.workspaceSlug(),
-            git_provider: PageProps.app()?.gitProvider,
-            current_branch: configBranch,
-            requested_branch: targetBranch,
-            default_branch: PageProps.app()?.defaultBranch,
-            error_reason: error?.message,
-          });
+          trackBranchSwitchFailed(configBranch, targetBranch, error?.message);
         },
       },
     );
@@ -117,16 +105,7 @@ const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
           type="submit"
           isLoading={isLoadingConfig}
           isDisabled={isLoading || !data?.branches || targetBranch === configBranch}
-          onClick={() => {
-            segmentTrack('Branch Switch Attempted', {
-              app_slug: PageProps.appSlug(),
-              workspace_slug: GlobalProps.workspaceSlug(),
-              git_provider: PageProps.app()?.gitProvider,
-              current_branch: configBranch,
-              requested_branch: targetBranch,
-              default_branch: PageProps.app()?.defaultBranch,
-            });
-          }}
+          onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
         >
           Switch
         </Button>

@@ -16,10 +16,13 @@ import {
 } from '@bitrise/bitkit';
 
 import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import {
+  trackBranchSwitchPopupShown,
+  trackChangeStorageButtonClicked,
+  trackDownloadYmlClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -49,23 +52,12 @@ const ConfigSettingsBar = () => {
   const { data, isPending } = useCiConfigSettings();
 
   const handleDownload = () => {
-    segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      app_slug: PageProps.appSlug(),
-      workspace_slug: GlobalProps.workspaceSlug(),
-      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
-      source: 'config_settings_bar',
-      platform: 'website',
-    });
+    trackDownloadYmlClicked(data?.usesRepositoryYml ? 'git' : 'bitrise', 'config_settings_bar');
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
   const handleStorageChange = () => {
-    segmentTrack('Change Configuration Yml Source Button Clicked', {
-      app_slug: PageProps.appSlug(),
-      workspace_slug: GlobalProps.workspaceSlug(),
-      git_provider: PageProps.app()?.gitProvider,
-      yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
-    });
+    trackChangeStorageButtonClicked(data?.usesRepositoryYml ? 'git' : 'bitrise');
     onStorageDialogOpen();
   };
 
@@ -126,11 +118,7 @@ const ConfigSettingsBar = () => {
                 leftIconName="Branch"
                 onClick={() => {
                   onSwitchBranchDialogOpen();
-                  segmentTrack('Branch Switch Popup Shown', {
-                    app_slug: PageProps.appSlug(),
-                    workspace_slug: GlobalProps.workspaceSlug(),
-                    git_provider: PageProps.app()?.gitProvider,
-                  });
+                  trackBranchSwitchPopupShown();
                 }}
                 isDisabled={hasChanges}
               >

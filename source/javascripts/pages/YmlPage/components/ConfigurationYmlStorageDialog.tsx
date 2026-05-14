@@ -21,12 +21,16 @@ import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import {
+  trackCopyYmlClicked,
+  trackDownloadYmlClicked,
+  trackStorageSuccessfullyChanged,
+  trackValidateAndSaveStorageClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
 import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import { download, getFormattedDate } from '@/core/utils/CommonUtils';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings, usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
@@ -126,10 +130,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
   const defaultBranch = PageProps.app()?.defaultBranch;
 
   const onCopyClick = () => {
-    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
-      yml_source: 'bitrise',
-      source: 'configuration_yml_source',
-    });
+    trackCopyYmlClicked('bitrise', 'configuration_yml_source');
     copyToClipboard(getYmlString()).then((isCopied) => {
       if (isCopied) {
         toast({
@@ -148,13 +149,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
   };
 
   const onDownloadClick = () => {
-    segmentTrack('Workflow Editor Download Yml Button Clicked', {
-      app_slug: PageProps.appSlug(),
-      workspace_slug: GlobalProps.workspaceSlug(),
-      platform: 'website',
-      yml_source: 'bitrise',
-      source: 'configuration_yml_source',
-    });
+    trackDownloadYmlClicked('bitrise', 'configuration_yml_source');
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
@@ -340,25 +335,16 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
           : 'From now you can manage your Configuration YAML on bitrise.io.',
       isClosable: true,
     });
-    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
-      yml_source: selectedStorage,
-    });
+    trackStorageSuccessfullyChanged(selectedStorage);
     forceRefreshStates();
     onClose();
   };
 
   const onValidateAndSave = () => {
-    const eventProps: Record<string, string> = {
-      yml_source: selectedStorage,
-      workspace_slug: GlobalProps.workspaceSlug(),
-      app_slug: PageProps.appSlug(),
-      git_provider: PageProps.app()?.gitProvider || '',
-      platform: 'website',
-    };
-    if (switchGitToBitrise) {
-      eventProps.selected_yml_source = gitToBitriseStorage === 'git-ci-config' ? 'git' : 'bitrise';
-    }
-    segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
+    trackValidateAndSaveStorageClicked(
+      selectedStorage,
+      switchGitToBitrise ? (gitToBitriseStorage === 'git-ci-config' ? 'git' : 'bitrise') : undefined,
+    );
 
     setAsyncError(null);
     if (switchGitToBitrise) {

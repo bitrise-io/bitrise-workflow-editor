@@ -21,11 +21,13 @@ import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import {
+  trackConfigMergePopupDismissed,
+  trackConfigMergeSaveClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -202,10 +204,7 @@ const ConfigMergeDialogContent = ({
 
   const handleCancel = () => {
     onClose();
-    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
-      tab_name: currentPage,
-      popup_step_dismiss_method: 'close_button',
-    });
+    trackConfigMergePopupDismissed(currentPage);
   };
 
   const handleSave = () => {
@@ -234,15 +233,7 @@ const ConfigMergeDialogContent = ({
           },
         },
       );
-      segmentTrack('Workflow Editor Config Merge Popup Save Results Button Clicked', {
-        tab_name: currentPage,
-        app_slug: PageProps.appSlug(),
-        workspace_slug: GlobalProps.workspaceSlug(),
-        platform: 'website',
-        git_provider: PageProps.app()?.gitProvider,
-        target_branch: targetBranch,
-        is_new_target_branch: isNewTargetBranch,
-      });
+      trackConfigMergeSaveClicked(currentPage, targetBranch, isNewTargetBranch);
     } catch (error) {
       setClientError(error as Error);
     }
@@ -391,10 +382,7 @@ const ConfigMergeDialog = ({ isOpen, onClose, targetBranch, isNewTargetBranch, .
 
   const handleClose = () => {
     onClose();
-    segmentTrack('Workflow Editor Config Merge Popup Dismissed', {
-      tab_name: currentPage,
-      popup_step_dismiss_method: 'close_button',
-    });
+    trackConfigMergePopupDismissed(currentPage);
   };
 
   return (
