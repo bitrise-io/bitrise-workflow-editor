@@ -30,6 +30,12 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
 
   const { isPending: isLoadingConfig, error: switchBranchError, mutateAsync: switchBranch, reset } = useSwitchBranch();
 
+  const filteredBranches = data?.branches
+    .map((branch) => ({ value: branch, label: branch }))
+    .filter((item) => item.label.toLowerCase().includes(search.toLowerCase()) || item.value === selectedBranch);
+
+  const isSubmitDisabled = isLoading || !data?.branches || !targetBranch || targetBranch === configBranch;
+
   useEffect(() => {
     if (!isOpen) {
       setSearch('');
@@ -70,7 +76,7 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
           <BitkitSelect
             label="Branch"
             placeholder="Select branch"
-            items={(data?.branches ?? []).map((branch) => ({ value: branch, label: branch }))}
+            items={filteredBranches || []}
             isLoading={isLoading}
             value={targetBranch}
             onValueChange={setSelectedBranch}
@@ -92,13 +98,7 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
           </BitkitButton>
           <BitkitButton
             type="submit"
-            state={
-              isLoadingConfig
-                ? 'loading'
-                : isLoading || !data?.branches || !targetBranch || targetBranch === configBranch
-                  ? 'disabled'
-                  : undefined
-            }
+            state={isLoadingConfig ? 'loading' : isSubmitDisabled ? 'disabled' : undefined}
             onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
           >
             Switch
