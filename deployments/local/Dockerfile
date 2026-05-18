@@ -28,7 +28,6 @@ COPY . .
 
 # Build steps that use the source
 RUN go install
-RUN npm install
 
 CMD ["npm", "run", "start:website"]
 
