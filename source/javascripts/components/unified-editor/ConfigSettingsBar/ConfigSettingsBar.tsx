@@ -91,7 +91,7 @@ const ConfigSettingsBar = () => {
             </Text>
           )}
         </Box>
-        {enableBranchSwitching && branchLabel && (
+        {enableBranchSwitching && data?.usesRepositoryYml && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" mt="4">
             <Icon name="Branch" size="16" color="icon/tertiary" />
             <DefinitionTooltip
@@ -112,7 +112,7 @@ const ConfigSettingsBar = () => {
       <Menu size="md">
         <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
         <MenuList>
-          {enableBranchSwitching && (
+          {enableBranchSwitching && data?.usesRepositoryYml && (
             <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
               <MenuItem
                 leftIconName="Branch"
