@@ -1,4 +1,6 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Text, useToast } from '@bitrise/bitkit';
+import { BitkitButton, BitkitDialog, createBitkitToast, IconCopy, IconDownload } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
@@ -13,7 +15,6 @@ type Props = {
 };
 
 const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
-  const toast = useToast();
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const [isCopiedOrDownloded, setIsCopiedOrDownloaded] = useState(false);
@@ -23,20 +24,18 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
 
     copyToClipboard(getYmlString()).then((isCopied) => {
       if (isCopied) {
-        toast({
-          title: 'Copied to clipboard',
-          description:
+        createBitkitToast({
+          titleText: 'Copied to clipboard',
+          messageText:
             "Commit the content of the current configuration YAML file to the project's repository before updating the setting.",
-          status: 'success',
-          isClosable: true,
+          variant: 'success',
         });
         setIsCopiedOrDownloaded(true);
       } else {
-        toast({
-          title: 'Failed to copy to clipboard',
-          description: 'Something went wrong while copying the configuration YAML content.',
-          status: 'error',
-          isClosable: true,
+        createBitkitToast({
+          titleText: 'Failed to copy to clipboard',
+          messageText: 'Something went wrong while copying the configuration YAML content.',
+          variant: 'critical',
         });
       }
     });
@@ -52,59 +51,69 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
 
   return (
     <>
-      <DialogBody>
-        <Text marginBlockEnd="24">
+      <BitkitDialog.Body>
+        <Text>
           If you would like to apply these changes to your configuration, depending on your setup, you need to do the
           following:
         </Text>
-        <Text textStyle="heading/h4" marginBlockEnd="4">
-          Using a single configuration file
-        </Text>
-        <Text marginBlockEnd="16">
-          Update the content of the configuration YAML in the {gitRepoSlug} repository’s {defaultBranch} branch.
-        </Text>
-        <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
-          <Button
-            size="sm"
-            variant="tertiary"
-            width="fit-content"
-            leftIconName="Download"
-            onClick={handleDownloadClick}
-          >
-            Download changed version
-          </Button>
-          <Button
-            size="sm"
-            variant="tertiary"
-            width="fit-content"
-            leftIconName="Duplicate"
-            onClick={handleCopyToClipboard}
-          >
-            Copy changed configuration
-          </Button>
+        <Box display="flex" flexDirection="column">
+          <Text textStyle="heading/h4" marginBlockEnd="4">
+            Using a single configuration file
+          </Text>
+          <Text marginBlockEnd="16">
+            Update the content of the configuration YAML in the {gitRepoSlug} repository&apos;s {defaultBranch} branch.
+          </Text>
+          <Box display="flex" flexDirection="column" gap="8">
+            <BitkitButton
+              size="sm"
+              variant="tertiary"
+              width="fit-content"
+              icon={IconDownload}
+              onClick={handleDownloadClick}
+            >
+              Download changed version
+            </BitkitButton>
+            <BitkitButton
+              size="sm"
+              variant="tertiary"
+              width="fit-content"
+              icon={IconCopy}
+              onClick={handleCopyToClipboard}
+            >
+              Copy changed configuration
+            </BitkitButton>
+          </Box>
         </Box>
-        <Text textStyle="heading/h4" marginBlockEnd="4">
-          Using multiple configuration files
-        </Text>
-        <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-      </DialogBody>
-      <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Box display="flex" flexDirection="column">
+          <Text textStyle="heading/h4" marginBlockEnd="4">
+            Using multiple configuration files
+          </Text>
+          <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
+        </Box>
+      </BitkitDialog.Body>
+      <BitkitDialog.Footer>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Cancel
-        </Button>
-        <Button isDisabled={!isCopiedOrDownloded} onClick={onClose}>
+        </BitkitButton>
+        <BitkitButton state={!isCopiedOrDownloded ? 'disabled' : undefined} onClick={onClose}>
           Done
-        </Button>
-      </DialogFooter>
+        </BitkitButton>
+      </BitkitDialog.Footer>
     </>
   );
 };
 
 const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Update configuration YAML">
+    <BitkitDialog
+      title="Update configuration YAML"
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent onClose={onClose} />
-    </Dialog>
+    </BitkitDialog>
   );
 };
 
