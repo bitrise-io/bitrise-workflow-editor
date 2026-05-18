@@ -1,19 +1,17 @@
 import {
-  Box,
-  ControlButton,
-  DefinitionTooltip,
-  Dot,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Skeleton,
-  SkeletonBox,
-  Text,
-  Tooltip,
-  useDisclosure,
-} from '@bitrise/bitkit';
+  BitkitActionMenu,
+  BitkitControlButton,
+  BitkitDefinitionTooltip,
+  BitkitTooltip,
+  IconBranch,
+  IconDownload,
+  IconFolder,
+  IconMoreVertical,
+} from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
+import { Skeleton } from '@chakra-ui/react/skeleton';
+import { Text } from '@chakra-ui/react/text';
+import { useState } from 'react';
 
 import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
 import {
@@ -33,12 +31,9 @@ import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlStorageDialog';
 
 const ConfigSettingsBar = () => {
-  const {
-    isOpen: isSwitchBranchDialogOpen,
-    onClose: onSwitchBranchDialogClose,
-    onOpen: onSwitchBranchDialogOpen,
-  } = useDisclosure();
-  const { isOpen: isStorageDialogOpen, onClose: onStorageDialogClose, onOpen: onStorageDialogOpen } = useDisclosure();
+  const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
+  const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
+
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
   const hasChanges = useYmlHasChanges();
 
@@ -58,16 +53,16 @@ const ConfigSettingsBar = () => {
 
   const handleStorageChange = () => {
     trackChangeStorageButtonClicked(data?.usesRepositoryYml ? 'git' : 'bitrise');
-    onStorageDialogOpen();
+    setIsStorageDialogOpen(true);
   };
 
   return (
     <Box
       paddingLeft="32"
       paddingRight="12"
-      py="12"
-      mb="24"
-      minH="65"
+      paddingBlock="12"
+      marginBottom="24"
+      minHeight="65"
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
@@ -75,67 +70,57 @@ const ConfigSettingsBar = () => {
       justifyContent="space-between"
       gap="8"
     >
-      <Box minW={0}>
+      <Box minWidth={0}>
         <Box display="flex" alignItems="center">
           <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
           </Text>
-          <Dot backgroundColor="text/primary" size="4" mx="6"></Dot>
-          {isPending ? (
-            <Skeleton>
-              <SkeletonBox height="20px" width="75px" />
-            </Skeleton>
-          ) : (
+          <Box width="4" height="4" borderRadius="full" background="text/primary" marginInline="6" flexShrink="0" />
+          <Skeleton loading={isPending}>
             <Text as="h5" textStyle="body/md/semibold" color="text/primary">
               {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
             </Text>
-          )}
+          </Skeleton>
         </Box>
         {enableBranchSwitching && branchLabel && (
-          <Box display="flex" alignItems="center" gap="4" mt="4">
-            <Icon name="Branch" size="16" color="icon/tertiary" />
-            <DefinitionTooltip
-              label={`Editing bitrise.yml from ${branchLabel}.`}
-              triggerProps={{
-                textStyle: 'body/sm/regular',
-                color: 'text/secondary',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
+          <Box display="flex" alignItems="center" gap="4" marginTop="4">
+            <IconBranch size="16" color="icon/tertiary" />
+            <BitkitDefinitionTooltip text={`Editing bitrise.yml from ${branchLabel}.`}>
               {branchLabel}
-            </DefinitionTooltip>
+            </BitkitDefinitionTooltip>
           </Box>
         )}
       </Box>
-      <Menu size="md">
-        <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
-        <MenuList>
-          {enableBranchSwitching && (
-            <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
-              <MenuItem
-                leftIconName="Branch"
-                onClick={() => {
-                  onSwitchBranchDialogOpen();
-                  trackBranchSwitchPopupShown();
-                }}
-                isDisabled={hasChanges}
-              >
-                Switch branch...
-              </MenuItem>
-            </Tooltip>
-          )}
-          <MenuItem leftIconName="Download" onClick={handleDownload}>
-            Download YAML file
-          </MenuItem>
-          <MenuItem leftIconName="Folder" onClick={handleStorageChange} isDisabled={isPending}>
-            Change storage...
-          </MenuItem>
-        </MenuList>
-      </Menu>
-      <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={onSwitchBranchDialogClose} />
-      <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={onStorageDialogClose} />
+      <BitkitActionMenu.Root size="md" trigger={<BitkitControlButton icon={IconMoreVertical} label="More" size="xs" />}>
+        {enableBranchSwitching && (
+          <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
+            <BitkitActionMenu.Item
+              value="switch-branch"
+              icon={IconBranch}
+              disabled={hasChanges}
+              onClick={() => {
+                setIsSwitchBranchDialogOpen(true);
+                trackBranchSwitchPopupShown();
+              }}
+            >
+              Switch branch...
+            </BitkitActionMenu.Item>
+          </BitkitTooltip>
+        )}
+        <BitkitActionMenu.Item value="download-yml" icon={IconDownload} onClick={handleDownload}>
+          Download YAML file
+        </BitkitActionMenu.Item>
+        <BitkitActionMenu.Item
+          value="change-storage"
+          icon={IconFolder}
+          disabled={isPending}
+          onClick={handleStorageChange}
+        >
+          Change storage...
+        </BitkitActionMenu.Item>
+      </BitkitActionMenu.Root>
+      <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
+      <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={() => setIsStorageDialogOpen(false)} />
     </Box>
   );
 };
