@@ -85,7 +85,7 @@ const ConfigSettingsBar = () => {
         {enableBranchSwitching && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" marginTop="4">
             <IconBranch size="16" color="icon/tertiary" />
-            <BitkitDefinitionTooltip text={`Editing bitrise.yml from ${branchLabel}.`}>
+            <BitkitDefinitionTooltip text={`Editing bitrise.yml from ${branchLabel}.`} textSize="sm">
               {branchLabel}
             </BitkitDefinitionTooltip>
           </Box>
