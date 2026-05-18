@@ -23,13 +23,17 @@ import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useBranches } from '@/hooks/useBranches';
 import { loadConfigFromBranch, useSwitchBranch } from '@/hooks/useCiConfig';
+import useSearchParams from '@/hooks/useSearchParams';
 
 const SwitchBranchDialog = (props: Omit<DialogProps, 'title'>) => {
   const { isOpen, onClose } = props;
 
+  const [searchParams] = useSearchParams();
+  const limit = searchParams.limit ? Number(searchParams.limit) : undefined;
+
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const { data, error: getBranchesError, isLoading } = useBranches({ q: debouncedSearch, enabled: isOpen });
+  const { data, error: getBranchesError, isLoading } = useBranches({ q: debouncedSearch, limit, enabled: isOpen });
 
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const [selectedBranch, setSelectedBranch] = useState<string>(configBranch || '');
