@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	rice "github.com/GeertJohan/go.rice"
@@ -62,6 +63,36 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 
 	http.Handle("/", r)
 	http.Handle("/"+version.VERSION+"/", assetServer)
+
+	// The rest is dev-only convenience for MODE=WEBSITE running behind the
+	// website-monolith asset proxy. In the CLI plugin (prod, rice-box assets)
+	// none of this is used — users hit the Go server directly at /<version>/.
+	if isServeFilesThroughMiddlemanServer {
+		// Vite's base in website mode is /workflow_editor/<version>/; serve it
+		// at that path so the dev proxy chain can forward unchanged.
+		http.Handle("/workflow_editor/"+version.VERSION+"/", assetServer)
+
+		// The website-monolith resolves the WFE version via the
+		// workflow-editor-version LaunchDarkly flag (or the BITRISE_WORKFLOW_EDITOR_VERSION
+		// env var, default "latest"), which rarely matches the version baked into the
+		// local checkout. Rewrite the version segment to the actual local version so
+		// the WFE serves regardless of which version the caller asked for.
+		r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			prefix := "/"
+			tail := strings.TrimPrefix(req.URL.Path, "/")
+			if strings.HasPrefix(tail, "workflow_editor/") {
+				prefix = "/workflow_editor/"
+				tail = strings.TrimPrefix(tail, "workflow_editor/")
+			}
+			slash := strings.Index(tail, "/")
+			if slash < 0 {
+				http.NotFound(w, req)
+				return
+			}
+			req.URL.Path = prefix + version.VERSION + "/" + tail[slash+1:]
+			assetServer.ServeHTTP(w, req)
+		})
+	}
 
 	return r, nil
 }

@@ -8,6 +8,10 @@ RUN apt-get update && \
 RUN curl -fsSL https://go.dev/dl/go1.25.7.linux-amd64.tar.gz | tar -C /usr/local -xz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
+# Match the bind mount in web-dev-env's docker-compose override
+# (../bitrise-workflow-editor:/bitrise/src) so host edits are live.
+WORKDIR /bitrise/src
+
 # Copy ONLY Go dependency files
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/root/.cache/go-build \
