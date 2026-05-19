@@ -136,6 +136,7 @@ spec/              # Test files (Jest unit + Playwright E2E)
 
 - Dev server available at `localhost:4000/{version}` (version from package.json)
 - Go static assets are embedded via go.rice (rice-box)
+- **Version bumps** (`package.json` + `version/version.go`): Vite hot-reloads `package.json` and starts serving at the new `/{version}/` (or `/{urlPrefix}/{version}/`) path, but the Go `go run main.go` process keeps its already-compiled binary with the old `version.VERSION` constant. The two then disagree on the route prefix and requests 404. After pulling/rebasing across a version-bump commit, restart the `workflow-editor` service (don't rely on Vite's hot-reload) so Go recompiles against the new constant.
 - Husky pre-commit hooks run lint-staged
 - The app runs inside an **iframe** on the Bitrise website — routing uses hash-based location (`useHashLocation`) and communicates with the parent window via `WindowUtils`
 - `BitriseYmlStore` always **clones the YAML document before mutations** — this is critical for `YmlUtils` caching to work correctly (WeakMap keyed by document identity)

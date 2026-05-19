@@ -87,6 +87,14 @@ PUBLIC_URL_ROOT=http://localhost:4000 npm run start:website
 
 In that case set `BITRISE_WORKFLOW_EDITOR_URL=http://localhost:4000` (no trailing path) in the monolith.
 
+#### Restart after a version bump
+
+If you pull/rebase across a release commit (one that bumps the version in both `package.json` and
+`version/version.go`), restart the WFE — don't just rely on Vite's hot-reload. Vite picks up the new version from
+`package.json` and starts serving at the new `/{version}/` path, but `go run main.go` keeps running its already-compiled
+binary with the old `version.VERSION` constant. The two then disagree on the route prefix and requests 404 (which
+surfaces in the monolith as `OpenURI::HTTPError 404` from `WorkflowController#content`).
+
 ### Run client tests
 
 ```bash
