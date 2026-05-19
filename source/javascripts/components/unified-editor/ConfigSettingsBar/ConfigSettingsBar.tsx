@@ -13,7 +13,6 @@ import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
-import SwitchBranchDialog from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog';
 import {
   trackBranchSwitchPopupShown,
   trackChangeStorageButtonClicked,
@@ -29,6 +28,8 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlStorageDialog';
+
+import SwitchBranchDialog from '../SwitchBranchDialog/SwitchBranchDialog';
 
 const ConfigSettingsBar = () => {
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
@@ -82,7 +83,7 @@ const ConfigSettingsBar = () => {
             </Text>
           </Skeleton>
         </Box>
-        {enableBranchSwitching && branchLabel && (
+        {enableBranchSwitching && data?.usesRepositoryYml && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" marginTop="4">
             <IconBranch size="16" color="icon/tertiary" />
             <BitkitDefinitionTooltip text={`Editing bitrise.yml from ${branchLabel}.`} textSize="sm">
@@ -92,7 +93,7 @@ const ConfigSettingsBar = () => {
         )}
       </Box>
       <BitkitActionMenu.Root size="md" trigger={<BitkitControlButton icon={IconMoreVertical} label="More" size="xs" />}>
-        {enableBranchSwitching && (
+        {enableBranchSwitching && data?.usesRepositoryYml && (
           <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
             <BitkitActionMenu.Item
               value="switch-branch"
