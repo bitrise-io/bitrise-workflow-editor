@@ -9,7 +9,7 @@ import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
 
 const YmlEditor = () => {
   const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
-  const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
+  const { isLoading: isLoadingSetting } = useCiConfigSettings();
 
   useUnmount(() => {
     if (monacoEditorRef.current) {
@@ -44,7 +44,7 @@ const YmlEditor = () => {
       onChange={handleEditorChange}
       onMount={handleEditorDidMount}
       options={{
-        readOnly: isLoadingSetting || ymlSettings?.usesRepositoryYml,
+        readOnly: isLoadingSetting,
       }}
     />
   );
