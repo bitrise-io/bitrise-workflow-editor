@@ -76,20 +76,20 @@ const PropertiesTab = () => {
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
-  const [name, setName] = useState(data?.mergedValues?.title);
+  const [title, setTitle] = useState(data?.mergedValues?.title);
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;
   const description = data?.mergedValues?.description;
   const sourceUrl = data?.mergedValues?.source_code_url;
 
-  const handleNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const title = e.currentTarget.value;
+  const handleTitleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const t = e.currentTarget.value;
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
 
-    setName(title);
-    updateStepField(source, sourceId, stepIndex, 'title', title, data?.defaultValues?.title);
+    setTitle(t);
+    updateStepField(source, sourceId, stepIndex, 'title', t, data?.defaultValues?.title);
   };
 
   return (
@@ -111,10 +111,10 @@ const PropertiesTab = () => {
       )}
       <Input
         type="text"
-        label="Name"
-        defaultValue={name}
-        placeholder="Step name"
-        onChange={handleNameChange}
+        label="Title"
+        defaultValue={title}
+        placeholder="Step title"
+        onChange={handleTitleChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
       />
       <Divider />

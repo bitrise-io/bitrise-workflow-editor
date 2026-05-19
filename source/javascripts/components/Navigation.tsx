@@ -13,8 +13,10 @@ import {
 } from '@bitrise/bitkit';
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
+import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/ConfigSettingsBar';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -81,10 +83,19 @@ const Navigation = (props: Props) => {
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
-
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
 
-  useParentMessageListener<{ bitriseYmlContents: string }>('CI_CONFIG_RECEIVED', (payload) => {
+  useParentMessageListener<{
+    bitriseYmlContents: string;
+    conversationId: string | undefined;
+    turnIndex: number | undefined;
+    turnCount: number | undefined;
+  }>('CI_CONFIG_RECEIVED', (payload) => {
+    useCiConfigExpertStore.setState({
+      conversationId: payload.conversationId,
+      turnIndex: payload.turnIndex,
+      turnCount: payload.turnCount,
+    });
     updateBitriseYmlDocumentByString(payload.bitriseYmlContents);
   });
 
@@ -94,6 +105,7 @@ const Navigation = (props: Props) => {
       selectedPage: currentPage,
       yamlSelector,
     });
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: true });
   });
 
   useEffect(() => {
@@ -108,6 +120,7 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar minW={['88px', '256px']} {...props}>
+      {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar />}
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}

@@ -60,6 +60,7 @@ declare global {
         defaultBranch?: string;
         buildTriggerToken?: string;
         gitRepoSlug?: string;
+        gitProvider?: string;
         isOwnerPaying?: boolean;
         hasAnyBuild?: boolean;
       };

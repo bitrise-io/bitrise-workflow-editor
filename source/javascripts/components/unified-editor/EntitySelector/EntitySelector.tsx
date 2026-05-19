@@ -32,6 +32,8 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const [search, setSearch] = useState('');
 
   const { isVisible, tooltipLabel, getAIButtonProps } = useAIButton({
+    action: 'create_workflow',
+    source: 'workflow_selector',
     yamlSelector: entityName === 'Workflow' ? 'workflows' : undefined,
   });
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();

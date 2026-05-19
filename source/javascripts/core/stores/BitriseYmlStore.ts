@@ -23,6 +23,8 @@ export const bitriseYmlStore = createStore(
     __invalidYmlString: undefined as string | undefined,
     __savedInvalidYmlString: undefined as string | undefined,
     validationStatus: 'valid' as 'valid' | 'invalid' | 'warnings',
+    configBranch: undefined as string | undefined,
+    configCommitSha: undefined as string | undefined,
   })),
 );
 
@@ -75,7 +77,17 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
   }
 }
 
-export function initializeBitriseYmlDocument({ ymlString, version }: { ymlString: string; version: string }) {
+export function initializeBitriseYmlDocument({
+  ymlString,
+  version,
+  branch,
+  commitSha,
+}: {
+  ymlString: string;
+  version: string;
+  branch?: string;
+  commitSha?: string;
+}) {
   const doc = YmlUtils.toDoc(ymlString);
 
   if (doc.errors.length === 0) {
@@ -85,12 +97,16 @@ export function initializeBitriseYmlDocument({ ymlString, version }: { ymlString
       savedYmlDocument: doc,
       __invalidYmlString: undefined,
       __savedInvalidYmlString: undefined,
+      configBranch: branch || undefined,
+      configCommitSha: commitSha || undefined,
     });
   } else {
     bitriseYmlStore.setState({
       version,
       __invalidYmlString: ymlString,
       __savedInvalidYmlString: ymlString,
+      configBranch: branch || undefined,
+      configCommitSha: commitSha || undefined,
     });
   }
 }

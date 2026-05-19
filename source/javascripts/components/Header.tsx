@@ -8,9 +8,14 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
+import {
+  trackConfigMergePopupShown,
+  trackPushConfigChangesPopupShown,
+  trackSaveButtonClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ClientError } from '@/core/api/client';
 import {
@@ -19,11 +24,15 @@ import {
   getYmlString,
   initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import usePushBranch from '@/hooks/usePushBranch';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -32,6 +41,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
 const Header = () => {
@@ -47,29 +57,30 @@ const Header = () => {
   const hasChanges = useYmlHasChanges();
   const ymlStatus = useYmlValidationStatus();
 
+  const conversationId = useCiConfigExpertStore((s) => s.conversationId);
+  const turnIndex = useCiConfigExpertStore((s) => s.turnIndex);
+  const turnCount = useCiConfigExpertStore((s) => s.turnCount);
+
+  const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
+
+  const [mergeDialogContext, setMergeDialogContext] = useState({ targetBranch: '', isNewTargetBranch: false });
+
   const {
     isOpen: isDiffViewerOpen,
     onOpen: openDiffViewer,
     onClose: closeDiffViewer,
   } = useDisclosure({
     onOpen: () => {
+      closeAIDrawer();
       segmentTrack('Workflow Editor Diff Button Clicked', {
         tab_name: currentPage,
+        ai_assistant_conversation_id: conversationId,
+        turn_index: turnIndex,
       });
     },
   });
 
-  const {
-    isOpen: isMergeDialogOpen,
-    onOpen: openMergeDialog,
-    onClose: closeMergeDialog,
-  } = useDisclosure({
-    onOpen: () => {
-      segmentTrack('Workflow Editor Config Merge Popup Shown', {
-        tab_name: currentPage,
-      });
-    },
-  });
+  const { isOpen: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
 
   const {
     isOpen: isUpdateConfigDialogOpen,
@@ -81,10 +92,23 @@ const Header = () => {
     },
   });
 
+  const {
+    isOpen: isPushBranchDialogOpen,
+    onOpen: openPushBranchDialog,
+    onClose: closePushBranchDialog,
+  } = useDisclosure({
+    onOpen: () => {
+      trackPushConfigChangesPopupShown(bitriseYmlStore.getState().configBranch);
+    },
+  });
+
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,
     onError: (error: ClientError) => {
       if (error.status === 409) {
+        const configBranch = bitriseYmlStore.getState().configBranch;
+        setMergeDialogContext({ targetBranch: configBranch ?? '', isNewTargetBranch: false });
+        trackConfigMergePopupShown(currentPage, configBranch, false);
         openMergeDialog();
         return;
       }
@@ -103,15 +127,36 @@ const Header = () => {
     },
   });
 
+  const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
+    onSuccess: () => {
+      closePushBranchDialog();
+      save({
+        projectSlug: appSlug,
+        ymlString: getYmlString(),
+        tabOpenDuringSave: currentPage,
+        version: bitriseYmlStore.getState().version,
+        conversationId,
+      });
+    },
+    onMergeConflict: (branch) => {
+      const configBranch = bitriseYmlStore.getState().configBranch;
+      setMergeDialogContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
+      trackConfigMergePopupShown(currentPage, branch, branch !== configBranch);
+      closePushBranchDialog();
+      openMergeDialog();
+    },
+  });
+
   const saveCIConfig = useCallback(
     (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
-      segmentTrack('Workflow Editor Save Button Clicked', {
-        source,
-        tab_name: currentPage,
-      });
+      trackSaveButtonClicked(source, currentPage, bitriseYmlStore.getState().configBranch, conversationId, turnCount);
 
       if (ciConfigSettings?.usesRepositoryYml) {
-        openUpdateConfigDialog();
+        if (enableBranchSwitching) {
+          openPushBranchDialog();
+        } else {
+          openUpdateConfigDialog();
+        }
         return;
       }
 
@@ -120,17 +165,33 @@ const Header = () => {
         ymlString: getYmlString(),
         tabOpenDuringSave: currentPage,
         version: bitriseYmlStore.getState().version,
+        conversationId,
       });
     },
-    [appSlug, currentPage, save, openUpdateConfigDialog, ciConfigSettings?.usesRepositoryYml],
+    [
+      currentPage,
+      conversationId,
+      turnCount,
+      ciConfigSettings?.usesRepositoryYml,
+      save,
+      appSlug,
+      enableBranchSwitching,
+      openPushBranchDialog,
+      openUpdateConfigDialog,
+    ],
   );
 
   const onDiscard = () => {
-    segmentTrack('Workflow Editor Discard Button Clicked', { tab_name: currentPage });
+    segmentTrack('Workflow Editor Discard Button Clicked', {
+      tab_name: currentPage,
+      ai_assistant_conversation_id: conversationId,
+      turn_count: turnCount,
+    });
 
     useWorkflowsPageStore.setState(useWorkflowsPageStore.getInitialState());
     usePipelinesPageStore.setState(usePipelinesPageStore.getInitialState());
     useStepBundlesPageStore.setState(useStepBundlesPageStore.getInitialState());
+    useCiConfigExpertStore.setState(useCiConfigExpertStore.getInitialState());
 
     discardBitriseYmlDocument();
   };
@@ -217,8 +278,24 @@ const Header = () => {
         </Tooltip>
       </Box>
       <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
-      <ConfigMergeDialog isOpen={isMergeDialogOpen} onClose={closeMergeDialog} />
+      <ConfigMergeDialog
+        isOpen={isMergeDialogOpen}
+        onClose={closeMergeDialog}
+        targetBranch={mergeDialogContext.targetBranch}
+        isNewTargetBranch={mergeDialogContext.isNewTargetBranch}
+      />
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
+      <PushBranchDialog
+        isOpen={isPushBranchDialogOpen}
+        onClose={() => {
+          clearPushError();
+          closePushBranchDialog();
+        }}
+        isPushPending={isPushPending}
+        pushError={pushError}
+        onPush={pushBranch}
+        onManualUpdate={openUpdateConfigDialog}
+      />
     </Box>
   );
 };

@@ -6,6 +6,8 @@ const defaultValues = {
   'enable-wfe-bitrise-language-server': false,
   'enable-wfe-step-bundles-when-to-run': false,
   'enable-ci-config-expert-agent': false,
+  'enable-branch-switching': false,
+  'enable-wfe-tool-versions': false,
 };
 
 type FeatureFlags = typeof defaultValues;
