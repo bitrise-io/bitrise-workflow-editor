@@ -62,45 +62,6 @@ describe('ToolsService', () => {
     });
   });
 
-  describe('serializeToolVersion', () => {
-    it('serializes latest-released without prefix', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'latest-released' })).toBe('latest');
-    });
-
-    it('serializes latest-released with prefix', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'latest-released', prefix: '22' })).toBe('22:latest');
-    });
-
-    it('serializes latest-installed with prefix', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'latest-installed', prefix: '3.3' })).toBe('3.3:installed');
-    });
-
-    it('serializes latest-installed without prefix', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'latest-installed' })).toBe('installed');
-    });
-
-    it('serializes exact', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'exact', version: '3.13.4' })).toBe('3.13.4');
-    });
-
-    it('serializes unset', () => {
-      expect(ToolsService.serializeToolVersion({ strategy: 'unset' })).toBe('unset');
-    });
-
-    it.each([['latest'], ['installed'], ['22:latest'], ['3.3:installed'], ['3.13.4'], ['unset']])(
-      'round-trips %p',
-      (raw: string) => {
-        expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion(raw))).toBe(raw);
-      },
-    );
-
-    it('normalizes "x"-suffixed partials when round-tripping', () => {
-      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3.x.x'))).toBe('3:installed');
-      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3.3.x'))).toBe('3.3:installed');
-      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion('3'))).toBe('3:installed');
-    });
-  });
-
   describe('validateToolId', () => {
     it('rejects empty and whitespace-only IDs', () => {
       expect(ToolsService.validateToolId('', '')).toBe('Tool ID is required');
@@ -150,11 +111,15 @@ describe('ToolsService', () => {
   });
 
   describe('setTool', () => {
+    it('throws when using "unset" strategy at root scope', () => {
+      expect(() => ToolsService.setTool('node', 'unset', '', { type: 'root' })).toThrow();
+    });
+
     describe('root-level', () => {
       it('creates the tools block when absent', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('node', '22:latest', { type: 'root' });
+        ToolsService.setTool('node', 'latest-released', '22', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -169,7 +134,7 @@ describe('ToolsService', () => {
             node: 22:latest
         `);
 
-        ToolsService.setTool('python', '3.13.4', { type: 'root' });
+        ToolsService.setTool('python', 'exact', '3.13.4', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -185,12 +150,36 @@ describe('ToolsService', () => {
             python: "3.13.4"
         `);
 
-        ToolsService.setTool('node', 'latest', { type: 'root' });
+        ToolsService.setTool('node', 'latest-released', '', { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
             node: latest
             python: "3.13.4"
+        `);
+      });
+
+      it('sets latest-installed with prefix', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        ToolsService.setTool('ruby', 'latest-installed', '3.3', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          format_version: '13'
+          tools:
+            ruby: 3.3:installed
+        `);
+      });
+
+      it('sets latest-installed without prefix', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        ToolsService.setTool('ruby', 'latest-installed', '', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          format_version: '13'
+          tools:
+            ruby: installed
         `);
       });
     });
@@ -203,7 +192,7 @@ describe('ToolsService', () => {
               steps: []
         `);
 
-        ToolsService.setTool('node', '22:latest', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool('node', 'latest-released', '22', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -222,7 +211,7 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.setTool('python', '3.13.4', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool('python', 'exact', '3.13.4', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -241,7 +230,7 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.setTool('node', 'unset', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool('node', 'unset', '', { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -261,7 +250,7 @@ describe('ToolsService', () => {
               steps: []
         `);
 
-        ToolsService.setTool('python', '3.13.4', { type: 'workflow', workflowId: 'secondary' });
+        ToolsService.setTool('python', 'exact', '3.13.4', { type: 'workflow', workflowId: 'secondary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -278,7 +267,9 @@ describe('ToolsService', () => {
       it('throws when workflow does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        expect(() => ToolsService.setTool('node', 'latest', { type: 'workflow', workflowId: 'missing' })).toThrow();
+        expect(() =>
+          ToolsService.setTool('node', 'latest-released', '', { type: 'workflow', workflowId: 'missing' }),
+        ).toThrow();
       });
     });
   });

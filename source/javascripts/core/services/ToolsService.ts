@@ -1,4 +1,4 @@
-import { ParsedToolVersion } from '../models/Tools';
+import { ParsedToolVersion, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -106,7 +106,24 @@ function validateToolVersion(raw: string) {
   return true;
 }
 
-function setTool(toolId: string, versionString: string, scope: ToolScope) {
+function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, scope: ToolScope) {
+  if (strategy === 'unset' && scope.type === 'root') {
+    throw new Error('Cannot use "unset" strategy at root scope');
+  }
+
+  let parsed: ParsedToolVersion;
+  switch (strategy) {
+    case 'exact':
+      parsed = { strategy, version: inputValue };
+      break;
+    case 'unset':
+      parsed = { strategy };
+      break;
+    default:
+      parsed = { strategy, prefix: inputValue };
+  }
+  const versionString = serializeToolVersion(parsed);
+
   updateBitriseYmlDocument(({ doc }) => {
     validateScope(scope, doc);
 
@@ -129,7 +146,6 @@ function deleteTool(toolId: string, scope: ToolScope) {
 export type { ToolScope };
 export default {
   parseToolVersion,
-  serializeToolVersion,
   setTool,
   deleteTool,
   validateToolId,
