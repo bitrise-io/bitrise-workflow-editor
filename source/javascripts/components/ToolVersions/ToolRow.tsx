@@ -54,48 +54,47 @@ const ToolRow = ({ toolId, versionString, existingToolIds, scope, autoFocus, onR
 
   return (
     <Box display="flex" alignItems="flex-start" gap="12">
-      <Box width="160px" flexShrink={0}>
-        <BitkitTextInput
-          size="md"
-          placeholder="Tool (ruby, node, etc.)"
-          errorText={idError}
-          inputProps={{ defaultValue: toolId, autoFocus, onBlur: handleIdBlur }}
-        />
-      </Box>
+      <BitkitTextInput
+        size="md"
+        width="160px"
+        flexShrink="0"
+        placeholder="Tool (ruby, node, etc.)"
+        errorText={idError}
+        inputProps={{ defaultValue: toolId, autoFocus, onBlur: handleIdBlur }}
+      />
 
       <Box display="flex" flex="1" alignItems="flex-start" gap="8">
-        <Box flex="1">
-          <BitkitNativeSelect
-            size="md"
-            value={parsed.strategy}
-            onChange={(e) => {
-              const newStrategy = e.target.value as VersionStrategy;
-              const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
-              const newInputValue = isPrefix(parsed.strategy) && isPrefix(newStrategy) ? inputValue : '';
-              ToolsService.setTool(toolId, newStrategy, newInputValue, scope);
-            }}
-          >
-            {Object.entries(STRATEGY_LABELS)
-              .filter(([value]) => !(value === 'unset' && scope.type === 'root'))
-              .map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-          </BitkitNativeSelect>
-        </Box>
+        <BitkitNativeSelect
+          flex="1"
+          size="md"
+          value={parsed.strategy}
+          onChange={(e) => {
+            const newStrategy = e.target.value as VersionStrategy;
+            const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
+            const newInputValue = isPrefix(parsed.strategy) && isPrefix(newStrategy) ? inputValue : '';
+            ToolsService.setTool(toolId, newStrategy, newInputValue, scope);
+          }}
+        >
+          {Object.entries(STRATEGY_LABELS)
+            .filter(([value]) => !(value === 'unset' && scope.type === 'root'))
+            .map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+        </BitkitNativeSelect>
 
         {parsed.strategy !== 'unset' && (
-          <Box width="160px" flexShrink={0}>
-            <BitkitTextInput
-              size="md"
-              placeholder={parsed.strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
-              inputProps={{
-                value: inputValue,
-                onChange: (e) => ToolsService.setTool(toolId, parsed.strategy, e.target.value, scope),
-              }}
-            />
-          </Box>
+          <BitkitTextInput
+            size="md"
+            width="160px"
+            flexShrink="0"
+            placeholder={parsed.strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+            inputProps={{
+              value: inputValue,
+              onChange: (e) => ToolsService.setTool(toolId, parsed.strategy, e.target.value, scope),
+            }}
+          />
         )}
       </Box>
 

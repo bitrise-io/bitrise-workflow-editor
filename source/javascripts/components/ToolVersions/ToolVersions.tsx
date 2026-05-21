@@ -12,7 +12,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   const tools = useToolsForScope(scope);
 
   return (
-    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24">
+    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24" maxWidth={640}>
       <Box display="flex" flexDirection="column" gap="8">
         <Text textStyle="heading/h3">Tool setup</Text>
         <Text textStyle="body/md/regular" color="text/secondary">
@@ -22,7 +22,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
       </Box>
 
       {Object.keys(tools).length > 0 && (
-        <Box display="flex" flexDirection="column" gap="16" maxWidth={640}>
+        <Box display="flex" flexDirection="column" gap="16">
           {Object.entries(tools).map(([toolId, versionString]) => (
             <ToolRow
               key={toolId}
@@ -37,16 +37,15 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
         </Box>
       )}
 
-      <Box>
-        <BitkitButton
-          variant="secondary"
-          size="md"
-          state={'' in tools ? 'disabled' : undefined}
-          onClick={() => ToolsService.setTool('', 'latest-released', '', scope)}
-        >
-          Add new
-        </BitkitButton>
-      </Box>
+      <BitkitButton
+        variant="secondary"
+        size="md"
+        alignSelf="flex-start"
+        state={'' in tools ? 'disabled' : undefined}
+        onClick={() => ToolsService.setTool('', 'latest-released', '', scope)}
+      >
+        Add new
+      </BitkitButton>
     </Box>
   );
 };
