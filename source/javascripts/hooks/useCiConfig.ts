@@ -1,10 +1,18 @@
-import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
+import {
+  UndefinedInitialDataOptions,
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import BitriseYmlApi, { GetCiConfigResult } from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import { getSearchParamsFromLocationHash, setSearchParamsInLocationHash } from '@/hooks/useSearchParams';
+
+const CI_CONFIG_QUERY_KEY = 'ci_config';
 
 type UseGetCiConfigProps = {
   projectSlug: string;
@@ -26,7 +34,12 @@ type UseSaveCiConfigOptions = UseMutationOptions<GetCiConfigResult, ClientError,
 
 export function useGetCiConfig(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<GetCiConfigResult>) {
   return useQuery({
-    queryKey: [BitriseYmlApi.ciConfigPath({ ...props }), props.branch],
+    queryKey: [
+      CI_CONFIG_QUERY_KEY,
+      props.projectSlug,
+      props.branch,
+      { skipValidation: props.skipValidation, forceToReadFromRepo: props.forceToReadFromRepo },
+    ],
     queryFn: ({ signal }) => BitriseYmlApi.getCiConfig({ ...props, signal }),
     staleTime: Infinity,
     ...options,
@@ -46,6 +59,8 @@ export function useSwitchBranch() {
 }
 
 export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ projectSlug, ymlString, version, tabOpenDuringSave, conversationId }) => {
       await BitriseYmlApi.saveCiConfig({
@@ -57,10 +72,16 @@ export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
       });
 
       // Re-fetch YML to get the latest version
-      return BitriseYmlApi.getCiConfig({
+      const fresh = await BitriseYmlApi.getCiConfig({
         projectSlug: PageProps.appSlug(),
         branch: bitriseYmlStore.getState().configBranch,
       });
+
+      // Invalidate cached useGetCiConfig results so a later branch-switch
+      // returning to this branch refetches instead of serving stale data.
+      queryClient.invalidateQueries({ queryKey: [CI_CONFIG_QUERY_KEY] });
+
+      return fresh;
     },
     ...options,
   });
