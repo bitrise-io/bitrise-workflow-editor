@@ -31,14 +31,14 @@ function useYmlLanguageServices() {
     // when changes come from outside the editor (e.g., visual editor pages)
     const unsubscribeStore = bitriseYmlStore.subscribe(
       (state) => ({
+        version: state.version,
         ymlDocument: state.ymlDocument,
-        savedYmlDocument: state.savedYmlDocument,
         invalidYmlString: state.__invalidYmlString,
         discardKey: state.discardKey,
       }),
       (curr, prev) => {
         const isDiscard = curr.discardKey !== prev.discardKey;
-        const isExternalInit = curr.savedYmlDocument !== prev.savedYmlDocument;
+        const isExternalInit = curr.version !== prev.version;
 
         const syncModel = () => {
           const newValue = getYmlString();
@@ -65,8 +65,8 @@ function useYmlLanguageServices() {
       },
       {
         equalityFn: (a, b) =>
+          a.version === b.version &&
           a.ymlDocument === b.ymlDocument &&
-          a.savedYmlDocument === b.savedYmlDocument &&
           a.invalidYmlString === b.invalidYmlString &&
           a.discardKey === b.discardKey,
       },
