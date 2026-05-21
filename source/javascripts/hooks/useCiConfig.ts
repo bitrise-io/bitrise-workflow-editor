@@ -2,6 +2,7 @@ import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery 
 
 import BitriseYmlApi, { GetCiConfigResult } from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import { getSearchParamsFromLocationHash, setSearchParamsInLocationHash } from '@/hooks/useSearchParams';
 
@@ -58,6 +59,7 @@ export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
       // Re-fetch YML to get the latest version
       return BitriseYmlApi.getCiConfig({
         projectSlug: PageProps.appSlug(),
+        branch: bitriseYmlStore.getState().configBranch,
       });
     },
     ...options,

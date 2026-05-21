@@ -161,8 +161,8 @@ const ConfigMergeDialogContent = ({
     mutate: saveCiConfig,
     isPending: isSaving,
   } = useSaveCiConfig({
-    onSuccess: ({ ymlString, version }) => {
-      initializeBitriseYmlDocument({ ymlString, version });
+    onSuccess: (result) => {
+      initializeBitriseYmlDocument(result);
       forceRefreshStates();
       onClose();
     },
