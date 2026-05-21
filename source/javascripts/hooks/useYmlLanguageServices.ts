@@ -32,11 +32,13 @@ function useYmlLanguageServices() {
     const unsubscribeStore = bitriseYmlStore.subscribe(
       (state) => ({
         ymlDocument: state.ymlDocument,
+        savedYmlDocument: state.savedYmlDocument,
         invalidYmlString: state.__invalidYmlString,
         discardKey: state.discardKey,
       }),
       (curr, prev) => {
         const isDiscard = curr.discardKey !== prev.discardKey;
+        const isExternalInit = curr.savedYmlDocument !== prev.savedYmlDocument;
 
         const syncModel = () => {
           const newValue = getYmlString();
@@ -46,11 +48,12 @@ function useYmlLanguageServices() {
         };
 
         if (model.isAttachedToEditor()) {
-          if (isDiscard) {
+          if (isDiscard || isExternalInit) {
             // Defer until after React's synchronous render cycle disposes the old editor.
             // Calling setValue() immediately would trigger async Monaco work that gets
             // canceled when the editor unmounts, causing "Canceled" errors.
             requestAnimationFrame(syncModel);
+            return;
           }
           // Otherwise skip — user typing drives the model directly.
           // Calling setValue() would overwrite with YAML round-tripped text,
@@ -62,7 +65,10 @@ function useYmlLanguageServices() {
       },
       {
         equalityFn: (a, b) =>
-          a.ymlDocument === b.ymlDocument && a.invalidYmlString === b.invalidYmlString && a.discardKey === b.discardKey,
+          a.ymlDocument === b.ymlDocument &&
+          a.savedYmlDocument === b.savedYmlDocument &&
+          a.invalidYmlString === b.invalidYmlString &&
+          a.discardKey === b.discardKey,
       },
     );
 
