@@ -21,14 +21,11 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion('installed')).toEqual({ strategy: 'latest-installed' });
     });
 
-    it('parses bare partial versions as latest-installed with that prefix', () => {
-      expect(ToolsService.parseToolVersion('3')).toEqual({ strategy: 'latest-installed', prefix: '3' });
-      expect(ToolsService.parseToolVersion('3.3')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
-    });
-
-    it('parses "x"-suffixed partial versions by stripping ".x" segments', () => {
-      expect(ToolsService.parseToolVersion('3.3.x')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
-      expect(ToolsService.parseToolVersion('3.x.x')).toEqual({ strategy: 'latest-installed', prefix: '3' });
+    it('parses bare partial versions as exact', () => {
+      expect(ToolsService.parseToolVersion('3')).toEqual({ strategy: 'exact', version: '3' });
+      expect(ToolsService.parseToolVersion('3.3')).toEqual({ strategy: 'exact', version: '3.3' });
+      expect(ToolsService.parseToolVersion('3.3.x')).toEqual({ strategy: 'exact', version: '3.3.x' });
+      expect(ToolsService.parseToolVersion('3.x.x')).toEqual({ strategy: 'exact', version: '3.x.x' });
     });
 
     it('parses a bare complete semver triple as exact', () => {

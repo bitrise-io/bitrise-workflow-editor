@@ -5,9 +5,6 @@ import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
-const PARTIAL_VERSION_REGEX = /^\d+(\.\d+)*(\.x)*$/;
-const COMPLETE_SEMVER_REGEX = /^\d+\.\d+\.\d+$/;
-
 function parseToolVersion(raw: string): ParsedToolVersion {
   const lower = raw.toLowerCase();
 
@@ -35,11 +32,6 @@ function parseToolVersion(raw: string): ParsedToolVersion {
     if (suffix === 'installed') {
       return { strategy: 'latest-installed', prefix };
     }
-  }
-
-  if (colonIndex < 0 && PARTIAL_VERSION_REGEX.test(raw) && !COMPLETE_SEMVER_REGEX.test(raw)) {
-    const prefix = raw.replace(/(\.x)+$/, '');
-    return { strategy: 'latest-installed', prefix };
   }
 
   return { strategy: 'exact', version: raw };
