@@ -77,8 +77,6 @@ export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
         branch: bitriseYmlStore.getState().configBranch,
       });
 
-      // Invalidate cached useGetCiConfig results so a later branch-switch
-      // returning to this branch refetches instead of serving stale data.
       queryClient.invalidateQueries({ queryKey: [CI_CONFIG_QUERY_KEY] });
 
       return fresh;
