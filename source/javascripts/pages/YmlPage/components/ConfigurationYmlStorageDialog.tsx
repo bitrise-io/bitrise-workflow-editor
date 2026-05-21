@@ -51,7 +51,7 @@ type ConfigStorageGroupProps = {
 const ConfigStorageGroup = ({ isDisabled, onChange, value }: ConfigStorageGroupProps) => {
   return (
     <BitkitRadioGroup
-      label="Storage"
+      groupLabel="Storage"
       layout="vertical"
       value={value}
       disabled={isDisabled}
@@ -253,7 +253,7 @@ const GitToBitriseSection = ({ isDisabled, lastModifiedFormatted, onChange, valu
         helperText="Choose which configuration file should be used on bitrise.io from now."
       />
       <BitkitRadioGroup
-        label="Configuration file"
+        groupLabel="Configuration file"
         layout="vertical"
         value={value}
         disabled={isDisabled}

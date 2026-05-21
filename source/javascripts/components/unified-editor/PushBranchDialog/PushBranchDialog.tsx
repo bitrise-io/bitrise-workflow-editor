@@ -75,7 +75,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
       <form onSubmit={handleSubmit(onPush)}>
         <BitkitDialog.Body>
           <BitkitRadioGroup
-            label=""
+            aria-label="Target branch"
             layout="horizontal"
             value={isCurrentBranch ? 'current' : 'new'}
             onValueChange={({ value }) => {
