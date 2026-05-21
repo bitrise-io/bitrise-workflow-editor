@@ -33,15 +33,19 @@ function localFeatureFlagsPlugin(): Plugin {
 }
 
 function absoluteUrlsPlugin(urlPrefix: string): Plugin {
+  // Skip URLs Vite already prefixed (via `base`) so a relative `urlPrefix`
+  // like "/workflow_editor" doesn't get applied twice. The regex has already
+  // consumed the leading "/", so the lookahead matches against the remainder.
+  const afterSlash = urlPrefix.startsWith('/') ? urlPrefix.slice(1) : urlPrefix;
+  const escaped = afterSlash.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const skipPrefixed = urlPrefix.startsWith('/') && afterSlash ? `(?!${escaped}/)` : '';
+  const srcRegex = new RegExp(`(src|href)="\\/${skipPrefixed}([^"/][^"]*)"`, 'g');
+  const fromRegex = new RegExp(`from "\\/${skipPrefixed}([^"]+)"`, 'g');
   return {
     name: 'absolute-urls',
     transformIndexHtml: {
       order: 'post',
-      handler: (html) => {
-        return html
-          .replace(/(src|href)="\/([^"/][^"]*)"/g, `$1="${urlPrefix}/$2"`)
-          .replace(/from "\/([^"]+)"/g, `from "${urlPrefix}/$1"`);
-      },
+      handler: (html) => html.replace(srcRegex, `$1="${urlPrefix}/$2"`).replace(fromRegex, `from "${urlPrefix}/$1"`),
     },
   };
 }
@@ -93,11 +97,26 @@ export default defineConfig(({ mode }) => {
       minify: isProd,
     },
 
+    // Pre-bundle lazy-loaded deps upfront so Vite doesn't re-optimize mid-session
+    // and delete old chunks the browser is still referencing. Mid-session reload
+    // requires HMR over WebSocket, which the monolith asset proxy doesn't carry.
+    // The `include` list covers deps Vite's entry scan misses (e.g. those used
+    // inside `?worker` modules, which Vite bundles separately).
+    optimizeDeps: {
+      entries: ['index.html', 'javascripts/**/*.{ts,tsx}'],
+      include: ['@bitrise/languageserver-core', 'monaco-yaml/yaml.worker.js'],
+    },
+
     server: {
       port: parseInt(env.DEV_SERVER_PORT || '4567', 10),
       proxy: { '/api': 'http://localhost:4000' },
-      origin: urlPrefix || undefined,
+      // server.origin must be a full URL (http://...). Skip for relative prefixes.
+      origin: /^https?:\/\//.test(urlPrefix) ? urlPrefix : undefined,
       allowedHosts: true,
+      // Vite 6+ defaults server.cors.origin to a localhost-only regex, which
+      // rejects HMR WebSocket upgrades from any other origin (e.g. when the
+      // page is loaded through a tunnel/remote dev box). Allow all in dev.
+      cors: true,
     },
 
     envPrefix: [
