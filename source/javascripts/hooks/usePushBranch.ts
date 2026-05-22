@@ -88,7 +88,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     },
   });
 
-  return { isPushPending, pushBranch, pushError, clearPushError };
+  return { isPushPending, pushBranch, pushError, setPushError, clearPushError };
 }
 
 export default usePushBranch;
