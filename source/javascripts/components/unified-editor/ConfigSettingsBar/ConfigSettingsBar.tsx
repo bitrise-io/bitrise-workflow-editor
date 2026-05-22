@@ -8,6 +8,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
   Skeleton,
   SkeletonBox,
   Text,
@@ -111,28 +112,30 @@ const ConfigSettingsBar = () => {
       </Box>
       <Menu size="md">
         <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
-        <MenuList>
-          {enableBranchSwitching && data?.usesRepositoryYml && (
-            <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
-              <MenuItem
-                leftIconName="Branch"
-                onClick={() => {
-                  onSwitchBranchDialogOpen();
-                  trackBranchSwitchPopupShown();
-                }}
-                isDisabled={hasChanges}
-              >
-                Switch branch...
-              </MenuItem>
-            </Tooltip>
-          )}
-          <MenuItem leftIconName="Download" onClick={handleDownload}>
-            Download YAML file
-          </MenuItem>
-          <MenuItem leftIconName="Folder" onClick={handleStorageChange} isDisabled={isPending}>
-            Change storage...
-          </MenuItem>
-        </MenuList>
+        <Portal>
+          <MenuList>
+            {enableBranchSwitching && data?.usesRepositoryYml && (
+              <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
+                <MenuItem
+                  leftIconName="Branch"
+                  onClick={() => {
+                    onSwitchBranchDialogOpen();
+                    trackBranchSwitchPopupShown();
+                  }}
+                  isDisabled={hasChanges}
+                >
+                  Switch branch...
+                </MenuItem>
+              </Tooltip>
+            )}
+            <MenuItem leftIconName="Download" onClick={handleDownload}>
+              Download YAML file
+            </MenuItem>
+            <MenuItem leftIconName="Folder" onClick={handleStorageChange} isDisabled={isPending}>
+              Change storage...
+            </MenuItem>
+          </MenuList>
+        </Portal>
       </Menu>
       <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={onSwitchBranchDialogClose} />
       <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={onStorageDialogClose} />
