@@ -8,9 +8,10 @@ import {
   trackPushConfigChangesFailed,
   trackPushConfigChangesSucceeded,
 } from '@/core/analytics/ConfigManagementAnalytics';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
-import { getYmlString } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -20,7 +21,7 @@ export type PushBranchPayload = {
 };
 
 type UsePushBranchOptions = {
-  onSuccess?: (prUrl?: string) => void;
+  onSuccess?: (response: { ymlString: string; version: string; branch?: string; commitSha?: string }) => void;
   onMergeConflict?: (branch: string) => void;
 };
 
@@ -50,8 +51,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     onMutate: ({ branch }: PushBranchPayload) => {
       trackPushConfigChangesAttempted(configBranch, branch);
     },
-    onSuccess: (data, { branch }) => {
-      onSuccess?.(data?.pr_url);
+    onSuccess: async (data, { branch }) => {
       trackPushConfigChangesSucceeded(configBranch, branch);
       toast({
         title: 'Changes pushed successfully',
@@ -67,6 +67,11 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
             }
           : undefined,
       });
+      const newConfig = await BitriseYmlApi.getCiConfig({
+        projectSlug: PageProps.appSlug(),
+        branch: bitriseYmlStore.getState().configBranch,
+      });
+      onSuccess?.(newConfig);
     },
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
@@ -79,6 +84,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         branch,
         error instanceof ClientError ? error.getResponseErrorMessage() : error.message,
       );
+      setPushError('Failed to push changes. Please try again.');
 
       if (error instanceof ClientError && error.status === 403) {
         setPushError("You don't have permission to push to this branch.");

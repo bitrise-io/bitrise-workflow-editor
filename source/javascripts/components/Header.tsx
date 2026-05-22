@@ -114,9 +114,10 @@ const Header = () => {
     onSuccess: initializeBitriseYmlDocument,
   });
 
-  const { isPushPending, pushBranch, pushError, setPushError, clearPushError } = usePushBranch({
-    onSuccess: async () => {
+  const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
+    onSuccess: async (newConfig) => {
       closePushBranchDialog();
+      initializeBitriseYmlDocument(newConfig);
     },
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;
@@ -130,33 +131,9 @@ const Header = () => {
   const handlePush = useCallback(
     (values: PushBranchPayload) => {
       clearPushError();
-      save(
-        {
-          projectSlug: appSlug,
-          ymlString: getYmlString(),
-          tabOpenDuringSave: currentPage,
-          version: bitriseYmlStore.getState().version,
-          conversationId,
-        },
-        {
-          onSuccess: () => {
-            pushBranch(values);
-          },
-          onError: (error: ClientError) => {
-            if (error.status === 409) {
-              handleSaveMergeConflict();
-              return;
-            }
-            segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-              source: 'save',
-              tab_name: currentPage,
-            });
-            setPushError('Failed to push changes. Please try again.');
-          },
-        },
-      );
+      pushBranch(values);
     },
-    [clearPushError, save, appSlug, currentPage, conversationId, pushBranch, handleSaveMergeConflict, setPushError],
+    [clearPushError, pushBranch],
   );
 
   const saveCIConfig = useCallback(

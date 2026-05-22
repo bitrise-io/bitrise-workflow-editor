@@ -1,14 +1,7 @@
-import {
-  UndefinedInitialDataOptions,
-  useMutation,
-  UseMutationOptions,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
 
 import BitriseYmlApi, { GetCiConfigResult } from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import { getSearchParamsFromLocationHash, setSearchParamsInLocationHash } from '@/hooks/useSearchParams';
 
@@ -59,8 +52,6 @@ export function useSwitchBranch() {
 }
 
 export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ projectSlug, ymlString, version, tabOpenDuringSave, conversationId }) => {
       await BitriseYmlApi.saveCiConfig({
@@ -71,15 +62,9 @@ export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
         conversationId,
       });
 
-      // Re-fetch YML to get the latest version
-      const fresh = await BitriseYmlApi.getCiConfig({
+      return BitriseYmlApi.getCiConfig({
         projectSlug: PageProps.appSlug(),
-        branch: bitriseYmlStore.getState().configBranch,
       });
-
-      queryClient.invalidateQueries({ queryKey: [CI_CONFIG_QUERY_KEY] });
-
-      return fresh;
     },
     ...options,
   });
