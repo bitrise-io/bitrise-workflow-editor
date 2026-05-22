@@ -8,6 +8,7 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -17,6 +18,7 @@ import {
   trackSaveButtonClicked,
 } from '@/core/analytics/ConfigManagementAnalytics';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import {
   bitriseYmlStore,
@@ -110,13 +112,21 @@ const Header = () => {
     openMergeDialog();
   }, [currentPage, closePushBranchDialog, openMergeDialog]);
 
+  const queryClient = useQueryClient();
+
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,
   });
 
   const { isPushPending, pushBranch, pushError, setPushError, clearPushError } = usePushBranch({
-    onSuccess: () => {
+    onSuccess: async () => {
       closePushBranchDialog();
+      const fresh = await BitriseYmlApi.getCiConfig({
+        projectSlug: appSlug,
+        branch: bitriseYmlStore.getState().configBranch,
+      });
+      initializeBitriseYmlDocument(fresh);
+      queryClient.invalidateQueries({ queryKey: ['ci_config'] });
     },
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;
