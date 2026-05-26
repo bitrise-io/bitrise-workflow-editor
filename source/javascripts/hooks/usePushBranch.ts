@@ -11,7 +11,7 @@ import {
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
-import { bitriseYmlStore, getYmlString } from '@/core/stores/BitriseYmlStore';
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -69,7 +69,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       });
       const newConfig = await BitriseYmlApi.getCiConfig({
         projectSlug: PageProps.appSlug(),
-        branch: bitriseYmlStore.getState().configBranch,
+        branch,
       });
       onSuccess?.(newConfig);
     },
@@ -79,12 +79,12 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         onMergeConflict?.(branch);
         return;
       }
+
       trackPushConfigChangesFailed(
         configBranch,
         branch,
         error instanceof ClientError ? error.getResponseErrorMessage() : error.message,
       );
-      setPushError('Failed to push changes. Please try again.');
 
       if (error instanceof ClientError && error.status === 403) {
         setPushError("You don't have permission to push to this branch.");
