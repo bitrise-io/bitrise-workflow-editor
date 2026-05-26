@@ -303,7 +303,7 @@ const Header = () => {
           clearPushError();
           closePushBranchDialog();
         }}
-        isPushPending={isSaving || isPushPending}
+        isPushPending={isPushPending}
         pushError={pushError}
         onPush={handlePush}
         onManualUpdate={openUpdateConfigDialog}
