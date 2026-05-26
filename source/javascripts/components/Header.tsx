@@ -32,7 +32,7 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
-import usePushBranch from '@/hooks/usePushBranch';
+import usePushBranch, { PushBranchPayload } from '@/hooks/usePushBranch';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -102,41 +102,22 @@ const Header = () => {
     },
   });
 
+  const handleSaveMergeConflict = useCallback(() => {
+    const configBranch = bitriseYmlStore.getState().configBranch;
+    setMergeDialogContext({ targetBranch: configBranch ?? '', isNewTargetBranch: false });
+    trackConfigMergePopupShown(currentPage, configBranch, false);
+    closePushBranchDialog();
+    openMergeDialog();
+  }, [currentPage, closePushBranchDialog, openMergeDialog]);
+
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
     onSuccess: initializeBitriseYmlDocument,
-    onError: (error: ClientError) => {
-      if (error.status === 409) {
-        const configBranch = bitriseYmlStore.getState().configBranch;
-        setMergeDialogContext({ targetBranch: configBranch ?? '', isNewTargetBranch: false });
-        trackConfigMergePopupShown(currentPage, configBranch, false);
-        openMergeDialog();
-        return;
-      }
-
-      segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-        source: 'save',
-        tab_name: currentPage,
-      });
-      toast({
-        title: 'Failed to save changes',
-        description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
-        status: 'error',
-        duration: null,
-        isClosable: true,
-      });
-    },
   });
 
   const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
-    onSuccess: () => {
+    onSuccess: async (newConfig) => {
       closePushBranchDialog();
-      save({
-        projectSlug: appSlug,
-        ymlString: getYmlString(),
-        tabOpenDuringSave: currentPage,
-        version: bitriseYmlStore.getState().version,
-        conversationId,
-      });
+      initializeBitriseYmlDocument(newConfig);
     },
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;
@@ -146,6 +127,14 @@ const Header = () => {
       openMergeDialog();
     },
   });
+
+  const handlePush = useCallback(
+    (values: PushBranchPayload) => {
+      clearPushError();
+      pushBranch(values);
+    },
+    [clearPushError, pushBranch],
+  );
 
   const saveCIConfig = useCallback(
     (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
@@ -160,13 +149,34 @@ const Header = () => {
         return;
       }
 
-      save({
-        projectSlug: appSlug,
-        ymlString: getYmlString(),
-        tabOpenDuringSave: currentPage,
-        version: bitriseYmlStore.getState().version,
-        conversationId,
-      });
+      save(
+        {
+          projectSlug: appSlug,
+          ymlString: getYmlString(),
+          tabOpenDuringSave: currentPage,
+          version: bitriseYmlStore.getState().version,
+          conversationId,
+        },
+        {
+          onError: (error: ClientError) => {
+            if (error.status === 409) {
+              handleSaveMergeConflict();
+              return;
+            }
+            segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+              source: 'save',
+              tab_name: currentPage,
+            });
+            toast({
+              title: 'Failed to save changes',
+              description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
+              status: 'error',
+              duration: null,
+              isClosable: true,
+            });
+          },
+        },
+      );
     },
     [
       currentPage,
@@ -178,6 +188,8 @@ const Header = () => {
       enableBranchSwitching,
       openPushBranchDialog,
       openUpdateConfigDialog,
+      handleSaveMergeConflict,
+      toast,
     ],
   );
 
@@ -293,7 +305,7 @@ const Header = () => {
         }}
         isPushPending={isPushPending}
         pushError={pushError}
-        onPush={pushBranch}
+        onPush={handlePush}
         onManualUpdate={openUpdateConfigDialog}
       />
     </Box>
