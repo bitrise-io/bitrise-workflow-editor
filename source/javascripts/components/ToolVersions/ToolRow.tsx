@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react/box';
 import { FocusEventHandler, useState } from 'react';
 
 import { VersionStrategy } from '@/core/models/Tools';
-import ToolsService, { ToolScope } from '@/core/services/ToolsService';
+import ToolsService from '@/core/services/ToolsService';
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-released': 'Latest released version',
@@ -14,42 +14,48 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
 
 type ToolRowProps = {
   toolId: string;
-  versionString: string;
+  strategy: VersionStrategy;
+  version: string;
   existingToolIds: string[];
-  scope: ToolScope;
+  allowUnset?: boolean;
   autoFocus?: boolean;
+  onIdChange: (newId: string) => void;
+  onStrategyChange: (strategy: VersionStrategy, version: string) => void;
+  onVersionChange: (version: string) => void;
   onRemove: () => void;
 };
 
-const ToolRow = ({ toolId, versionString, existingToolIds, scope, autoFocus, onRemove }: ToolRowProps) => {
+const ToolRow = ({
+  toolId,
+  strategy,
+  version,
+  existingToolIds,
+  allowUnset,
+  autoFocus,
+  onIdChange,
+  onStrategyChange,
+  onVersionChange,
+  onRemove,
+}: ToolRowProps) => {
   const [idError, setIdError] = useState<string | undefined>();
-  const parsed = ToolsService.parseToolVersion(versionString);
-  let inputValue: string;
-  switch (parsed.strategy) {
-    case 'exact':
-      inputValue = parsed.version;
-      break;
-    case 'unset':
-      inputValue = '';
-      break;
-    default:
-      inputValue = parsed.prefix ?? '';
-  }
 
   const handleIdBlur: FocusEventHandler<HTMLInputElement> = (e) => {
     const newId = e.target.value.trim();
-    if (newId === toolId) {
-      setIdError(undefined);
-      return;
-    }
     const validation = ToolsService.validateToolId(newId, toolId, existingToolIds);
     if (validation !== true) {
       setIdError(validation);
       return;
     }
     setIdError(undefined);
-    ToolsService.deleteTool(toolId, scope);
-    ToolsService.setTool(newId, parsed.strategy, inputValue, scope);
+    if (newId !== toolId) {
+      onIdChange(newId);
+    }
+  };
+
+  const handleStrategyChange = (newStrategy: VersionStrategy) => {
+    const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
+    const newVersion = isPrefix(strategy) && isPrefix(newStrategy) ? version : '';
+    onStrategyChange(newStrategy, newVersion);
   };
 
   return (
@@ -67,16 +73,11 @@ const ToolRow = ({ toolId, versionString, existingToolIds, scope, autoFocus, onR
         <BitkitNativeSelect
           flex="1"
           size="md"
-          value={parsed.strategy}
-          onChange={(e) => {
-            const newStrategy = e.target.value as VersionStrategy;
-            const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
-            const newInputValue = isPrefix(parsed.strategy) && isPrefix(newStrategy) ? inputValue : '';
-            ToolsService.setTool(toolId, newStrategy, newInputValue, scope);
-          }}
+          value={strategy}
+          onChange={(e) => handleStrategyChange(e.target.value as VersionStrategy)}
         >
           {Object.entries(STRATEGY_LABELS)
-            .filter(([value]) => !(value === 'unset' && scope.type === 'root'))
+            .filter(([value]) => allowUnset || value !== 'unset')
             .map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -84,15 +85,15 @@ const ToolRow = ({ toolId, versionString, existingToolIds, scope, autoFocus, onR
             ))}
         </BitkitNativeSelect>
 
-        {parsed.strategy !== 'unset' && (
+        {strategy !== 'unset' && (
           <BitkitTextInput
             size="md"
             width="160px"
             flexShrink="0"
-            placeholder={parsed.strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+            placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
             inputProps={{
-              value: inputValue,
-              onChange: (e) => ToolsService.setTool(toolId, parsed.strategy, e.target.value, scope),
+              value: version,
+              onChange: (e) => onVersionChange(e.target.value),
             }}
           />
         )}
