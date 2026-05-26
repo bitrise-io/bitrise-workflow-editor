@@ -5,6 +5,8 @@ import { ClientError } from '@/core/api/client';
 import PageProps from '@/core/utils/PageProps';
 import { getSearchParamsFromLocationHash, setSearchParamsInLocationHash } from '@/hooks/useSearchParams';
 
+const CI_CONFIG_QUERY_KEY = 'ci_config';
+
 type UseGetCiConfigProps = {
   projectSlug: string;
   forceToReadFromRepo?: boolean;
@@ -25,7 +27,12 @@ type UseSaveCiConfigOptions = UseMutationOptions<GetCiConfigResult, ClientError,
 
 export function useGetCiConfig(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<GetCiConfigResult>) {
   return useQuery({
-    queryKey: [BitriseYmlApi.ciConfigPath({ ...props }), props.branch],
+    queryKey: [
+      CI_CONFIG_QUERY_KEY,
+      props.projectSlug,
+      props.branch,
+      { skipValidation: props.skipValidation, forceToReadFromRepo: props.forceToReadFromRepo },
+    ],
     queryFn: ({ signal }) => BitriseYmlApi.getCiConfig({ ...props, signal }),
     staleTime: Infinity,
     ...options,
@@ -55,7 +62,6 @@ export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
         conversationId,
       });
 
-      // Re-fetch YML to get the latest version
       return BitriseYmlApi.getCiConfig({
         projectSlug: PageProps.appSlug(),
       });

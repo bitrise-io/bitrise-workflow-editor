@@ -111,7 +111,7 @@ const ConfigSettingsBar = () => {
       </Box>
       <Menu size="md">
         <MenuButton as={ControlButton} iconName="MoreVertical" color="icon/secondary" size="xs" aria-label="More" />
-        <MenuList>
+        <MenuList zIndex="5">
           {enableBranchSwitching && data?.usesRepositoryYml && (
             <Tooltip isDisabled={!hasChanges} label="Unsaved changes, save or discard first.">
               <MenuItem
