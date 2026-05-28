@@ -22,6 +22,7 @@ const WorkflowStackAndMachine = ({ workflowId }: Props) => {
       stackId={stackId}
       machineTypeId={machineTypeId}
       stackRollbackVersion={stackRollbackVersion}
+      workflowId={workflowId}
       onChange={updateWorkflowMeta}
     />
   );

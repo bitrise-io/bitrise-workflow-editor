@@ -27,6 +27,7 @@ type Props = {
   withMachineFallbacks?: boolean;
   stackRollbackVersion?: string;
   withoutDefaultOptions?: boolean;
+  workflowId?: string;
 };
 
 const StackAndMachine = ({
@@ -37,6 +38,7 @@ const StackAndMachine = ({
   withMachineFallbacks,
   stackRollbackVersion,
   withoutDefaultOptions,
+  workflowId,
 }: Props) => {
   const isToolVersionsEnabled = useFeatureFlag('enable-wfe-tool-versions');
   const ref = useRef<HTMLDivElement>(null);
@@ -149,7 +151,7 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
-      {isToolVersionsEnabled && <ToolVersions />}
+      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} />}
     </StackAndMachineWrapper>
   );
 };
