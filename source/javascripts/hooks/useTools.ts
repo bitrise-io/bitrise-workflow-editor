@@ -1,14 +1,12 @@
 import { Tools } from '@/core/models/BitriseYml';
+import { ToolScope } from '@/core/services/ToolsService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-export function useTools(): Tools {
-  return useBitriseYmlStore(({ yml }) => yml.tools ?? {});
-}
-
-export function useWorkflowTools(workflowId: string): Tools | undefined {
+export function useToolsForScope(scope: ToolScope): Tools {
   return useBitriseYmlStore(({ yml }) => {
-    const workflow = yml.workflows?.[workflowId];
-    if (!workflow) return undefined;
-    return workflow.tools ?? {};
+    if (scope.type === 'workflow') {
+      return yml.workflows?.[scope.workflowId]?.tools ?? {};
+    }
+    return yml.tools ?? {};
   });
 }
