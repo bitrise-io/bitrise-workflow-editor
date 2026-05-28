@@ -19,6 +19,7 @@ const StackAndMachineCard = () => {
   return (
     <StackAndMachine
       isExpandable
+      workflowId={workflowId}
       stackId={stackId}
       machineTypeId={machineTypeId}
       stackRollbackVersion={stackRollbackVersion}
