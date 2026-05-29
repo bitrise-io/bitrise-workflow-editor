@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import BranchesApi from '@/core/api/BranchesApi';
 import PageProps from '@/core/utils/PageProps';
@@ -15,7 +15,6 @@ export function useBranches({ q, limit, enabled = true }: UseBranchesProps = {})
   return useQuery({
     queryKey: [`/app/${appSlug}/git-branches`, { q, limit }],
     queryFn: ({ signal }) => BranchesApi.getBranches({ appSlug, signal, q, limit }),
-    placeholderData: keepPreviousData,
     enabled,
   });
 }
