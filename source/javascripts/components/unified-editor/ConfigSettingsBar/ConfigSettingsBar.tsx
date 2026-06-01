@@ -7,6 +7,7 @@ import {
   IconDownload,
   IconFolder,
   IconMoreVertical,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
@@ -63,7 +64,7 @@ const ConfigSettingsBar = () => {
       paddingRight="12"
       paddingBlock="12"
       marginBottom="24"
-      minHeight="65"
+      minHeight={rem(65)}
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
@@ -76,6 +77,7 @@ const ConfigSettingsBar = () => {
           <Text as="h5" textStyle="body/md/semibold" color="text/primary">
             bitrise.yml
           </Text>
+          {/* TODO: Change to inline List */}
           <Box width="4" height="4" borderRadius="full" background="text/primary" marginInline="6" flexShrink="0" />
           <Skeleton loading={isPending}>
             <Text as="h5" textStyle="body/md/semibold" color="text/primary">

@@ -74,6 +74,7 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
         if (!open) onClose();
       }}
     >
+      {/* TODO: use BitkitDialog.Content asChild  */}
       <form onSubmit={handleSubmit}>
         <BitkitDialog.Body>
           <Text>Load configuration from selected branch.</Text>
