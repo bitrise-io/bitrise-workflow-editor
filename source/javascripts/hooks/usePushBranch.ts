@@ -8,6 +8,7 @@ import {
   trackPushConfigChangesFailed,
   trackPushConfigChangesSucceeded,
 } from '@/core/analytics/ConfigManagementAnalytics';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
@@ -20,7 +21,7 @@ export type PushBranchPayload = {
 };
 
 type UsePushBranchOptions = {
-  onSuccess?: (prUrl?: string) => void;
+  onSuccess?: (response: { ymlString: string; version: string; branch?: string; commitSha?: string }) => void;
   onMergeConflict?: (branch: string) => void;
 };
 
@@ -50,8 +51,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     onMutate: ({ branch }: PushBranchPayload) => {
       trackPushConfigChangesAttempted(configBranch, branch);
     },
-    onSuccess: (data, { branch }) => {
-      onSuccess?.(data?.pr_url);
+    onSuccess: async (data, { branch }) => {
       trackPushConfigChangesSucceeded(configBranch, branch);
       toast({
         title: 'Changes pushed successfully',
@@ -67,6 +67,11 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
             }
           : undefined,
       });
+      const newConfig = await BitriseYmlApi.getCiConfig({
+        projectSlug: PageProps.appSlug(),
+        branch,
+      });
+      onSuccess?.(newConfig);
     },
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
@@ -74,6 +79,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         onMergeConflict?.(branch);
         return;
       }
+
       trackPushConfigChangesFailed(
         configBranch,
         branch,
@@ -88,7 +94,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     },
   });
 
-  return { isPushPending, pushBranch, pushError, clearPushError };
+  return { isPushPending, pushBranch, pushError, setPushError, clearPushError };
 }
 
 export default usePushBranch;
