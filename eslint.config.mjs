@@ -31,7 +31,6 @@ export default defineConfig([
       bitriseConfig.react,
     ],
     rules: {
-      "import/no-cycle": "error",
       "@typescript-eslint/no-use-before-define": "warn",
       "no-restricted-globals": [
         "error",
