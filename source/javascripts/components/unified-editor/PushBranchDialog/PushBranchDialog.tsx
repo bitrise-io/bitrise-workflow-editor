@@ -123,23 +123,25 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
           {pushError && <BitkitAlert variant="critical" messageText={pushError} />}
         </BitkitDialog.Body>
         <BitkitDialog.Footer>
-          <BitkitButton
-            variant="tertiary"
-            onClick={() => {
-              onClose();
-              onManualUpdate();
-            }}
-            marginInlineEnd="auto"
-            state={isPushPending ? 'disabled' : undefined}
-          >
-            Manual update
-          </BitkitButton>
-          <BitkitButton variant="secondary" onClick={onClose} state={isPushPending ? 'disabled' : undefined}>
-            Cancel
-          </BitkitButton>
-          <BitkitButton type="submit" state={isPushPending ? 'loading' : !formState.isValid ? 'disabled' : undefined}>
-            Push changes
-          </BitkitButton>
+          <BitkitDialog.Buttons>
+            <BitkitButton
+              variant="tertiary"
+              onClick={() => {
+                onClose();
+                onManualUpdate();
+              }}
+              marginInlineEnd="auto"
+              state={isPushPending ? 'disabled' : undefined}
+            >
+              Manual update
+            </BitkitButton>
+            <BitkitButton variant="secondary" onClick={onClose} state={isPushPending ? 'disabled' : undefined}>
+              Cancel
+            </BitkitButton>
+            <BitkitButton type="submit" state={isPushPending ? 'loading' : !formState.isValid ? 'disabled' : undefined}>
+              Push changes
+            </BitkitButton>
+          </BitkitDialog.Buttons>
         </BitkitDialog.Footer>
       </form>
     </BitkitDialog>

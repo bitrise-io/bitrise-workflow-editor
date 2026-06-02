@@ -462,7 +462,6 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
           <BitkitAlert
             variant="warning"
             messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
-            marginBlockEnd="24"
           />
         )}
         <BitkitDialog.Buttons>

@@ -92,12 +92,14 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
         </Box>
       </BitkitDialog.Body>
       <BitkitDialog.Footer>
-        <BitkitButton variant="secondary" onClick={onClose}>
-          Cancel
-        </BitkitButton>
-        <BitkitButton state={!isCopiedOrDownloded ? 'disabled' : undefined} onClick={onClose}>
-          Done
-        </BitkitButton>
+        <BitkitDialog.Buttons>
+          <BitkitButton variant="secondary" onClick={onClose}>
+            Cancel
+          </BitkitButton>
+          <BitkitButton state={!isCopiedOrDownloded ? 'disabled' : undefined} onClick={onClose}>
+            Done
+          </BitkitButton>
+        </BitkitDialog.Buttons>
       </BitkitDialog.Footer>
     </>
   );

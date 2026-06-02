@@ -98,16 +98,18 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
           )}
         </BitkitDialog.Body>
         <BitkitDialog.Footer>
-          <BitkitButton variant="secondary" onClick={onClose}>
-            Cancel
-          </BitkitButton>
-          <BitkitButton
-            type="submit"
-            state={isLoadingConfig ? 'loading' : isSubmitDisabled ? 'disabled' : undefined}
-            onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
-          >
-            Switch
-          </BitkitButton>
+          <BitkitDialog.Buttons>
+            <BitkitButton variant="secondary" onClick={onClose}>
+              Cancel
+            </BitkitButton>
+            <BitkitButton
+              type="submit"
+              state={isLoadingConfig ? 'loading' : isSubmitDisabled ? 'disabled' : undefined}
+              onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
+            >
+              Switch
+            </BitkitButton>
+          </BitkitDialog.Buttons>
         </BitkitDialog.Footer>
       </form>
     </BitkitDialog>
