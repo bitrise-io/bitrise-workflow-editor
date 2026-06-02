@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import { Box, Icon } from '@bitrise/bitkit';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
