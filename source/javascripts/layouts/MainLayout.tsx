@@ -25,11 +25,18 @@ const InvalidYmlRedirect = () => {
 };
 
 const MainLayout = () => {
+  const [currentPath] = useHashLocation();
+  const isYmlPage = currentPath.startsWith(paths.yml);
+
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
       <Box display="flex" flex="1" alignItems="stretch" minH={0}>
-        <Navigation borderRight="1px solid" borderColor="border/regular" />
+        <Navigation
+          borderRight="1px solid"
+          borderColor="border/regular"
+          display={isYmlPage ? 'none' : undefined}
+        />
         <Box flex="1" overflowX="hidden" overflowY="auto">
           <Router hook={useHashLocation} searchHook={useHashSearch}>
             <InvalidYmlRedirect />

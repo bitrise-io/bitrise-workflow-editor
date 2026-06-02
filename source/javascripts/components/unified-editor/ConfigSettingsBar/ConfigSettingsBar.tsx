@@ -1,5 +1,6 @@
 import {
   Box,
+  BoxProps,
   ControlButton,
   DefinitionTooltip,
   Dot,
@@ -32,7 +33,7 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlStorageDialog';
 
-const ConfigSettingsBar = () => {
+const ConfigSettingsBar = (props: BoxProps) => {
   const {
     isOpen: isSwitchBranchDialogOpen,
     onClose: onSwitchBranchDialogClose,
@@ -74,6 +75,7 @@ const ConfigSettingsBar = () => {
       alignItems="center"
       justifyContent="space-between"
       gap="8"
+      {...props}
     >
       <Box minW={0}>
         <Box display="flex" alignItems="center">
