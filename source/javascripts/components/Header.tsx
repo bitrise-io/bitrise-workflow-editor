@@ -8,7 +8,8 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { useCallback, useState } from 'react';
+import { BitkitSegmentedControl } from '@bitrise/bitkit-v2';
+import { useCallback, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import {
@@ -32,12 +33,15 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
+import useHashLocation from '@/hooks/useHashLocation';
 import usePushBranch, { PushBranchPayload } from '@/hooks/usePushBranch';
+import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import { paths } from '@/routes';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
@@ -56,6 +60,44 @@ const Header = () => {
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
   const ymlStatus = useYmlValidationStatus();
+
+  const [path, navigate] = useHashLocation();
+  const [searchParams] = useSearchParams();
+
+  const isYmlPage = currentPage === 'yml';
+  const editorView = isYmlPage ? 'yaml' : 'visual';
+
+  // Remember the last visual page so switching back from YAML returns to it.
+  const lastVisualPathRef = useRef<string>(paths.workflows);
+  if (!isYmlPage) {
+    lastVisualPathRef.current = path;
+  }
+
+  const handleEditorViewChange = useCallback(
+    (value: string | null) => {
+      if (value === 'yaml') {
+        const searchParamsString = new URLSearchParams(searchParams).toString();
+        navigate(searchParamsString ? `${paths.yml}?${searchParamsString}` : paths.yml);
+        return;
+      }
+
+      if (value === 'visual') {
+        if (ymlStatus === 'invalid') {
+          toast({
+            status: 'error',
+            title: 'Invalid YAML',
+            description: 'Please fix the errors in your YAML configuration before navigating.',
+            duration: null,
+            isClosable: true,
+          });
+          return;
+        }
+
+        navigate(lastVisualPathRef.current);
+      }
+    },
+    [searchParams, navigate, ymlStatus, toast],
+  );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
   const turnIndex = useCiConfigExpertStore((s) => s.turnIndex);
@@ -245,6 +287,15 @@ const Header = () => {
         {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
         {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>Workflow Editor</BreadcrumbLink>}
       </Breadcrumb>
+
+      <BitkitSegmentedControl
+        size="sm"
+        value={editorView}
+        onValueChange={(details) => handleEditorViewChange(details.value)}
+      >
+        <BitkitSegmentedControl.Item value="visual">Visual</BitkitSegmentedControl.Item>
+        <BitkitSegmentedControl.Item value="yaml">YAML</BitkitSegmentedControl.Item>
+      </BitkitSegmentedControl>
 
       <Box
         gap="8"
