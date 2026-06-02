@@ -207,7 +207,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
       try {
         await Promise.all([loadEnvVarsAndSecrets(), loadStepOutputs()]);
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (abortController.signal.aborted) {
           return { suggestions: [] };
         }
         throw error;
