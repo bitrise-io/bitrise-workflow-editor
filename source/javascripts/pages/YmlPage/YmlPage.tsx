@@ -15,6 +15,7 @@ const YmlPage = () => {
         flexGrow="1"
         flexShrink="1"
         paddingBlock="12"
+        // TODO: Change to color token
         backgroundColor="#1e1e1e"
         position="relative"
         isolation="isolate"

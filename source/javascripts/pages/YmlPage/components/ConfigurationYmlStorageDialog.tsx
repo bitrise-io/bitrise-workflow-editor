@@ -15,6 +15,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Input } from '@chakra-ui/react/input';
+import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -107,10 +108,6 @@ const GitYmlRootPathSection = ({ defaultValue, isDisabled, onChange, value }: Gi
             <Text textStyle="body/lg/regular">/</Text>
           </Box>
           <Input
-            flex="1"
-            borderColor="border/strong"
-            borderRadius="0"
-            background="white"
             value={value}
             disabled={isDisabled}
             placeholder={defaultValue === '' ? '' : 'example/configs'}
@@ -121,12 +118,6 @@ const GitYmlRootPathSection = ({ defaultValue, isDisabled, onChange, value }: Gi
           </Box>
         </Box>
       </BitkitField>
-      {defaultValue !== null && (
-        <BitkitAlert
-          variant="warning"
-          messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
-        />
-      )}
     </Box>
   );
 };
@@ -159,7 +150,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
 
   return (
     <>
-      <Box borderBottom="1px solid" borderColor="border/regular" />
+      <Separator />
       <BitkitSectionHeading
         label="Complete the following tasks"
         helperText="Make sure to complete all the mandatory tasks before updating. A missing or invalid configuration file can lead to failed builds."
@@ -204,6 +195,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
                 href="https://docs.bitrise.io/en/bitrise-platform/integrations/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html"
                 target="_blank"
                 colorScheme="purple"
+                isExternal
               >
                 Learn more
               </BitkitLink>
@@ -247,7 +239,7 @@ type GitToBitriseSectionProps = {
 const GitToBitriseSection = ({ isDisabled, lastModifiedFormatted, onChange, value }: GitToBitriseSectionProps) => {
   return (
     <>
-      <Box borderBottom="1px solid" borderColor="border/regular" />
+      <Separator />
       <BitkitSectionHeading
         label="Set configuration file"
         helperText="Choose which configuration file should be used on bitrise.io from now."
@@ -463,21 +455,29 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
             lastModifiedFormatted={lastModifiedFormatted}
           />
         )}
-
         {asyncError && <YmlDialogErrorNotification error={asyncError} />}
       </BitkitDialog.Body>
       <BitkitDialog.Footer>
-        <BitkitButton variant="secondary" onClick={onClose}>
-          Cancel
-        </BitkitButton>
-        <BitkitTooltip text={toolTip} disabled={isStorageChanged}>
-          <BitkitButton
-            onClick={onValidateAndSave}
-            state={isValidateAndSaveLoading ? 'loading' : isValidateAndSaveDisabled ? 'disabled' : undefined}
-          >
-            Validate and save
+        {showYmlRootPathSection && ymlSettings?.ymlRootPath !== null && (
+          <BitkitAlert
+            variant="warning"
+            messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
+            marginBlockEnd="24"
+          />
+        )}
+        <BitkitDialog.Buttons>
+          <BitkitButton variant="secondary" onClick={onClose}>
+            Cancel
           </BitkitButton>
-        </BitkitTooltip>
+          <BitkitTooltip text={toolTip} disabled={isStorageChanged}>
+            <BitkitButton
+              onClick={onValidateAndSave}
+              state={isValidateAndSaveLoading ? 'loading' : isValidateAndSaveDisabled ? 'disabled' : undefined}
+            >
+              Validate and save
+            </BitkitButton>
+          </BitkitTooltip>
+        </BitkitDialog.Buttons>
       </BitkitDialog.Footer>
     </>
   );
