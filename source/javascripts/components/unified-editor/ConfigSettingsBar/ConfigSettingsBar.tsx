@@ -72,7 +72,7 @@ const ConfigSettingsBar = () => {
       justifyContent="space-between"
       gap="8"
     >
-      <Box flex={1} minWidth={0}>
+      <Box minWidth={0}>
         <BitkitList variant="inline" textColor="body" size="md">
           <BitkitList.Item>bitrise.yml</BitkitList.Item>
           <BitkitList.Item>
