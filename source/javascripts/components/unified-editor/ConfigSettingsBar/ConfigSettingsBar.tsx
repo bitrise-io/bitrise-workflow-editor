@@ -2,6 +2,7 @@ import {
   BitkitActionMenu,
   BitkitControlButton,
   BitkitDefinitionTooltip,
+  BitkitList,
   BitkitTooltip,
   IconBranch,
   IconDownload,
@@ -11,7 +12,6 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
-import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import {
@@ -73,18 +73,12 @@ const ConfigSettingsBar = () => {
       gap="8"
     >
       <Box minWidth={0}>
-        <Box display="flex" alignItems="center">
-          <Text as="h5" textStyle="body/md/semibold" color="text/primary">
-            bitrise.yml
-          </Text>
-          {/* TODO: Change to inline List */}
-          <Box width="4" height="4" borderRadius="full" background="text/primary" marginInline="6" flexShrink="0" />
-          <Skeleton loading={isPending}>
-            <Text as="h5" textStyle="body/md/semibold" color="text/primary">
-              {data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}
-            </Text>
-          </Skeleton>
-        </Box>
+        <BitkitList variant="inline" textColor="body" size="md">
+          <BitkitList.Item>bitrise.yml</BitkitList.Item>
+          <BitkitList.Item>
+            <Skeleton loading={isPending}>{data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}</Skeleton>
+          </BitkitList.Item>
+        </BitkitList>
         {enableBranchSwitching && data?.usesRepositoryYml && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" marginTop="4">
             <IconBranch size="16" color="icon/tertiary" />

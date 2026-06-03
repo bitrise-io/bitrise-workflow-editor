@@ -1,4 +1,6 @@
-import { BitkitAlert, BitkitButton, BitkitDialog, BitkitSelect } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitDialog, BitkitDialogRoot, BitkitSelect } from '@bitrise/bitkit-v2';
+import { Dialog } from '@chakra-ui/react/dialog';
+import { Portal } from '@chakra-ui/react/portal';
 import { Text } from '@chakra-ui/react/text';
 import { FormEvent, useEffect, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
@@ -67,52 +69,55 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <BitkitDialog
-      title="Switch branch"
+    <BitkitDialogRoot
       open={isOpen}
       onOpenChange={({ open }) => {
         if (!open) onClose();
       }}
     >
-      {/* TODO: use BitkitDialog.Content asChild  */}
-      <form onSubmit={handleSubmit}>
-        <BitkitDialog.Body>
-          <Text>Load configuration from selected branch.</Text>
-          <BitkitSelect
-            label="Branch"
-            placeholder="Select branch"
-            items={filteredBranches || []}
-            isLoading={isLoading}
-            value={targetBranch}
-            onValueChange={setSelectedBranch}
-            searchValue={search}
-            onSearchChange={setSearch}
-          />
-          {getBranchesError && <BitkitAlert variant="critical" messageText="Failed to load branches." />}
-          {switchBranchError && (
-            <BitkitAlert
-              variant="critical"
-              titleText="Failed to load configuration"
-              messageText={`Could not load bitrise.yml from ${targetBranch}. Check that the file exists on this branch and try again.`}
-            />
-          )}
-        </BitkitDialog.Body>
-        <BitkitDialog.Footer>
-          <BitkitDialog.Buttons>
-            <BitkitButton variant="secondary" onClick={onClose}>
-              Cancel
-            </BitkitButton>
-            <BitkitButton
-              type="submit"
-              state={isLoadingConfig ? 'loading' : isSubmitDisabled ? 'disabled' : undefined}
-              onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
-            >
-              Switch
-            </BitkitButton>
-          </BitkitDialog.Buttons>
-        </BitkitDialog.Footer>
-      </form>
-    </BitkitDialog>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <BitkitDialog.FormContent title="Switch branch" onSubmit={handleSubmit}>
+            <BitkitDialog.Body>
+              <Text>Load configuration from selected branch.</Text>
+              <BitkitSelect
+                label="Branch"
+                placeholder="Select branch"
+                items={filteredBranches || []}
+                isLoading={isLoading}
+                value={targetBranch}
+                onValueChange={setSelectedBranch}
+                searchValue={search}
+                onSearchChange={setSearch}
+              />
+              {getBranchesError && <BitkitAlert variant="critical" messageText="Failed to load branches." />}
+              {switchBranchError && (
+                <BitkitAlert
+                  variant="critical"
+                  titleText="Failed to load configuration"
+                  messageText={`Could not load bitrise.yml from ${targetBranch}. Check that the file exists on this branch and try again.`}
+                />
+              )}
+            </BitkitDialog.Body>
+            <BitkitDialog.Footer>
+              <BitkitDialog.Buttons>
+                <BitkitButton variant="secondary" onClick={onClose}>
+                  Cancel
+                </BitkitButton>
+                <BitkitButton
+                  type="submit"
+                  state={isLoadingConfig ? 'loading' : isSubmitDisabled ? 'disabled' : undefined}
+                  onClick={() => trackBranchSwitchAttempted(configBranch, targetBranch)}
+                >
+                  Switch
+                </BitkitButton>
+              </BitkitDialog.Buttons>
+            </BitkitDialog.Footer>
+          </BitkitDialog.FormContent>
+        </Dialog.Positioner>
+      </Portal>
+    </BitkitDialogRoot>
   );
 };
 
