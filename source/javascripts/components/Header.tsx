@@ -8,7 +8,7 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { BitkitSegmentedControl } from '@bitrise/bitkit-v2';
+import { BitkitSegmentedControl, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
 import { useCallback, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -293,8 +293,12 @@ const Header = () => {
         value={editorView}
         onValueChange={(details) => handleEditorViewChange(details.value)}
       >
-        <BitkitSegmentedControl.Item value="visual">Visual</BitkitSegmentedControl.Item>
-        <BitkitSegmentedControl.Item value="yaml">YAML</BitkitSegmentedControl.Item>
+        <BitkitSegmentedControl.Item icon={IconWebUi} value="visual">
+          Visual
+        </BitkitSegmentedControl.Item>
+        <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
+          YAML
+        </BitkitSegmentedControl.Item>
       </BitkitSegmentedControl>
 
       <Box
