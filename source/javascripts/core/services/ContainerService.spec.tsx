@@ -1662,20 +1662,23 @@ describe('ContainerService', () => {
         expect(result).toBeUndefined();
       });
 
-      it('should throw error when step bundle does not exist', () => {
+      it('returns undefined when the step bundle is defined in another file (cross-file reference)', () => {
         updateBitriseYmlDocumentByString(yaml`
         step_bundles:
           my_bundle:
             execution_container: ubuntu
       `);
 
-        expect(() =>
+        // A reference whose definition is absent from this document has no local
+        // container references to resolve — it resolves to undefined rather than
+        // throwing (throwing here would crash the card during render).
+        expect(
           ContainerService.getContainerReferencesFromStepBundleDefinition(
             'non_existent',
             ContainerType.Execution,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow("Step bundle 'non_existent' not found");
+        ).toBeUndefined();
       });
     });
 
@@ -1811,7 +1814,7 @@ describe('ContainerService', () => {
         expect(result).toEqual([{ id: 'postgres', recreate: false }]);
       });
 
-      it('should throw error when step bundle does not exist', () => {
+      it('returns undefined when the step bundle is defined in another file (cross-file reference)', () => {
         updateBitriseYmlDocumentByString(yaml`
         step_bundles:
           my_bundle:
@@ -1819,13 +1822,16 @@ describe('ContainerService', () => {
               - postgres
       `);
 
-        expect(() =>
+        // A reference whose definition is absent from this document has no local
+        // container references to resolve — it resolves to undefined rather than
+        // throwing (throwing here would crash the card during render).
+        expect(
           ContainerService.getContainerReferencesFromStepBundleDefinition(
             'non_existent',
             ContainerType.Service,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow("Step bundle 'non_existent' not found");
+        ).toBeUndefined();
       });
     });
 

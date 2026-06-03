@@ -2,7 +2,7 @@ import { omit } from 'es-toolkit';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useSearchParams from '@/hooks/useSearchParams';
+import useSearchParams, { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
 
 const usePipelineSelector = () => {
   const { options, keys } = useBitriseYmlStore(({ yml }) => {
@@ -14,9 +14,12 @@ const usePipelineSelector = () => {
     };
   });
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  // Validate against the LIVE hash (not the snapshot) so a synchronous
+  // jump-to-definition isn't clobbered by the self-correcting effect below.
+  // See useSelectedWorkflow for the full rationale.
+  const [, setSearchParams] = useSearchParams();
 
-  const searchedPipeline = searchParams.pipeline || keys[0];
+  const searchedPipeline = getSearchParamsFromLocationHash().pipeline || keys[0];
   const searchedPipelineIsInOptions = keys.includes(searchedPipeline);
   const selectedPipeline = searchedPipelineIsInOptions ? searchedPipeline : keys[0];
 

@@ -4,7 +4,9 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+import EntityIndexService from '@/core/services/EntityIndexService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import { useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -50,9 +52,18 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
+  const entityIndex = useEntityIndex();
+
+  // Render chained workflows that are either defined in the active file or in
+  // another module (cross-file reference, present in the entity index).
+  // ChainedWorkflowCard tolerates the missing definition for the latter, showing
+  // only the reference and a jump-to-definition link in its drawer. Truly
+  // dangling ids (neither local nor indexed) are still skipped.
   const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
     const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
-    return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
+    return chainedWorkflowIds.filter(
+      (id) => workflowIds.includes(id) || Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id)),
+    );
   });
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {
@@ -157,6 +168,7 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   }, [initialSortableItems]);
 
   const isEmpty = sortableItems.length === 0;
+  const hasContent = !isEmpty;
 
   return (
     <SortableContext
@@ -168,10 +180,10 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
         gap={8}
         display="flex"
         flexDir="column"
-        mt={isEmpty && isAfterRun ? -8 : 0}
-        mb={isEmpty && isBeforeRun ? -8 : 0}
+        mt={!hasContent && isAfterRun ? -8 : 0}
+        mb={!hasContent && isBeforeRun ? -8 : 0}
       >
-        {isAfterRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+        {isAfterRun && hasContent && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
         {isAfterRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
 
         {sortableItems.map((item) => (
@@ -179,7 +191,7 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
         ))}
 
         {isBeforeRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
-        {isBeforeRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+        {isBeforeRun && hasContent && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
       </Box>
     </SortableContext>
   );

@@ -1,16 +1,24 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 import { Workflow } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const Context = createContext<string>('');
+// Component (WorkflowConfigProvider) and hook are kept in separate modules so
+// this file exports only non-components — otherwise React Fast Refresh treats
+// the mixed module as a non-boundary and falls back to a full page reload.
+export const WorkflowConfigContext = createContext<string>('');
 
-const WorkflowConfigProvider = ({ workflowId, children }: PropsWithChildren<{ workflowId: string }>) => {
-  return <Context.Provider value={workflowId}>{children}</Context.Provider>;
-};
+/**
+ * The raw workflow id the drawer was opened for — available even when the
+ * workflow isn't defined in the active file (a cross-file reference), unlike
+ * `useWorkflowConfigContext` which resolves to `undefined` in that case.
+ */
+export function useWorkflowConfigId() {
+  return useContext(WorkflowConfigContext);
+}
 
 export function useWorkflowConfigContext<U = Workflow | undefined>(selector?: (state: Workflow | undefined) => U) {
-  const id = useContext(Context);
+  const id = useContext(WorkflowConfigContext);
 
   return useBitriseYmlStore(({ yml }) => {
     const userValues = yml.workflows?.[id];
@@ -19,5 +27,3 @@ export function useWorkflowConfigContext<U = Workflow | undefined>(selector?: (s
     return selector ? selector(workflow) : workflow;
   }) as U;
 }
-
-export default WorkflowConfigProvider;

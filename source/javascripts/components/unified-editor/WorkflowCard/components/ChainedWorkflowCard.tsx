@@ -5,8 +5,10 @@ import { memo, useMemo, useRef } from 'react';
 
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -29,6 +31,13 @@ type Props = {
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
+  const entityIndex = useEntityIndex();
+  // A chained workflow defined in another module file (cross-file reference).
+  // There are no instance-level fields on a chain entry, so the card just shows
+  // the reference; its body (the chained workflow's own steps/sub-chains) is
+  // definition-level and lives in the other file, so it's omitted here. The
+  // config drawer exposes the jump-to-definition link.
+  const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -85,9 +94,11 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
     return {
       ...common,
+      // Subtle tint signalling the workflow is a reference defined in another file.
+      ...(isCrossFile ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isDragging, isHighlighted, isPlaceholder]);
+  }, [isDragging, isHighlighted, isPlaceholder, isCrossFile]);
 
   const buttonGroup = useMemo(() => {
     if (isDragging || (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow)) {
@@ -141,7 +152,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     onRemoveChainedWorkflow,
   ]);
 
-  if (!workflow) {
+  if (!workflow && !isCrossFile) {
     return null;
   }
 
@@ -161,18 +172,20 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               />
             )}
 
-            <ControlButton
-              size="xs"
-              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-              className="nopan"
-              onClick={onToggle}
-              isDisabled={isDragging}
-              iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-              aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
-              tooltipProps={{
-                'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
-              }}
-            />
+            {!isCrossFile && (
+              <ControlButton
+                size="xs"
+                tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+                className="nopan"
+                onClick={onToggle}
+                isDisabled={isDragging}
+                iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+                aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
+                tooltipProps={{
+                  'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
+                }}
+              />
+            )}
 
             <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
               <Text textStyle="body/md/semibold" hasEllipsis>
@@ -188,17 +201,19 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
             {buttonGroup}
           </Box>
 
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-            <SortableWorkflowsContext containerRef={containerRef}>
-              <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-                <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
+          {!isCrossFile && (
+            <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+              <SortableWorkflowsContext containerRef={containerRef}>
+                <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+                  <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-                <WorkflowStepList workflowId={id} />
+                  <WorkflowStepList workflowId={id} />
 
-                <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
-              </Box>
-            </SortableWorkflowsContext>
-          </Collapse>
+                  <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
+                </Box>
+              </SortableWorkflowsContext>
+            </Collapse>
+          )}
         </>
       )}
     </Card>

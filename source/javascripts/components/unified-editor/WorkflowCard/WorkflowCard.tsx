@@ -1,7 +1,9 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 
+import EntityIndexService from '@/core/services/EntityIndexService';
 import PipelineService from '@/core/services/PipelineService';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -72,6 +74,15 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
+  // The workflow may be defined in another module file (a cross-file reference,
+  // e.g. a pipeline referencing a workflow from another file). It isn't in this
+  // document, so we can't render its steps/chains — only the reference itself.
+  // The card stays clickable (opens the config drawer for instance-level props);
+  // the drawer header exposes the jump-to-definition link. In single-file mode
+  // the index is empty, so this is always false and behaviour is unchanged.
+  const entityIndex = useEntityIndex();
+  const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', workflowId));
+
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
@@ -82,6 +93,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
+      // Subtle tint signalling the workflow is a reference defined in another file.
+      ...(isCrossFile ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -89,17 +102,17 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted],
+    [containerProps, isHighlighted, isCrossFile],
   );
 
-  if (!workflow) {
+  if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
   }
 
   return (
     <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
-        {isCollapsable && (
+        {isCollapsable && !isCrossFile && (
           <ControlButton
             size="xs"
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
@@ -114,7 +127,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <WorkflowName parallel={parallel}>{uses ? id : workflow.title || id}</WorkflowName>
+          <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {uses ? `Uses ${uses}` : stackName}
           </Text>
@@ -122,7 +135,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
         {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow) && (
           <Box display="none" _groupHover={{ display: 'inline-flex' }}>
-            {onChainWorkflow && (
+            {/* Chaining writes before_run/after_run into the workflow's
+                definition, which lives in another file for a cross-file
+                reference — so the chain action is hidden there. */}
+            {onChainWorkflow && !isCrossFile && (
               <ControlButton
                 size="xs"
                 iconName="Link"
@@ -157,19 +173,27 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
       </Box>
 
-      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-        <SortableWorkflowsContext containerRef={containerRef}>
-          <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <ChainedWorkflowList
-              key={`${workflowId}->before_run`}
-              placement="before_run"
-              parentWorkflowId={workflowId}
-            />
-            <WorkflowStepList workflowId={workflowId} />
-            <ChainedWorkflowList key={`${workflowId}->after_run`} placement="after_run" parentWorkflowId={workflowId} />
-          </Box>
-        </SortableWorkflowsContext>
-      </Collapse>
+      {/* Steps and chained workflows are definition-level and live in the other
+          file for a cross-file reference, so the body is omitted there. */}
+      {!isCrossFile && (
+        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <SortableWorkflowsContext containerRef={containerRef}>
+            <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+              <ChainedWorkflowList
+                key={`${workflowId}->before_run`}
+                placement="before_run"
+                parentWorkflowId={workflowId}
+              />
+              <WorkflowStepList workflowId={workflowId} />
+              <ChainedWorkflowList
+                key={`${workflowId}->after_run`}
+                placement="after_run"
+                parentWorkflowId={workflowId}
+              />
+            </Box>
+          </SortableWorkflowsContext>
+        </Collapse>
+      )}
     </Card>
   );
 });

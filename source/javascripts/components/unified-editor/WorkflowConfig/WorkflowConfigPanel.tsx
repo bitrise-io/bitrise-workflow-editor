@@ -10,8 +10,8 @@ import datadogCustomRumTiming from '@/utils/datadogCustomRumTiming';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
-import WorkflowConfigProvider from './WorkflowConfig.context';
 import { WorkflowConfigTab } from './WorkflowConfig.types';
+import WorkflowConfigProvider from './WorkflowConfigProvider';
 
 const TAB_IDS = [WorkflowConfigTab.CONFIGURATION, WorkflowConfigTab.PROPERTIES, WorkflowConfigTab.TRIGGERS];
 

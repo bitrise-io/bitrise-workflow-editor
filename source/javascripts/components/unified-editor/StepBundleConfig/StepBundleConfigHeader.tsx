@@ -1,8 +1,12 @@
 import { Box, Link, Tab, TabList, Text } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
+import EntityIndexService from '@/core/services/EntityIndexService';
 import StepBundleService from '@/core/services/StepBundleService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
+import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import useNavigation from '@/hooks/useNavigation';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
@@ -20,6 +24,20 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
 
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
   const { replace } = useNavigation();
+  const entityIndex = useEntityIndex();
+  const jumpToDefinition = useJumpToDefinition();
+
+  // When the definition lives in another module file (cross-file reference) the
+  // drawer is editing only the instance-level overrides; "Edit definition" must
+  // jump to the defining file's tab rather than navigate within this one. In
+  // single-file mode the index is empty, so `definedElsewhere` is always false
+  // and the existing in-file navigation is used unchanged.
+  const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.step_bundles?.[stepBundleId]));
+  const definedElsewhere =
+    !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
+  const onEditDefinition = definedElsewhere
+    ? () => jumpToDefinition('stepBundles', stepBundleId)
+    : () => replace('/step_bundles', { step_bundle_id: stepBundleId });
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
   let subtitle: ReactNode = usedIn;
@@ -31,11 +49,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
           {stepBundleId}
         </Text>{' '}
         • {usedIn} •{' '}
-        <Link
-          as="button"
-          colorScheme="purple"
-          onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}
-        >
+        <Link as="button" colorScheme="purple" onClick={onEditDefinition}>
           Edit definition
         </Link>
       </>

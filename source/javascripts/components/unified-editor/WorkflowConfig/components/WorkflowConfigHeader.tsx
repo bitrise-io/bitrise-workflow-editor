@@ -1,11 +1,15 @@
-import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, Link, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
+import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
+import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
-import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -14,12 +18,22 @@ type Props = {
 };
 
 const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
-  const { id, title } = useWorkflowConfigContext((s) => ({
-    id: s?.id || '',
-    title: s?.userValues?.title,
-  }));
+  // Raw id resolves even for a cross-file workflow; the resolved context title
+  // is undefined there (no local definition), which is fine for display.
+  const id = useWorkflowConfigId();
+  const title = useWorkflowConfigContext((s) => s?.userValues?.title);
 
   const dependants = useDependantWorkflows({ workflowId: id });
+  const entityIndex = useEntityIndex();
+  const jumpToDefinition = useJumpToDefinition();
+
+  // The workflow's definition may live in another module file (cross-file
+  // reference). Here we only edit the instance-level config (Configuration tab);
+  // the definition-level tabs (Properties, Triggers) belong to the defining file,
+  // so they're shown but disabled, with a jump-to-definition link offered
+  // instead. In single-file mode the index is empty, so this is always false.
+  const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.workflows?.[id]));
+  const isCrossFile = !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
@@ -51,6 +65,14 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
               {WorkflowService.getUsedByText(dependants)}
             </Text>
           )}
+          {isCrossFile && (
+            <Text textStyle="body/sm/regular" color="text/secondary">
+              Defined in another file •{' '}
+              <Link as="button" colorScheme="purple" onClick={() => jumpToDefinition('workflows', id)}>
+                Edit definition
+              </Link>
+            </Text>
+          )}
         </div>
         {isAIButtonVisible && variant === 'panel' && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
@@ -68,8 +90,8 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
       </Box>
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
-        <Tab>Properties</Tab>
-        {shouldShowTriggersTab && <Tab>Triggers</Tab>}
+        <Tab isDisabled={isCrossFile}>Properties</Tab>
+        {shouldShowTriggersTab && <Tab isDisabled={isCrossFile}>Triggers</Tab>}
       </TabList>
     </>
   );

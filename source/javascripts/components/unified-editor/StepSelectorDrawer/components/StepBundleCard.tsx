@@ -8,8 +8,11 @@ import useContainerReferences from '@/components/unified-editor/ContainersTab/ho
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
+import EntityIndexService from '@/core/services/EntityIndexService';
 import StepBundleService from '@/core/services/StepBundleService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useStepBundle from '@/hooks/useStepBundle';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
@@ -41,6 +44,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
+
+  // The bundle's definition may live in another module file (cross-file
+  // reference) — a subtle tint signals it. Empty index ⇒ always false (single-file).
+  const entityIndex = useEntityIndex();
+  const bundleId = StepBundleService.cvsToId(cvs);
+  const hasLocalDefinition = useBitriseYmlStore(({ yml }) => Boolean(yml.step_bundles?.[bundleId]));
+  const isCrossFile =
+    !hasLocalDefinition && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', bundleId));
   const { isSelected } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -136,8 +147,12 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       } satisfies CardProps;
     }
 
-    return { ...common, ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}) };
-  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
+    return {
+      ...common,
+      ...(isCrossFile ? { backgroundColor: 'background/secondary' } : {}),
+      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
+    };
+  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isCrossFile]);
 
   const buttonGroup = useMemo(() => {
     if ((!workflowId && !stepBundleId) || isDragging || (!onDeleteStep && !onSelectStep)) {

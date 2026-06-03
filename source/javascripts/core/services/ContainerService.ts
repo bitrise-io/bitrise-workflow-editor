@@ -259,7 +259,14 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 }
 
 function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: ContainerType, doc: Document) {
-  const yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+  // The bundle definition may live in another module file (a cross-file
+  // reference), so it can be absent from this document. There are no local
+  // container references to resolve in that case — return none rather than
+  // throwing (throwing here crashes the card during render).
+  const yamlMap = YmlUtils.getMapIn(doc, ['step_bundles', sourceId]);
+  if (!yamlMap) {
+    return undefined;
+  }
 
   return getContainerReferences(type, yamlMap);
 }

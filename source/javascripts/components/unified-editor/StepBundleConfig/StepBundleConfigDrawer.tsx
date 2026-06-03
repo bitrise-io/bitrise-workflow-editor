@@ -7,9 +7,9 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import StepBundleConfigProvider from './StepBundleConfig.context';
 import StepBundleConfigContent from './StepBundleConfigContent';
 import StepBundleConfigHeader from './StepBundleConfigHeader';
+import StepBundleConfigProvider from './StepBundleConfigProvider';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepBundleId?: string;
