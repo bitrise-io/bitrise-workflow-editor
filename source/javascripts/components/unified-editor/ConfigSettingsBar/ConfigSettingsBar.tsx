@@ -25,6 +25,7 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -36,6 +37,7 @@ const ConfigSettingsBar = () => {
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
 
+  const isYmlPage = useCurrentPage() === 'yml';
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
   const hasChanges = useYmlHasChanges();
 
@@ -63,13 +65,13 @@ const ConfigSettingsBar = () => {
       paddingLeft="32"
       paddingRight="12"
       paddingBlock="12"
-      marginBottom="24"
+      marginBottom={isYmlPage ? undefined : '24'}
       minHeight="64"
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
       alignItems="center"
-      justifyContent="space-between"
+      justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
       gap="8"
     >
       <Box minWidth={0}>

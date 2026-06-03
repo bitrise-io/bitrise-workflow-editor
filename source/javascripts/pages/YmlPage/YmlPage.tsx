@@ -12,7 +12,7 @@ const YmlPage = () => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
-      {isWebsiteMode && <ConfigSettingsBar mb="0" justifyContent="flex-start" />}
+      {isWebsiteMode && <ConfigSettingsBar />}
       <Box flexGrow="1" flexShrink="1" paddingBlock="12" backgroundColor="#1e1e1e" position="relative">
         {isWebsiteMode && <YourCiConfigIsSplitNotification />}
         {isWebsiteMode && <OptimizeYouCiConfigBySplittingNotification />}
