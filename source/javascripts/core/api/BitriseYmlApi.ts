@@ -104,7 +104,7 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug, con
 // --- Modular YAML tree endpoints ---
 
 const CONFIG_TREE_PATH = `/api/app/:projectSlug/config/tree`;
-const CONFIG_MERGED_PATH = `/api/app/:projectSlug/config/merged`;
+const CONFIG_MERGE_PATH = `/api/app/:projectSlug/config/merge`;
 const CONFIG_PUSH_PATH = `/api/app/:projectSlug/config/push`;
 
 type WireTreeNodeSource = {
@@ -134,9 +134,12 @@ type WireEntityIndex = {
   step_bundles: WireEntityEntries;
 };
 
-type WireGetConfigResponse =
-  | { mode: 'modular'; root: WireTreeNode; entity_index: WireEntityIndex }
-  | { mode: 'single_file'; yaml: string; version: string; commit_sha?: string; branch?: string };
+type WireGetConfigResponse = {
+  root: WireTreeNode;
+  entity_index: WireEntityIndex;
+  merged_yml?: string;
+  branch?: string;
+};
 
 type WireSaveTreeResponse = {
   status: 'ok';
@@ -231,9 +234,9 @@ type GetConfigOptions = {
 };
 
 /**
- * Mode-discriminated bootstrap. `modular` carries the full tree + entity index;
- * `single_file` mirrors today's `GET /config.yml` payload so the existing
- * single-file editor can consume it unchanged.
+ * Bootstrap fetch. Always returns the tree-shaped config — a non-modular config
+ * comes back as a single root node with no includes, so callers consume one
+ * shape regardless of whether the project uses modular YAML.
  */
 async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetConfigResponse> {
   const path = configTreePath(options);
@@ -241,37 +244,35 @@ async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetC
   const wire = (await response.json()) as WireGetConfigResponse;
   const headerBranch = response.headers.get(CI_CONFIG_BRANCH_HEADER) || undefined;
 
-  if (wire.mode === 'modular') {
-    return {
-      mode: 'modular',
-      root: wireToTreeNode(wire.root),
-      entityIndex: wireToEntityIndex(wire.entity_index),
-      branch: headerBranch,
-    };
-  }
-
   return {
-    mode: 'single_file',
-    yaml: wire.yaml,
-    version: wire.version,
-    commitSha: wire.commit_sha,
+    root: wireToTreeNode(wire.root),
+    entityIndex: wireToEntityIndex(wire.entity_index),
+    mergedYml: wire.merged_yml,
     branch: wire.branch || headerBranch,
   };
 }
 
+/**
+ * Flatten the editor's current (possibly-edited) tree into a single merged
+ * config. The full tree is posted with live contents, so the result reflects
+ * in-memory edits. `branch` keeps the reconstructed include keys aligned with
+ * how the tree was loaded.
+ */
 async function getMergedConfig({
   projectSlug,
   tree,
+  branch,
   signal,
 }: {
   projectSlug: string;
   tree: TreeNode;
+  branch?: string;
   signal?: AbortSignal;
 }): Promise<MergedConfigResult> {
-  const path = CONFIG_MERGED_PATH.replace(':projectSlug', projectSlug);
+  const path = CONFIG_MERGE_PATH.replace(':projectSlug', projectSlug);
   const response = await Client.post<{ merged_yml: string }>(path, {
     signal,
-    body: JSON.stringify({ root: treeNodeToWire(tree) }),
+    body: JSON.stringify({ root: treeNodeToWire(tree), branch }),
   });
 
   return { mergedYml: response?.merged_yml ?? '' };

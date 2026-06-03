@@ -7,6 +7,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
+import { useIsMergedConfigSelected } from '@/hooks/useTree';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
@@ -34,6 +35,13 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
   // instead. In single-file mode the index is empty, so this is always false.
   const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.workflows?.[id]));
   const isCrossFile = !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
+
+  // On the merged view every workflow resolves locally, so `isCrossFile` is
+  // false — but the definition still lives in a specific module. Offer a jump to
+  // it (the read-only merged preview isn't where you edit).
+  const isMergedView = useIsMergedConfigSelected();
+  const canJumpToDefinition = isMergedView && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
+  const showDefinitionLink = isCrossFile || canJumpToDefinition;
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
@@ -65,11 +73,11 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
               {WorkflowService.getUsedByText(dependants)}
             </Text>
           )}
-          {isCrossFile && (
+          {showDefinitionLink && (
             <Text textStyle="body/sm/regular" color="text/secondary">
-              Defined in another file •{' '}
+              {isCrossFile && 'Defined in another file • '}
               <Link as="button" colorScheme="purple" onClick={() => jumpToDefinition('workflows', id)}>
-                Edit definition
+                {isMergedView ? 'Go to definition' : 'Edit definition'}
               </Link>
             </Text>
           )}

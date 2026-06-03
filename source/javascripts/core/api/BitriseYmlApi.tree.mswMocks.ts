@@ -36,21 +36,36 @@ const ENTITY_INDEX = {
   step_bundles: {},
 };
 
+const MERGED_YML = 'format_version: "13"\nworkflows:\n  build:\n    steps:\n      - script@1: {}\n';
+
 const MODULAR_RESPONSE = {
-  mode: 'modular',
   root: ROOT_NODE,
   entity_index: ENTITY_INDEX,
-};
-
-const SINGLE_FILE_RESPONSE = {
-  mode: 'single_file',
-  yaml: 'format_version: "13"\nworkflows:\n  build:\n    steps:\n      - script@1: {}\n',
-  version: 'v-single',
-  commit_sha: 'a1b2c3d4e5f6789012345678901234567890abcd',
+  merged_yml: MERGED_YML,
   branch: 'main',
 };
 
-export const getConfigTree = (mode: 'modular' | 'single_file' = 'modular', error?: string) => {
+// A non-modular config is just the degenerate case of the same tree shape: a
+// single root node with no includes.
+const SINGLE_NODE_ROOT = {
+  node_id: 'n_root',
+  path: 'bitrise.yml',
+  contents: 'format_version: "13"\nworkflows:\n  build:\n    steps:\n      - script@1: {}\n',
+  source: null,
+  commit_sha: 'a1b2c3d4e5f6789012345678901234567890abcd',
+  version: 'v-single',
+  editable: true,
+  includes: [],
+};
+
+const SINGLE_NODE_RESPONSE = {
+  root: SINGLE_NODE_ROOT,
+  entity_index: { workflows: { build: { node_id: 'n_root' } }, pipelines: {}, step_bundles: {} },
+  merged_yml: SINGLE_NODE_ROOT.contents,
+  branch: 'main',
+};
+
+export const getConfigTree = (variant: 'modular' | 'single_node' = 'modular', error?: string) => {
   return http.get(BitriseYmlApi.configTreePath({ projectSlug: ':slug' }), async () => {
     await delay();
 
@@ -58,19 +73,19 @@ export const getConfigTree = (mode: 'modular' | 'single_file' = 'modular', error
       return HttpResponse.json({ error_msg: error }, { status: 422 });
     }
 
-    return HttpResponse.json(mode === 'modular' ? MODULAR_RESPONSE : SINGLE_FILE_RESPONSE, { status: 200 });
+    return HttpResponse.json(variant === 'modular' ? MODULAR_RESPONSE : SINGLE_NODE_RESPONSE, { status: 200 });
   });
 };
 
-export const postMergedConfig = (error?: string) => {
-  return http.post('/api/app/:slug/config/merged', async () => {
+export const postMergeConfig = (error?: string) => {
+  return http.post('/api/app/:slug/config/merge', async () => {
     await delay();
 
     if (error) {
       return HttpResponse.json({ error_msg: error }, { status: 422 });
     }
 
-    return HttpResponse.json({ merged_yml: SINGLE_FILE_RESPONSE.yaml }, { status: 200 });
+    return HttpResponse.json({ merged_yml: MERGED_YML }, { status: 200 });
   });
 };
 
@@ -104,4 +119,4 @@ export const postConfigPush = (result: 'ok' | 'conflict' | 'error' = 'ok') => {
   });
 };
 
-export const treeMocks = { ROOT_NODE, ENTITY_INDEX, MODULAR_RESPONSE, SINGLE_FILE_RESPONSE };
+export const treeMocks = { ROOT_NODE, ENTITY_INDEX, MODULAR_RESPONSE, SINGLE_NODE_RESPONSE };

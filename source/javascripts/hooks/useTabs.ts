@@ -11,6 +11,7 @@ import {
 } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useHashLocation from '@/hooks/useHashLocation';
+import { paths } from '@/routes';
 
 /** The live router location (raw hash) — read directly, not via the lagging snapshot. */
 function currentLocation(): string {
@@ -37,13 +38,25 @@ export function useTabs() {
 
   const [, navigate] = useHashLocation();
 
-  // Restore the page the target tab was last on (if any). No stored location
-  // means a never-visited tab — leave the current page as-is.
+  // Restore the page the target tab was last on (if any). For a file tab, no
+  // stored location means never-visited — leave the current page as-is (its
+  // entity selectors fall back to that file's first entity). The merged tab
+  // keeps its page in `mergedTabLastLocation` (it isn't an `openTabs` entry);
+  // because the merged config contains *every* entity, the previous tab's
+  // selection would otherwise carry over, so a never-visited merged tab defaults
+  // to a clean Workflows page (→ a default workflow is selected).
   const restoreTabLocation = useCallback(
     (nodeId: string) => {
-      const target = bitriseYmlStore.getState().openTabs.find((tab) => tab.nodeId === nodeId);
-      if (target?.lastLocation) {
-        navigate(target.lastLocation);
+      const state = bitriseYmlStore.getState();
+
+      if (nodeId === MERGED_CONFIG_NODE_ID) {
+        navigate(state.mergedTabLastLocation ?? paths.workflows);
+        return;
+      }
+
+      const lastLocation = state.openTabs.find((tab) => tab.nodeId === nodeId)?.lastLocation;
+      if (lastLocation) {
+        navigate(lastLocation);
       }
     },
     [navigate],
@@ -70,7 +83,8 @@ export function useTabs() {
   const selectMerged = useCallback(() => {
     recordActiveTabLocation(currentLocation());
     selectMergedConfig();
-  }, []);
+    restoreTabLocation(MERGED_CONFIG_NODE_ID);
+  }, [restoreTabLocation]);
 
   // Closing the active tab makes the store rebind to a neighbor; restore that
   // neighbor's last page too. Closing an inactive tab leaves the active tab

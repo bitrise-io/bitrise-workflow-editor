@@ -8,6 +8,7 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import useNavigation from '@/hooks/useNavigation';
+import { useIsMergedConfigSelected } from '@/hooks/useTree';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
@@ -32,10 +33,13 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   // jump to the defining file's tab rather than navigate within this one. In
   // single-file mode the index is empty, so `definedElsewhere` is always false
   // and the existing in-file navigation is used unchanged.
+  // On the merged view the definition resolves locally but lives in a specific
+  // module — jump to it rather than navigate within the read-only merged doc.
+  const isMergedView = useIsMergedConfigSelected();
   const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.step_bundles?.[stepBundleId]));
-  const definedElsewhere =
-    !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
-  const onEditDefinition = definedElsewhere
+  const shouldJumpToDefinition =
+    (!isLocal || isMergedView) && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
+  const onEditDefinition = shouldJumpToDefinition
     ? () => jumpToDefinition('stepBundles', stepBundleId)
     : () => replace('/step_bundles', { step_bundle_id: stepBundleId });
 

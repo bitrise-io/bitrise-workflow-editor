@@ -195,7 +195,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               onClick={handleClick}
               role={isButton ? 'button' : 'div'}
             >
-              {isCollapsable && (
+              {isCollapsable && !isCrossFile && (
                 <ControlButton
                   size="xs"
                   tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
@@ -233,11 +233,18 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               {buttonGroup}
             </Box>
           </Box>
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-            <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
-            </Box>
-          </Collapse>
+          {/* The step list is definition-level: for a cross-file bundle the
+              definition lives in another file, so omit it here (the active doc
+              has no steps to show, and they aren't editable from this reference).
+              On the merged view the bundle is local, so isCrossFile is false and
+              the steps render normally. */}
+          {!isCrossFile && (
+            <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+              <Box p="8" ref={containerRef}>
+                <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+              </Box>
+            </Collapse>
+          )}
         </>
       )}
     </Card>

@@ -1,7 +1,7 @@
 import { useStore } from 'zustand';
 
 import { TreeNode } from '@/core/models/Tree';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -17,6 +17,16 @@ export function useTree(): TreeNode | undefined {
 
 export function useSelectedNodeId(): string | undefined {
   return useStore(bitriseYmlStore, (s) => s.selectedNodeId);
+}
+
+/**
+ * True when the Merged-config tab is the active tab. On the merged view every
+ * entity resolves locally, so "edit definition" / jump affordances should target
+ * the entity's *source module* (via the entity index) rather than navigate
+ * within the merged document.
+ */
+export function useIsMergedConfigSelected(): boolean {
+  return useStore(bitriseYmlStore, (s) => s.selectedNodeId === MERGED_CONFIG_NODE_ID);
 }
 
 /** node_ids of files with unsaved edits. */

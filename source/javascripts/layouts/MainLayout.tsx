@@ -6,6 +6,7 @@ import LazyRoute from '@/components/LazyRoute';
 import Navigation from '@/components/Navigation';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
+import useMergedConfigSync from '@/hooks/useMergedConfigSync';
 import { useTree } from '@/hooks/useTree';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
@@ -31,6 +32,10 @@ const MainLayout = () => {
   // area (a continuation of the ConfigSettingsBar "in repository" header), so the
   // active file is one shared context across every view.
   const isModular = Boolean(useTree());
+
+  // Fetch + bind the merged config whenever the Merged tab is active (works on
+  // every page, so entity cards on the merged view resolve locally).
+  useMergedConfigSync();
 
   return (
     <Box h="100dvh" display="flex" flexDirection="column">

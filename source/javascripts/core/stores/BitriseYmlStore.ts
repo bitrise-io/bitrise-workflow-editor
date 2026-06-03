@@ -65,7 +65,11 @@ export const bitriseYmlStore = createStore(
     entityIndex: emptyEntityIndex(),
     selectedNodeId: undefined as string | undefined,
     openTabs: [] as OpenTab[],
-    // On-demand merged config (POST /config/merged); stale on any file edit.
+    // Per-tab page memory for the Merged tab (it lives outside `openTabs`, so it
+    // can't carry its own `lastLocation` there). Mirrors `OpenTab.lastLocation`.
+    mergedTabLastLocation: undefined as string | undefined,
+    // Merged config: seeded from the bootstrap response, re-fetched on demand
+    // (POST /config/merge) whenever a file edit marks it stale.
     mergedYml: undefined as string | undefined,
     mergedYmlStale: true,
   })),
@@ -138,6 +142,10 @@ export function discardBitriseYmlDocument() {
     ymlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
     savedYmlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
     __invalidYmlString: undefined,
+    // File contents just changed (reverted to saved), so the merged config no
+    // longer reflects them — refetch it. On the merged tab this is what resets
+    // the view to the original merge (it has no file slice to rebind from).
+    mergedYmlStale: true,
   });
 }
 
@@ -168,6 +176,8 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
       ymlDocument: doc,
       __invalidYmlString: undefined,
       files: { ...state.files, [nodeId]: { ...slice, ymlDocument: doc } },
+      // The merged config no longer reflects this edit — refetch on next open.
+      mergedYmlStale: true,
     });
   } else {
     bitriseYmlStore.setState({ __invalidYmlString: ymlString });
@@ -240,6 +250,8 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
     ymlDocument: nextDoc,
     __invalidYmlString: undefined,
     files: { ...state.files, [nodeId]: { ...slice, ymlDocument: nextDoc } },
+    // The merged config no longer reflects this edit — refetch on next open.
+    mergedYmlStale: true,
   });
 }
 
@@ -323,11 +335,13 @@ export function getModularConfigTree(): TreeNode | undefined {
 export function initializeModularConfig({
   root,
   entityIndex,
+  mergedYml,
   branch,
   commitSha,
 }: {
   root: TreeNode;
   entityIndex: EntityIndex;
+  mergedYml?: string;
   branch?: string;
   commitSha?: string;
 }) {
@@ -346,8 +360,12 @@ export function initializeModularConfig({
     savedYmlDocument: rootSlice.savedYmlDocument,
     __invalidYmlString: undefined,
     __savedInvalidYmlString: undefined,
-    mergedYml: undefined,
-    mergedYmlStale: true,
+    // Seed the Merged-config tab with the BE's bootstrap merge so it renders
+    // instantly without a round-trip. If the BE couldn't merge (mergedYml
+    // absent), leave it stale so the tab fetches on first open. Either way, any
+    // local edit flips it stale → re-fetched via POST /config/merge.
+    mergedYml,
+    mergedYmlStale: mergedYml === undefined,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
   });
@@ -426,19 +444,45 @@ export function selectNode(nodeId: string) {
   }
 }
 
+/**
+ * Build a read-only active-document patch bound to the merged config. The whole
+ * WFE reads `ymlDocument`, so binding it to the *merged* config makes every
+ * entity resolve locally — cross-file references render as normal entities
+ * instead of ghosts, since on the merged view nothing lives "in another file".
+ * No file slice backs the merged node, so `updateBitriseYmlDocument` no-ops →
+ * the view is effectively read-only. Falls back to an empty document until the
+ * merge is available (seeded at bootstrap, refreshed on demand).
+ */
+function mergedConfigPatch() {
+  const { mergedYml } = bitriseYmlStore.getState();
+  const doc = mergedYml !== undefined ? YmlUtils.toDoc(mergedYml) : new Document();
+  return {
+    selectedNodeId: MERGED_CONFIG_NODE_ID,
+    version: '',
+    ymlDocument: doc,
+    savedYmlDocument: doc,
+    __invalidYmlString: undefined,
+  };
+}
+
 export function selectMergedConfig() {
-  bitriseYmlStore.setState({ selectedNodeId: MERGED_CONFIG_NODE_ID });
+  bitriseYmlStore.setState(mergedConfigPatch());
 }
 
 /**
- * Remember the current router location on the active file tab. Callers pass the
- * live location (raw `window.location.hash`) just before switching away, so the
- * tab can restore that page when re-selected. No-op for the merged tab (it has
- * no file/page to restore) and when no file tab is active.
+ * Remember the current router location on the active tab. Callers pass the live
+ * location (raw `window.location.hash`) just before switching away, so the tab
+ * can restore that page when re-selected. The merged tab is remembered too (in
+ * `mergedTabLastLocation`, since it isn't an `openTabs` entry). No-op when no tab
+ * is active.
  */
 export function recordActiveTabLocation(location: string) {
   const { selectedNodeId, openTabs } = bitriseYmlStore.getState();
-  if (!selectedNodeId || selectedNodeId === MERGED_CONFIG_NODE_ID) {
+  if (!selectedNodeId) {
+    return;
+  }
+  if (selectedNodeId === MERGED_CONFIG_NODE_ID) {
+    bitriseYmlStore.setState({ mergedTabLastLocation: location });
     return;
   }
   bitriseYmlStore.setState({
@@ -502,12 +546,33 @@ export function closeTab(nodeId: string) {
   const patch = neighborNodeId ? activeFilePatch(neighborNodeId) : null;
 
   bitriseYmlStore.setState({
-    ...(patch ?? { selectedNodeId: MERGED_CONFIG_NODE_ID }),
+    // No tabs left → fall back to the merged config, binding the active document
+    // to it (not just flipping `selectedNodeId`) so the views render the merged
+    // config; otherwise they'd keep showing the just-closed file, where other
+    // files' entities look like cross-file ghosts.
+    ...(patch ?? mergedConfigPatch()),
     openTabs: nextTabs,
   });
 }
 
 export function setMergedConfig(mergedYml: string) {
+  const { selectedNodeId } = bitriseYmlStore.getState();
+
+  // If the merged tab is currently active, rebind the active document to the
+  // freshly merged config so the entity views update in place.
+  if (selectedNodeId === MERGED_CONFIG_NODE_ID) {
+    const doc = YmlUtils.toDoc(mergedYml);
+    bitriseYmlStore.setState({
+      mergedYml,
+      mergedYmlStale: false,
+      version: '',
+      ymlDocument: doc,
+      savedYmlDocument: doc,
+      __invalidYmlString: undefined,
+    });
+    return;
+  }
+
   bitriseYmlStore.setState({ mergedYml, mergedYmlStale: false });
 }
 

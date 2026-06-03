@@ -102,10 +102,12 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useYmlLanguageServices();
   useCloseAIDrawer();
 
-  // Mode-discriminated bootstrap, gated behind the modular flag. When off, the
-  // existing single-file flow is the only path. When on, `getConfig` returns
-  // either `single_file` (seed today's store, behaves exactly as before) or
-  // `modular` (seed the tree store). The modular UI mounts in later tasks.
+  // Tree bootstrap, gated behind the modular flag. When off, the existing
+  // single-file flow (legacy `GET /config`) is the only path. When on,
+  // `getConfig` always returns a tree — a non-modular config is just a
+  // single-node tree — which seeds the tree store. The modular UI mounts in
+  // later tasks; for a single-node tree it behaves exactly as the single-file
+  // editor (the active file IS the document).
   const isModularEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
 
   const legacyConfig = useGetCiConfig(
@@ -147,19 +149,13 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     if (data && loadedBranch.current !== requestedBranch) {
       if (isModularEnabled) {
         const config = treeConfig.data;
-        if (config?.mode === 'modular') {
+        if (config) {
           initializeModularConfig({
             root: config.root,
             entityIndex: config.entityIndex,
+            mergedYml: config.mergedYml,
             branch: config.branch,
             commitSha: config.root.commitSha,
-          });
-        } else if (config?.mode === 'single_file') {
-          initializeBitriseYmlDocument({
-            ymlString: config.yaml,
-            version: config.version,
-            branch: config.branch,
-            commitSha: config.commitSha,
           });
         }
       } else if (legacyConfig.data) {

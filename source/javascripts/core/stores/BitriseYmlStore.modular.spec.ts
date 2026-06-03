@@ -15,6 +15,7 @@ import {
   selectNode,
   setMergedConfig,
   updateBitriseYmlDocument,
+  updateBitriseYmlDocumentByString,
   updateFileDocument,
 } from './BitriseYmlStore';
 
@@ -83,6 +84,26 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.configCommitSha).toBe('abc');
       expect(state.entityIndex).toBe(entityIndex);
       expect(state.mergedYmlStale).toBe(true);
+    });
+
+    it('leaves the merged config stale when no initial mergedYml is provided', () => {
+      const state = bitriseYmlStore.getState();
+      expect(state.mergedYml).toBeUndefined();
+      expect(state.mergedYmlStale).toBe(true);
+    });
+
+    it('seeds the merged config (not stale) when the bootstrap response carries mergedYml', () => {
+      initializeModularConfig({
+        root: buildRoot(),
+        entityIndex,
+        mergedYml: 'merged: bootstrap',
+        branch: 'main',
+        commitSha: 'abc',
+      });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.mergedYml).toBe('merged: bootstrap');
+      expect(state.mergedYmlStale).toBe(false);
     });
   });
 
@@ -210,6 +231,19 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
     });
 
+    it('binds the active document to the merged config when the last tab is closed', () => {
+      // Otherwise the views keep rendering the just-closed file, where other
+      // files' entities look like cross-file ghosts.
+      const merged = 'format_version: "13"\nworkflows:\n  child-a: {}\n  defined-elsewhere: {}\n';
+      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: merged, branch: 'main' });
+
+      closeTab('root');
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+      expect(state.yml.workflows).toMatchObject({ 'child-a': {}, 'defined-elsewhere': {} });
+    });
+
     it('selectMergedConfig selects the reserved merged tab', () => {
       selectMergedConfig();
       expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
@@ -226,11 +260,14 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(bitriseYmlStore.getState().openTabs.find((t) => t.nodeId === 'root')?.lastLocation).toBeUndefined();
     });
 
-    it('does not record a location for the merged config tab', () => {
+    it('records the merged tab page in mergedTabLastLocation (not on any file tab)', () => {
       selectMergedConfig();
-      recordActiveTabLocation('#!/step_bundles?step_bundle_id=bar');
+      recordActiveTabLocation('#!/workflows?workflow_id=bar');
 
-      expect(bitriseYmlStore.getState().openTabs.every((t) => t.lastLocation === undefined)).toBe(true);
+      const state = bitriseYmlStore.getState();
+      expect(state.mergedTabLastLocation).toBe('#!/workflows?workflow_id=bar');
+      // File tabs are left untouched.
+      expect(state.openTabs.every((t) => t.lastLocation === undefined)).toBe(true);
     });
   });
 
@@ -261,6 +298,29 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(YmlUtils.toJSON(state.files['child-b'].ymlDocument)).not.toMatchObject({
         workflows: { 'child-a': {} },
       });
+    });
+
+    it('marks the merged config stale on a mutator edit (so the merged view refetches)', () => {
+      setMergedConfig('merged: yaml');
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(false);
+
+      selectNode('child-a');
+      updateBitriseYmlDocument(({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'Edited');
+        return doc;
+      });
+
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
+    });
+
+    it('marks the merged config stale on a string edit (source-view editing)', () => {
+      setMergedConfig('merged: yaml');
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(false);
+
+      selectNode('child-a');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a:\n    title: From source\n');
+
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
     });
 
     it('swaps the active document when switching tabs, preserving each file edits', () => {
@@ -324,6 +384,58 @@ describe('BitriseYmlStore — modular tree', () => {
       });
       // Active document (child-b) is reverted too.
       expect(state.yml).not.toMatchObject({ workflows: { 'child-b': { title: 'B-edit' } } });
+    });
+
+    it('marks the merged config stale on discard so the merged view reloads to the original', () => {
+      selectNode('child-a');
+      updateBitriseYmlDocument(({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'A-edit');
+        return doc;
+      });
+      setMergedConfig('merged: with-edits');
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(false);
+
+      discardBitriseYmlDocument();
+
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
+    });
+  });
+
+  describe('merged config view binding', () => {
+    const MERGED = 'format_version: "13"\nworkflows:\n  child-a: {}\n  defined-elsewhere: {}\n';
+
+    it('binds the active document to the merged config so every entity resolves locally', () => {
+      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: MERGED, branch: 'main' });
+
+      selectMergedConfig();
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+      // The whole config is now the active document → cross-file entities are
+      // present locally (no ghosts).
+      expect(state.yml.workflows).toMatchObject({ 'child-a': {}, 'defined-elsewhere': {} });
+    });
+
+    it('is read-only on the merged tab (no file slice backs it → mutations no-op)', () => {
+      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: MERGED, branch: 'main' });
+      selectMergedConfig();
+      const before = bitriseYmlStore.getState().ymlDocument;
+
+      updateBitriseYmlDocument(({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'Nope');
+        return doc;
+      });
+
+      expect(bitriseYmlStore.getState().ymlDocument).toBe(before);
+    });
+
+    it('rebinds the active document when a fresh merge arrives while the merged tab is active', () => {
+      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: MERGED, branch: 'main' });
+      selectMergedConfig();
+
+      setMergedConfig('format_version: "13"\nworkflows:\n  only-after-refresh: {}\n');
+
+      expect(bitriseYmlStore.getState().yml.workflows).toMatchObject({ 'only-after-refresh': {} });
     });
   });
 

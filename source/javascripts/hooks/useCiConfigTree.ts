@@ -23,10 +23,10 @@ type UseGetCiConfigTreeOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientEr
 type UseSaveCiConfigTreeOptions = UseMutationOptions<SaveTreeResult, ClientError, UseSaveCiConfigTreeProps>;
 
 /**
- * Mode-discriminated bootstrap query (mirrors `useGetCiConfig`). The query key
- * includes the branch + force-from-repo so a branch switch refetches. The
- * caller branches on `data.mode` to seed either the single-file store or the
- * modular tree store.
+ * Tree bootstrap query (mirrors `useGetCiConfig`). The query key includes the
+ * branch + force-from-repo so a branch switch refetches. The response is always
+ * tree-shaped (a non-modular config is a single-node tree), so the caller seeds
+ * the tree store unconditionally.
  */
 export function useGetCiConfigTree(
   props: UseGetCiConfigTreeProps,

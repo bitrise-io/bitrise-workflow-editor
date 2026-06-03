@@ -81,7 +81,15 @@ const FileTreeViewer = () => {
       </Popover.Trigger>
       <Portal>
         <Popover.Positioner>
-          <Popover.Content width="360px" maxWidth="360px">
+          <Popover.Content
+            width="360px"
+            maxWidth="360px"
+            backgroundColor="background/primary"
+            border="1px solid"
+            borderColor="border/regular"
+            borderRadius="8"
+            boxShadow="large"
+          >
             <Popover.Body p="8" maxHeight="50vh" overflowY="auto">
               <BitkitTreeView
                 collection={collection}

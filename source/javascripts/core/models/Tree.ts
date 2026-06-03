@@ -59,24 +59,23 @@ export type EntityIndex = {
 
 export type EntityKind = keyof EntityIndex;
 
-/** Mode-discriminated bootstrap response (`GET /config/tree`). */
-export type ModularConfigResponse = {
-  mode: 'modular';
+/**
+ * Bootstrap response (`GET /config/tree`). Always tree-shaped — there is no
+ * mode discriminator. A non-modular config (Bitrise-hosted, or no `include:`s)
+ * is just the degenerate case: a single root node with `includes: []`.
+ */
+export type GetConfigResponse = {
   root: TreeNode;
   entityIndex: EntityIndex;
-  /** From the `X-Config-Branch` response header (the modular body has no branch). */
+  /**
+   * Initial flattened config for the Merged-config tab — the merge of the tree
+   * as loaded. Absent if the BE couldn't merge at bootstrap; the FE then fetches
+   * it lazily via `POST /config/merge`. Re-fetched after any local edit.
+   */
+  mergedYml?: string;
+  /** From the `X-Config-Branch` response header (the body carries no branch). */
   branch?: string;
 };
-
-export type SingleFileConfigResponse = {
-  mode: 'single_file';
-  yaml: string;
-  version: string;
-  commitSha?: string;
-  branch?: string;
-};
-
-export type GetConfigResponse = ModularConfigResponse | SingleFileConfigResponse;
 
 /** One per-file conflict entry in a 409 save response. */
 export type TreeConflict = {
