@@ -2,11 +2,14 @@ import {
   BitkitAlert,
   BitkitButton,
   BitkitDialog,
+  BitkitDialogRoot,
   BitkitRadio,
   BitkitRadioGroup,
   BitkitTextArea,
   BitkitTextInput,
 } from '@bitrise/bitkit-v2';
+import { Dialog } from '@chakra-ui/react/dialog';
+import { Portal } from '@chakra-ui/react/portal';
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
@@ -65,86 +68,93 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
   }, [isOpen, reset, defaultValues]);
 
   return (
-    <BitkitDialog
-      title="Push changes"
+    <BitkitDialogRoot
       open={isOpen}
       onOpenChange={({ open }) => {
         if (!open) onClose();
       }}
     >
-      <form onSubmit={handleSubmit(onPush)}>
-        <BitkitDialog.Body>
-          <BitkitRadioGroup
-            aria-label="Target branch"
-            layout="horizontal"
-            value={isCurrentBranch ? 'current' : 'new'}
-            onValueChange={({ value }) => {
-              const newBranch = value === 'current' ? (configBranch ?? '') : '';
-              reset(
-                { branch: newBranch, message: formState.defaultValues?.message ?? defaultValues.message },
-                { keepErrors: false },
-              );
-            }}
-          >
-            <BitkitRadio value="current" labelText="Push to current branch" />
-            <BitkitRadio value="new" labelText="Create new branch" />
-          </BitkitRadioGroup>
-          <Controller
-            control={control}
-            name="branch"
-            rules={{
-              required: 'Branch name is required',
-              validate: !isCurrentBranch ? validateBranchName : undefined,
-            }}
-            render={({ field, fieldState }) => (
-              <BitkitTextInput
-                label="Target branch"
-                placeholder="new-branch-name"
-                helperText="Must follow git branch naming rules."
-                state={isCurrentBranch ? 'readOnly' : undefined}
-                errorText={fieldState.error?.message}
-                inputProps={field}
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <BitkitDialog.FormContent title="Push changes" onSubmit={handleSubmit(onPush)}>
+            <BitkitDialog.Body>
+              <BitkitRadioGroup
+                aria-label="Target branch"
+                layout="horizontal"
+                value={isCurrentBranch ? 'current' : 'new'}
+                onValueChange={({ value }) => {
+                  const newBranch = value === 'current' ? (configBranch ?? '') : '';
+                  reset(
+                    { branch: newBranch, message: formState.defaultValues?.message ?? defaultValues.message },
+                    { keepErrors: false },
+                  );
+                }}
+              >
+                <BitkitRadio value="current" labelText="Push to current branch" />
+                <BitkitRadio value="new" labelText="Create new branch" />
+              </BitkitRadioGroup>
+              <Controller
+                control={control}
+                name="branch"
+                rules={{
+                  required: 'Branch name is required',
+                  validate: !isCurrentBranch ? validateBranchName : undefined,
+                }}
+                render={({ field, fieldState }) => (
+                  <BitkitTextInput
+                    label="Target branch"
+                    placeholder="new-branch-name"
+                    helperText="Must follow git branch naming rules."
+                    state={isCurrentBranch ? 'readOnly' : undefined}
+                    errorText={fieldState.error?.message}
+                    inputProps={field}
+                  />
+                )}
               />
-            )}
-          />
-          <Controller
-            control={control}
-            name="message"
-            rules={{ required: 'Commit message is required' }}
-            render={({ field }) => (
-              <BitkitTextArea
-                label="Commit message"
-                placeholder="e.g. Update bitrise.yml via Workflow Editor"
-                helperText="Appears in your git commit history."
-                textareaProps={field}
+              <Controller
+                control={control}
+                name="message"
+                rules={{ required: 'Commit message is required' }}
+                render={({ field }) => (
+                  <BitkitTextArea
+                    label="Commit message"
+                    placeholder="e.g. Update bitrise.yml via Workflow Editor"
+                    helperText="Appears in your git commit history."
+                    textareaProps={field}
+                  />
+                )}
               />
-            )}
-          />
-          {pushError && <BitkitAlert variant="critical" messageText={pushError} />}
-        </BitkitDialog.Body>
-        <BitkitDialog.Footer>
-          <BitkitDialog.Buttons>
-            <BitkitButton
-              variant="tertiary"
-              onClick={() => {
-                onClose();
-                onManualUpdate();
-              }}
-              marginInlineEnd="auto"
-              state={isPushPending ? 'disabled' : undefined}
-            >
-              Manual update
-            </BitkitButton>
-            <BitkitButton variant="secondary" onClick={onClose} state={isPushPending ? 'disabled' : undefined}>
-              Cancel
-            </BitkitButton>
-            <BitkitButton type="submit" state={isPushPending ? 'loading' : !formState.isValid ? 'disabled' : undefined}>
-              Push changes
-            </BitkitButton>
-          </BitkitDialog.Buttons>
-        </BitkitDialog.Footer>
-      </form>
-    </BitkitDialog>
+              {pushError && <BitkitAlert variant="critical" messageText={pushError} />}
+            </BitkitDialog.Body>
+            <BitkitDialog.Footer>
+              <BitkitDialog.Buttons>
+                <BitkitButton
+                  variant="tertiary"
+                  onClick={() => {
+                    onClose();
+                    onManualUpdate();
+                  }}
+                  marginInlineEnd="auto"
+                  state={isPushPending ? 'disabled' : undefined}
+                >
+                  Manual update
+                </BitkitButton>
+                <BitkitButton variant="secondary" onClick={onClose} state={isPushPending ? 'disabled' : undefined}>
+                  Cancel
+                </BitkitButton>
+                <BitkitButton
+                  type="submit"
+                  state={isPushPending ? 'loading' : !formState.isValid ? 'disabled' : undefined}
+                >
+                  Push changes
+                </BitkitButton>
+              </BitkitDialog.Buttons>
+            </BitkitDialog.Footer>
+          </BitkitDialog.FormContent>
+        </Dialog.Positioner>
+      </Portal>
+    </BitkitDialogRoot>
   );
 };
 
