@@ -1,7 +1,6 @@
 import {
   Sidebar,
   SidebarContainer,
-  SidebarDivider,
   SidebarFooter,
   SidebarItem,
   SidebarItemIcon,
@@ -119,7 +118,7 @@ const Navigation = (props: Props) => {
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
-    <Sidebar minW={['88px', '256px']} {...props}>
+    <Sidebar width={['88px', '256px']} flexShrink={0} {...props}>
       {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar />}
       <SidebarContainer>
         <NavigationItem
@@ -189,14 +188,6 @@ const Navigation = (props: Props) => {
             Licenses
           </NavigationItem>
         )}
-        <SidebarDivider />
-        <NavigationItem
-          path={withSearchParams(paths.yml)}
-          icon="Code"
-          intercomTarget="Configuration YAML Page Navigation Item"
-        >
-          Configuration YAML
-        </NavigationItem>
       </SidebarContainer>
       <SidebarFooter>
         <SidebarItem
