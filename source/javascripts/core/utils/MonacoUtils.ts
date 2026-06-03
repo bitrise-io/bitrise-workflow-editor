@@ -33,7 +33,7 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
       completion: true,
       yamlVersion: '1.1',
       enableSchemaRequest: true,
-      schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
+      schemas: [{ fileMatch: ['*'], uri: `https://www.schemastore.org/bitrise.json?t=${Date.now()}` }],
     });
   }
 
