@@ -66,12 +66,13 @@ const ConfigSettingsBar = () => {
       paddingRight="12"
       paddingBlock="12"
       marginBottom={isYmlPage ? undefined : '24'}
+      width={['88', '256']}
       minHeight="64"
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
       alignItems="center"
-      justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
+      justifyContent="space-between"
       gap="8"
     >
       <Box minWidth={0}>
