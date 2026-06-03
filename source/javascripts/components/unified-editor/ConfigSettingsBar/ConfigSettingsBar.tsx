@@ -1,8 +1,8 @@
 import {
   BitkitActionMenu,
   BitkitControlButton,
-  BitkitDefinitionTooltip,
   BitkitList,
+  BitkitOverflowTooltip,
   BitkitTooltip,
   IconBranch,
   IconDownload,
@@ -12,6 +12,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
+import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import {
@@ -81,10 +82,10 @@ const ConfigSettingsBar = () => {
         </BitkitList>
         {enableBranchSwitching && data?.usesRepositoryYml && branchLabel && (
           <Box display="flex" alignItems="center" gap="4" marginTop="4">
-            <IconBranch size="16" color="icon/tertiary" />
-            <BitkitDefinitionTooltip text={`Editing bitrise.yml from ${branchLabel}.`} textSize="sm">
-              {branchLabel}
-            </BitkitDefinitionTooltip>
+            <IconBranch size="16" color="icon/tertiary" flexShrink="0" />
+            <BitkitOverflowTooltip text={branchLabel}>
+              <Text textStyle="body/sm/regular" color="text/secondary" truncate flex={1} minWidth={0}></Text>
+            </BitkitOverflowTooltip>
           </Box>
         )}
       </Box>
