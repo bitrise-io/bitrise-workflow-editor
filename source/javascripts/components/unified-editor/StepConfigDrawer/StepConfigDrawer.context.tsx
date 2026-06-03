@@ -26,7 +26,7 @@ const initialState: State = {
 const Context = createContext(initialState);
 
 const StepConfigDrawerProvider = ({ children, workflowId, stepBundleId, stepIndex }: PropsWithChildren<Props>) => {
-  const result = useStep({ workflowId, stepBundleId, stepIndex });
+  const result = useStep({ workflowId: stepBundleId ? undefined : workflowId, stepBundleId, stepIndex });
 
   const value = useMemo<State>(() => {
     if (!result) return initialState;

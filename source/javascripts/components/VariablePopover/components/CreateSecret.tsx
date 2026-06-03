@@ -30,7 +30,15 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
   });
 
   return (
-    <Box as="form" onSubmit={handleCreate} display="flex" flexDirection="column">
+    <Box
+      as="form"
+      onSubmit={(e) => {
+        e.stopPropagation();
+        handleCreate(e);
+      }}
+      display="flex"
+      flexDirection="column"
+    >
       <Box display="flex" flexDir="column" gap="8" paddingTop="12" paddingBottom="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
           <Input

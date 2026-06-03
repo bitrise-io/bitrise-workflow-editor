@@ -1,25 +1,28 @@
 import { delay, http, HttpResponse } from 'msw';
 
-import { MachineStatus, StackStatus } from '../models/StackAndMachine';
+import { StackStatus } from '../models/StackAndMachine';
 import StacksAndMachinesApi, { MachineApiItem, MachineGroupApiItem, StackGroupApiItem } from './StacksAndMachinesApi';
 
 type Options = {
   privateCloud?: 'no-machines' | 'machine-overrides';
   hasSelfHostedRunner?: boolean;
+  regionLocked?: boolean;
 };
 
 const DEFAULT_MACHINES: MachineApiItem[] = [
   {
     id: 'm1.medium',
     name: 'M1 Medium',
-    chip: 'apple',
-    cpu_count: '4 vCPU',
-    cpu_description: '3.2GHz',
-    ram: '6 GB RAM',
     credit_per_min: 2,
     os_id: 'macos',
-    is_available: true,
-    is_promoted: false,
+    is_disabled: false,
+    available_in_regions: {
+      'region-us': {
+        name: 'Some name',
+        cpu_count: '4 vCPU',
+        ram: '6 GB RAM',
+      },
+    },
     available_on_stacks: [
       'osx-xcode-16.1.x-edge',
       'osx-xcode-16.0.x-edge',
@@ -32,14 +35,16 @@ const DEFAULT_MACHINES: MachineApiItem[] = [
   {
     id: 'standard',
     name: 'Medium',
-    chip: 'intel',
-    cpu_count: '4 vCPU',
-    cpu_description: '3.1GHz',
-    ram: '16 GB RAM',
     credit_per_min: 1,
     os_id: 'linux',
-    is_available: true,
-    is_promoted: false,
+    is_disabled: false,
+    available_in_regions: {
+      'region-us': {
+        name: 'Some name',
+        cpu_count: '4 vCPU',
+        ram: '16 GB RAM',
+      },
+    },
     available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024'],
   },
 ];
@@ -60,7 +65,17 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           machines:
             options?.privateCloud === 'no-machines'
               ? []
-              : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
+              : [
+                  'g2.mac.medium',
+                  'g2.mac.large',
+                  'm1.medium',
+                  'm1.large',
+                  'm2.medium',
+                  'm2.large',
+                  'm2.x-large',
+                  'machine-y1',
+                  'machine-y2',
+                ],
         },
         {
           id: 'osx-xcode-16.0.x-edge',
@@ -72,7 +87,17 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           machines:
             options?.privateCloud === 'no-machines'
               ? []
-              : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large', 'machine-y1', 'machine-y2'],
+              : [
+                  'g2.mac.medium',
+                  'g2.mac.large',
+                  'm1.medium',
+                  'm1.large',
+                  'm2.medium',
+                  'm2.large',
+                  'm2.x-large',
+                  'machine-y1',
+                  'machine-y2',
+                ],
         },
         {
           id: 'ubuntu-noble-24.04-bitrise-2025',
@@ -204,21 +229,83 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
 
   return [
     {
-      label: 'Available Machines',
-      status: 'available' as MachineStatus,
+      label: 'Machine classes',
+      machines: [
+        {
+          id: 'g2.mac.medium',
+          credit_per_min: 5,
+          name: 'Mac Medium',
+          os_id: 'macos',
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Machine in US',
+              cpu_count: '6 vCPU',
+              ram: '14 GB RAM',
+            },
+            'region-eu': {
+              name: 'Machine in EU',
+              cpu_count: '6 vCPU',
+              ram: '16 GB RAM',
+            },
+          },
+          available_on_stacks: [
+            'osx-xcode-16.1.x-edge',
+            'osx-xcode-16.0.x-edge',
+            'osx-xcode-16.0.x',
+            'osx-xcode-15.0.x',
+            'osx-xcode-14.3.x',
+            'osx-xcode-14.2.x',
+            'mixed-stack',
+          ],
+        },
+        {
+          id: 'g2.mac.large',
+          credit_per_min: 10,
+          name: 'Mac Large',
+          os_id: 'macos',
+          is_disabled: true,
+          available_in_regions: {
+            'region-us': {
+              name: 'Machine in US',
+              cpu_count: '12 vCPU',
+              ram: '20 GB RAM',
+            },
+            'region-eu': {
+              name: 'Machine in EU',
+              cpu_count: '16 vCPU',
+              ram: '24 GB RAM',
+            },
+          },
+          available_on_stacks: [
+            'osx-xcode-16.1.x-edge',
+            'osx-xcode-16.0.x-edge',
+            'osx-xcode-16.0.x',
+            'osx-xcode-15.0.x',
+            'osx-xcode-14.3.x',
+            'osx-xcode-14.2.x',
+            'mixed-stack',
+          ],
+        },
+      ],
+    },
+    {
+      label: 'Machine types',
       machines: [
         ...DEFAULT_MACHINES,
         {
           id: 'm1.large',
           name: 'M1 Large',
-          chip: 'apple',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.2GHz',
-          ram: '12 GB RAM',
           credit_per_min: 4,
           os_id: 'macos',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '12 GB RAM',
+            },
+          },
           available_on_stacks: [
             'osx-xcode-16.1.x-edge',
             'osx-xcode-16.0.x-edge',
@@ -231,14 +318,16 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
         {
           id: 'm2.medium',
           name: 'M2 Pro Medium',
-          chip: 'apple',
-          cpu_count: '4 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '6 GB RAM',
           credit_per_min: 3,
           os_id: 'macos',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '4 vCPU',
+              ram: '6 GB RAM',
+            },
+          },
           available_on_stacks: [
             'osx-xcode-16.1.x-edge',
             'osx-xcode-16.0.x-edge',
@@ -251,15 +340,17 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
         },
         {
           id: 'm2.large',
-          name: 'M2 Pro Large',
-          chip: 'apple',
-          cpu_count: '6 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '14 GB RAM',
           credit_per_min: 5,
+          name: 'M2 Pro Large',
           os_id: 'macos',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'M2 Pro Large in US',
+              cpu_count: '6 vCPU',
+              ram: '14 GB RAM',
+            },
+          },
           available_on_stacks: [
             'osx-xcode-16.1.x-edge',
             'osx-xcode-16.0.x-edge',
@@ -273,145 +364,161 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
         {
           id: 'm2.x-large',
           name: 'M2 Pro X Large',
-          chip: 'apple',
-          cpu_count: '12 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '28 GB RAM',
           credit_per_min: 9,
           os_id: 'macos',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '12 vCPU',
+              ram: '28 GB RAM',
+            },
+          },
           available_on_stacks: ['osx-xcode-16.1.x-edge', 'osx-xcode-16.0.x-edge', 'osx-xcode-16.0.x', 'mixed-stack'],
         },
         {
           id: 'intel.medium',
           name: 'Intel Medium',
-          chip: 'intel',
-          cpu_count: '4 vCPU',
-          cpu_description: '3.1GHz',
-          ram: '16 GB RAM',
           credit_per_min: 1,
           os_id: 'linux',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '4 vCPU',
+              ram: '16 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024'],
         },
         {
           id: 'intel.large',
           name: 'Intel Large',
-          chip: 'intel',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.1GHz',
-          ram: '32 GB RAM',
           credit_per_min: 2,
           os_id: 'linux',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024'],
         },
         {
           id: 'amd.medium',
           name: 'EPYC Zen4 Medium',
-          chip: 'amd',
-          cpu_count: '4 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '16 GB RAM',
           credit_per_min: 1,
           os_id: 'linux',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '4 vCPU',
+              ram: '16 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024', 'mixed-stack'],
         },
         {
           id: 'amd.large',
           name: 'EPYC Zen4 Large',
-          chip: 'amd',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '32 GB RAM',
           credit_per_min: 3,
           os_id: 'linux',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024', 'mixed-stack'],
         },
         {
           id: 'amd.x-large',
           name: 'EPYC Zen4 X Large',
-          chip: 'amd',
-          cpu_count: '16 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '64 GB RAM',
           credit_per_min: 5,
           os_id: 'linux',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '16 vCPU',
+              ram: '64 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025', 'ubuntu-jammy-22.04-bitrise-2024', 'mixed-stack'],
         },
         {
           id: 'machine-x',
           name: 'Non Credit Machine',
-          chip: 'apple',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '32 GB RAM',
           os_id: 'linux',
-          is_available: true,
-          is_promoted: false,
+          is_disabled: false,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
-      ],
-    },
-    {
-      label: 'Promoted Machines',
-      status: 'promoted' as MachineStatus,
-      machines: [
         {
           id: 'machine-y1',
           name: 'Machine Y1 (Mac OS)',
-          chip: 'apple',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '32 GB RAM',
           os_id: 'macos',
-          is_available: false,
-          is_promoted: true,
+          is_disabled: true,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['osx-xcode-16.1.x-edge', 'osx-xcode-16.0.x-edge'],
         },
         {
           id: 'machine-y2',
           name: 'Machine Y2 (Mac OS)',
-          chip: 'apple',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '32 GB RAM',
           os_id: 'macos',
-          is_available: false,
-          is_promoted: true,
+          is_disabled: true,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['osx-xcode-16.1.x-edge', 'osx-xcode-16.0.x-edge'],
         },
         {
           id: 'machine-z1',
           name: 'Machine Z1 (Linux)',
-          chip: 'amd',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '32 GB RAM',
           os_id: 'linux',
-          is_available: false,
-          is_promoted: true,
+          is_disabled: true,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
         {
           id: 'machine-z2',
           name: 'Machine Z2 (Linux)',
-          chip: 'amd',
-          cpu_count: '8 vCPU',
-          cpu_description: '3.7GHz',
-          ram: '32 GB RAM',
           os_id: 'linux',
-          is_available: false,
-          is_promoted: true,
+          is_disabled: true,
+          available_in_regions: {
+            'region-us': {
+              name: 'Some name',
+              cpu_count: '8 vCPU',
+              ram: '32 GB RAM',
+            },
+          },
           available_on_stacks: ['ubuntu-noble-24.04-bitrise-2025'],
         },
       ],
@@ -431,6 +538,7 @@ export const getStacksAndMachines = (options?: Options) => {
       default_machines: DEFAULT_MACHINES,
       grouped_stacks: groupedStacks(options),
       grouped_machines: groupedMachines(options),
+      region: options?.regionLocked ? 'region-us' : undefined,
     });
   });
 };

@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
 
@@ -54,6 +54,16 @@ export const PayingUser: Story = {};
 export const FreeUser: Story = {
   beforeEach: () => {
     set(window, 'parent.pageProps.project.isOwnerPaying', false);
+  },
+};
+
+export const RegionLockedUser: Story = {
+  parameters: {
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ regionLocked: true })],
+      },
+    },
   },
 };
 
@@ -148,6 +158,12 @@ export const WithInvalidDefaultStack: Story = {
       });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
+  },
+};
+
+export const WithToolVersions: Story = {
+  beforeEach: () => {
+    set(window, 'localFeatureFlags.enable-wfe-tool-versions', true);
   },
 };
 

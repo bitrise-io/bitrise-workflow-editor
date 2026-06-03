@@ -1,0 +1,494 @@
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  Divider,
+  Input,
+  Link,
+  List,
+  ListItem,
+  Notification,
+  Radio,
+  RadioGroup,
+  Text,
+  Tooltip,
+  useToast,
+} from '@bitrise/bitkit';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useCopyToClipboard } from 'usehooks-ts';
+
+import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
+import {
+  trackCopyYmlClicked,
+  trackDownloadYmlClicked,
+  trackStorageSuccessfullyChanged,
+  trackValidateAndSaveStorageClicked,
+} from '@/core/analytics/ConfigManagementAnalytics';
+import BitriseYmlSettingsApi from '@/core/api/BitriseYmlSettingsApi';
+import { ClientError } from '@/core/api/client';
+import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { download, getFormattedDate } from '@/core/utils/CommonUtils';
+import PageProps from '@/core/utils/PageProps';
+import { useGetCiConfig, useSaveCiConfig } from '@/hooks/useCiConfig';
+import { useCiConfigSettings, usePutCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useCurrentPage from '@/hooks/useCurrentPage';
+
+type ConfigurationYmlStorageDialogProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+type CiConfigStorage = 'bitrise' | 'git';
+type ConfigStorageGroupProps = {
+  isDisabled?: boolean;
+  value: CiConfigStorage;
+  onChange: (value: CiConfigStorage) => void;
+};
+
+const ConfigStorageGroup = (props: ConfigStorageGroupProps) => {
+  return (
+    <>
+      <Text textStyle="body/md/semibold" marginBlockEnd="12">
+        Storage
+      </Text>
+      <RadioGroup {...props}>
+        <Radio helperText="Store and manage all your configuration on bitrise.io." marginBlockEnd="12" value="bitrise">
+          bitrise.io
+        </Radio>
+        <Radio
+          helperText="The configuration is stored, versioned, and maintained in your Git repository."
+          marginBlockEnd="24"
+          value="git"
+        >
+          Git repository
+        </Radio>
+      </RadioGroup>
+    </>
+  );
+};
+
+type GitYmlRootPathSectionProps = {
+  value: string;
+  isDisabled?: boolean;
+  defaultValue?: string | null;
+  onChange: (value: string) => void;
+};
+
+const GitYmlRootPathSection = ({ defaultValue, onChange, ...props }: GitYmlRootPathSectionProps) => {
+  const gitRepoSlug = PageProps.app()?.gitRepoSlug;
+
+  return (
+    <>
+      <Input
+        {...props}
+        isRequired
+        marginInlineStart="32"
+        label="Bitrise.yml location"
+        onChange={(e) => onChange(e.target.value)}
+        helperText="Define the path to your configuration file."
+        placeholder={defaultValue === '' ? '' : 'example/configs'}
+        leftAddon={
+          <Box maxWidth="124" padding="8px 12px" display="flex" title={gitRepoSlug}>
+            <Text textStyle="body/md/regular" hasEllipsis>
+              {gitRepoSlug}
+            </Text>
+            <Text textStyle="body/md/regular">/</Text>
+          </Box>
+        }
+        rightAddon={
+          <Text padding="8px 12px" textStyle="body/md/regular">
+            /bitrise.yml
+          </Text>
+        }
+        inputWrapperStyle={{
+          background: 'background/disabled',
+          border: '1px solid #dfdae1',
+          borderRadius: '4',
+        }}
+      />
+      {defaultValue !== null && (
+        <Notification status="warning" marginBlockStart="24">
+          Ensure that Bitrise has access to all repositories where configuration files are stored.
+        </Notification>
+      )}
+    </>
+  );
+};
+
+type BitriseToGitSectionProps = {
+  initialYmlRootPath?: string | null;
+};
+
+const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) => {
+  const toast = useToast();
+  const [, copyToClipboard] = useCopyToClipboard();
+
+  const gitRepoSlug = PageProps.app()?.gitRepoSlug;
+  const defaultBranch = PageProps.app()?.defaultBranch;
+
+  const onCopyClick = () => {
+    trackCopyYmlClicked('bitrise', 'configuration_yml_source');
+    copyToClipboard(getYmlString()).then((isCopied) => {
+      if (isCopied) {
+        toast({
+          status: 'success',
+          description: 'Copied to clipboard',
+          isClosable: true,
+        });
+      } else {
+        toast({
+          status: 'error',
+          description: 'Copy to clipboard failed',
+          isClosable: true,
+        });
+      }
+    });
+  };
+
+  const onDownloadClick = () => {
+    trackDownloadYmlClicked('bitrise', 'configuration_yml_source');
+    download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
+  };
+
+  return (
+    <>
+      <Divider marginY="24" />
+      <Text marginBlockEnd="4" textStyle="heading/h3">
+        Complete the following tasks
+      </Text>
+      <Text marginBlockEnd="24" textStyle="body/md/regular">
+        Make sure to complete all the mandatory tasks before updating. A missing or invalid configuration file can lead
+        to failed builds.
+      </Text>
+      <List variant="ordered">
+        <ListItem>
+          Add configuration YAML to your repository
+          <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="12">
+            Add your current configuration YAML to{' '}
+            <Text as="span" textStyle="body/md/semibold">
+              {initialYmlRootPath}
+            </Text>{' '}
+            on the{' '}
+            <Text as="span" textStyle="body/md/semibold">
+              {defaultBranch}
+            </Text>{' '}
+            branch of your{' '}
+            <Text as="span" textStyle="body/md/semibold">
+              {gitRepoSlug}
+            </Text>{' '}
+            repository.{' '}
+          </Text>
+          <Box display="flex" gap="8" pb="24">
+            <Button size="sm" width="fit-content" variant="secondary" leftIconName="Download" onClick={onDownloadClick}>
+              Download bitrise.yml
+            </Button>
+            <Button size="sm" width="fit-content" variant="secondary" leftIconName="Duplicate" onClick={onCopyClick}>
+              Copy YML contents
+            </Button>
+          </Box>
+        </ListItem>
+        <ListItem>
+          Provide repository access
+          <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="24">
+            Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
+            <Link
+              isExternal
+              colorScheme="purple"
+              href="https://docs.bitrise.io/en/bitrise-platform/integrations/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html"
+            >
+              Learn more
+            </Link>
+          </Text>
+        </ListItem>
+        <ListItem>
+          Split up your configuration{' '}
+          <Text as="span" color="text/secondary">
+            (optional)
+          </Text>
+          <Text textStyle="body/md/regular" color="text/secondary">
+            <Link
+              isExternal
+              colorScheme="purple"
+              href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
+            >
+              Follow this guide
+            </Link>{' '}
+            to split up your configuration into smaller, more manageable files. This feature is only available for
+            Workspaces on Enterprise plan.
+          </Text>
+        </ListItem>
+      </List>
+    </>
+  );
+};
+
+type NewCiConfigStorage = 'bitrise-ci-config' | 'git-ci-config';
+type GitToBitriseSectionProps = {
+  value: NewCiConfigStorage;
+  isDisabled?: boolean;
+  lastModifiedFormatted?: string | null;
+  onChange: (value: NewCiConfigStorage) => void;
+};
+
+const GitToBitriseSection = ({ lastModifiedFormatted, onChange, ...props }: GitToBitriseSectionProps) => {
+  return (
+    <>
+      <Divider marginY="24" />
+      <Text textStyle="heading/h3" marginBlockEnd="4">
+        Set configuration file
+      </Text>
+      <Text marginBlockEnd="24">Choose which configuration file should be used on bitrise.io from now.</Text>
+      <RadioGroup {...props} onChange={(v) => onChange(v as NewCiConfigStorage)}>
+        <Radio
+          value="git-ci-config"
+          marginBlockEnd="12"
+          helperText={
+            <>
+              Multiple configuration files will be merged into a single file.{' '}
+              <Link
+                href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/managing-a-project-s-configuration-yaml-file.html"
+                colorScheme="purple"
+                isExternal
+              >
+                Learn more
+              </Link>
+            </>
+          }
+        >
+          Use the configuration file stored in the Git repository
+        </Radio>
+        <Radio
+          value="bitrise-ci-config"
+          helperText={
+            lastModifiedFormatted ? <>The storage settings were last changed on {lastModifiedFormatted}.</> : undefined
+          }
+        >
+          Use the last version you stored on bitrise.io
+        </Radio>
+      </RadioGroup>
+    </>
+  );
+};
+
+const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'onClose'>) => {
+  const toast = useToast();
+  const [ymlRootPath, setYmlRootPath] = useState('');
+  const [selectedStorage, setSelectedStorage] = useState<CiConfigStorage>('bitrise');
+  const [gitToBitriseStorage, setGitToBitriseStorage] = useState<NewCiConfigStorage>('git-ci-config');
+
+  const [asyncError, setAsyncError] = useState<ClientError | null>(null);
+
+  const queryClient = useQueryClient();
+  const currentPage = useCurrentPage();
+  const { data: ymlSettings, isLoading: isYmlSettingsLoading } = useCiConfigSettings();
+  const { mutate: saveCiConfig, isPending: isPendingSaveCiConfig } = useSaveCiConfig();
+  const { mutate: saveYmlSettings, isPending: isPendingSaveYmlSettings } = usePutCiConfigSettings();
+  const { refetch: getCiConfigFromRepo, isFetching: isFetchingCiConfigFromRepo } = useGetCiConfig(
+    { projectSlug: PageProps.appSlug(), forceToReadFromRepo: true },
+    { enabled: false },
+  );
+  const { refetch: getCiConfigFromBitrise, isFetching: isFetchingCiConfigFromBitrise } = useGetCiConfig(
+    { projectSlug: PageProps.appSlug(), forceToReadFromRepo: false },
+    { enabled: false },
+  );
+
+  useEffect(() => {
+    if (ymlSettings) {
+      setYmlRootPath(ymlSettings.ymlRootPath || '');
+      setSelectedStorage(ymlSettings.usesRepositoryYml ? 'git' : 'bitrise');
+    }
+  }, [ymlSettings]);
+
+  useEffect(() => {
+    setAsyncError(null);
+  }, [selectedStorage, gitToBitriseStorage]);
+
+  const toolTip =
+    selectedStorage === 'git'
+      ? 'You are already storing your configuration in a Git repository.'
+      : 'You are already storing your configuration on bitrise.io';
+
+  const showYmlRootPathSection = selectedStorage === 'git';
+  const isYmlRootPathChanged = (ymlSettings?.ymlRootPath ?? '') !== ymlRootPath;
+  const switchBitriseToGit = !ymlSettings?.usesRepositoryYml && selectedStorage === 'git';
+  const switchGitToBitrise = ymlSettings?.usesRepositoryYml && selectedStorage === 'bitrise';
+  const isStorageChanged = (ymlSettings?.usesRepositoryYml ? 'git' : 'bitrise') !== selectedStorage;
+  const isValidateAndSaveDisabled = isYmlSettingsLoading || (!isStorageChanged && !isYmlRootPathChanged);
+  const lastModifiedFormatted = ymlSettings?.lastModified ? getFormattedDate(new Date(ymlSettings.lastModified)) : null;
+  const isValidateAndSaveLoading =
+    isPendingSaveYmlSettings || isFetchingCiConfigFromRepo || isFetchingCiConfigFromBitrise || isPendingSaveCiConfig;
+
+  const initializeStoreAndClose = (data: { ymlString: string; version: string }) => {
+    initializeBitriseYmlDocument(data);
+    queryClient.invalidateQueries({
+      queryKey: [BitriseYmlSettingsApi.getYmlSettingsPath(PageProps.appSlug())],
+    });
+    toast({
+      status: 'success',
+      title: 'Storage successfully changed',
+      description:
+        selectedStorage === 'git'
+          ? `From now you can manage your Configuration YAML in the project's git repository.`
+          : 'From now you can manage your Configuration YAML on bitrise.io.',
+      isClosable: true,
+    });
+    trackStorageSuccessfullyChanged(selectedStorage);
+    forceRefreshStates();
+    onClose();
+  };
+
+  const onValidateAndSave = () => {
+    trackValidateAndSaveStorageClicked(
+      selectedStorage,
+      switchGitToBitrise ? (gitToBitriseStorage === 'git-ci-config' ? 'git' : 'bitrise') : undefined,
+    );
+
+    setAsyncError(null);
+    if (switchGitToBitrise) {
+      switch (gitToBitriseStorage) {
+        case 'bitrise-ci-config':
+          saveYmlSettings(
+            {
+              usesRepositoryYml: false,
+            },
+            {
+              onSuccess: async () => {
+                const { data, error } = await getCiConfigFromBitrise();
+                setAsyncError(error);
+                if (data) {
+                  initializeStoreAndClose(data);
+                }
+              },
+              onError: setAsyncError,
+            },
+          );
+          break;
+        case 'git-ci-config':
+          saveYmlSettings(
+            {
+              usesRepositoryYml: false,
+            },
+            {
+              onSuccess: async () => {
+                const { data, error } = await getCiConfigFromRepo();
+                setAsyncError(error);
+                if (data) {
+                  saveCiConfig(
+                    {
+                      ymlString: data.ymlString,
+                      projectSlug: PageProps.appSlug(),
+                      tabOpenDuringSave: currentPage,
+                    },
+                    {
+                      onSuccess: initializeStoreAndClose,
+                      onError: setAsyncError,
+                    },
+                  );
+                }
+              },
+              onError: setAsyncError,
+            },
+          );
+          break;
+      }
+
+      return;
+    }
+
+    if (switchBitriseToGit) {
+      saveYmlSettings(
+        {
+          ymlRootPath,
+          usesRepositoryYml: true,
+        },
+        {
+          onSuccess: async () => {
+            const { data, error } = await getCiConfigFromRepo();
+            setAsyncError(error);
+            if (data) {
+              initializeStoreAndClose(data);
+            }
+          },
+          onError: setAsyncError,
+        },
+      );
+
+      return;
+    }
+
+    if (isYmlRootPathChanged) {
+      saveYmlSettings(
+        {
+          ymlRootPath,
+        },
+        {
+          onSuccess: async () => {
+            const { data, error } = await getCiConfigFromRepo();
+            setAsyncError(error);
+            if (data) {
+              initializeStoreAndClose(data);
+            }
+          },
+          onError: setAsyncError,
+        },
+      );
+    }
+  };
+
+  return (
+    <>
+      <DialogBody>
+        <ConfigStorageGroup value={selectedStorage} isDisabled={isYmlSettingsLoading} onChange={setSelectedStorage} />
+
+        {showYmlRootPathSection && (
+          <GitYmlRootPathSection
+            value={ymlRootPath}
+            isDisabled={isYmlSettingsLoading}
+            defaultValue={ymlSettings?.ymlRootPath}
+            onChange={setYmlRootPath}
+          />
+        )}
+
+        {switchBitriseToGit && <BitriseToGitSection initialYmlRootPath={ymlSettings?.ymlRootPath} />}
+
+        {switchGitToBitrise && (
+          <GitToBitriseSection
+            value={gitToBitriseStorage}
+            isDisabled={isYmlSettingsLoading}
+            onChange={setGitToBitriseStorage}
+            lastModifiedFormatted={lastModifiedFormatted}
+          />
+        )}
+
+        {asyncError && <YmlDialogErrorNotification error={asyncError} />}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          Cancel
+        </Button>
+        <Tooltip label={toolTip} isDisabled={isStorageChanged}>
+          <Button
+            onClick={onValidateAndSave}
+            isLoading={isValidateAndSaveLoading}
+            isDisabled={isValidateAndSaveDisabled}
+          >
+            Validate and save
+          </Button>
+        </Tooltip>
+      </DialogFooter>
+    </>
+  );
+};
+
+const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStorageDialogProps) => {
+  return (
+    <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML storage">
+      <DialogContent onClose={onClose} />
+    </Dialog>
+  );
+};
+
+export default ConfigurationYmlSourceDialog;

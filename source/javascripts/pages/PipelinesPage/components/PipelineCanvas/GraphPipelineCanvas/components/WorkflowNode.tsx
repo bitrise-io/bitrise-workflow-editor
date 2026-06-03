@@ -38,7 +38,7 @@ const selectedStyle = {
   outlineOffset: '-2px',
 } satisfies CardProps;
 
-const ParallelWorkflowIndicator = memo(() => {
+const ParallelWorkflowIndicator = memo(function ParallelWorkflowIndicator() {
   return (
     <>
       <Box
@@ -360,7 +360,6 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           openDialog({
             type: PipelinesPageDialogType.STEP_BUNDLE,
             workflowId: parentWorkflowId,
-            stepBundleId: newStepBundleId,
             selectedStepIndices: [Math.min(...stepIndices)],
           })();
         } else if (parentStepBundleId) {

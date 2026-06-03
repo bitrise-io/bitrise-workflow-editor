@@ -15,7 +15,6 @@ type ExtraOpts = {
 
 type ClientOpts = RequestInit & ExtraOpts;
 
-/* eslint-disable no-underscore-dangle */
 class ClientError extends Error {
   public error: Error;
 
@@ -114,14 +113,14 @@ async function raw(url: string, options?: ClientOpts) {
 
       try {
         errorData = await response.clone().json();
-      } catch (jsonParseError) {
+      } catch {
         errorData = undefined;
       }
 
       if (!errorData) {
         try {
           errorData = await response.clone().text();
-        } catch (textParseError) {
+        } catch {
           errorData = 'Could not parse error response';
         }
       }

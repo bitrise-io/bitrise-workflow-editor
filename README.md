@@ -11,7 +11,7 @@ the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/An
 ## How to install & use the Workflow Editor on your Mac/Linux
 
 1. Install [Go](https://golang.org) `brew install go` (on macOS)
-1. Install the latest [Bitrise CLI](https://www.bitrise.io/cli) - it's a single binary command line tool
+1. Install the latest [Bitrise CLI](https://bitrise.io/cli) - it's a single binary command line tool
 1. Run `bitrise setup` just to be sure everything's prepared
 1. `cd` into a directory where you have your `bitrise.yml`, and run: `bitrise :workflow-editor`
 
@@ -24,7 +24,7 @@ bitrise plugin update workflow-editor
 ```
 
 _Join the Workflow Editor's discussion
-at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39)_
+at: [https://discuss.bitrise.io/t/workflow-editor-v2-open-source-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-open-source-offline-workflow-editor/39)_
 
 ## Install requirements
 
@@ -66,18 +66,34 @@ npm run start:website   # starts WFE in website mode
 
 You also have to make sure that the Monolith is already running before you try to execute the command above (otherwise
 every request to `http://localhost:3000` will be handled by the WFE).
-Also make sure that you change the path in the monolith to point to this version of the WFE (instead of the production
-version):
 
-- in the monolith open `workflow_controller.rb`
-- change `base_url` in method `get_workflow_editor_html_content` to the current version:
-  - if you run the monolith directly (using the umbrella repo) use `localhost:4000/{version}` (
-    e.g `base_url = 'http://localhost:4000/1.3.135`)
-  - if you run the monolith in docker (e.g with the `web-dev-env` repo) use `host.docker.internal:4000/{version}` (
-    e.g `base_url = 'http://host.docker.internal:4000/1.3.135'`)
+`start:website` defaults to `PUBLIC_URL_ROOT=/workflow_editor`, so the HTML emits asset URLs that route through the
+monolith's `/workflow_editor/*` asset proxy. Point the monolith at your local WFE by setting the env var below (no
+controller-source edits needed):
 
-Once the above steps are complete, you should be able to reach the Workflow Editor in the monolith
+- if you run the monolith directly (umbrella repo): `BITRISE_WORKFLOW_EDITOR_URL=http://localhost:4000/workflow_editor`
+- if you run the monolith in docker (`web-dev-env`): `BITRISE_WORKFLOW_EDITOR_URL=http://host.docker.internal:4000/workflow_editor`
+  (or `http://workflow-editor:4000/workflow_editor` when both run on the same compose network)
+
+Once the above is set, the Workflow Editor is reachable in the monolith
 on `localhost:3000/app/{slug}/workflow_editor`.
+
+If you want the browser to fetch assets directly from the WFE dev server (skipping the monolith proxy — faster, but
+only works when the browser is on the same host as Vite, so not for remote dev boxes), override the prefix:
+
+```bash
+PUBLIC_URL_ROOT=http://localhost:4000 npm run start:website
+```
+
+In that case set `BITRISE_WORKFLOW_EDITOR_URL=http://localhost:4000` (no trailing path) in the monolith.
+
+#### Restart after a version bump
+
+If you pull/rebase across a release commit (one that bumps the version in both `package.json` and
+`version/version.go`), restart the WFE — don't just rely on Vite's hot-reload. Vite picks up the new version from
+`package.json` and starts serving at the new `/{version}/` path, but `go run main.go` keeps running its already-compiled
+binary with the old `version.VERSION` constant. The two then disagree on the route prefix and requests 404 (which
+surfaces in the monolith as `OpenURI::HTTPError 404` from `WorkflowController#content`).
 
 ### Run client tests
 

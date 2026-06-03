@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import {
   Box,
   Button,
@@ -14,6 +13,7 @@ import {
   Textarea,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { ChangeEvent } from 'react';
 import { useController, useForm } from 'react-hook-form';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
@@ -134,7 +134,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
               helperText="Add values as new lines."
               {...valueOptionsField}
               value={valueOptionsField.value?.join('\n')}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
                 const v = e.target.value.trimStart();
                 valueOptionsField.onChange(v ? v.split('\n') : []);
               }}
@@ -178,11 +178,11 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
       </DialogBody>
       <DialogFooter>
         <ButtonGroup display="flex" gap="8">
-          <Button isDisabled={isSubmitDisabled} type="submit">
-            {mode === 'edit' ? 'Update' : 'Create'}
-          </Button>
           <Button variant="secondary" onClick={onCancel}>
             Cancel
+          </Button>
+          <Button isDisabled={isSubmitDisabled} type="submit">
+            {mode === 'edit' ? 'Update' : 'Create'}
           </Button>
         </ButtonGroup>
       </DialogFooter>

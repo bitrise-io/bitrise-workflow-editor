@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
 import StepBundlesPage from './StepBundlesPage';

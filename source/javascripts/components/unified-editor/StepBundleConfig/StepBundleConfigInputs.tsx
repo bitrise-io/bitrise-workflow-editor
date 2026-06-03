@@ -103,7 +103,7 @@ const StepBundleConfigInputs = () => {
         </EmptyState>
       )}
       <StepBundleInputsDialog
-        ids={Object.values(stepBundle?.mergedValues.inputs || []).map(({ opts, ...rest }) => Object.keys(rest)[0])}
+        ids={Object.values(stepBundle?.mergedValues.inputs || []).map(({ opts: _, ...rest }) => Object.keys(rest)[0])}
         index={selectedInputIndex}
         input={stepBundle?.mergedValues.inputs?.[selectedInputIndex] || { opts: { category: preselectedCategory } }}
         onCancel={handleCancel}

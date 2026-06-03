@@ -3,7 +3,7 @@ import { Get, Paths } from 'type-fest';
 import { Document, isMap } from 'yaml';
 
 import { BitriseYml, GraphPipelineWorkflowModel, PipelineModel, PipelineWorkflows, Stages } from '../models/BitriseYml';
-import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
+import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '../models/Step';
 import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import StepService from './StepService';
@@ -121,6 +121,37 @@ function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
         const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL);
         return id === stepId;
       });
+    });
+  });
+}
+
+const EXTEND_PIPELINE_STEP_ID = 'extend-pipeline';
+
+// parseStepCVS returns id = full URL/path for git::/path:: sources, so we compare on the last
+// path segment to match extend-pipeline regardless of whether it came from steplib, git, or path.
+function lastStepIdSegment(parsedId: string): string {
+  return (
+    parsedId
+      .replace(/\.git$/, '')
+      .split('/')
+      .pop() || parsedId
+  );
+}
+
+function isGeneratorWorkflow(workflowId: string, yml: BitriseYml): boolean {
+  const defaultLib = yml.default_step_lib_source || BITRISE_STEP_LIBRARY_URL;
+
+  return WorkflowService.getWorkflowChain(yml.workflows ?? {}, workflowId).some((wfId) => {
+    return yml.workflows?.[wfId]?.steps?.some((stepObject) => {
+      const cvs = Object.keys(stepObject)[0];
+      const { library, id } = StepService.parseStepCVS(cvs, defaultLib);
+      // bundle/with references are not steps themselves, and bundles are not expanded.
+      if (library === LibraryType.BUNDLE || library === LibraryType.WITH) {
+        return false;
+      }
+      const last = lastStepIdSegment(id);
+      // Bitrise repo convention: step repos are named `steps-<step-id>`, so accept both forms.
+      return last === EXTEND_PIPELINE_STEP_ID || last === `steps-${EXTEND_PIPELINE_STEP_ID}`;
     });
   });
 }
@@ -380,6 +411,7 @@ export default {
   sanitizeName,
   validateParallel,
   hasStepInside,
+  isGeneratorWorkflow,
   numberOfStages,
   convertToGraphPipeline,
   EMPTY_PIPELINE,

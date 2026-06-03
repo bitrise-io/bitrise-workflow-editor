@@ -1,0 +1,77 @@
+import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
+import { useState } from 'react';
+
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { Container, ContainerType } from '@/core/models/Container';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
+import useContainers from '@/hooks/useContainers';
+import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
+
+import ContainersTable from './ContainersTable';
+import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
+
+const ServiceContainersTab = () => {
+  const containerUsageLookup = useContainerWorkflowUsage();
+  const { [ContainerType.Service]: containers } = useContainers();
+
+  const [editedContainer, setEditedContainer] = useState<Container | null>(null);
+  const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
+
+  return (
+    <>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        gap={['12', '32']}
+        flexWrap="wrap"
+        marginBlockEnd="16"
+      >
+        <Text color="text/secondary">
+          Use service containers to attach custom services you want to use during your Workflows.
+        </Text>
+        <Button
+          variant="secondary"
+          leftIconName="Plus"
+          size="md"
+          minW={['100%', 'auto']}
+          onClick={() => {
+            onDialogOpen();
+            segmentTrack('Container Definition Creation Started', {
+              app_slug: PageProps.appSlug(),
+              workspace_slug: GlobalProps.workspaceSlug(),
+              container_type: 'service',
+            });
+          }}
+        >
+          Add container
+        </Button>
+      </Box>
+      {containers.length > 0 ? (
+        <ContainersTable
+          containers={containers}
+          containerUsageLookup={containerUsageLookup}
+          openDialog={onDialogOpen}
+          setEditedContainer={setEditedContainer}
+          source={ContainerType.Service}
+        />
+      ) : (
+        <EmptyState
+          title="Your service containers will appear here"
+          description="Add your first service container to provide database or message queue support to your Steps and Step bundles."
+          iconName="Container"
+        />
+      )}
+      <CreateOrEditContainerDialog
+        editedContainer={editedContainer}
+        isOpen={isDialogOpen}
+        onClose={onDialogClose}
+        onCloseComplete={() => setEditedContainer(null)}
+        type="service"
+      />
+    </>
+  );
+};
+
+export default ServiceContainersTab;

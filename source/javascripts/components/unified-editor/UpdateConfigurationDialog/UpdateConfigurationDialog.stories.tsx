@@ -1,7 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { delay, http, HttpResponse } from 'msw';
 
-import { getCiConfig } from '@/pages/YmlPage/components/ConfigurationYmlSource.mswMocks';
+import { getCiConfig } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
 
 import UpdateConfigurationDialog from './UpdateConfigurationDialog';
 

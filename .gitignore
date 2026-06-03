@@ -28,3 +28,6 @@ ld.local.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+debug-storybook.log
+/.claude/settings.local.json

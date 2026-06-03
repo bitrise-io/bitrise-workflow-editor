@@ -3,6 +3,16 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 
 export {};
 
+export type AISettings<T> =
+  | {
+      disabled: 'by-project' | 'by-workspace' | 'unsupported';
+      options?: T;
+    }
+  | {
+      options: T;
+      disabled?: never;
+    };
+
 declare global {
   const TEST_BITRISE_YML: BitriseYml;
 
@@ -22,8 +32,9 @@ declare global {
       account: {
         slug: string;
         name: string;
+        isRestricted?: boolean;
         sharedResourcesAvailable?: boolean;
-        useReplacementForDeprecatedMachines?: DeprecatedMachinesReplacementConfig;
+        useReplacementForDeprecatedMachines?: any;
       };
       env?: {
         SEGMENT_JS_WRITE_KEY_NEW: string;
@@ -41,6 +52,7 @@ declare global {
         uniqueStepLimit?: number;
         isPipelinesAvailable?: boolean;
         isRepositoryYmlAvailable?: boolean;
+        allowNonBitriseSteps?: boolean;
       };
       project?: {
         slug: string;
@@ -48,9 +60,16 @@ declare global {
         defaultBranch?: string;
         buildTriggerToken?: string;
         gitRepoSlug?: string;
+        gitProvider?: string;
         isOwnerPaying?: boolean;
+        hasAnyBuild?: boolean;
       };
       settings?: {
+        ai: {
+          ciConfigExpert: AISettings<{ wfeIntegration: boolean }>;
+          failedBuilds: AISettings<any>;
+          fixer: AISettings<any>;
+        };
         statusReport?: {
           defaultProjectBasedStatusNameTemplate: string;
           defaultTargetBasedStatusNameTemplate: string;
@@ -58,6 +77,15 @@ declare global {
           variables: Record<string, string | null>;
         };
       };
+    };
+    env: {
+      CLARITY: 'true' | 'false';
+      ANALYTICS: 'true' | 'false';
+      DATADOG_RUM: 'true' | 'false';
+      MODE: 'WEBSITE' | 'CLI';
+      NODE_ENV: 'development' | 'production';
+      PUBLIC_URL_ROOT: string;
+      WFE_VERSION: string;
     };
   }
 

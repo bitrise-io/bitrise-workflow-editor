@@ -14,7 +14,7 @@ import YmlUtils from '../utils/YmlUtils';
 
 type Source = 'workflows' | 'step_bundles';
 
-// https://devcenter.bitrise.io/en/references/steps-reference/step-reference-id-format.html
+// https://docs.bitrise.io/en/bitrise-ci/references/steps-reference/step-reference-id-format.html
 // <step_lib_source>::<step-id>@<version>:
 function parseStepCVS(
   cvs: string,
@@ -473,16 +473,22 @@ function deleteStep(source: Source, sourceId: string, indices: number | number[]
 type Key = keyof StepModel;
 type Value<T extends Key> = StepModel[T];
 
-function updateStepField<T extends Key>(source: Source, sourceId: string, index: number, field: T, value: Value<T>) {
+function updateStepField<T extends Key>(
+  source: Source,
+  sourceId: string,
+  index: number,
+  field: T,
+  value: Value<T>,
+  defaultValue: Value<T>,
+) {
   updateBitriseYmlDocument(({ doc }) => {
     const step = getStepOrThrowError(source, sourceId, index, doc);
-    const stepData = step.items[0].value;
-
-    if (!isMap(stepData)) {
-      return doc;
+    if (!isMap(step.items[0].value)) {
+      step.items[0].value = new YAMLMap();
     }
+    const stepData = step.items[0].value as YAMLMap;
 
-    if (value) {
+    if (value !== defaultValue) {
       YmlUtils.setIn(stepData, [field], value);
     } else {
       YmlUtils.deleteByPath(stepData, [field]);
@@ -494,16 +500,20 @@ function updateStepField<T extends Key>(source: Source, sourceId: string, index:
 
 function updateStepInput(source: Source, sourceId: string, index: number, input: string, value: unknown) {
   updateBitriseYmlDocument(({ doc }) => {
-    const step = getStepOrThrowError(source, sourceId, index, doc).items[0].value as YAMLMap;
-    const inputsSeq = YmlUtils.getSeqIn(step, ['inputs'], true);
+    const step = getStepOrThrowError(source, sourceId, index, doc);
+    if (!isMap(step.items[0].value)) {
+      step.items[0].value = new YAMLMap();
+    }
+    const stepData = step.items[0].value as YAMLMap;
+    const inputsSeq = YmlUtils.getSeqIn(stepData, ['inputs'], true);
     const inputIndex = inputsSeq.items.findIndex((item) => isMap(item) && item.has(input));
 
     if (value === '') {
-      YmlUtils.deleteByPath(step, ['inputs', inputIndex, input]);
+      YmlUtils.deleteByPath(stepData, ['inputs', inputIndex, input]);
     } else if (inputIndex === -1) {
       YmlUtils.addIn(inputsSeq, [], { [input]: YmlUtils.toScalar(value) });
     } else {
-      YmlUtils.updateValueByPath(step, ['inputs', inputIndex, input], value);
+      YmlUtils.updateValueByPath(stepData, ['inputs', inputIndex, input], value);
     }
 
     return doc;
@@ -548,6 +558,7 @@ export default {
   getInputNames,
   calculateChange,
   moveStepIndices,
+  getStepOrThrowError,
   addStep,
   moveStep,
   cloneStep,

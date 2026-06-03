@@ -20,7 +20,7 @@ export default (page: string, name: string, onloadOnly = true): void => {
     }
   };
 
-  if (process.env.DATADOG_RUM === 'true') {
+  if (window.env.DATADOG_RUM === 'true') {
     sendTimingWhenRUMIsAvailableOnWindow();
   }
 };

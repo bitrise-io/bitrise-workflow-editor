@@ -15,7 +15,7 @@ type BaseEntityGroup = {
 };
 
 type Props = Omit<DialogProps, 'title'> & {
-  onCreateStepBundle: (stepBundleId: string, baseEntityId?: string) => void;
+  onCreateStepBundle: (stepBundleId: string, baseEntityId?: string, title?: string) => void;
 };
 
 const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, ...props }: Props) => {
@@ -52,6 +52,7 @@ const CreateStepBundleDialog = ({ onClose, onCloseComplete, onCreateStepBundle, 
   return (
     <CreateEntityDialog<StepBundleCreationSource>
       baseEntities={baseEntities}
+      extraInputs={['title']}
       entityName="Step bundle"
       onClose={onClose}
       onCloseComplete={handleCloseComplete}

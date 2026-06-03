@@ -34,7 +34,7 @@ func PostStepInfoHandler(w http.ResponseWriter, r *http.Request) {
 	stepInfo, err := tools.StepmanStepInfo(requestBody.Library, requestBody.ID, requestBody.Version)
 	if err != nil {
 		log.Errorf(err.Error())
-		RespondWithJSONBadRequestErrorMessage(w, err.Error())
+		RespondWithJSONBadRequestErrorMessage(w, "%s", err.Error())
 		return
 	}
 

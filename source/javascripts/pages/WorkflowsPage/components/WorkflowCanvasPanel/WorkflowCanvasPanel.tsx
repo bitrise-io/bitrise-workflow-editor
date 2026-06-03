@@ -10,7 +10,10 @@ import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -130,10 +133,20 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const openRunWorkflowDialog = useCallback(
     (wfId: string) => {
-      openDialog({
-        type: WorkflowsPageDialogType.START_BUILD,
-        workflowId: wfId,
-      })();
+      const shouldShowTrialUpsellDialog = Boolean(
+        GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild,
+      );
+
+      if (shouldShowTrialUpsellDialog) {
+        WindowUtils.postMessageToParent('OPEN_TRIAL_UPSELL_DIALOG', {
+          reason: 'workflow_run',
+        });
+      } else {
+        openDialog({
+          type: WorkflowsPageDialogType.START_BUILD,
+          workflowId: wfId,
+        })();
+      }
     },
     [openDialog],
   );
@@ -330,7 +343,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         openDialog({
           type: WorkflowsPageDialogType.STEP_BUNDLE,
           workflowId: parentWorkflowId,
-          stepBundleId: newStepBundleId,
           selectedStepIndices: [Math.min(...stepIndices)],
         })();
       } else if (parentStepBundleId) {
@@ -383,7 +395,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           />
         )}
       </Box>
-      <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
+      <Box flex="1" overflowY="auto" p="16" bg="background/secondary" data-intercom-target="Workflow Card Container">
         <WorkflowCard
           id={workflowId}
           isCollapsable={false}

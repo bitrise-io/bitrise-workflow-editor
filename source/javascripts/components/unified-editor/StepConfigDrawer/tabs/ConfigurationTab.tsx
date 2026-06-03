@@ -34,19 +34,33 @@ const ConfigurationTab = () => {
   const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
-    StepService.updateStepField(source, sourceId, stepIndex, 'is_always_run', e.currentTarget.checked);
+    StepService.updateStepField(
+      source,
+      sourceId,
+      stepIndex,
+      'is_always_run',
+      e.currentTarget.checked,
+      defaultValues.is_always_run,
+    );
   };
 
   const onIsSkippableChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
-    StepService.updateStepField(source, sourceId, stepIndex, 'is_skippable', e.currentTarget.checked);
+    StepService.updateStepField(
+      source,
+      sourceId,
+      stepIndex,
+      'is_skippable',
+      e.currentTarget.checked,
+      defaultValues.is_skippable,
+    );
   };
 
   const onRunIfChange = (runIf: string) => {
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
-    StepService.updateStepField(source, sourceId, stepIndex, 'run_if', runIf);
+    StepService.updateStepField(source, sourceId, stepIndex, 'run_if', runIf, defaultValues.run_if);
   };
 
   return (

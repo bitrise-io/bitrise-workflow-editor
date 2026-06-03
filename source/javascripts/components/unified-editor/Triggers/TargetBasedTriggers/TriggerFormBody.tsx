@@ -112,7 +112,7 @@ const TriggerFormBody = (props: Props) => {
               Supported for GitHub and GitLab.{' '}
               <Link
                 colorScheme="purple"
-                href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
+                href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
                 isExternal
               >
                 Learn more

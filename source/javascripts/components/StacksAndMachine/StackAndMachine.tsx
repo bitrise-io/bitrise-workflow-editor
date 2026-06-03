@@ -2,8 +2,10 @@ import { Box, Link, Notification } from '@bitrise/bitkit';
 import { RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
+import ToolVersions from '@/components/ToolVersions/ToolVersions';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
 import PageProps from '@/core/utils/PageProps';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
 
@@ -25,6 +27,7 @@ type Props = {
   withMachineFallbacks?: boolean;
   stackRollbackVersion?: string;
   withoutDefaultOptions?: boolean;
+  workflowId?: string;
 };
 
 const StackAndMachine = ({
@@ -35,7 +38,9 @@ const StackAndMachine = ({
   withMachineFallbacks,
   stackRollbackVersion,
   withoutDefaultOptions,
+  workflowId,
 }: Props) => {
+  const isToolVersionsEnabled = useFeatureFlag('enable-wfe-tool-versions');
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -66,6 +71,7 @@ const StackAndMachine = ({
     ] || '';
 
   const handleChange = useCallback(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     (selectedStackId: string, selectedMachineTypeId: string, useRollbackVersionChecked?: boolean) => {
       const result = StackAndMachineService.changeStackAndMachine({
         stackId: selectedStackId,
@@ -117,6 +123,7 @@ const StackAndMachine = ({
           }
           isRollbackVersionAvailable={!!availableRollbackVersion}
           useRollbackVersion={useRollbackVersion}
+          width={orientation === 'horizontal' ? '50%' : undefined}
         />
         <MachineTypeSelector
           machineType={selectedMachineType}
@@ -125,6 +132,8 @@ const StackAndMachine = ({
           isDisabled={isMachineTypeSelectionDisabled}
           optionGroups={machineOptionGroups}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
+          selectedRegion={data?.region}
+          width={orientation === 'horizontal' ? '50%' : undefined}
         />
       </Box>
       {useRollbackVersion && (
@@ -133,7 +142,7 @@ const StackAndMachine = ({
           mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once
           removed, your build will run on the latest Stable Stack.{' '}
           <Link
-            href="https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack"
+            href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack"
             isExternal
             isUnderlined
           >
@@ -142,6 +151,7 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
+      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} />}
     </StackAndMachineWrapper>
   );
 };

@@ -17,7 +17,7 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
-        return [id, { steps: stepBundle?.steps }];
+        return [id, { steps: stepBundle?.steps, title: stepBundle?.title }];
       }),
     );
   });
@@ -36,7 +36,8 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
 
   const filteredItems = bundleIds.filter((id) => {
     const lowerCaseFilterString = filterStepBundles.toLowerCase();
-    if (typeof id === 'string' && id.toLowerCase().includes(lowerCaseFilterString || '')) {
+    const title = stepBundles[id]?.title?.toLowerCase();
+    if (id?.toLowerCase().includes(lowerCaseFilterString || '') || title?.includes(lowerCaseFilterString || '')) {
       return true;
     }
     return false;
@@ -65,7 +66,9 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   }
 
   return filteredItems.length > 0 ? (
-    filteredItems.map((id) => <SelectableStepBundleCard key={id} id={id} onClick={() => handleClick(id)} />)
+    filteredItems.map((id) => (
+      <SelectableStepBundleCard key={id} id={id} onClick={() => handleClick(id)} title={stepBundles[id]?.title} />
+    ))
   ) : (
     <EmptyState
       iconName="Magnifier"

@@ -1536,7 +1536,7 @@ describe('StepService', () => {
 
   describe('updateStepField', () => {
     it('should update a step field in an existing workflow', () => {
-      StepService.updateStepField('workflows', 'primary', 0, 'title', 'New title');
+      StepService.updateStepField('workflows', 'primary', 0, 'title', 'New title', 'Old title');
 
       const expectedYml = yaml`
         workflows:
@@ -1557,7 +1557,7 @@ describe('StepService', () => {
     });
 
     it('should update a step field in an existing step bundle', () => {
-      StepService.updateStepField('step_bundles', 'my_bundle', 0, 'title', 'New title');
+      StepService.updateStepField('step_bundles', 'my_bundle', 0, 'title', 'New title', 'Old title');
 
       const expectedYml = yaml`
         workflows:
@@ -1577,7 +1577,7 @@ describe('StepService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
 
-    it('should remove a step field if the new value is empty', () => {
+    it('should remove a step field if the new value is the same as the default value', () => {
       updateBitriseYmlDocumentByString(
         yaml`
           workflows:
@@ -1588,7 +1588,7 @@ describe('StepService', () => {
         `,
       );
 
-      StepService.updateStepField('workflows', 'primary', 0, 'title', '');
+      StepService.updateStepField('workflows', 'primary', 0, 'title', 'Old title', 'Old title');
 
       const expectedYml = yaml`
         workflows:
@@ -1600,11 +1600,35 @@ describe('StepService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
 
+    it('should set a step field to empty if the new value is empty but the default value is not', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - script@1:
+                  title: Old title
+        `,
+      );
+
+      StepService.updateStepField('workflows', 'primary', 0, 'title', '', 'Old title');
+
+      const expectedYml = yaml`
+        workflows:
+          primary:
+            steps:
+            - script@1:
+                title: ""
+      `;
+
+      expect(getYmlString()).toEqual(expectedYml);
+    });
+
     it('should throw an error if the workflow or step bundle does not exist', () => {
       expectErrors(
         [
-          () => StepService.updateStepField('workflows', 'non_existing', 0, 'run_if', '.CI'),
-          () => StepService.updateStepField('step_bundles', 'non_existing', 0, 'run_if', '.CI'),
+          () => StepService.updateStepField('workflows', 'non_existing', 0, 'run_if', '.CI', 'true'),
+          () => StepService.updateStepField('step_bundles', 'non_existing', 0, 'run_if', '.CI', 'true'),
         ],
         ['workflows.non_existing not found', 'step_bundles.non_existing not found'],
       );
@@ -1612,7 +1636,7 @@ describe('StepService', () => {
 
     it('should throw an error if the step does not exist', () => {
       expectErrors(
-        [() => StepService.updateStepField('workflows', 'primary', 2, 'run_if', '.CI')],
+        [() => StepService.updateStepField('workflows', 'primary', 2, 'run_if', '.CI', 'true')],
         ['Step at index 2 not found in workflows.primary'],
       );
     });

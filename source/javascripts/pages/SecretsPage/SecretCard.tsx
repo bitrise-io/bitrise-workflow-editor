@@ -18,7 +18,7 @@ import {
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-import { useMemo, useState } from 'react';
+import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Secret } from '@/core/models/Secret';
@@ -198,7 +198,7 @@ const SecretCard = (props: SecretCardProps) => {
               <Toggletip
                 trigger="hover"
                 label="Shared resources are managed at Workspace settings."
-                learnMoreUrl="https://devcenter.bitrise.io/en/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise"
+                learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
                 button={{ href: secretSettingsUrl, label: 'Go to settings' }}
               >
                 <Badge background="sys/neutral/subtle" color="text/secondary">

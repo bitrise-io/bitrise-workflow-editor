@@ -1,4 +1,4 @@
-import { forwardRef } from '@bitrise/bitkit';
+import { forwardRef, Text } from '@bitrise/bitkit';
 import {
   Box,
   FormControl,
@@ -26,15 +26,6 @@ type AutoGrowableInputProps = TextareaProps & {
   formErrorMessageProps?: FormErrorMessageProps;
 };
 
-const styleProps: StyleProps = {
-  py: '9px',
-  px: '11px',
-  overflowX: 'auto',
-  overflowY: 'hidden',
-  gridArea: '1 / 1 / 2 / 2',
-  whiteSpace: 'preserve nowrap',
-};
-
 const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
   const containerRef = useRef<HTMLDivElement>();
 
@@ -50,8 +41,18 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
     formHelperTextProps,
     formErrorMessageProps,
     onChange,
+    size = 'md',
     ...rest
   } = props;
+
+  const styleProps: StyleProps = {
+    py: size === 'lg' ? '13px' : '9px',
+    px: size === 'lg' ? '15px' : '11px',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    gridArea: '1 / 1 / 2 / 2',
+    whiteSpace: 'preserve nowrap',
+  };
 
   const setInitialReplicatedValue: LegacyRef<HTMLDivElement> = (e) => {
     containerRef.current = e || undefined;
@@ -66,9 +67,15 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
   return (
     <FormControl {...formControlProps} isRequired={rest.isRequired} textStyle="body/md/regular" isInvalid={!!errorText}>
       {label && (
-        <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
-          <FormLabel {...formLabelProps}>{label}</FormLabel>
-          {badge}
+        <Box display="flex" gap="4">
+          <FormLabel mb="4" {...formLabelProps}>
+            {label}
+          </FormLabel>
+          {!rest.isRequired && (
+            <Text as="span" color="text/secondary" textStyle="body/md/regular" mb="4">
+              (optional)
+            </Text>
+          )}
         </Box>
       )}
 
@@ -86,6 +93,11 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
             content: 'attr(data-replicated-value) " "',
           }}
         >
+          {badge && (
+            <Box position="absolute" top="-28px" right="0">
+              {badge}
+            </Box>
+          )}
           <Textarea
             {...rest}
             {...styleProps}
@@ -95,6 +107,7 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
             onChange={handleChange}
             fontFamily={fontFamily}
             data-1p-ignore
+            size={size}
           />
         </Box>
         {children}

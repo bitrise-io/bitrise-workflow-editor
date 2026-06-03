@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import {
   Button,
   ButtonGroup,
@@ -16,13 +15,14 @@ import { useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { forceRefreshStates, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import useYmlValidationStatus, { getYmlValidationStatus } from '@/hooks/useYmlValidationStatus';
+import useModelValidationStatus from '@/hooks/useModelValidationStatus';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
-import DiffEditor from './DiffEditor';
+import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
 const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
-  const [ymlStatus, setYmlStatus] = useState(useYmlValidationStatus());
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus(useYmlValidationStatus());
   const [currentText, setCurrentText] = useState<string | undefined>();
 
   const modifiedText = getYmlString();
@@ -42,7 +42,13 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   const handleChange = (text: string) => {
     setCurrentText(text);
-    setYmlStatus(getYmlValidationStatus(text));
+  };
+
+  const handleEditorMount: DiffEditorProps['onMount'] = (editor) => {
+    const model = editor.getModifiedEditor().getModel();
+    if (model) {
+      subscribeToModel(model);
+    }
   };
 
   useEventListener(
@@ -77,7 +83,12 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
           You can edit the right side of the diff view, and your changes will be saved
         </Notification>
         {originalText && modifiedText && (
-          <DiffEditor originalText={originalText} modifiedText={modifiedText} onChange={handleChange} />
+          <DiffEditor
+            originalText={originalText}
+            modifiedText={modifiedText}
+            onChange={handleChange}
+            onMount={handleEditorMount}
+          />
         )}
       </DialogBody>
       <DialogFooter>

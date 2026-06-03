@@ -10,8 +10,8 @@ import SecretCard from './SecretCard';
 
 const SecretsPage = () => {
   const appSlug = PageProps.appSlug();
-  const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/secrets`;
-  const planSelectorPath = `/workspaces/${GlobalProps.workspaceSlug()}/plan_selector`;
+  const workspaceSecretsPath = `/workspaces/${GlobalProps.workspaceSlug()}/settings/shared-resources`;
+  const planSelectorPath = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
   const sharedSecretsAvailable = GlobalProps.workspace()?.sharedResourcesAvailable;
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -149,7 +149,7 @@ const SecretsPage = () => {
       <Text>
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
-        <Link href="https://devcenter.bitrise.io/en/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise">
+        <Link href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446">
           Learn more
         </Link>
       </Text>

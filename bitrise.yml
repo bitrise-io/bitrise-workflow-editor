@@ -20,7 +20,7 @@ workflows:
   install-client-deps:
     title: Install the client dependencies
     envs:
-      - NODE_ENV: "prod"
+      - NODE_ENV: "production"
     steps:
       - script@1.1.5:
           title: asdf install nodejs
@@ -49,7 +49,7 @@ workflows:
   build-client:
     title: Build the client
     envs:
-      - NODE_ENV: "prod"
+      - NODE_ENV: "production"
     steps:
       - script:
           title: npm run build
@@ -113,7 +113,7 @@ workflows:
   ci:
     title: Run the CI checks
     envs:
-      - NODE_ENV: "prod"
+      - NODE_ENV: "production"
     steps:
       - bitrise-run@0:
           title: Run API server tests
@@ -150,7 +150,7 @@ workflows:
   test-client:
     title: Run the client unit & E2E tests
     envs:
-      - NODE_ENV: "prod"
+      - NODE_ENV: "production"
     before_run:
       - install-client-deps
       - build-client

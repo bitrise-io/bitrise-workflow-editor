@@ -113,13 +113,12 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
 
   return (
     <>
-      <Box display="flex" flexDir="column" gap="24">
+      <Box display="flex" flexDir="column" gap="24" pb="24">
         <NameInput pipelineId={pipelineId} />
         <SummaryInput pipelineId={pipelineId} />
         <DescriptionInput pipelineId={pipelineId} />
         <Priority pipelineId={pipelineId} />
         <GitStatusName pipelineId={pipelineId} />
-
         <Button leftIconName="Trash" alignSelf="flex-start" variant="danger-secondary" onClick={onOpenDeleteDialog}>
           Delete Pipeline
         </Button>

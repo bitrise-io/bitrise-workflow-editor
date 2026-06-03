@@ -34,7 +34,6 @@ const CreatePipelineDialog = ({ onCreatePipeline, onClose, onCloseComplete, ...p
 
     const yml = getBitriseYml();
     const basePipeline = PipelineService.getPipeline(basePipelineId ?? '', yml);
-    // eslint-disable-next-line no-nested-ternary
     const basePipelineType = PipelineService.getPipelineType(basePipelineId ?? '', yml);
     const numberOfStages = PipelineService.numberOfStages(basePipeline ?? {});
 

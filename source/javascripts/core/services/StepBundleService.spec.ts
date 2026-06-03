@@ -329,8 +329,8 @@ describe('StepBundleService', () => {
     });
   });
 
-  describe('renameStepBundle', () => {
-    it('renames a step bundle', () => {
+  describe('changeStepBundleId', () => {
+    it('changes the id of a step bundle', () => {
       updateBitriseYmlDocumentByString(
         yaml`
           workflows:
@@ -342,7 +342,7 @@ describe('StepBundleService', () => {
         `,
       );
 
-      StepBundleService.renameStepBundle('sb2', 'sb4');
+      StepBundleService.changeStepBundleId('sb2', 'sb4');
 
       expect(getYmlString()).toEqual(yaml`
         workflows:
@@ -354,7 +354,7 @@ describe('StepBundleService', () => {
       `);
     });
 
-    it('renames the step bundle references in other step bundles', () => {
+    it('changes the step bundle references in other step bundles', () => {
       updateBitriseYmlDocumentByString(
         yaml`
           workflows:
@@ -376,7 +376,7 @@ describe('StepBundleService', () => {
         `,
       );
 
-      StepBundleService.renameStepBundle('sb1', 'sb4');
+      StepBundleService.changeStepBundleId('sb1', 'sb4');
 
       expect(getYmlString()).toEqual(yaml`
         workflows:
@@ -398,7 +398,7 @@ describe('StepBundleService', () => {
       `);
     });
 
-    it('renames the step bundle references in workflows', () => {
+    it('changes the step bundle references in workflows', () => {
       updateBitriseYmlDocumentByString(
         yaml`
           workflows:
@@ -422,7 +422,7 @@ describe('StepBundleService', () => {
         `,
       );
 
-      StepBundleService.renameStepBundle('sb1', 'sb4');
+      StepBundleService.changeStepBundleId('sb1', 'sb4');
 
       expect(getYmlString()).toEqual(yaml`
         workflows:
@@ -457,7 +457,7 @@ describe('StepBundleService', () => {
       );
 
       expect(() => {
-        StepBundleService.renameStepBundle('sb2', 'sb4');
+        StepBundleService.changeStepBundleId('sb2', 'sb4');
       }).toThrow("Step bundle 'sb2' not found");
     });
 
@@ -473,7 +473,7 @@ describe('StepBundleService', () => {
       );
 
       expect(() => {
-        StepBundleService.renameStepBundle('sb1', 'sb2');
+        StepBundleService.changeStepBundleId('sb1', 'sb2');
       }).toThrow("Step bundle 'sb2' already exists");
     });
   });

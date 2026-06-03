@@ -1,6 +1,6 @@
 import { ListItemProps } from '@bitrise/bitkit';
 import { ListProps } from 'chakra-ui-2--react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { type FilterInputProps } from '../components/FilterInput';
 
@@ -64,7 +64,7 @@ const useFilterableActionList = <TActionItem>({
   }, []);
 
   const getActionListItemProps = useCallback(
-    (item: TActionItem, { onClick, ...props }: ListItemProps = {}) => {
+    (item: TActionItem, { onClick: _, ...props }: ListItemProps = {}) => {
       return {
         tabIndex: 0,
         outline: 'none',
@@ -73,7 +73,7 @@ const useFilterableActionList = <TActionItem>({
         _focus: { backgroundColor: 'background/hover' },
         _hover: { backgroundColor: 'background/hover' },
         onClick: () => onSelect(item),
-        onKeyDown: (event: React.KeyboardEvent<HTMLLIElement>) => {
+        onKeyDown: (event: ReactKeyboardEvent<HTMLLIElement>) => {
           const idx = filteredItems.indexOf(item);
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             const listLength = filteredItems.length;

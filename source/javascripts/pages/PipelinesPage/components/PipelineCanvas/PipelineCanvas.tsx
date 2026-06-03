@@ -1,6 +1,9 @@
 import { Box } from '@bitrise/bitkit';
 import { Controls, MiniMap } from '@xyflow/react';
 
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
+import WindowUtils from '@/core/utils/WindowUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
@@ -16,6 +19,21 @@ const PipelineCanvas = () => {
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline]?.workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
+
+  const handleRunPipelineClick = () => {
+    const shouldShowTrialUpsellDialog = Boolean(GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild);
+
+    if (shouldShowTrialUpsellDialog) {
+      WindowUtils.postMessageToParent('OPEN_TRIAL_UPSELL_DIALOG', {
+        reason: 'pipeline_run',
+      });
+    } else {
+      openDialog({
+        type: PipelinesPageDialogType.START_BUILD,
+        pipelineId: selectedPipeline,
+      })();
+    }
+  };
 
   return (
     <>
@@ -40,10 +58,7 @@ const PipelineCanvas = () => {
           onCreatePipelineClick={openDialog({
             type: PipelinesPageDialogType.CREATE_PIPELINE,
           })}
-          onRunClick={openDialog({
-            type: PipelinesPageDialogType.START_BUILD,
-            pipelineId: selectedPipeline,
-          })}
+          onRunClick={handleRunPipelineClick}
         />
         <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
           <Controls showInteractive={false} />

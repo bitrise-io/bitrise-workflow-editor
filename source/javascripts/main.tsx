@@ -1,5 +1,8 @@
-/* eslint-disable import/no-import-module-exports */
-import { Box, Button, Image, Link, Provider as BitkitProvider, Text, useToast } from '@bitrise/bitkit';
+/* _eslint-disable import/no-import-module-exports */
+import '@/monaco-workers';
+
+import { Box, Button, Image, Link, Provider, Text, useToast } from '@bitrise/bitkit';
+import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -14,12 +17,34 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
+import useSearchParams from '@/hooks/useSearchParams';
+import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
+import { trackConfigBranchLoaded } from './core/analytics/ConfigManagementAnalytics';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
 import { preloadRoutes } from './routes';
+
+const loaders = [];
+if (import.meta.env.CLARITY === 'true') {
+  loaders.push(import('./lib/clrty'));
+}
+if (import.meta.env.DATADOG_RUM === 'true') {
+  loaders.push(import('./lib/ddrum'));
+}
+if (import.meta.env.INTERCOM_APP_ID) {
+  loaders.push(import('./lib/intrcm'));
+}
+
+try {
+  await Promise.all(loaders);
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.error('Error loading optional libraries:', e);
+}
 
 if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   // NOTE: The API server running in local mode, has a built-in termination timer
@@ -65,10 +90,20 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const isLoaded = useRef(false);
+  const isTracked = useRef(false);
+  const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
+  const [searchParams] = useSearchParams();
+  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
 
-  useCiConfigSettings();
-  const { data, error, refetch } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
+  const { data: ymlSettings } = useCiConfigSettings();
+  useYmlLanguageServices();
+  useCloseAIDrawer();
+  const { data, error, refetch } = useGetCiConfig({
+    projectSlug: PageProps.appSlug(),
+    skipValidation: true,
+    branch: requestedBranch,
+  });
 
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog
@@ -86,12 +121,37 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (!isLoaded.current && data) {
+    if (data && loadedBranch.current !== requestedBranch) {
       initializeBitriseYmlDocument(data);
-      setTimeout(preloadRoutes, 1000);
-      isLoaded.current = true;
+      if (requestedBranch) {
+        if (data.branch && data.branch === requestedBranch) {
+          toast({
+            status: 'success',
+            isClosable: true,
+            description: `Configuration is loaded from ${requestedBranch} branch.`,
+          });
+        } else if (data.branch && data.branch !== requestedBranch) {
+          toast({
+            status: 'warning',
+            isClosable: true,
+            description: `Config unavailable on ${requestedBranch}. Using ${data.branch} (default branch).`,
+          });
+        }
+      }
+      loadedBranch.current = requestedBranch;
+      if (!isLoaded.current) {
+        setTimeout(preloadRoutes, 1000);
+        isLoaded.current = true;
+      }
     }
-  }, [data]);
+  }, [data, requestedBranch, toast]);
+
+  useEffect(() => {
+    if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
+      isTracked.current = true;
+      trackConfigBranchLoaded(data.branch);
+    }
+  }, [data, ymlSettings?.usesRepositoryYml]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
@@ -146,11 +206,13 @@ const App = () => {
       <ErrorBoundary fallback={PassThroughFallback}>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
-            <BitkitProvider>
-              <InitialDataLoader>
-                <MainLayout />
-              </InitialDataLoader>
-            </BitkitProvider>
+            <Provider resetCSS={false}>
+              <BitkitProvider>
+                <InitialDataLoader>
+                  <MainLayout />
+                </InitialDataLoader>
+              </BitkitProvider>
+            </Provider>
           </ReactFlowProvider>
         </QueryClientProvider>
       </ErrorBoundary>

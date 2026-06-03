@@ -10,7 +10,7 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useEffect, useState } from 'react';
+import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
@@ -28,7 +28,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
   const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
-  const onStepVersionChange: React.ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
+  const onStepVersionChange: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
     setValue(e.target.value);
 
     const source = stepBundleId ? 'step_bundles' : 'workflows';
@@ -76,20 +76,20 @@ const PropertiesTab = () => {
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
-  const [name, setName] = useState(data?.mergedValues?.title);
+  const [title, setTitle] = useState(data?.mergedValues?.title);
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;
   const description = data?.mergedValues?.description;
   const sourceUrl = data?.mergedValues?.source_code_url;
 
-  const handleNameChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const title = e.currentTarget.value;
+  const handleTitleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const t = e.currentTarget.value;
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
 
-    setName(title);
-    updateStepField(source, sourceId, stepIndex, 'title', title);
+    setTitle(t);
+    updateStepField(source, sourceId, stepIndex, 'title', t, data?.defaultValues?.title);
   };
 
   return (
@@ -111,10 +111,10 @@ const PropertiesTab = () => {
       )}
       <Input
         type="text"
-        label="Name"
-        defaultValue={name}
-        placeholder="Step name"
-        onChange={handleNameChange}
+        label="Title"
+        defaultValue={title}
+        placeholder="Step title"
+        onChange={handleTitleChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
       />
       <Divider />
@@ -134,7 +134,7 @@ const PropertiesTab = () => {
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+            {}
             <Link
               as="button"
               colorScheme="purple"

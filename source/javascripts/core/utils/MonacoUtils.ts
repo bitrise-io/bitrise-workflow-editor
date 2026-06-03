@@ -1,6 +1,7 @@
+import { configureBitriseYaml } from '@bitrise/languageserver/monaco';
 import { type EditorProps, loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
-import monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { configureMonacoYaml } from 'monaco-yaml';
 
 import AlgoliaApi from '../api/AlgoliaApi';
@@ -23,15 +24,18 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
     return;
   }
 
-  configureMonacoYaml(monacoInstance, {
-    hover: true,
-    format: true,
-    validate: true,
-    completion: true,
-    yamlVersion: '1.1',
-    enableSchemaRequest: true,
-    schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
-  });
+  // TODO: Skip YAML worker configuration in dev WEBSITE mode due to cross-origin restrictions
+  if (!(window.env?.MODE === 'WEBSITE' && window.env?.NODE_ENV !== 'production')) {
+    configureMonacoYaml(monacoInstance, {
+      hover: true,
+      format: true,
+      validate: true,
+      completion: true,
+      yamlVersion: '1.1',
+      enableSchemaRequest: true,
+      schemas: [{ fileMatch: ['*'], uri: `https://json.schemastore.org/bitrise.json?t=${Date.now()}` }],
+    });
+  }
 
   isConfiguredForYaml = true;
 };
@@ -69,7 +73,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
 
       // Load project level env vars
       const projectLevelEnvVars = yml?.app?.envs || [];
-      const suggestions: languages.CompletionItem[] = projectLevelEnvVars.map(({ opts, ...env }) => {
+      const suggestions: languages.CompletionItem[] = projectLevelEnvVars.map(({ opts: _, ...env }) => {
         const key = Object.keys(env)[0];
 
         return {
@@ -85,7 +89,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
       // Load workflow level env vars
       Object.entries(yml.workflows ?? {}).forEach(([workflowName, workflow]) => {
         const workflowEnvVars = workflow?.envs || [];
-        workflowEnvVars.forEach(({ opts, ...env }) => {
+        workflowEnvVars.forEach(({ opts: _, ...env }) => {
           const key = Object.keys(env)[0];
 
           if (suggestions.some((s) => s.label === key)) {
@@ -105,8 +109,12 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
 
       token.onCancellationRequested(() => abortController.abort('Completion request cancelled by Monaco editor'));
 
-      async function loadEnvVars() {
-        const envVars = await EnvVarsApi.getEnvVars({ appSlug, projectType, signal: abortController.signal });
+      async function loadEnvVarsAndSecrets() {
+        const [envVars, projectLevelSecrets, codeSigningSecrets] = await Promise.all([
+          EnvVarsApi.getEnvVars({ appSlug, projectType, signal: abortController.signal }),
+          SecretApi.getSecrets({ appSlug, signal: abortController.signal }),
+          SecretApi.getCodeSigningSecrets({ appSlug, projectType, signal: abortController.signal }),
+        ]);
 
         envVars.forEach(({ key, source }) => {
           if (suggestions.some((s) => s.label === key)) {
@@ -122,18 +130,33 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
             kind: monacoInstance.languages.CompletionItemKind.Variable,
           } satisfies languages.CompletionItem);
         });
-      }
-
-      async function loadSecrets() {
-        const projectLevelSecrets = await SecretApi.getSecrets({ appSlug, signal: abortController.signal });
 
         projectLevelSecrets.forEach(({ key }) => {
+          if (suggestions.some((s) => s.label === key)) {
+            return;
+          }
+
           suggestions.push({
             range,
             label: `${key}`,
             insertText: key,
             sortText: `${key}`,
             detail: 'from project level secrets',
+            kind: monacoInstance.languages.CompletionItemKind.Variable,
+          } satisfies languages.CompletionItem);
+        });
+
+        codeSigningSecrets.forEach(({ key, source }) => {
+          if (suggestions.some((s) => s.label === key)) {
+            return;
+          }
+
+          suggestions.push({
+            range,
+            label: `${key}`,
+            insertText: key,
+            sortText: `${key}`,
+            detail: `from ${source}`,
             kind: monacoInstance.languages.CompletionItemKind.Variable,
           } satisfies languages.CompletionItem);
         });
@@ -162,7 +185,7 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
         const steps = await AlgoliaApi.getStepsByMultipleCvs(resolvedCvs, ['id', 'step.outputs']);
 
         steps.forEach(({ id, step }) => {
-          (step?.outputs ?? []).forEach(({ opts, ...env }) => {
+          (step?.outputs ?? []).forEach(({ opts: _, ...env }) => {
             const key = Object.keys(env)[0];
 
             if (suggestions.some((s) => s.label === key)) {
@@ -182,9 +205,9 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
       }
 
       try {
-        await Promise.all([loadEnvVars(), loadSecrets(), loadStepOutputs()]);
+        await Promise.all([loadEnvVarsAndSecrets(), loadStepOutputs()]);
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (abortController.signal.aborted) {
           return { suggestions: [] };
         }
         throw error;
@@ -197,7 +220,64 @@ const configureEnvVarsCompletionProvider: BeforeMountHandler = (monacoInstance) 
   isConfiguredForEnvVarsCompletionProvider = true;
 };
 
+let isConfiguredForBitriseLanguageServer = false;
+const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
+  if (isConfiguredForBitriseLanguageServer) {
+    return;
+  }
+
+  configureBitriseYaml(monacoInstance);
+
+  isConfiguredForBitriseLanguageServer = true;
+};
+
+export type ValidationStatus = 'valid' | 'invalid' | 'warnings';
+
+/**
+ * Subscribes to marker changes on a Monaco model and calls the callback
+ * with the derived validation status whenever markers change.
+ *
+ * Returns an IDisposable to unsubscribe.
+ */
+function onModelMarkerStatusChange(
+  model: monaco.editor.ITextModel,
+  callback: (status: ValidationStatus) => void,
+): monaco.IDisposable {
+  const updateStatus = () => {
+    const markers = monaco.editor.getModelMarkers({ resource: model.uri });
+    let hasError = false;
+    let hasWarning = false;
+
+    for (const marker of markers) {
+      if (marker.severity === monaco.MarkerSeverity.Error) {
+        hasError = true;
+      } else if (marker.severity === monaco.MarkerSeverity.Warning) {
+        hasWarning = true;
+      }
+    }
+
+    if (hasError) callback('invalid');
+    else if (hasWarning) callback('warnings');
+    else callback('valid');
+  };
+
+  // Check existing markers immediately
+  updateStatus();
+
+  // Subscribe to future marker changes
+  return monaco.editor.onDidChangeMarkers((changedUris) => {
+    const modelUri = model.uri.toString();
+    if (!changedUris.some((uri) => uri.toString() === modelUri)) {
+      return;
+    }
+
+    updateStatus();
+  });
+}
+
 export default {
   configureForYaml,
+  configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
+  onModelMarkerStatusChange,
 };

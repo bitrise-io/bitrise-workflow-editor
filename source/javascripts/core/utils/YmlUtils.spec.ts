@@ -424,6 +424,35 @@ describe('YmlUtils', () => {
     });
   });
 
+  describe('getMatchingPaths', () => {
+    it('should find all matching paths in a YAML document', () => {
+      const root = YmlUtils.toDoc(`
+        containers:
+          node:
+            type: execution
+            image: node:24
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  execution_container: node
+              - script: {}
+              - script: {}
+          wf2:
+            steps:
+              - deploy:
+                  execution_container: node
+      `);
+
+      const paths = YmlUtils.getMatchingPaths(root, ['workflows', '*', 'steps', '*', '*', 'execution_container']);
+
+      expect(paths).toEqual([
+        [['workflows', 'wf2', 'steps', 0, 'deploy', 'execution_container'], []],
+        [['workflows', 'wf1', 'steps', 0, 'script', 'execution_container'], []],
+      ]);
+    });
+  });
+
   describe('collectPaths', () => {
     it('should collect paths from a YAML document', () => {
       const root = YmlUtils.toDoc(`
