@@ -73,7 +73,7 @@ const ConfigSettingsBar = () => {
       display="flex"
       alignItems="center"
       justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
-      gap={isYmlPage ? '8' : rem(14)}
+      gap={isYmlPage ? rem(14) : '8'}
     >
       <Box minWidth={0}>
         <BitkitList variant="inline" textColor="body" size="md">
