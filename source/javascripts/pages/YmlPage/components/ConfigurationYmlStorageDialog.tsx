@@ -98,7 +98,7 @@ const GitYmlRootPathSection = ({ defaultValue, isDisabled, onChange, value }: Gi
             alignItems="center"
             background="background/secondary"
             paddingInline="12"
-            maxWidth="32"
+            maxWidth="128"
             flexShrink="0"
             title={gitRepoSlug}
           >
@@ -213,8 +213,8 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             <Text textStyle="body/md/regular" color="text/secondary">
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
-                target="_blank"
                 colorScheme="purple"
+                isExternal
               >
                 Follow this guide
               </BitkitLink>{' '}
