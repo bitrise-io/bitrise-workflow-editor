@@ -84,7 +84,9 @@ const ConfigSettingsBar = () => {
           <Box display="flex" alignItems="center" gap="4" marginTop="4">
             <IconBranch size="16" color="icon/tertiary" flexShrink="0" />
             <BitkitOverflowTooltip text={branchLabel}>
-              <Text textStyle="body/sm/regular" color="text/secondary" truncate flex={1} minWidth={0}></Text>
+              <Text textStyle="body/sm/regular" color="text/secondary" truncate flex={1} minWidth={0}>
+                {branchLabel}
+              </Text>
             </BitkitOverflowTooltip>
           </Box>
         )}
